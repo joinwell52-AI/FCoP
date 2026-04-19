@@ -16,6 +16,18 @@
   <a href="spec/fcop-spec.md">规范入口</a>
 </p>
 
+<p align="center">
+  <a href="https://dev.to/joinwell52/we-replaced-our-multi-agent-middleware-with-a-folder-48-hours-later-the-ai-invented-6-42a9">
+    <img src="https://img.shields.io/badge/DEV-%E9%95%BF%E6%96%87%E5%AE%A2%E6%A0%88-black?style=flat-square&logo=dev.to&logoColor=white" alt="DEV Community 长文" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
+  </a>
+  <a href="spec/fcop-spec.md">
+    <img src="https://img.shields.io/badge/spec-v1.0.3-green?style=flat-square" alt="规范 v1.0.3" />
+  </a>
+</p>
+
 ---
 
 ## 一句话说清楚

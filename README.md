@@ -16,6 +16,18 @@
   <a href="spec/codeflow-core.mdc">Spec (<code>.mdc</code>)</a>
 </p>
 
+<p align="center">
+  <a href="https://dev.to/joinwell52/we-replaced-our-multi-agent-middleware-with-a-folder-48-hours-later-the-ai-invented-6-42a9">
+    <img src="https://img.shields.io/badge/DEV-Featured%20Essay-black?style=flat-square&logo=dev.to&logoColor=white" alt="DEV Community essay" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
+  </a>
+  <a href="spec/fcop-spec.md">
+    <img src="https://img.shields.io/badge/spec-v1.0.3-green?style=flat-square" alt="Spec v1.0.3" />
+  </a>
+</p>
+
 ---
 
 ## The one-paragraph pitch
