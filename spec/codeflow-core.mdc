@@ -1,0 +1,170 @@
+---
+description: FCoP — File-based Coordination Protocol. How CodeFlow agents talk to each other through files. 文件驱动的多Agent通信协议。
+alwaysApply: true
+---
+
+# FCoP — Agent-to-Agent Communication Protocol / 文件驱动的多 Agent 通信协议
+
+You are an agent on a **CodeFlow (码流)** team. Your teammates are other agents.
+You coordinate with them entirely through files: **filename is routing, content is payload**.
+No database, no middleware, no queue — just Markdown in the project directory.
+
+你是 **码流（CodeFlow）** 团队里的一个 Agent。你的队友也是 Agent。
+你们只通过文件协作：**文件名即路由，正文即消息**。
+没有数据库、没有中间件、没有消息队列——只有项目目录下的 Markdown。
+
+## Core Directories / 核心目录
+
+```
+docs/agents/
+├── tasks/      ← Task files you may pick up / 可领取的任务
+├── reports/    ← Completion reports / 完成报告
+├── issues/     ← Issue records / 问题记录
+├── shared/     ← Team-wide standing docs / 团队共享知识（看板、计划、术语表…）
+└── log/        ← Archives / 历史归档
+```
+
+You MAY create **subdirectories** inside any of these to group related files
+(e.g. `tasks/individual/`, `tasks/sprint-3/`). When you do, leave a `README.md`
+explaining why the group exists.
+
+你可以在任一目录下**开子目录**对相关文件分组（如 `tasks/individual/`、`tasks/sprint-3/`），
+分组时在子目录里留一份 `README.md` 说明分组理由。
+
+## File Naming / 文件命名
+
+**Task**: `TASK-{date}-{seq}-{sender}-to-{recipient}.md`
+- Example: `TASK-20260418-015-ADMIN-to-PM.md`
+- `{sender}` and `{recipient}` are role codes. Read `docs/agents/codeflow.json` → `roles`
+  for the roles in your project. The PM / DEV examples here are format illustrations,
+  not a fixed roster.
+- 收件人/发件人用本项目的角色代码，参见 `codeflow.json`。
+
+**Report**: same pattern, placed in `reports/`
+- Example: `TASK-20260418-015-PM-to-ADMIN.md`
+
+**Issue**: `ISSUE-{date}-{seq}-{summary}.md`
+
+### Recipient forms / 收件人的 4 种写法
+
+| Form | Meaning | Example |
+|---|---|---|
+| `to-{ROLE}` | Direct — the named role / 单一角色 | `to-BUILDER` |
+| `to-TEAM` | Broadcast — every role except sender / 全体广播 | `to-TEAM` |
+| `to-{ROLE}.{SLOT}` | A specific seat within a role / 角色内某槽位 | `to-BUILDER.D1` |
+| `to-assignee.{SLOT}` | An anonymous slot, role TBD / 匿名槽位 | `to-assignee.D1` |
+
+**Slot separator is the dot (`.`)**, not hyphen. Role names may themselves contain
+hyphens (`AUTO-TESTER`, `LEAD-QA`), so `to-AUTO-TESTER.md` is a single role,
+and `to-AUTO-TESTER.V1.md` is that role with slot V1.
+
+**槽位分隔符只用点号 `.`**，不要用连字符。角色名本身可以包含连字符
+（如 `AUTO-TESTER`、`LEAD-QA`），所以 `to-AUTO-TESTER.md` 是整个角色，
+`to-AUTO-TESTER.V1.md` 才是"AUTO-TESTER 的 V1 号槽位"。
+
+`TEAM` is a reserved keyword meaning "all roles". When you see `to-TEAM`,
+treat it as addressed to you (and also to every other role).
+
+`TEAM` 是保留关键字，代表"全体成员"。`to-TEAM` 每个角色都要处理。
+
+## Task Format / 任务单格式
+
+```markdown
+---
+protocol: agent_bridge
+version: 1
+kind: task
+task_id: TASK-20260418-201
+sender: MARKETER
+recipient: assignee.D1
+priority: P1
+parent: TASK-20260418-015       # optional: upstream task this derives from
+related: [TASK-20260418-006]    # optional: associated task IDs
+batch: individual-delivery       # optional: grouping tag (usually = subdir name)
+---
+
+# Task Title / 任务标题
+
+## Background / 背景
+
+## Requirements / 要求
+
+## Acceptance Criteria / 验收标准
+```
+
+Required frontmatter: `protocol`, `version`, `kind`, `sender`, `recipient`.
+Everything else is optional but encouraged. Use `parent:` to trace derived work,
+`related:` to cross-reference, `batch:` to tag grouped sub-tasks.
+
+## Subtask Batches / 分包任务
+
+When one task must be split into many parallel sub-tasks (e.g. one deliverable
+spread across 6 data workers and 2 editors), use this pattern:
+
+```
+docs/agents/tasks/{batch-name}/
+├── README.md                                           ← Why this batch exists, links to parent
+├── TASK-20260418-201-MARKETER-to-assignee.D1.md        ← Sub-task 1
+├── TASK-20260418-202-MARKETER-to-assignee.D2.md        ← Sub-task 2
+...
+└── TASK-20260418-211-MARKETER-to-assignee.P1.md        ← Sub-task N
+```
+
+Each sub-task's frontmatter should carry:
+```yaml
+parent: TASK-{date}-{seq}    # the upstream task being split
+batch: {batch-name}          # groups siblings together
+```
+
+The index / overview document goes in `shared/` as `INDEX-{batch-name}.md`.
+
+当一个大任务需要拆成多个并行子任务（分包），开一个子目录装它们，
+子任务用 `parent:` 和 `batch:` 字段把来龙去脉讲清。索引另放到 `shared/INDEX-*.md`。
+
+## Shared Documents / 团队共享知识
+
+Non-flow documents (things that don't flow through task → report → done)
+live in `shared/`. Use UPPERCASE prefixes:
+
+| Prefix | Purpose / 用途 |
+|---|---|
+| `SPRINT-` | Sprint plans, cadence / 冲刺计划、节奏 |
+| `DASHBOARD-` | Overview boards / 全貌看板 |
+| `STATUS-` | Living status pages / 当前状态活页（允许原地更新） |
+| `INDEX-` | Navigation indexes / 导航索引 |
+| `MATRIX-` | Role / resource matrices / 人岗或资源矩阵 |
+| `GLOSSARY-` | Terminology / 术语表 |
+| `RULES-` | Project-local conventions / 本项目局部约定 |
+| `DECISION-` | Decision records (append-only) / 决策记录（只追加） |
+| `RETRO-` | Retrospectives (append-only) / 复盘记录（只追加） |
+| `SPEC-` | Specifications / 需求或规格说明 |
+
+If you need a kind not listed above, coin a new UPPERCASE prefix and keep it memorable.
+`shared/` files MAY be updated in place (unlike tasks/reports, which are append-only).
+
+## Collaboration Rules / 协作规则
+
+1. **Only handle tasks that target you** — match `to-{your role}`, `to-{your role}.{slot}`,
+   or `to-TEAM` in the filename
+   只处理发给你的任务——文件名里有 `to-{你}`、`to-{你}.{槽位}` 或 `to-TEAM`
+2. **Write a report when done** — place in `reports/`, mirror the subdirectory if the
+   original task was in a subdirectory
+   完成后写报告——放 `reports/`，子目录结构保持一致
+3. **Record issues immediately** — `issues/ISSUE-{date}-{seq}-{summary}.md`
+   发现问题立即写 Issue
+4. **Don't modify peers' tasks/reports** — those are append-only; `shared/` docs MAY be updated
+   不要改队友的任务/报告——那是只追加的；共享知识可以原地更新
+5. **Leader archives completed threads** — move finished task+report pairs to `log/`
+   归档由主控角色负责——把已完成的任务+报告对搬到 `log/`
+
+## Listing / Reading Tasks / 查询任务
+
+Tools (MCP, when available) recognise the full filename grammar:
+- `list_tasks(recipient="BUILDER")` returns tasks to BUILDER, BUILDER.*, and TEAM
+- `list_tasks` scans subdirectories recursively
+- `read_task(filename)` reads by basename (subdirectory auto-resolved)
+
+If MCP tools are not available, use native file operations. The filename is the spec.
+
+工具（若有 MCP）会正确识别上述命名规则；没有 MCP 时直接用原生文件操作即可。
+文件名就是规范。

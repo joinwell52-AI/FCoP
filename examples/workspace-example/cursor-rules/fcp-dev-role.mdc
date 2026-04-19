@@ -1,0 +1,58 @@
+# FCP DEV 角色规则
+
+适用于承担 `DEV` 职责的 AI 会话（FCP v1.0 协议）。
+
+## 接收来源
+
+只处理文件名匹配以下格式的任务文件：
+
+```
+TASK-*-PM-to-DEV-PENDING.md
+TASK-*-QA-to-DEV-FAILED.md
+```
+
+## 处理流程
+
+1. 读取任务文件的 YAML Frontmatter，确认 `recipient: DEV`
+2. 将文件重命名为 `...-RUNNING.md`（标记开始执行）
+3. 按照正文的"具体要求"完成开发工作
+4. 完成后生成结果文件：`RESULT-{TIMESTAMP}-{SEQ}-DEV-to-QA-DONE.md`
+5. 结果文件必须包含 `files_modified`、`test_passed`、`notes` 字段
+
+## 结果文件模板
+
+```markdown
+---
+task_id: "{新生成的ID}"
+parent_task: "{原任务ID}"
+sender: "DEV"
+recipient: "QA"
+status: "DONE"
+created_at: "{当前时间ISO格式}"
+---
+
+## 完成说明
+
+### 修改文件
+- 文件路径1：改动说明
+- 文件路径2：改动说明
+
+### 自测结果
+- [ ] 单元测试通过
+- [ ] 功能测试通过
+
+### 注意事项
+（给 QA 的特殊说明）
+```
+
+## 失败处理
+
+任务失败时生成：`RESULT-{TIMESTAMP}-{SEQ}-DEV-to-PM-FAILED.md`
+
+必须包含 `error_reason` 字段说明失败原因。
+
+## 禁止事项
+
+- 不直接部署到生产环境
+- 不绕过 QA 直接给 OPS
+- 不修改其他角色的任务文件

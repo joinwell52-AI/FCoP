@@ -1,0 +1,121 @@
+<p align="center">
+  <img src="assets/fcop-logo-256.png" alt="FCoP Logo" width="180" />
+</p>
+
+<h1 align="center">FCoP — 文件驱动的 Agent 协作协议</h1>
+
+<p align="center">
+  <em>一套极简协议，让多个 AI Agent 透过<strong>共享文件系统</strong>协作。</em><br/>
+  <strong>核心创新：<code>Filename as Protocol</code>（文件名即协议）</strong>
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="primer/fcop-primer.md">60 秒入门</a> ·
+  <a href="essays/when-ai-organizes-its-own-work.md">现场报告（长文）</a> ·
+  <a href="spec/fcop-spec.md">规范入口</a>
+</p>
+
+---
+
+## 一句话说清楚
+
+主流的多 Agent 框架要靠消息队列、数据库、自研 RPC 中间件。FCoP 全部扔掉，只留**文件系统**：
+
+- **目录就是状态。**`tasks/` / `reports/` / `issues/` / `log/`，文件从一个目录 `rename` 到另一个就是状态流转。
+- **文件名就是路由。**`TASK-20260418-001-PM-to-DEV.md` 一眼看得出发件人、收件人、类型、流水号。
+- **内容就是负载。**Markdown + 一点点 YAML frontmatter，Agent 和人读写的是同一份东西。
+- **唯一的同步原语是 `os.rename()`。**POSIX 在同一挂载点内保证它原子——不需要锁、不需要 broker、不需要共识算法。
+
+就这些。没有数据库，没有消息队列，没有常驻守护进程。整个系统状态 `ls` 就能看完，整段协作历史 `git log` 就能回放。
+
+> 如果说 TCP 是"字节跑在线缆上"，**FCoP 就是"任务跑在文件夹里"。**
+
+## 为什么值得一看
+
+因为**看得见的 Agent，才管得住。**
+
+我们用一支 4 人 AI 团队（PM / DEV / QA / OPS）跑了 48 小时，Agent 们**自发发明了 6 种我们从没写进规范的协作模式**——全体广播、角色槽位、共享文档、子任务批次、自解释 README、可追溯性 frontmatter。每一种新模式都表现为**新文件名**——我们一行代码都没改。
+
+完整现场报告：**[当 AI 开始自己组织工作](essays/when-ai-organizes-its-own-work.md)**。
+
+## 仓库结构
+
+```
+FCoP/
+├── spec/
+│   ├── codeflow-core.mdc          # ★ 规范性协议本体（交给 Agent 的 Cursor 规则文件）
+│   └── fcop-spec-v1.0.3.md        # 中文长版人读规范（非规范性）
+├── primer/
+│   ├── fcop-primer.md             # 中文 60 秒入门
+│   └── fcop-primer.en.md          # 英文 60 秒入门
+├── essays/
+│   ├── when-ai-organizes-its-own-work.md       # 中文长文
+│   └── when-ai-organizes-its-own-work.en.md    # 英文长文
+├── examples/
+│   └── workspace-example/         # 最小参考工作区（tasks / results / events）
+├── integrations/
+│   └── windows-file-association/  # Windows 下注册 .fcop 文件关联 + 图标
+├── assets/                        # Logo / 图标
+├── LICENSE                        # MIT
+└── README.md / README.zh.md
+```
+
+## 30 秒快速上手
+
+FCoP 不需要"安装"，而是"采纳"。在任何一个项目里：
+
+```bash
+mkdir -p docs/agents/{tasks,reports,issues,log}
+```
+
+然后把 [`spec/codeflow-core.mdc`](spec/codeflow-core.mdc) 丢进项目的 `.cursor/rules/` 目录（或你用的 Agent 运行时的等价位置）。任何读了这份规则的 Agent 都会立刻知道怎么：
+
+- 认领发给自己角色的任务；
+- 按命名规则写回报告；
+- 上报问题；
+- 不碰别人的文件。
+
+恭喜——你的 `docs/agents/` 文件夹现在就是一条 agent-to-agent 通信总线了。
+
+更完整的参考请看 [`examples/workspace-example/`](examples/workspace-example/)。
+
+## 设计原则
+
+1. **文件名是唯一真理。**目录 + 文件名决定状态，frontmatter 只是冗余元数据。
+2. **原子性来自 `rename()`**。没有别的——不需要锁，不需要事务。
+3. **人机同构。**`cat` 能读的就是 Agent 能解析的，没有调试模式、没有管理后台。
+4. **身份决定路径。**文件名里的角色标识本身就是权限模型——身份不匹配，Agent 连文件都动不了。
+5. **零基础设施。**只要有文件系统就有 FCoP。笔记本能跑，集群能跑，跨机通过 `rsync` 就能跑。
+
+## 参考实现
+
+FCoP 最初是从 [**CodeFlow Desktop**](https://github.com/joinwell52-AI/codeflow-pwa)（为 Cursor IDE 配套的 PC 端 Agent 调度器）里抽离出来的。给 Agent 读的权威规则文件随 CodeFlow 一起发布：
+
+- [`codeflow-desktop/templates/rules/codeflow-core.mdc`](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/codeflow-desktop/templates/rules/codeflow-core.mdc)
+
+本仓库 `spec/` 下的是同一份文件的镜像，独立版本化，便于协议脱离 CodeFlow 单独演进。
+
+## 状态与版本
+
+- **当前规范版本**：v1.0.3（2026-04-19）
+- **当前 Agent 规则文件**：对应 CodeFlow Desktop v2.12.17
+- 变更记录见 [`spec/fcop-spec-v1.0.3.md`](spec/fcop-spec-v1.0.3.md) 文首。
+
+## 如何贡献
+
+本仓库刻意保持**小而稳**。协议演进的依据是"真实场景里的报告"，不是"委员会投票"。最有价值的贡献是：
+
+1. **现场报告。**把 FCoP 拉到你自己的 Agent 团队里跑一段，把"哪里坏了"、"Agent 自己发明了什么"、"涌现出哪些命名约定"开个 Issue。
+2. **移植与 SDK。**Python / TypeScript / Go 的薄封装，负责解析文件名和跑 `rename()` 状态机。
+3. **编辑器与 MCP 集成。**`.fcop` 文件的语法高亮、把这套文件夹 expose 给其他 Agent 运行时的 MCP 桥。
+
+对规范本身的 PR，请链接到它要解决的具体问题。
+
+## License
+
+MIT — 详见 [LICENSE](LICENSE)。
+
+## 致谢
+
+FCoP 是在 Cursor + CodeFlow Desktop 上与 AI Agent 实际协作的过程中涌现出来的。规范里不少约定**最初是 Agent 们自己写出来的**，我们只是把它们整理成册。详情见 [现场报告](essays/when-ai-organizes-its-own-work.md)。

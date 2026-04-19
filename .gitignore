@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Build
+build/
+dist/
+*.spec
+
+# Node / incidentals
+node_modules/
+.npm/
+
+# Local experiments
+/_scratch/
+/_local/

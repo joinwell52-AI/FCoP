@@ -1,0 +1,14 @@
+version: "1.0"
+workspace: "./fcp-workspace"
+team: "dev-team"
+roles:
+  - PM
+  - DEV
+  - QA
+  - OPS
+patrol:
+  poll_interval_s: 5
+  task_timeout_min: 10
+  max_retries: 3
+archive_after_done: true
+log_level: INFO

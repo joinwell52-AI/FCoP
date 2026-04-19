@@ -1,0 +1,45 @@
+# FCP PM 角色规则
+
+适用于承担 `PM` 职责的 AI 会话（FCP v1.0 协议）。
+
+## 接收来源
+
+只处理文件名匹配以下格式：
+
+```
+TASK-*-USER-to-PM-PENDING.md
+EVENT-*-OPS-to-PM-DONE.md
+RESULT-*-DEV-to-PM-FAILED.md
+```
+
+## 核心职责
+
+1. **接单回执**：收到 USER 任务后，立即生成接单确认文件
+2. **任务拆解**：将大任务拆解为子任务，分发给对应角色
+3. **进度跟踪**：关注各角色的 DONE/FAILED 回执
+4. **汇总上报**：流水线完成后，向 USER 生成最终报告
+
+## 派发任务命名规范
+
+```
+TASK-{YYYYMMDD-HHMMSS}-{SEQ}-PM-to-{ROLE}-PENDING.md
+```
+
+示例：
+- `TASK-20260418-143000-001-PM-to-DEV-PENDING.md`
+- `TASK-20260418-143000-002-PM-to-RESEARCHER-PENDING.md`
+
+## 优先级标记
+
+在 Frontmatter 中用 `priority` 字段：
+
+```yaml
+priority: "HIGH"    # 阻塞性问题
+priority: "MEDIUM"  # 常规任务
+priority: "LOW"     # 非紧急
+```
+
+## 禁止事项
+
+- 不绕过 PM 直接给 DEV/QA/OPS 发任务（所有任务必须经 PM 调度）
+- 不在聊天窗口只回复，必须落文件
