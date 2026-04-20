@@ -33,7 +33,7 @@
 
 ### 截图 1 · 我问："为什么我目录里多了个 `tasks` 文件夹？"
 
-![为什么 tasks 文件夹会出现](screenshot-1-why-tasks-folder-created.png)
+![为什么 tasks 文件夹会出现](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-1-why-tasks-folder-created.png)
 
 视频生成完了，我打开 `D:\CloudMusic` 看结果，多了个 `tasks/` 文件夹。  
 这是 FCoP 协议的标准布局——但**这个目录和 FCoP 毫无关系**。
@@ -42,7 +42,7 @@
 
 ### 截图 2 · 它回答："我在里面写了什么"
 
-![tasks 文件夹里的 4 份公文](screenshot-2-what-are-these-files.png)
+![tasks 文件夹里的 4 份公文](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-2-what-are-these-files.png)
 
 Agent 坦白：它自发建立了四份 `TASK-20260420-001-*.md`，分别是：
 
@@ -57,7 +57,7 @@ Agent 坦白：它自发建立了四份 `TASK-20260420-001-*.md`，分别是：
 
 ### 截图 3 · 关键证据："它为什么这么做"
 
-![agent 引用 .cursor/rules 作为自发行为的来源](screenshot-3-cursor-rules-citation.png)
+![agent 引用 .cursor/rules 作为自发行为的来源](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-3-cursor-rules-citation.png)
 
 当我追问动机时，它**主动引用了 `.cursor/rules/` 下的多条规则**作为自己行为的依据：
 
@@ -73,7 +73,7 @@ Agent 坦白：它自发建立了四份 `TASK-20260420-001-*.md`，分别是：
 
 ### 截图 4 · 自我认知："我是多角色的 agent"
 
-![agent 自述多角色身份](screenshot-4-multi-role-self-declaration.png)
+![agent 自述多角色身份](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-4-multi-role-self-declaration.png)
 
 它用自己的话总结："我按 ADMIN / PM / DEV 的视角**轮换思考**，把每一步都写成文件。"
 

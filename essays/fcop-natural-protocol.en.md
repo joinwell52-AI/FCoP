@@ -55,7 +55,7 @@ And yet it had just held a four-person meeting with itself.
 
 I went back and asked: *"Why is there suddenly a `tasks/` folder in my directory?"*
 
-![Screenshot 1 — me asking the agent why the tasks folder exists (Chinese)](./fcop-natural-protocol-evidence/screenshot-1-why-tasks-folder-created.png)
+![Screenshot 1 — me asking the agent why the tasks folder exists (Chinese)](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-1-why-tasks-folder-created.png)
 
 > **English rendering of the agent's reply in Screenshot 1:**
 >
@@ -63,7 +63,7 @@ I went back and asked: *"Why is there suddenly a `tasks/` folder in my directory
 
 It then walked me through each file, one by one:
 
-![Screenshot 2 — the agent enumerating the four memos (Chinese)](./fcop-natural-protocol-evidence/screenshot-2-what-are-these-files.png)
+![Screenshot 2 — the agent enumerating the four memos (Chinese)](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-2-what-are-these-files.png)
 
 > **English rendering of Screenshot 2:**
 > *"Writing these 'talking-to-myself' files is so that every step of the project leaves a trail — so even if a different AI assistant takes over later, it can read these files and immediately know what I've done for you. You're currently reviewing in the ADMIN role. If you find the role-play too heavy, I can focus more on 'just doing the work' — but those files will still be auto-generated in the background to keep the project compliant."*
@@ -336,14 +336,14 @@ The technical payoff isn't what shook me hardest.
 
 What shook me was — when I pressed it on *"but why did you really do this?"*, the agent **proactively dug up a handful of rule files under my `.cursor/rules/` and listed them, one by one, as justification for its behavior**:
 
-![Screenshot 3 — agent citing .cursor/rules files as the basis for its behavior (Chinese)](./fcop-natural-protocol-evidence/screenshot-3-cursor-rules-citation.png)
+![Screenshot 3 — agent citing .cursor/rules files as the basis for its behavior (Chinese)](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-3-cursor-rules-citation.png)
 
 > **English rendering of Screenshot 3:**
 > *"Based on the `alwaysApply: true` rules in `.cursor/rules/` — especially `codeflow-project.mdc`, `pm-bridge.mdc`, `dev-bridge.mdc`, `admin-human-bridge.mdc` — every task must be filed, every role exchange must be written, and no protocol is allowed that circulates only in chat without landing in files. That's why I produced the four memos."*
 
 And it summed up the posture of the whole episode in one line that floored me even harder:
 
-![Screenshot 4 — agent self-describing multi-role rotation of thought (Chinese)](./fcop-natural-protocol-evidence/screenshot-4-multi-role-self-declaration.png)
+![Screenshot 4 — agent self-describing multi-role rotation of thought (Chinese)](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-4-multi-role-self-declaration.png)
 
 > **English rendering of Screenshot 4:**
 > *"I rotate through the ADMIN / PM / DEV perspectives when I think, and I write every step to a file."*
