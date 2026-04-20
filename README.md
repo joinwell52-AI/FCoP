@@ -59,10 +59,10 @@ Both stories are written up as field reports in the essays index below.
 
 ## Essays · field reports from the wild
 
-| # | Title | Languages | One-liner |
+| # | Title | Versions | One-liner |
 |---|---|---|---|
-| 01 | **When AI Organizes Its Own Work** | [English](essays/when-ai-organizes-its-own-work.en.md) · [中文](essays/when-ai-organizes-its-own-work.md) | A 4-agent team (PM / DEV / QA / OPS), 48 hours, nothing but a folder — and six coordination patterns we never wrote down. |
-| 02 | **An unexplainable thing I saw: the agent didn't just comply with rules — it *endorsed* them** | [English](essays/fcop-natural-protocol.en.md) · [中文](essays/fcop-natural-protocol.md) | A single agent, on a completely unrelated task, spontaneously split into 4 FCoP roles and *sublimated* our scattered rules into one principle we had never written. Ships with a [full evidence archive](essays/fcop-natural-protocol-evidence/) (4 screenshots, 4 memos, raw JSONL transcript). |
+| 01 | **When AI Organizes Its Own Work** | [English](essays/when-ai-organizes-its-own-work.en.md) · [中文 (GitHub)](essays/when-ai-organizes-its-own-work.md) · [中文 (CSDN)](https://blog.csdn.net/m0_51507544/article/details/160344932) | A 4-agent team (PM / DEV / QA / OPS), 48 hours, nothing but a folder — and six coordination patterns we never wrote down. |
+| 02 | **An unexplainable thing I saw: the agent didn't just comply with rules — it *endorsed* them** | [English](essays/fcop-natural-protocol.en.md) · [中文 (GitHub)](essays/fcop-natural-protocol.md) · [中文 (CSDN)](https://blog.csdn.net/m0_51507544/article/details/160345043) | A single agent, on a completely unrelated task, spontaneously split into 4 FCoP roles and *sublimated* our scattered rules into one principle we had never written. Ships with a [full evidence archive](essays/fcop-natural-protocol-evidence/) (4 screenshots, 4 memos, raw JSONL transcript). |
 
 > New reports are welcome. If you tried FCoP in your own setup and something surprising happened — good or bad — open an issue or a PR against `essays/`. The protocol evolves through field notes, not committee edits.
 
