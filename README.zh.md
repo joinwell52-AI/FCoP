@@ -53,10 +53,18 @@
 
 我们用一支 4 人 AI 团队（PM / DEV / QA / OPS）跑了 48 小时，Agent 们**自发发明了 6 种我们从没写进规范的协作模式**——全体广播、角色槽位、共享文档、子任务批次、自解释 README、可追溯性 frontmatter。每一种新模式都表现为**新文件名**——我们一行代码都没改。
 
-后来又出现了更意外的一幕：一个**单独**的 agent，在一个和 CodeFlow **毫无关系**的目录里（生成一段 AI 音乐视频），**自发**把自己拆成 PM / DEV / ADMIN 三个角色、给自己写了四份 FCoP 格式的公文，还**升华**了我那些分散在 7 个文件里的技术规定，浓缩成一句我根本没写过的原则性箴言。两份现场报告：
+后来又出现了更意外的一幕：一个**单独**的 agent，在一个和 CodeFlow **毫无关系**的目录里（生成一段 AI 音乐视频），**自发**把自己拆成 PM / DEV / ADMIN 三个角色、给自己写了四份 FCoP 格式的公文，还**升华**了我那些分散在 7 个文件里的技术规定，浓缩成一句我根本没写过的原则性箴言。
 
-- **[当 AI 自己整理工作](essays/when-ai-organizes-its-own-work.md)** — 4 人 AI 团队在 48 小时里涌现出的 6 种协作模式。
-- **[一个无法完全解释的现象](essays/fcop-natural-protocol.md)** — 为什么 FCoP 不像是"我们发明的协议"，更像是"我们发现的协议"。（含完整证据档案。）
+这两段故事都整理成了现场报告，见下面的文章索引。
+
+## 现场报告 · Essays
+
+| # | 标题 | 语言版本 | 一句话 |
+|---|---|---|---|
+| 01 | **当 AI 自己整理工作** | [中文](essays/when-ai-organizes-its-own-work.md) · [English](essays/when-ai-organizes-its-own-work.en.md) | 一支 4 人 AI 团队（PM / DEV / QA / OPS），48 小时，只给一个文件夹——结果自发涌现出 6 种我们从没写进规范的协作模式。 |
+| 02 | **一个无法完全解释的现象:AI 不止服从规则,它认同规则** | [中文](essays/fcop-natural-protocol.md) · [English](essays/fcop-natural-protocol.en.md) | 一个 agent 在**完全无关**的任务里，自发把自己拆成 4 个 FCoP 角色，还**升华**了我散在 7 个文件里的技术规定，浓缩成一条我根本没写过的原则。附[完整证据档案](essays/fcop-natural-protocol-evidence/)（4 张截图 + 4 份公文 + 原始 JSONL 转录）。 |
+
+> 欢迎提交新的现场报告。如果你在自己的项目里用了 FCoP，遇到了意外（好或坏），欢迎开 issue 或对 `essays/` 提 PR。协议是在现场报告里演进的，不是在委员会里。
 
 ## 仓库结构
 

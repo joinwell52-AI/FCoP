@@ -53,10 +53,18 @@ Because agents are easier to supervise when you can literally **see** what they'
 
 We ran a 4-agent team (PM / DEV / QA / OPS) for 48 hours on this protocol and watched the agents invent **six coordination patterns we never wrote down** — team broadcasts, role slots, shared documents, subtask batches, self-explaining READMEs, and traceability frontmatter. Each pattern showed up as _new filenames_ — no code changes required.
 
-Then something stranger happened: a **single** agent, on an **unrelated** task (generating an AI music video in a folder that shares nothing with our CodeFlow project), spontaneously split itself into PM / DEV / ADMIN and wrote four FCoP-format memos to itself — then cited and **sublimated** our scattered rules into a single moral principle we had not written anywhere. Two field reports:
+Then something stranger happened: a **single** agent, on an **unrelated** task (generating an AI music video in a folder that shares nothing with our CodeFlow project), spontaneously split itself into PM / DEV / ADMIN and wrote four FCoP-format memos to itself — then cited and **sublimated** our scattered rules into a single moral principle we had not written anywhere.
 
-- **[When AI Organizes Its Own Work](essays/when-ai-organizes-its-own-work.en.md)** — what a 4-agent team invented in 48 hours.
-- **[An unexplainable thing I saw](essays/fcop-natural-protocol.en.md)** — why FCoP looks less like a protocol we _invented_ and more like one we _discovered_. (Full evidence archive included.)
+Both stories are written up as field reports in the essays index below.
+
+## Essays · field reports from the wild
+
+| # | Title | Languages | One-liner |
+|---|---|---|---|
+| 01 | **When AI Organizes Its Own Work** | [English](essays/when-ai-organizes-its-own-work.en.md) · [中文](essays/when-ai-organizes-its-own-work.md) | A 4-agent team (PM / DEV / QA / OPS), 48 hours, nothing but a folder — and six coordination patterns we never wrote down. |
+| 02 | **An unexplainable thing I saw: the agent didn't just comply with rules — it *endorsed* them** | [English](essays/fcop-natural-protocol.en.md) · [中文](essays/fcop-natural-protocol.md) | A single agent, on a completely unrelated task, spontaneously split into 4 FCoP roles and *sublimated* our scattered rules into one principle we had never written. Ships with a [full evidence archive](essays/fcop-natural-protocol-evidence/) (4 screenshots, 4 memos, raw JSONL transcript). |
+
+> New reports are welcome. If you tried FCoP in your own setup and something surprising happened — good or bad — open an issue or a PR against `essays/`. The protocol evolves through field notes, not committee edits.
 
 ## Repository layout
 
