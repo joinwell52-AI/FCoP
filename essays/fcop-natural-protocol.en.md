@@ -2,9 +2,7 @@
 
 ### I asked an agent to generate a video. It wrote itself four internal memos instead.
 
-> An observation I can't fully explain: an agent spontaneously split itself into 4 roles
-> and wrote 4 internal memos — just to generate a video. It didn't comply with a protocol.
-> It **endorsed** one. And this only became visible because we had the protocol in place.
+> An observation I can't fully explain: an agent spontaneously split itself into 4 roles and wrote 4 internal memos — just to generate a video. It didn't comply with a protocol. It **endorsed** one. And this only became visible because we had the protocol in place.
 
 **Author**: The CodeFlow Team · 2026-04-20
 **Keywords**: FCoP, LLM-native protocol, Value alignment, Protocol-as-stage, Solo mode, Universal professional values
@@ -105,8 +103,7 @@ Notice the very first sentence:
 
 > **"Because the rules state: AI roles must not talk only in their heads — every exchange must be written to a file."**
 
-I initially assumed it was **quoting my rules verbatim**.
-Afterwards I went into `.cursor/rules/` and searched for that sentence.
+I initially assumed it was **quoting my rules verbatim**. Afterwards I went into `.cursor/rules/` and searched for that sentence.
 
 **That sentence doesn't exist.**
 
