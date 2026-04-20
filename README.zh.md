@@ -12,7 +12,8 @@
 <p align="center">
   <a href="README.md">English</a> ·
   <a href="primer/fcop-primer.md">60 秒入门</a> ·
-  <a href="essays/when-ai-organizes-its-own-work.md">现场报告（长文）</a> ·
+  <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
+  <a href="essays/fcop-natural-protocol.md">自然协议</a> ·
   <a href="spec/fcop-spec.md">规范入口</a>
 </p>
 
@@ -52,7 +53,10 @@
 
 我们用一支 4 人 AI 团队（PM / DEV / QA / OPS）跑了 48 小时，Agent 们**自发发明了 6 种我们从没写进规范的协作模式**——全体广播、角色槽位、共享文档、子任务批次、自解释 README、可追溯性 frontmatter。每一种新模式都表现为**新文件名**——我们一行代码都没改。
 
-完整现场报告：**[当 AI 开始自己组织工作](essays/when-ai-organizes-its-own-work.md)**。
+后来又出现了更意外的一幕：一个**单独**的 agent，在一个和 CodeFlow **毫无关系**的目录里（生成一段 AI 音乐视频），**自发**把自己拆成 PM / DEV / ADMIN 三个角色、给自己写了四份 FCoP 格式的公文，还**升华**了我那些分散在 7 个文件里的技术规定，浓缩成一句我根本没写过的原则性箴言。两份现场报告：
+
+- **[当 AI 自己整理工作](essays/when-ai-organizes-its-own-work.md)** — 4 人 AI 团队在 48 小时里涌现出的 6 种协作模式。
+- **[一个无法完全解释的现象](essays/fcop-natural-protocol.md)** — 为什么 FCoP 不像是"我们发明的协议"，更像是"我们发现的协议"。（含完整证据档案。）
 
 ## 仓库结构
 
@@ -65,8 +69,11 @@ FCoP/
 │   ├── fcop-primer.md             # 中文 60 秒入门
 │   └── fcop-primer.en.md          # 英文 60 秒入门
 ├── essays/
-│   ├── when-ai-organizes-its-own-work.md       # 中文长文
-│   └── when-ai-organizes-its-own-work.en.md    # 英文长文
+│   ├── when-ai-organizes-its-own-work.md       # 中文长文（首篇）
+│   ├── when-ai-organizes-its-own-work.en.md    # 英文长文（首篇）
+│   ├── fcop-natural-protocol.md                # "自然协议"续篇（中文）
+│   ├── fcop-natural-protocol.en.md             # "自然协议"续篇（英文）
+│   └── fcop-natural-protocol-evidence/         # 完整证据档案（截图、公文、JSONL 原始转录）
 ├── examples/
 │   └── workspace-example/         # 最小参考工作区（tasks / results / events）
 ├── integrations/

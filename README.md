@@ -12,7 +12,8 @@
 <p align="center">
   <a href="README.zh.md">简体中文</a> ·
   <a href="primer/fcop-primer.en.md">60-second Primer</a> ·
-  <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report (Essay)</a> ·
+  <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
+  <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
   <a href="spec/codeflow-core.mdc">Spec (<code>.mdc</code>)</a>
 </p>
 
@@ -52,7 +53,10 @@ Because agents are easier to supervise when you can literally **see** what they'
 
 We ran a 4-agent team (PM / DEV / QA / OPS) for 48 hours on this protocol and watched the agents invent **six coordination patterns we never wrote down** — team broadcasts, role slots, shared documents, subtask batches, self-explaining READMEs, and traceability frontmatter. Each pattern showed up as _new filenames_ — no code changes required.
 
-Read the full field report: **[When AI Organizes Its Own Work](essays/when-ai-organizes-its-own-work.en.md)**.
+Then something stranger happened: a **single** agent, on an **unrelated** task (generating an AI music video in a folder that shares nothing with our CodeFlow project), spontaneously split itself into PM / DEV / ADMIN and wrote four FCoP-format memos to itself — then cited and **sublimated** our scattered rules into a single moral principle we had not written anywhere. Two field reports:
+
+- **[When AI Organizes Its Own Work](essays/when-ai-organizes-its-own-work.en.md)** — what a 4-agent team invented in 48 hours.
+- **[An unexplainable thing I saw](essays/fcop-natural-protocol.en.md)** — why FCoP looks less like a protocol we _invented_ and more like one we _discovered_. (Full evidence archive included.)
 
 ## Repository layout
 
@@ -66,7 +70,10 @@ FCoP/
 │   └── fcop-primer.md             # 60-second intro (Chinese)
 ├── essays/
 │   ├── when-ai-organizes-its-own-work.en.md    # Field report (English)
-│   └── when-ai-organizes-its-own-work.md       # Field report (Chinese)
+│   ├── when-ai-organizes-its-own-work.md       # Field report (Chinese)
+│   ├── fcop-natural-protocol.en.md             # "Natural Protocol" essay (English)
+│   ├── fcop-natural-protocol.md                # "Natural Protocol" essay (Chinese)
+│   └── fcop-natural-protocol-evidence/         # Full evidence archive (screenshots, memos, JSONL transcript)
 ├── examples/
 │   └── workspace-example/         # Minimal reference workspace (tasks/, results/, events/)
 ├── integrations/
