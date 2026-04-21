@@ -63,6 +63,7 @@ Both stories are written up as field reports in the essays index below.
 |---|---|---|---|
 | 01 | **When AI Organizes Its Own Work** | [English](essays/when-ai-organizes-its-own-work.en.md) · [中文 (GitHub)](essays/when-ai-organizes-its-own-work.md) · [中文 (CSDN)](https://blog.csdn.net/m0_51507544/article/details/160344932) | A 4-agent team (PM / DEV / QA / OPS), 48 hours, nothing but a folder — and six coordination patterns we never wrote down. |
 | 02 | **An unexplainable thing I saw: the agent didn't just comply with rules — it *endorsed* them** | [GitHub 中文](essays/fcop-natural-protocol.md) · [GitHub English](essays/fcop-natural-protocol.en.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/160345043) · [Dev.to](https://dev.to/joinwell52/an-unexplainable-thing-i-saw-the-agent-didnt-just-comply-with-rules-it-endorsed-them-5ecd) · [Cursor Forum](https://forum.cursor.com/t/i-asked-cursor-to-make-a-video-it-wrote-itself-4-protocol-memos-field-report-on-rule-internalization/158524) | A single agent, on a completely unrelated task, spontaneously split into 4 FCoP roles and *sublimated* our scattered rules into one principle we had never written. Ships with a [full evidence archive](essays/fcop-natural-protocol-evidence/) (4 screenshots, 4 memos, raw JSONL transcript). |
+| 03 | **Why the Natural Protocol Holds Up — FCoP's lineage from TMPA** | [GitHub 中文](essays/fcop-tmpa-lineage.md) · [GitHub English](essays/fcop-tmpa-lineage.en.md) | Companion to essay 02. Where that one shows *that* the principle emerged, this one explains *why it holds up*: FCoP was extracted from TMPA (a multi-AI architecture spec whose core bet is replacing distributed coordination with a plain-text temporal sequence), and the agent's sentence is the minimal-viable-form of an AI ethics mandate already written there. |
 
 > New reports are welcome. If you tried FCoP in your own setup and something surprising happened — good or bad — open an issue or a PR against `essays/`. The protocol evolves through field notes, not committee edits.
 
@@ -79,9 +80,11 @@ FCoP/
 ├── essays/
 │   ├── when-ai-organizes-its-own-work.en.md    # Field report (English)
 │   ├── when-ai-organizes-its-own-work.md       # Field report (Chinese)
-│   ├── fcop-natural-protocol.en.md             # "Natural Protocol" essay (English)
-│   ├── fcop-natural-protocol.md                # "Natural Protocol" essay (Chinese)
-│   └── fcop-natural-protocol-evidence/         # Full evidence archive (screenshots, memos, JSONL transcript)
+│   ├── fcop-natural-protocol.en.md             # "Natural Protocol" essay — phenomenon (English)
+│   ├── fcop-natural-protocol.md                # "Natural Protocol" essay — phenomenon (Chinese)
+│   ├── fcop-natural-protocol-evidence/         # Full evidence archive (screenshots, memos, JSONL transcript)
+│   ├── fcop-tmpa-lineage.en.md                 # "Why it holds up" — TMPA lineage companion (English)
+│   └── fcop-tmpa-lineage.md                    # "Why it holds up" — TMPA lineage companion (Chinese)
 ├── examples/
 │   └── workspace-example/         # Minimal reference workspace (tasks/, results/, events/)
 ├── integrations/
