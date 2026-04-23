@@ -1,0 +1,78 @@
+{
+  "protocol": "fcop",
+  "version": 1,
+  "kind": "team-index",
+  "updated_at": "2026-04-17",
+  "schema": "Each team entry lists: leader, roles, docs layout (three layers), and how lang suffix works.",
+  "layers": {
+    "entry": "README.md",
+    "layer_1_roles": "TEAM-ROLES.md",
+    "layer_2_rules": "TEAM-OPERATING-RULES.md",
+    "layer_3_roles_dir": "roles/{ROLE}.md"
+  },
+  "lang_suffix": {
+    "zh": "{name}.md",
+    "en": "{name}.en.md"
+  },
+  "teams": [
+    {
+      "id": "dev-team",
+      "name_zh": "软件开发团队",
+      "name_en": "Software Development Team",
+      "leader": "PM",
+      "roles": ["PM", "DEV", "QA", "OPS"],
+      "description_zh": "常规软件开发、功能交付、修复发布。",
+      "description_en": "Regular software development, feature delivery, fix releases.",
+      "ai_members": 4,
+      "includes_admin": true
+    },
+    {
+      "id": "media-team",
+      "name_zh": "自媒体团队",
+      "name_en": "Content Media Team",
+      "leader": "PUBLISHER",
+      "roles": ["PUBLISHER", "COLLECTOR", "WRITER", "EDITOR"],
+      "description_zh": "内容选题、素材采集、撰写、编校、发布全链路。",
+      "description_en": "Topic selection, material gathering, drafting, editing, publishing.",
+      "ai_members": 4,
+      "includes_admin": true
+    },
+    {
+      "id": "mvp-team",
+      "name_zh": "创业 MVP 团队",
+      "name_en": "Startup MVP Team",
+      "leader": "MARKETER",
+      "roles": ["MARKETER", "RESEARCHER", "DESIGNER", "BUILDER"],
+      "description_zh": "0 到 1 产品、快速验证想法、做 MVP 并测试市场。",
+      "description_en": "0-to-1 product, fast idea validation, MVP, market testing.",
+      "ai_members": 4,
+      "includes_admin": true
+    },
+    {
+      "id": "qa-team",
+      "name_zh": "专项测试团队",
+      "name_en": "Dedicated Testing Team",
+      "leader": "LEAD-QA",
+      "roles": ["LEAD-QA", "TESTER", "AUTO-TESTER", "PERF-TESTER"],
+      "description_zh": "交付前的专项测试、回归、自动化覆盖、性能验证。",
+      "description_en": "Pre-release dedicated testing, regression, automation, perf verification.",
+      "ai_members": 4,
+      "includes_admin": true
+    }
+  ],
+  "admin_policy": {
+    "note_zh": "ADMIN 是真人管理员,不进 roles/,不写入 fcop.json.roles。FCoP 在协议层已保留 ADMIN 身份。ADMIN 的说明在每个团队的 README.md 中。",
+    "note_en": "ADMIN is the human administrator. Does not belong to roles/, and is NOT written into fcop.json.roles. FCoP reserves ADMIN at the protocol level. ADMIN's description lives in each team's README.md."
+  },
+  "uri_aliases": {
+    "zh": {
+      "fcop://teams/{team}/{role}": [
+        "teams/{team}/roles/{role}.md",
+        "teams/{team}/{role}.md",
+        "teams/{team}/{role}-01.md (legacy)"
+      ],
+      "fcop://teams/{team}/TEAM-ROLES": "teams/{team}/TEAM-ROLES.md",
+      "fcop://teams/{team}/TEAM-OPERATING-RULES": "teams/{team}/TEAM-OPERATING-RULES.md"
+    }
+  }
+}

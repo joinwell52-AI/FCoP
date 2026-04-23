@@ -26,6 +26,23 @@ versioning strategy.
   FCoP file format). MCP and websocket deps moved entirely to `fcop-mcp`.
 - Single source of truth for the version string at `src/fcop/_version.py`
   (read by `pyproject.toml` via hatchling's dynamic version).
+- **Preset rosters realigned** with the authoritative `_data/teams/index.json`
+  (ported from `codeflow-plugin 0.5.x`):
+  - `mvp-team`: now `MARKETER` (leader) / `RESEARCHER` / `DESIGNER` /
+    `BUILDER`. Was `PM` / `BUILDER` / `SELLER` in a pre-0.6 snapshot of
+    `fcop.teams`.
+  - `media-team`: adds `EDITOR` as the fourth role.
+  - `dev-team` and `qa-team` unchanged.
+  `Project.init(team=...)` will generate the new rosters from 0.6.0
+  onward.
+- `fcop.rules` now returns real content (the protocol rule docs and
+  the Letter-to-ADMIN user manual). Previously raised
+  `NotImplementedError`. `get_rules_version()` parses the bundled
+  rules document's frontmatter — today `"1.4.0"`.
+- `fcop.teams.get_template()` implemented. Returns a `TeamTemplate`
+  dataclass with `readme` + `team_roles` + `operating_rules` + a
+  per-role `roles` dict, all as UTF-8 text. Previously raised
+  `NotImplementedError`.
 
 ### Added — fcop-mcp (MCP server)
 

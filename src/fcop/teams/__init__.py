@@ -2,17 +2,21 @@
 
 This module exposes read-only metadata and template content for the
 preset teams packaged with fcop (``dev-team``, ``media-team``,
-``mvp-team``, ``qa-team``). The underlying template *text* (role bios,
-operating rules) still lives in ``fcop/_data/`` and will be migrated in
-D5 per ADR-0001; at this stage we expose **metadata only** so
-:meth:`fcop.Project.init` can wire up ``fcop.json`` + the directory
-tree end-to-end. :func:`get_template` continues to raise
-:class:`NotImplementedError` until the data migration lands.
+``mvp-team``, ``qa-team``). Both metadata and template text are loaded
+from ``fcop/teams/_data/`` inside the wheel via
+:mod:`importlib.resources`, so the library works from a wheel, an
+sdist, or an editable checkout without caring about cwd.
 
 Public contract (stable within 0.6.x):
-    * :func:`get_available_teams` — list all bundled presets.
-    * :func:`get_team_info` — fetch one preset by slug.
-    * :func:`get_template` — fetch the four-layer doc bundle (D5).
+    * :func:`get_available_teams` — list every bundled preset.
+    * :func:`get_team_info` — fetch one preset's metadata by slug.
+    * :func:`get_template` — fetch the three-layer doc bundle (team
+      README + TEAM-ROLES + TEAM-OPERATING-RULES + per-role bios).
+
+Source of truth for the team list is ``_data/teams/index.json``; the
+Python representation is derived at import time. Bumping the bundled
+index is therefore a two-step change: edit the JSON, let the import
+machinery re-derive. No duplicated hard-coded role lists.
 
 See adr/ADR-0001-library-api.md ("无状态模块：`fcop.teams`") for the
 rationale behind keeping this module stateless.
@@ -20,9 +24,13 @@ rationale behind keeping this module stateless.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from functools import cache
+from importlib import resources
+from typing import Literal
 
-from fcop.errors import TeamNotFoundError
+from fcop.errors import FcopError, TeamNotFoundError
 
 __all__ = [
     "TeamInfo",
@@ -32,10 +40,33 @@ __all__ = [
     "get_template",
 ]
 
+# Language codes supported by bundled teams. Each file exists in two
+# variants: ``{name}.md`` (zh) and ``{name}.en.md`` (en). Adding a new
+# language is a data-only change — drop the translated files in next
+# to the existing ones and add the code here.
+_SUPPORTED_LANGS: frozenset[str] = frozenset({"zh", "en"})
+
+# Files that make up one team's template bundle. Order matters only
+# for deterministic TeamTemplate iteration; on disk they live flat
+# under teams/<slug>/.
+_TEAM_FILES: tuple[str, ...] = (
+    "README",
+    "TEAM-ROLES",
+    "TEAM-OPERATING-RULES",
+)
+
+
+# ── Public types ─────────────────────────────────────────────────────
+
 
 @dataclass(frozen=True, slots=True)
 class TeamInfo:
-    """Metadata for one bundled team."""
+    """Metadata for one bundled team.
+
+    Derived from ``index.json`` at import time; stable within 0.6.x
+    per the semver promise. ``roles`` is a tuple so it can be used as
+    a dict key / set member without copying.
+    """
 
     name: str
     display_name: str
@@ -47,7 +78,16 @@ class TeamInfo:
 
 @dataclass(frozen=True, slots=True)
 class TeamTemplate:
-    """The four-layer documentation bundle for one team, one language."""
+    """The three-layer documentation bundle for one team, one language.
+
+    Layer 1: team introduction (``readme``).
+    Layer 2: roster + operating rules (``team_roles`` /
+             ``operating_rules``).
+    Layer 3: per-role bios, keyed by role code (``roles``).
+
+    All fields hold plain strings — ready to write to disk or feed
+    into an LLM context without any framework glue.
+    """
 
     name: str
     lang: str
@@ -57,65 +97,7 @@ class TeamTemplate:
     roles: dict[str, str]
 
 
-# ── Bundled presets ───────────────────────────────────────────────────
-#
-# These definitions are the canonical source-of-truth for what "preset
-# team X" means. The role lists and leader assignments are stable
-# across minor releases — adding or removing roles is a semver-minor
-# at minimum since it changes what init(team=X) produces.
-#
-# The role codes and leaders mirror the 0.5.x TEAM_TEMPLATES dict in
-# codeflow-plugin's server.py so projects migrating from 0.5.x keep
-# working without surprise. Translations are included verbatim from
-# the same source.
-
-_BUNDLED_TEAMS: dict[str, TeamInfo] = {
-    "dev-team": TeamInfo(
-        name="dev-team",
-        display_name="软件开发团队",
-        leader="PM",
-        roles=("PM", "DEV", "QA", "OPS"),
-        description_zh="四人软件开发小组：项目经理、开发、测试、运维。",
-        description_en=(
-            "Four-role software development squad: "
-            "PM, Developer, QA, Operations."
-        ),
-    ),
-    "media-team": TeamInfo(
-        name="media-team",
-        display_name="自媒体团队",
-        leader="PUBLISHER",
-        roles=("PUBLISHER", "COLLECTOR", "WRITER"),
-        description_zh="自媒体三人组：审核发行、素材采集、拟题提纲。",
-        description_en=(
-            "Three-role content media team: "
-            "Publisher, Content Collector, Content Writer."
-        ),
-    ),
-    "mvp-team": TeamInfo(
-        name="mvp-team",
-        display_name="MVP 验证团队",
-        leader="PM",
-        roles=("PM", "BUILDER", "SELLER"),
-        description_zh="MVP 验证三人组：项目经理、实现者、销售验证。",
-        description_en=(
-            "Three-role MVP validation team: "
-            "Project Manager, Builder, Seller."
-        ),
-    ),
-    "qa-team": TeamInfo(
-        name="qa-team",
-        display_name="质量保证团队",
-        leader="LEAD-QA",
-        roles=("LEAD-QA", "TESTER", "AUTO-TESTER", "PERF-TESTER"),
-        description_zh="四人 QA 团队：测试负责人、功能、自动化、性能。",
-        description_en=(
-            "Four-role QA team: "
-            "QA Lead, Functional Tester, Automation Tester, "
-            "Performance Tester."
-        ),
-    ),
-}
+# ── Public API ───────────────────────────────────────────────────────
 
 
 def get_available_teams() -> list[TeamInfo]:
@@ -124,7 +106,8 @@ def get_available_teams() -> list[TeamInfo]:
     Order is deterministic: sorted by team slug so UIs that render
     these as a picker get a stable presentation.
     """
-    return [_BUNDLED_TEAMS[name] for name in sorted(_BUNDLED_TEAMS)]
+    bundled = _load_bundled_teams()
+    return [bundled[name] for name in sorted(bundled)]
 
 
 def get_team_info(team: str) -> TeamInfo:
@@ -135,24 +118,178 @@ def get_team_info(team: str) -> TeamInfo:
             ``.team`` attribute carries the requested slug so callers
             can echo it back without reparsing.
     """
+    bundled = _load_bundled_teams()
     try:
-        return _BUNDLED_TEAMS[team]
+        return bundled[team]
     except KeyError as exc:
-        available = ", ".join(sorted(_BUNDLED_TEAMS))
+        available = ", ".join(sorted(bundled))
         raise TeamNotFoundError(
             f"team {team!r} is not bundled; available: {available}",
             team=team,
         ) from exc
 
 
-def get_template(team: str, lang: str = "zh") -> TeamTemplate:  # noqa: ARG001
-    """Fetch the full four-layer documentation for a bundled team.
+def get_template(
+    team: str, lang: Literal["zh", "en"] = "zh"
+) -> TeamTemplate:
+    """Fetch the three-layer documentation bundle for a preset team.
+
+    Args:
+        team: Team slug (e.g. ``"dev-team"``). Must be one of the
+            presets listed by :func:`get_available_teams`.
+        lang: Language of the returned templates. Only ``"zh"`` and
+            ``"en"`` are bundled; more can be added by dropping
+            translated files next to the existing ones.
+
+    Returns:
+        A :class:`TeamTemplate` with every file loaded into memory.
+        Each bundled team carries at most a few dozen KB of text, so
+        eager loading keeps the API simple without noticeable cost.
 
     Raises:
-        NotImplementedError: template text migration is scheduled for
-            D5 (see ADR-0001). :func:`get_team_info` is available in
-            the meantime for metadata-only consumers.
+        TeamNotFoundError: ``team`` is not bundled.
+        ValueError: ``lang`` is not supported.
     """
-    raise NotImplementedError(
-        "team template text is not yet migrated; see ADR-0001 D5 timeline."
+    if lang not in _SUPPORTED_LANGS:
+        raise ValueError(
+            f"unsupported lang {lang!r}; "
+            f"expected one of {sorted(_SUPPORTED_LANGS)}"
+        )
+
+    info = get_team_info(team)
+    team_dir = _data_dir().joinpath(team)
+
+    readme = _read_lang_file(team_dir, "README", lang)
+    team_roles = _read_lang_file(team_dir, "TEAM-ROLES", lang)
+    operating_rules = _read_lang_file(
+        team_dir, "TEAM-OPERATING-RULES", lang
     )
+
+    roles_dir = team_dir.joinpath("roles")
+    roles: dict[str, str] = {}
+    for role in info.roles:
+        roles[role] = _read_lang_file(roles_dir, role, lang)
+
+    return TeamTemplate(
+        name=team,
+        lang=lang,
+        readme=readme,
+        team_roles=team_roles,
+        operating_rules=operating_rules,
+        roles=roles,
+    )
+
+
+# ── Internal helpers ─────────────────────────────────────────────────
+
+
+def _data_dir():  # type: ignore[no-untyped-def]
+    """Return the Traversable for ``fcop/teams/_data/``.
+
+    Defined as a function (rather than a module-level constant) so
+    testing hooks that patch :mod:`importlib.resources` see each call
+    fresh, and so packaging regressions surface on first access
+    rather than at import time.
+    """
+    return resources.files("fcop.teams").joinpath("_data")
+
+
+@cache
+def _load_bundled_teams() -> dict[str, TeamInfo]:
+    """Parse ``_data/teams/index.json`` into a mapping of TeamInfo.
+
+    Cached because the shape never changes during a process lifetime
+    and re-reading the wheel on every :func:`get_team_info` call
+    would be wasteful. Invalidation would require a process restart,
+    which is fine: bundled data is, by definition, immutable in a
+    given installed version.
+
+    Raises:
+        FcopError: the bundled index is missing or malformed. This
+            indicates a packaging bug, not a user error — surface it
+            loudly so CI catches it.
+    """
+    try:
+        raw = _data_dir().joinpath("index.json").read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise FcopError(
+            "bundled index.json is missing from fcop.teams._data; "
+            "rebuild the wheel or check pyproject.toml force-include"
+        ) from exc
+
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise FcopError(
+            f"bundled index.json is not valid JSON: {exc}"
+        ) from exc
+
+    entries = parsed.get("teams")
+    if not isinstance(entries, list) or not entries:
+        raise FcopError("bundled index.json has no 'teams' list")
+
+    result: dict[str, TeamInfo] = {}
+    for entry in entries:
+        info = _team_info_from_entry(entry)
+        result[info.name] = info
+    return result
+
+
+def _team_info_from_entry(entry: object) -> TeamInfo:
+    """Build a :class:`TeamInfo` from one ``index.json`` list item.
+
+    Defensive about types: the index is hand-authored and a future
+    maintainer fat-fingering a value should produce a loud
+    :class:`FcopError`, not a mysterious AttributeError three call
+    frames deep.
+    """
+    if not isinstance(entry, dict):
+        raise FcopError(
+            f"team entry must be a JSON object, got {type(entry).__name__}"
+        )
+
+    name = _required_str(entry, "id")
+    display_name = _required_str(entry, "name_zh")
+    leader = _required_str(entry, "leader")
+
+    raw_roles = entry.get("roles")
+    if not isinstance(raw_roles, list) or not raw_roles:
+        raise FcopError(f"team {name!r} has no roles list")
+    roles: tuple[str, ...] = tuple(str(r) for r in raw_roles)
+
+    description_zh = _required_str(entry, "description_zh")
+    description_en = _required_str(entry, "description_en")
+
+    return TeamInfo(
+        name=name,
+        display_name=display_name,
+        leader=leader,
+        roles=roles,
+        description_zh=description_zh,
+        description_en=description_en,
+    )
+
+
+def _required_str(entry: dict[str, object], key: str) -> str:
+    """Pull a non-empty string field out of a team entry or raise."""
+    value = entry.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise FcopError(
+            f"team entry is missing required string field {key!r}"
+        )
+    return value
+
+
+def _read_lang_file(
+    directory,  # type: ignore[no-untyped-def]
+    base: str,
+    lang: str,
+) -> str:
+    """Read ``{base}.md`` (zh) or ``{base}.en.md`` (en) under *directory*.
+
+    The lang-suffix convention is flat across all bundled teams:
+    Chinese files have no language suffix, English files carry
+    ``.en.md``. Aligns with ``index.json.lang_suffix``.
+    """
+    filename = f"{base}.md" if lang == "zh" else f"{base}.en.md"
+    return directory.joinpath(filename).read_text(encoding="utf-8")

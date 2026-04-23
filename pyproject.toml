@@ -72,15 +72,19 @@ path = "src/fcop/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/fcop"]
 
-# Hatchling's wheel builder picks up .py / .typed by default, but the
-# rules data files use non-Python extensions (.mdc, .md) and need an
-# explicit include. `force-include` maps source paths (relative to the
-# repo root) to their destination inside the wheel.
-[tool.hatch.build.targets.wheel.force-include]
-"src/fcop/rules/_data/fcop-rules.mdc" = "fcop/rules/_data/fcop-rules.mdc"
-"src/fcop/rules/_data/fcop-protocol.mdc" = "fcop/rules/_data/fcop-protocol.mdc"
-"src/fcop/rules/_data/letter-to-admin.zh.md" = "fcop/rules/_data/letter-to-admin.zh.md"
-"src/fcop/rules/_data/letter-to-admin.en.md" = "fcop/rules/_data/letter-to-admin.en.md"
+# Hatchling's wheel builder picks up .py / .typed by default. Our
+# bundled data (rules .mdc + letter .md + team templates .md / .json)
+# uses non-Python extensions and needs explicit include globs. We
+# avoid `force-include` here because its source paths are inside the
+# package tree and hatchling would end up shipping each file twice
+# (once as part of `packages`, once via force-include) — observed
+# empirically and confirmed in hatchling issues.
+include = [
+    "src/fcop/rules/_data/*.mdc",
+    "src/fcop/rules/_data/*.md",
+    "src/fcop/teams/_data/**/*.md",
+    "src/fcop/teams/_data/**/*.json",
+]
 
 [tool.hatch.build.targets.sdist]
 include = [

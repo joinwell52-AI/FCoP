@@ -1,19 +1,23 @@
 """Tests for :mod:`fcop.teams` — bundled preset team registry.
 
 These tests pin the 0.6.0 preset team catalogue: changing a role list
-or leader in ``_BUNDLED_TEAMS`` will fail here, forcing the author to
-either update the test *and* CHANGELOG (legitimate change) or back out
-(accidental change). The presets are public API in the sense that
-``Project.init(team=X)`` promises to produce the roles listed here.
+or leader in the bundled ``index.json`` will fail here, forcing the
+author to either update the test *and* CHANGELOG (legitimate change)
+or back out (accidental change). The presets are public API in the
+sense that ``Project.init(team=X)`` promises to produce the roles
+listed here.
 """
 
 from __future__ import annotations
+
+from importlib import resources
 
 import pytest
 
 from fcop.errors import TeamNotFoundError
 from fcop.teams import (
     TeamInfo,
+    TeamTemplate,
     get_available_teams,
     get_team_info,
     get_template,
@@ -38,9 +42,20 @@ class TestRegistry:
     @pytest.mark.parametrize(
         ("team", "leader", "role_set"),
         [
+            # Aligned with _data/teams/index.json v0.6 (ported from
+            # plugin 0.5.x data). If you update a preset's roles /
+            # leader, bump CHANGELOG and update this parametrize row.
             ("dev-team", "PM", {"PM", "DEV", "QA", "OPS"}),
-            ("media-team", "PUBLISHER", {"PUBLISHER", "COLLECTOR", "WRITER"}),
-            ("mvp-team", "PM", {"PM", "BUILDER", "SELLER"}),
+            (
+                "media-team",
+                "PUBLISHER",
+                {"PUBLISHER", "COLLECTOR", "WRITER", "EDITOR"},
+            ),
+            (
+                "mvp-team",
+                "MARKETER",
+                {"MARKETER", "RESEARCHER", "DESIGNER", "BUILDER"},
+            ),
             (
                 "qa-team",
                 "LEAD-QA",
@@ -68,10 +83,55 @@ class TestRegistry:
         assert "dev-team" in str(excinfo.value)
 
 
-class TestTemplateStubbed:
-    def test_get_template_raises_not_implemented(self) -> None:
-        # Template text migration is D5 per ADR-0001; explicitly
-        # verify the stub so the commit that flips it on also flips
-        # this test.
-        with pytest.raises(NotImplementedError):
-            get_template("dev-team")
+class TestGetTemplate:
+    @pytest.mark.parametrize("team", ["dev-team", "qa-team", "media-team", "mvp-team"])
+    def test_zh_bundle_is_complete(self, team: str) -> None:
+        tmpl = get_template(team, "zh")
+        assert isinstance(tmpl, TeamTemplate)
+        assert tmpl.name == team
+        assert tmpl.lang == "zh"
+        # Layer 1 + 2 are always present.
+        assert tmpl.readme
+        assert tmpl.team_roles
+        assert tmpl.operating_rules
+        # Every role from get_team_info must have its own bio.
+        info = get_team_info(team)
+        assert set(tmpl.roles) == set(info.roles)
+        for role, body in tmpl.roles.items():
+            assert body, f"role {role} in {team} has empty template"
+
+    def test_en_differs_from_zh(self) -> None:
+        zh = get_template("dev-team", "zh")
+        en = get_template("dev-team", "en")
+        assert en.lang == "en"
+        # Same team name, same roster, different text.
+        assert en.name == zh.name
+        assert set(en.roles) == set(zh.roles)
+        assert en.readme != zh.readme
+
+    def test_unknown_team(self) -> None:
+        with pytest.raises(TeamNotFoundError):
+            get_template("nonexistent")
+
+    def test_unknown_lang(self) -> None:
+        with pytest.raises(ValueError, match="unsupported lang"):
+            get_template("dev-team", "fr")  # type: ignore[arg-type]
+
+
+class TestPackagedTeamData:
+    """Guard against regressions in pyproject.toml force-include — if
+    the team tree stops shipping, imports still work but every
+    get_template call would break at runtime.
+    """
+
+    def test_index_json_is_packaged(self) -> None:
+        data_dir = resources.files("fcop.teams").joinpath("_data")
+        assert data_dir.joinpath("index.json").is_file()
+
+    @pytest.mark.parametrize("team", ["dev-team", "media-team", "mvp-team", "qa-team"])
+    def test_team_dir_is_packaged(self, team: str) -> None:
+        team_dir = (
+            resources.files("fcop.teams").joinpath("_data").joinpath(team)
+        )
+        # Smoke: every team ships at least its Chinese README.
+        assert team_dir.joinpath("README.md").is_file()
