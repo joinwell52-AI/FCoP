@@ -608,9 +608,12 @@ class Project:
 
         cfg = self.config  # raises ConfigError if not initialized
         resolved_team = team if team is not None else cfg.team
-        resolved_lang = lang if lang is not None else cfg.lang  # type: ignore[assignment]
-        _ensure_lang_supported(resolved_lang)
-        return resolved_team, resolved_lang
+        # cfg.lang is a plain str on TeamConfig; narrow it to the
+        # Literal only after _ensure_lang_supported has vouched for it.
+        raw_lang: str = lang if lang is not None else cfg.lang
+        _ensure_lang_supported(raw_lang)
+        # Safe cast: _ensure_lang_supported guarantees raw_lang ∈ _DEPLOY_LANGS.
+        return resolved_team, raw_lang  # type: ignore[return-value]
 
     # ── Config ────────────────────────────────────────────────────────
 

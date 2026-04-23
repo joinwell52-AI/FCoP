@@ -3,10 +3,16 @@ name: test-fcop
 # Cross-platform CI for the fcop library.
 #
 # Runs on every push to main/feat branches and every PR targeting main.
-# Matrix covers the three mainstream OSes × every Python version the
-# library officially supports (see pyproject.toml requires-python and
-# classifiers). `fail-fast: false` so one red square never hides the
-# others — we always want to see *which* platform is broken.
+#
+# Three jobs:
+#   1. test     — full matrix (3 OS × 4 Python) running lint + mypy + pytest.
+#                 `fail-fast: false` so one red square never hides the others.
+#   2. coverage — Ubuntu / 3.12 only, enforces a minimum coverage floor so
+#                 PRs that forget tests show up as red instead of slipping by.
+#   3. package  — builds the wheel and the sdist, installs the wheel in a
+#                 clean venv, smoke-imports, and runs pip-audit against the
+#                 installed dep tree. Catches force-include / dep vulnerability
+#                 regressions that pure unit tests cannot.
 
 on:
   push:
@@ -52,5 +58,152 @@ jobs:
       - name: Lint (ruff)
         run: python -m ruff check src tests
 
+      # mypy runs in strict mode via pyproject.toml. Bugs that unit
+      # tests can't see — e.g. an Optional being passed where a
+      # non-Optional is expected — surface here.
+      - name: Type check (mypy)
+        run: python -m mypy src/fcop
+
       - name: Test (pytest)
         run: python -m pytest tests -v
+
+  coverage:
+    name: Coverage (Ubuntu / 3.12)
+    runs-on: ubuntu-latest
+    # Only one matrix cell needs coverage — the number is independent
+    # of platform / Python version. Picking 3.12 because it's the
+    # modal release as of 2026 and has the best tracer perf.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install fcop + dev deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+
+      - name: Measure coverage
+        # --cov-fail-under pins the floor. Local baseline at D5 close
+        # is 92% overall (see commit log). 90% leaves a small buffer
+        # for fix-forward PRs. Bumping this number is a one-way
+        # ratchet: raise it as the suite grows so it stays
+        # meaningful, never lower it to accept new dead code.
+        run: |
+          python -m pytest tests \
+            --cov=fcop \
+            --cov-branch \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-fail-under=90
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          # Keeping a short retention window — coverage reports are
+          # useful for debugging a failing PR but not as long-term
+          # artifacts.
+          retention-days: 7
+
+  package:
+    name: Build + install smoke + pip-audit
+    runs-on: ubuntu-latest
+    # Depends on `test` so we don't waste CI minutes building a wheel
+    # from broken code. The coverage job runs in parallel — if it
+    # fails we still want this one to report independently.
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install build + audit tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build pip-audit
+
+      - name: Build wheel and sdist
+        # Produces dist/fcop-*.whl and dist/fcop-*.tar.gz. --sdist
+        # catches issues specific to the source distribution (e.g.
+        # missing files from MANIFEST) that wheels alone don't.
+        run: python -m build --wheel --sdist
+
+      - name: Verify wheel contents
+        # The bundled data files are fragile — a misconfigured
+        # [tool.hatch.build.targets.wheel].include block would silently
+        # ship an empty wheel, which unit tests can't catch because
+        # they use the editable install. This assertion enforces the
+        # packaging contract directly.
+        run: |
+          python -c "
+          import zipfile, glob, sys
+          whl = glob.glob('dist/fcop-*.whl')[0]
+          names = zipfile.ZipFile(whl).namelist()
+          expected = [
+              'fcop/rules/_data/fcop-rules.mdc',
+              'fcop/rules/_data/fcop-protocol.mdc',
+              'fcop/rules/_data/letter-to-admin.zh.md',
+              'fcop/rules/_data/letter-to-admin.en.md',
+              'fcop/teams/_data/index.json',
+              'fcop/teams/_data/dev-team/README.md',
+          ]
+          missing = [e for e in expected if e not in names]
+          if missing:
+              print('MISSING from wheel:', missing)
+              sys.exit(1)
+          print(f'Wheel has {len(names)} files, all bundled data present.')
+          "
+
+      - name: Smoke-install wheel in a clean venv
+        # A clean venv install with no source tree on the path is the
+        # only way to verify importlib.resources actually finds the
+        # bundled data — editable installs mask packaging bugs.
+        run: |
+          python -m venv /tmp/smoke-venv
+          /tmp/smoke-venv/bin/pip install --upgrade pip
+          /tmp/smoke-venv/bin/pip install dist/fcop-*.whl
+          /tmp/smoke-venv/bin/python -c "
+          import fcop
+          from fcop.rules import get_rules, get_rules_version
+          from fcop.teams import get_available_teams, get_template
+
+          print('fcop version:', fcop.__version__)
+          print('rules version:', get_rules_version())
+          teams = get_available_teams()
+          print('bundled teams:', [t.name for t in teams])
+          assert len(get_rules()) > 500, 'rules text suspiciously short'
+          tmpl = get_template('dev-team', 'zh')
+          assert len(tmpl.readme) > 100, 'dev-team readme suspiciously short'
+          assert set(tmpl.roles) == {'PM', 'DEV', 'QA', 'OPS'}
+          print('Smoke test OK.')
+          "
+
+      - name: Audit dependencies (pip-audit)
+        # Checks the installed dep tree against the PyPI Advisory DB.
+        # --strict turns any vulnerability into a failure; --ignore-vuln
+        # can be added here with a PR reference when a specific
+        # deferrable CVE surfaces.
+        run: |
+          /tmp/smoke-venv/bin/pip install pip-audit
+          /tmp/smoke-venv/bin/pip-audit --strict
+
+      - name: Upload built artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fcop-dist
+          path: dist/
+          retention-days: 7

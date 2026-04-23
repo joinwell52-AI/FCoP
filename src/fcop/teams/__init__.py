@@ -28,6 +28,7 @@ import json
 from dataclasses import dataclass
 from functools import cache
 from importlib import resources
+from importlib.abc import Traversable
 from typing import Literal
 
 from fcop.errors import FcopError, TeamNotFoundError
@@ -183,7 +184,7 @@ def get_template(
 # ── Internal helpers ─────────────────────────────────────────────────
 
 
-def _data_dir():  # type: ignore[no-untyped-def]
+def _data_dir() -> Traversable:
     """Return the Traversable for ``fcop/teams/_data/``.
 
     Defined as a function (rather than a module-level constant) so
@@ -281,7 +282,7 @@ def _required_str(entry: dict[str, object], key: str) -> str:
 
 
 def _read_lang_file(
-    directory,  # type: ignore[no-untyped-def]
+    directory: Traversable,
     base: str,
     lang: str,
 ) -> str:
@@ -292,4 +293,6 @@ def _read_lang_file(
     ``.en.md``. Aligns with ``index.json.lang_suffix``.
     """
     filename = f"{base}.md" if lang == "zh" else f"{base}.en.md"
-    return directory.joinpath(filename).read_text(encoding="utf-8")
+    # Traversable.read_text() is declared to return str but mypy
+    # cannot infer that through the abstract base class, so we cast.
+    return str(directory.joinpath(filename).read_text(encoding="utf-8"))
