@@ -22,8 +22,8 @@ versioning strategy.
   of pre-formatted strings.
 - Typed exception hierarchy: every failure mode has a dedicated subclass
   of `FcopError`.
-- Zero third-party runtime dependencies. MCP and websocket deps moved
-  entirely to `fcop-mcp`.
+- Runtime dependency reduced to just `pyyaml` (YAML is part of the
+  FCoP file format). MCP and websocket deps moved entirely to `fcop-mcp`.
 - Single source of truth for the version string at `src/fcop/_version.py`
   (read by `pyproject.toml` via hatchling's dynamic version).
 

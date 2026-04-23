@@ -36,9 +36,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-# Intentionally empty. The fcop library is pure-stdlib.
-# MCP / LLM / websocket dependencies live in the fcop-mcp package.
-dependencies = []
+# Runtime dependency: PyYAML for parsing FCoP task file frontmatter.
+# FCoP files are UTF-8 markdown with a YAML frontmatter block, so YAML
+# parsing is core to the protocol. No MCP, no LLM, no network deps —
+# those live in the fcop-mcp package.
+dependencies = [
+    "pyyaml>=6.0,<7.0",
+]
 
 [project.optional-dependencies]
 # Dev tooling. `pip install -e .[dev]` pulls in everything needed to
@@ -50,6 +54,7 @@ dev = [
     "mypy>=1.10",
     "build>=1.2",
     "twine>=5.0",
+    "types-pyyaml",
 ]
 
 [project.urls]
@@ -67,14 +72,11 @@ path = "src/fcop/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/fcop"]
 
-# Force-include packaged data files that hatchling's auto-discovery might
-# miss. The protocol rule docs use the `.mdc` extension (Cursor rule files),
-# which is non-standard; declaring them explicitly guarantees inclusion.
-[tool.hatch.build.targets.wheel.force-include]
-"src/fcop/rules/_data/fcop-rules.mdc"        = "fcop/rules/_data/fcop-rules.mdc"
-"src/fcop/rules/_data/fcop-protocol.mdc"     = "fcop/rules/_data/fcop-protocol.mdc"
-"src/fcop/rules/_data/letter-to-admin.zh.md" = "fcop/rules/_data/letter-to-admin.zh.md"
-"src/fcop/rules/_data/letter-to-admin.en.md" = "fcop/rules/_data/letter-to-admin.en.md"
+# Packaged data files (protocol rule docs in .mdc, LETTER-TO-ADMIN in .md)
+# are ported in a later D-phase commit. When they land under
+# src/fcop/rules/_data/, re-add them here via a [tool.hatch.build.targets.wheel.force-include]
+# block so hatchling picks up the .mdc extension. For now the package
+# builds from Python sources only.
 
 [tool.hatch.build.targets.sdist]
 include = [
