@@ -20,7 +20,7 @@ import datetime as _dt
 import os
 import pathlib
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Literal
+from typing import Literal
 
 import yaml
 
@@ -60,6 +60,7 @@ from fcop.errors import (
     ValidationError,
 )
 from fcop.models import (
+    DeploymentReport,
     Issue,
     Priority,
     ProjectStatus,
@@ -71,10 +72,7 @@ from fcop.models import (
     TeamConfig,
     ValidationIssue,
 )
-from fcop.teams import get_team_info
-
-if TYPE_CHECKING:
-    from fcop.models import DeploymentReport
+from fcop.teams import TeamTemplate, get_team_info, get_template
 
 __all__ = ["Project"]
 
@@ -472,6 +470,144 @@ class Project:
             config_path.replace(archive_path)
 
         save_team_config(cfg, config_path)
+
+    # ── Template deployment ───────────────────────────────────────────
+
+    def deploy_role_templates(
+        self,
+        *,
+        team: str | None = None,
+        lang: Literal["zh", "en"] | None = None,
+        force: bool = True,
+    ) -> DeploymentReport:
+        """Deploy the three-layer team documentation under ``docs/agents/shared/``.
+
+        Writes the bundled :class:`TeamTemplate` content to disk so
+        every assigned agent can read its own role charter *inside the
+        repo* without pulling anything from the network:
+
+        .. code-block:: text
+
+            docs/agents/shared/
+            ├── TEAM-README.md              # layer 0 — team positioning
+            ├── TEAM-README.en.md
+            ├── TEAM-ROLES.md               # layer 1 — role boundaries
+            ├── TEAM-ROLES.en.md
+            ├── TEAM-OPERATING-RULES.md     # layer 2 — ops rules
+            ├── TEAM-OPERATING-RULES.en.md
+            └── roles/
+                ├── {ROLE}.md               # layer 3 — role charter
+                └── {ROLE}.en.md
+
+        Both ``zh`` and ``en`` variants are always deployed so agents
+        switching language mid-project never hit a missing file; the
+        ``lang`` argument only decides which copy is *primary* (today
+        that's recorded in :attr:`TeamConfig.lang` rather than
+        influencing layout).
+
+        Args:
+            team: Team slug. If ``None``, reads from :attr:`config`.
+                The project must be initialized in that case.
+            lang: Language tag. If ``None``, reads from :attr:`config`.
+                Only ``"zh"`` / ``"en"`` are bundled.
+            force: When ``True`` (the default, matching 0.5.x
+                behavior), any existing file that would be overwritten
+                is first archived to
+                ``.fcop/migrations/<timestamp>/shared/<rel>`` so
+                ADMIN can diff or restore manually. When ``False``,
+                existing files are skipped and recorded in
+                :attr:`DeploymentReport.skipped`; this is the
+                conservative mode suitable for partial redeploys.
+
+        Returns:
+            :class:`DeploymentReport` listing every path written,
+            skipped, and archived. ``migration_dir`` is set only when
+            at least one file was archived.
+
+        Raises:
+            ConfigError: team/lang not provided and the project is
+                not initialized (so they can't be read from config).
+            TeamNotFoundError: resolved team is not a bundled preset.
+            ValueError: resolved lang is not supported.
+        """
+        resolved_team, resolved_lang = self._resolve_team_and_lang(team, lang)
+
+        deployed: list[pathlib.Path] = []
+        skipped: list[pathlib.Path] = []
+        archived: list[pathlib.Path] = []
+        migration_dir: pathlib.Path | None = None
+
+        shared = self.shared_dir
+        shared.mkdir(parents=True, exist_ok=True)
+        (shared / "roles").mkdir(parents=True, exist_ok=True)
+
+        # Load *both* language variants — see the docstring: mixed-lang
+        # projects shouldn't hit a missing file when an agent opens
+        # the "other" file by hand. `lang` parameter still matters for
+        # which one is authoritative per config but both land on disk.
+        bundles: dict[str, TeamTemplate] = {
+            "zh": get_template(resolved_team, "zh"),
+            "en": get_template(resolved_team, "en"),
+        }
+
+        plan = _plan_template_deployment(bundles)
+
+        for rel_path, content in plan:
+            target = shared / rel_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+
+            if target.exists():
+                if not force:
+                    skipped.append(target)
+                    continue
+                # force=True: archive before overwrite so the author
+                # of the old file can get it back.
+                if migration_dir is None:
+                    stamp = _now_iso().replace(":", "").replace("-", "")
+                    migration_dir = self._migrations_dir / stamp / "shared"
+                    migration_dir.mkdir(parents=True, exist_ok=True)
+                archive_target = migration_dir / rel_path
+                archive_target.parent.mkdir(parents=True, exist_ok=True)
+                target.replace(archive_target)
+                archived.append(archive_target)
+
+            target.write_text(content, encoding="utf-8", newline="\n")
+            deployed.append(target)
+
+        # `lang` is threaded through to the return value by recording
+        # it (indirectly) in the files deployed; the report itself
+        # carries only paths, which is enough for callers to decide
+        # what to log/display.
+        _ = resolved_lang
+        return DeploymentReport(
+            deployed=tuple(deployed),
+            skipped=tuple(skipped),
+            archived=tuple(archived),
+            migration_dir=migration_dir,
+        )
+
+    def _resolve_team_and_lang(
+        self,
+        team: str | None,
+        lang: Literal["zh", "en"] | None,
+    ) -> tuple[str, Literal["zh", "en"]]:
+        """Fill in ``team`` / ``lang`` from :attr:`config` when missing.
+
+        Extracted so :meth:`deploy_role_templates` reads linearly and
+        the "default from config" policy is easy to test in isolation
+        later. :attr:`config` is only read when at least one argument
+        is ``None`` — explicit calls with both supplied never touch
+        the filesystem here.
+        """
+        if team is not None and lang is not None:
+            _ensure_lang_supported(lang)
+            return team, lang
+
+        cfg = self.config  # raises ConfigError if not initialized
+        resolved_team = team if team is not None else cfg.team
+        resolved_lang = lang if lang is not None else cfg.lang  # type: ignore[assignment]
+        _ensure_lang_supported(resolved_lang)
+        return resolved_team, resolved_lang
 
     # ── Config ────────────────────────────────────────────────────────
 
@@ -1425,36 +1561,6 @@ class Project:
                 return entry
         return None
 
-    # ── Templates ─────────────────────────────────────────────────────
-
-    def deploy_role_templates(
-        self,
-        *,
-        team: str | None = None,
-        lang: str | None = None,
-        force: bool = True,
-    ) -> DeploymentReport:
-        """Deploy three-layer team templates into ``docs/agents/shared/``.
-
-        Layer 1 (``TEAM-README.md`` + ``TEAM-ROLES.md`` +
-        ``TEAM-OPERATING-RULES.md``) + layer 2 (``roles/<code>.md``).
-
-        Args:
-            team: Override the team from ``self.config``. If ``None``,
-                  uses the project's configured team.
-            lang: Override the language. If ``None``, uses
-                  ``self.config.lang``.
-            force: If ``True`` (the default), the aggressive migration
-                   strategy archives conflicting files to
-                   ``.fcop/migrations/<timestamp>/`` before overwriting.
-                   If ``False``, existing files are skipped.
-
-        Returns:
-            A :class:`DeploymentReport` detailing what was deployed,
-            what was skipped, and what was archived.
-        """
-        raise NotImplementedError
-
     # ── Suggestions ───────────────────────────────────────────────────
 
     def drop_suggestion(
@@ -1898,3 +2004,70 @@ def _collect_recent_activity(
 
     candidates.sort(key=lambda e: e.mtime, reverse=True)
     return tuple(candidates[:limit])
+
+
+# ── Template deployment helpers ───────────────────────────────────────
+
+# Language codes that get bundled into every deployment. Kept in sync
+# with fcop.teams._SUPPORTED_LANGS — duplicated here rather than
+# imported because the former is a private constant and we don't want
+# an API leak.
+_DEPLOY_LANGS: tuple[Literal["zh", "en"], ...] = ("zh", "en")
+
+
+def _ensure_lang_supported(lang: str) -> None:
+    """Raise ValueError if *lang* is not a bundled language code.
+
+    Kept separate from the deploy routine so the check is
+    unit-testable in isolation and uses the same error message that
+    :func:`fcop.teams.get_template` emits — a different message here
+    would be confusing to users who hit one or the other first.
+    """
+    if lang not in _DEPLOY_LANGS:
+        raise ValueError(
+            f"unsupported lang {lang!r}; "
+            f"expected one of {list(_DEPLOY_LANGS)}"
+        )
+
+
+def _plan_template_deployment(
+    bundles: dict[str, TeamTemplate],
+) -> list[tuple[str, str]]:
+    """Compute ``[(relative_path, content), ...]`` for a deploy run.
+
+    The layout rules (matching 0.5.x plugin behavior so migrating
+    projects get the same shape):
+
+    * team-level ``README`` is renamed to ``TEAM-README`` when written
+      under ``shared/`` so it does not collide with the prefix-guide
+      ``shared/README.md`` that lives in every project.
+    * ``TEAM-ROLES`` and ``TEAM-OPERATING-RULES`` keep their names.
+    * Per-role bios go into ``roles/{CODE}.md``.
+    * The ``zh`` variant has no language suffix; the ``en`` variant
+      uses ``.en.md`` — same convention as the bundled source files.
+
+    Returned as a list (not a dict) so the caller can iterate in a
+    stable order and emit deterministic :class:`DeploymentReport`
+    contents.
+    """
+    # Use the zh bundle as the source of truth for "which roles
+    # exist"; any en-only role would indicate bundled-data drift
+    # which get_template() would already have surfaced.
+    zh = bundles["zh"]
+
+    def suffix(lang: str) -> str:
+        # Mirror the bundled source file convention. Expressed as a
+        # closure so the rules above stay close to the data.
+        return ".md" if lang == "zh" else ".en.md"
+
+    plan: list[tuple[str, str]] = []
+    for lang in _DEPLOY_LANGS:
+        bundle = bundles[lang]
+        plan.append((f"TEAM-README{suffix(lang)}", bundle.readme))
+        plan.append((f"TEAM-ROLES{suffix(lang)}", bundle.team_roles))
+        plan.append(
+            (f"TEAM-OPERATING-RULES{suffix(lang)}", bundle.operating_rules)
+        )
+        for role in zh.roles:
+            plan.append((f"roles/{role}{suffix(lang)}", bundle.roles[role]))
+    return plan
