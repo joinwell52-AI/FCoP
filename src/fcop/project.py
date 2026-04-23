@@ -22,27 +22,35 @@ import pathlib
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal
 
+import yaml
+
 from fcop.core.config import load_team_config, save_team_config
 from fcop.core.filename import (
     ISSUE_FILENAME_RE,
     REPORT_FILENAME_RE,
     TASK_FILENAME_RE,
+    build_issue_filename,
     build_report_filename,
     build_task_filename,
     next_sequence,
+    parse_issue_filename,
     parse_report_filename,
     parse_task_filename,
     today_iso,
 )
 from fcop.core.frontmatter import (
+    FRONTMATTER_DELIMITER,
     assemble_task_file,
+    parse_frontmatter_raw,
     parse_task_frontmatter,
+    split_frontmatter,
 )
 from fcop.core.schema import (
     PROTOCOL_NAME,
     PROTOCOL_VERSION,
     is_valid_role_code,
     normalize_priority,
+    normalize_severity,
     validate_role_code,
 )
 from fcop.errors import (
@@ -52,10 +60,12 @@ from fcop.errors import (
     ValidationError,
 )
 from fcop.models import (
+    Issue,
     Priority,
     ProjectStatus,
     RecentActivityEntry,
     Report,
+    Severity,
     Task,
     TaskFrontmatter,
     TeamConfig,
@@ -64,11 +74,7 @@ from fcop.models import (
 from fcop.teams import get_team_info
 
 if TYPE_CHECKING:
-    from fcop.models import (
-        DeploymentReport,
-        Issue,
-        Severity,
-    )
+    from fcop.models import DeploymentReport
 
 __all__ = ["Project"]
 
@@ -1215,17 +1221,209 @@ class Project:
         """Create an issue broadcast.
 
         Issues don't follow the sender → recipient pattern; any
-        registered role can write one.
-        """
-        raise NotImplementedError
+        registered role can write one, and they are addressed to
+        *whoever can fix them*. The filename therefore carries only
+        the reporter; frontmatter carries ``summary`` and
+        ``severity`` as top-level fields.
 
-    def list_issues(self, *, limit: int | None = None) -> list[Issue]:
-        """List all issues, newest first."""
-        raise NotImplementedError
+        Args:
+            reporter: Role code of the agent raising the issue. Must
+                pass :func:`validate_role_code` (reserved codes like
+                ``ADMIN`` / ``SYSTEM`` are permitted — a human or the
+                protocol itself can raise an issue).
+            summary: Short one-line description. Becomes the ``summary:``
+                frontmatter field; must be non-empty after stripping.
+            body: Markdown body describing the issue in detail.
+            severity: ``low`` / ``medium`` / ``high`` / ``critical``
+                (plus the aliases :func:`normalize_severity` accepts).
+                Defaults to ``medium``.
+
+        Raises:
+            ValidationError: ``reporter`` fails role-code grammar.
+            ValueError: ``summary`` is empty or ``severity`` is not a
+                recognized value.
+        """
+        cleaned_summary = summary.strip()
+        if not cleaned_summary:
+            raise ValueError(
+                "issue summary must be non-empty after stripping whitespace"
+            )
+
+        role_issues = validate_role_code(
+            reporter, field="reporter", allow_reserved=True
+        )
+        role_errors = [i for i in role_issues if i.severity == "error"]
+        if role_errors:
+            raise ValidationError(
+                f"invalid reporter role code {reporter!r}",
+                issues=role_errors,
+            )
+
+        severity_enum = normalize_severity(severity)
+
+        issues_dir = self.issues_dir
+        issues_dir.mkdir(parents=True, exist_ok=True)
+
+        date = today_iso()
+        frontmatter_data: dict[str, object] = {
+            "protocol": PROTOCOL_NAME,
+            "version": PROTOCOL_VERSION,
+            "reporter": reporter,
+            "severity": severity_enum.value,
+            "summary": cleaned_summary,
+        }
+        text = _assemble_issue_file(frontmatter_data, body)
+        payload = text.encode("utf-8")
+
+        for _ in range(_MAX_WRITE_RETRIES):
+            existing = (
+                entry.name
+                for entry in issues_dir.iterdir()
+                if entry.is_file()
+            )
+            sequence = next_sequence(existing, date=date, kind="issue")
+            filename = build_issue_filename(
+                date=date, sequence=sequence, reporter=reporter
+            )
+            target = issues_dir / filename
+
+            try:
+                fd = os.open(
+                    os.fspath(target),
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                )
+            except FileExistsError:
+                continue
+
+            try:
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(payload)
+            except BaseException:
+                with contextlib.suppress(OSError):
+                    target.unlink()
+                raise
+
+            mtime = _dt.datetime.fromtimestamp(target.stat().st_mtime)
+            return Issue(
+                path=target,
+                filename=filename,
+                issue_id=f"ISSUE-{date}-{sequence:03d}",
+                summary=cleaned_summary,
+                severity=severity_enum,
+                reporter=reporter,
+                body=body,
+                mtime=mtime,
+            )
+
+        raise RuntimeError(
+            f"failed to reserve an issue sequence after "
+            f"{_MAX_WRITE_RETRIES} retries"
+        )
+
+    def list_issues(
+        self,
+        *,
+        reporter: str | None = None,
+        severity: Severity | str | None = None,
+        limit: int | None = None,
+        offset: int = 0,
+    ) -> list[Issue]:
+        """List issues, optionally filtered.
+
+        Args:
+            reporter: Exact-match filter on the issue's ``reporter``.
+            severity: Exact-match filter; string aliases are normalized
+                via :func:`normalize_severity`.
+            limit / offset: Pagination window, applied after sorting.
+
+        Returns:
+            Issues sorted by date + sequence descending (newest first).
+            Malformed files are silently skipped — matches the
+            :meth:`list_tasks` / :meth:`list_reports` contract.
+        """
+        severity_enum: Severity | None = None
+        if severity is not None:
+            severity_enum = normalize_severity(severity)
+
+        issues: list[Issue] = []
+        directory = self.issues_dir
+        if directory.is_dir():
+            for entry in directory.iterdir():
+                issue = _try_load_issue(entry)
+                if issue is None:
+                    continue
+                if reporter is not None and issue.reporter != reporter:
+                    continue
+                if (
+                    severity_enum is not None
+                    and issue.severity is not severity_enum
+                ):
+                    continue
+                issues.append(issue)
+
+        def _sort_key(i: Issue) -> tuple[str, int]:
+            parsed = parse_issue_filename(i.filename)
+            if parsed is None:
+                return ("", 0)
+            return (parsed.date, parsed.sequence)
+
+        issues.sort(key=_sort_key, reverse=True)
+
+        end = None if limit is None else offset + max(0, limit)
+        return issues[offset:end]
 
     def read_issue(self, filename_or_id: str) -> Issue:
-        """Load one issue by filename or issue id."""
-        raise NotImplementedError
+        """Load one issue by filename or issue id.
+
+        Accepts a full filename (``ISSUE-YYYYMMDD-NNN-REPORTER.md``) or
+        an id prefix (``ISSUE-YYYYMMDD-NNN``). Unlike tasks and reports,
+        issues are never archived, so there is only one location to
+        search.
+
+        Raises:
+            TaskNotFoundError: no match. The ``Task`` prefix is
+                retained here because the 0.6 exception hierarchy does
+                not include a dedicated ``IssueNotFoundError`` — the
+                semantic meaning is the same.
+            ValidationError | ProtocolViolation: malformed frontmatter.
+        """
+        target = self._resolve_issue_file(filename_or_id)
+        if target is None:
+            raise TaskNotFoundError(
+                f"no issue matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+        return _load_issue_strict(target)
+
+    def _resolve_issue_file(
+        self, filename_or_id: str
+    ) -> pathlib.Path | None:
+        """Resolve a user handle to an on-disk issue path, or ``None``.
+
+        Accepts full filename or ``ISSUE-YYYYMMDD-NNN`` prefix. Issues
+        live only in ``issues_dir`` — there is no archive equivalent,
+        so resolution is a single-directory scan.
+        """
+        directory = self.issues_dir
+        if not directory.is_dir():
+            return None
+
+        if ISSUE_FILENAME_RE.fullmatch(filename_or_id):
+            candidate = directory / filename_or_id
+            return candidate if candidate.is_file() else None
+
+        prefix = filename_or_id
+        for entry in directory.iterdir():
+            if not entry.is_file():
+                continue
+            parsed = parse_issue_filename(entry.name)
+            if parsed is None:
+                continue
+            if parsed.issue_id == prefix or entry.name.startswith(
+                prefix + "-"
+            ):
+                return entry
+        return None
 
     # ── Templates ─────────────────────────────────────────────────────
 
@@ -1492,6 +1690,147 @@ def _load_report_strict(
         status=status,
         body=body,
         is_archived=is_archived,
+        mtime=mtime,
+    )
+
+
+def _assemble_issue_file(
+    frontmatter_data: dict[str, object], body: str
+) -> str:
+    """Serialize an issue frontmatter + body into a complete file text.
+
+    Issues don't use :class:`TaskFrontmatter` — they have no recipient
+    and carry ``summary`` / ``severity`` instead of ``priority``. We
+    write the YAML directly rather than shoe-horning issue fields into
+    the task dataclass. Field order is deterministic (identity fields
+    first, then reporter, severity, summary) so round-tripping produces
+    minimal diffs.
+    """
+    ordered: dict[str, object] = {}
+    # Keep a canonical order — mirrors serialize_task_frontmatter's
+    # "protocol/version first" discipline.
+    for key in ("protocol", "version", "reporter", "severity", "summary"):
+        if key in frontmatter_data:
+            ordered[key] = frontmatter_data[key]
+    for key in sorted(frontmatter_data):
+        if key not in ordered:
+            ordered[key] = frontmatter_data[key]
+
+    yaml_text = yaml.safe_dump(
+        ordered,
+        sort_keys=False,
+        allow_unicode=True,
+        default_flow_style=False,
+    )
+    fm_text = (
+        f"{FRONTMATTER_DELIMITER}\n{yaml_text}{FRONTMATTER_DELIMITER}\n"
+    )
+    if not body:
+        return fm_text
+    return f"{fm_text}\n{body.lstrip(chr(10))}"
+
+
+def _parse_issue_frontmatter(
+    text: str,
+) -> tuple[str, Severity, str, str]:
+    """Parse issue frontmatter, returning ``(reporter, severity, summary, body)``.
+
+    Unlike :func:`parse_task_frontmatter`, this accepts a much smaller
+    schema: no sender / recipient / priority, but ``reporter``,
+    ``severity``, and ``summary`` are mandatory. Historical
+    ``protocol`` / ``version`` are still validated.
+
+    Raises:
+        ProtocolViolation: required field missing or wrong protocol.
+        ValidationError: malformed YAML or bad role code / severity.
+    """
+    raw = parse_frontmatter_raw(text)
+    _, body = split_frontmatter(text)
+
+    for required in ("protocol", "version", "reporter", "severity", "summary"):
+        if required not in raw or raw[required] in (None, ""):
+            raise ProtocolViolation(
+                f"missing required issue frontmatter field: {required}",
+                rule="issue.frontmatter.required",
+            )
+
+    reporter = str(raw["reporter"]).strip()
+    role_issues = validate_role_code(
+        reporter, field="reporter", allow_reserved=True
+    )
+    role_errors = [i for i in role_issues if i.severity == "error"]
+    if role_errors:
+        raise ValidationError(
+            f"invalid reporter role code {reporter!r}",
+            issues=role_errors,
+        )
+
+    severity_enum = normalize_severity(str(raw["severity"]))
+    summary = str(raw["summary"]).strip()
+    if not summary:
+        raise ProtocolViolation(
+            "issue summary must be non-empty",
+            rule="issue.frontmatter.required",
+        )
+
+    return reporter, severity_enum, summary, body
+
+
+def _try_load_issue(path: pathlib.Path) -> Issue | None:
+    """Best-effort issue load; ``None`` on any problem.
+
+    Companion to :func:`_try_load_task` / :func:`_try_load_report` for
+    the :meth:`Project.list_issues` enumeration.
+    """
+    if not path.is_file():
+        return None
+    if path.suffix.lower() not in _FCOP_SUFFIXES:
+        return None
+    parsed = parse_issue_filename(path.name)
+    if parsed is None:
+        return None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        reporter, severity_enum, summary, body = _parse_issue_frontmatter(text)
+    except Exception:
+        return None
+    try:
+        mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    except OSError:
+        return None
+    return Issue(
+        path=path,
+        filename=path.name,
+        issue_id=parsed.issue_id,
+        summary=summary,
+        severity=severity_enum,
+        reporter=reporter,
+        body=body,
+        mtime=mtime,
+    )
+
+
+def _load_issue_strict(path: pathlib.Path) -> Issue:
+    """Strict issue load for :meth:`Project.read_issue`."""
+    text = path.read_text(encoding="utf-8")
+    reporter, severity_enum, summary, body = _parse_issue_frontmatter(text)
+    parsed = parse_issue_filename(path.name)
+    assert parsed is not None, (
+        f"_resolve_issue_file returned {path.name!r} but it does not match "
+        "ISSUE_FILENAME_RE — this is a bug in the resolver."
+    )
+    mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    return Issue(
+        path=path,
+        filename=path.name,
+        issue_id=parsed.issue_id,
+        summary=summary,
+        severity=severity_enum,
+        reporter=reporter,
+        body=body,
         mtime=mtime,
     )
 
