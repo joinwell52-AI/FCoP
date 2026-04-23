@@ -149,6 +149,21 @@ class TestValidateRoleCode:
         assert len(issues) == 1
         assert issues[0].severity == "error"
 
+    def test_allow_reserved_accepts_admin(self) -> None:
+        # Frontmatter sender/recipient legitimately carries ADMIN
+        # (the human) or SYSTEM (the protocol); the allow_reserved
+        # switch lets callers opt out of the strict check used for
+        # team config.
+        assert schema.validate_role_code("ADMIN", allow_reserved=True) == []
+        assert schema.validate_role_code("SYSTEM", allow_reserved=True) == []
+
+    def test_allow_reserved_still_rejects_grammar_errors(self) -> None:
+        # The switch only relaxes the reserved-word check; bad grammar
+        # is still a hard error.
+        issues = schema.validate_role_code("admin", allow_reserved=True)
+        assert len(issues) == 1
+        assert issues[0].severity == "error"
+
     def test_authority_word_is_warning_not_error(self) -> None:
         issues = schema.validate_role_code("BOSS")
         assert len(issues) == 1

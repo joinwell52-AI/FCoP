@@ -188,6 +188,7 @@ def validate_role_code(
     code: str,
     *,
     field: str = "role",
+    allow_reserved: bool = False,
 ) -> list[ValidationIssue]:
     """Return a list of issues describing what's wrong with ``code``.
 
@@ -199,6 +200,11 @@ def validate_role_code(
         code: The role code to validate.
         field: Field name embedded in each returned issue so downstream
                aggregators can tell sender from recipient failures.
+        allow_reserved: If True, ``ADMIN`` / ``SYSTEM`` pass as legal.
+               Used when validating fields that legitimately carry
+               those codes (e.g. the ``sender`` of a task written by
+               the human operator). Default False — strict — which is
+               what team-config registration wants.
     """
     issues: list[ValidationIssue] = []
 
@@ -226,7 +232,7 @@ def validate_role_code(
         )
         return issues
 
-    if code in RESERVED_ROLE_CODES:
+    if code in RESERVED_ROLE_CODES and not allow_reserved:
         issues.append(
             ValidationIssue(
                 severity="error",
