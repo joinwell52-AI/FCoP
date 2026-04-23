@@ -1262,3 +1262,322 @@ def drop_suggestion(content: str, context: str = "") -> str:
         "ADMIN 会稍后审阅。感谢反馈。\n"
         "ADMIN will review this later. Thanks for the feedback."
     )
+
+
+# ─── Protocol meta tools ─────────────────────────────────────────────
+
+
+@mcp.tool
+def unbound_report(lang: str = "zh") -> str:
+    """**FCoP v1.1 Rule 0 — first tool call of every new session.**
+
+    Returns one of two reports:
+
+    1. **Initialization report** when ``docs/agents/fcop.json`` is
+       missing. Lists the detected project path + resolution source
+       and the available init modes (Solo / preset teams / custom).
+       Does NOT ask for a role assignment — there's no team yet.
+
+    2. **UNBOUND report** when the project is initialized but this
+       session has no role. Shows project state and a role-assignment
+       template for ADMIN to fill in.
+
+    While UNBOUND (or uninitialized) the agent MUST NOT read task
+    bodies, write any files (except via the explicit init tools), or
+    claim a role from context clues.
+
+    Args:
+        lang: Output language, ``zh`` or ``en``. Default: ``zh``.
+    """
+    is_en = lang.lower().startswith("en")
+    try:
+        project, source = _get_project()
+        status = project.status()
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    project_path = str(status.path)
+    if not status.is_initialized:
+        teams = fcop.teams.get_available_teams()
+        roster = "\n".join(
+            f"  - {info.name} — roles: {', '.join(info.roles)}, leader: {info.leader}"
+            for info in teams
+        )
+        if is_en:
+            return (
+                "=== FCoP Initialization Report ===\n"
+                f"Project path: {project_path}\n"
+                f"Source: {source}\n"
+                "Status: NOT initialized (docs/agents/fcop.json missing)\n\n"
+                "Available init modes:\n"
+                f"{roster}\n"
+                "  - solo (one role, direct ADMIN ↔ AI, no dispatch)\n"
+                "  - custom (your own roles)\n\n"
+                "ADMIN, pick ONE:\n"
+                "  - init_project(team=\"dev-team\", lang=\"en\")\n"
+                "  - init_solo(role_code=\"ME\", lang=\"en\")\n"
+                '  - create_custom_team(team_name="...", roles="A,B,C", '
+                'leader="A", lang="en")\n\n'
+                "STOP HERE. Do not claim a role; do not write any file "
+                "other than via the init tools above."
+            )
+        return (
+            "=== FCoP 初始化汇报 ===\n"
+            f"项目路径 / path: {project_path}\n"
+            f"来源 / source: {source}\n"
+            "状态 / status: 未初始化（docs/agents/fcop.json 不存在）\n\n"
+            "可选初始化方式：\n"
+            f"{roster}\n"
+            "  - solo（一个角色，直接对 ADMIN，不做派发）\n"
+            "  - 自定义（你自己的角色列表）\n\n"
+            "ADMIN 请从下面三选一：\n"
+            "  - init_project(team=\"dev-team\", lang=\"zh\")\n"
+            "  - init_solo(role_code=\"ME\", lang=\"zh\")\n"
+            '  - create_custom_team(team_name="...", roles="A,B,C", '
+            'leader="A", lang="zh")\n\n'
+            "本会话到此为止。不要自认角色；除上述 init 工具外不要写任何文件。"
+        )
+
+    cfg = status.config
+    assert cfg is not None
+    recent = status.recent_activity[:3]
+    activity_lines = "\n".join(
+        f"  - [{e.kind}] {e.filename} — {e.summary}" for e in recent
+    ) or "  (none yet)"
+
+    if is_en:
+        return (
+            "=== FCoP UNBOUND Report ===\n"
+            f"Project: {project_path}  (source: {source})\n"
+            f"Team: {cfg.team}  Leader: {cfg.leader}  Lang: {cfg.lang}\n"
+            f"Roles: {', '.join(cfg.roles)}\n\n"
+            f"Tasks: {status.tasks_open} open, {status.tasks_archived} archived\n"
+            f"Reports: {status.reports_count}  Issues: {status.issues_count}\n\n"
+            "Recent activity:\n"
+            f"{activity_lines}\n\n"
+            "ADMIN: assign a role with the literal sentence:\n"
+            '  "You are <ROLE> on <team>, thread <thread_key> (optional)"\n\n'
+            "Until then this session MUST NOT:\n"
+            "  - read task bodies (metadata only)\n"
+            "  - write any file\n"
+            "  - claim a role from context\n"
+            "  - dispatch follow-up tasks"
+        )
+    return (
+        "=== FCoP UNBOUND 报告 ===\n"
+        f"项目 / project: {project_path}  (来源: {source})\n"
+        f"团队 / team: {cfg.team}  负责人 / leader: {cfg.leader}  lang: {cfg.lang}\n"
+        f"角色 / roles: {', '.join(cfg.roles)}\n\n"
+        f"任务 tasks: {status.tasks_open} 进行中, {status.tasks_archived} 已归档\n"
+        f"报告 reports: {status.reports_count}  问题 issues: {status.issues_count}\n\n"
+        "最近活动 / recent activity:\n"
+        f"{activity_lines}\n\n"
+        "ADMIN 请用这句话给本会话分配角色：\n"
+        "  「你是 <ROLE>，在 <team>，线程 <thread_key>（可选）」\n\n"
+        "在此之前，本会话禁止：\n"
+        "  - 读取任务正文（只看元数据）\n"
+        "  - 写入任何文件\n"
+        "  - 从上下文自认角色\n"
+        "  - 派发后续任务"
+    )
+
+
+@mcp.tool
+def check_update(lang: str = "zh") -> str:
+    """Compare the installed fcop-mcp version to the latest on PyPI.
+
+    Prints the local version, the latest PyPI version (if reachable),
+    and a one-line verdict. Does NOT install anything — call
+    ``upgrade_fcop`` afterwards for that.
+
+    Args:
+        lang: Output language, ``zh`` or ``en``.
+    """
+    import urllib.error
+    import urllib.request
+
+    from fcop_mcp._version import __version__ as local_version
+
+    is_en = lang.lower().startswith("en")
+    url = "https://pypi.org/pypi/fcop-mcp/json"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as resp:  # noqa: S310
+            payload = json.loads(resp.read().decode("utf-8"))
+        latest = str(payload.get("info", {}).get("version", "")) or "(unknown)"
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        return (
+            f"Could not reach PyPI: {exc}\n"
+            f"Local fcop-mcp version: {local_version}"
+            if is_en
+            else f"无法访问 PyPI: {exc}\n本地 fcop-mcp 版本: {local_version}"
+        )
+
+    fcop_local = fcop.__version__
+    if local_version == latest:
+        verdict = (
+            f"Up to date: fcop-mcp=={local_version} (fcop library=={fcop_local})"
+            if is_en
+            else f"已是最新: fcop-mcp=={local_version} (fcop 库=={fcop_local})"
+        )
+    else:
+        verdict = (
+            f"Update available: {local_version} → {latest}\n"
+            f"Library stays at: fcop=={fcop_local}\n"
+            "Run `upgrade_fcop` for install hints."
+            if is_en
+            else f"有可升级版本: {local_version} → {latest}\n"
+            f"底层库版本: fcop=={fcop_local}\n"
+            "调用 `upgrade_fcop` 查看具体升级命令。"
+        )
+    return verdict
+
+
+@mcp.tool
+def upgrade_fcop(lang: str = "zh") -> str:
+    """Return the install-method-specific command to upgrade fcop-mcp.
+
+    Does NOT run pip — MCP servers cannot safely upgrade themselves
+    mid-process, and different install methods (``pip`` in a venv,
+    ``pipx``, ``uvx``) need different commands. This tool prints the
+    right incantation for the user to run in their own shell.
+
+    Args:
+        lang: Output language, ``zh`` or ``en``.
+    """
+    from fcop_mcp._version import __version__ as local_version
+
+    is_en = lang.lower().startswith("en")
+    env_hint = ""
+    if "uvx" in (os.environ.get("PATH", "") or "").lower():
+        env_hint = "Detected 'uvx' on PATH — likely a uvx install.\n"
+    if is_en:
+        return (
+            f"Current version: fcop-mcp=={local_version}\n"
+            f"Underlying library: fcop=={fcop.__version__}\n\n"
+            f"{env_hint}"
+            "Upgrade commands (run in YOUR shell, outside the MCP process):\n"
+            "  uvx:   (automatic on next MCP restart — no action needed)\n"
+            "  pipx:  pipx upgrade fcop-mcp\n"
+            "  pip:   pip install --upgrade fcop-mcp\n\n"
+            "After the upgrade, restart your MCP client (Cursor / Claude "
+            "Desktop) so it reloads the new process."
+        )
+    return (
+        f"当前版本: fcop-mcp=={local_version}\n"
+        f"底层库: fcop=={fcop.__version__}\n\n"
+        f"{env_hint}"
+        "升级命令（在你自己的终端里跑，不是在 MCP 里）：\n"
+        "  uvx:   下次 MCP 重启自动生效，无需操作\n"
+        "  pipx:  pipx upgrade fcop-mcp\n"
+        "  pip:   pip install --upgrade fcop-mcp\n\n"
+        "升级完重启 MCP 客户端（Cursor / Claude Desktop），让它重新加载进程。"
+    )
+
+
+# ─── MCP resources ───────────────────────────────────────────────────
+#
+# Resources expose read-only content via `fcop://...` URIs. Cursor and
+# other clients typically attach these to the context window on
+# demand. The shapes below are locked by ADR-0003: URI template, MIME
+# type, and the fact that each returns a text document are
+# additive-only for the 0.6.x series.
+
+
+@mcp.resource("fcop://status", mime_type="text/markdown")
+def resource_status() -> str:
+    """Project status snapshot (same data as :func:`get_team_status`)."""
+    return get_team_status()
+
+
+@mcp.resource("fcop://config", mime_type="application/json")
+def resource_config() -> str:
+    """Raw contents of ``docs/agents/fcop.json`` when the project is initialized."""
+    try:
+        project, _source = _get_project()
+        cfg_path = project.config_path
+        if not cfg_path.exists():
+            return json.dumps({"initialized": False, "path": str(project.path)})
+        return cfg_path.read_text(encoding="utf-8")
+    except fcop.FcopError as exc:
+        return json.dumps({"error": str(exc)})
+
+
+@mcp.resource("fcop://rules", mime_type="text/markdown")
+def resource_rules() -> str:
+    """FCoP protocol rules (``fcop-rules.mdc``)."""
+    return fcop.rules.get_rules()
+
+
+@mcp.resource("fcop://protocol", mime_type="text/markdown")
+def resource_protocol() -> str:
+    """FCoP protocol commentary (``fcop-protocol.mdc``)."""
+    return fcop.rules.get_protocol_commentary()
+
+
+@mcp.resource("fcop://letter/zh", mime_type="text/markdown")
+def resource_letter_zh() -> str:
+    """Chinese Letter-to-ADMIN user manual."""
+    return fcop.rules.get_letter("zh")
+
+
+@mcp.resource("fcop://letter/en", mime_type="text/markdown")
+def resource_letter_en() -> str:
+    """English Letter-to-ADMIN user manual."""
+    return fcop.rules.get_letter("en")
+
+
+@mcp.resource("fcop://teams", mime_type="application/json")
+def resource_teams_index() -> str:
+    """JSON index of all bundled teams with name / roles / leader."""
+    teams = fcop.teams.get_available_teams()
+    data = [
+        {"name": t.name, "roles": list(t.roles), "leader": t.leader}
+        for t in teams
+    ]
+    return json.dumps({"teams": data}, ensure_ascii=False, indent=2)
+
+
+@mcp.resource("fcop://teams/{team}", mime_type="text/markdown")
+def resource_team_readme(team: str) -> str:
+    """Team-level README (Chinese variant)."""
+    try:
+        template = fcop.teams.get_template(team, "zh")
+    except fcop.TeamNotFoundError as exc:
+        return f"# Team not found: {team}\n\n{exc}"
+    return template.readme
+
+
+@mcp.resource("fcop://teams/{team}/{role}", mime_type="text/markdown")
+def resource_team_role_zh(team: str, role: str) -> str:
+    """Role-level bio for one team member (Chinese variant)."""
+    try:
+        template = fcop.teams.get_template(team, "zh")
+    except fcop.TeamNotFoundError as exc:
+        return f"# Team not found: {team}\n\n{exc}"
+    role_up = role.upper()
+    text = template.roles.get(role_up)
+    if text is None:
+        known = ", ".join(sorted(template.roles)) or "(none)"
+        return (
+            f"# Role not found: {role_up} in team {team}\n\n"
+            f"Known roles: {known}"
+        )
+    return text
+
+
+@mcp.resource("fcop://teams/{team}/{role}/en", mime_type="text/markdown")
+def resource_team_role_en(team: str, role: str) -> str:
+    """Role-level bio for one team member (English variant)."""
+    try:
+        template = fcop.teams.get_template(team, "en")
+    except fcop.TeamNotFoundError as exc:
+        return f"# Team not found: {team}\n\n{exc}"
+    role_up = role.upper()
+    text = template.roles.get(role_up)
+    if text is None:
+        known = ", ".join(sorted(template.roles)) or "(none)"
+        return (
+            f"# Role not found: {role_up} in team {team}\n\n"
+            f"Known roles: {known}"
+        )
+    return text

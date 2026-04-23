@@ -66,6 +66,22 @@ versioning strategy.
 - New package. Thin wrapper exposing `fcop.Project` / `fcop.teams` /
   `fcop.rules` as MCP tools and resources for Cursor / Claude Desktop.
 - Depends on `fcop >= 0.6, < 0.7` and `fastmcp >= 3.2`.
+- **24 MCP tools** registered, mirroring the 0.5.4 surface so existing
+  clients keep working after the rename (`fcop` → `fcop-mcp`). Groups:
+  project path (`set_project_dir`), init (`init_project`, `init_solo`,
+  `create_custom_team`, `validate_team_config`),
+  tasks (`write_task` / `read_task` / `list_tasks` / `inspect_task` /
+  `archive_task`), reports (`write_report` / `list_reports` /
+  `read_report`), issues (`write_issue` / `list_issues`),
+  team & workspace (`get_available_teams`, `get_team_status`,
+  `deploy_role_templates`, `new_workspace`, `list_workspaces`),
+  suggestions (`drop_suggestion`), and meta (`unbound_report`,
+  `check_update`, `upgrade_fcop`).
+- **10 MCP resources** under the `fcop://` URI scheme: `status`,
+  `config`, `rules`, `protocol`, `letter/{zh,en}`, `teams`,
+  `teams/{team}`, `teams/{team}/{role}`, `teams/{team}/{role}/en`.
+  All returns route through the `fcop` library, so the contract
+  remains single-sourced.
 
 ### Removed — fcop (library)
 
