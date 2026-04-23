@@ -10,6 +10,23 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Added — project governance
+
+- **ADR-0003 Pre-1.0 Stability Charter** ratified
+  ([`adr/ADR-0003`](./adr/ADR-0003-stability-charter.md)). Starting with
+  `0.6.0`, the four public-API surfaces (`fcop.__all__`, `Project`
+  methods/properties, `fcop.models` dataclass fields,
+  `fcop.teams` / `fcop.rules` exports) are **additive-only** within a
+  minor version; breaking changes require a deprecation cycle spanning
+  at least one minor version.
+- New snapshot test
+  `tests/test_fcop/test_public_surface.py` freezes the observed surface
+  to `tests/test_fcop/snapshots/public_surface.json`. Update the
+  snapshot with `pytest --snapshot-update` when adding public API and
+  announce it in this CHANGELOG.
+- New CI job `surface-check` verifies that any PR modifying the snapshot
+  file also updates the `[Unreleased]` section of this CHANGELOG.
+
 ### Changed — fcop (library)
 
 - **BREAKING**: `fcop` is now a pure Python library, not an MCP server.

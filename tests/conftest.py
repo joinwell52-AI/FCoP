@@ -13,6 +13,22 @@ from pathlib import Path
 import pytest
 
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register custom CLI flags used by the test suite.
+
+    ``--snapshot-update`` is consumed by
+    :mod:`tests.test_fcop.test_public_surface` to regenerate the stored
+    snapshot of the library's public API surface. See
+    adr/ADR-0003-stability-charter.md for policy.
+    """
+    parser.addoption(
+        "--snapshot-update",
+        action="store_true",
+        default=False,
+        help="Regenerate API-surface snapshots instead of asserting against them.",
+    )
+
+
 @pytest.fixture()
 def tmp_project(tmp_path: Path) -> Path:
     """An empty directory that looks like a fresh project root.

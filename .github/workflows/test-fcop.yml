@@ -231,3 +231,57 @@ jobs:
           name: fcop-dist
           path: dist/
           retention-days: 7
+
+  surface-check:
+    # Pre-1.0 Stability Charter (adr/ADR-0003) enforcement.
+    #
+    # Drift from the snapshot is already caught by the `test` matrix —
+    # tests/test_fcop/test_public_surface.py runs there and will fail
+    # on any change.
+    #
+    # This job adds a second gate: if a PR legitimately updates the
+    # snapshot (i.e. added a method, added an optional param), the
+    # CHANGELOG.md must announce it under a '## [Unreleased]' heading.
+    # Otherwise downstream users get surprise additions they can't
+    # discover from release notes.
+    #
+    # PR-only because on push-to-main we don't have a base ref to diff
+    # against, and the change has already been gated at PR merge time.
+    name: Stability charter (API surface + CHANGELOG)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout (full history for diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for snapshot / CHANGELOG consistency
+        run: |
+          set -e
+          BASE="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=50
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          echo "Files changed vs $BASE:"
+          echo "$CHANGED"
+          if echo "$CHANGED" | grep -q "tests/test_fcop/snapshots/public_surface.json"; then
+            echo "::notice::public_surface.json modified — verifying CHANGELOG."
+            if ! grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+              echo "::error::CHANGELOG.md is missing '## [Unreleased]' section."
+              echo "Per ADR-0003, any public-API surface change must be announced."
+              exit 1
+            fi
+            # Fetch the Unreleased section and ensure it mentions either 'Added',
+            # 'Deprecated', or 'Changed' — these are the headings Keep a
+            # Changelog uses and the only ones relevant to an API shift.
+            SECTION=$(awk '/^## \[Unreleased\]/,/^## \[/' CHANGELOG.md | head -n 200)
+            if ! echo "$SECTION" | grep -qE "^### (Added|Changed|Deprecated|Removed)"; then
+              echo "::error::[Unreleased] section has no Added / Changed / Deprecated heading."
+              echo "Public API drifted (snapshot file changed) but the CHANGELOG does"
+              echo "not explain the change. See adr/ADR-0003-stability-charter.md."
+              exit 1
+            fi
+            echo "CHANGELOG.md [Unreleased] properly documents the surface change."
+          else
+            echo "No public-surface snapshot change in this PR — nothing to enforce."
+          fi

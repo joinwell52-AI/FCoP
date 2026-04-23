@@ -1,0 +1,1098 @@
+{
+  "dataclasses": {
+    "DeploymentReport": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "deployed",
+          "type": "tuple[Path, ...]"
+        },
+        {
+          "has_default": false,
+          "name": "skipped",
+          "type": "tuple[Path, ...]"
+        },
+        {
+          "has_default": false,
+          "name": "archived",
+          "type": "tuple[Path, ...]"
+        },
+        {
+          "has_default": false,
+          "name": "migration_dir",
+          "type": "Path | None"
+        }
+      ]
+    },
+    "Issue": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "path",
+          "type": "Path"
+        },
+        {
+          "has_default": false,
+          "name": "filename",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "issue_id",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "summary",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "severity",
+          "type": "Severity"
+        },
+        {
+          "has_default": false,
+          "name": "reporter",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "body",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "mtime",
+          "type": "datetime"
+        }
+      ]
+    },
+    "ProjectStatus": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "path",
+          "type": "Path"
+        },
+        {
+          "has_default": false,
+          "name": "is_initialized",
+          "type": "bool"
+        },
+        {
+          "has_default": false,
+          "name": "config",
+          "type": "TeamConfig | None"
+        },
+        {
+          "has_default": false,
+          "name": "tasks_open",
+          "type": "int"
+        },
+        {
+          "has_default": false,
+          "name": "tasks_archived",
+          "type": "int"
+        },
+        {
+          "has_default": false,
+          "name": "reports_count",
+          "type": "int"
+        },
+        {
+          "has_default": false,
+          "name": "issues_count",
+          "type": "int"
+        },
+        {
+          "has_default": false,
+          "name": "recent_activity",
+          "type": "tuple[RecentActivityEntry, ...]"
+        }
+      ]
+    },
+    "RecentActivityEntry": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "kind",
+          "type": "Literal['task', 'report', 'issue']"
+        },
+        {
+          "has_default": false,
+          "name": "filename",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "mtime",
+          "type": "datetime"
+        },
+        {
+          "has_default": false,
+          "name": "summary",
+          "type": "str"
+        }
+      ]
+    },
+    "Report": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "path",
+          "type": "Path"
+        },
+        {
+          "has_default": false,
+          "name": "filename",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "task_id",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "reporter",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "recipient",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "status",
+          "type": "Literal['done', 'blocked', 'in_progress']"
+        },
+        {
+          "has_default": false,
+          "name": "body",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "is_archived",
+          "type": "bool"
+        },
+        {
+          "has_default": false,
+          "name": "mtime",
+          "type": "datetime"
+        }
+      ]
+    },
+    "Task": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "path",
+          "type": "Path"
+        },
+        {
+          "has_default": false,
+          "name": "filename",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "task_id",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "date",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "sequence",
+          "type": "int"
+        },
+        {
+          "has_default": false,
+          "name": "frontmatter",
+          "type": "TaskFrontmatter"
+        },
+        {
+          "has_default": false,
+          "name": "body",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "is_archived",
+          "type": "bool"
+        },
+        {
+          "has_default": false,
+          "name": "mtime",
+          "type": "datetime"
+        }
+      ]
+    },
+    "TaskFrontmatter": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "protocol",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "version",
+          "type": "int"
+        },
+        {
+          "has_default": false,
+          "name": "sender",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "recipient",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "priority",
+          "type": "Priority"
+        },
+        {
+          "has_default": true,
+          "name": "thread_key",
+          "type": "str | None"
+        },
+        {
+          "has_default": true,
+          "name": "subject",
+          "type": "str | None"
+        },
+        {
+          "has_default": true,
+          "name": "references",
+          "type": "tuple[str, ...]"
+        },
+        {
+          "has_default": true,
+          "name": "extra",
+          "type": "dict[str, object]"
+        }
+      ]
+    },
+    "TeamConfig": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "mode",
+          "type": "Literal['solo', 'preset', 'custom']"
+        },
+        {
+          "has_default": false,
+          "name": "team",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "leader",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "roles",
+          "type": "tuple[str, ...]"
+        },
+        {
+          "has_default": false,
+          "name": "lang",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "version",
+          "type": "int"
+        },
+        {
+          "has_default": true,
+          "name": "extra",
+          "type": "dict[str, object]"
+        }
+      ]
+    },
+    "ValidationIssue": {
+      "fields": [
+        {
+          "has_default": false,
+          "name": "severity",
+          "type": "Literal['error', 'warning', 'info']"
+        },
+        {
+          "has_default": false,
+          "name": "field",
+          "type": "str"
+        },
+        {
+          "has_default": false,
+          "name": "message",
+          "type": "str"
+        },
+        {
+          "has_default": true,
+          "name": "path",
+          "type": "Path | None"
+        }
+      ]
+    }
+  },
+  "errors": [
+    "ConfigError",
+    "FcopError",
+    "Path",
+    "ProjectAlreadyInitializedError",
+    "ProjectNotFoundError",
+    "ProtocolViolation",
+    "RoleNotFoundError",
+    "TaskNotFoundError",
+    "TeamNotFoundError",
+    "ValidationError"
+  ],
+  "project": {
+    "methods": {
+      "archive_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "Task"
+      },
+      "deploy_role_templates": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "team"
+          },
+          {
+            "annotation": "Literal['zh', 'en'] | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "lang"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "force"
+          }
+        ],
+        "return": "DeploymentReport"
+      },
+      "drop_suggestion": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "content"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "context"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "init": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "team"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "lang"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "force"
+          }
+        ],
+        "return": "ProjectStatus"
+      },
+      "init_custom": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "team_name"
+          },
+          {
+            "annotation": "Sequence[str]",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "roles"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "leader"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "lang"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "force"
+          }
+        ],
+        "return": "ProjectStatus"
+      },
+      "init_solo": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "role_code"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "lang"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "force"
+          }
+        ],
+        "return": "ProjectStatus"
+      },
+      "inspect_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "list[ValidationIssue]"
+      },
+      "is_initialized": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "bool"
+      },
+      "list_issues": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "reporter"
+          },
+          {
+            "annotation": "Severity | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "severity"
+          },
+          {
+            "annotation": "int | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "limit"
+          },
+          {
+            "annotation": "int",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "offset"
+          }
+        ],
+        "return": "list[Issue]"
+      },
+      "list_reports": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "reporter"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "task_id"
+          },
+          {
+            "annotation": "Literal['open', 'archived', 'all']",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "status"
+          },
+          {
+            "annotation": "int | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "limit"
+          },
+          {
+            "annotation": "int",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "offset"
+          }
+        ],
+        "return": "list[Report]"
+      },
+      "list_tasks": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "sender"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "recipient"
+          },
+          {
+            "annotation": "Literal['open', 'archived', 'all']",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "status"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "date"
+          },
+          {
+            "annotation": "int | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "limit"
+          },
+          {
+            "annotation": "int",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "offset"
+          }
+        ],
+        "return": "list[Task]"
+      },
+      "read_issue": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "Issue"
+      },
+      "read_report": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "Report"
+      },
+      "read_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "Task"
+      },
+      "status": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "ProjectStatus"
+      },
+      "validate_team": {
+        "params": [
+          {
+            "annotation": "Sequence[str]",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "roles"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "leader"
+          }
+        ],
+        "return": "list[ValidationIssue]"
+      },
+      "write_issue": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "reporter"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "summary"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "body"
+          },
+          {
+            "annotation": "Severity | str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "severity"
+          }
+        ],
+        "return": "Issue"
+      },
+      "write_report": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "task_id"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "reporter"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "recipient"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "body"
+          },
+          {
+            "annotation": "Literal['done', 'blocked', 'in_progress']",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "status"
+          },
+          {
+            "annotation": "Priority | str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "priority"
+          }
+        ],
+        "return": "Report"
+      },
+      "write_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "sender"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "recipient"
+          },
+          {
+            "annotation": "Priority | str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "priority"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "subject"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "body"
+          },
+          {
+            "annotation": "Sequence[str]",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "references"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "thread_key"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "slot"
+          }
+        ],
+        "return": "Task"
+      }
+    },
+    "properties": {
+      "config": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "TeamConfig"
+      },
+      "config_path": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "issues_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "log_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "path": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "reports_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "shared_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "tasks_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      }
+    }
+  },
+  "rules": {
+    "callables": {
+      "get_letter": {
+        "params": [
+          {
+            "annotation": "Literal['zh', 'en']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "lang"
+          }
+        ],
+        "return": "str"
+      },
+      "get_protocol_commentary": {
+        "params": [],
+        "return": "str"
+      },
+      "get_rules": {
+        "params": [],
+        "return": "str"
+      },
+      "get_rules_version": {
+        "params": [],
+        "return": "str"
+      }
+    },
+    "exports": [
+      "get_letter",
+      "get_protocol_commentary",
+      "get_rules",
+      "get_rules_version"
+    ]
+  },
+  "teams": {
+    "callables": {
+      "get_available_teams": {
+        "params": [],
+        "return": "list[TeamInfo]"
+      },
+      "get_team_info": {
+        "params": [
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "team"
+          }
+        ],
+        "return": "TeamInfo"
+      },
+      "get_template": {
+        "params": [
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "team"
+          },
+          {
+            "annotation": "Literal['zh', 'en']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "lang"
+          }
+        ],
+        "return": "TeamTemplate"
+      }
+    },
+    "exports": [
+      "TeamInfo",
+      "TeamTemplate",
+      "get_available_teams",
+      "get_team_info",
+      "get_template"
+    ]
+  },
+  "top_level_all": [
+    "ConfigError",
+    "DeploymentReport",
+    "FcopError",
+    "Issue",
+    "Priority",
+    "Project",
+    "ProjectAlreadyInitializedError",
+    "ProjectNotFoundError",
+    "ProjectStatus",
+    "ProtocolViolation",
+    "RecentActivityEntry",
+    "Report",
+    "RoleNotFoundError",
+    "Severity",
+    "Task",
+    "TaskFrontmatter",
+    "TaskNotFoundError",
+    "TeamConfig",
+    "TeamNotFoundError",
+    "ValidationError",
+    "ValidationIssue",
+    "__version__",
+    "rules",
+    "teams"
+  ],
+  "version": "1"
+}
