@@ -15,6 +15,7 @@ report / issue CRUD, ``init*``, and deployment still raise
 
 from __future__ import annotations
 
+import contextlib
 import datetime as _dt
 import os
 import pathlib
@@ -26,17 +27,35 @@ from fcop.core.filename import (
     ISSUE_FILENAME_RE,
     REPORT_FILENAME_RE,
     TASK_FILENAME_RE,
+    build_task_filename,
+    next_sequence,
+    parse_task_filename,
+    today_iso,
 )
-from fcop.models import ProjectStatus, RecentActivityEntry
+from fcop.core.frontmatter import (
+    assemble_task_file,
+    parse_task_frontmatter,
+)
+from fcop.core.schema import (
+    PROTOCOL_NAME,
+    PROTOCOL_VERSION,
+    normalize_priority,
+)
+from fcop.errors import TaskNotFoundError
+from fcop.models import (
+    Priority,
+    ProjectStatus,
+    RecentActivityEntry,
+    Task,
+    TaskFrontmatter,
+)
 
 if TYPE_CHECKING:
     from fcop.models import (
         DeploymentReport,
         Issue,
-        Priority,
         Report,
         Severity,
-        Task,
         TeamConfig,
         ValidationIssue,
     )
@@ -303,22 +322,120 @@ class Project:
         body: str,
         references: Sequence[str] = (),
         thread_key: str | None = None,
+        slot: str | None = None,
     ) -> Task:
         """Create a new task file.
 
         Filename is auto-generated as
         ``TASK-YYYYMMDD-NNN-{sender}-to-{recipient}.md``. ``NNN`` is
         today's existing task count + 1. On concurrent-write
-        collisions the sequence is retried up to 10 times before
-        giving up with a :class:`RuntimeError`.
+        collisions the sequence is retried up to :data:`_MAX_WRITE_RETRIES`
+        times before giving up with a :class:`RuntimeError`.
+
+        Args:
+            sender: Role code of the sending agent (uppercase, ASCII,
+                hyphen-friendly). ``ADMIN`` and ``SYSTEM`` are accepted.
+            recipient: Role code of the receiving agent.
+            priority: Either a :class:`Priority` enum or a string alias
+                accepted by :func:`normalize_priority` (``"P0".."P3"``
+                or legacy words like ``"urgent"`` / ``"normal"``).
+            subject: Short one-line summary written into the ``subject:``
+                frontmatter field. Required by the 0.6 grammar.
+            body: Markdown body of the task; any leading blank lines
+                are normalized away so the output stays idempotent.
+            references: Zero or more task/report IDs this task depends
+                on. Written as ``references: [...]`` in the frontmatter.
+            thread_key: Optional thread grouping key — ties a sequence
+                of back-and-forth tasks together.
+            slot: Optional recipient qualifier (``.BACKEND`` → recipient
+                becomes ``DEV.BACKEND`` in the filename). Role grammar
+                applies to the slot too.
 
         Raises:
-            ProtocolViolation: the sender → recipient edge is not
-                allowed by the role chain (Rule 4).
-            ValidationError: ``priority``/``subject``/``body`` is
-                missing or malformed.
+            ValueError: filename components don't match the grammar
+                (e.g. sender contains lowercase letters), or ``priority``
+                is an unrecognized alias.
+            OverflowError: today's 999-sequence space is exhausted.
+            RuntimeError: failed to reserve a sequence after
+                :data:`_MAX_WRITE_RETRIES` collisions with concurrent
+                writers. Practical only under pathological races.
         """
-        raise NotImplementedError
+        tasks_dir = self.tasks_dir
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+
+        priority_enum = normalize_priority(priority)
+        date = today_iso()
+
+        fm = TaskFrontmatter(
+            protocol=PROTOCOL_NAME,
+            version=PROTOCOL_VERSION,
+            sender=sender,
+            recipient=recipient,
+            priority=priority_enum,
+            thread_key=thread_key,
+            subject=subject or None,
+            references=tuple(references),
+        )
+        text = assemble_task_file(fm, body)
+        payload = text.encode("utf-8")
+
+        for _ in range(_MAX_WRITE_RETRIES):
+            existing = (
+                entry.name for entry in tasks_dir.iterdir() if entry.is_file()
+            )
+            sequence = next_sequence(existing, date=date, kind="task")
+            filename = build_task_filename(
+                date=date,
+                sequence=sequence,
+                sender=sender,
+                recipient=recipient,
+                slot=slot,
+            )
+            target = tasks_dir / filename
+
+            try:
+                # O_EXCL makes the reservation atomic: if a concurrent
+                # writer won the same sequence we fail here and retry.
+                fd = os.open(
+                    os.fspath(target),
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                )
+            except FileExistsError:
+                continue
+
+            try:
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(payload)
+            except BaseException:
+                # Writer crashed after reserving — clean up the empty
+                # placeholder so we don't poison the sequence slot.
+                with contextlib.suppress(OSError):
+                    target.unlink()
+                raise
+
+            parsed = parse_task_filename(filename)
+            assert parsed is not None, (
+                f"built filename {filename!r} failed to round-trip through "
+                "parse_task_filename — this is a bug in core.filename."
+            )
+            mtime = _dt.datetime.fromtimestamp(target.stat().st_mtime)
+            return Task(
+                path=target,
+                filename=filename,
+                task_id=parsed.task_id,
+                date=parsed.date,
+                sequence=parsed.sequence,
+                frontmatter=fm,
+                body=body,
+                is_archived=False,
+                mtime=mtime,
+            )
+
+        raise RuntimeError(
+            f"failed to reserve a task sequence after {_MAX_WRITE_RETRIES} "
+            "retries — concurrent writers are colliding faster than we can "
+            "pick an unused slot"
+        )
 
     def list_tasks(
         self,
@@ -332,20 +449,121 @@ class Project:
     ) -> list[Task]:
         """List tasks, optionally filtered by sender / recipient / date.
 
-        ``date`` is a ``YYYYMMDD`` string.
+        Args:
+            sender: Exact-match role code filter. ``None`` means any.
+            recipient: Exact-match role code filter. ``None`` means any.
+            status: ``"open"`` scans :attr:`tasks_dir`, ``"archived"``
+                scans ``log/tasks/``, ``"all"`` scans both.
+            date: ``YYYYMMDD`` filter. ``None`` means any date.
+            limit: Max results; ``None`` means unlimited.
+            offset: Skip this many results from the front (applied
+                after sorting). Combine with ``limit`` for pagination.
 
-        Results are sorted by ``(date desc, sequence desc)`` i.e.
-        newest first.
+        Returns:
+            Tasks sorted by ``(date, sequence)`` descending — newest
+            first. Unreadable files (malformed frontmatter, corrupt
+            YAML) are silently skipped; use :meth:`inspect_task` if
+            you need to surface their problems.
         """
-        raise NotImplementedError
+        directories: list[tuple[pathlib.Path, bool]] = []
+        if status in ("open", "all"):
+            directories.append((self.tasks_dir, False))
+        if status in ("archived", "all"):
+            directories.append((self.log_dir / "tasks", True))
+
+        tasks: list[Task] = []
+        for directory, archived in directories:
+            if not directory.is_dir():
+                continue
+            for entry in directory.iterdir():
+                task = _try_load_task(entry, is_archived=archived)
+                if task is None:
+                    continue
+                if date is not None and task.date != date:
+                    continue
+                if sender is not None and task.sender != sender:
+                    continue
+                if recipient is not None and task.recipient != recipient:
+                    continue
+                tasks.append(task)
+
+        tasks.sort(key=lambda t: (t.date, t.sequence), reverse=True)
+
+        end = None if limit is None else offset + max(0, limit)
+        return tasks[offset:end]
 
     def read_task(self, filename_or_id: str) -> Task:
         """Load one task by full filename or by task id (``TASK-YYYYMMDD-NNN``).
 
+        Args:
+            filename_or_id: Either a full filename (``TASK-...md``) or a
+                task id prefix (``TASK-20260423-001``). Ids are resolved
+                by scanning :attr:`tasks_dir` first, then ``log/tasks/``
+                so open tasks win over archived ones.
+
         Raises:
-            TaskNotFoundError: no file matches.
+            TaskNotFoundError: nothing matches.
+            ValidationError | ProtocolViolation: file exists but its
+                frontmatter is malformed. Use :meth:`inspect_task` for a
+                non-raising variant.
         """
-        raise NotImplementedError
+        target, archived = self._resolve_task_file(filename_or_id)
+        if target is None:
+            raise TaskNotFoundError(
+                f"no task matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+        return _load_task_strict(target, is_archived=archived)
+
+    def _resolve_task_file(
+        self, filename_or_id: str
+    ) -> tuple[pathlib.Path | None, bool]:
+        """Resolve a user-supplied task handle to an on-disk path.
+
+        Accepts three shapes:
+
+        * A full filename matching :data:`TASK_FILENAME_RE`
+          (``TASK-20260423-001-ADMIN-to-PM.md``). Direct lookup.
+        * A task id (``TASK-20260423-001``). Scan both dirs for the
+          first file whose filename starts with that id.
+        * Anything else — returns ``(None, False)``.
+
+        The open :attr:`tasks_dir` is scanned before ``log/tasks/`` so
+        a live task takes precedence over a same-id archived one; that
+        matches how ADMIN thinks about it ("the task I'm working on").
+
+        Returns:
+            ``(path, is_archived)``. ``path`` is ``None`` when no
+            match is found; ``is_archived`` is meaningless in that case.
+        """
+        if TASK_FILENAME_RE.fullmatch(filename_or_id):
+            for directory, archived in (
+                (self.tasks_dir, False),
+                (self.log_dir / "tasks", True),
+            ):
+                candidate = directory / filename_or_id
+                if candidate.is_file():
+                    return candidate, archived
+            return None, False
+
+        prefix = filename_or_id
+        for directory, archived in (
+            (self.tasks_dir, False),
+            (self.log_dir / "tasks", True),
+        ):
+            if not directory.is_dir():
+                continue
+            for entry in directory.iterdir():
+                if not entry.is_file():
+                    continue
+                parsed = parse_task_filename(entry.name)
+                if parsed is None:
+                    continue
+                if parsed.task_id == prefix or entry.name.startswith(
+                    prefix + "-"
+                ):
+                    return entry, archived
+        return None, False
 
     def archive_task(self, filename_or_id: str) -> Task:
         """Move a task (and any matching report) to ``log/``.
@@ -476,10 +694,88 @@ class Project:
 # call; tweak via a future kwarg when a real use case shows up.
 _RECENT_ACTIVITY_LIMIT = 10
 
+# How many times :meth:`Project.write_task` retries on sequence-number
+# collisions before bailing out. Ten is generous: the lock window is a
+# single ``os.open(O_EXCL)``, so collisions are extremely unlikely
+# outside of intentional stress tests.
+_MAX_WRITE_RETRIES = 10
+
 # File suffixes that the FCoP grammar allows. ``.md`` is canonical;
 # legacy 0.5.x projects sometimes carry ``.fcop``. Anything else is
 # ignored entirely when counting.
 _FCOP_SUFFIXES = frozenset({".md", ".fcop"})
+
+
+def _try_load_task(
+    path: pathlib.Path, *, is_archived: bool
+) -> Task | None:
+    """Best-effort load of one task file; return ``None`` on any problem.
+
+    Used by :meth:`Project.list_tasks` where a single corrupt file must
+    not break the enumeration. Strict loading lives in
+    :func:`_load_task_strict`.
+    """
+    if not path.is_file():
+        return None
+    if path.suffix.lower() not in _FCOP_SUFFIXES:
+        return None
+    parsed = parse_task_filename(path.name)
+    if parsed is None:
+        return None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        fm, body = parse_task_frontmatter(text)
+    except Exception:
+        # Covers ValidationError, ProtocolViolation, and any unexpected
+        # parser bug — list_tasks is advertised as lenient.
+        return None
+    try:
+        mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    except OSError:
+        return None
+    return Task(
+        path=path,
+        filename=path.name,
+        task_id=parsed.task_id,
+        date=parsed.date,
+        sequence=parsed.sequence,
+        frontmatter=fm,
+        body=body,
+        is_archived=is_archived,
+        mtime=mtime,
+    )
+
+
+def _load_task_strict(
+    path: pathlib.Path, *, is_archived: bool
+) -> Task:
+    """Strict load for :meth:`Project.read_task` — propagates errors.
+
+    Callers who want a boolean-ish result should use
+    :func:`_try_load_task` instead.
+    """
+    text = path.read_text(encoding="utf-8")
+    fm, body = parse_task_frontmatter(text)
+    parsed = parse_task_filename(path.name)
+    assert parsed is not None, (
+        f"_resolve_task_file returned {path.name!r} but it does not match "
+        "TASK_FILENAME_RE — this is a bug in the resolver."
+    )
+    mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    return Task(
+        path=path,
+        filename=path.name,
+        task_id=parsed.task_id,
+        date=parsed.date,
+        sequence=parsed.sequence,
+        frontmatter=fm,
+        body=body,
+        is_archived=is_archived,
+        mtime=mtime,
+    )
 
 
 def _count_matching(directory: pathlib.Path, pattern) -> int:  # type: ignore[no-untyped-def]
