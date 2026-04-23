@@ -7,24 +7,33 @@ instance.
 
 See adr/ADR-0001-library-api.md for the full API contract and invariants.
 
-Implementation status: skeleton. All methods currently raise
-:class:`NotImplementedError`. They will be filled in during the D2-D6
-work per the ADR-0001 timeline.
+Implementation status: D3 in progress. Identity / path properties,
+``is_initialized``, ``config``, and ``status`` are implemented. Task /
+report / issue CRUD, ``init*``, and deployment still raise
+:class:`NotImplementedError` — they land in D3-c2 and D4.
 """
 
 from __future__ import annotations
 
+import datetime as _dt
 import os
 import pathlib
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal
+
+from fcop.core.config import load_team_config
+from fcop.core.filename import (
+    ISSUE_FILENAME_RE,
+    REPORT_FILENAME_RE,
+    TASK_FILENAME_RE,
+)
+from fcop.models import ProjectStatus, RecentActivityEntry
 
 if TYPE_CHECKING:
     from fcop.models import (
         DeploymentReport,
         Issue,
         Priority,
-        ProjectStatus,
         Report,
         Severity,
         Task,
@@ -103,11 +112,44 @@ class Project:
         """``<project>/docs/agents/log/`` (archive root)."""
         return self._path / "docs" / "agents" / "log"
 
+    @property
+    def config_path(self) -> pathlib.Path:
+        """``<project>/docs/agents/fcop.json``.
+
+        The presence of this file is the canonical signal that a project
+        has been initialized — see :meth:`is_initialized`.
+        """
+        return self._path / "docs" / "agents" / "fcop.json"
+
+    @property
+    def _migrations_dir(self) -> pathlib.Path:
+        """``<project>/.fcop/migrations/`` — destination for archived
+        conflicts during ``init(force=True)`` and template redeploys.
+
+        Private because the exact ``.fcop/`` layout is an internal
+        implementation detail that may change between minor releases.
+        """
+        return self._path / ".fcop" / "migrations"
+
+    @property
+    def _suggestions_dir(self) -> pathlib.Path:
+        """``<project>/.fcop/suggestions/`` — inbox for out-of-band
+        notes AI roles drop for ADMIN. Private for the same reason
+        as :attr:`_migrations_dir`.
+        """
+        return self._path / ".fcop" / "suggestions"
+
     # ── Lifecycle ─────────────────────────────────────────────────────
 
     def is_initialized(self) -> bool:
-        """``True`` if ``docs/agents/fcop.json`` exists under the root."""
-        raise NotImplementedError
+        """``True`` if ``docs/agents/fcop.json`` exists under the root.
+
+        This is a pure filesystem probe — it does not validate the
+        contents of ``fcop.json``. Use :attr:`config` to actually parse
+        the configuration (which will raise :class:`ConfigError` if the
+        file is present but malformed).
+        """
+        return self.config_path.is_file()
 
     def init(
         self,
@@ -203,14 +245,51 @@ class Project:
         Re-read from disk on each access so external mutations are
         visible. This property has no caching guarantees; if you need
         to repeatedly inspect the config, capture it into a local.
+
+        Raises:
+            ConfigError: ``fcop.json`` is missing, unreadable, not valid
+                JSON, or fails structural validation. The raised error's
+                ``.path`` attribute points at ``config_path``.
         """
-        raise NotImplementedError
+        return load_team_config(self.config_path)
 
     # ── Status ────────────────────────────────────────────────────────
 
     def status(self) -> ProjectStatus:
-        """Return counts and recent activity for this project."""
-        raise NotImplementedError
+        """Return counts and recent activity for this project.
+
+        Safe to call on an uninitialized project: in that case every
+        count is ``0``, ``config`` is ``None``, and ``recent_activity``
+        is empty. Never raises for a missing directory — only for
+        invalid ``fcop.json`` contents (via :attr:`config`).
+        """
+        initialized = self.is_initialized()
+        cfg: TeamConfig | None = self.config if initialized else None
+
+        tasks_open = _count_matching(self.tasks_dir, TASK_FILENAME_RE)
+        reports_count = _count_matching(self.reports_dir, REPORT_FILENAME_RE)
+        issues_count = _count_matching(self.issues_dir, ISSUE_FILENAME_RE)
+        tasks_archived = _count_matching(
+            self.log_dir / "tasks", TASK_FILENAME_RE
+        )
+
+        recent = _collect_recent_activity(
+            tasks_dir=self.tasks_dir,
+            reports_dir=self.reports_dir,
+            issues_dir=self.issues_dir,
+            limit=_RECENT_ACTIVITY_LIMIT,
+        )
+
+        return ProjectStatus(
+            path=self._path,
+            is_initialized=initialized,
+            config=cfg,
+            tasks_open=tasks_open,
+            tasks_archived=tasks_archived,
+            reports_count=reports_count,
+            issues_count=issues_count,
+            recent_activity=recent,
+        )
 
     # ── Tasks ─────────────────────────────────────────────────────────
 
@@ -388,3 +467,81 @@ class Project:
         channels. Returns the path of the written file.
         """
         raise NotImplementedError
+
+
+# ── module-level helpers ──────────────────────────────────────────────
+
+# Cap for :meth:`Project.status` recent-activity output. Intentionally
+# small so callers don't pay for a full directory scan on every status
+# call; tweak via a future kwarg when a real use case shows up.
+_RECENT_ACTIVITY_LIMIT = 10
+
+# File suffixes that the FCoP grammar allows. ``.md`` is canonical;
+# legacy 0.5.x projects sometimes carry ``.fcop``. Anything else is
+# ignored entirely when counting.
+_FCOP_SUFFIXES = frozenset({".md", ".fcop"})
+
+
+def _count_matching(directory: pathlib.Path, pattern) -> int:  # type: ignore[no-untyped-def]
+    """Count files in *directory* whose name matches *pattern*.
+
+    Missing directories are treated as empty — ``status()`` must be
+    safe to call on uninitialized projects. We do a shallow scan only;
+    archives live under a separate ``log/`` path, not nested.
+    """
+    if not directory.is_dir():
+        return 0
+    total = 0
+    for entry in directory.iterdir():
+        if not entry.is_file():
+            continue
+        if entry.suffix.lower() not in _FCOP_SUFFIXES:
+            continue
+        if pattern.match(entry.name):
+            total += 1
+    return total
+
+
+def _collect_recent_activity(
+    *,
+    tasks_dir: pathlib.Path,
+    reports_dir: pathlib.Path,
+    issues_dir: pathlib.Path,
+    limit: int,
+) -> tuple[RecentActivityEntry, ...]:
+    """Return the newest *limit* entries across tasks/reports/issues.
+
+    Entries are ordered by filesystem mtime, descending. "Newest" is a
+    UX hint, not a correctness claim — an external tool that rewrites
+    files can perturb the order harmlessly.
+    """
+    candidates: list[RecentActivityEntry] = []
+    for kind, directory, pattern in (
+        ("task", tasks_dir, TASK_FILENAME_RE),
+        ("report", reports_dir, REPORT_FILENAME_RE),
+        ("issue", issues_dir, ISSUE_FILENAME_RE),
+    ):
+        if not directory.is_dir():
+            continue
+        for entry in directory.iterdir():
+            if not entry.is_file():
+                continue
+            if entry.suffix.lower() not in _FCOP_SUFFIXES:
+                continue
+            if not pattern.match(entry.name):
+                continue
+            try:
+                mtime = _dt.datetime.fromtimestamp(entry.stat().st_mtime)
+            except OSError:
+                continue
+            candidates.append(
+                RecentActivityEntry(
+                    kind=kind,  # type: ignore[arg-type]
+                    filename=entry.name,
+                    mtime=mtime,
+                    summary="",
+                )
+            )
+
+    candidates.sort(key=lambda e: e.mtime, reverse=True)
+    return tuple(candidates[:limit])
