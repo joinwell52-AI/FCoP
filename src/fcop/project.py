@@ -777,19 +777,179 @@ class Project:
     def archive_task(self, filename_or_id: str) -> Task:
         """Move a task (and any matching report) to ``log/``.
 
-        Returns the archived :class:`Task` with ``is_archived == True``
-        and updated ``path``.
+        Archiving is the manual "this conversation is closed" marker.
+        The file is physically relocated from ``docs/agents/tasks/`` to
+        ``docs/agents/log/tasks/``; any report whose filename starts
+        with the same ``TASK-...-NNN`` identifier is also moved to
+        ``docs/agents/log/reports/`` so the full thread lives together.
+
+        Idempotent — archiving an already-archived task returns the
+        same :class:`Task` without touching the filesystem. That makes
+        the method safe to call from cleanup scripts without
+        pre-checking.
+
+        Args:
+            filename_or_id: Full filename or task id, same shapes
+                accepted by :meth:`read_task`.
+
+        Returns:
+            The archived :class:`Task` with ``is_archived == True`` and
+            an updated ``path``.
+
+        Raises:
+            TaskNotFoundError: no matching file in either the open or
+                archived directories.
+            ValidationError | ProtocolViolation: file exists but its
+                frontmatter is malformed; archiving a corrupt file
+                would hide the problem, so we surface it up-front.
         """
-        raise NotImplementedError
+        source, archived = self._resolve_task_file(filename_or_id)
+        if source is None:
+            raise TaskNotFoundError(
+                f"cannot archive: no task matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+
+        if archived:
+            return _load_task_strict(source, is_archived=True)
+
+        log_tasks_dir = self.log_dir / "tasks"
+        log_tasks_dir.mkdir(parents=True, exist_ok=True)
+        destination = log_tasks_dir / source.name
+        # os.replace is atomic on same-filesystem moves, which is the
+        # only case we can reach here — tasks_dir and log_dir are both
+        # under self._path.
+        source.replace(destination)
+
+        # Move matching reports alongside. A report is "matching" when
+        # its filename starts with the task id that precedes the
+        # sender/recipient segment of the task filename.
+        parsed = parse_task_filename(source.name)
+        if parsed is not None:
+            self._archive_related_reports(task_id=parsed.task_id)
+
+        return _load_task_strict(destination, is_archived=True)
+
+    def _archive_related_reports(self, *, task_id: str) -> None:
+        """Move every report whose filename embeds *task_id* to the log.
+
+        Report filenames don't include the task id as a prefix — they
+        carry their own ``REPORT-YYYYMMDD-NNN-`` slug — so matching is
+        done on the ``references`` frontmatter field instead. We load
+        each report, check whether it cites *task_id*, and move the
+        ones that do.
+
+        Silent if there's nothing to move; reports are optional.
+        """
+        open_reports = self.reports_dir
+        if not open_reports.is_dir():
+            return
+        log_reports = self.log_dir / "reports"
+
+        for entry in open_reports.iterdir():
+            if not entry.is_file():
+                continue
+            if entry.suffix.lower() not in _FCOP_SUFFIXES:
+                continue
+            if not REPORT_FILENAME_RE.match(entry.name):
+                continue
+
+            try:
+                text = entry.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            # Reports share the YAML-frontmatter shape with tasks, so
+            # we reuse the task parser to read references / extras.
+            # A malformed report here just gets skipped; surfacing its
+            # breakage is inspect_report's job, not archive_task's.
+            try:
+                fm, _ = parse_task_frontmatter(text)
+            except Exception:
+                continue
+
+            references = fm.references
+            if task_id not in references:
+                continue
+
+            log_reports.mkdir(parents=True, exist_ok=True)
+            entry.replace(log_reports / entry.name)
 
     def inspect_task(self, filename_or_id: str) -> list[ValidationIssue]:
         """Validate a task file against the FCoP schema.
 
-        Empty list means the file is valid. Otherwise every problem is
-        reported as a :class:`ValidationIssue` — unlike writers, this
-        method does **not** raise on errors.
+        Unlike :meth:`read_task`, this method never raises on parser
+        errors — every problem is converted into a
+        :class:`ValidationIssue` and returned in the list. An empty
+        list means the file is schema-valid.
+
+        Useful for UIs that want to display warnings and errors side-
+        by-side, or for migration tooling that needs to tolerate a
+        batch of broken files.
+
+        Args:
+            filename_or_id: Same resolution rules as :meth:`read_task`.
+                If nothing matches, a single ``"error"`` issue is
+                returned with ``field == "filename"`` — we do not
+                raise :class:`TaskNotFoundError` here because that
+                would defeat the "non-raising" contract.
+
+        Returns:
+            Possibly empty list of issues, ordered: filesystem / I/O
+            issues first, then frontmatter issues.
         """
-        raise NotImplementedError
+        source, _ = self._resolve_task_file(filename_or_id)
+        if source is None:
+            return [
+                ValidationIssue(
+                    severity="error",
+                    field="filename",
+                    message=f"no task matches {filename_or_id!r}",
+                )
+            ]
+
+        issues: list[ValidationIssue] = []
+        try:
+            text = source.read_text(encoding="utf-8")
+        except OSError as exc:
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="filename",
+                    message=f"cannot read {source.name}: {exc}",
+                    path=source,
+                )
+            )
+            return issues
+
+        try:
+            parse_task_frontmatter(text)
+        except ValidationError as exc:
+            # ValidationError carries a .issues list already — annotate
+            # each with the file path so agents can jump to it.
+            issues.extend(
+                ValidationIssue(
+                    severity=i.severity,
+                    field=i.field,
+                    message=i.message,
+                    path=source,
+                )
+                for i in exc.issues
+            )
+        except Exception as exc:
+            # ProtocolViolation and unexpected YAML errors both land
+            # here; flatten to a single issue so callers get something
+            # actionable. We deliberately catch broad to honor the
+            # "never raises" docstring contract.
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="frontmatter",
+                    message=str(exc),
+                    path=source,
+                )
+            )
+
+        return issues
 
     # ── Reports ───────────────────────────────────────────────────────
 
