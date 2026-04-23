@@ -27,8 +27,10 @@ from fcop.core.filename import (
     ISSUE_FILENAME_RE,
     REPORT_FILENAME_RE,
     TASK_FILENAME_RE,
+    build_report_filename,
     build_task_filename,
     next_sequence,
+    parse_report_filename,
     parse_task_filename,
     today_iso,
 )
@@ -45,6 +47,7 @@ from fcop.core.schema import (
 )
 from fcop.errors import (
     ProjectAlreadyInitializedError,
+    ProtocolViolation,
     TaskNotFoundError,
     ValidationError,
 )
@@ -52,6 +55,7 @@ from fcop.models import (
     Priority,
     ProjectStatus,
     RecentActivityEntry,
+    Report,
     Task,
     TaskFrontmatter,
     TeamConfig,
@@ -63,7 +67,6 @@ if TYPE_CHECKING:
     from fcop.models import (
         DeploymentReport,
         Issue,
-        Report,
         Severity,
     )
 
@@ -961,29 +964,243 @@ class Project:
         recipient: str,
         body: str,
         status: Literal["done", "blocked", "in_progress"] = "done",
+        priority: Priority | str = "P2",
     ) -> Report:
         """Create a report responding to an existing task.
+
+        Reports live in ``docs/agents/reports/`` and cite their parent
+        task via the ``references:`` frontmatter field. A custom
+        top-level ``status:`` field captures the report outcome
+        (``done`` / ``blocked`` / ``in_progress``).
+
+        Args:
+            task_id: Id of the task this report answers. The task must
+                exist — open or archived — and its recipient must match
+                ``reporter`` (Rule 5: only the addressee can report).
+            reporter: Role code of the reporting agent.
+            recipient: Role code receiving the report. Typically the
+                original task's sender, so the thread loops back.
+            body: Markdown body of the report.
+            status: ``done`` / ``blocked`` / ``in_progress``. Written
+                as a top-level YAML field and echoed in
+                :attr:`Report.status`.
+            priority: Report priority, same normalization rules as
+                :meth:`write_task`. Defaults to ``P2``.
 
         Raises:
             TaskNotFoundError: ``task_id`` has no matching task file.
             ProtocolViolation: ``reporter`` is not the original task's
-                recipient (Rule 5).
+                recipient (Rule 5), or ``status`` is not a valid
+                report status.
+            ValueError: ``priority`` is an unrecognized alias.
         """
-        raise NotImplementedError
+        if status not in _VALID_REPORT_STATUSES:
+            raise ProtocolViolation(
+                f"status must be one of {sorted(_VALID_REPORT_STATUSES)}; "
+                f"got {status!r}",
+                rule="report.status",
+            )
+
+        task_path, task_archived = self._resolve_task_file(task_id)
+        if task_path is None:
+            raise TaskNotFoundError(
+                f"cannot write report: no task matches {task_id!r}",
+                query=task_id,
+            )
+        # Strict load — we need the frontmatter to enforce Rule 5.
+        task = _load_task_strict(task_path, is_archived=task_archived)
+        if task.recipient != reporter:
+            raise ProtocolViolation(
+                f"reporter {reporter!r} is not the recipient of task "
+                f"{task_id!r} (its recipient is {task.recipient!r}); "
+                "only the task's addressee may report on it",
+                rule="Rule 5",
+            )
+
+        reports_dir = self.reports_dir
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        priority_enum = normalize_priority(priority)
+        date = today_iso()
+
+        fm = TaskFrontmatter(
+            protocol=PROTOCOL_NAME,
+            version=PROTOCOL_VERSION,
+            sender=reporter,
+            recipient=recipient,
+            priority=priority_enum,
+            references=(task.task_id,),
+            extra={"status": status},
+        )
+        text = assemble_task_file(fm, body)
+        payload = text.encode("utf-8")
+
+        for _ in range(_MAX_WRITE_RETRIES):
+            existing = (
+                entry.name
+                for entry in reports_dir.iterdir()
+                if entry.is_file()
+            )
+            sequence = next_sequence(existing, date=date, kind="report")
+            filename = build_report_filename(
+                date=date,
+                sequence=sequence,
+                reporter=reporter,
+                recipient=recipient,
+            )
+            target = reports_dir / filename
+
+            try:
+                fd = os.open(
+                    os.fspath(target),
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                )
+            except FileExistsError:
+                continue
+
+            try:
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(payload)
+            except BaseException:
+                with contextlib.suppress(OSError):
+                    target.unlink()
+                raise
+
+            mtime = _dt.datetime.fromtimestamp(target.stat().st_mtime)
+            return Report(
+                path=target,
+                filename=filename,
+                task_id=task.task_id,
+                reporter=reporter,
+                recipient=recipient,
+                status=status,
+                body=body,
+                is_archived=False,
+                mtime=mtime,
+            )
+
+        raise RuntimeError(
+            f"failed to reserve a report sequence after "
+            f"{_MAX_WRITE_RETRIES} retries"
+        )
 
     def list_reports(
         self,
         *,
         reporter: str | None = None,
         task_id: str | None = None,
+        status: Literal["open", "archived", "all"] = "open",
         limit: int | None = None,
+        offset: int = 0,
     ) -> list[Report]:
-        """List reports, optionally filtered."""
-        raise NotImplementedError
+        """List reports, optionally filtered by reporter or parent task.
+
+        Args:
+            reporter: Exact-match filter on the report's sender.
+            task_id: If provided, only reports that cite this task in
+                their ``references:`` list are returned.
+            status: ``"open"`` (default, scans ``reports_dir``),
+                ``"archived"`` (scans ``log/reports/``), or ``"all"``.
+            limit / offset: Pagination window, applied after sorting.
+
+        Returns:
+            Reports sorted by filename (which embeds date + sequence)
+            descending — newest first. Malformed files are silently
+            skipped, matching :meth:`list_tasks`'s contract.
+        """
+        directories: list[tuple[pathlib.Path, bool]] = []
+        if status in ("open", "all"):
+            directories.append((self.reports_dir, False))
+        if status in ("archived", "all"):
+            directories.append((self.log_dir / "reports", True))
+
+        reports: list[Report] = []
+        for directory, archived in directories:
+            if not directory.is_dir():
+                continue
+            for entry in directory.iterdir():
+                report = _try_load_report(entry, is_archived=archived)
+                if report is None:
+                    continue
+                if reporter is not None and report.reporter != reporter:
+                    continue
+                if task_id is not None and report.task_id != task_id:
+                    continue
+                reports.append(report)
+
+        # Date+sequence ordering matches list_tasks; parse once for
+        # the sort key so we don't re-parse filenames per comparison.
+        def _sort_key(r: Report) -> tuple[str, int]:
+            parsed = parse_report_filename(r.filename)
+            if parsed is None:  # defense in depth; shouldn't happen
+                return ("", 0)
+            return (parsed.date, parsed.sequence)
+
+        reports.sort(key=_sort_key, reverse=True)
+
+        end = None if limit is None else offset + max(0, limit)
+        return reports[offset:end]
 
     def read_report(self, filename_or_id: str) -> Report:
-        """Load one report by filename or report id."""
-        raise NotImplementedError
+        """Load one report by filename or report id (``REPORT-YYYYMMDD-NNN``).
+
+        Resolution is parallel to :meth:`read_task`: full filename or
+        id prefix, open directory first then archive.
+
+        Raises:
+            TaskNotFoundError: no match. (We reuse this error type
+                because there isn't a dedicated ``ReportNotFoundError``
+                in the 0.6 exception hierarchy — the search space and
+                user intent are analogous.)
+            ValidationError | ProtocolViolation: file exists but is
+                malformed. Use inspect for a non-raising variant.
+        """
+        target, archived = self._resolve_report_file(filename_or_id)
+        if target is None:
+            raise TaskNotFoundError(
+                f"no report matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+        return _load_report_strict(target, is_archived=archived)
+
+    def _resolve_report_file(
+        self, filename_or_id: str
+    ) -> tuple[pathlib.Path | None, bool]:
+        """Resolve a user handle to a report path, parallel to
+        :meth:`_resolve_task_file`.
+
+        Accepts a full filename, or a ``REPORT-YYYYMMDD-NNN`` id prefix.
+        Live reports in ``reports_dir`` take precedence over archived
+        duplicates with the same id.
+        """
+        if REPORT_FILENAME_RE.fullmatch(filename_or_id):
+            for directory, archived in (
+                (self.reports_dir, False),
+                (self.log_dir / "reports", True),
+            ):
+                candidate = directory / filename_or_id
+                if candidate.is_file():
+                    return candidate, archived
+            return None, False
+
+        prefix = filename_or_id
+        for directory, archived in (
+            (self.reports_dir, False),
+            (self.log_dir / "reports", True),
+        ):
+            if not directory.is_dir():
+                continue
+            for entry in directory.iterdir():
+                if not entry.is_file():
+                    continue
+                parsed = parse_report_filename(entry.name)
+                if parsed is None:
+                    continue
+                if parsed.report_id == prefix or entry.name.startswith(
+                    prefix + "-"
+                ):
+                    return entry, archived
+        return None, False
 
     # ── Issues ────────────────────────────────────────────────────────
 
@@ -1074,6 +1291,14 @@ _MAX_WRITE_RETRIES = 10
 # ignored entirely when counting.
 _FCOP_SUFFIXES = frozenset({".md", ".fcop"})
 
+# Report status values. Kept here instead of in :mod:`fcop.core.schema`
+# because reports don't yet have a dedicated ReportFrontmatter model —
+# the status rides in ``TaskFrontmatter.extra["status"]`` for 0.6 and
+# will migrate when we split report parsing into its own module.
+_VALID_REPORT_STATUSES: frozenset[str] = frozenset(
+    {"done", "blocked", "in_progress"}
+)
+
 
 def _now_iso() -> str:
     """Return the current local time as an ISO-8601 string.
@@ -1153,6 +1378,118 @@ def _load_task_strict(
         date=parsed.date,
         sequence=parsed.sequence,
         frontmatter=fm,
+        body=body,
+        is_archived=is_archived,
+        mtime=mtime,
+    )
+
+
+def _extract_report_status(
+    fm: TaskFrontmatter,
+) -> Literal["done", "blocked", "in_progress"]:
+    """Pull and validate the ``status`` field from a report's frontmatter.
+
+    Reports store their status as a top-level YAML key that ends up in
+    :attr:`TaskFrontmatter.extra` (since 0.6 reuses ``TaskFrontmatter``
+    for both tasks and reports). A missing status is treated as
+    ``"done"`` so older reports that predate the field still load.
+
+    Raises:
+        ProtocolViolation: the field exists but its value is not one
+            of ``done`` / ``blocked`` / ``in_progress``. We intentionally
+            accept a missing field but reject a malformed one — the
+            former is a version-skew story, the latter is a bug.
+    """
+    raw = fm.extra.get("status", "done")
+    if not isinstance(raw, str) or raw not in _VALID_REPORT_STATUSES:
+        raise ProtocolViolation(
+            f"report status must be one of {sorted(_VALID_REPORT_STATUSES)}; "
+            f"got {raw!r}",
+            rule="report.status",
+        )
+    return raw  # type: ignore[return-value]
+
+
+def _try_load_report(
+    path: pathlib.Path, *, is_archived: bool
+) -> Report | None:
+    """Best-effort report load; return ``None`` on any problem.
+
+    Mirrors :func:`_try_load_task` — used by
+    :meth:`Project.list_reports` where one bad file must not break
+    the enumeration.
+    """
+    if not path.is_file():
+        return None
+    if path.suffix.lower() not in _FCOP_SUFFIXES:
+        return None
+    parsed = parse_report_filename(path.name)
+    if parsed is None:
+        return None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        fm, body = parse_task_frontmatter(text)
+    except Exception:
+        return None
+    # A report without a `references:` entry is protocol-ambiguous:
+    # we don't know which task it replies to. Skip rather than guess.
+    if not fm.references:
+        return None
+    try:
+        status = _extract_report_status(fm)
+    except ProtocolViolation:
+        return None
+    try:
+        mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    except OSError:
+        return None
+    return Report(
+        path=path,
+        filename=path.name,
+        task_id=fm.references[0],
+        reporter=fm.sender,
+        recipient=fm.recipient,
+        status=status,
+        body=body,
+        is_archived=is_archived,
+        mtime=mtime,
+    )
+
+
+def _load_report_strict(
+    path: pathlib.Path, *, is_archived: bool
+) -> Report:
+    """Strict report load for :meth:`Project.read_report`.
+
+    Unlike :func:`_try_load_report`, missing/invalid pieces raise.
+    Used where the caller asked for a specific file and silent
+    skipping would hide the problem.
+    """
+    text = path.read_text(encoding="utf-8")
+    fm, body = parse_task_frontmatter(text)
+    parsed = parse_report_filename(path.name)
+    assert parsed is not None, (
+        f"_resolve_report_file returned {path.name!r} but it does not match "
+        "REPORT_FILENAME_RE — this is a bug in the resolver."
+    )
+    if not fm.references:
+        raise ProtocolViolation(
+            f"report {path.name} has no `references:` — cannot identify "
+            "the task it responds to",
+            rule="report.references",
+        )
+    status = _extract_report_status(fm)
+    mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    return Report(
+        path=path,
+        filename=path.name,
+        task_id=fm.references[0],
+        reporter=fm.sender,
+        recipient=fm.recipient,
+        status=status,
         body=body,
         is_archived=is_archived,
         mtime=mtime,
