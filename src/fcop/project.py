@@ -16,18 +16,19 @@ from __future__ import annotations
 
 import os
 import pathlib
-from typing import TYPE_CHECKING, Literal, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from fcop.models import (
         DeploymentReport,
+        Issue,
         Priority,
         ProjectStatus,
         Report,
+        Severity,
         Task,
         TeamConfig,
-        Issue,
-        Severity,
         ValidationIssue,
     )
 
@@ -114,7 +115,7 @@ class Project:
         team: str = "dev-team",
         lang: str = "zh",
         force: bool = False,
-    ) -> "ProjectStatus":
+    ) -> ProjectStatus:
         """Initialize this directory as an FCoP project.
 
         Creates the ``docs/agents/{tasks,reports,issues,shared,log}/``
@@ -149,7 +150,7 @@ class Project:
         role_code: str = "ME",
         lang: str = "zh",
         force: bool = False,
-    ) -> "ProjectStatus":
+    ) -> ProjectStatus:
         """Initialize in Solo mode (single role, directly interfacing with ADMIN).
 
         Solo mode is meant for individual users who want FCoP's file
@@ -166,7 +167,7 @@ class Project:
         leader: str,
         lang: str = "zh",
         force: bool = False,
-    ) -> "ProjectStatus":
+    ) -> ProjectStatus:
         """Initialize with a user-defined role set.
 
         Equivalent to the legacy ``create_custom_team()`` tool. Use
@@ -185,7 +186,7 @@ class Project:
         *,
         roles: Sequence[str],
         leader: str,
-    ) -> list["ValidationIssue"]:
+    ) -> list[ValidationIssue]:
         """Dry-run validation of a custom team config.
 
         Does not touch the filesystem. Returns a list of issues; an
@@ -196,7 +197,7 @@ class Project:
     # ── Config ────────────────────────────────────────────────────────
 
     @property
-    def config(self) -> "TeamConfig":
+    def config(self) -> TeamConfig:
         """Read-only snapshot of ``docs/agents/fcop.json``.
 
         Re-read from disk on each access so external mutations are
@@ -207,7 +208,7 @@ class Project:
 
     # ── Status ────────────────────────────────────────────────────────
 
-    def status(self) -> "ProjectStatus":
+    def status(self) -> ProjectStatus:
         """Return counts and recent activity for this project."""
         raise NotImplementedError
 
@@ -218,12 +219,12 @@ class Project:
         *,
         sender: str,
         recipient: str,
-        priority: "Priority | str",
+        priority: Priority | str,
         subject: str,
         body: str,
         references: Sequence[str] = (),
         thread_key: str | None = None,
-    ) -> "Task":
+    ) -> Task:
         """Create a new task file.
 
         Filename is auto-generated as
@@ -249,7 +250,7 @@ class Project:
         date: str | None = None,
         limit: int | None = None,
         offset: int = 0,
-    ) -> list["Task"]:
+    ) -> list[Task]:
         """List tasks, optionally filtered by sender / recipient / date.
 
         ``date`` is a ``YYYYMMDD`` string.
@@ -259,7 +260,7 @@ class Project:
         """
         raise NotImplementedError
 
-    def read_task(self, filename_or_id: str) -> "Task":
+    def read_task(self, filename_or_id: str) -> Task:
         """Load one task by full filename or by task id (``TASK-YYYYMMDD-NNN``).
 
         Raises:
@@ -267,7 +268,7 @@ class Project:
         """
         raise NotImplementedError
 
-    def archive_task(self, filename_or_id: str) -> "Task":
+    def archive_task(self, filename_or_id: str) -> Task:
         """Move a task (and any matching report) to ``log/``.
 
         Returns the archived :class:`Task` with ``is_archived == True``
@@ -275,7 +276,7 @@ class Project:
         """
         raise NotImplementedError
 
-    def inspect_task(self, filename_or_id: str) -> list["ValidationIssue"]:
+    def inspect_task(self, filename_or_id: str) -> list[ValidationIssue]:
         """Validate a task file against the FCoP schema.
 
         Empty list means the file is valid. Otherwise every problem is
@@ -294,7 +295,7 @@ class Project:
         recipient: str,
         body: str,
         status: Literal["done", "blocked", "in_progress"] = "done",
-    ) -> "Report":
+    ) -> Report:
         """Create a report responding to an existing task.
 
         Raises:
@@ -310,11 +311,11 @@ class Project:
         reporter: str | None = None,
         task_id: str | None = None,
         limit: int | None = None,
-    ) -> list["Report"]:
+    ) -> list[Report]:
         """List reports, optionally filtered."""
         raise NotImplementedError
 
-    def read_report(self, filename_or_id: str) -> "Report":
+    def read_report(self, filename_or_id: str) -> Report:
         """Load one report by filename or report id."""
         raise NotImplementedError
 
@@ -326,8 +327,8 @@ class Project:
         reporter: str,
         summary: str,
         body: str,
-        severity: "Severity | str" = "medium",
-    ) -> "Issue":
+        severity: Severity | str = "medium",
+    ) -> Issue:
         """Create an issue broadcast.
 
         Issues don't follow the sender → recipient pattern; any
@@ -335,11 +336,11 @@ class Project:
         """
         raise NotImplementedError
 
-    def list_issues(self, *, limit: int | None = None) -> list["Issue"]:
+    def list_issues(self, *, limit: int | None = None) -> list[Issue]:
         """List all issues, newest first."""
         raise NotImplementedError
 
-    def read_issue(self, filename_or_id: str) -> "Issue":
+    def read_issue(self, filename_or_id: str) -> Issue:
         """Load one issue by filename or issue id."""
         raise NotImplementedError
 
@@ -351,7 +352,7 @@ class Project:
         team: str | None = None,
         lang: str | None = None,
         force: bool = True,
-    ) -> "DeploymentReport":
+    ) -> DeploymentReport:
         """Deploy three-layer team templates into ``docs/agents/shared/``.
 
         Layer 1 (``TEAM-README.md`` + ``TEAM-ROLES.md`` +

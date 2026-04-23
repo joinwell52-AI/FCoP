@@ -35,7 +35,10 @@ class FcopError(Exception):
     """
 
 
-class ProtocolViolation(FcopError):
+class ProtocolViolation(FcopError):  # noqa: N818 — "Violation" names the
+    # *domain concept* (FCoP protocol rules) precisely; renaming to
+    # ProtocolViolationError would add an -Error suffix on top of FcopError's
+    # and say less. This is a deliberate deviation from the PEP-8 style guide.
     """A requested operation would violate an FCoP protocol rule.
 
     Attributes:
@@ -57,7 +60,7 @@ class ValidationError(FcopError):
                 severity ``"error"``.
     """
 
-    def __init__(self, message: str, *, issues: list["ValidationIssue"]) -> None:
+    def __init__(self, message: str, *, issues: list[ValidationIssue]) -> None:
         super().__init__(message)
         self.issues = issues
 
