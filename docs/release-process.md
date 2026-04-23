@@ -206,15 +206,36 @@ py -3.10 -m zipfile -l dist/fcop-0.6.0rc1-py3-none-any.whl
 
 ---
 
-## 自动化路线图（后续）
+## 自动化路线图
 
-目前发布是手动流程。未来会加的自动化：
+### 已实现（0.6.0 之后）
 
-1. **GitHub Actions workflow `release.yml`**：tag push 触发，自动 build 两个包并上传 TestPyPI（RC）或 PyPI（正式）
-2. **PyPI Trusted Publishing**：取代 `twine upload` 的 API token，用 GitHub Actions 的 OIDC 身份直接发布
-3. **CHANGELOG 自动校验**：CI 检查 `_version.py` 改动必须伴随 CHANGELOG 条目
+**GitHub Actions `release.yml`**（`.github/workflows/release.yml`）：tag `v*` push 触发，自动完成：
 
-这些不是 0.6.0 阻塞项，跟踪在 GitHub issues。
+1. **verify**：校验 tag 版本号 = `_version.py` 版本号 = CHANGELOG 章节标题
+2. **build**：构建两个包的 wheel + sdist，`twine check`，干净 venv smoke install
+3. **publish-fcop**：用 `secrets.PYPI_TOKEN_FCOP`（project-scoped）上传 fcop
+4. **publish-fcop-mcp**：上传 fcop-mcp（依赖前一步成功，保证 PyPI 上 fcop 先就位）
+5. **github-release**：从 CHANGELOG 自动抽取本版本内容，创建带附件的 Release
+
+**触发方式**：
+
+```bash
+# 本地 bump 版本号、CHANGELOG、commit
+git tag -a v0.6.1 -m "Release 0.6.1"
+git push origin v0.6.1
+# → Actions 自动接管，通常 3–5 分钟完成全流程
+```
+
+**Dry run**：在 Actions UI 用 `workflow_dispatch` 手动触发，勾 `dry_run=true`，只 build + twine check，不发 PyPI 也不建 Release。
+
+**如果失败**：tag 留着但 PyPI 版本号没占用，修好再 tag `v0.6.N+1` 重试即可（PyPI 不允许重用版本号，所以同版本号重试没戏）。
+
+### 待办
+
+1. **PyPI Trusted Publishing (OIDC)**：取代两个 `PYPI_TOKEN_*` secret，用 GitHub Actions 的 OIDC 身份直接发布。进一步降低凭据面。
+2. **CHANGELOG lint as a PR gate**：PR 里改 `_version.py` 必须伴随 CHANGELOG 条目。
+3. **Release checksum/provenance**：在 Release 页面发 SHA-256、sigstore 签名。
 
 ---
 

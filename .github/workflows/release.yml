@@ -1,0 +1,242 @@
+name: release
+
+# Trigger: when a version tag (v*) is pushed, build and publish both
+# fcop and fcop-mcp to PyPI, then draft a GitHub Release.
+#
+# Flow:
+#   1. Local developer bumps versions in src/fcop/_version.py and
+#      mcp/src/fcop_mcp/_version.py, promotes CHANGELOG [Unreleased]
+#      to [X.Y.Z], commits.
+#   2. git tag -a vX.Y.Z -m "Release X.Y.Z" && git push origin vX.Y.Z
+#   3. This workflow runs. If anything fails the tag stays but nothing
+#      is published — fix and re-tag vX.Y.(Z+1).
+#
+# Security notes:
+#   - The two PyPI secrets are project-scoped tokens (not account
+#     tokens), so worst-case compromise is limited to republishing
+#     fcop / fcop-mcp under already-claimed version numbers, which
+#     PyPI rejects.
+#   - Future hardening: migrate to PyPI Trusted Publishing (OIDC)
+#     so secrets disappear entirely — tracked in release-process.md.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build + twine check only (skip PyPI upload and GitHub Release)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write  # needed for gh release create
+
+jobs:
+  verify:
+    name: Verify tag matches package versions
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag or dispatch
+        id: extract
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG#v}"
+          else
+            # workflow_dispatch: derive a pseudo version from _version.py
+            VERSION=$(grep -oP '"\K[^"]+' src/fcop/_version.py | head -n1)
+            TAG="v${VERSION}"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Release target: ${TAG} (version ${VERSION})"
+
+      - name: Check fcop version matches tag
+        run: |
+          FCOP_VER=$(grep -oP '"\K[^"]+' src/fcop/_version.py | head -n1)
+          if [[ "${FCOP_VER}" != "${{ steps.extract.outputs.version }}" ]]; then
+            echo "::error::src/fcop/_version.py has ${FCOP_VER} but tag says ${{ steps.extract.outputs.version }}"
+            exit 1
+          fi
+
+      - name: Check fcop-mcp version matches tag
+        run: |
+          MCP_VER=$(grep -oP '"\K[^"]+' mcp/src/fcop_mcp/_version.py | head -n1)
+          if [[ "${MCP_VER}" != "${{ steps.extract.outputs.version }}" ]]; then
+            echo "::error::mcp/src/fcop_mcp/_version.py has ${MCP_VER} but tag says ${{ steps.extract.outputs.version }}"
+            exit 1
+          fi
+
+      - name: Check CHANGELOG has a section for this version
+        run: |
+          if ! grep -qE "^## \[${{ steps.extract.outputs.version }}\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md is missing a '## [${{ steps.extract.outputs.version }}]' section"
+            exit 1
+          fi
+
+  build:
+    name: Build both wheels
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip build twine
+
+      - name: Build fcop
+        run: python -m build
+
+      - name: Build fcop-mcp
+        working-directory: mcp
+        run: python -m build
+
+      - name: Twine check (fcop)
+        run: python -m twine check dist/*
+
+      - name: Twine check (fcop-mcp)
+        run: python -m twine check mcp/dist/*
+
+      - name: Smoke install both wheels in clean venv
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install --upgrade pip --quiet
+          /tmp/smoke/bin/pip install dist/fcop-*.whl
+          /tmp/smoke/bin/pip install mcp/dist/fcop_mcp-*.whl
+          /tmp/smoke/bin/python -c "import fcop, fcop_mcp; print('fcop:', fcop.__version__); print('fcop-mcp:', fcop_mcp.__version__)"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: |
+            dist/*
+            mcp/dist/*
+          retention-days: 30
+
+  publish-fcop:
+    name: Publish fcop to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: artifacts
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install twine
+        run: python -m pip install --upgrade pip twine
+
+      - name: Upload fcop to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_FCOP }}
+        run: |
+          # Build job arranges the artifacts as dist/* and mcp/dist/*,
+          # so after download-artifact we get artifacts/dist/* and artifacts/mcp/dist/*
+          python -m twine upload artifacts/dist/*
+
+  publish-fcop-mcp:
+    name: Publish fcop-mcp to PyPI
+    needs: publish-fcop
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: artifacts
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install twine
+        run: python -m pip install --upgrade pip twine
+
+      - name: Upload fcop-mcp to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_FCOP_MCP }}
+        run: python -m twine upload artifacts/mcp/dist/*
+
+  github-release:
+    name: Create GitHub Release
+    needs: [verify, publish-fcop-mcp]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: artifacts
+
+      - name: Extract CHANGELOG section for this version
+        id: changelog
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          # Pull lines between "## [VERSION]" and the next "## [" header.
+          awk -v ver="${VERSION}" '
+            $0 ~ "^## \\["ver"\\]" { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          echo "--- release-notes.md ---"
+          cat release-notes.md
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          TAG="v${VERSION}"
+          # Prepend a header with install instructions and CHANGELOG link.
+          {
+            echo "## fcop & fcop-mcp ${VERSION}"
+            echo ""
+            echo "### Install"
+            echo ""
+            echo '```bash'
+            echo "pip install fcop==${VERSION}"
+            echo "pip install fcop-mcp==${VERSION}"
+            echo '```'
+            echo ""
+            echo "### Changes"
+            echo ""
+            cat release-notes.md
+            echo ""
+            echo "See the full [CHANGELOG](https://github.com/${{ github.repository }}/blob/${TAG}/CHANGELOG.md)."
+          } > full-notes.md
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release edit "${TAG}" --notes-file full-notes.md
+          else
+            gh release create "${TAG}" \
+              --title "fcop & fcop-mcp ${VERSION}" \
+              --notes-file full-notes.md \
+              artifacts/dist/*.whl \
+              artifacts/dist/*.tar.gz \
+              artifacts/mcp/dist/*.whl \
+              artifacts/mcp/dist/*.tar.gz
+          fi
