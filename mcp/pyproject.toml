@@ -1,0 +1,142 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fcop-mcp"
+dynamic = ["version"]
+description = "MCP (Model Context Protocol) server exposing the fcop library's Project/Task/Report/Issue API to Cursor, Claude Desktop, and other MCP clients."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "FCoP Maintainers" },
+]
+keywords = [
+    "fcop",
+    "fcop-mcp",
+    "mcp",
+    "model-context-protocol",
+    "multi-agent",
+    "agent-coordination",
+    "cursor",
+    "claude-desktop",
+    "llm-tools",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+# Runtime dependencies.
+#
+# * `fcop` is pinned to the matching 0.6.x minor by ADR-0002 rule
+#   "fcop-mcp depends on fcop >=0.6,<0.7" so a `pip install --upgrade
+#   fcop-mcp` never silently pulls a breaking 0.7 library version.
+#
+# * `fastmcp` is the MCP SDK that provides the @tool / @resource
+#   decorators and the stdio transport. Pinned >= 3.2 because
+#   FastMCP's sync tool-dispatch semantics stabilized in 3.2.
+#
+# * `websockets` is needed when the relay bridge mode is active
+#   (FCOP_ROOM_KEY / FCOP_RELAY_WS_URL env vars — see server.py).
+#   Kept as a runtime dep because the relay bridge is a first-class
+#   feature, not an optional extra.
+dependencies = [
+    "fcop>=0.6,<0.7",
+    "fastmcp>=3.2.0",
+    "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "build>=1.2",
+    "twine>=5.0",
+]
+
+[project.scripts]
+# The entry point end users invoke from Cursor / Claude Desktop via
+#     {"command": "uvx", "args": ["fcop-mcp"]}
+# or a plain
+#     {"command": "fcop-mcp"}
+# after `pip install fcop-mcp`.
+fcop-mcp = "fcop_mcp.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/joinwell52-AI/FCoP"
+Repository = "https://github.com/joinwell52-AI/FCoP"
+Issues = "https://github.com/joinwell52-AI/FCoP/issues"
+Changelog = "https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/joinwell52-AI/FCoP#readme"
+
+# ── Hatchling build configuration ─────────────────────────────────────
+
+[tool.hatch.version]
+path = "src/fcop_mcp/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fcop_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/fcop_mcp",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+
+# ── Tooling ──────────────────────────────────────────────────────────
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "N",
+    "SIM",
+]
+ignore = [
+    "E501",
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+show_error_codes = true
+files = ["src/fcop_mcp"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+]
+testpaths = ["../tests/test_fcop_mcp"]
+pythonpath = ["src", "../src"]
