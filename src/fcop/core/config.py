@@ -28,6 +28,8 @@ from fcop.models import TeamConfig
 __all__ = [
     "parse_team_config",
     "load_team_config",
+    "serialize_team_config",
+    "save_team_config",
 ]
 
 
@@ -84,6 +86,60 @@ def parse_team_config(raw: object, *, source: Path | None = None) -> TeamConfig:
         version=version,
         extra=extra,
     )
+
+
+def serialize_team_config(cfg: TeamConfig) -> str:
+    """Render a :class:`TeamConfig` as a stable JSON document.
+
+    Key order is deterministic so writing the same config twice yields
+    byte-identical files — important for round-trip round-trip tests
+    and for git diffs on ``fcop.json`` changes. The key order mirrors
+    the shape accepted by :func:`parse_team_config`:
+
+    1. ``mode``
+    2. ``team``
+    3. ``leader``
+    4. ``roles``
+    5. ``lang``
+    6. ``version``
+    7. everything from ``cfg.extra`` in sorted key order
+
+    The ``_role_labels`` entry produced by legacy-shape parsing is
+    preserved as-is in ``extra`` so load → save round-trips without
+    dropping labels.
+
+    Output ends with a trailing newline (POSIX convention); UTF-8
+    non-ASCII characters are written literally (no ``\\uXXXX`` escapes)
+    so Chinese text in labels stays human-readable in diffs.
+    """
+    data: dict[str, object] = {
+        "mode": cfg.mode,
+        "team": cfg.team,
+        "leader": cfg.leader,
+        "roles": list(cfg.roles),
+        "lang": cfg.lang,
+        "version": cfg.version,
+    }
+    for key in sorted(cfg.extra):
+        data[key] = cfg.extra[key]
+    return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+
+
+def save_team_config(cfg: TeamConfig, path: Path) -> None:
+    """Write *cfg* to *path* atomically.
+
+    Writes to a ``.tmp`` sibling first then ``os.replace``s onto the
+    final name, so readers never see a partially-written file. The
+    parent directory is created on demand — callers don't need to set
+    up ``docs/agents/`` themselves.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = serialize_team_config(cfg).encode("utf-8")
+
+    import os as _os
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_bytes(payload)
+    _os.replace(tmp, path)
 
 
 def load_team_config(path: Path) -> TeamConfig:

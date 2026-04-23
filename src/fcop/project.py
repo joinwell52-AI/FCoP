@@ -22,7 +22,7 @@ import pathlib
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal
 
-from fcop.core.config import load_team_config
+from fcop.core.config import load_team_config, save_team_config
 from fcop.core.filename import (
     ISSUE_FILENAME_RE,
     REPORT_FILENAME_RE,
@@ -39,16 +39,25 @@ from fcop.core.frontmatter import (
 from fcop.core.schema import (
     PROTOCOL_NAME,
     PROTOCOL_VERSION,
+    is_valid_role_code,
     normalize_priority,
+    validate_role_code,
 )
-from fcop.errors import TaskNotFoundError
+from fcop.errors import (
+    ProjectAlreadyInitializedError,
+    TaskNotFoundError,
+    ValidationError,
+)
 from fcop.models import (
     Priority,
     ProjectStatus,
     RecentActivityEntry,
     Task,
     TaskFrontmatter,
+    TeamConfig,
+    ValidationIssue,
 )
+from fcop.teams import get_team_info
 
 if TYPE_CHECKING:
     from fcop.models import (
@@ -56,8 +65,6 @@ if TYPE_CHECKING:
         Issue,
         Report,
         Severity,
-        TeamConfig,
-        ValidationIssue,
     )
 
 __all__ = ["Project"]
@@ -177,33 +184,51 @@ class Project:
         lang: str = "zh",
         force: bool = False,
     ) -> ProjectStatus:
-        """Initialize this directory as an FCoP project.
+        """Initialize this directory as an FCoP project with a preset team.
 
         Creates the ``docs/agents/{tasks,reports,issues,shared,log}/``
-        tree, writes ``fcop.json``, deploys the Cursor rule files
-        (``.cursor/rules/fcop-rules.mdc`` + ``fcop-protocol.mdc``),
-        deploys the chosen team's four-layer templates into
-        ``docs/agents/shared/``, and writes a welcome task.
+        tree and writes ``fcop.json``. Role template deployment,
+        Cursor rule installation, and the welcome task are handled by
+        separate methods (:meth:`deploy_role_templates` + future work)
+        so ``init`` stays focused on the one invariant that
+        :meth:`is_initialized` probes for.
 
         Args:
             team: Name of a bundled preset team. See
-                  :func:`fcop.teams.get_available_teams`.
-            lang: ``"zh"`` or ``"en"``; drives template language and
-                  letter-to-admin selection.
-            force: If ``True``, overwrite an existing initialization.
-                   Conflicting files are archived to
-                   ``.fcop/migrations/<timestamp>/``.
+                  :func:`fcop.teams.get_available_teams` for the list.
+            lang: ``"zh"`` or ``"en"`` — informational only at this
+                  point; influences nothing that ``init`` writes
+                  today, but is persisted into ``fcop.json`` so later
+                  template deployment picks it up.
+            force: If ``True``, allow overwriting an existing
+                   ``fcop.json``; the old file is archived to
+                   ``.fcop/migrations/<timestamp>/`` before the new
+                   one lands. Destructive — defaults to ``False``.
 
         Returns:
             A :class:`ProjectStatus` snapshot of the freshly initialized
             project.
 
         Raises:
-            ProjectAlreadyInitializedError: ``fcop.json`` already exists
-                and ``force=False``.
-            TeamNotFoundError: ``team`` is not a bundled preset.
+            ProjectAlreadyInitializedError: ``fcop.json`` exists and
+                ``force=False``.
+            TeamNotFoundError: ``team`` is not in the bundled registry.
         """
-        raise NotImplementedError
+        info = get_team_info(team)
+        cfg = TeamConfig(
+            mode="preset",
+            team=info.name,
+            leader=info.leader,
+            roles=info.roles,
+            lang=lang,
+            version=PROTOCOL_VERSION,
+            extra={
+                "display_name": info.display_name,
+                "created_at": _now_iso(),
+            },
+        )
+        self._apply_init(cfg, force=force)
+        return self.status()
 
     def init_solo(
         self,
@@ -212,13 +237,47 @@ class Project:
         lang: str = "zh",
         force: bool = False,
     ) -> ProjectStatus:
-        """Initialize in Solo mode (single role, directly interfacing with ADMIN).
+        """Initialize in Solo mode (single role interfacing with ADMIN).
 
-        Solo mode is meant for individual users who want FCoP's file
-        discipline without a multi-agent team. Only one role is
-        registered (default ``"ME"``).
+        Solo mode is for individual users who want FCoP's file
+        discipline without a multi-agent team. Exactly one role is
+        registered (default ``"ME"``); it doubles as the leader.
+
+        Args:
+            role_code: The one role that writes in this project.
+                Must match the role grammar (uppercase, ASCII,
+                optionally hyphenated). ``ADMIN`` / ``SYSTEM`` are
+                rejected because solo mode is about AI authorship —
+                ADMIN is already implied as the human counterpart.
+            lang: Persisted into ``fcop.json`` for later template
+                deployment; ignored by ``init_solo`` itself.
+            force: Same semantics as :meth:`init`.
+
+        Raises:
+            ValidationError: ``role_code`` fails
+                :func:`fcop.core.schema.validate_role_code`
+                (strict — reserved roles rejected).
+            ProjectAlreadyInitializedError: see :meth:`init`.
         """
-        raise NotImplementedError
+        issues = validate_role_code(role_code, field="role_code")
+        errors = [i for i in issues if i.severity == "error"]
+        if errors:
+            raise ValidationError(
+                f"invalid role_code {role_code!r} for solo mode",
+                issues=errors,
+            )
+
+        cfg = TeamConfig(
+            mode="solo",
+            team="solo",
+            leader=role_code,
+            roles=(role_code,),
+            lang=lang,
+            version=PROTOCOL_VERSION,
+            extra={"created_at": _now_iso()},
+        )
+        self._apply_init(cfg, force=force)
+        return self.status()
 
     def init_custom(
         self,
@@ -231,16 +290,58 @@ class Project:
     ) -> ProjectStatus:
         """Initialize with a user-defined role set.
 
-        Equivalent to the legacy ``create_custom_team()`` tool. Use
-        :meth:`validate_team` first to surface any naming or structural
-        issues without writing files.
+        Equivalent to the legacy ``create_custom_team()`` tool. Call
+        :meth:`validate_team` first to surface any naming or
+        structural issues without writing files — the checks here are
+        identical, they just raise :class:`ValidationError` on failure
+        instead of returning a list.
+
+        Args:
+            team_name: Human-readable team slug written into
+                ``fcop.json`` (``"my-custom-squad"``). Free-form
+                string; only non-emptiness is enforced.
+            roles: Ordered sequence of role codes registered on this
+                team. Must include ``leader``.
+            leader: Role code of the team's leader — the one recipient
+                ``ADMIN``-addressed tasks default to.
+            lang: Persisted for later template deployment.
+            force: Same semantics as :meth:`init`.
 
         Raises:
             ValidationError: the team config is invalid. The raised
                 exception's ``.issues`` list mirrors what
                 :meth:`validate_team` returns.
         """
-        raise NotImplementedError
+        issues = Project.validate_team(roles=roles, leader=leader)
+        errors = [i for i in issues if i.severity == "error"]
+        if errors:
+            raise ValidationError(
+                "invalid custom team config",
+                issues=errors,
+            )
+        if not team_name.strip():
+            raise ValidationError(
+                "team_name must not be empty",
+                issues=[
+                    ValidationIssue(
+                        severity="error",
+                        field="team_name",
+                        message="team_name must be a non-empty string",
+                    )
+                ],
+            )
+
+        cfg = TeamConfig(
+            mode="custom",
+            team=team_name,
+            leader=leader,
+            roles=tuple(roles),
+            lang=lang,
+            version=PROTOCOL_VERSION,
+            extra={"created_at": _now_iso()},
+        )
+        self._apply_init(cfg, force=force)
+        return self.status()
 
     @staticmethod
     def validate_team(
@@ -250,10 +351,118 @@ class Project:
     ) -> list[ValidationIssue]:
         """Dry-run validation of a custom team config.
 
-        Does not touch the filesystem. Returns a list of issues; an
-        empty list means the config is valid.
+        Does not touch the filesystem. Checks:
+
+        * ``roles`` is non-empty.
+        * Each role code matches
+          :data:`fcop.core.schema.ROLE_CODE_RE` and is not reserved
+          (``ADMIN`` / ``SYSTEM`` cannot be assigned to AI roles).
+        * Authority words like ``BOSS`` produce a stylistic
+          ``warning`` issue (non-fatal — callers can elect to proceed).
+        * ``roles`` has no duplicates.
+        * ``leader`` appears in ``roles``.
+
+        Returns:
+            A list of :class:`ValidationIssue` — empty when the config
+            is clean. Callers render the list to the user; callers
+            that prefer exceptions can filter to ``severity=="error"``
+            and raise themselves.
         """
-        raise NotImplementedError
+        issues: list[ValidationIssue] = []
+
+        if not roles:
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="roles",
+                    message="roles must be a non-empty sequence",
+                )
+            )
+            return issues
+
+        seen: set[str] = set()
+        for i, code in enumerate(roles):
+            field = f"roles[{i}]"
+            issues.extend(validate_role_code(code, field=field))
+            if code in seen:
+                issues.append(
+                    ValidationIssue(
+                        severity="error",
+                        field=field,
+                        message=f"duplicate role code {code!r}",
+                    )
+                )
+            else:
+                seen.add(code)
+
+        if not is_valid_role_code(leader):
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="leader",
+                    message=(
+                        f"leader {leader!r} is not a valid role code "
+                        "(must be uppercase ASCII, optionally hyphenated)"
+                    ),
+                )
+            )
+        elif leader not in seen:
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="leader",
+                    message=(
+                        f"leader {leader!r} must appear in the roles list"
+                    ),
+                )
+            )
+
+        return issues
+
+    def _apply_init(self, cfg: TeamConfig, *, force: bool) -> None:
+        """Shared I/O for ``init`` / ``init_solo`` / ``init_custom``.
+
+        Order of operations:
+
+        1. Check for pre-existing ``fcop.json``. If present and
+           ``force=False``, refuse.
+        2. Create the canonical directory tree even in the force path;
+           this is idempotent (``mkdir(parents=True, exist_ok=True)``).
+        3. If forcing, archive the old ``fcop.json`` into
+           ``.fcop/migrations/<timestamp>/`` *before* the atomic swap —
+           losing the old config silently would be a data hazard.
+        4. Atomic write of the new config (``save_team_config``
+           uses tmp-then-replace internally).
+
+        Private because the exact sequencing is an implementation
+        detail; callers use the high-level ``init*`` methods.
+        """
+        config_path = self.config_path
+        already = config_path.is_file()
+        if already and not force:
+            raise ProjectAlreadyInitializedError(
+                f"fcop.json already exists at {config_path}; "
+                "pass force=True to overwrite (the old file will be "
+                "archived under .fcop/migrations/)."
+            )
+
+        for directory in (
+            self.tasks_dir,
+            self.reports_dir,
+            self.issues_dir,
+            self.shared_dir,
+            self.log_dir,
+        ):
+            directory.mkdir(parents=True, exist_ok=True)
+
+        if already and force:
+            timestamp = _now_iso().replace(":", "").replace("-", "")
+            migration_dir = self._migrations_dir / timestamp
+            migration_dir.mkdir(parents=True, exist_ok=True)
+            archive_path = migration_dir / "fcop.json"
+            config_path.replace(archive_path)
+
+        save_team_config(cfg, config_path)
 
     # ── Config ────────────────────────────────────────────────────────
 
@@ -704,6 +913,18 @@ _MAX_WRITE_RETRIES = 10
 # legacy 0.5.x projects sometimes carry ``.fcop``. Anything else is
 # ignored entirely when counting.
 _FCOP_SUFFIXES = frozenset({".md", ".fcop"})
+
+
+def _now_iso() -> str:
+    """Return the current local time as an ISO-8601 string.
+
+    Local time (not UTC) matches the operator's wall clock — FCoP
+    files are authored interactively and a human reading
+    ``created_at`` cares about "when did I create this on my laptop",
+    not a UTC offset. Seconds-level precision is sufficient; we don't
+    include microseconds because the value is informational only.
+    """
+    return _dt.datetime.now().replace(microsecond=0).isoformat()
 
 
 def _try_load_task(
