@@ -110,6 +110,11 @@ exclude = [
 line-length = 100
 target-version = "py310"
 src = ["src"]
+# integrations/ holds platform-specific helper scripts (e.g. Windows file
+# association installer) that are not shipped in the fcop or fcop-mcp
+# wheels. They use Win32 API constants that legitimately violate pep8
+# naming, so we exclude them from the release-time lint gate.
+extend-exclude = ["integrations"]
 
 [tool.ruff.lint]
 select = [

@@ -24,12 +24,12 @@ import pytest
 
 from fcop import Project
 from fcop.errors import ProtocolViolation, TaskNotFoundError
-from fcop.models import Report
+from fcop.models import Report, Task
 
 
-def _seed_task(project: Project, **overrides: object):
+def _seed_task(project: Project, **overrides: object) -> Task:
     """Write a default task and return it. Overrides layer onto defaults."""
-    kwargs = {
+    kwargs: dict[str, object] = {
         "sender": "ADMIN",
         "recipient": "PM",
         "priority": "P1",

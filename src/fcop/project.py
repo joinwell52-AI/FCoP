@@ -1407,12 +1407,20 @@ class Project:
         issues_dir.mkdir(parents=True, exist_ok=True)
 
         date = today_iso()
+        # Issue files are the one FCoP file type that can be legally
+        # edited post-creation (status open→closed is an allowed
+        # monotonic append, see ADR-0004 §"Issue 是例外"). That means
+        # filesystem mtime no longer equals creation time, so we must
+        # persist ``created_at`` in the frontmatter. Tasks and reports
+        # don't need this: they are strictly immutable, mtime = created.
         frontmatter_data: dict[str, object] = {
             "protocol": PROTOCOL_NAME,
             "version": PROTOCOL_VERSION,
             "reporter": reporter,
             "severity": severity_enum.value,
+            "status": "open",
             "summary": cleaned_summary,
+            "created_at": _now_iso(),
         }
         text = _assemble_issue_file(frontmatter_data, body)
         payload = text.encode("utf-8")
@@ -1881,8 +1889,21 @@ def _assemble_issue_file(
     """
     ordered: dict[str, object] = {}
     # Keep a canonical order — mirrors serialize_task_frontmatter's
-    # "protocol/version first" discipline.
-    for key in ("protocol", "version", "reporter", "severity", "summary"):
+    # "protocol/version first" discipline. ``status`` / ``created_at``
+    # are pinned next to the core identity fields so round-trips
+    # produce clean diffs; see ADR-0004 §"Issue 是例外".
+    for key in (
+        "protocol",
+        "version",
+        "reporter",
+        "severity",
+        "status",
+        "summary",
+        "created_at",
+        "closed_at",
+        "closed_by",
+        "resolution",
+    ):
         if key in frontmatter_data:
             ordered[key] = frontmatter_data[key]
     for key in sorted(frontmatter_data):

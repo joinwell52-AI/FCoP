@@ -8,7 +8,7 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
-## [Unreleased]
+## [0.6.0] - 2026-04-23
 
 ### Added — project governance
 
@@ -43,6 +43,25 @@ versioning strategy.
   `surface-check` job, and a clean-venv smoke install of the built
   wheel so the `fcop-mcp` console script packaging is verified
   every commit.
+- **ADR-0004 Time Is Filesystem's Job** ratified
+  ([`adr/ADR-0004`](./adr/ADR-0004-time-is-filesystem.md)). Single
+  source of truth for time: task / report files **do not** carry
+  `created_at` in frontmatter (Git history + filesystem `mtime` are
+  authoritative). Issue files **do** carry `created_at` because
+  Issue is the one FCoP file kind that allows legal editing
+  (`open → closed` monotonic append), so `mtime` is no longer
+  equivalent to creation time.
+- **ADR-0005 Agent Output Layering** ratified
+  ([`adr/ADR-0005`](./adr/ADR-0005-agent-output-layering.md)).
+  Every agent-produced artifact now falls into exactly one of five
+  lifecycle tiers: (A) tool return values — no file, (B) audit /
+  patrol traces → `docs/agents/log/`, (C) cross-agent findings →
+  `docs/agents/issues/` via `write_issue`, (D) agent-private runtime
+  state (`runtime-*.json`, cache, checkpoint) → **new**
+  `docs/agents/.runtime/{AGENT_CODE}/`, (E) local one-shot human
+  scripts → `_ignore/`. 0.6.0 is a protocol-level decision only; the
+  library helpers (`Project.agent_runtime_dir`, `write_log`,
+  `list_logs`) ship in 0.6.1 as additive API per ADR-0003.
 
 ### Changed — fcop (library)
 
@@ -77,6 +96,16 @@ versioning strategy.
   dataclass with `readme` + `team_roles` + `operating_rules` + a
   per-role `roles` dict, all as UTF-8 text. Previously raised
   `NotImplementedError`.
+- `Project.write_issue` now emits two additional canonical
+  frontmatter fields: `status: open` and `created_at` (ISO 8601,
+  second precision). Existing issue files missing these fields are
+  still readable — the new fields are additive, see ADR-0004
+  Grandfather clause.
+- Issue file canonical frontmatter order is now
+  `protocol, version, reporter, severity, status, summary,
+  created_at [, closed_at, closed_by, resolution]` with unknown
+  keys sorted alphabetically below; `closed_*` / `resolution` slots
+  are reserved for the 0.6.1 issue state-machine follow-up.
 
 ### Added — fcop-mcp (MCP server)
 

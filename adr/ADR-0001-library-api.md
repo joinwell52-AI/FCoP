@@ -1,6 +1,6 @@
 # ADR-0001: `fcop` Library API（`import fcop`）
 
-- **Status**: Proposed
+- **Status**: Accepted (2026-04-23, ratified with 0.6.0 release)
 - **Date**: 2026-04-22
 - **Deciders**: ADMIN
 - **Related**: [ADR-0002](./ADR-0002-package-split-and-migration.md)（拆包与迁移）

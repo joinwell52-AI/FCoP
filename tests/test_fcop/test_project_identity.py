@@ -100,7 +100,7 @@ class TestIsInitialized:
 # ── config loading ────────────────────────────────────────────────────
 
 
-def _write_config(root: Path, payload: dict) -> Path:
+def _write_config(root: Path, payload: dict[str, object]) -> Path:
     """Helper: write *payload* as docs/agents/fcop.json under *root*."""
     path = root / "docs" / "agents" / "fcop.json"
     path.parent.mkdir(parents=True, exist_ok=True)

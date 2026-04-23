@@ -93,8 +93,11 @@ ADR-NNNN-kebab-case-title.md
 
 | 编号 | 标题 | Status | 日期 |
 |---|---|---|---|
-| [ADR-0001](./ADR-0001-library-api.md) | `fcop` Library API（`import fcop`）| Proposed（审阅中）| 2026-04-22 |
+| [ADR-0001](./ADR-0001-library-api.md) | `fcop` Library API（`import fcop`）| Accepted | 2026-04-22 |
 | [ADR-0002](./ADR-0002-package-split-and-migration.md) | Package Split（`fcop` + `fcop-mcp`）& 0.5 → 0.6 Migration | Accepted | 2026-04-22 |
+| [ADR-0003](./ADR-0003-stability-charter.md) | Pre-1.0 Stability Charter | Accepted | 2026-04-23 |
+| [ADR-0004](./ADR-0004-time-is-filesystem.md) | 时间由文件系统提供，不由 Frontmatter 提供 | Accepted | 2026-04-23 |
+| [ADR-0005](./ADR-0005-agent-output-layering.md) | Agent 产出物分层（Observation Output Lifecycle） | Accepted | 2026-04-23 |
 
 ## 工作流
 

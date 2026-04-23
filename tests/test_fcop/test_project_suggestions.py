@@ -101,10 +101,10 @@ class TestUniqueness:
 
         class FrozenDatetime(real_dt.datetime):
             @classmethod
-            def now(cls, tz=None):  # type: ignore[override]
+            def now(cls, tz: real_dt.tzinfo | None = None) -> real_dt.datetime:  # type: ignore[override]
                 return frozen_moment
 
-        monkeypatch.setattr(project_module._dt, "datetime", FrozenDatetime)  # noqa: SLF001
+        monkeypatch.setattr("fcop.project._dt.datetime", FrozenDatetime)
 
         project = Project(tmp_path)
         first = project.drop_suggestion(content="one")

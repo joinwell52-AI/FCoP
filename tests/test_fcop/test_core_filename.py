@@ -320,7 +320,7 @@ class TestValidateSequence:
 
     def test_bool_rejected(self) -> None:
         # Python's bool is an int subclass — protect against accidental True/False.
-        issues = fn.validate_sequence(True)  # type: ignore[arg-type]
+        issues = fn.validate_sequence(True)  # noqa: FBT003
         assert len(issues) == 1
         assert "int" in issues[0].message
 
