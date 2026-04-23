@@ -165,12 +165,15 @@ class Project:
         return self._path / ".fcop" / "migrations"
 
     @property
-    def _suggestions_dir(self) -> pathlib.Path:
-        """``<project>/.fcop/suggestions/`` — inbox for out-of-band
-        notes AI roles drop for ADMIN. Private for the same reason
-        as :attr:`_migrations_dir`.
+    def _proposals_dir(self) -> pathlib.Path:
+        """``<project>/.fcop/proposals/`` — inbox for out-of-band
+        notes AI roles drop for ADMIN (typically protocol-level
+        disagreements that don't fit the task/report/issue flow).
+
+        Private for the same reason as :attr:`_migrations_dir`: the
+        exact ``.fcop/`` layout is an implementation detail.
         """
-        return self._path / ".fcop" / "suggestions"
+        return self._path / ".fcop" / "proposals"
 
     # ── Lifecycle ─────────────────────────────────────────────────────
 
@@ -1569,12 +1572,73 @@ class Project:
         content: str,
         context: str = "",
     ) -> pathlib.Path:
-        """Append a proposal under ``.fcop/proposals/``.
+        """Drop a proposal file under ``.fcop/proposals/``.
 
-        Used by agents to log ideas that don't fit the task/report/issue
-        channels. Returns the path of the written file.
+        This is the **pressure valve** for agents who disagree with
+        the current FCoP protocol (or want to suggest a change to
+        the project's conventions). Rather than editing
+        ``fcop-rules.mdc`` / ``fcop-protocol.mdc`` directly — which
+        agents MUST NOT do per Rule 2 — they drop a timestamped
+        markdown file here and move on. ADMIN reviews async.
+
+        The written file looks like::
+
+            # Suggestion @ 20260423-180512
+
+            **Context**: optional pointer string
+
+            <body verbatim from `content`>
+
+        Args:
+            content: The suggestion itself, in the agent's own words.
+                Must be non-empty after stripping whitespace; empty
+                suggestions carry no information and are almost
+                certainly a programming error on the caller side.
+            context: Optional free-form reference to whatever
+                triggered the suggestion — a task id, a filename, a
+                short quote. Not validated; anything goes.
+
+        Returns:
+            Absolute :class:`pathlib.Path` of the written file, so
+            the caller can echo a clickable link back to ADMIN.
+
+        Raises:
+            ValueError: ``content`` is empty or whitespace-only.
+
+        Note:
+            Filenames use second-resolution timestamps
+            (``YYYYMMDD-HHMMSS.md``). If two suggestions land in the
+            same second on the same project a numeric suffix is
+            appended so neither call silently loses data — verified
+            via an ``O_CREAT | O_EXCL`` open rather than a pre-check.
         """
-        raise NotImplementedError
+        body = content.strip()
+        if not body:
+            raise ValueError(
+                "drop_suggestion requires non-empty content; "
+                "got an empty / whitespace-only string"
+            )
+
+        proposals = self._proposals_dir
+        proposals.mkdir(parents=True, exist_ok=True)
+
+        timestamp = _dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+        header = f"# Suggestion @ {timestamp}\n\n"
+        if context.strip():
+            # Keep `context` verbatim after stripping; if the caller
+            # bothered to pass non-whitespace, preserve their wording.
+            header += f"**Context**: {context.strip()}\n\n"
+        file_bytes = (header + body + "\n").encode("utf-8")
+
+        # Resolve the final path. The bare timestamp is used first;
+        # if someone else beats us to it in the same second we fall
+        # back to numeric suffixes. The retry is tiny — sub-second
+        # collisions on proposals are vanishingly rare outside of
+        # tight test loops.
+        path = _write_atomic_unique(
+            proposals, stem=timestamp, suffix=".md", data=file_bytes
+        )
+        return path
 
 
 # ── module-level helpers ──────────────────────────────────────────────
@@ -2004,6 +2068,59 @@ def _collect_recent_activity(
 
     candidates.sort(key=lambda e: e.mtime, reverse=True)
     return tuple(candidates[:limit])
+
+
+# ── Suggestion helpers ────────────────────────────────────────────────
+
+
+def _write_atomic_unique(
+    directory: pathlib.Path,
+    *,
+    stem: str,
+    suffix: str,
+    data: bytes,
+) -> pathlib.Path:
+    """Write *data* to ``directory/stem<suffix>`` atomically & uniquely.
+
+    Tries ``stem+suffix`` first; if that file already exists, falls
+    back to ``stem-2+suffix``, ``stem-3+suffix``, etc., until it
+    finds an unused name. Uses ``os.open`` with
+    ``O_CREAT | O_EXCL | O_WRONLY`` so the existence check and the
+    create are atomic — no TOCTOU window between them.
+
+    Shared with :meth:`Project.drop_suggestion` today; extracted to
+    module level so the next "append a unique timestamped file"
+    feature can reuse it without further refactoring.
+    """
+    for attempt in range(_MAX_WRITE_RETRIES):
+        candidate_name = stem + suffix if attempt == 0 else f"{stem}-{attempt + 1}{suffix}"
+        candidate = directory / candidate_name
+        try:
+            fd = os.open(
+                candidate,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o644,
+            )
+        except FileExistsError:
+            continue
+        try:
+            with os.fdopen(fd, "wb") as handle:
+                handle.write(data)
+        except BaseException:
+            # On any write failure, clean up the empty file we just
+            # created so a partial / zero-byte drop doesn't linger.
+            with contextlib.suppress(OSError):
+                candidate.unlink()
+            raise
+        return candidate
+
+    # Exhausted retries — something is seriously wrong (clock frozen,
+    # filesystem read-only midway through, etc.). Raise rather than
+    # silently overwriting.
+    raise OSError(
+        f"failed to allocate a unique filename under {directory} "
+        f"after {_MAX_WRITE_RETRIES} attempts"
+    )
 
 
 # ── Template deployment helpers ───────────────────────────────────────
