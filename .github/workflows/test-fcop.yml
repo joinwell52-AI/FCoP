@@ -65,7 +65,12 @@ jobs:
         run: python -m mypy src/fcop
 
       - name: Test (pytest)
-        run: python -m pytest tests -v
+        # Scope to tests/test_fcop on purpose — the fcop-mcp contract
+        # and smoke tests live in tests/test_fcop_mcp and are owned by
+        # the `test-fcop-mcp` workflow. Keeping the two suites in
+        # separate jobs mirrors the package split (ADR-0002) and means
+        # a red CI square pinpoints which package regressed.
+        run: python -m pytest tests/test_fcop -v
 
   coverage:
     name: Coverage (Ubuntu / 3.12)
@@ -95,8 +100,12 @@ jobs:
         # for fix-forward PRs. Bumping this number is a one-way
         # ratchet: raise it as the suite grows so it stays
         # meaningful, never lower it to accept new dead code.
+        #
+        # Coverage is scoped to the `fcop` library only; the fcop-mcp
+        # package owns its own coverage gate inside the
+        # `test-fcop-mcp` workflow once it stabilizes.
         run: |
-          python -m pytest tests \
+          python -m pytest tests/test_fcop \
             --cov=fcop \
             --cov-branch \
             --cov-report=term-missing \

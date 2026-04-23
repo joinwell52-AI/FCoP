@@ -1,0 +1,217 @@
+name: test-fcop-mcp
+
+# Cross-platform CI for the fcop-mcp package.
+#
+# Runs on every push to main/feat branches and every PR targeting main.
+# fcop-mcp is a thin MCP server on top of the fcop library, so this
+# workflow focuses on the contract that end users (Cursor / Claude
+# Desktop) actually hit — tool names, parameter shapes, resource URIs,
+# and that the whole thing still boots.
+#
+# Jobs:
+#   1. test           — matrix (3 OS × 4 Python) running lint + mypy + pytest.
+#   2. tool-surface   — PR-only gate: any change to the MCP tool snapshot
+#                       must be announced in CHANGELOG.md's [Unreleased]
+#                       section (per ADR-0003 commitment #2).
+#   3. package        — build + clean-venv smoke install so the console
+#                       script entry point (`fcop-mcp`) keeps working
+#                       against a packaged distribution, not just an
+#                       editable checkout.
+#
+# Important coupling:
+#   * fcop-mcp declares `fcop>=0.6,<0.7`, which during development is
+#     not yet on PyPI, so every job installs fcop from the repo root
+#     first (editable), then fcop-mcp from ./mcp (editable).
+
+on:
+  push:
+    branches:
+      - main
+      - "feat/**"
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: test-fcop-mcp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          # Cache against both pyproject.toml files — either one
+          # changing invalidates the cache so we never pick up a stale
+          # wheel after a dep bump.
+          cache-dependency-path: |
+            pyproject.toml
+            mcp/pyproject.toml
+
+      - name: Install fcop (library) + fcop-mcp + dev deps
+        # Order matters: fcop-mcp's pyproject.toml pins
+        # `fcop>=0.6,<0.7`, which isn't on PyPI during 0.6 development.
+        # Installing fcop from the repo root first makes the editable
+        # install of fcop-mcp satisfy its own dep bound against the
+        # in-repo code, not PyPI.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+          python -m pip install -e ./mcp[dev]
+
+      - name: Lint (ruff)
+        run: python -m ruff check mcp/src tests/test_fcop_mcp
+
+      - name: Type check (mypy)
+        # Type-checks the mcp/src tree against its own strict config.
+        # The test module is checked under that same config because it
+        # imports the decorated tools directly and any type regression
+        # there would hide real bugs.
+        run: |
+          python -m mypy --config-file mcp/pyproject.toml mcp/src/fcop_mcp
+          python -m mypy --config-file mcp/pyproject.toml tests/test_fcop_mcp
+
+      - name: Test (pytest) — contract + smoke
+        # Both test files live in tests/test_fcop_mcp; the workflow
+        # explicitly points pytest there so an accidental rootconfig
+        # change in fcop/pyproject.toml can never silently skip the
+        # MCP tests.
+        run: python -m pytest tests/test_fcop_mcp -v
+
+  tool-surface:
+    # Pre-1.0 Stability Charter enforcement — commitment #2
+    # ("MCP tool contract locked"). See adr/ADR-0003.
+    #
+    # The tool snapshot drift is caught functionally by the test
+    # matrix above; this job adds the complementary social gate that
+    # a legitimate additive change must also be announced in
+    # CHANGELOG.md so Cursor / Claude users have release notes that
+    # actually explain the new tool or resource.
+    name: Tool contract (snapshot + CHANGELOG)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout (full history for diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for snapshot / CHANGELOG consistency
+        run: |
+          set -e
+          BASE="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=50
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          echo "Files changed vs $BASE:"
+          echo "$CHANGED"
+          if echo "$CHANGED" | grep -q "tests/test_fcop_mcp/snapshots/tool_surface.json"; then
+            echo "::notice::tool_surface.json modified — verifying CHANGELOG."
+            if ! grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+              echo "::error::CHANGELOG.md is missing '## [Unreleased]' section."
+              echo "Per ADR-0003 commitment #2, any MCP tool contract change"
+              echo "must be announced for end users."
+              exit 1
+            fi
+            # Look for "### Added — fcop-mcp" (or Changed / Deprecated /
+            # Removed). Keep a Changelog headings + the package tag keep
+            # library-side and MCP-side notes visually separate in the
+            # combined CHANGELOG.
+            SECTION=$(awk '/^## \[Unreleased\]/,/^## \[/' CHANGELOG.md | head -n 400)
+            if ! echo "$SECTION" | grep -qE "^### (Added|Changed|Deprecated|Removed).*(fcop-mcp|MCP)"; then
+              echo "::error::[Unreleased] does not mention fcop-mcp / MCP in a Keep-a-Changelog heading."
+              echo "MCP tool contract drifted (tool_surface.json changed) but the"
+              echo "CHANGELOG does not announce it under ### Added — fcop-mcp or"
+              echo "similar. See adr/ADR-0003 for the policy."
+              exit 1
+            fi
+            echo "CHANGELOG.md [Unreleased] properly documents the MCP tool surface change."
+          else
+            echo "No tool-surface snapshot change in this PR — nothing to enforce."
+          fi
+
+  package:
+    name: Build + install smoke (fcop-mcp)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            mcp/pyproject.toml
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build wheel and sdist (fcop + fcop-mcp)
+        # Both wheels are needed in the same run — the fcop-mcp wheel
+        # requires fcop >= 0.6 but we can't pull it from PyPI yet, so
+        # we install fcop from its own freshly built wheel inside the
+        # smoke venv.
+        run: |
+          python -m build --wheel --sdist --outdir dist-fcop .
+          python -m build --wheel --sdist --outdir dist-mcp ./mcp
+          ls -la dist-fcop dist-mcp
+
+      - name: Smoke-install fcop-mcp wheel in a clean venv
+        # The entry point `fcop-mcp` is what Cursor / Claude Desktop
+        # actually spawn. If wheel packaging broke (entry point
+        # misnamed, py.typed missing, etc.) the matrix tests above
+        # can't catch it because they run against the editable tree.
+        run: |
+          python -m venv /tmp/mcp-smoke-venv
+          /tmp/mcp-smoke-venv/bin/pip install --upgrade pip
+          # Install fcop first from its locally built wheel so the
+          # version pin (`fcop>=0.6,<0.7`) resolves without hitting
+          # PyPI for a release that doesn't exist yet.
+          /tmp/mcp-smoke-venv/bin/pip install dist-fcop/fcop-*.whl
+          /tmp/mcp-smoke-venv/bin/pip install dist-mcp/fcop_mcp-*.whl
+          # 1. Import + version sanity.
+          /tmp/mcp-smoke-venv/bin/python -c "
+          import fcop_mcp
+          from fcop_mcp.server import mcp
+          import asyncio
+
+          print('fcop-mcp version:', fcop_mcp.__version__)
+          tools = asyncio.run(mcp.list_tools())
+          resources = asyncio.run(mcp.list_resources())
+          templates = asyncio.run(mcp.list_resource_templates())
+          print(f'tools: {len(tools)}; static resources: {len(resources)};'
+                f' templates: {len(templates)}')
+          assert len(tools) >= 24, 'fewer tools than the 0.6.0 baseline'
+          assert len(resources) >= 7, 'fewer static resources than baseline'
+          "
+          # 2. Console script must be wired up and importable.
+          test -x /tmp/mcp-smoke-venv/bin/fcop-mcp
+          /tmp/mcp-smoke-venv/bin/fcop-mcp --help 2>&1 | head -n 5 || true
+
+      - name: Upload built artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fcop-mcp-dist
+          path: |
+            dist-fcop/
+            dist-mcp/
+          retention-days: 7

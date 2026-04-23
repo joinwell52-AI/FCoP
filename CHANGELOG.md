@@ -26,6 +26,23 @@ versioning strategy.
   announce it in this CHANGELOG.
 - New CI job `surface-check` verifies that any PR modifying the snapshot
   file also updates the `[Unreleased]` section of this CHANGELOG.
+- **`fcop-mcp` tool contract frozen** (ADR-0003 commitment #2). New
+  snapshot test `tests/test_fcop_mcp/test_tool_surface.py` captures
+  every tool name, parameter name + JSON type + required-ness, and
+  every `fcop://` resource URI into
+  `tests/test_fcop_mcp/snapshots/tool_surface.json`. Regenerate with
+  `pytest tests/test_fcop_mcp --snapshot-update` when adding public
+  MCP surface (always additive within 0.6.x).
+- New smoke suite `tests/test_fcop_mcp/test_server.py` (39 tests)
+  exercises every registered tool and resource end-to-end via
+  `mcp.call_tool` / `mcp.read_resource`, so a broken MCP handler
+  fails CI instead of surfacing only in a user's editor.
+- New GitHub Actions workflow `test-fcop-mcp.yml` — 3-OS × 4-Python
+  matrix, ruff + mypy (strict) + pytest for the MCP contract and
+  smoke suite, a PR-only `tool-surface` gate mirroring the library's
+  `surface-check` job, and a clean-venv smoke install of the built
+  wheel so the `fcop-mcp` console script packaging is verified
+  every commit.
 
 ### Changed — fcop (library)
 
