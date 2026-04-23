@@ -192,14 +192,38 @@ jobs:
           print('Smoke test OK.')
           "
 
-      - name: Audit dependencies (pip-audit)
-        # Checks the installed dep tree against the PyPI Advisory DB.
-        # --strict turns any vulnerability into a failure; --ignore-vuln
-        # can be added here with a PR reference when a specific
-        # deferrable CVE surfaces.
+      - name: Audit runtime dependencies (pip-audit)
+        # Check *runtime* deps against the PyPI Advisory DB. We audit
+        # fcop's declared runtime deps rather than the smoke venv's
+        # installed tree so pip-audit doesn't try (and fail) to look
+        # up fcop 0.6.0.dev0 itself on PyPI.
+        #
+        # pip-audit accepts a requirements file; we generate one that
+        # lists only pyyaml (the sole runtime dep). Adding future
+        # runtime deps means updating both pyproject.toml and this
+        # list — a one-line chore that's preferable to the alternative
+        # (whitelisting our own package name, which masks real audit
+        # findings about "fcop").
         run: |
-          /tmp/smoke-venv/bin/pip install pip-audit
-          /tmp/smoke-venv/bin/pip-audit --strict
+          python -m venv /tmp/audit-venv
+          /tmp/audit-venv/bin/pip install --upgrade pip pip-audit
+          # Extract runtime deps from the built wheel's METADATA.
+          python - <<'PY'
+          import glob, re, zipfile, pathlib
+          whl = glob.glob('dist/fcop-*.whl')[0]
+          with zipfile.ZipFile(whl) as zf:
+              meta_name = next(n for n in zf.namelist() if n.endswith('METADATA'))
+              text = zf.read(meta_name).decode('utf-8')
+          reqs = [
+              m.group(1).strip()
+              for m in re.finditer(r'^Requires-Dist:\s*(.+?)\s*$', text, re.MULTILINE)
+          ]
+          reqs = [r for r in reqs if ';' not in r or 'extra ==' not in r]
+          pathlib.Path('audit-requirements.txt').write_text('\n'.join(reqs) + '\n')
+          print('audit target:')
+          print(pathlib.Path('audit-requirements.txt').read_text())
+          PY
+          /tmp/audit-venv/bin/pip-audit --strict -r audit-requirements.txt
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
