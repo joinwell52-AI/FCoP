@@ -1,0 +1,147 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fcop"
+dynamic = ["version"]
+description = "Python library for FCoP — the File-based Coordination Protocol for multi-agent collaboration. Zero LLM / zero MCP dependencies."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "FCoP Maintainers" },
+]
+keywords = [
+    "fcop",
+    "multi-agent",
+    "agent-coordination",
+    "file-based-protocol",
+    "protocol",
+    "llm-tools",
+    "agent-framework",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+# Intentionally empty. The fcop library is pure-stdlib.
+# MCP / LLM / websocket dependencies live in the fcop-mcp package.
+dependencies = []
+
+[project.optional-dependencies]
+# Dev tooling. `pip install -e .[dev]` pulls in everything needed to
+# contribute: test runner, linter, formatter, type checker, build tools.
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "build>=1.2",
+    "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/joinwell52-AI/FCoP"
+Repository = "https://github.com/joinwell52-AI/FCoP"
+Issues = "https://github.com/joinwell52-AI/FCoP/issues"
+Changelog = "https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/joinwell52-AI/FCoP#readme"
+
+# ── Hatchling build configuration ─────────────────────────────────────
+
+[tool.hatch.version]
+path = "src/fcop/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fcop"]
+
+# Force-include packaged data files that hatchling's auto-discovery might
+# miss. The protocol rule docs use the `.mdc` extension (Cursor rule files),
+# which is non-standard; declaring them explicitly guarantees inclusion.
+[tool.hatch.build.targets.wheel.force-include]
+"src/fcop/rules/_data/fcop-rules.mdc"        = "fcop/rules/_data/fcop-rules.mdc"
+"src/fcop/rules/_data/fcop-protocol.mdc"     = "fcop/rules/_data/fcop-protocol.mdc"
+"src/fcop/rules/_data/letter-to-admin.zh.md" = "fcop/rules/_data/letter-to-admin.zh.md"
+"src/fcop/rules/_data/letter-to-admin.en.md" = "fcop/rules/_data/letter-to-admin.en.md"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/fcop",
+    "README.md",
+    "README.zh.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "pyproject.toml",
+]
+exclude = [
+    "mcp",
+    "tests",
+    "docs",
+    "examples",
+    "scripts",
+    ".github",
+]
+
+# ── Tooling configuration ─────────────────────────────────────────────
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long — handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["N802", "N803"]  # test names don't have to follow naming rules
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+show_error_codes = true
+files = ["src/fcop"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: integration tests that touch the filesystem",
+]

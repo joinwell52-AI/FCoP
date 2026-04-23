@@ -23,6 +23,19 @@ env/
 build/
 dist/
 *.spec
+_build_test/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
 
 # Node / incidentals
 node_modules/
