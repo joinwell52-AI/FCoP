@@ -72,11 +72,15 @@ path = "src/fcop/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/fcop"]
 
-# Packaged data files (protocol rule docs in .mdc, LETTER-TO-ADMIN in .md)
-# are ported in a later D-phase commit. When they land under
-# src/fcop/rules/_data/, re-add them here via a [tool.hatch.build.targets.wheel.force-include]
-# block so hatchling picks up the .mdc extension. For now the package
-# builds from Python sources only.
+# Hatchling's wheel builder picks up .py / .typed by default, but the
+# rules data files use non-Python extensions (.mdc, .md) and need an
+# explicit include. `force-include` maps source paths (relative to the
+# repo root) to their destination inside the wheel.
+[tool.hatch.build.targets.wheel.force-include]
+"src/fcop/rules/_data/fcop-rules.mdc" = "fcop/rules/_data/fcop-rules.mdc"
+"src/fcop/rules/_data/fcop-protocol.mdc" = "fcop/rules/_data/fcop-protocol.mdc"
+"src/fcop/rules/_data/letter-to-admin.zh.md" = "fcop/rules/_data/letter-to-admin.zh.md"
+"src/fcop/rules/_data/letter-to-admin.en.md" = "fcop/rules/_data/letter-to-admin.en.md"
 
 [tool.hatch.build.targets.sdist]
 include = [
