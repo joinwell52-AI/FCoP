@@ -24,10 +24,13 @@ resources.
 
 from __future__ import annotations
 
+import json
 import os
+import re
 import sys
 import threading
 from collections.abc import Sequence
+from datetime import datetime, timezone
 from pathlib import Path
 
 import fcop
@@ -860,6 +863,363 @@ def list_issues(
     return f"Total: {len(issues)} issue(s)\n" + "\n".join(
         _format_issue_line(i) for i in issues
     )
+
+
+# ─── Safety-fuse tools ───────────────────────────────────────────────
+
+
+# ─── Team / deploy / workspace tools ─────────────────────────────────
+
+
+@mcp.tool
+def get_available_teams(lang: str = "zh") -> str:
+    """List bundled preset teams and their role rosters.
+
+    Useful before ``init_project`` to pick a template that fits the
+    work. Each team ships with its own three-layer documentation
+    (``TEAM-README.md`` + ``TEAM-ROLES.md`` + ``TEAM-OPERATING-RULES.md``)
+    that gets deployed into ``docs/agents/shared/`` during ``init_project``.
+
+    Args:
+        lang: Output language hint. Currently only affects display
+            prose; the roster data is language-independent.
+
+    Returns:
+        A block of markdown listing every bundled team with its ID,
+        roster, and leader.
+    """
+    teams = fcop.teams.get_available_teams()
+    if not teams:
+        return "No bundled teams. This is probably a packaging bug."
+
+    is_en = lang.lower().startswith("en")
+    header = (
+        f"Available preset teams ({len(teams)}):"
+        if is_en
+        else f"可用预设团队 {len(teams)} 个："
+    )
+    lines = [header]
+    for info in teams:
+        lines.append(
+            f"  - {info.name} — "
+            f"roles: {', '.join(info.roles)}; "
+            f"leader: {info.leader}"
+        )
+    return "\n".join(lines)
+
+
+@mcp.tool
+def get_team_status(lang: str = "") -> str:
+    """Return a concise status snapshot of the current project.
+
+    Shows whether the project is initialized, which team / roster is
+    loaded, how many open tasks / reports / issues are on disk, and
+    the five most recent activity entries (sorted newest first).
+
+    Args:
+        lang: Output language (``zh`` / ``en``). Empty = auto-detect
+            from ``docs/agents/fcop.json``.
+    """
+    try:
+        project, source = _get_project()
+        status = project.status()
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not status.is_initialized:
+        return (
+            f"Project NOT initialized.\n"
+            f"Path: {status.path} (source: {source})\n"
+            "Call `init_solo`, `init_project`, or `create_custom_team` first."
+        )
+
+    cfg = status.config
+    assert cfg is not None
+    effective_lang = lang.strip() or cfg.lang
+
+    lines = [
+        f"Project: {status.path} (source: {source})",
+        f"Team: {cfg.team}  Leader: {cfg.leader}  Lang: {effective_lang}",
+        f"Roles: {', '.join(cfg.roles)}",
+        "",
+        f"Tasks: {status.tasks_open} open, {status.tasks_archived} archived",
+        f"Reports: {status.reports_count}",
+        f"Issues: {status.issues_count}",
+    ]
+    if status.recent_activity:
+        lines.append("")
+        lines.append("Recent activity (newest first):")
+        for entry in status.recent_activity[:5]:
+            lines.append(
+                f"  - [{entry.kind}] {entry.filename}  — {entry.summary}"
+            )
+    return "\n".join(lines)
+
+
+@mcp.tool
+def deploy_role_templates(
+    team: str = "",
+    lang: str = "",
+    force: bool = True,
+) -> str:
+    """Deploy the three-layer team documentation into ``shared/``.
+
+    Writes ``TEAM-README.md`` (bilingual), ``TEAM-ROLES.md``,
+    ``TEAM-OPERATING-RULES.md``, and per-role bios under
+    ``docs/agents/shared/`` (both ``zh`` and ``en`` variants).
+
+    When ``force=True`` (default) existing files are archived under
+    ``.fcop/migrations/<timestamp>/shared/`` before being overwritten,
+    so the action is safely reversible. When ``force=False`` existing
+    files are left untouched and reported as skipped.
+
+    Args:
+        team: Team ID to deploy. Empty = use the current project's
+            ``fcop.json`` team.
+        lang: Language variant to emphasize. Empty = use project
+            language from ``fcop.json``.
+        force: Overwrite existing files (after archiving) vs skip.
+
+    Returns:
+        A summary listing deployed / skipped / archived paths, and
+        the migration directory (when ``force=True`` archived anything).
+    """
+    try:
+        project, _source = _get_project()
+        report = project.deploy_role_templates(
+            team=team or None,
+            lang=(lang or None),  # type: ignore[arg-type]
+            force=force,
+        )
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    lines = [
+        f"Deployed: {len(report.deployed)} file(s)",
+        f"Skipped: {len(report.skipped)} file(s) (already existed and force=False)",
+        f"Archived: {len(report.archived)} file(s) (moved before overwrite)",
+    ]
+    if report.migration_dir:
+        lines.append(f"Migration dir: {report.migration_dir}")
+    if report.deployed:
+        lines.append("")
+        lines.append("Deployed paths:")
+        for p in report.deployed[:10]:
+            lines.append(f"  - {p}")
+        if len(report.deployed) > 10:
+            lines.append(f"  ... and {len(report.deployed) - 10} more")
+    return "\n".join(lines)
+
+
+_SLUG_RE = re.compile(r"^[a-z][a-z0-9-]*$")
+_SLUG_MAX_LEN = 40
+
+
+def _validate_slug(slug: str) -> str:
+    """Return an error message (or empty string) for a workspace slug."""
+    if not slug:
+        return "错误 / error: slug 不能为空 / slug must not be empty."
+    if len(slug) > _SLUG_MAX_LEN:
+        return (
+            f"错误 / error: slug 超过 {_SLUG_MAX_LEN} 字符 "
+            f"/ slug exceeds {_SLUG_MAX_LEN} chars: {slug!r}"
+        )
+    if not _SLUG_RE.match(slug):
+        suggested = re.sub(r"[^a-z0-9-]+", "-", slug.lower()).strip("-")
+        hint = (
+            f" Suggested fix: {suggested!r}"
+            if suggested and _SLUG_RE.match(suggested) and len(suggested) <= _SLUG_MAX_LEN
+            else ""
+        )
+        return (
+            f"错误 / error: slug 必须匹配 ^[a-z][a-z0-9-]*$ 且 ≤ {_SLUG_MAX_LEN} 字符; "
+            f"got {slug!r}." + hint
+        )
+    return ""
+
+
+def _iso_now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+@mcp.tool
+def new_workspace(slug: str, title: str = "", description: str = "") -> str:
+    """Create a workspace subdirectory under ``workspace/<slug>/``.
+
+    ``workspace/<slug>/`` is FCoP's soft convention for the actual
+    artifacts of a piece of work — code, scripts, data. Keeping those
+    out of the project root prevents yesterday's mini-game from
+    colliding with today's report generator.
+
+    Idempotent: calling twice with the same slug updates the title /
+    description but never wipes files you already dropped in the
+    folder.
+
+    Args:
+        slug: Short lowercase-hyphen name matching ``^[a-z][a-z0-9-]*$``
+            and ≤ 40 chars. Examples: ``csdn-search``, ``mini-game``,
+            ``weekly-report-2026w17``.
+        title: Optional human-readable title (any language).
+        description: Optional one-paragraph description, written into
+            the per-slug README.
+    """
+    slug_norm = (slug or "").strip()
+    err = _validate_slug(slug_norm)
+    if err:
+        return err
+
+    project, _source = _get_project()
+    workspace_dir = project.path / "workspace"
+    workspace_dir.mkdir(parents=True, exist_ok=True)
+    workspace_readme = workspace_dir / "README.md"
+    if not workspace_readme.exists():
+        workspace_readme.write_text(
+            "# workspace/\n\n"
+            "Per-slug workspaces. One subdirectory per piece of work.\n"
+            "Use `new_workspace(slug=...)` to create them; do not write "
+            "business code into the project root.\n",
+            encoding="utf-8",
+        )
+
+    target = workspace_dir / slug_norm
+    is_new = not target.exists()
+    target.mkdir(parents=True, exist_ok=True)
+
+    marker = target / ".workspace.json"
+    now = _iso_now()
+    created_at = now
+    if marker.exists():
+        try:
+            prev = json.loads(marker.read_text(encoding="utf-8"))
+            if isinstance(prev, dict) and prev.get("created_at"):
+                created_at = str(prev["created_at"])
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    meta = {
+        "slug": slug_norm,
+        "title": title.strip(),
+        "description": description.strip(),
+        "created_at": created_at,
+        "updated_at": now,
+    }
+    marker.write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    readme = target / "README.md"
+    if not readme.exists():
+        body_lines = [
+            f"# {title.strip() or slug_norm}",
+            "",
+            f"Slug: `{slug_norm}`",
+            f"Created: {created_at}",
+        ]
+        if description.strip():
+            body_lines.extend(["", description.strip()])
+        body_lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "这里放这个任务/模块的实际产物（代码、脚本、数据）。",
+                "不要把业务代码写到项目根目录。",
+                "",
+                "Place actual work artifacts (code, scripts, data) here.",
+                "Do not write business code into the project root.",
+            ]
+        )
+        readme.write_text("\n".join(body_lines) + "\n", encoding="utf-8")
+
+    try:
+        rel = target.relative_to(project.path).as_posix()
+    except ValueError:
+        rel = str(target)
+
+    verb = "Created" if is_new else "Updated"
+    return (
+        f"{verb} workspace: `{rel}/`\n"
+        f"  slug: {slug_norm}\n"
+        f"  title: {title.strip() or '(none)'}\n"
+        f"  created_at: {created_at}\n\n"
+        f"{verb} workspace at `{rel}/`. Put code / scripts / data here; "
+        "do not write to the project root."
+    )
+
+
+@mcp.tool
+def list_workspaces(lang: str = "") -> str:
+    """List all ``workspace/<slug>/`` subdirectories with their metadata.
+
+    Picks up both workspaces created by ``new_workspace`` (they have
+    a ``.workspace.json`` marker) and directories created by hand
+    (shown with just the slug). Use for the at-a-glance "what's
+    inside this project" view.
+
+    Args:
+        lang: Output language (``zh``/``en``). Empty = auto-detect
+            from project config.
+    """
+    try:
+        project, _source = _get_project()
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    effective_lang = lang.strip()
+    if not effective_lang:
+        try:
+            cfg = project.config
+            effective_lang = cfg.lang
+        except fcop.FcopError:
+            effective_lang = "zh"
+    is_en = effective_lang.lower().startswith("en")
+
+    workspace_dir = project.path / "workspace"
+    if not workspace_dir.exists():
+        return (
+            "No `workspace/` directory yet.\n"
+            'Call `new_workspace(slug="<your-slug>")` to create the first one.'
+            if is_en
+            else "项目里还没有 `workspace/` 目录。\n"
+            '调 `new_workspace(slug="<你的-slug>")` 开第一个。'
+        )
+
+    entries: list[dict[str, str]] = []
+    for child in sorted(workspace_dir.iterdir()):
+        if not child.is_dir() or child.name.startswith("."):
+            continue
+        marker = child / ".workspace.json"
+        meta: dict[str, str] = {"slug": child.name}
+        if marker.exists():
+            try:
+                loaded = json.loads(marker.read_text(encoding="utf-8"))
+                if isinstance(loaded, dict):
+                    for k in ("title", "description", "created_at"):
+                        if k in loaded:
+                            meta[k] = str(loaded[k])
+            except (json.JSONDecodeError, OSError):
+                pass
+        entries.append(meta)
+
+    if not entries:
+        return (
+            "`workspace/` exists but has no slug subdirectories yet."
+            if is_en
+            else "`workspace/` 存在但还没有任何子目录。"
+        )
+
+    lines = [
+        f"`workspace/` has {len(entries)} slug(s):"
+        if is_en
+        else f"workspace/ 下有 {len(entries)} 个笼子："
+    ]
+    for entry in entries:
+        slug = entry.get("slug", "?")
+        title = entry.get("title") or ("(no title)" if is_en else "(无标题)")
+        created = entry.get("created_at") or "?"
+        lines.append(f"  - {slug}  —  {title}  (created: {created})")
+    return "\n".join(lines)
 
 
 # ─── Safety-fuse tools ───────────────────────────────────────────────
