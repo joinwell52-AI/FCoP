@@ -49,8 +49,13 @@ jobs:
             TAG="${GITHUB_REF#refs/tags/}"
             VERSION="${TAG#v}"
           else
-            # workflow_dispatch: derive a pseudo version from _version.py
-            VERSION=$(grep -oP '"\K[^"]+' src/fcop/_version.py | head -n1)
+            # workflow_dispatch: read __version__ (first "..." in file is often not the version
+            # — e.g. docstring "semver 承诺" in _version.py).
+            VERSION=$(
+              grep -E '^__version__[[:space:]]*=' src/fcop/_version.py \
+                | head -1 \
+                | sed -E 's/^__version__[[:space:]]*=[[:space:]]*['\''\"]([^'\''\"]+)['\''\"].*/\1/'
+            )
             TAG="v${VERSION}"
           fi
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
@@ -59,17 +64,25 @@ jobs:
 
       - name: Check fcop version matches tag
         run: |
-          FCOP_VER=$(grep -oP '"\K[^"]+' src/fcop/_version.py | head -n1)
+          FCOP_VER=$(
+            grep -E '^__version__[[:space:]]*=' src/fcop/_version.py \
+              | head -1 \
+              | sed -E 's/^__version__[[:space:]]*=[[:space:]]*['\''\"]([^'\''\"]+)['\''\"].*/\1/'
+          )
           if [[ "${FCOP_VER}" != "${{ steps.extract.outputs.version }}" ]]; then
-            echo "::error::src/fcop/_version.py has ${FCOP_VER} but tag says ${{ steps.extract.outputs.version }}"
+            echo "::error::src/fcop/_version.py has __version__=${FCOP_VER} but tag says ${{ steps.extract.outputs.version }}"
             exit 1
           fi
 
       - name: Check fcop-mcp version matches tag
         run: |
-          MCP_VER=$(grep -oP '"\K[^"]+' mcp/src/fcop_mcp/_version.py | head -n1)
+          MCP_VER=$(
+            grep -E '^__version__[[:space:]]*=' mcp/src/fcop_mcp/_version.py \
+              | head -1 \
+              | sed -E 's/^__version__[[:space:]]*=[[:space:]]*['\''\"]([^'\''\"]+)['\''\"].*/\1/'
+          )
           if [[ "${MCP_VER}" != "${{ steps.extract.outputs.version }}" ]]; then
-            echo "::error::mcp/src/fcop_mcp/_version.py has ${MCP_VER} but tag says ${{ steps.extract.outputs.version }}"
+            echo "::error::mcp/src/fcop_mcp/_version.py has __version__=${MCP_VER} but tag says ${{ steps.extract.outputs.version }}"
             exit 1
           fi
 
