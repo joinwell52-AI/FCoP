@@ -1,10 +1,13 @@
 # fcop-mcp
 
-**MCP server** that exposes the official [`fcop`](https://pypi.org/project/fcop/)
-Python library to Cursor, Claude Desktop, and other MCP clients over stdio.
+**MCP (stdio) server** — the optional **IDE bridge** for the same FCoP stack. It
+wraps the official [`fcop`](https://pypi.org/project/fcop/) library; it is **not**
+a second “FCoP product” and does not replace the protocol text.
 
-- **Protocol & source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)  
-- **This package** lives in the same repo under `mcp/`.
+- **What FCoP is (protocol only, product-agnostic):** [`docs/fcop-standalone.en.md`](../docs/fcop-standalone.en.md) (中文 [`fcop-standalone.md`](../docs/fcop-standalone.md))  
+- **Pure Python lib / `pip install fcop`:** filesystem + Project API, PyYAML only — [PyPI `fcop`](https://pypi.org/project/fcop/) (see that package’s `description` and **Documentation**).  
+- **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
+- **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
 
 > The **`fcop`** on PyPI **must** be the **FCoP library** (summary mentions *File-based Coordination Protocol*, `pyyaml`, no `fastmcp` inside `fcop`). If `pip show fcop` says *MCP toolbox* or `from fcop import Issue` fails, you have a **wrong** distribution — fix with a clean venv and reinstall (see *Verify* below).
 
@@ -89,7 +92,7 @@ python -c "from fcop import Issue, Project; print('fcop OK', Project)"
 python -c "from fcop_mcp.server import mcp; print('fcop-mcp OK')"
 ```
 
-If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, versions `0.6.2+` in lockstep with the current release).
+If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, same `0.6.x` minor in lockstep with the current release).
 
 ---
 

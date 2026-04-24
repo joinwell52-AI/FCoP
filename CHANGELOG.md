@@ -14,9 +14,15 @@ versioning strategy.
 
 ### Documentation (PyPI + repo)
 
+- **Project metadata** (`pyproject.toml`): one-line `description` and
+  `project.urls` for both packages. **`fcop`**: long description is
+  [`fcop-README.pypi.md`](./fcop-README.pypi.md) (pure library; fixes wrong
+  historical “MCP toolbox” text on PyPI). **`fcop-mcp`**: `description` / links;
+  install story in [`mcp/README.md`](./mcp/README.md).
+  No library or server code change; **ADR-0003** tool/resource surface unchanged.
 - **`fcop-mcp`**: customer-facing install guide in [`mcp/README.md`](./mcp/README.md) — one **recommended** path (dedicated venv + `python -m fcop_mcp`), **alternatives** (`uvx fcop-mcp` with cold-start note), **Windows / macOS** `mcp.json` examples, **verify** commands (`from fcop import Issue, Project` / `fcop_mcp.server`), and a short warning when the wrong `fcop` distribution is on `PYTHONPATH`.
 - **Root `README` / `README.zh`**: pointer to the full install doc for IDE users; behaviour of the two packages is unchanged.
-- **Lockstep**: `fcop` **0.6.2** re-released with **no** library or compat-CLI code change vs 0.6.1; version aligns both wheels so users can `pip install` a single pair without mixed-version confusion.
+- **Lockstep**: `fcop` **0.6.2** and **`fcop-mcp` 0.6.2** together — **no** public library API or compat-CLI code change in `fcop` vs 0.6.1; version bump aligns both wheels and refreshes long-form docs on PyPI (cannot replace 0.6.1 files in place).
 
 See [`docs/releases/0.6.2.md`](./docs/releases/0.6.2.md).
 

@@ -5,8 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "fcop"
 dynamic = ["version"]
-description = "Python library for FCoP — the File-based Coordination Protocol for multi-agent collaboration. Zero LLM / zero MCP dependencies."
-readme = "README.md"
+description = "FCoP protocol: official Python library — Project API, task/report/issue files, filename parsing, bundled rules. PyYAML only; not an MCP server."
+# PyPI long text must be library-only. Root README.md is the monorepo tour + MCP;
+# see fcop-README.pypi.md (MCP is the separate fcop-mcp distribution).
+readme = "fcop-README.pypi.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [
@@ -71,7 +73,7 @@ Homepage = "https://github.com/joinwell52-AI/FCoP"
 Repository = "https://github.com/joinwell52-AI/FCoP"
 Issues = "https://github.com/joinwell52-AI/FCoP/issues"
 Changelog = "https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/joinwell52-AI/FCoP#readme"
+Documentation = "https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.en.md"
 
 # ── Hatchling build configuration ─────────────────────────────────────
 
@@ -98,6 +100,7 @@ include = [
 [tool.hatch.build.targets.sdist]
 include = [
     "src/fcop",
+    "fcop-README.pypi.md",
     "README.md",
     "README.zh.md",
     "LICENSE",

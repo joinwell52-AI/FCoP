@@ -5,7 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "fcop-mcp"
 dynamic = ["version"]
-description = "MCP (Model Context Protocol) server exposing the fcop library's Project/Task/Report/Issue API to Cursor, Claude Desktop, and other MCP clients."
+# Not the same as the `fcop` wheel: that package is the library + PyYAML only.
+# This package is the optional IDE bridge. Protocol definition: same repo, see project_urls.
+description = "stdio MCP server for the FCoP Python library: exposes the fcop package's Project, task, report, and issue APIs to MCP clients (Cursor, Claude Desktop, …). Optional bridge, not a second protocol; depends on fcop 0.6.x, FastMCP, websockets."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -82,7 +84,9 @@ Homepage = "https://github.com/joinwell52-AI/FCoP"
 Repository = "https://github.com/joinwell52-AI/FCoP"
 Issues = "https://github.com/joinwell52-AI/FCoP/issues"
 Changelog = "https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/joinwell52-AI/FCoP#readme"
+# Install & MCP config; protocol-only narrative lives under "FCoP (protocol)".
+Documentation = "https://github.com/joinwell52-AI/FCoP/blob/main/mcp/README.md"
+"FCoP (protocol)" = "https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.en.md"
 
 # ── Hatchling build configuration ─────────────────────────────────────
 
