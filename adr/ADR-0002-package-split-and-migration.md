@@ -5,6 +5,8 @@
 - **Deciders**: ADMIN
 - **Related**: [ADR-0001](./ADR-0001-library-api.md)（库 API 契约）
 
+> **读者注意**：文内出现的 `codeflow-pwa`、`codeflow-plugin` 等专名是**迁移当时**的仓库与路径记录，用于历史追溯；**不是**当前 FCoP 主仓对外的品牌口径。
+
 ## ADMIN 决议（2026-04-22）
 
 ADMIN 针对本 ADR 的关键决策已拍板：

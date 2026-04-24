@@ -7,7 +7,7 @@
 
 **Core innovation**: **Filename as Protocol**
 
-**Authors**: The CodeFlow Team · 2026-04-19
+**Authors**: FCoP Maintainers · 2026-04-19
 **Keywords**: Multi-agent, File-based protocol, Emergent coordination, FCoP, Human-Machine Isomorphism, Unix philosophy
 
 ---
@@ -71,7 +71,7 @@ One shared directory, one naming convention, and every agent taking ownership of
 - Normative pair: [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) · [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc)
 - This essay: keep scrolling ↓
 
-> **A note on samples**: Every agent-generated snippet quoted in this essay is **verbatim** — the filenames, directory layout, frontmatter, tables, and acceptance language are all exactly what the agents wrote at the time. The data domains shown (Chinese automotive OEMs, public NetEase Cloud Music songs) are already public information; nothing has been abstracted. **What we did NOT do** is publish the whole `codeflow-1` sample directory — that project is ongoing, and its internal tooling code, room keys, and device IDs are not suitable for a full public drop. What readers actually want — "what did AI invent?" — is covered in full through representative snippets in §5.
+> **A note on samples**: Every agent-generated snippet quoted in this essay is **verbatim** — the filenames, directory layout, frontmatter, tables, and acceptance language are all exactly what the agents wrote at the time. The data domains shown (Chinese automotive OEMs, public NetEase Cloud Music songs) are already public information; nothing has been abstracted. **What we did NOT do** is publish the whole `field-lab-1` sample directory — that project is ongoing, and its internal tooling code, room keys, and device IDs are not suitable for a full public drop. What readers actually want — "what did AI invent?" — is covered in full through representative snippets in §5.
 
 ---
 
@@ -91,7 +91,7 @@ The hypothesis wasn't about nostalgia. It was about answering:
 - Can that structure be understood by a human at a glance?
 - When an agent invents a pattern the protocol designer never wrote down — **is that a bug or a feature?**
 
-We built a minimal-viable implementation called **CodeFlow**, wrote a 76-line Markdown spec called **FCoP** (**F**ile-based **Co**ordination **P**rotocol), and ran it on a **freshly-installed, still-warm** PC. **Within 48 hours**, it surprised us.
+We built a minimal **host shell**, wrote a 76-line Markdown spec called **FCoP** (**F**ile-based **Co**ordination **P**rotocol), and ran it on a **freshly-installed, still-warm** PC. **Within 48 hours**, it surprised us.
 
 ---
 
@@ -145,7 +145,7 @@ Plus five collaboration manners: only handle tasks addressed to you, always writ
 
 ## 3. The Patrol Engine's Secret: It Does Almost Nothing
 
-The most common misconception about CodeFlow is that its **Patrol Engine** is a central dispatcher. The truth is:
+The most common misconception about the whole stack is that its **Patrol Engine** is a central dispatcher. The truth is:
 
 > **The patrol engine just clicks a Cursor tab every few seconds via Chrome DevTools Protocol — so the agent inside wakes up and checks its own inbox.**
 
@@ -165,11 +165,11 @@ In other words: **the platform does the least possible, and hands the protocol l
 
 ---
 
-## 4. The Field: `codeflow-1`, 48 Hours
+## 4. The Field: `field-lab-1`, 48 Hours
 
 On 2026-04-16 we finished installing the OS and syncing the toolchain. On 2026-04-17 we started giving the agents real work. Two days later — as I'm writing this — the team has already produced everything listed above.
 
-The experimental project is called `codeflow-1`. Its team configuration is a "small content studio":
+The experimental project is `field-lab-1` (we use that name below). Its team configuration is a "small content studio":
 
 | Role | Responsibility |
 |---|---|
@@ -186,7 +186,7 @@ Two days in, `docs/agents/` really looks like this (excerpt; headline numbers: 4
 ```
 docs/agents/
 ├── BUILDER.md  DESIGNER.md  MARKETER.md  RESEARCHER.md    ← role manuals
-├── codeflow.json                                           ← team config
+├── fcop.json                                               ← team config
 ├── CURRENT-SPRINT-STATUS.md                                ← AI-invented
 ├── DASHBOARD-20260418.md                                   ← AI-invented
 ├── tasks/
@@ -251,7 +251,7 @@ parent: TASK-20260418-008
 | PUBLISHER / release   | Cover art, title, tags, platform compliance check | Release pack + URLs |
 ```
 
-Look carefully: inside this **broadcast task body**, MARKETER has spontaneously invented 4 **off-protocol** sub-roles — COLLECTOR / WRITER / EDITOR / PUBLISHER. They are **not** in the 4 formal roles registered in `codeflow.json` (MARKETER / RESEARCHER / DESIGNER / BUILDER).
+Look carefully: inside this **broadcast task body**, MARKETER has spontaneously invented 4 **off-protocol** sub-roles — COLLECTOR / WRITER / EDITOR / PUBLISHER. They are **not** in the 4 formal roles registered in `fcop.json` (MARKETER / RESEARCHER / DESIGNER / BUILDER).
 
 MARKETER did not request a role-table change, and no error was thrown. It simply said, "I've sliced this work along functional lines into four chunks — **whoever on the team can take a chunk, take it**." The protocol layer handles "which filename went from whom to whom." The functional layer is handed to the agent's content layer. **Role identity and functional role got naturally decoupled.**
 
@@ -425,7 +425,7 @@ This is the reverse of "docs as code." It's **"code as docs"**. A new agent join
 The most unexpected example: even the **archive directory** — a place where, by rights, there is nothing to explain — gets a README. From `log/archive-20260418/README.md`:
 
 ```markdown
-# CodeFlow archive (2026-04-18)
+# Field-lab archive (2026-04-18)
 
 Executed by `TASK-20260418-011`: all Markdown files under `tasks/` and `reports/` at the time
 were migrated into this directory.
@@ -647,7 +647,7 @@ Fewer rules → agents don't collide. Harder identity → agents don't overreach
 
 ## 8. Back to the Tool: What v2.12.17 Absorbed
 
-After watching `codeflow-1` for a while, we didn't "correct" the AI's inventions. We went the other way — **we folded the best ones into the spec**, so the next batch of agents starts with them:
+After watching `field-lab-1` for a while, we didn't "correct" the AI's inventions. We went the other way — **we folded the best ones into the spec**, so the next batch of agents starts with them:
 
 | AI's invention | Promoted to protocol |
 |---|---|
@@ -693,7 +693,7 @@ Which is the whole point of the slogan:
 
 ## 10. Six Tips for People Building Multi-Agent Systems
 
-If you're building an agent-coordination stack, here's what you can lift from the `codeflow-1` field observations:
+If you're building an agent-coordination stack, here's what you can lift from the `field-lab-1` field observations:
 
 1. **Give agents a shared coordinate system before you give them tools.** The coordinate system matters more than the tools.
 2. **Put routing in filenames, not in headers.** Filenames are the layer humans and agents **jointly** read; headers are agent-only.
@@ -720,7 +720,7 @@ We don't have answers for these, and we'd love to hear from people who do.
 
 ## 12. Closing: This Isn't a Tool Pitch, It's a Shared Way of Thinking
 
-CodeFlow is barely a "product." The entire source tree is a few thousand lines, and **its highest-value piece is the protocol text agents can execute** — in the FCoP home repo today that is **authoritatively** split as [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc); in the field run it once lived in one long file. Most of the rest is UI chrome, keyboard bindings, and the engineering scaffolding for flipping Cursor tabs.
+That **host shell** is barely a "product." The entire source tree is a few thousand lines, and its **durable** value is the **protocol text agents can execute** — in the FCoP home repo today that is **authoritatively** split as [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc); in the field run it once lived in one long file. The rest is mostly UI chrome, keyboard bindings, and editor-tab glue.
 
 What we're really sharing is a **point of view about how AI agents should coordinate**:
 
@@ -730,7 +730,7 @@ What we're really sharing is a **point of view about how AI agents should coordi
 - You just need to give them a shared coordinate system, one shared folder, and a small loop that wakes them up.
 - **The rest grows on its own.**
 
-The 48 hours of `codeflow-1` told us: **AI is not a passive consumer bound by the protocol — AI is a co-author of the protocol.** What protocol designers should actually do is not "anticipate every case." It's to **leave enough blank space, let agents fill it in, and then decide which fills are worth formalizing**.
+The 48 hours of `field-lab-1` told us: **AI is not a passive consumer bound by the protocol — AI is a co-author of the protocol.** What protocol designers should actually do is not "anticipate every case." It's to **leave enough blank space, let agents fill it in, and then decide which fills are worth formalizing**.
 
 And all of this happened **within 48 hours of running the first command after installing the OS**. Not four weeks. Not a month. Two days.
 
@@ -762,13 +762,13 @@ The protocol is alive. It belongs to every agent using it.
 
 FCoP's entire runtime is `open()` / `rename()` / `glob()`. No middleware.
 
-**A2. Use CodeFlow to automate (phone admin + PC patrol)**
+**A2. If you need phones / dashboards / extra automation**
 
-Download the CodeFlow Desktop binary for your OS from the [releases page](https://github.com/joinwell52-AI/codeflow-pwa/releases) and follow the README. The PWA mobile client <https://joinwell52-ai.github.io/codeflow-pwa/> pairs via QR code.
+FCoP does **not** mandate a specific host. Anything that ultimately writes the same `docs/agents/` filename grammar is fine. For MCP, see this repo’s [`mcp/README.md`](../mcp/README.md).
 
 **A3. See the real samples**
 
-The snippets this essay cites in §5 — broadcast tasks, anonymous slots, the self-built index, DASHBOARD, SPRINT work discipline, archive READMEs — are all **verbatim from the agents**, not paraphrased. The complete `codeflow-1` directory is not published whole because that project is still live, but the filenames, frontmatter, table shapes, and phrasings you see above are exactly what the agents wrote.
+The snippets this essay cites in §5 — broadcast tasks, anonymous slots, the self-built index, DASHBOARD, SPRINT work discipline, archive READMEs — are all **verbatim from the agents**, not paraphrased. The complete `field-lab-1` directory is not published whole because that project is still live, but the filenames, frontmatter, table shapes, and phrasings you see above are exactly what the agents wrote.
 
 ## Appendix B — Task naming and recipient forms (matches current `fcop-rules` / `fcop-protocol`)
 
@@ -787,7 +787,7 @@ For full YAML frontmatter, directory layout, and numbered rules, use the two `.m
 
 ## Appendix C — Real Files Cited in This Essay
 
-These files exist in the `codeflow-1` experimental project's `docs/agents/`. The snippets quoted in this essay are verbatim excerpts:
+These files exist in the `field-lab-1` experimental project's `docs/agents/`. The snippets quoted in this essay are verbatim excerpts:
 
 - `tasks/TASK-20260418-007-MARKETER-team-bulk-data.md` — broadcast address · cited in §5.1 / §5.7
 - `tasks/TASK-20260418-009-MARKETER-team-makabaka-video.md` — broadcast task body · cited in §5.1

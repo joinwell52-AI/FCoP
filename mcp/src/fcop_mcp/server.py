@@ -14,7 +14,7 @@ only. The library never imports ``fastmcp`` and has no notion of
 instance.
 
 Tool inventory for 0.6.0 mirrors the 22 tools shipped in
-``fcop 0.5.4`` (née ``codeflow-plugin/src/fcop/server.py``). Names and
+``fcop 0.5.4`` (legacy 0.5.x plugin / MCP 壳). Names and
 argument shapes are locked by ADR-0003 — any addition goes through a
 new tool, never a rename or removal. D7-a seeds the scaffolding plus
 two worked examples (``set_project_dir``, ``drop_suggestion``);

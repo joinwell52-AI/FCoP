@@ -15,7 +15,7 @@ alwaysApply: false
 | 总则 | [`src/fcop/rules/_data/fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) |
 | 解释 | [`src/fcop/rules/_data/fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) |
 
-过往在此路径下的**长正文单文件**已与当前协议**分叉**（含旧版 CodeFlow 产品语境与过时的 `codeflow.json` 等表述），不再维护。  
+过往在此路径下的**长正文单文件**已与当前协议**分叉**（含过时的单文件叙述与旧式 `codeflow.json` 等表述），不再维护。  
 **请勿**以本页为“完整规范”；以 `fcop-rules` + `fcop-protocol` 为准。
 
 *This path is retained for backward-compatible links only.*

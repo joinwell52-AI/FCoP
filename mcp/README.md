@@ -119,7 +119,7 @@ Resolution order (see [ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main
 
 1. Last `set_project_dir` in this MCP session  
 2. `FCOP_PROJECT_DIR`  
-3. `CODEFLOW_PROJECT_DIR` (deprecated)  
+3. Legacy 0.5.x env var `CODEFLOW_PROJECT_DIR` (still recognized with a deprecation warning — use `FCOP_PROJECT_DIR`)  
 4. Walk up for `docs/agents/fcop.json` / `fcop-rules.mdc` / `docs/agents/tasks/`  
 5. Current working directory  
 

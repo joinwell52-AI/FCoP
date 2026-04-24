@@ -1,24 +1,24 @@
 """Windows .fcop 文件关联注册
 
 首次运行时：
-1. 从打包资源提取 fcop.ico 到 %APPDATA%\\CodeFlow\\fcop.ico （持久化路径）
+1. 从打包资源提取 fcop.ico 到 %APPDATA%\\FCoP\\fcop.ico （持久化路径）
 2. 写入 HKCU\\Software\\Classes 注册表，实现 .fcop 扩展关联
-3. 双击 .fcop 文件自动启动 CodeFlow-Desktop.exe 并传入文件路径
+3. 双击 .fcop 文件用**当前已打包的宿主**可执行文件打开（`sys.executable`）
 
 设计原则：
 - 幂等：已注册则跳过，不重复写
 - 无权限要求：只写 HKCU（当前用户），不需要管理员
 - 非 Windows 平台：静默跳过，不报错
 - 失败静默：注册失败不影响主程序启动
-- 可逆：提供 unregister() 用于卸载清理
+- 可逆：提供 unregister() 用于卸载清理；并尽量清理**旧 ProgId** 残留
 
-注册表结构（HKCU\\Software\\Classes）：
-    .fcop                              → (Default) = "CodeFlow.FcopFile"
+注册表结构（HKCU\\Software\\Classes，示意）：
+    .fcop                              → (Default) = "FCoP.FcopFile"
                                         Content Type = "text/x-fcop"
-    CodeFlow.FcopFile                  → (Default) = 描述
-    CodeFlow.FcopFile\\DefaultIcon      → (Default) = "...\\fcop.ico"
-    CodeFlow.FcopFile\\shell\\open
-        \\command                       → (Default) = '"CodeFlow-Desktop.exe" "%1"'
+    FCoP.FcopFile                      → (Default) = 描述
+    FCoP.FcopFile\\DefaultIcon         → (Default) = "...\\fcop.ico"
+    FCoP.FcopFile\\shell\\open
+        \\command                      → (Default) = '"<host.exe>" "%1"'
 """
 from __future__ import annotations
 
@@ -30,7 +30,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-PROGID = "CodeFlow.FcopFile"
+PROGID = "FCoP.FcopFile"
+# 旧版注册名（仅用于卸载时 best-effort 清理）
+_LEGACY_PROGIDS: tuple[str, ...] = ("CodeFlow.FcopFile",)
 EXTENSION = ".fcop"
 DESCRIPTION = "FCoP File (File-based Coordination Protocol)"
 CONTENT_TYPE = "text/x-fcop"
@@ -43,9 +45,9 @@ def _is_windows() -> bool:
 def _appdata_dir() -> Path:
     base = os.environ.get("APPDATA")
     if base:
-        d = Path(base) / "CodeFlow"
+        d = Path(base) / "FCoP"
     else:
-        d = Path.home() / ".codeflow"
+        d = Path.home() / ".fcop"
     d.mkdir(parents=True, exist_ok=True)
     return d
 
@@ -181,7 +183,7 @@ def unregister() -> bool:
         import winreg
 
         classes = r"Software\Classes"
-        paths = [
+        to_remove: list[str] = [
             fr"{classes}\{PROGID}\shell\open\command",
             fr"{classes}\{PROGID}\shell\open",
             fr"{classes}\{PROGID}\shell",
@@ -189,7 +191,19 @@ def unregister() -> bool:
             fr"{classes}\{PROGID}",
             fr"{classes}\{EXTENSION}",
         ]
-        for path in paths:
+        for leg in _LEGACY_PROGIDS:
+            if leg == PROGID:
+                continue
+            to_remove.extend(
+                [
+                    fr"{classes}\{leg}\shell\open\command",
+                    fr"{classes}\{leg}\shell\open",
+                    fr"{classes}\{leg}\shell",
+                    fr"{classes}\{leg}\DefaultIcon",
+                    fr"{classes}\{leg}",
+                ]
+            )
+        for path in to_remove:
             try:
                 winreg.DeleteKey(winreg.HKEY_CURRENT_USER, path)
             except OSError:

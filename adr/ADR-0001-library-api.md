@@ -790,7 +790,7 @@ for entry in status.recent_activity[:5]:
 - 所有返回的 `Path` 都是绝对路径
 - 所有传入的路径参数同时接受 `str` 和 `os.PathLike[str]`
 - 所有文件写入用 `utf-8` + `newline='\n'`（即使在 Windows 也强制 LF），
-  和当前 `.cursor/rules/codeflow-project.mdc` 的 "用 Python 读写中文文件" 规约一致
+  和当前 `.cursor/rules/fcop-*.mdc` 的 "用 Python 读写中文文件" 规约一致
 
 ## Non-Goals
 

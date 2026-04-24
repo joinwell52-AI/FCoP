@@ -4,7 +4,7 @@
 
 > An observation I can't fully explain: an agent spontaneously split itself into 4 roles and wrote 4 internal memos — just to generate a video. It didn't comply with a protocol. It **endorsed** one. And this only became visible because we had the protocol in place.
 
-**Author**: The CodeFlow Team · 2026-04-20
+**Author**: FCoP Maintainers · 2026-04-20
 **Keywords**: FCoP, LLM-native protocol, Value alignment, Protocol-as-stage, Solo mode, Universal professional values
 
 ---
@@ -25,11 +25,11 @@
 
 Here's how it started.
 
-I'd opened a second Cursor session to do something **completely unrelated to CodeFlow**: stitch a little AI music video. The raw material was just what I had lying around — one `.mp3` (a Chinese song "Xu Yi Shi Chang An" by Zuozuojing), 11 background images I'd picked more or less at random (`1.jpg` through `11.jpg`), a scene description (`场景.MD`, "scenes.MD"), and a lyrics file (`.lrc`).
+I'd opened a second Cursor session to do something **completely unrelated to my main FCoP workspace**: stitch a little AI music video. The raw material was just what I had lying around — one `.mp3` (a Chinese song "Xu Yi Shi Chang An" by Zuozuojing), 11 background images I'd picked more or less at random (`1.jpg` through `11.jpg`), a scene description (`场景.MD`, "scenes.MD"), and a lyrics file (`.lrc`).
 
 Honestly, **I wasn't taking this seriously**.
 
-Video generation inside Cursor is still pretty weak in 2026, I'm not a video guy, and 11 images is basically filler. I just dropped the assets into `D:\CloudMusic` — **a plain local-music folder that shares absolutely nothing with my CodeFlow project**: no directory, no rule files, no context — and said to the agent, casually:
+Video generation inside Cursor is still pretty weak in 2026, I'm not a video guy, and 11 images is basically filler. I just dropped the assets into `D:\CloudMusic` — **a plain local-music folder that shares absolutely nothing with my main FCoP project**: no directory, no rule files, no context — and said to the agent, casually:
 
 > *"Help me generate a video."*
 
@@ -47,7 +47,7 @@ D:\CloudMusic\tasks\
 
 I froze.
 
-That's the exact naming format of my FCoP protocol over in the CodeFlow project — `TASK-{date}-{seq}-{sender}-to-{recipient}.md`. But **this is not the CodeFlow directory**. **At no point** did I tell the agent to "use FCoP." I only said: *"Help me generate a video."*
+That's the exact naming format I use in my **main** FCoP workspace — `TASK-{date}-{seq}-{sender}-to-{recipient}.md`. But **this is not that workspace**. **At no point** did I tell the agent to "use FCoP." I only said: *"Help me generate a video."*
 
 And yet it had just held a four-person meeting with itself.
 
@@ -119,7 +119,7 @@ Honestly, my first thought was: **this is dumb.**
 
 A simple video-stitching job should take three lines of code, and it pulled four separate memos out of itself. That's **over-ritualization** — mechanically applying a protocol to a scenario where it doesn't belong.
 
-I was already drafting a patch for `codeflow-project.mdc` in my head, something like:
+I was already drafting a patch for `fcop-rules.mdc` in my head, something like:
 
 > One-shot tool tasks (generating a video, converting a file, running a script) skip the FCoP workflow.
 
@@ -336,7 +336,7 @@ What shook me was — when I pressed it on *"but why did you really do this?"*, 
 ![Screenshot 3 — agent citing .cursor/rules files as the basis for its behavior (Chinese)](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/fcop-natural-protocol-evidence/screenshot-3-cursor-rules-citation.png)
 
 > **English rendering of Screenshot 3:**
-> *"Based on the `alwaysApply: true` rules in `.cursor/rules/` — especially `codeflow-project.mdc`, `pm-bridge.mdc`, `dev-bridge.mdc`, `admin-human-bridge.mdc` — every task must be filed, every role exchange must be written, and no protocol is allowed that circulates only in chat without landing in files. That's why I produced the four memos."*
+> *"Based on the `alwaysApply: true` rules in `.cursor/rules/` — especially `fcop-rules.mdc`, `pm-bridge.mdc`, `dev-bridge.mdc`, `admin-human-bridge.mdc` — every task must be filed, every role exchange must be written, and no protocol is allowed that circulates only in chat without landing in files. That's why I produced the four memos."*
 
 And it summed up the posture of the whole episode in one line that floored me even harder:
 
@@ -381,8 +381,8 @@ The actual rules I've written, the ones that are *about* "writing to files," liv
 
 | What I actually wrote (Chinese → gloss) | Location | Scope |
 |---|---|---|
-| 不允许只在中继消息里传内容而不落文件 / "Do not relay content over the wire without landing it in a file" | `codeflow-project.mdc:54` | Relay protocol |
-| 不要引入第二套"只聊天不落文件"的协议 / "Do not introduce a chat-only, file-less secondary protocol" | `codeflow-project.mdc:87` | Protocol guardrails |
+| 不允许只在中继消息里传内容而不落文件 / "Do not relay content over the wire without landing it in a file" | `fcop-rules.mdc` (clause ids vary by release) | Relay protocol |
+| 不要引入第二套"只聊天不落文件"的协议 / "Do not introduce a chat-only, file-less secondary protocol" | `fcop-rules.mdc` (clause ids vary by release) | Protocol guardrails |
 | 拆解必须文件化 / "Decomposition must be filed" | `pm-bridge.mdc:24` | PM only |
 | 不允许只在内部流转 / "No internal-only circulation" | `pm-bridge.mdc:32` | PM only |
 | 测试结果必须文件化 / "Test results must be filed" | `qa-bridge.mdc:16` | QA only |
@@ -406,7 +406,7 @@ That's exactly what the agent did: it took **operational technical rules** and *
 
 Even more striking: it's not a single move. It's **three chained operations.**
 
-Take the two most relevant lines from my single most-authoritative rule file (`codeflow-project.mdc`, which carries `alwaysApply: true`):
+Take the two most relevant lines from my single most-authoritative rule file (`fcop-rules.mdc`, which carries `alwaysApply: true`):
 
 - **L54**: `不允许只在中继消息里传内容而不落文件` — "no relaying content over the wire without landing it in a file" (from the *File protocol* section)
 - **L87**: `不要引入第二套"只聊天不落文件"的协议` — "don't introduce a chat-only, file-less secondary protocol" (from the *Prohibited* section)
@@ -434,13 +434,13 @@ Those five Chinese characters return **zero hits** across my whole workspace. Th
 
 Put the transformation side-by-side:
 
-| Dimension | Original rule (codeflow-project.mdc) | Agent's sublimated version |
+| Dimension | Original rule (`fcop-rules.mdc`, line ids vary) | Agent's sublimated version |
 |---|---|---|
 | Register | Technical (relay / protocol / file) | Philosophical (communicate / in the head / speak) |
 | Sentence shape | Negative ("don't do X") | Positive-negative pair ("must not X, must Y") — closer to a command |
 | Scope | Single channel, single scenario | All AI roles, all communication |
 | Nature | Operational constraint | Ethical principle |
-| Portability | Only inside CodeFlow | **Holds for any multi-agent system** |
+| Portability | Only in that workspace’s ruleset | **Holds for any multi-agent system** |
 
 On the left: *an engineer's constraint written for a machine.*
 On the right: *a creed you could pin on the wall of any AI team.*
@@ -498,10 +498,10 @@ If an agent can **sublimate** my rules, then this follows:
 
 > **FCoP works well not entirely because I wrote it well — it works well partly because the agent is helping me write it better.**
 
-What I wrote in `codeflow-project.mdc` was `L54`, `L87`, etc. — **operational technical clauses**.
+What I wrote in `fcop-rules.mdc` was `L54`, `L87`, etc. — **operational technical clauses**.
 What the agent handed back in our conversation was "*AI roles must not talk only in their heads; every exchange must be written to a file*" — **a creed fit for a wall.**
 
-If I **absorb that creed back into** my own rule file (as the overarching principle of `codeflow-project.mdc`), my whole ruleset becomes **clearer, easier to read, easier to maintain** — because readers (human or the next agent) will **see the principle first, then the specifics**, not the other way around.
+If I **absorb that creed back into** my own rule file (as the overarching principle of `fcop-rules.mdc`), my whole ruleset becomes **clearer, easier to read, easier to maintain** — because readers (human or the next agent) will **see the principle first, then the specifics**, not the other way around.
 
 This is no longer "human writes protocol for AI."
 
@@ -671,7 +671,7 @@ That conclusion is wrong, and it's wrong thoroughly.
 
 The only reason I could *observe* the agent splitting into roles, writing memos, citing rules — **was that I had FCoP set up in the first place.**
 
-Without that `alwaysApply: true` clause in `codeflow-project.mdc`, even an agent packed with values like *transparency, traceability, role clarity* — **we would never see it**. Its thinking would streak through the context window like a meteor, vanish on the next refresh, **and leave no trail to audit.**
+Without that `alwaysApply: true` clause in `fcop-rules.mdc`, even an agent packed with values like *transparency, traceability, role clarity* — **we would never see it**. Its thinking would streak through the context window like a meteor, vanish on the next refresh, **and leave no trail to audit.**
 
 In other words:
 
@@ -736,7 +736,7 @@ This is **"let the AI naturally express its understanding of your rules during e
 
 That night, once I understood this layer, what I did was very simple —
 
-**I went to the top of `codeflow-project.mdc` and wrote the agent's sublimated sentence in:**
+**I went to the top of `fcop-rules.mdc` and wrote the agent's sublimated sentence in:**
 
 ```markdown
 ## Core Principle

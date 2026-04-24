@@ -191,7 +191,7 @@ Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`a
 Two official reference implementations, both MIT-licensed:
 
 1. **`fcop` / `fcop-mcp`** — Python library + MCP server for the protocol. Source in this repository under [`src/fcop/`](src/fcop/) and [`mcp/src/fcop_mcp/`](mcp/src/fcop_mcp/). Installed via PyPI (see section above).
-2. **Legacy `codeflow-core` path**: in this repo, `spec/codeflow-core.mdc` is a **short deprecation stub** only. The real agent rules are `src/fcop/rules/_data/fcop-rules.mdc` + `fcop-protocol.mdc`. Upstream products may still ship an older same-named one-file copy; if it drifts, **FCoP's pair in this repository wins** for the protocol.
+2. **Stub path**: `spec/codeflow-core.mdc` is only a **URL placeholder** (no full body). **Normative** rules are `src/fcop/rules/_data/fcop-rules.mdc` + `fcop-protocol.mdc`.
 
 ## Status & versioning
 

@@ -129,7 +129,7 @@ This gives FCoP a rare property in the multi-agent world: **observability IS usa
 
 ### A. Just read the protocol (install nothing)
 
-1. Clone the CodeFlow repo (or any project already using FCoP).
+1. Clone the [FCoP](https://github.com/joinwell52-AI/FCoP) repo (or any project already using the protocol).
 2. Browse [`examples/workspace-example/`](../examples/workspace-example/) — tasks, reports, standing docs. All plain Markdown.
 3. Read the normative pair: [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) (charter) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) (commentary).
 
@@ -144,9 +144,9 @@ That's enough to understand FCoP. The protocol is a handful of naming convention
 
 **No middleware required.** FCoP's entire runtime is `open()` / `rename()` / `glob()`.
 
-### C. (Optional) Automate it with CodeFlow Desktop
+### C. (Optional) Extra automation around the IDE
 
-If you want to send tasks from your phone, auto-wake Cursor agents, and see live status on a web panel — use the CodeFlow desktop app. Download the platform binary from the [releases page](https://github.com/joinwell52-AI/codeflow-pwa/releases).
+Phone triggers, status boards, and wake-up loops are **out of the protocol core**; build or adopt any host that watches the same `docs/agents/` tree. For an MCP-wrapped path, see [`mcp/README.md`](../mcp/README.md) in this repo.
 
 ---
 
@@ -179,4 +179,4 @@ A: The core (filename grammar, required frontmatter fields) is stable once ratif
 
 ---
 
-*FCoP is the core protocol of the [CodeFlow](https://github.com/joinwell52-AI/FCoP) project, MIT-licensed. Forks, critiques, improvements, and field notes are all welcome.*
+*FCoP lives in [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP), MIT-licensed. Forks, critiques, improvements, and field notes are all welcome.*

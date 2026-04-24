@@ -321,7 +321,7 @@ coordination metadata; actual work products go under
 isolated.**
 
 ```
-codeflow-3/
+acme-3/
 ├── .cursor/ docs/ fcop.json LETTER-TO-ADMIN.md   ← coordination skeleton, never mixed
 └── workspace/
     ├── csdn-search/         ← today: CSDN article search

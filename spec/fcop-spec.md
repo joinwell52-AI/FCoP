@@ -34,14 +34,19 @@
 - **唯一同步原语**：`os.rename()` 的原子性
 - **零基础设施**：不依赖数据库、消息队列、专用服务器
 - **独立说明（无产品绑定）**：[FCoP 纯协议单页 · `docs/fcop-standalone.md`](../docs/fcop-standalone.md)
-- **其他参考实现**（可选）：[CodeFlow Desktop](https://github.com/joinwell52-AI/codeflow-pwa)
 
 ## 协议扩展名
 
 `.fcop`（推荐）或 `.md`（兼容模式）
 
-## 配套工具（路线图）
+## 本仓配套（与协议正交、可选）
 
-- `fcop-cli`：合规校验 + 任务追溯（v1.1 计划）
-- `fcop-mcp-bridge`：打通任意 MCP 客户端（v1.1 计划）
-- `fcop-py` SDK：Python 参考实现（v1.1 计划）
+- **[`fcop`](https://pypi.org/project/fcop/)**（PyPI）：Python 参考实现，读写 task/report/issue 等，**不依赖 MCP**。  
+- **[`fcop-mcp`](https://pypi.org/project/fcop-mcp/)**（PyPI）：把 `fcop` 通过 MCP 接到 Cursor / Claude Desktop 等；与「纯文件协议」正交，可不用。
+
+## 路线图中仍待补全的能力
+
+- `fcop-cli`：独立命令行做合规校验 + 追溯（规划中）
+- 更宽的编辑器 / 非 Python 生态封装（随需求演进）
+
+> 与 FCoP **协议层**无绑定关系的第三方桌面/自动化产品，不放在本「正式规范入口」的导览里；需要时自行检索生态，不在此列名。

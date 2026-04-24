@@ -59,7 +59,7 @@ class TestNormalizeProtocolName:
     def test_known_aliases_normalize_to_canonical(self, raw: str) -> None:
         assert schema.normalize_protocol_name(raw) == "fcop"
 
-    @pytest.mark.parametrize("raw", ["", "bridgeflow", "codeflow", "mcp", "http"])
+    @pytest.mark.parametrize("raw", ["", "bridgeflow", "contoso-cms", "mcp", "http"])
     def test_unknown_values_return_none(self, raw: str) -> None:
         assert schema.normalize_protocol_name(raw) is None
 

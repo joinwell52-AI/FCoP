@@ -177,7 +177,7 @@ print(proj.list_tasks(recipient="DEV"))
 两套官方参考实现，均为 MIT 许可：
 
 1. **`fcop` / `fcop-mcp`** —— 协议的 Python 库 + MCP 服务器。源码在本仓库 [`src/fcop/`](src/fcop/) 和 [`mcp/src/fcop_mcp/`](mcp/src/fcop_mcp/)，通过 PyPI 分发（见上一节）。
-2. **与上游的同名历史路径**：`spec/codeflow-core.mdc` 在 FCoP 0.6+ 仅为**防旧 URL 404 的短占位**，正文权威在 `src/fcop/rules/_data/` 双文件。若干桌面端产品仍可能带**旧**的同名单文件模板（如 [CodeFlow Desktop](https://github.com/joinwell52-AI/codeflow-pwa) 的 [`.../codeflow-core.mdc`](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/codeflow-desktop/templates/rules/codeflow-core.mdc)）；**与 FCoP 本仓不对勘时以本仓 `fcop-rules` / `fcop-protocol` 为准**。
+2. **历史 URL 占位**：`spec/codeflow-core.mdc` 仅防旧链接失效，**无正文**；**唯一权威**仍是 `src/fcop/rules/_data/fcop-rules.mdc` + `fcop-protocol.mdc`（文件名含历史字样而已）。
 
 ## 状态与版本
 

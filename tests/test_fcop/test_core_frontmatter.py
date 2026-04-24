@@ -353,11 +353,11 @@ class TestSerializeTaskFrontmatter:
             sender="PM",
             recipient="DEV",
             priority=Priority.P1,
-            subject="发布码流 0.6.0",
+            subject="发布 FCoP 0.6.0",
         )
         out = fm.serialize_task_frontmatter(frontmatter)
         # allow_unicode=True should keep the CJK characters, not escape them
-        assert "发布码流 0.6.0" in out
+        assert "发布 FCoP 0.6.0" in out
 
 
 # ── Round-trip ───────────────────────────────────────────────────────

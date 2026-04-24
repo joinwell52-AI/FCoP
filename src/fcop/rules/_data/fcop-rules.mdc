@@ -397,12 +397,12 @@ overwrite, no "just this once" exception.
 ## Scope / 适用边界
 
 FCoP 只规范**协作协议**。它**不规定**：用什么模型、写什么代码、选什么框架、
-谁的 KPI、商业决策。本规则与任何具体产品（CodeFlow、Bridgeflow、下游任何
-应用）**完全独立**——产品可以**使用** FCoP，但**不能修改** FCoP。
+谁的 KPI、商业决策。本规则与任何具体**商业产品、内部代号或下游应用**均
+**完全独立**——产品可以**使用** FCoP，但**不能修改** FCoP。
 
 FCoP governs **coordination**, nothing else. It does not prescribe models,
 code style, frameworks, KPIs, or business decisions. These rules are
-**independent of any downstream product** (CodeFlow, Bridgeflow, or any
+**independent of any downstream product** (branded apps, internal toolchains, or any
 other application). Products USE FCoP; they do not MODIFY it.
 
 ---
