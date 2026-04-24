@@ -231,6 +231,14 @@ git push origin v0.6.1
 
 **如果失败**：tag 留着但 PyPI 版本号没占用，修好再 tag `v0.6.N+1` 重试即可（PyPI 不允许重用版本号，所以同版本号重试没戏）。
 
+### 已修复：`verify` 在几十秒内失败（`fcop` 对不上 tag）
+
+- **现象**：`release` 的 **Verify** job 报 `_version.py` 里版本与 tag 不一致，**约半分钟内失败**，尚未进入 build。  
+- **原因**：旧脚本用 `grep` 取「文件中**第一个**双引号子串」；`src/fcop/_version.py` 注释里含有 **`"semver 承诺"`**，会先于 `__version__ = "0.6.x"` 被匹配。  
+- **现行为**：从 **`^__version__`** 行解析（与 `mcp/.../_version.py` 一致）。若仍失败，看日志里是 CHANGELOG 缺节还是别的问题。
+
+**最终用户**升级两个 PyPI 包，见 [升级说明](./upgrade-fcop-mcp.md)。
+
 ### 待办
 
 1. **PyPI Trusted Publishing (OIDC)**：取代两个 `PYPI_TOKEN_*` secret，用 GitHub Actions 的 OIDC 身份直接发布。进一步降低凭据面。

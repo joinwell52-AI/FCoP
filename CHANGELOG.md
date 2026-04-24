@@ -10,6 +10,10 @@ versioning strategy.
 
 ## [Unreleased]
 
+### CI
+
+- **`.github/workflows/release.yml`**: `verify` 步骤改为只从 `^__version__ =` 行解析版本；不再用「文件中首段双引号内文字」，避免匹配到 `src/fcop/_version.py` 里 **`"semver 承诺"`** 导致 tag 发版在 verify 即失败。行为与发版后用户升级无直接关系。
+
 ## [0.6.2] - 2026-04-25
 
 ### Documentation (PyPI + repo)

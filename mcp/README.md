@@ -9,6 +9,8 @@ a second “FCoP product” and does not replace the protocol text.
 - **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
 - **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
 
+**Already on `0.6.x` and just upgrading?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) (`pip install -U` both `fcop` and `fcop-mcp` in the MCP venv, then restart the IDE).
+
 > The **`fcop`** on PyPI **must** be the **FCoP library** (summary mentions *File-based Coordination Protocol*, `pyyaml`, no `fastmcp` inside `fcop`). If `pip show fcop` says *MCP toolbox* or `from fcop import Issue` fails, you have a **wrong** distribution — fix with a clean venv and reinstall (see *Verify* below).
 
 ---

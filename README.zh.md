@@ -133,7 +133,7 @@ mkdir -p docs/agents/{tasks,reports,issues,shared,log}
 | [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | 纯 Python 库。读写 task / report / issue。**零 MCP 依赖**。 | `pyyaml` |
 | [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP 服务器。把库通过 stdio 暴露给 Cursor / Claude Desktop。 | `fcop>=0.6,<0.7`、`fastmcp`、`websockets` |
 
-**给最终用户的安装（分步、多平台、自检）**：见 **[`mcp/README.md`](mcp/README.md)**（英文；步骤与 `mcp.json` 模板可直接照抄）。官方包须来自**本仓库对应的 PyPI 发行**；若 `pip install fcop` 后 `from fcop import Project, Issue` 仍失败，多半是装到了错误发行物或被本机其他工程的可编辑包抢名 —— 说明文中有「干净 venv + 验证命令」的修法。
+**给最终用户的安装（分步、多平台、自检）**：见 **[`mcp/README.md`](mcp/README.md)**（英文；步骤与 `mcp.json` 模板可直接照抄）。**已在使用 0.6.x 时的升级**（`pip` 同环境升两包、钉版本、重启与自检）：**[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)**。官方包须来自**本仓库对应的 PyPI 发行**；若 `pip install fcop` 后 `from fcop import Project, Issue` 仍失败，多半是装到了错误发行物或被本机其他工程的可编辑包抢名 —— 说明文中有「干净 venv + 验证命令」的修法。
 
 **库** —— 从任何 Python 脚本或 agent 里直接调：
 
