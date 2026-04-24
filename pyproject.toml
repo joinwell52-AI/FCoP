@@ -57,6 +57,15 @@ dev = [
     "types-pyyaml",
 ]
 
+[project.scripts]
+# Compat shim for 0.5.x users. Up through fcop 0.5.4 the `fcop` command
+# started an MCP server. In 0.6.0 that server moved to the `fcop-mcp`
+# package (ADR-0002), which would have left users with a bare
+# "command not found" after upgrading. This shim prints a friendly
+# migration message and exits with status 1 so callers can detect it.
+# Pure additive per ADR-0003.
+fcop = "fcop._compat_cli:main"
+
 [project.urls]
 Homepage = "https://github.com/joinwell52-AI/FCoP"
 Repository = "https://github.com/joinwell52-AI/FCoP"

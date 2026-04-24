@@ -14,7 +14,8 @@
   <a href="primer/fcop-primer.md">60 秒入门</a> ·
   <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
   <a href="essays/fcop-natural-protocol.md">自然协议</a> ·
-  <a href="spec/fcop-spec.md">规范入口</a>
+  <a href="spec/fcop-spec.md">规范入口</a> ·
+  <a href="docs/fcop-standalone.md">纯 FCoP 说明</a>
 </p>
 
 <p align="center">
@@ -47,13 +48,15 @@
 
 > 如果说 TCP 是"字节跑在线缆上"，**FCoP 就是"任务跑在文件夹里"。**
 
+> 在工程上，就是用**可序列化、可版本化的协作面**，换走了对**专属、沉重基础设施**的依赖。
+
 ## 为什么值得一看
 
 因为**看得见的 Agent，才管得住。**
 
 我们用一支 4 人 AI 团队（PM / DEV / QA / OPS）跑了 48 小时，Agent 们**自发发明了 6 种我们从没写进规范的协作模式**——全体广播、角色槽位、共享文档、子任务批次、自解释 README、可追溯性 frontmatter。每一种新模式都表现为**新文件名**——我们一行代码都没改。
 
-后来又出现了更意外的一幕：一个**单独**的 agent，在一个和 CodeFlow **毫无关系**的目录里（生成一段 AI 音乐视频），**自发**把自己拆成 PM / DEV / ADMIN 三个角色、给自己写了四份 FCoP 格式的公文，还**升华**了我那些分散在 7 个文件里的技术规定，浓缩成一句我根本没写过的原则性箴言。
+后来又出现了更意外的一幕：一个**单独**的 agent，在一个**与任何当时已打开的项目工作区都无关**的本地目录里（例如生成一段 AI 音乐视频），**自发**把自己拆成 PM / DEV / ADMIN 三个角色、给自己写了四份 FCoP 格式的公文，还**升华**了我那些分散在 7 个文件里的技术规定，浓缩成一句我根本没写过的原则性箴言。
 
 这两段故事都整理成了现场报告，见下面的文章索引。
 
@@ -69,49 +72,97 @@
 
 ## 仓库结构
 
+概览：根目录除**协议与文档**外，还有 **PyPI `fcop` 的源码**（`src/fcop/`）与**独立子项目 `fcop-mcp`**（`mcp/`），以及测试与发版/ADR 支撑目录。
+
 ```
 FCoP/
-├── spec/
-│   ├── codeflow-core.mdc          # ★ 规范性协议本体（交给 Agent 的 Cursor 规则文件）
-│   └── fcop-spec-v1.0.3.md        # 中文长版人读规范（非规范性）
+├── src/fcop/                    # `fcop` 包：Project 等库 API；`rules/_data/` 内置 fcop-rules / fcop-protocol（init 时可选部署的母版）
+├── mcp/                         # `fcop-mcp` 子项目（MCP 服务器，自有 pyproject）
+├── tests/                       # `fcop` / `fcop-mcp` 的 pytest
+├── spec/                        # 人读规范 + 可粘贴的 Agent 单文件 .mdc 镜像
+│   ├── codeflow-core.mdc        # 已弃用占位（防旧链接 404）；权威为 `../src/.../fcop-rules` + `fcop-protocol`
+│   ├── fcop-spec.md             # 规范入口（中文）
+│   └── fcop-spec-v1.0.3.md      # 长版人读（非规范）
+├── docs/                        # 迁移、发版记录；[`fcop-standalone.md`](docs/fcop-standalone.md) 为纯协议说明
+├── adr/                         # 架构决策
+├── .github/workflows/           # CI
+├── pyproject.toml               # 根 `fcop` 包与工具配置
 ├── primer/
-│   ├── fcop-primer.md             # 中文 60 秒入门
-│   └── fcop-primer.en.md          # 英文 60 秒入门
+│   ├── fcop-primer.md
+│   └── fcop-primer.en.md
 ├── essays/
-│   ├── when-ai-organizes-its-own-work.md       # 中文长文（首篇）
-│   ├── when-ai-organizes-its-own-work.en.md    # 英文长文（首篇）
-│   ├── fcop-natural-protocol.md                # "自然协议"现象篇（中文）
-│   ├── fcop-natural-protocol.en.md             # "自然协议"现象篇（英文）
-│   ├── fcop-natural-protocol-evidence/         # 完整证据档案（截图、公文、JSONL 原始转录）
-│   ├── fcop-tmpa-lineage.md                    # "为什么站得住" 溯源篇 · TMPA 血缘（中文）
-│   └── fcop-tmpa-lineage.en.md                 # "为什么站得住" 溯源篇 · TMPA 血缘（英文）
-├── examples/
-│   └── workspace-example/         # 最小参考工作区（tasks / results / events）
-├── integrations/
-│   └── windows-file-association/  # Windows 下注册 .fcop 文件关联 + 图标
-├── assets/                        # Logo / 图标
-├── LICENSE                        # MIT
+│   ├── when-ai-organizes-its-own-work.md
+│   ├── when-ai-organizes-its-own-work.en.md
+│   ├── fcop-natural-protocol.md
+│   ├── fcop-natural-protocol.en.md
+│   ├── fcop-natural-protocol-evidence/
+│   ├── fcop-tmpa-lineage.md
+│   └── fcop-tmpa-lineage.en.md
+├── examples/workspace-example/  # 最小参考工作区
+├── integrations/windows-file-association/
+├── assets/                      # Logo
+├── LICENSE
 └── README.md / README.zh.md
 ```
 
 ## 30 秒快速上手
 
-FCoP 不需要"安装"，而是"采纳"。在任何一个项目里：
+FCoP 是「采纳」协议，不是装一个独立守护进程。当前版本的**规范侧**是成对的 **[总则 `fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc)** 与 **[解释 `fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc)**（部署到 **`.cursor/rules/`**）。`spec/codeflow-core.mdc` 仅为**防旧链接失效**的弃用占位，**勿**当正文规范使用。
 
-```bash
-mkdir -p docs/agents/{tasks,reports,issues,log}
+**方式 A：用 `fcop` 库初始化（推荐）** — 一次写好 `docs/agents/` 目录与 `fcop.json`（库约定的协作根）：
+
+```python
+from fcop import Project
+Project(".").init()  # 默认 dev-team；单人可改用 .init_solo()
 ```
 
-然后把 [`spec/codeflow-core.mdc`](spec/codeflow-core.mdc) 丢进项目的 `.cursor/rules/` 目录（或你用的 Agent 运行时的等价位置）。任何读了这份规则的 Agent 都会立刻知道怎么：
+**方式 B：不跑 Python、只让 Cursor 读规则** — 把上列两个 `.mdc` 从本仓拷进项目的 `.cursor/rules/`。目录若尚未存在，至少要有与库一致的五类桶：
 
-- 认领发给自己角色的任务；
-- 按命名规则写回报告；
-- 上报问题；
-- 不碰别人的文件。
+```bash
+mkdir -p docs/agents/{tasks,reports,issues,shared,log}
+```
 
-恭喜——你的 `docs/agents/` 文件夹现在就是一条 agent-to-agent 通信总线了。
+配好规则后，Agent 按总则/解释可知：认领发给自己的任务、按文件名写回报告、上报问题、不越权动他人文件。更完整的落盘与团队模板，见下节包与 [`examples/workspace-example/`](examples/workspace-example/)。
 
-更完整的参考请看 [`examples/workspace-example/`](examples/workspace-example/)。
+## Python SDK & MCP 服务器（可选）
+
+协议可纯文件采纳；**若需要**在代码里读写 task/report/issue，或通过 MCP 暴露给 IDE，自 `0.6.0` 起 PyPI 上有两个包：
+
+| 包 | 安装 | 用途 | 依赖 |
+|---|---|---|---|
+| [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | 纯 Python 库。读写 task / report / issue。**零 MCP 依赖**。 | `pyyaml` |
+| [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP 服务器。把库通过 stdio 暴露给 Cursor / Claude Desktop。 | `fcop>=0.6,<0.7`、`fastmcp`、`websockets` |
+
+**给最终用户的安装（分步、多平台、自检）**：见 **[`mcp/README.md`](mcp/README.md)**（英文；步骤与 `mcp.json` 模板可直接照抄）。官方包须来自**本仓库对应的 PyPI 发行**；若 `pip install fcop` 后 `from fcop import Project, Issue` 仍失败，多半是装到了错误发行物或被本机其他工程的可编辑包抢名 —— 说明文中有「干净 venv + 验证命令」的修法。
+
+**库** —— 从任何 Python 脚本或 agent 里直接调：
+
+```python
+from fcop import Project
+
+proj = Project(".")                              # 项目根；未 init 时无 fcop.json
+proj.init()                                      # 建 tasks|reports|issues|shared|log/ 与 fcop.json
+task = proj.write_task(sender="PM", recipient="DEV", priority="P1",
+                       title="加鉴权中间件", body="...")
+print(proj.list_tasks(recipient="DEV"))
+```
+
+**MCP 服务器** —— 写进 Cursor 的 `mcp.json` 或 Claude Desktop 的 `claude_desktop_config.json`：
+
+```json
+{
+  "mcpServers": {
+    "fcop": {
+      "command": "uvx",
+      "args": ["fcop-mcp"]
+    }
+  }
+}
+```
+
+稳定性承诺：**整个 `0.6.x` 小版本周期内只加不改**，详见 [`adr/ADR-0003-stability-charter.md`](adr/ADR-0003-stability-charter.md)。
+
+> **从 0.5.x 升级？** MCP 服务器已从 `fcop` 包搬到 `fcop-mcp`——把 `mcp.json` 里的命令改成 `uvx fcop-mcp`。完整迁移指引见 [`docs/MIGRATION-0.6.md`](docs/MIGRATION-0.6.md)，本次发版档案见 [`docs/releases/0.6.0.md`](docs/releases/0.6.0.md)。
 
 ## 设计原则
 
@@ -123,16 +174,15 @@ mkdir -p docs/agents/{tasks,reports,issues,log}
 
 ## 参考实现
 
-FCoP 最初是从 [**CodeFlow Desktop**](https://github.com/joinwell52-AI/codeflow-pwa)（为 Cursor IDE 配套的 PC 端 Agent 调度器）里抽离出来的。给 Agent 读的权威规则文件随 CodeFlow 一起发布：
+两套官方参考实现，均为 MIT 许可：
 
-- [`codeflow-desktop/templates/rules/codeflow-core.mdc`](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/codeflow-desktop/templates/rules/codeflow-core.mdc)
-
-本仓库 `spec/` 下的是同一份文件的镜像，独立版本化，便于协议脱离 CodeFlow 单独演进。
+1. **`fcop` / `fcop-mcp`** —— 协议的 Python 库 + MCP 服务器。源码在本仓库 [`src/fcop/`](src/fcop/) 和 [`mcp/src/fcop_mcp/`](mcp/src/fcop_mcp/)，通过 PyPI 分发（见上一节）。
+2. **与上游的同名历史路径**：`spec/codeflow-core.mdc` 在 FCoP 0.6+ 仅为**防旧 URL 404 的短占位**，正文权威在 `src/fcop/rules/_data/` 双文件。若干桌面端产品仍可能带**旧**的同名单文件模板（如 [CodeFlow Desktop](https://github.com/joinwell52-AI/codeflow-pwa) 的 [`.../codeflow-core.mdc`](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/codeflow-desktop/templates/rules/codeflow-core.mdc)）；**与 FCoP 本仓不对勘时以本仓 `fcop-rules` / `fcop-protocol` 为准**。
 
 ## 状态与版本
 
 - **当前规范版本**：v1.0.3（2026-04-19）
-- **当前 Agent 规则文件**：对应 CodeFlow Desktop v2.12.17
+- **本仓内 Agent 规则（`.mdc`）**：[`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc)（`spec/codeflow-core.mdc` 仅为弃用占位）
 - 变更记录见 [`spec/fcop-spec-v1.0.3.md`](spec/fcop-spec-v1.0.3.md) 文首。
 
 ## 如何贡献
@@ -151,4 +201,4 @@ MIT — 详见 [LICENSE](LICENSE)。
 
 ## 致谢
 
-FCoP 是在 Cursor + CodeFlow Desktop 上与 AI Agent 实际协作的过程中涌现出来的。规范里不少约定**最初是 Agent 们自己写出来的**，我们只是把它们整理成册。详情见 [现场报告](essays/when-ai-organizes-its-own-work.md)。
+FCoP 是在 **Cursor 等环境**里与多 Agent 实战协作时陆续涌现的。规范里不少约定**最初是 Agent 们自己写出来的**，我们只是把它们整理成册。详情见 [现场报告](essays/when-ai-organizes-its-own-work.md)。

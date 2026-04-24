@@ -8,6 +8,30 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [Unreleased]
+
+## [0.6.2] - 2026-04-25
+
+### Documentation (PyPI + repo)
+
+- **`fcop-mcp`**: customer-facing install guide in [`mcp/README.md`](./mcp/README.md) — one **recommended** path (dedicated venv + `python -m fcop_mcp`), **alternatives** (`uvx fcop-mcp` with cold-start note), **Windows / macOS** `mcp.json` examples, **verify** commands (`from fcop import Issue, Project` / `fcop_mcp.server`), and a short warning when the wrong `fcop` distribution is on `PYTHONPATH`.
+- **Root `README` / `README.zh`**: pointer to the full install doc for IDE users; behaviour of the two packages is unchanged.
+- **Lockstep**: `fcop` **0.6.2** re-released with **no** library or compat-CLI code change vs 0.6.1; version aligns both wheels so users can `pip install` a single pair without mixed-version confusion.
+
+See [`docs/releases/0.6.2.md`](./docs/releases/0.6.2.md).
+
+## [0.6.1] - 2026-04-23
+
+### Added
+
+- **`fcop` compat CLI shim** — the `fcop` wheel now ships a `fcop`
+  console script that prints a friendly migration message and exits
+  with status `1`. This closes the `0.5.x → 0.6.x` gap where users who
+  ran `uvx fcop` or `pip install fcop && fcop` would have gotten a bare
+  "command not found" after upgrading. Pure additive per ADR-0003 (no
+  library API change). See [`docs/releases/0.6.0.md`](./docs/releases/0.6.0.md)
+  §5.3 for background.
+
 ## [0.6.0] - 2026-04-23
 
 ### Added — project governance

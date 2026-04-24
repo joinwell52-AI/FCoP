@@ -1,31 +1,69 @@
 # fcop-mcp
 
-**MCP server that exposes the [`fcop`](https://pypi.org/project/fcop/)
-library as a Model Context Protocol toolkit** for Cursor, Claude
-Desktop, and every other MCP-aware client.
+**MCP server** that exposes the official [`fcop`](https://pypi.org/project/fcop/)
+Python library to Cursor, Claude Desktop, and other MCP clients over stdio.
 
-> This is the server shell. For the Python library (no MCP, no
-> `fastmcp` dep), install [`fcop`](https://pypi.org/project/fcop/).
+- **Protocol & source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)  
+- **This package** lives in the same repo under `mcp/`.
+
+> The **`fcop`** on PyPI **must** be the **FCoP library** (summary mentions *File-based Coordination Protocol*, `pyyaml`, no `fastmcp` inside `fcop`). If `pip show fcop` says *MCP toolbox* or `from fcop import Issue` fails, you have a **wrong** distribution — fix with a clean venv and reinstall (see *Verify* below).
 
 ---
 
-## Install
+## One-page install (what we recommend for customers)
 
-```bash
-pip install fcop-mcp
+**Goal:** a dedicated Python environment for MCP only, so no other project’s `.pth` or wrong `fcop` shadows the real library.
+
+### A. Recommended: dedicated venv + `python -m fcop_mcp`
+
+1. **Python 3.10+** on `PATH` (3.10–3.13 tested in CI; avoid very new 3.14 until CI covers it).
+2. Create a venv (paths are examples — adjust if you like):
+
+**Windows (PowerShell)**
+
+```powershell
+$v = "$env:USERPROFILE\.cursor\fcop_mcp_venv"
+py -3.10 -m venv $v
+& "$v\Scripts\pip.exe" install -U pip
+& "$v\Scripts\pip.exe" install -U "fcop" "fcop-mcp"
 ```
 
-or let `uvx` pull it on demand (recommended for Cursor / Claude
-Desktop, because the MCP host upgrades the server without touching
-your Python env):
+**macOS / Linux**
 
 ```bash
-uvx fcop-mcp
+VENV="$HOME/.cursor/fcop_mcp_venv"
+python3 -m venv "$VENV"
+"$VENV/bin/pip" install -U pip
+"$VENV/bin/pip" install -U "fcop" "fcop-mcp"
 ```
 
-## Wire it into Cursor
+3. **Cursor** user config — file:
 
-Edit `~/.cursor/mcp.json`:
+- Windows: `%USERPROFILE%\.cursor\mcp.json`
+- macOS / Linux: `~/.cursor/mcp.json`
+
+Add or merge (use the **real** `python` path from step 2):
+
+```json
+{
+  "mcpServers": {
+    "fcop": {
+      "command": "C:\\Users\\YOUR_USER\\.cursor\\fcop_mcp_venv\\Scripts\\python.exe",
+      "args": ["-m", "fcop_mcp"]
+    }
+  }
+}
+```
+
+On macOS, `command` is like `/Users/YOUR_USER/.cursor/fcop_mcp_venv/bin/python`.
+
+4. **Fully restart Cursor** (or *Developer: Reload Window*), then open MCP and confirm `fcop` is connected.
+
+**Why this path?** `uvx` (below) is convenient but **first run** can take a long time to download dependencies; some MCP hosts time out. A fixed venv avoids that and avoids **name conflicts** with other editable installs of `fcop` on the same machine.
+
+---
+
+### B. Alternative: `uvx fcop-mcp` (quickest to try, slower cold start)
 
 ```json
 {
@@ -38,93 +76,67 @@ Edit `~/.cursor/mcp.json`:
 }
 ```
 
-## Wire it into Claude Desktop
+Install [uv](https://docs.astral.sh/uv/) first. **First connection** may download many wheels — **wait** for it; don’t spam reconnect. If you see *Aborted* or timeouts, use **A** above.
 
-Edit the Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`
-on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+---
 
-```json
-{
-  "mcpServers": {
-    "fcop": {
-      "command": "uvx",
-      "args": ["fcop-mcp"]
-    }
-  }
-}
+## Verify (2 commands)
+
+In the **same** venv you use for MCP:
+
+```bash
+python -c "from fcop import Issue, Project; print('fcop OK', Project)"
+python -c "from fcop_mcp.server import mcp; print('fcop-mcp OK')"
 ```
 
-Restart the client. You should see 22 tools named
-`set_project_dir`, `unbound_report`, `init_project`, `init_solo`,
-`create_custom_team`, `validate_team_config`, `deploy_role_templates`,
-`new_workspace`, `list_workspaces`, `get_team_status`, `list_tasks`,
-`read_task`, `write_task`, `inspect_task`, `drop_suggestion`,
-`list_reports`, `read_report`, `list_issues`, `archive_task`,
-`check_update`, `upgrade_fcop`, `get_available_teams`.
+If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, versions `0.6.2+` in lockstep with the current release).
 
-## Where does it put files?
+---
 
-By default the server resolves the **project root** in this order
-(locked by [ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)):
+## Claude Desktop
 
-1. The last `set_project_dir("…")` call in this MCP session.
-2. `FCOP_PROJECT_DIR` environment variable.
-3. `CODEFLOW_PROJECT_DIR` (deprecated, prints one warning).
-4. Walk up from the current working directory looking for
-   `docs/agents/fcop.json`, `.cursor/rules/fcop-rules.mdc`, or a
-   pre-existing `docs/agents/tasks/` directory.
-5. Current working directory, plain.
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`  
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`  
 
-To pin a project unconditionally, put it in your MCP client config:
+Use the same `command` / `args` as Cursor (either **A** with your venv `python`, or **B** with `uvx`).
 
-```json
-{
-  "mcpServers": {
-    "fcop": {
-      "command": "uvx",
-      "args": ["fcop-mcp"],
-      "env": { "FCOP_PROJECT_DIR": "D:/projects/your-project" }
-    }
-  }
-}
-```
+---
 
-## Upgrading from `fcop 0.5.x`
-
-If your `mcp.json` looks like this:
-
-```json
-"fcop": { "command": "uvx", "args": ["fcop"] }
-```
-
-change the one arg to:
+## Upgrading from `uvx` / `args: ["fcop"]` (0.5.x)
 
 ```json
 "fcop": { "command": "uvx", "args": ["fcop-mcp"] }
 ```
 
-and you're done. All 22 tool names, arguments, and semantics are
-preserved. The key in `mcpServers` (`"fcop"`) does not have to
-change — Cursor does not care about the key name.
+The `mcpServers` key name can stay `"fcop"`. Full guide:  
+[`docs/MIGRATION-0.6.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/MIGRATION-0.6.md)
 
-See [`MIGRATION-0.6.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/MIGRATION-0.6.md)
-for the full upgrade guide.
+---
 
-## Stability commitment
+## Where the server looks for the project
 
-`fcop-mcp` follows the [Pre-1.0 Stability
-Charter](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md):
+Resolution order (see [ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)):
 
-- Tool names, parameter names, and return shapes are **additive-only**
-  within any `0.6.x` release.
-- Breaking changes require a `DeprecationWarning` in a preceding
-  minor version and a minimum 30-day migration window.
-- New capabilities arrive as **new tools**, not modifications to old
-  tools.
+1. Last `set_project_dir` in this MCP session  
+2. `FCOP_PROJECT_DIR`  
+3. `CODEFLOW_PROJECT_DIR` (deprecated)  
+4. Walk up for `docs/agents/fcop.json` / `fcop-rules.mdc` / `docs/agents/tasks/`  
+5. Current working directory  
 
-In practice: MCP client configs that work with `fcop-mcp 0.6.0`
-continue working with every subsequent `0.6.x` and `0.7.x` patch.
+To pin a folder in config:
+
+```json
+"env": { "FCOP_PROJECT_DIR": "D:/path/to/your/repo" }
+```
+
+---
+
+## Stability (0.6.x)
+
+Tool and resource **shapes** are **additive-only** within `0.6.x` ([stability charter](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)). Configs that work on `fcop-mcp` `0.6.0+` should keep working on later `0.6.x` patch releases.
+
+---
 
 ## License
 
-MIT. See [`LICENSE`](../LICENSE).
+MIT — see [`LICENSE`](../LICENSE).

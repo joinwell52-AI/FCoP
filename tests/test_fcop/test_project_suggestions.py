@@ -95,8 +95,6 @@ class TestUniqueness:
         # test without touching other modules' copies).
         import datetime as real_dt
 
-        import fcop.project as project_module
-
         frozen_moment = real_dt.datetime(2026, 4, 23, 18, 5, 12)
 
         class FrozenDatetime(real_dt.datetime):

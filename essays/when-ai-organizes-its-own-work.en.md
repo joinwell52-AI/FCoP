@@ -68,7 +68,7 @@ One shared directory, one naming convention, and every agent taking ownership of
 **Want more?**
 
 - 60-second companion: [`fcop-primer.en.md`](../primer/fcop-primer.en.md)
-- The spec itself (~160 lines): [`spec/codeflow-core.mdc`](../spec/codeflow-core.mdc)
+- Normative pair: [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) · [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc)
 - This essay: keep scrolling ↓
 
 > **A note on samples**: Every agent-generated snippet quoted in this essay is **verbatim** — the filenames, directory layout, frontmatter, tables, and acceptance language are all exactly what the agents wrote at the time. The data domains shown (Chinese automotive OEMs, public NetEase Cloud Music songs) are already public information; nothing has been abstracted. **What we did NOT do** is publish the whole `codeflow-1` sample directory — that project is ongoing, and its internal tooling code, room keys, and device IDs are not suitable for a full public drop. What readers actually want — "what did AI invent?" — is covered in full through representative snippets in §5.
@@ -720,7 +720,7 @@ We don't have answers for these, and we'd love to hear from people who do.
 
 ## 12. Closing: This Isn't a Tool Pitch, It's a Shared Way of Thinking
 
-CodeFlow is barely a "product." The entire source tree is a few thousand lines, and **its single highest-value piece is one Markdown file** (`codeflow-core.mdc`, 160 lines). Most of the rest is UI chrome, keyboard bindings, and the engineering scaffolding for flipping Cursor tabs.
+CodeFlow is barely a "product." The entire source tree is a few thousand lines, and **its highest-value piece is the protocol text agents can execute** — in the FCoP home repo today that is **authoritatively** split as [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc); in the field run it once lived in one long file. Most of the rest is UI chrome, keyboard bindings, and the engineering scaffolding for flipping Cursor tabs.
 
 What we're really sharing is a **point of view about how AI agents should coordinate**:
 
@@ -756,7 +756,7 @@ The protocol is alive. It belongs to every agent using it.
    ```
    docs/agents/{tasks,reports,issues,shared,log}/
    ```
-2. Drop [`codeflow-core.mdc`](../spec/codeflow-core.mdc) into your project's `.cursor/rules/`.
+2. Copy [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) and [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) into your project's `.cursor/rules/`.
 3. Open four Cursor chats and tell each one: "You are PM / DEV / QA / OPS, only read `*-to-{your role}*.md`."
 4. Toss a `TASK-*-ADMIN-to-PM.md` into `tasks/` and watch them dispatch work among themselves.
 
@@ -770,34 +770,20 @@ Download the CodeFlow Desktop binary for your OS from the [releases page](https:
 
 The snippets this essay cites in §5 — broadcast tasks, anonymous slots, the self-built index, DASHBOARD, SPRINT work discipline, archive READMEs — are all **verbatim from the agents**, not paraphrased. The complete `codeflow-1` directory is not published whole because that project is still live, but the filenames, frontmatter, table shapes, and phrasings you see above are exactly what the agents wrote.
 
-## Appendix B — Key Excerpt from `codeflow-core.mdc` (v2.12.17)
+## Appendix B — Task naming and recipient forms (matches current `fcop-rules` / `fcop-protocol`)
 
-```yaml
----
-description: FCoP — Agent-to-Agent Communication Protocol
-alwaysApply: true
----
+> **Source of truth** is the normative pair in this repo: [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) (charter) · [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) (commentary). The table below is a **minimal** recap for reproduction.
 
-# You are an agent on a CodeFlow team.
-# Your teammates are other agents.
-# You coordinate with them entirely through files:
-# filename is routing, content is payload.
-# No database, no middleware, no queue — just Markdown.
+**Task filename:** `TASK-{date}-{seq}-{sender}-to-{recipient}.md`
 
-## File Naming
+| Form | Meaning |
+|------|---------|
+| `to-{ROLE}` | Direct to one role |
+| `to-TEAM` | Broadcast — every role except sender |
+| `to-{ROLE}.{SLOT}` | A specific seat within a role |
+| `to-assignee.{SLOT}` | Anonymous slot, role TBD |
 
-TASK-{date}-{seq}-{sender}-to-{recipient}.md
-
-### Recipient forms
-| Form                 | Meaning                          |
-|----------------------|----------------------------------|
-| to-{ROLE}            | Direct to one role               |
-| to-TEAM              | Broadcast, everyone but sender   |
-| to-{ROLE}.{SLOT}     | A specific seat within a role    |
-| to-assignee.{SLOT}   | Anonymous slot, role TBD         |
-```
-
-Full spec: [`spec/codeflow-core.mdc`](../spec/codeflow-core.mdc).
+For full YAML frontmatter, directory layout, and numbered rules, use the two `.mdc` files in full.
 
 ## Appendix C — Real Files Cited in This Essay
 

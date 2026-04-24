@@ -68,7 +68,7 @@ TASK-{date}-{seq}-{sender}-to-{recipient}.md
 **想深读 / Want more?**
 
 - 60 秒版（可外链）：[`fcop-primer.md`](../primer/fcop-primer.md)
-- 规范文档（160 行）：[`spec/codeflow-core.mdc`](../spec/codeflow-core.mdc)
+- 成对规范（总则 + 解释）：[`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) · [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc)
 - 本文：继续往下翻 ↓
 
 > **关于样本 · A note on samples**：本文引用的 agent 原始文件片段**一字未改**——文件名、目录层级、frontmatter、表格、验收语都是 agent 当时实际写下来的。数据域（汽车品牌、网易云公开歌曲）本身就是公开信息，没有做任何脱敏。**唯一没做的事**是把整份 `codeflow-1` 样本目录打包公开——那个项目还在进行中，相关的工具代码、内部 room_key、设备 ID 不适合整份抛出。读者真正关心的"AI 发明了什么协作模式"，在本文 §5 里用代表性片段完整呈现了。
@@ -713,7 +713,7 @@ FCoP 把这条链全部抹掉：
 
 ## 12. 结语：不是在造工具，是在分享一种思想
 
-CodeFlow 很难说是一款"产品"。它的源代码加起来几千行，其中**最核心的价值就是一份 Markdown 文件**（`codeflow-core.mdc`，160 行）。剩下的代码大部分是 UI 壳子、快捷键绑定、Cursor tab 切换的那些工程琐事。
+CodeFlow 很难说是一款"产品"。它的源代码加起来几千行，其中**最核心的价值是「可交给 Agent 执行的协议本文」**——在现今的 FCoP 主仓里，这份内容**权威地**拆成 [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) **成对**维护；当年现场则曾浓缩在单份长文里。剩下的代码大部分是 UI 壳子、快捷键绑定、Cursor tab 切换的那些工程琐事。
 
 我们真正在做的事，是分享一种**关于"怎么让 AI 之间协作"的看法**：
 
@@ -749,7 +749,7 @@ CodeFlow 很难说是一款"产品"。它的源代码加起来几千行，其中
    ```
    docs/agents/{tasks,reports,issues,shared,log}/
    ```
-2. 把 [`codeflow-core.mdc`](../spec/codeflow-core.mdc) 丢到项目的 `.cursor/rules/` 下
+2. 将 [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) 与 [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) 复制到项目的 `.cursor/rules/` 下
 3. 在 Cursor 里开 4 个 chat，分别告诉它们"你是 PM / DEV / QA / OPS，只读 `*-to-{你的角色}*.md`"
 4. 随手往 `tasks/` 扔一个 `TASK-*-ADMIN-to-PM.md`，观察它们怎么互相派活
 
@@ -763,34 +763,22 @@ FCoP 的全部运行时就是 `open()` / `rename()` / `glob()`——不需要任
 
 本文 §5 里引用的片段——广播任务、匿名槽位、自建索引、DASHBOARD、SPRINT 工作纪律、归档 README——**都是 agent 实际写下的原文**，没做抽象或改写。完整的 `codeflow-1` 目录因原项目仍在进行中暂不整份公开，但你看到的文件名、frontmatter、表格形状、措辞，就是 agent 当时的第一笔。
 
-## 附录 B — `codeflow-core.mdc` 关键片段（v2.12.17）
+## 附录 B — 任务命名与收件人形式（与现行 `fcop-rules` / `fcop-protocol` 一致）
 
-```yaml
----
-description: FCoP — Agent-to-Agent Communication Protocol
-alwaysApply: true
----
+> **权威规范**以本仓成对文件为准：[`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc)（总则）· [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc)。下表为便于复现的**最小**命名要点摘录。
 
-# You are an agent on a CodeFlow team.
-# Your teammates are other agents.
-# You coordinate with them entirely through files:
-# filename is routing, content is payload.
-# No database, no middleware, no queue — just Markdown.
+**任务文件名**：`TASK-{date}-{seq}-{sender}-to-{recipient}.md`
 
-## File Naming
+**收件人 `recipient` 常见形式**：
 
-TASK-{date}-{seq}-{sender}-to-{recipient}.md
+| Form | 含义 |
+|---|---|
+| `to-{ROLE}` | 发给单一角色 |
+| `to-TEAM` | 广播（除发件人外全员） |
+| `to-{ROLE}.{SLOT}` | 某角色内固定槽位 |
+| `to-assignee.{SLOT}` | 匿名槽位，角色待定 |
 
-### Recipient forms
-| Form                 | Meaning                          |
-|----------------------|----------------------------------|
-| to-{ROLE}            | Direct to one role               |
-| to-TEAM              | Broadcast, everyone but sender   |
-| to-{ROLE}.{SLOT}     | A specific seat within a role    |
-| to-assignee.{SLOT}   | Anonymous slot, role TBD         |
-```
-
-完整协议见 [`spec/codeflow-core.mdc`](../spec/codeflow-core.mdc)。
+更完整的 YAML frontmatter、目录布局与规则编号，**以上述双文件全文**为准。
 
 ## 附录 C — 本文引用的真实文件
 

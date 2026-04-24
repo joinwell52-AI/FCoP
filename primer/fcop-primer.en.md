@@ -131,13 +131,13 @@ This gives FCoP a rare property in the multi-agent world: **observability IS usa
 
 1. Clone the CodeFlow repo (or any project already using FCoP).
 2. Browse [`examples/workspace-example/`](../examples/workspace-example/) — tasks, reports, standing docs. All plain Markdown.
-3. Read the spec: [`spec/codeflow-core.mdc`](../spec/codeflow-core.mdc) (~160 lines).
+3. Read the normative pair: [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) (charter) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) (commentary).
 
 That's enough to understand FCoP. The protocol is a handful of naming conventions plus one directory layout — reading real samples is faster than reading a spec.
 
 ### B. Make your Cursor agents talk via FCoP
 
-1. Drop [`codeflow-core.mdc`](../spec/codeflow-core.mdc) into your project's `.cursor/rules/`.
+1. Copy [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) and [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) into your project's `.cursor/rules/`.
 2. Create the five directories: `docs/agents/{tasks,reports,issues,shared,log}/`.
 3. Tell each agent its role in the Cursor chat: "You are DEV. Read `*-to-DEV*.md`."
 4. Drop a task file into `tasks/` and watch what they do.
@@ -155,7 +155,7 @@ If you want to send tasks from your phone, auto-wake Cursor agents, and see live
 | Document | What's inside |
 |---|---|
 | [`when-ai-organizes-its-own-work.en.md`](../essays/when-ai-organizes-its-own-work.en.md) | Long-form field note: how AI agents self-invented six coordination patterns in 48 hours |
-| [`spec/codeflow-core.mdc`](../spec/codeflow-core.mdc) | The spec itself (pastable into any LLM) · FCoP v2.12.17 |
+| [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) | Agent rules + protocol commentary (the authoritative `.mdc` pair) |
 | [FCoP on GitHub](https://github.com/joinwell52-AI/FCoP) | FCoP protocol main repo |
 
 ---

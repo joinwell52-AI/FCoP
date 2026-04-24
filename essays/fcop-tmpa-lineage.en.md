@@ -14,7 +14,7 @@
 > in the agent. It is in what came before FCoP — a specification called
 > **TMPA**.
 
-**Author**: CodeFlow team · 2026-04-21
+**Author**: FCoP Maintainers · 2026-04-21
 **Keywords**: FCoP, TMPA, multi-role review, AI ethics mandate, natural protocol
 
 ---
@@ -53,7 +53,7 @@ The sister essay, with raw JSONL transcripts, four screenshots, and the
 four `TASK-*.md` memos the agent wrote unprompted, established two things:
 
 1. In a completely unrelated task (a song-to-video job sitting in
-   `D:\CloudMusic`, **outside** any CodeFlow project directory), the
+   `D:\CloudMusic`, **outside** the then-active project workspace), the
    agent spontaneously split itself into four roles — ADMIN / PM / DEV /
    back-to-PM — and wrote four formal memos to itself, *before* it did
    the actual video work.
@@ -81,6 +81,16 @@ FCoP is not a protocol that appeared out of thin air. It is the
 file-coordination skeleton that was **extracted** from a larger
 specification called **TMPA** (Text-Message Multi-AI Parallel
 Architecture).
+
+In the maintainers' recorded lineage, "TMPA" is not a hollow acronym. The
+full spec lives as a long-form Markdown
+**《TMPA — 文本消息多AI并行架构规范》**. **As of this writing, that document has not
+been published publicly** — you cannot obtain the complete TMPA text from
+this FCoP repository. This essay only explains the **abstract** layers FCoP
+took from it (plain-text ordering, filename routing, multi-role review); it
+does not redistribute unpublished body text. If the full spec is released
+later, **treat the maintainers' official channel and file name as
+authoritative**; nothing here is a stand-in for that publication.
 
 **TMPA** is a multi-AI architecture **specification**. Its core bet, at
 the engineering layer, is a big one:
@@ -267,7 +277,9 @@ was already there.
 - Sister essay · [*An Anomaly I Can't Fully Explain: AI Doesn't Just
   Obey Rules — It Endorses Them*](fcop-natural-protocol.md) *(bilingual,
   Chinese leading)*
-- FCoP spec · [`codeflow-core.mdc`](../spec/codeflow-core.mdc)
+- **Agent-facing spec (a pair; deploy under `.cursor/rules/`)**:
+  [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) (charter) ·
+  [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc) (commentary)
 - Field report · [*When AI Organizes Its Own Work*](when-ai-organizes-its-own-work.en.md)
 - [Chinese version / 中文版本](fcop-tmpa-lineage.md)
 
@@ -276,5 +288,5 @@ was already there.
 **License**: MIT (see `LICENSE` in the repo root)
 **Attribution**: The writing of this essay is itself the working style
 it describes — an agent surfaced a principle, a human recognised and
-recorded it. The final text is edited, signed, and published by the
-CodeFlow team.
+recorded it. The final text is edited and published by the **FCoP
+maintainers**.

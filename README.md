@@ -14,7 +14,8 @@
   <a href="primer/fcop-primer.en.md">60-second Primer</a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
-  <a href="spec/codeflow-core.mdc">Spec (<code>.mdc</code>)</a>
+  <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
+  <a href="docs/fcop-standalone.en.md">Standalone</a>
 </p>
 
 <p align="center">
@@ -47,13 +48,15 @@ That's it. No database. No message queue. No custom daemon. You can `ls` the ent
 
 > If TCP is "bytes over wires," **FCoP is "tasks over folders."**
 
+> In engineering terms, you get a **serializable, versionable collaboration surface** instead of relying on **proprietary, heavyweight infrastructure**.
+
 ## Why should you care?
 
 Because agents are easier to supervise when you can literally **see** what they're doing.
 
 We ran a 4-agent team (PM / DEV / QA / OPS) for 48 hours on this protocol and watched the agents invent **six coordination patterns we never wrote down** — team broadcasts, role slots, shared documents, subtask batches, self-explaining READMEs, and traceability frontmatter. Each pattern showed up as _new filenames_ — no code changes required.
 
-Then something stranger happened: a **single** agent, on an **unrelated** task (generating an AI music video in a folder that shares nothing with our CodeFlow project), spontaneously split itself into PM / DEV / ADMIN and wrote four FCoP-format memos to itself — then cited and **sublimated** our scattered rules into a single moral principle we had not written anywhere.
+Then something stranger happened: a **single** agent, on an **unrelated** task (generating an AI music video in a folder with **no connection to any then-open project workspace**), spontaneously split itself into PM / DEV / ADMIN and wrote four FCoP-format memos to itself — then cited and **sublimated** our scattered rules into a single moral principle we had not written anywhere.
 
 Both stories are written up as field reports in the essays index below.
 
@@ -69,49 +72,111 @@ Both stories are written up as field reports in the essays index below.
 
 ## Repository layout
 
+The repo is not *only* Markdown specs: the PyPI package **`fcop`** lives
+under `src/fcop/`, **`fcop-mcp`** is a separate subproject under `mcp/`, and
+there are `tests/`, `docs/`, and `adr/` alongside the essays and specs.
+
 ```
 FCoP/
-├── spec/
-│   ├── codeflow-core.mdc          # ★ Normative protocol (given to agents as a Cursor rule)
-│   └── fcop-spec-v1.0.3.md        # Human-readable long-form spec (Chinese)
+├── src/fcop/                    # `fcop` package: Project API; `rules/_data/`
+│                                # bundles fcop-rules / fcop-protocol (templates for `init` deploy)
+├── mcp/                         # `fcop-mcp` subproject (MCP server; has its own pyproject)
+├── tests/                       # pytest for `fcop` and `fcop-mcp`
+├── spec/                        # Human spec + legacy URL stub
+│   ├── codeflow-core.mdc        # Deprecated stub (keeps old URLs); real rules: `src/.../fcop-*`
+│   ├── fcop-spec.md             # Spec index (Chinese)
+│   └── fcop-spec-v1.0.3.md      # Long human spec (non-normative)
+├── docs/                        # Migrations, releases, [`fcop-standalone.en.md`](docs/fcop-standalone.en.md)
+├── adr/                         # Architecture decision records
+├── .github/workflows/           # CI
+├── pyproject.toml               # Root `fcop` package and tooling
 ├── primer/
-│   ├── fcop-primer.en.md          # 60-second intro (English)
-│   └── fcop-primer.md             # 60-second intro (Chinese)
+│   ├── fcop-primer.en.md
+│   └── fcop-primer.md
 ├── essays/
-│   ├── when-ai-organizes-its-own-work.en.md    # Field report (English)
-│   ├── when-ai-organizes-its-own-work.md       # Field report (Chinese)
-│   ├── fcop-natural-protocol.en.md             # "Natural Protocol" essay — phenomenon (English)
-│   ├── fcop-natural-protocol.md                # "Natural Protocol" essay — phenomenon (Chinese)
-│   ├── fcop-natural-protocol-evidence/         # Full evidence archive (screenshots, memos, JSONL transcript)
-│   ├── fcop-tmpa-lineage.en.md                 # "Why it holds up" — TMPA lineage companion (English)
-│   └── fcop-tmpa-lineage.md                    # "Why it holds up" — TMPA lineage companion (Chinese)
-├── examples/
-│   └── workspace-example/         # Minimal reference workspace (tasks/, results/, events/)
-├── integrations/
-│   └── windows-file-association/  # Register .fcop with an icon on Windows
-├── assets/                        # Logos and icons
-├── LICENSE                        # MIT
-└── README.md / README.zh.md       # This document
+│   ├── when-ai-organizes-its-own-work.en.md
+│   ├── when-ai-organizes-its-own-work.md
+│   ├── fcop-natural-protocol.en.md
+│   ├── fcop-natural-protocol.md
+│   ├── fcop-natural-protocol-evidence/
+│   ├── fcop-tmpa-lineage.en.md
+│   └── fcop-tmpa-lineage.md
+├── examples/workspace-example/
+├── integrations/windows-file-association/
+├── assets/
+├── LICENSE
+└── README.md / README.zh.md
 ```
 
 ## 30-second quickstart
 
-You don't install FCoP. You **adopt** it. In any project:
+FCoP is **adopted**, not a long-running daemon. The current **rule split**
+is **[`fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc)** (charter) plus
+**[`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc)**
+(commentary) — both belong under **`.cursor/rules/`**. The single file
+[`spec/codeflow-core.mdc`](spec/codeflow-core.mdc) is a **deprecated stub** so
+old links do not 404 — it is *not* the full protocol text for 0.6+.
 
-```bash
-mkdir -p docs/agents/{tasks,reports,issues,log}
+**Path A — `fcop` library (recommended).** One shot creates
+`docs/agents/` and `fcop.json`:
+
+```python
+from fcop import Project
+Project(".").init()  # default dev-team; use .init_solo() for single-AI
 ```
 
-Then drop [`spec/codeflow-core.mdc`](spec/codeflow-core.mdc) into your project's `.cursor/rules/` directory (or equivalent for your agent runtime). Any compliant agent that reads that file now knows how to:
+**Path B — rules only, no Python.** Copy the two `.mdc` files from this repo
+into `.cursor/rules/`. If the tree is empty, at least create the five
+buckets the library uses:
 
-- pick up tasks addressed to its role,
-- write back reports in the matching filename pattern,
-- raise issues,
-- and never step on another agent's files.
+```bash
+mkdir -p docs/agents/{tasks,reports,issues,shared,log}
+```
 
-Congratulations — your `docs/agents/` folder is now an agent-to-agent bus.
+With the rules in place, agents know how to claim work, name reports, raise
+issues, and stay out of other roles' files. Deeper structure and team
+templates: packages below and [`examples/workspace-example/`](examples/workspace-example/).
 
-For a richer reference, see [`examples/workspace-example/`](examples/workspace-example/).
+## Python SDK & MCP server (optional)
+
+The protocol is filesystem-first. **If you need** programmatic task/report/issue
+I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
+
+| Package | Install | Purpose | Depends on |
+|---|---|---|---|
+| [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues programmatically. Zero MCP dependency. | `pyyaml` |
+| [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=0.6,<0.7`, `fastmcp`, `websockets` |
+
+**Install for customers (step-by-step, all platforms, verify commands):** see **[`mcp/README.md`](mcp/README.md)**. The official packages are **from this repository**; if `from fcop import Project, Issue` fails after `pip install fcop`, the wrong `fcop` distribution or another project is shadowing the library — the guide explains how to fix in a clean venv.
+
+**Library** — use from any Python script or agent:
+
+```python
+from fcop import Project
+
+proj = Project(".")                              # project root; no fcop.json until init
+proj.init()                                      # dirs + shared/ + log/ + writes fcop.json
+task = proj.write_task(sender="PM", recipient="DEV", priority="P1",
+                       title="Add auth middleware", body="...")
+print(proj.list_tasks(recipient="DEV"))
+```
+
+**MCP server** — add to `mcp.json` (Cursor) or `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "fcop": {
+      "command": "uvx",
+      "args": ["fcop-mcp"]
+    }
+  }
+}
+```
+
+Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`adr/ADR-0003-stability-charter.md`](adr/ADR-0003-stability-charter.md).
+
+> **Upgrading from 0.5.x?** The MCP server moved from `fcop` to `fcop-mcp` — update your `mcp.json` to `uvx fcop-mcp`. See [`docs/MIGRATION-0.6.md`](docs/MIGRATION-0.6.md) for the full migration guide and the [0.6.0 release record](docs/releases/0.6.0.md) for what shipped.
 
 ## Design principles
 
@@ -121,18 +186,17 @@ For a richer reference, see [`examples/workspace-example/`](examples/workspace-e
 4. **Identity determines path.** The role slug in the filename _is_ the permission model. An agent whose identity doesn't match won't touch the file.
 5. **Infrastructure-free.** If you have a filesystem, you have FCoP. Works on a laptop, on a cluster, across machines via `rsync`.
 
-## Reference implementation
+## Reference implementations
 
-FCoP was extracted from [**CodeFlow Desktop**](https://github.com/joinwell52-AI/codeflow-pwa), a PC-side agent coordinator for Cursor IDE. The canonical agent-facing rule file is shipped as part of CodeFlow:
+Two official reference implementations, both MIT-licensed:
 
-- [`codeflow-desktop/templates/rules/codeflow-core.mdc`](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/codeflow-desktop/templates/rules/codeflow-core.mdc)
-
-The copy in this repository's `spec/` directory is the same file, versioned here so the protocol can stand on its own.
+1. **`fcop` / `fcop-mcp`** — Python library + MCP server for the protocol. Source in this repository under [`src/fcop/`](src/fcop/) and [`mcp/src/fcop_mcp/`](mcp/src/fcop_mcp/). Installed via PyPI (see section above).
+2. **Legacy `codeflow-core` path**: in this repo, `spec/codeflow-core.mdc` is a **short deprecation stub** only. The real agent rules are `src/fcop/rules/_data/fcop-rules.mdc` + `fcop-protocol.mdc`. Upstream products may still ship an older same-named one-file copy; if it drifts, **FCoP's pair in this repository wins** for the protocol.
 
 ## Status & versioning
 
 - **Current spec**: v1.0.3 (2026-04-19)
-- **Current agent rule file**: matches CodeFlow Desktop v2.12.17
+- **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - Change log is embedded in [`spec/fcop-spec-v1.0.3.md`](spec/fcop-spec-v1.0.3.md) (Chinese).
 
 ## Contributing
@@ -151,4 +215,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## Credits
 
-FCoP emerged from collaboration with Cursor-based AI agents running on the CodeFlow Desktop platform. Many of the conventions in this spec were first invented by those agents and then codified here. Details are in the [field report](essays/when-ai-organizes-its-own-work.en.md).
+FCoP emerged from hands-on collaboration with multi-agent Cursor-style workflows. Many of the conventions in this spec were first invented by those agents and then codified here. Details are in the [field report](essays/when-ai-organizes-its-own-work.en.md).

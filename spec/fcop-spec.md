@@ -33,7 +33,8 @@
 - **核心原则**：文件名 = 唯一真理（Single Source of Truth）
 - **唯一同步原语**：`os.rename()` 的原子性
 - **零基础设施**：不依赖数据库、消息队列、专用服务器
-- **参考实现**：[CodeFlow Desktop](https://github.com/joinwell52-AI/codeflow-pwa)
+- **独立说明（无产品绑定）**：[FCoP 纯协议单页 · `docs/fcop-standalone.md`](../docs/fcop-standalone.md)
+- **其他参考实现**（可选）：[CodeFlow Desktop](https://github.com/joinwell52-AI/codeflow-pwa)
 
 ## 协议扩展名
 
