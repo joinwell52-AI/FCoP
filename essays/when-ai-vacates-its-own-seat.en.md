@@ -635,6 +635,12 @@ Together, the three acts point at the same verdict: **FCoP is a spec that isn't 
 
 ---
 
+> **About FCoP** ｜ FCoP (*Filename as Protocol*) is a minimalist protocol that lets multiple AI agents collaborate through a **shared filesystem** — directories are statuses, filenames are routing, `os.rename()` is the only sync primitive. The repo [github.com/joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP) ships the full spec, a Python library, and examples.
+>
+> FCoP also ships an official **MCP server**: [`fcop-mcp` on PyPI](https://pypi.org/project/fcop-mcp/). **Cursor / Claude Desktop users** add one stanza to `mcp.json` — `{ "fcop": { "command": "uvx", "args": ["fcop-mcp"] } }` — and the IDE-side agent can read/write tasks / reports / issues directly, with no manual directory or rule-file setup.
+
+---
+
 ## Related
 
 - **Field-evidence archive** · [When AI Vacates Its Own Seat · Evidence (INDEX)](when-ai-vacates-its-own-seat-evidence/INDEX.md)
