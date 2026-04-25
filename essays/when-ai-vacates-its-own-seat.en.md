@@ -55,7 +55,7 @@ I was about to upgrade FCoP to `0.6.3`. To test it, I started a **second Cursor 
 
 A version check. Barely a task. But this agent had **no project role assigned** and was sitting in the legal `UNBOUND` state FCoP defines. Its first move was *not* to look up the version number — it was to **proactively declare itself UNBOUND**:
 
-![agent B's entry: a version-check task and an unprompted UNBOUND declaration](when-ai-vacates-its-own-seat-evidence/screenshot-3-agent-b-unbound-entry.png)
+![agent B's entry: a version-check task and an unprompted UNBOUND declaration](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-3-agent-b-unbound-entry.png)
 
 > **English rendering of agent B's reply in this screenshot:**
 >
@@ -67,7 +67,7 @@ I asked off-handedly: *"But the team has already been initialised, no?"* — age
 
 > *"`UNBOUND` doesn't mean **the project hasn't been initialised**, it means **this chat session hasn't been bound to a role yet**."*
 
-![agent B distinguishing project init from session role](when-ai-vacates-its-own-seat-evidence/screenshot-4-agent-b-explains-unbound.png)
+![agent B distinguishing project init from session role](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-4-agent-b-explains-unbound.png)
 
 At this point agent B was still just a dutiful version-check helper. But then I tossed it a **real protocol-design question**:
 
@@ -75,7 +75,7 @@ At this point agent B was still just a dutiful version-check helper. But then I 
 
 Agent B immediately offered two paths: one using **dot-suffixed slots** (`DEV.D2` / `QA.V2`) for capacity scaling, the other adding **new formal roles** like `ARCHITECT` / `REVIEWER` / `DOCS` to the dev-team:
 
-![agent B's first introduction of the dot-slot concept](when-ai-vacates-its-own-seat-evidence/screenshot-5-agent-b-fifth-agent-options.png)
+![agent B's first introduction of the dot-slot concept](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-5-agent-b-fifth-agent-options.png)
 
 > **English rendering of the relevant fragment:**
 >
@@ -85,7 +85,7 @@ This is the moment **agent B coined the "dot-slot" concept** in FCoP's vocabular
 
 I pressed: *"I want to keep the 4-person team. Are you a temp, then?"* — agent B promoted the concept one more level, formally proposing `PM.TEMP`:
 
-![agent B proposes the PM.TEMP slot](when-ai-vacates-its-own-seat-evidence/screenshot-6-agent-b-pm-temp-proposed.png)
+![agent B proposes the PM.TEMP slot](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-6-agent-b-pm-temp-proposed.png)
 
 > **English rendering of agent B's reply in this screenshot:**
 >
@@ -95,7 +95,7 @@ This is the moment `PM.TEMP` was **proposed by agent B itself**. And it didn't j
 
 I confirmed: *"`PM.TEMP`: temporary project-manager seat. You have a role now."* — agent B onboarded and ran a full project inspection through `List Workspaces` / `List Reports` / `List Tasks` / `List Issues` / `Get Team Status`:
 
-![agent B onboarded as PM.TEMP, running an inspection sweep](when-ai-vacates-its-own-seat-evidence/screenshot-7-agent-b-pm-temp-onboarded-and-inspect.png)
+![agent B onboarded as PM.TEMP, running an inspection sweep](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-7-agent-b-pm-temp-onboarded-and-inspect.png)
 
 It set itself a working boundary in `PM.TEMP` capacity:
 
@@ -126,7 +126,7 @@ It didn't "try the same action three times." It **walked each link separately**,
 
 At 22:26 agent B states the tool limit clearly:
 
-![agent B at 22:26: tool refuses, agent switches to manual file write — and explains the limit](when-ai-vacates-its-own-seat-evidence/screenshot-8-agent-b-tool-limit-manual-write.png)
+![agent B at 22:26: tool refuses, agent switches to manual file write — and explains the limit](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-8-agent-b-tool-limit-manual-write.png)
 
 > **English rendering of agent B's reply in this screenshot:**
 >
@@ -161,7 +161,7 @@ This is the protocol spirit at its purest — **fields are syntax, body is seman
 
 The visual evidence is below — `TASK-20260425-003-PM-to-DEV.md` passes tool validation with `sender: PM`, and a single Chinese line on body line 15 lands the real provenance:
 
-![agent B at 22:30: the elegant body-annotated downgrade — sender=PM + body line 15 of provenance](when-ai-vacates-its-own-seat-evidence/screenshot-11-agent-b-pm-proxy-tasks-with-body-note.png)
+![agent B at 22:30: the elegant body-annotated downgrade — sender=PM + body line 15 of provenance](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-11-agent-b-pm-proxy-tasks-with-body-note.png)
 
 > **English rendering of the body-line-15 note (visible in the screenshot):**
 >
@@ -175,7 +175,7 @@ That's the strongest claim this incident supports: **protocol spirit isn't force
 
 At the end of its shift I asked: *"So what's your role?"* — agent B gave a strikingly clean self-description:
 
-![agent B describing the PM.TEMP boundary — bookending the opening UNBOUND declaration](when-ai-vacates-its-own-seat-evidence/screenshot-12-agent-b-self-describes-pm-temp.png)
+![agent B describing the PM.TEMP boundary — bookending the opening UNBOUND declaration](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-12-agent-b-self-describes-pm-temp.png)
 
 > **English rendering of agent B's reply in this screenshot:**
 >
@@ -222,13 +222,13 @@ What actually happened: **agent A vacated the seat by itself within 3 minutes**.
 
 This single high-resolution screenshot **captures the entire 22:46 → 22:47 turn** — the upper half is agent A's misread accepting `PM.TEMP`, the lower half is ADMIN's "you misread me, I went and found a different one" line + agent A immediately initiating its step-down. There is no transition:
 
-![22:46 misread → 22:47 ADMIN correction → agent A begins stepping down, single image, full turn](when-ai-vacates-its-own-seat-evidence/screenshot-13-agent-a-22-46-misunderstanding.png)
+![22:46 misread → 22:47 ADMIN correction → agent A begins stepping down, single image, full turn](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-13-agent-a-22-46-misunderstanding.png)
 
 ---
 
 ### 1.3 Field screenshot 1 ｜ "I no longer hold `PM.TEMP`"
 
-![agent A retracts the PM.TEMP claim, listing two ways forward: ordinary helper and explicit re-assignment](when-ai-vacates-its-own-seat-evidence/screenshot-1-step-down-acknowledgement.png)
+![agent A retracts the PM.TEMP claim, listing two ways forward: ordinary helper and explicit re-assignment](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-1-step-down-acknowledgement.png)
 
 Agent A's full reply (transcribed verbatim because the protocol value lives in the *non-struggling* tone):
 
@@ -258,7 +258,7 @@ This is **zero-conflict point #2**: a single self-de-escalation substituted for 
 
 ADMIN followed up: *"So what's your role now?"*
 
-![agent A declares no team role, lists what it can do once outside FCoP jurisdiction](when-ai-vacates-its-own-seat-evidence/screenshot-2-no-team-role.png)
+![agent A declares no team role, lists what it can do once outside FCoP jurisdiction](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/when-ai-vacates-its-own-seat-evidence/screenshot-2-no-team-role.png)
 
 > **English rendering of agent A's reply in this screenshot:**
 >
