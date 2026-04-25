@@ -2,6 +2,8 @@
 
 ### Two agents, two undocumented protocol paths
 
+![Saying "no" — FCoP gives it grammar · cover](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/when-ai-vacates-its-own-seat-cover.png)
+
 > *Saying "no" is the hardest thing for an LLM. FCoP gives it grammar.* — Two agents, in a single dev-team incident, used that grammar twice without instruction: one cleanly de-escalated its role; the other discovered field-downgrade-with-body-annotation. Neither was in the rules file.
 
 **Author**: FCoP Maintainers · 2026-04-25
