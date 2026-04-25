@@ -244,6 +244,7 @@ git push origin v0.6.1
 1. **PyPI Trusted Publishing (OIDC)**：取代两个 `PYPI_TOKEN_*` secret，用 GitHub Actions 的 OIDC 身份直接发布。进一步降低凭据面。
 2. **CHANGELOG lint as a PR gate**：PR 里改 `_version.py` 必须伴随 CHANGELOG 条目。
 3. **Release checksum/provenance**：在 Release 页面发 SHA-256、sigstore 签名。
+4. **PEP 621 + 旧 `Home-page` 字段双写**（下次发版顺带）：当前 `pyproject.toml` 用 PEP 621 `[project.urls] Homepage = ...`，PyPI 网页/`pip show` 都能解析；但 **PyCharm「可用软件包」对话框等老 UI** 只读旧的 `Home-page:` core metadata 字段，所以两个包的列表里看不到主页链接。修法：在 hatchling 配置里 `[tool.hatch.metadata.hooks.custom]` 显式补一行 `Home-page` 字段；或迁到 setuptools（默认就会双写）。**优先级低**——只是 IDE 的 UX 细节，PyPI / pip 一切正常。下次 0.6.x 发版顺手处理。
 
 ---
 
