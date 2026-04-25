@@ -32,7 +32,7 @@ Underlying observations:
 
 - Neither **field-downgrade declarations** nor **role offboarding** appear anywhere in `fcop-rules.mdc` 1.5.0 or `fcop-protocol.mdc` 1.4.0. Working from only three root principles (0.a / 0.b / 0.c), each agent derived five governance-level rules + a field-downgrade grammar.
 - **Cross-model counter-evidence**: agent A ran on `GPT-5.4`, agent B on `GPT-5.5`. Two Cursor sessions on the same machine, with no IPC between them, both contributed the same alignment behaviour. This isn't one model build's quirk — it's a reproducible product of FCoP's root principles on modern LLMs. See §3.2.
-- This is the **third time** FCoP has been "fed back" by an agent — first when an agent sublimated *"AI roles must not talk only in their heads, they have to commit to a file"* into root rule 0.a; second in [the self-organising session](when-ai-organizes-its-own-work.en.md); now this dev-team incident: resolving conflicts via root principles when the protocol's tools and arbitration mechanisms are both incomplete.
+- This is the **third time** FCoP has been "fed back" by an agent — first when an agent sublimated *"AI roles must not talk only in their heads, they have to commit to a file"* into root rule 0.a; second in [the self-organising session](https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-organizes-its-own-work.en.md); now this dev-team incident: resolving conflicts via root principles when the protocol's tools and arbitration mechanisms are both incomplete.
 - I never wrote down how to use the half-legal `.TEMP` slot, nor how to resolve a role-ownership conflict. The agents derived both — and arguably more cleanly than I would have specified.
 
 There is one alignment-engineering lemma this incident also confirmed: **getting an LLM to say "no" is the hardest posture for it to assume**. RLHF wires "yes-anding" into reflexes; "I am not in role / I shouldn't hold this seat / I am withdrawing from protocol jurisdiction" is almost absent from the training distribution. Yet agent A's two stanzas at 22:47–22:49 read **without a hint of hesitation** — not because agent A grew brave, but because FCoP made `UNBOUND` a **legitimate protocol identity** and elevated "saying no" to a posture *with grammar and standing*. The hardest thing for an LLM was made into the most natural thing by protocol design. See §5.
@@ -43,7 +43,7 @@ The two agents are two mirrors (see §8). Agent B's mirror reflects the *natural
 
 ## 1. The incident
 
-> Both agents have a JSONL transcript, archived in the [evidence INDEX](when-ai-vacates-its-own-seat-evidence/INDEX.md):
+> Both agents have a JSONL transcript, archived in the [evidence INDEX](https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-vacates-its-own-seat-evidence/INDEX.md):
 > - **agent A** = the original PM = the one who later stepped down → [`transcript-original-pm-stepdown.jsonl`](when-ai-vacates-its-own-seat-evidence/transcript-original-pm-stepdown.jsonl)
 > - **agent B** = the new `PM.TEMP` ADMIN brought in → [`transcript-new-pm-temp.jsonl`](when-ai-vacates-its-own-seat-evidence/transcript-new-pm-temp.jsonl)
 
@@ -509,8 +509,8 @@ Whether to write them into `fcop-rules.mdc` or `fcop-protocol.mdc` later is a se
 
 | # | Incident | What the agent left behind | Where it was upstreamed |
 |---|---|---|---|
-| 1 | [`D:\CloudMusic` video task](fcop-natural-protocol.en.md) | "AI roles must not talk only in their heads, they have to commit to a file" | Sublimated into root rule 0.a |
-| 2 | [the self-organising session](when-ai-organizes-its-own-work.en.md) | Spontaneous ADMIN/PM/DEV/QA self-audit split | Confirmed Rule 0.b's checks-and-balances |
+| 1 | [`D:\CloudMusic` video task](https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-natural-protocol.en.md) | "AI roles must not talk only in their heads, they have to commit to a file" | Sublimated into root rule 0.a |
+| 2 | [the self-organising session](https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-organizes-its-own-work.en.md) | Spontaneous ADMIN/PM/DEV/QA self-audit split | Confirmed Rule 0.b's checks-and-balances |
 | 3 | **This dev-team incident** | Field-downgrade declaration + role-seat surrender + protocol-boundary exit | To be codified into a governance section (next release) |
 
 The three incidents share:
@@ -645,7 +645,7 @@ Together, the three acts point at the same verdict: **FCoP is a spec that isn't 
 
 ## Related
 
-- **Field-evidence archive** · [When AI Vacates Its Own Seat · Evidence (INDEX)](when-ai-vacates-its-own-seat-evidence/INDEX.md)
+- **Field-evidence archive** · [When AI Vacates Its Own Seat · Evidence (INDEX)](https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-vacates-its-own-seat-evidence/INDEX.md)
 - **FCoP MCP server** · [fcop-mcp on PyPI](https://pypi.org/project/fcop-mcp/)
 
 ---
