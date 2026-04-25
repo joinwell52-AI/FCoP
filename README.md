@@ -147,7 +147,7 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 | [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues programmatically. Zero MCP dependency. | `pyyaml` |
 | [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=0.6,<0.7`, `fastmcp`, `websockets` |
 
-**Install for customers (step-by-step, all platforms, verify commands):** see **[`mcp/README.md`](mcp/README.md)**. **Upgrading** an existing `0.6.x` install: **[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)** (`pip install -U` both packages in the same venv). The official packages are **from this repository**; if `from fcop import Project, Issue` fails after `pip install fcop`, the wrong `fcop` distribution or another project is shadowing the library — the guide explains how to fix in a clean venv.
+**Install for customers (step-by-step, all platforms, verify commands):** see **[`mcp/README.md`](mcp/README.md)**. **Upgrading** an existing `0.6.x` install: **[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)** (`pip install -U` both packages in the same venv). **MCP tool & resource index (24 tools, 10 resources):** **[`docs/mcp-tools.md`](docs/mcp-tools.md)** — what every tool does, when to call it, parameters at a glance. The official packages are **from this repository**; if `from fcop import Project, Issue` fails after `pip install fcop`, the wrong `fcop` distribution or another project is shadowing the library — the guide explains how to fix in a clean venv.
 
 **Library** — use from any Python script or agent:
 
