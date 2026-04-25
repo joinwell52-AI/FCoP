@@ -67,6 +67,7 @@
 | 01 | **当 AI 自己整理工作** | [GitHub 中文](essays/when-ai-organizes-its-own-work.md) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/160344932) · [English](essays/when-ai-organizes-its-own-work.en.md) | 一支 4 人 AI 团队（PM / DEV / QA / OPS），48 小时，只给一个文件夹——结果自发涌现出 6 种我们从没写进规范的协作模式。 |
 | 02 | **一个无法完全解释的现象:AI 不止服从规则,它认同规则** | [GitHub 中文](essays/fcop-natural-protocol.md) · [GitHub English](essays/fcop-natural-protocol.en.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/160345043) · [Dev.to](https://dev.to/joinwell52/an-unexplainable-thing-i-saw-the-agent-didnt-just-comply-with-rules-it-endorsed-them-5ecd) · [Cursor Forum](https://forum.cursor.com/t/i-asked-cursor-to-make-a-video-it-wrote-itself-4-protocol-memos-field-report-on-rule-internalization/158524) | 一个 agent 在**完全无关**的任务里，自发把自己拆成 4 个 FCoP 角色，还**升华**了我散在 7 个文件里的技术规定，浓缩成一条我根本没写过的原则。附[完整证据档案](essays/fcop-natural-protocol-evidence/)（4 张截图 + 4 份公文 + 原始 JSONL 转录）。 |
 | 03 | **自然协议为什么站得住——FCoP 从 TMPA 中抽出来的那条伦理** | [GitHub 中文](essays/fcop-tmpa-lineage.md) · [GitHub English](essays/fcop-tmpa-lineage.en.md) | 02 的姊妹篇。那一篇讲"这件事发生了"，这一篇讲"它为什么站得住"：FCoP 其实是从 **TMPA**（一份多 AI 架构规范，核心立意是用纯文本时序替代传统分布式协调）里抽出来的子集；agent 升华出的那句话，是 TMPA 伦理层"多角色审核是 AI 伦理强制"的最小化重发现。 |
+| 04 | **让 agent 说"不"，是 LLM 最难做的事——FCoP 给了它语法** | [GitHub 中文](essays/when-ai-vacates-its-own-seat.md) · [现场证据档案](essays/when-ai-vacates-its-own-seat-evidence/INDEX.md) | 同一台电脑、两个 Cursor 会话、两个 GPT-5 小版本（5.4 与 5.5）：原 PM 在我说"找了临时 PM"后主动让出席位回到 UNBOUND，新 PM.TEMP 用「frontmatter 降级 + 正文 `说明:` 一行」走完了协议没写的那条路。我原本以为会冲突，结果没有——agent 自己把规则补全了。附 15 张截图 + 2 份完整 JSONL 转录。 |
 
 > 欢迎提交新的现场报告。如果你在自己的项目里用了 FCoP，遇到了意外（好或坏），欢迎开 issue 或对 `essays/` 提 PR。协议是在现场报告里演进的，不是在委员会里。
 
@@ -97,7 +98,9 @@ FCoP/
 │   ├── fcop-natural-protocol.en.md
 │   ├── fcop-natural-protocol-evidence/
 │   ├── fcop-tmpa-lineage.md
-│   └── fcop-tmpa-lineage.en.md
+│   ├── fcop-tmpa-lineage.en.md
+│   ├── when-ai-vacates-its-own-seat.md
+│   └── when-ai-vacates-its-own-seat-evidence/
 ├── examples/workspace-example/  # 最小参考工作区
 ├── integrations/windows-file-association/
 ├── assets/                      # Logo
