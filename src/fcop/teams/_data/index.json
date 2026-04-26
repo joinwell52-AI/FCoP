@@ -2,7 +2,7 @@
   "protocol": "fcop",
   "version": 1,
   "kind": "team-index",
-  "updated_at": "2026-04-17",
+  "updated_at": "2026-04-26",
   "schema": "Each team entry lists: leader, roles, docs layout (three layers), and how lang suffix works.",
   "layers": {
     "entry": "README.md",
@@ -15,6 +15,17 @@
     "en": "{name}.en.md"
   },
   "teams": [
+    {
+      "id": "solo",
+      "name_zh": "单 AI 协作模式",
+      "name_en": "Single-AI Collaboration Mode",
+      "leader": "ME",
+      "roles": ["ME"],
+      "description_zh": "一个 AI 帮你做事；ADMIN ↔ ME 直接对接，但仍走文件协议。",
+      "description_en": "One AI helping you; ADMIN ↔ ME direct interface, still via file protocol.",
+      "ai_members": 1,
+      "includes_admin": true
+    },
     {
       "id": "dev-team",
       "name_zh": "软件开发团队",

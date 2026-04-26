@@ -26,9 +26,17 @@ from fcop.errors import ConfigError, TeamNotFoundError
 
 @pytest.fixture
 def fresh_project(tmp_path: Path) -> Project:
-    """An initialized dev-team project at tmp_path."""
+    """An initialized dev-team project at tmp_path.
+
+    ``deploy_role_templates=False`` so each test in this module can
+    exercise :meth:`Project.deploy_role_templates` against a clean
+    ``shared/`` (no pre-existing templates that would otherwise be
+    archived on the second deploy). 0.6.4 changed the ``init``
+    default to auto-deploy templates; the deploy-specific tests
+    still need the unwritten state.
+    """
     project = Project(tmp_path)
-    project.init(team="dev-team", lang="zh")
+    project.init(team="dev-team", lang="zh", deploy_role_templates=False)
     return project
 
 

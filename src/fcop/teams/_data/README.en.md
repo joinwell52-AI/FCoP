@@ -11,6 +11,7 @@ teams/
 ├── README.md          # Chinese
 ├── README.en.md       # this file
 ├── index.json         # machine-readable index
+├── solo/              # single-AI collaboration  [0.6.4]
 ├── dev-team/          # software development
 ├── media-team/        # content media
 ├── mvp-team/          # startup MVP
@@ -39,20 +40,31 @@ teams/
 Generality decreases, detail increases. The first two layers are enough
 to run the team; Layer 3 is read only when playing that role.
 
-## Four preset teams
+## Five preset modes
 
-| Team | Leader | Roles (AI) | Scenario |
-|------|--------|------------|----------|
-| `dev-team` | `PM` | `PM / DEV / QA / OPS` | Software dev, fix & release |
-| `media-team` | `PUBLISHER` | `PUBLISHER / COLLECTOR / WRITER / EDITOR` | Topic → draft → publish |
-| `mvp-team` | `MARKETER` | `MARKETER / RESEARCHER / DESIGNER / BUILDER` | Startup MVP, idea validation |
-| `qa-team` | `LEAD-QA` | `LEAD-QA / TESTER / AUTO-TESTER / PERF-TESTER` | Independent testing, multi-line parallel |
+| Mode/Team | Leader | Roles (AI) | Scenario | Entry tool |
+|-----------|--------|------------|----------|------------|
+| `solo` *(0.6.4)* | `ME` | `ME` (1) | Single AI; ADMIN ↔ ME direct | `init_solo(role_code="ME")` |
+| `dev-team` | `PM` | `PM / DEV / QA / OPS` | Software dev, fix & release | `init_project(team="dev-team")` |
+| `media-team` | `PUBLISHER` | `PUBLISHER / COLLECTOR / WRITER / EDITOR` | Topic → draft → publish | `init_project(team="media-team")` |
+| `mvp-team` | `MARKETER` | `MARKETER / RESEARCHER / DESIGNER / BUILDER` | Startup MVP, idea validation | `init_project(team="mvp-team")` |
+| `qa-team` | `LEAD-QA` | `LEAD-QA / TESTER / AUTO-TESTER / PERF-TESTER` | Independent testing, multi-line parallel | `init_project(team="qa-team")` |
 
-Each team has 4 AI roles; plus the human `ADMIN` → 5 parties total.
+`solo` has 1 AI role; the other four teams have 4 each. Plus the human
+`ADMIN` → 2 to 5 parties total.
 
 `ADMIN` is the **human administrator**. FCoP reserves it at the protocol
 level — it is **not written into `fcop.json.roles`** and **not placed in
 `roles/`**. The ADMIN description lives in each team's own `README.md`.
+
+## Custom teams
+
+Don't want a preset? Use `init_custom(team_name="...", roles="...",
+leader="...")` to roll your own. FCoP ships **no templates** for custom
+teams, but the recommended path is: agent reads the closest preset (full
+bundle from `fcop://teams/<closest-preset>`), renames the roles, and
+writes the result into `docs/agents/shared/`. This matches the
+letter-to-admin.md section "custom teams have no charter; copy a sample".
 
 ## How to use
 

@@ -146,6 +146,55 @@ class TestInit:
         assert data["team"] == "my-team"
         assert data["leader"] == "PM"
 
+    def test_init_project_reply_includes_letter_handover(
+        self, project_dir: Path
+    ) -> None:
+        # 0.6.4: init_* must auto-surface the Letter-to-ADMIN intro
+        # in the chat reply so ADMIN actually sees the manual.
+        # Putting it on disk (0.6.3 contract) was not enough — the
+        # tutorial showed nobody opened LETTER-TO-ADMIN.md
+        # unprompted. The handover header is the agent-facing
+        # instruction; the title line is the verbatim intro slice.
+        _call("set_project_dir", path=str(project_dir))
+        out = _call("init_project", team="dev-team", lang="zh")
+        assert "📨 给 ADMIN 的一封信" in out
+        assert "原样" in out
+        assert "FCoP 致 ADMIN 的一封信" in out
+        assert "0.6.4 摘要" in out
+        assert "docs/agents/LETTER-TO-ADMIN.md" in out
+
+    def test_init_project_reply_letter_handover_en(
+        self, project_dir: Path
+    ) -> None:
+        _call("set_project_dir", path=str(project_dir))
+        out = _call("init_project", team="dev-team", lang="en")
+        assert "Letter to ADMIN" in out
+        assert "VERBATIM" in out
+        assert "fcop://letter/en" in out
+
+    def test_init_solo_reply_includes_letter_handover(
+        self, project_dir: Path
+    ) -> None:
+        _call("set_project_dir", path=str(project_dir))
+        out = _call("init_solo", role_code="ME", role_label="", lang="zh")
+        assert "📨 给 ADMIN 的一封信" in out
+        assert "FCoP 致 ADMIN 的一封信" in out
+        assert "0.6.4 摘要" in out
+
+    def test_create_custom_team_reply_includes_letter_handover(
+        self, project_dir: Path
+    ) -> None:
+        _call("set_project_dir", path=str(project_dir))
+        out = _call(
+            "create_custom_team",
+            roles="PM,DEV,QA",
+            leader="PM",
+            lang="zh",
+            team_name="my-team",
+        )
+        assert "📨 给 ADMIN 的一封信" in out
+        assert "0.6.4 摘要" in out
+
     def test_validate_team_config_ok(self, project_dir: Path) -> None:
         _call("set_project_dir", path=str(project_dir))
         out = _call("validate_team_config", roles="PM,DEV", leader="PM")

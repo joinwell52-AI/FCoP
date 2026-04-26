@@ -484,6 +484,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "deploy_rules"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "deploy_role_templates"
           }
         ],
         "return": "ProjectStatus"
@@ -531,6 +537,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "deploy_rules"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "deploy_role_templates"
           }
         ],
         "return": "ProjectStatus"
@@ -566,6 +578,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "deploy_rules"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "deploy_role_templates"
           }
         ],
         "return": "ProjectStatus"
@@ -1035,7 +1053,29 @@
   },
   "rules": {
     "callables": {
+      "get_install_prompt": {
+        "params": [
+          {
+            "annotation": "Literal['zh', 'en']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "lang"
+          }
+        ],
+        "return": "str"
+      },
       "get_letter": {
+        "params": [
+          {
+            "annotation": "Literal['zh', 'en']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "lang"
+          }
+        ],
+        "return": "str"
+      },
+      "get_letter_intro": {
         "params": [
           {
             "annotation": "Literal['zh', 'en']",
@@ -1064,7 +1104,9 @@
       }
     },
     "exports": [
+      "get_install_prompt",
       "get_letter",
+      "get_letter_intro",
       "get_protocol_commentary",
       "get_protocol_version",
       "get_rules",

@@ -10,6 +10,167 @@ versioning strategy.
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-04-26
+
+Hot-fix release closing the **init-deposit gap** found while writing
+the 0.6.3 customer tutorial: when ADMIN started fresh and asked an
+agent to initialize an FCoP project, `init_*` was advertising files
+(`LETTER-TO-ADMIN.md`, `workspace/`, `shared/` three-layer team
+docs) that it never actually wrote. 0.6.4 makes every `init_*` land
+its full promised set in a single transaction, ships a Solo template
+bundle so single-AI projects no longer hit `TeamNotFoundError`, and
+hardens the Phase-1 contract so agents stop defaulting to
+`init_project(team="dev-team")` on ADMIN's behalf. All changes are
+additive per ADR-0003. See
+[`docs/releases/0.6.4.md`](./docs/releases/0.6.4.md).
+
+### Fixed — initialization deposit gap (0.6.3 regression)
+
+- **`init_solo` / `init_project` / `init_custom`** now deposit the
+  full advertised set in one call: `docs/agents/fcop.json`,
+  `docs/agents/LETTER-TO-ADMIN.md` (the ADMIN manual, picked from
+  zh / en per the `lang` argument), `workspace/` cage with a starter
+  `workspace/README.md`, the team's three-layer documentation under
+  `docs/agents/shared/` (`TEAM-README.md` / `TEAM-ROLES.md` /
+  `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`, both zh and en),
+  and the four host-neutral protocol-rule files
+  (`.cursor/rules/*.mdc` + `AGENTS.md` + `CLAUDE.md`). 0.6.3 silently
+  skipped the letter, the workspace cage, and the role charters.
+- New `tests/test_fcop/test_init_promises.py` pins the deposit
+  contract for all three init paths so this can never regress
+  silently again.
+
+### Added — fcop (library)
+
+- **`teams/_data/solo/`** — first-class Solo team template bundle
+  with the full three-layer documentation (`README.md` /
+  `TEAM-ROLES.md` / `TEAM-OPERATING-RULES.md` + `roles/ME.md`), in
+  zh and en. The `ME.md` charter contains a "workflow hard
+  constraint" section that explicitly forbids the
+  "simple-tasks-may-run-directly" soft-constraint pattern (the
+  exact 0.6.3 mis-design that let agents bypass `task → do →
+  report → archive`).
+- **`Project.init` / `init_solo` / `init_custom` ↪ `deploy_role_templates=`**
+  parameter (defaults: `True` for preset / solo, `False` for custom
+  since custom teams have no bundled templates). Auto-deploys the
+  three-layer docs at init time. Solo init no longer raises
+  `TeamNotFoundError("solo")` on the role-template step.
+- **`Project.init(team="solo")` is now rejected with `ValueError`**
+  before any disk write, pointing callers at `init_solo()` so the
+  saved config carries `mode="solo"` (not `mode="preset",
+  team="solo"`).
+- **`fcop.rules.get_install_prompt(lang)`** — returns the canonical
+  "have an agent install fcop-mcp for you" prompt (the same text
+  shipped to GitHub README / PyPI README / MCP resource
+  `fcop://prompt/install`). 0.6.4 surfaces this prompt in three
+  places at once so customers can always copy it from whichever
+  one they happen to be reading.
+
+### Added — fcop-mcp (MCP server)
+
+- **`fcop://prompt/install`** + **`fcop://prompt/install/en`** —
+  two new MCP resources exposing the agent-install prompt
+  (zh / en). Total resource count: **10 → 12**.
+- **`init_solo` / `init_project` / `create_custom_team`** all
+  expose a new **`force: bool`** parameter (default `False`).
+  When `True`, an already-initialized project is overwritten and
+  the previous `fcop.json` / letter / workspace README / `shared/`
+  files / protocol-rule quartet are archived under
+  `.fcop/migrations/<timestamp>/`. This is the supported way for
+  ADMIN to switch teams (e.g. solo → dev-team) without manually
+  wiping the project.
+- **`fcop_report` Phase-1 output** now (a) tells the agent
+  explicitly that it MUST NOT pick an init mode on ADMIN's behalf,
+  and (b) points ADMIN at `fcop://letter/zh|en` for the manual if
+  the three-way choice (solo / preset / custom) is unfamiliar.
+
+### Changed — protocol rules
+
+- **`fcop-rules.mdc` 1.5.0 → 1.6.0**:
+  - **Rule 0.a.1** new sub-section: workflow hard constraint.
+    Every piece of work, no matter how trivial, must follow
+    `task → do → report → archive`. Role documents are forbidden
+    from softening this with "simple tasks may run directly" or
+    equivalents — that pattern is itself a Rule 0.a violation.
+  - **Rule 1 Phase 1** rewritten to (a) list the full set of
+    files an `init_*` tool promises to deposit (so a partial
+    deposit becomes a recognisable bug), and (b) explicitly
+    forbid agents from defaulting to `dev-team` / `solo` /
+    `custom` on ADMIN's behalf.
+
+### Fixed — letter & install-prompt visibility
+
+- **`init_project` / `init_solo` / `create_custom_team`** now splice
+  the LETTER-TO-ADMIN intro slice (title + 0.6.4 summary block +
+  ADMIN/AI-team identity diagram) into the post-init reply, with an
+  explicit "paste this verbatim to ADMIN" instruction for the agent.
+  0.6.3 deposited the letter to disk but never surfaced it in chat,
+  so the manual was effectively invisible — customers in the
+  tutorial all skipped opening `docs/agents/LETTER-TO-ADMIN.md`.
+  The full letter remains available on disk and via the
+  `fcop://letter/zh|en` MCP resource; the splice is just the
+  intro so it doesn't drown the chat.
+- **`fcop.rules.get_letter_intro(lang)`** new public accessor
+  (used by the MCP layer above). Returns the verbatim prefix of
+  the letter through the second `---` rule. Pinned by 7 new tests
+  asserting it stays a strict prefix of `get_letter(lang)` and
+  always carries the H1 + the "0.6.4 摘要" / "0.6.4 in one block"
+  block.
+- **`tests/test_fcop/test_install_prompt.py`** (11 new tests)
+  pins the four-surface contract for the canonical install
+  prompt: the bundled markdown file, `get_install_prompt(lang)`,
+  the `fcop://prompt/install` MCP resource, and the verbatim
+  embed inside `mcp/README.md` (PyPI-visible) all stay byte-for-
+  byte aligned. Also asserts the non-negotiable safety clauses
+  (preserve existing `mcpServers`, 30s–1min first-launch
+  cooldown, do-not-auto-init) survive future copy edits in both
+  languages.
+
+### Fixed — role-template soft-constraint regression
+
+- **All 17 bundled role charters** (`solo/ME`, `dev-team/PM` /
+  `DEV` / `QA` / `OPS`, `media-team/PUBLISHER` / `COLLECTOR` /
+  `WRITER` / `EDITOR`, `mvp-team/MARKETER` / `RESEARCHER` /
+  `DESIGNER` / `BUILDER`, `qa-team/LEAD-QA` / `TESTER` /
+  `AUTO-TESTER` / `PERF-TESTER`, both zh and en — 34 files total)
+  now open with a "workflow hard constraint" section that
+  translates Rule 0.a.1 onto the role side: every incoming piece
+  of work, no matter how trivial, must follow the four-step
+  cycle `task → do → report → archive`, with only a narrow
+  ADMIN-explicit exception clause that itself requires a
+  `drop_suggestion` trace. 0.6.3 charters scattered the
+  workflow rules across "Responsibilities" / "Common mistakes"
+  prose, which agents in the field softened to "simple tasks may
+  run directly" — the exact pattern that let `ME` skip
+  `task` / `report` and dump artefacts directly to the project
+  root during the snake-game tutorial debug.
+- New `tests/test_fcop/test_role_templates.py` (36 tests) pins
+  the anchor across every bundled `roles/*.md` so a future
+  contributor copy-pasting a role without the constraint will
+  fail CI rather than silently regress.
+
+### Documentation
+
+- **`src/fcop/rules/_data/agent-install-prompt.zh.md`** +
+  **`.en.md`** — the canonical install prompt, also packaged into
+  the wheel and surfaced via the new MCP resource. Same text used
+  in `mcp/README.md` and root `README.md` / `README.zh.md`.
+- **`mcp/README.md`** opens with a "TL;DR — Have an agent install
+  fcop-mcp for you" section visible on GitHub *and* PyPI.
+- **Root `README.md` / `README.zh.md`** point at the install
+  prompt + the new `fcop://prompt/install` resource so customers
+  who land on either landing page can hand the prompt to an agent
+  without reading the rest of the page.
+- **`docs/agents/LETTER-TO-ADMIN.md`** (zh + en) gets a 0.6.4
+  summary block at the top, the corrected tool / resource counts
+  (26 / 12), the new `fcop://prompt/install` resource entry, and
+  an explicit "agent must not default" warning on the three-way
+  init choice.
+- **`src/fcop/teams/_data/README.md`** + **`.en.md`** add the new
+  `solo` team to the directory listing and the modes table, and
+  pick up a "Custom teams" section pointing custom builds at the
+  closest preset for inspiration.
+
 ## [0.6.3] - 2026-04-26
 
 Lockstep release with two thrusts: (1) ratify **ADR-0006**, the

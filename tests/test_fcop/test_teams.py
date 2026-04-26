@@ -29,8 +29,16 @@ class TestRegistry:
         teams = get_available_teams()
         names = [t.name for t in teams]
         assert names == sorted(names)
-        # The four bundled presets — guardrail for accidental removal.
-        assert set(names) == {"dev-team", "media-team", "mvp-team", "qa-team"}
+        # Bundled presets — guardrail for accidental removal. 0.6.4
+        # added `solo` so a single-AI project also gets a three-layer
+        # template bundle.
+        assert set(names) == {
+            "solo",
+            "dev-team",
+            "media-team",
+            "mvp-team",
+            "qa-team",
+        }
 
     def test_every_entry_is_a_frozen_team_info(self) -> None:
         for info in get_available_teams():

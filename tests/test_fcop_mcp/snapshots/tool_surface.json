@@ -15,6 +15,14 @@
       },
       {
         "mime_type": "text/markdown",
+        "uri": "fcop://prompt/install"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://prompt/install/en"
+      },
+      {
+        "mime_type": "text/markdown",
         "uri": "fcop://protocol"
       },
       {
@@ -74,6 +82,11 @@
     {
       "name": "create_custom_team",
       "params": [
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
         {
           "name": "lang",
           "required": false,
@@ -165,6 +178,11 @@
       "name": "init_project",
       "params": [
         {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
           "name": "lang",
           "required": false,
           "type": "string"
@@ -179,6 +197,11 @@
     {
       "name": "init_solo",
       "params": [
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
         {
           "name": "lang",
           "required": false,

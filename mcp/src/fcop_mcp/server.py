@@ -33,6 +33,7 @@ import warnings
 from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 
 import fcop
 from fastmcp import FastMCP
@@ -355,37 +356,140 @@ def _parse_refs_list(references: str) -> tuple[str, ...]:
     return tuple(r.strip() for r in references.split(",") if r.strip())
 
 
+def _letter_handover_block(lang: str) -> str:
+    """Compose the post-init "give the letter to ADMIN" block.
+
+    Why this exists. 0.6.3 deposited ``LETTER-TO-ADMIN.md`` to disk
+    (well, was *supposed* to — see the 0.6.4 fix) but never surfaced
+    it in the chat. ADMIN had to know to go look for it. In practice
+    nobody did, so the manual was effectively invisible. 0.6.4
+    splices the letter's intro slice (title + 0.6.4 summary +
+    identity diagram) into the post-init reply, plus an explicit
+    instruction telling the agent to forward this block verbatim to
+    ADMIN before doing anything else.
+
+    The slice is bounded — pasting the entire 500-line letter into
+    every init reply would torch the chat context. Agents needing
+    the full text read it from ``docs/agents/LETTER-TO-ADMIN.md``
+    on disk or from the ``fcop://letter/zh|en`` MCP resource
+    (already exposed). Both endpoints are advertised inside the
+    handover block so the next step is obvious.
+
+    The Chinese / English copy track each other and use a fenced
+    region with a leading marker line so a follow-up parser (or a
+    test) can locate the block without regex acrobatics.
+    """
+    normalized: Literal["zh", "en"] = "en" if lang == "en" else "zh"
+    try:
+        intro = fcop.rules.get_letter_intro(normalized)
+    except (ValueError, fcop.FcopError):
+        # Defensive: a packaging failure here should not break init.
+        # The disk-side letter is still landed by Project.init_*; the
+        # agent can always read it from there.
+        intro = ""
+
+    if normalized == "en":
+        header = (
+            "─────────────────────────────────────────────────\n"
+            "📨 Letter to ADMIN — please read it to ADMIN now\n"
+            "─────────────────────────────────────────────────\n"
+            "\n"
+            "Agent: paste the block below to ADMIN VERBATIM (do not "
+            "summarise, do not skip the 0.6.4 summary). After ADMIN "
+            "has read it, ask whether they want the full manual.\n"
+            "\n"
+            "Full manual lives in two places:\n"
+            "  • on disk: docs/agents/LETTER-TO-ADMIN.md\n"
+            "  • MCP resource: fcop://letter/en\n"
+            "\n"
+            "──────── BEGIN LETTER (intro slice) ────────\n"
+        )
+        footer = (
+            "\n──────── END LETTER (intro slice) ────────\n"
+            "\n"
+            "(The full letter continues with: the three entry "
+            "points table, day-to-day operations, common mistakes, "
+            "and the resource catalogue. Ask ADMIN whether to read "
+            "those sections too.)"
+        )
+    else:
+        header = (
+            "─────────────────────────────────────────────────\n"
+            "📨 给 ADMIN 的一封信 —— 请现在念给 ADMIN 听\n"
+            "─────────────────────────────────────────────────\n"
+            "\n"
+            "Agent：把下面这一整段**原样**贴给 ADMIN（不要省略，"
+            "尤其是 0.6.4 摘要那一段）。念完后问 ADMIN 是否需要继续"
+            "看完整版。\n"
+            "\n"
+            "完整说明书有两处可读：\n"
+            "  • 本地文件：docs/agents/LETTER-TO-ADMIN.md\n"
+            "  • MCP 资源：fcop://letter/zh\n"
+            "\n"
+            "──────── 信件开始（前导段） ────────\n"
+        )
+        footer = (
+            "\n──────── 信件结束（前导段） ────────\n"
+            "\n"
+            "（完整信件还有：三种起手方式表、日常操作要点、常见"
+            "错误、资源目录。读完上面这段后，问 ADMIN 是否需要"
+            "继续读完整版。）"
+        )
+    return header + intro + footer
+
+
 # ─── init_* tools ────────────────────────────────────────────────────
 
 
 @mcp.tool
-def init_project(team: str = "dev-team", lang: str = "zh") -> str:
+def init_project(
+    team: str = "dev-team",
+    lang: str = "zh",
+    force: bool = False,
+) -> str:
     """Initialize an FCoP project with a bundled preset team.
 
     Creates ``docs/agents/`` (tasks / reports / issues / shared / log),
-    writes ``docs/agents/fcop.json``, and (per ADR-0006) deploys the
-    bundled protocol rules to **four** locations so any agent host
-    sees them: ``.cursor/rules/fcop-rules.mdc``,
+    writes ``docs/agents/fcop.json``, deposits ``LETTER-TO-ADMIN.md``
+    under ``docs/agents/``, creates the ``workspace/`` cage with a
+    starter README (per Rule 7.5), deploys the team's three-layer
+    docs to ``docs/agents/shared/`` (TEAM-README / TEAM-ROLES /
+    TEAM-OPERATING-RULES + ``roles/{ROLE}.md``, both zh and en),
+    and (per ADR-0006) deploys the bundled protocol rules to **four**
+    locations so any agent host sees them:
+    ``.cursor/rules/fcop-rules.mdc``,
     ``.cursor/rules/fcop-protocol.mdc``, ``AGENTS.md``, and
     ``CLAUDE.md``. Existing copies are archived to
-    ``.fcop/migrations/<timestamp>/rules/`` before being overwritten.
-    Idempotent when the project is already initialized
-    (re-running returns the existing status without clobbering files);
-    use ``force`` from the library API if you need overwrite behaviour.
+    ``.fcop/migrations/<timestamp>/`` before being overwritten.
 
     Args:
         team: Team template ID. One of ``dev-team`` / ``media-team`` /
             ``mvp-team`` / ``qa-team``. Default: ``dev-team``.
+            (Solo mode is a separate entry point — call ``init_solo``
+            instead so the config carries ``mode="solo"``.)
         lang: Output language. ``zh`` or ``en``. Default: ``zh``.
+        force: When ``True``, overwrite an already-initialized project.
+            The previous ``fcop.json``, letter, workspace README, and
+            ``shared/`` documents are archived under
+            ``.fcop/migrations/<timestamp>/`` before the new content
+            lands — nothing is lost silently. Use this when ADMIN
+            wants to switch teams (e.g. solo → dev-team) without
+            manually wiping the project. Default: ``False``.
 
     Returns:
         Post-init summary with roster, leader, and directory layout.
     """
     try:
         project, _source = _get_project()
-        status = project.init(team=team, lang=lang, deploy_rules=True)
+        status = project.init(
+            team=team, lang=lang, deploy_rules=True, force=force
+        )
     except fcop.ProjectAlreadyInitializedError as exc:
-        return f"项目已初始化 / already initialized: {exc}"
+        return (
+            f"项目已初始化 / already initialized: {exc}\n"
+            "如需切换团队 / to switch teams, "
+            "rerun with force=True (旧文件会归档到 .fcop/migrations/)."
+        )
     except fcop.FcopError as exc:
         return _format_error(exc)
 
@@ -398,24 +502,38 @@ def init_project(team: str = "dev-team", lang: str = "zh") -> str:
         f"Leader: {cfg.leader}",
         "Directories: tasks/, reports/, issues/, shared/, log/",
         "Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md",
+        "Letter deposited: docs/agents/LETTER-TO-ADMIN.md",
         "",
         "下一步 / next: fcop_report 查看状态后，"
         "由 ADMIN 通过『你是 <ROLE>』语句为本会话分配角色。",
+        "",
+        _letter_handover_block(cfg.lang),
     ]
     return "\n".join(lines)
 
 
 @mcp.tool
-def init_solo(role_code: str = "ME", role_label: str = "", lang: str = "zh") -> str:
+def init_solo(
+    role_code: str = "ME",
+    role_label: str = "",
+    lang: str = "zh",
+    force: bool = False,
+) -> str:
     """Initialize an FCoP project in **Solo mode** (one AI, no dispatch).
 
     Solo mode is for projects where a single agent works directly with
     ADMIN. Rule 0.b still applies: the agent uses files to split itself
     into *proposer* and *reviewer*, even though there is no second role.
 
-    Per ADR-0006, this also deploys the bundled protocol rules to
-    ``.cursor/rules/*.mdc`` + ``AGENTS.md`` + ``CLAUDE.md`` (existing
-    copies archived under ``.fcop/migrations/``).
+    Beyond ``fcop.json`` and the canonical directories, this also
+    deposits ``docs/agents/LETTER-TO-ADMIN.md`` (the user manual),
+    creates the ``workspace/`` cage with a starter README (per Rule
+    7.5), deploys the bundled solo three-layer docs (TEAM-README /
+    TEAM-ROLES / TEAM-OPERATING-RULES + ``roles/ME.md``, both zh and
+    en) to ``docs/agents/shared/``, and (per ADR-0006) drops the
+    bundled protocol rules into ``.cursor/rules/*.mdc`` +
+    ``AGENTS.md`` + ``CLAUDE.md``. Existing copies are archived under
+    ``.fcop/migrations/<timestamp>/`` before being overwritten.
 
     Args:
         role_code: The single role code (uppercase letters / digits /
@@ -425,14 +543,25 @@ def init_solo(role_code: str = "ME", role_label: str = "", lang: str = "zh") -> 
             recorded in ``extra`` for future use; the library does not
             yet consume it. Safe to omit.
         lang: Output language, ``zh`` or ``en``.
+        force: When ``True``, overwrite an already-initialized project.
+            All previous artifacts (config, letter, workspace README,
+            ``shared/`` docs, protocol rule files) are archived under
+            ``.fcop/migrations/<timestamp>/`` before the new content
+            lands. Use this when ADMIN wants to switch from team mode
+            back to solo, or re-init solo with a different
+            ``role_code``. Default: ``False``.
     """
     try:
         project, _source = _get_project()
         status = project.init_solo(
-            role_code=role_code, lang=lang, deploy_rules=True
+            role_code=role_code, lang=lang, deploy_rules=True, force=force
         )
     except fcop.ProjectAlreadyInitializedError as exc:
-        return f"项目已初始化 / already initialized: {exc}"
+        return (
+            f"项目已初始化 / already initialized: {exc}\n"
+            "如需重置或切到 solo / to reset or switch to solo, "
+            "rerun with force=True (旧文件会归档到 .fcop/migrations/)."
+        )
     except fcop.FcopError as exc:
         return _format_error(exc)
 
@@ -445,7 +574,10 @@ def init_solo(role_code: str = "ME", role_label: str = "", lang: str = "zh") -> 
         f"Role: {cfg.leader} ({label})\n"
         f"Lang: {cfg.lang}\n"
         f"Directories: tasks/, reports/, issues/, shared/, log/\n"
-        f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md"
+        f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md\n"
+        f"Letter deposited: docs/agents/LETTER-TO-ADMIN.md\n"
+        f"\n"
+        f"{_letter_handover_block(cfg.lang)}"
     )
 
 
@@ -455,6 +587,7 @@ def create_custom_team(
     roles: str,
     leader: str,
     lang: str = "zh",
+    force: bool = False,
 ) -> str:
     """Create an FCoP project with a custom roster of roles.
 
@@ -462,7 +595,17 @@ def create_custom_team(
     e.g. ``TASK-20260423-001-BOSS-to-CODER.md``. Use ``validate_team_config``
     first to catch illegal role codes without writing anything.
 
-    Per ADR-0006, this also deploys the bundled protocol rules to
+    Custom teams have **no bundled three-layer docs**, so
+    ``docs/agents/shared/`` is left empty (apart from the project's
+    own ``shared/README.md``). The recommended next step is to read
+    the closest preset (``fcop://teams/<closest-preset>`` — see the
+    ``teams/_data/README.md`` "Custom teams" section) and hand-author
+    your own ``TEAM-README.md`` / ``TEAM-ROLES.md`` /
+    ``TEAM-OPERATING-RULES.md`` + ``roles/{ROLE}.md`` based on it.
+
+    The other init artifacts are deposited as usual:
+    ``docs/agents/fcop.json``, ``LETTER-TO-ADMIN.md``,
+    ``workspace/README.md``, plus the protocol rule files at
     ``.cursor/rules/*.mdc`` + ``AGENTS.md`` + ``CLAUDE.md`` (existing
     copies archived under ``.fcop/migrations/``).
 
@@ -471,6 +614,10 @@ def create_custom_team(
         roles: Comma-separated role codes (e.g. ``"BOSS,CODER,TESTER"``).
         leader: Leader role code; must appear in ``roles``.
         lang: Output language, ``zh`` or ``en``.
+        force: When ``True``, overwrite an already-initialized project.
+            Existing config / letter / workspace README / ``shared/``
+            files are archived under ``.fcop/migrations/<timestamp>/``
+            before the new ones land. Default: ``False``.
     """
     role_list = _parse_roles_list(roles)
     try:
@@ -481,9 +628,14 @@ def create_custom_team(
             leader=leader.strip().upper(),
             lang=lang,
             deploy_rules=True,
+            force=force,
         )
     except fcop.ProjectAlreadyInitializedError as exc:
-        return f"项目已初始化 / already initialized: {exc}"
+        return (
+            f"项目已初始化 / already initialized: {exc}\n"
+            "如需重置 / to reset, "
+            "rerun with force=True (旧文件会归档到 .fcop/migrations/)."
+        )
     except fcop.FcopError as exc:
         return _format_error(exc)
 
@@ -495,7 +647,10 @@ def create_custom_team(
         f"Roles: {', '.join(cfg.roles)}\n"
         f"Leader: {cfg.leader}\n"
         f"Lang: {cfg.lang}\n"
-        f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md"
+        f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md\n"
+        f"Letter deposited: docs/agents/LETTER-TO-ADMIN.md\n"
+        f"\n"
+        f"{_letter_handover_block(cfg.lang)}"
     )
 
 
@@ -1478,13 +1633,17 @@ def _compose_session_report(lang: str) -> str:
                 f"{roster}\n"
                 "  - solo (one role, direct ADMIN ↔ AI, no dispatch)\n"
                 "  - custom (your own roles)\n\n"
-                "ADMIN, pick ONE:\n"
+                "ADMIN, pick ONE — the agent MUST NOT default this:\n"
                 "  - init_project(team=\"dev-team\", lang=\"en\")\n"
                 "  - init_solo(role_code=\"ME\", lang=\"en\")\n"
                 '  - create_custom_team(team_name="...", roles="A,B,C", '
                 'leader="A", lang="en")\n\n'
+                "If you (ADMIN) are unsure, ask the agent to read you the "
+                "manual first: it lives at MCP resource `fcop://letter/en` "
+                "(or after init at `docs/agents/LETTER-TO-ADMIN.md`).\n\n"
                 "STOP HERE. Do not claim a role; do not write any file "
-                "other than via the init tools above."
+                "other than via the init tools above; do not pick an init "
+                "mode on ADMIN's behalf."
             )
         return (
             "=== FCoP 初始化汇报 ===\n"
@@ -1496,12 +1655,16 @@ def _compose_session_report(lang: str) -> str:
             f"{roster}\n"
             "  - solo（一个角色，直接对 ADMIN，不做派发）\n"
             "  - 自定义（你自己的角色列表）\n\n"
-            "ADMIN 请从下面三选一：\n"
+            "ADMIN 请从下面三选一 —— Agent 不允许替 ADMIN 默认：\n"
             "  - init_project(team=\"dev-team\", lang=\"zh\")\n"
             "  - init_solo(role_code=\"ME\", lang=\"zh\")\n"
             '  - create_custom_team(team_name="...", roles="A,B,C", '
             'leader="A", lang="zh")\n\n'
-            "本会话到此为止。不要自认角色；除上述 init 工具外不要写任何文件。"
+            "如果 ADMIN 拿不准选哪个，请先让 Agent 读说明书给你听："
+            "MCP 资源 `fcop://letter/zh`（或初始化后 "
+            "`docs/agents/LETTER-TO-ADMIN.md`）。\n\n"
+            "本会话到此为止。不要自认角色；除上述 init 工具外不要写任何文件；"
+            "也不要替 ADMIN 选初始化模式。"
         )
 
     cfg = status.config
@@ -1853,6 +2016,30 @@ def resource_letter_zh() -> str:
 def resource_letter_en() -> str:
     """English Letter-to-ADMIN user manual."""
     return fcop.rules.get_letter("en")
+
+
+@mcp.resource("fcop://prompt/install", mime_type="text/markdown")
+def resource_install_prompt_zh() -> str:
+    """Canonical "have an agent install fcop-mcp" prompt (Chinese).
+
+    Same text as the bundled ``agent-install-prompt.zh.md`` and the
+    ``mcp/README.md`` § "Have an agent install fcop-mcp for you"
+    section. ADMIN copies this and gives it to a fresh shell-capable
+    agent. The prompt body explicitly forbids agents from
+    auto-initialising a project after install — initialisation is
+    ADMIN's three-way choice (solo / preset team / custom).
+    """
+    return fcop.rules.get_install_prompt("zh")
+
+
+@mcp.resource("fcop://prompt/install/en", mime_type="text/markdown")
+def resource_install_prompt_en() -> str:
+    """Canonical "have an agent install fcop-mcp" prompt (English).
+
+    English variant of ``fcop://prompt/install``. Same content as
+    the bundled ``agent-install-prompt.en.md``.
+    """
+    return fcop.rules.get_install_prompt("en")
 
 
 @mcp.resource("fcop://teams", mime_type="application/json")

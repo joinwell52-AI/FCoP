@@ -6,6 +6,25 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
+> **0.6.4 in one block:**
+> - **The three ways to start are YOURS to pick** — Solo / preset team
+>   / custom. Agents are **forbidden** from defaulting to `dev-team`
+>   (this 0.6.3 footgun was real, hit in the field).
+> - **`init_solo` / `init_project` / `init_custom` deposit everything
+>   they promise** in a single call: `fcop.json` + this letter +
+>   `workspace/README.md` + the three-layer team docs
+>   (`shared/TEAM-README.md` / `TEAM-ROLES.md` /
+>   `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`, both zh and en) +
+>   the protocol-rule quartet (`.cursor/rules/*.mdc` + `AGENTS.md` +
+>   `CLAUDE.md`). 0.6.3 missed several of these; 0.6.4 lands the lot.
+> - **Solo mode now ships its own three-layer templates**
+>   (`teams/_data/solo/`).
+> - **`init_*` tools gain a `force=True` parameter** — switch teams
+>   without hand-editing config (existing files archive to
+>   `.fcop/migrations/<timestamp>/`).
+> - **New MCP resource `fcop://prompt/install`** — canonical
+>   "have an agent install fcop-mcp for you" prompt.
+
 ---
 
 ## Identities up front
@@ -35,7 +54,13 @@ you and an AI team collaborate through **files**. Your one job:
 
 ---
 
-## Three ways to start (ordered by frequency)
+## Three ways to start — ADMIN must pick one explicitly
+
+> **Agents are not allowed to default**. After `fcop_report()`, the
+> agent surfaces these three options verbatim and **waits for your
+> word**. If an agent runs `init_project(team="dev-team")` before you
+> say so, that's a 0.6.3 bug — 0.6.4 Phase-1 rules forbid it.
+> Screenshot and file an issue.
 
 ### A. Just you (Solo, most common)
 
@@ -388,7 +413,7 @@ Output shows each slug's title and creation time.
 
 ## How you actually use FCoP: just talk
 
-**First, the important part**: FCoP ships 22 tools — **all of them are
+**First, the important part**: FCoP ships 26 tools — **all of them are
 for the agent, not for you**. You talk in plain language from start to
 finish; the agent translates your intent into the right tool call.
 
@@ -445,7 +470,7 @@ agent forgets what to do, you can spot it and nudge it back.
   directory (e.g. `fcop_report` shows a `C:\Users\xxx` path), say
   "bind to `E:\your-project`" or literally "call `set_project_dir("...")`".
 
-**The other 20 are never yours to memorize**. The agent picks.
+**The other 24 are never yours to memorize**. The agent picks.
 
 ### Why the agent knows what to call
 
@@ -463,7 +488,7 @@ obvious (e.g. doesn't open a workspace when it should, or skips
 `fcop_report`), point it at the relevant row of this letter — the
 correction takes one line.
 
-### 14 resources (agent-only; you never touch these)
+### 12 resources (agent-only; you never touch these)
 
 **Core resources** (readable any time):
 
@@ -472,6 +497,7 @@ correction takes one line.
 | `fcop://rules` | Agent | `fcop-rules.mdc` raw |
 | `fcop://protocol` | Agent | `fcop-protocol.mdc` raw |
 | `fcop://letter/zh` or `/en` | Agent when it wants to re-read | This letter |
+| `fcop://prompt/install` or `/install/en` *(0.6.4)* | ADMIN copies it to a fresh agent | Canonical "have an agent install fcop-mcp for you" prompt |
 | `fcop://status` | Agent | Same as `get_team_status` |
 | `fcop://config` | Agent | `fcop.json` raw |
 
@@ -501,7 +527,7 @@ correction takes one line.
 
 ### ⚠️ Cursor's "click-to-grey-out" switches: 2 you must never grey
 
-Cursor's MCP panel shows these 22 tools as buttons. Click → greyed =
+Cursor's MCP panel shows these 26 tools as buttons. Click → greyed =
 disabled. **Greying these two will hurt you**:
 
 - `fcop_report` — greyed out, Rule 0 breaks; agents can't take
@@ -509,7 +535,7 @@ disabled. **Greying these two will hurt you**:
 - `set_project_dir` — greyed out, your only rescue for a
   wrong-directory binding is editing `mcp.json` + restarting Cursor
 
-The other 20 can technically be greyed out, but the agent just gets
+The other 24 can technically be greyed out, but the agent just gets
 confused when a tool suddenly disappears — **keep them all enabled**.
 
 ---

@@ -151,7 +151,7 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 | [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues programmatically. Zero MCP dependency. | `pyyaml` |
 | [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=0.6,<0.7`, `fastmcp`, `websockets` |
 
-**Install for customers (step-by-step, all platforms, verify commands):** see **[`mcp/README.md`](mcp/README.md)**. **Upgrading** an existing `0.6.x` install: **[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)** (`pip install -U` both packages in the same venv; **0.6.3+** also documents the host-neutral protocol-rule upgrade flow). **MCP tool & resource index (26 tools, 10 resources):** **[`docs/mcp-tools.md`](docs/mcp-tools.md)** — what every tool does, when to call it, parameters at a glance. **0.6.3 highlights** ([`docs/releases/0.6.3.md`](docs/releases/0.6.3.md)): new `fcop_report` (canonical session/init report with a `[Versions]` drift block), new `redeploy_rules` (ADMIN-only host-neutral rule deploy to `.cursor/rules/` + `AGENTS.md` + `CLAUDE.md`, [ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)), and `unbound_report` is now a deprecated alias of `fcop_report` (removed in 0.7.0). The official packages are **from this repository**; if `from fcop import Project, Issue` fails after `pip install fcop`, the wrong `fcop` distribution or another project is shadowing the library — the guide explains how to fix in a clean venv.
+**Install for customers (step-by-step, all platforms, verify commands):** see **[`mcp/README.md`](mcp/README.md)**. **Upgrading** an existing `0.6.x` install: **[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)** (`pip install -U` both packages in the same venv; **0.6.3+** also documents the host-neutral protocol-rule upgrade flow). **MCP tool & resource index (26 tools, 12 resources):** **[`docs/mcp-tools.md`](docs/mcp-tools.md)** — what every tool does, when to call it, parameters at a glance. **0.6.3 highlights** ([`docs/releases/0.6.3.md`](docs/releases/0.6.3.md)): new `fcop_report` (canonical session/init report with a `[Versions]` drift block), new `redeploy_rules` (ADMIN-only host-neutral rule deploy to `.cursor/rules/` + `AGENTS.md` + `CLAUDE.md`, [ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)), and `unbound_report` is now a deprecated alias of `fcop_report` (removed in 0.7.0). The official packages are **from this repository**; if `from fcop import Project, Issue` fails after `pip install fcop`, the wrong `fcop` distribution or another project is shadowing the library — the guide explains how to fix in a clean venv.
 
 **Library** — use from any Python script or agent:
 
@@ -177,6 +177,17 @@ print(proj.list_tasks(recipient="DEV"))
   }
 }
 ```
+
+**Don't want to edit JSON yourself?** Have an agent do it. Open a fresh
+chat with any shell-capable AI and paste the canonical install prompt
+([`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md)
+· [中文](src/fcop/rules/_data/agent-install-prompt.zh.md)) — the agent
+detects your OS, installs `uv`, edits your `mcp.json` (preserving
+existing servers), and tells you when to restart. After install the
+same prompt is also available as the MCP resource
+`fcop://prompt/install`. The prompt explicitly forbids the agent from
+auto-initialising a project after install — initialisation is ADMIN's
+three-way choice (solo / preset team / custom).
 
 Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`adr/ADR-0003-stability-charter.md`](adr/ADR-0003-stability-charter.md).
 

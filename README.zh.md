@@ -137,7 +137,7 @@ mkdir -p docs/agents/{tasks,reports,issues,shared,log}
 | [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | 纯 Python 库。读写 task / report / issue。**零 MCP 依赖**。 | `pyyaml` |
 | [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP 服务器。把库通过 stdio 暴露给 Cursor / Claude Desktop。 | `fcop>=0.6,<0.7`、`fastmcp`、`websockets` |
 
-**给最终用户的安装（分步、多平台、自检）**：见 **[`mcp/README.md`](mcp/README.md)**（英文；步骤与 `mcp.json` 模板可直接照抄）。**已在使用 0.6.x 时的升级**（`pip` 同环境升两包、钉版本、重启与自检；**0.6.3+** 还多了协议规则文件的 host-neutral 升级流）：**[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)**。**MCP 工具与资源清单（26 个工具、10 个资源）**：**[`docs/mcp-tools.md`](docs/mcp-tools.md)** —— 每个工具是干嘛的、什么时候调、参数要点一表看清。**0.6.3 亮点**（[`docs/releases/0.6.3.md`](docs/releases/0.6.3.md)）：新增 `fcop_report`（每会话首调、报告头自带 `[版本]` 漂移检测段）、新增 `redeploy_rules`（ADMIN 专用，把协议规则 host-neutral 写到 `.cursor/rules/` + `AGENTS.md` + `CLAUDE.md`，背景见 [ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)）；`unbound_report` 改名为 `fcop_report`，老名字保留为 deprecation 别名（0.7.0 移除）。官方包须来自**本仓库对应的 PyPI 发行**；若 `pip install fcop` 后 `from fcop import Project, Issue` 仍失败，多半是装到了错误发行物或被本机其他工程的可编辑包抢名 —— 说明文中有「干净 venv + 验证命令」的修法。
+**给最终用户的安装（分步、多平台、自检）**：见 **[`mcp/README.md`](mcp/README.md)**（英文；步骤与 `mcp.json` 模板可直接照抄）。**已在使用 0.6.x 时的升级**（`pip` 同环境升两包、钉版本、重启与自检；**0.6.3+** 还多了协议规则文件的 host-neutral 升级流）：**[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)**。**MCP 工具与资源清单（26 个工具、12 个资源）**：**[`docs/mcp-tools.md`](docs/mcp-tools.md)** —— 每个工具是干嘛的、什么时候调、参数要点一表看清。**0.6.3 亮点**（[`docs/releases/0.6.3.md`](docs/releases/0.6.3.md)）：新增 `fcop_report`（每会话首调、报告头自带 `[版本]` 漂移检测段）、新增 `redeploy_rules`（ADMIN 专用，把协议规则 host-neutral 写到 `.cursor/rules/` + `AGENTS.md` + `CLAUDE.md`，背景见 [ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)）；`unbound_report` 改名为 `fcop_report`，老名字保留为 deprecation 别名（0.7.0 移除）。官方包须来自**本仓库对应的 PyPI 发行**；若 `pip install fcop` 后 `from fcop import Project, Issue` 仍失败，多半是装到了错误发行物或被本机其他工程的可编辑包抢名 —— 说明文中有「干净 venv + 验证命令」的修法。
 
 **库** —— 从任何 Python 脚本或 agent 里直接调：
 
@@ -163,6 +163,14 @@ print(proj.list_tasks(recipient="DEV"))
   }
 }
 ```
+
+**不想自己改 JSON？** 让 agent 来。开一个能跑命令的新会话，把官方安装提示词
+（[`agent-install-prompt.zh.md`](src/fcop/rules/_data/agent-install-prompt.zh.md)
+· [English](src/fcop/rules/_data/agent-install-prompt.en.md)）整段贴过去——
+agent 会识别系统、装 `uv`、改 `mcp.json`（**保留**已有 server）、提醒重启。
+装好以后这段提示词在 MCP 资源 `fcop://prompt/install` 也能直接读到。提示
+词里**明令禁止** agent 装完顺手 `init_project`——初始化是 ADMIN 的三选一
+（solo / 预设团队 / 自定义），不是 agent 的默认值。
 
 稳定性承诺：**整个 `0.6.x` 小版本周期内只加不改**，详见 [`adr/ADR-0003-stability-charter.md`](adr/ADR-0003-stability-charter.md)。
 

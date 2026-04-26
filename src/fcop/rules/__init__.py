@@ -27,6 +27,8 @@ __all__ = [
     "get_rules",
     "get_protocol_commentary",
     "get_letter",
+    "get_letter_intro",
+    "get_install_prompt",
     "get_rules_version",
     "get_protocol_version",
 ]
@@ -39,6 +41,10 @@ _PROTOCOL_FILENAME = "fcop-protocol.mdc"
 _LETTER_FILENAMES: dict[str, str] = {
     "zh": "letter-to-admin.zh.md",
     "en": "letter-to-admin.en.md",
+}
+_INSTALL_PROMPT_FILENAMES: dict[str, str] = {
+    "zh": "agent-install-prompt.zh.md",
+    "en": "agent-install-prompt.en.md",
 }
 
 # Frontmatter key that pins the semver of the rules document. Kept in
@@ -88,6 +94,69 @@ def get_letter(lang: Literal["zh", "en"] = "zh") -> str:
             f"expected one of {sorted(_LETTER_FILENAMES)}"
         )
     return _load_text(_LETTER_FILENAMES[lang])
+
+
+def get_letter_intro(lang: Literal["zh", "en"] = "zh") -> str:
+    """Return the **intro slice** of the Letter-to-ADMIN manual.
+
+    The full letter is ~500 lines; pasting it verbatim into every
+    ``init_*`` tool reply would pollute the chat context. This getter
+    extracts just the leading section — title + greeting + the
+    "0.6.4 摘要" block + the ADMIN/AI-team identity diagram — so the
+    MCP layer can splice it into the post-init handover, hand the
+    important bits to the agent, and let the agent forward them to
+    ADMIN immediately. The full letter remains available on disk
+    (``docs/agents/LETTER-TO-ADMIN.md``) and as the
+    ``fcop://letter/zh|en`` MCP resource.
+
+    Slicing rule: take everything from the start of the document up
+    to the second ``---`` horizontal rule (exclusive). The Letter is
+    structured so the second rule sits right before the
+    "三种起手方式" / "Three entry points" section, which is already
+    surfaced separately in ``fcop_report``'s Phase-1 prompt — so we
+    avoid duplicating it here.
+
+    If the second rule is missing (e.g. someone re-edited the
+    Letter), fall back to the first 60 lines so this getter never
+    raises just because the structure shifted. The companion test
+    pins the slice content so an accidental drift surfaces early.
+
+    Raises:
+        ValueError: ``lang`` is not a supported language code.
+    """
+    full = get_letter(lang)
+    lines = full.splitlines()
+    rule_indices = [i for i, line in enumerate(lines) if line.strip() == "---"]
+    cutoff = rule_indices[1] if len(rule_indices) >= 2 else min(len(lines), 60)
+    return "\n".join(lines[:cutoff]).rstrip() + "\n"
+
+
+def get_install_prompt(lang: Literal["zh", "en"] = "zh") -> str:
+    """Return the canonical "have an agent install fcop-mcp" prompt.
+
+    The same text is shipped in three places to keep them locked in
+    step:
+
+    * the bundled package data (this getter),
+    * the GitHub / PyPI ``mcp/README.md`` rendering,
+    * the MCP resource ``fcop://prompt/install``.
+
+    ADMIN gives this text to a fresh shell-capable agent and the
+    agent then runs the install steps end to end. Critical 0.6.4
+    addition: the prompt explicitly forbids agents from defaulting
+    to ``init_project(team="dev-team")`` after install — initialisation
+    must remain ADMIN's three-way choice (solo / preset team /
+    custom).
+
+    Raises:
+        ValueError: ``lang`` is not a supported language code.
+    """
+    if lang not in _INSTALL_PROMPT_FILENAMES:
+        raise ValueError(
+            f"unsupported install-prompt language {lang!r}; "
+            f"expected one of {sorted(_INSTALL_PROMPT_FILENAMES)}"
+        )
+    return _load_text(_INSTALL_PROMPT_FILENAMES[lang])
 
 
 def get_rules_version() -> str:

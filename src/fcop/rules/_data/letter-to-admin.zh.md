@@ -6,6 +6,21 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
+> **0.6.4 摘要**：
+> - **三种起手方式必须由 ADMIN 选**——Solo / 预设团队 / 自定义。
+>   Agent **不允许**替你默认选 `dev-team`（0.6.3 这个坑实战中踩过）。
+> - **`init_solo` / `init_project` / `init_custom` 一次性落齐**所有
+>   承诺的文件：`fcop.json` + 这封信 + `workspace/README.md` +
+>   三层职责文档（`shared/TEAM-README.md` / `TEAM-ROLES.md` /
+>   `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`，zh+en）+
+>   协议规则四件套（`.cursor/rules/*.mdc` + `AGENTS.md` +
+>   `CLAUDE.md`）。0.6.3 漏过其中几项，0.6.4 全部到位。
+> - **Solo 模式自带三层职责模板**（`teams/_data/solo/`）。
+> - **`init_*` 工具新增 `force=True` 参数**——切团队不用再去手改
+>   配置（旧文件自动归档到 `.fcop/migrations/<时间戳>/`）。
+> - **新增 MCP 资源 `fcop://prompt/install`**——agent 帮你装 fcop-mcp
+>   的标准提示词。
+
 ---
 
 ## 先把身份说清楚
@@ -34,7 +49,12 @@
 
 ---
 
-## 三种起手方式（按常用度排序）
+## 三种起手方式（必须由你 ADMIN 明确挑一个）
+
+> **Agent 不允许替你默认**。新会话 agent 调 `fcop_report()` 后，会把
+> 这三选一原文亮出来，**等你说话**。听到 agent 在你没明示前就跑
+> `init_project(team="dev-team")`，那是 0.6.3 的坑——0.6.4 起 Phase 1
+> 协议规则禁止此行为，截屏发 issue。
 
 ### A. 只有你一个（Solo，最常用）
 
@@ -361,7 +381,7 @@ list_workspaces()
 
 ## 你怎么用 FCoP：只说人话
 
-**先把最重要的说清楚**：FCoP 有 22 个工具——**全是给 Agent 用的，
+**先把最重要的说清楚**：FCoP 有 26 个工具——**全是给 Agent 用的，
 不是给你用的**。你从头到尾只说人话，Agent 负责翻译成工具调用。
 
 ```
@@ -416,7 +436,7 @@ list_workspaces()
   路径是 `C:\Users\xxx` 之类），你说"绑到 `E:\你的项目`"或直接说
   "调 `set_project_dir("...")`"。
 
-**其他 20 个你从来不用背**。Agent 自己会挑。
+**其他 24 个你从来不用背**。Agent 自己会挑。
 
 ### Agent 为什么知道该调哪个？
 
@@ -431,7 +451,7 @@ list_workspaces()
 所以你只管说人话。Agent 没按预期做（比如该开 `workspace/` 却没开、
 该汇报却没汇报），把这封信翻给它看一下对应那行，立刻纠正。
 
-### 14 个资源（Agent 按需读，你完全不用管）
+### 12 个资源（Agent 按需读，你完全不用管）
 
 **核心资源**（随时可读）：
 
@@ -440,6 +460,7 @@ list_workspaces()
 | `fcop://rules` | Agent | `fcop-rules.mdc` 原文 |
 | `fcop://protocol` | Agent | `fcop-protocol.mdc` 原文 |
 | `fcop://letter/zh` 或 `/en` | Agent 回头查 | 这封信 |
+| `fcop://prompt/install` 或 `/install/en` *(0.6.4)* | ADMIN 复制给新 agent | 让 agent 帮你装 fcop-mcp 的标准提示词 |
 | `fcop://status` | Agent | 同 `get_team_status` |
 | `fcop://config` | Agent | `fcop.json` 原文 |
 
@@ -468,13 +489,13 @@ list_workspaces()
 
 ### ⚠️ Cursor 的"点灰"开关：两个千万别灰
 
-打开 Cursor 的 MCP 面板能看到这 22 个工具每个旁边有个开关。点一下
+打开 Cursor 的 MCP 面板能看到这 26 个工具每个旁边有个开关。点一下
 变灰 = 禁用。**其中这 2 个一灰你就惨了**：
 
 - `fcop_report` —— 灰了 Rule 0 失效，Agent 新会话没法做第一步
 - `set_project_dir` —— 灰了 MCP 绑错目录时你只能改 `mcp.json` + 重启
 
-剩下的 20 个你用不到的可以灰——不过 Agent 突然少了工具会一脸懵，
+剩下的 24 个你用不到的可以灰——不过 Agent 突然少了工具会一脸懵，
 **建议全开就好**。
 
 ---

@@ -57,6 +57,7 @@ from fcop.errors import (
     ProjectAlreadyInitializedError,
     ProtocolViolation,
     TaskNotFoundError,
+    TeamNotFoundError,
     ValidationError,
 )
 from fcop.models import (
@@ -73,6 +74,7 @@ from fcop.models import (
     ValidationIssue,
 )
 from fcop.rules import (
+    get_letter,
     get_protocol_commentary,
     get_protocol_version,
     get_rules,
@@ -200,6 +202,7 @@ class Project:
         lang: str = "zh",
         force: bool = False,
         deploy_rules: bool = False,
+        deploy_role_templates: bool = True,
     ) -> ProjectStatus:
         """Initialize this directory as an FCoP project with a preset team.
 
@@ -231,6 +234,17 @@ class Project:
                 ``fcop-mcp`` ``init_project`` tool overrides this to
                 ``True`` so MCP-driven inits get rules on disk
                 automatically. See ADR-0006 for the rationale.
+            deploy_role_templates: If ``True`` (the default since
+                0.6.4), automatically materialise the team's
+                three-layer documentation under
+                ``docs/agents/shared/`` via
+                :meth:`deploy_role_templates`. This used to be a
+                separate post-init step in 0.6.3, which led to the
+                "team switched but `shared/roles/` is empty" pitfall
+                — agents on the new team had no role charter to
+                read. Solo and the four bundled multi-role teams all
+                have templates; ``init_custom`` users with no
+                bundled templates pass ``False``.
 
         Returns:
             A :class:`ProjectStatus` snapshot of the freshly initialized
@@ -240,7 +254,17 @@ class Project:
             ProjectAlreadyInitializedError: ``fcop.json`` exists and
                 ``force=False``.
             TeamNotFoundError: ``team`` is not in the bundled registry.
+            ValueError: ``team == "solo"`` — Solo has its own
+                dedicated entry point (:meth:`init_solo`) that pins
+                ``mode="solo"`` rather than ``"preset"``. Using
+                ``init`` for solo would silently mislabel the project.
         """
+        if team == "solo":
+            raise ValueError(
+                "init() is for preset multi-role teams; "
+                "use init_solo(role_code=...) for solo mode so the "
+                "config carries mode='solo' not mode='preset'."
+            )
         info = get_team_info(team)
         cfg = TeamConfig(
             mode="preset",
@@ -261,6 +285,20 @@ class Project:
             # any pre-existing local rule edits survive in
             # .fcop/migrations/.
             self.deploy_protocol_rules(force=force, archive=True)
+        if deploy_role_templates:
+            # force=True so that an init(force=True) overwrite re-deploys
+            # the team's three-layer docs (any stale per-role files from
+            # the previous team get archived under .fcop/migrations/).
+            # Graceful fallback when the team has no bundled templates
+            # (shouldn't happen for a preset team, but defence in depth).
+            # ``lang=None`` lets ``deploy_role_templates`` re-read the
+            # canonical lang from the just-written ``fcop.json`` —
+            # avoids re-validating a free-form ``str`` against the
+            # ``Literal["zh", "en"]`` parameter at the boundary.
+            with contextlib.suppress(TeamNotFoundError, ValueError):
+                self.deploy_role_templates(
+                    team=info.name, lang=None, force=True
+                )
         return self.status()
 
     def init_solo(
@@ -270,6 +308,7 @@ class Project:
         lang: str = "zh",
         force: bool = False,
         deploy_rules: bool = False,
+        deploy_role_templates: bool = True,
     ) -> ProjectStatus:
         """Initialize in Solo mode (single role interfacing with ADMIN).
 
@@ -289,6 +328,19 @@ class Project:
             deploy_rules: Same semantics as :meth:`init` —
                 defaults to ``False`` to preserve pure-library
                 behaviour; the MCP layer flips this to ``True``.
+            deploy_role_templates: Same semantics as :meth:`init` —
+                defaults to ``True`` since 0.6.4. The bundled
+                ``solo`` team carries its own three-layer docs
+                (``README`` / ``TEAM-ROLES`` /
+                ``TEAM-OPERATING-RULES`` / ``roles/{role_code}.md``),
+                deployed under ``docs/agents/shared/``. The bundled
+                role file is named ``ME.md`` (matching the default
+                role code); when ``role_code`` differs, the file is
+                still deployed as ``roles/ME.md`` and the agent
+                reads it as a role-charter template even though the
+                runtime role code is different. (A future release
+                may rename on deploy; for 0.6.4 we keep the simpler
+                "exact bundled filename" path.)
 
         Raises:
             ValidationError: ``role_code`` fails
@@ -316,6 +368,17 @@ class Project:
         self._apply_init(cfg, force=force)
         if deploy_rules:
             self.deploy_protocol_rules(force=force, archive=True)
+        if deploy_role_templates:
+            # The bundled `solo` team has roles=("ME",); when the user
+            # picks a different role_code we still deploy ME.md so the
+            # agent has a role charter to read. Graceful fallback for
+            # any future team-data drift. ``lang=None`` defers to the
+            # config we just wrote (avoids re-narrowing ``str`` →
+            # ``Literal["zh", "en"]`` at the call site).
+            with contextlib.suppress(TeamNotFoundError, ValueError):
+                self.deploy_role_templates(
+                    team="solo", lang=None, force=True
+                )
         return self.status()
 
     def init_custom(
@@ -327,6 +390,7 @@ class Project:
         lang: str = "zh",
         force: bool = False,
         deploy_rules: bool = False,
+        deploy_role_templates: bool = False,
     ) -> ProjectStatus:
         """Initialize with a user-defined role set.
 
@@ -349,6 +413,16 @@ class Project:
             deploy_rules: Same semantics as :meth:`init` —
                 defaults to ``False`` to preserve pure-library
                 behaviour; the MCP layer flips this to ``True``.
+            deploy_role_templates: Defaults to ``False`` because a
+                custom team has no bundled three-layer documents to
+                deploy. The agent is expected to read
+                ``fcop://teams/<bundled-team>`` as a sample and
+                hand-author the project's own ``shared/{TEAM-README,
+                TEAM-ROLES, TEAM-OPERATING-RULES}.md`` plus
+                ``shared/roles/{ROLE}.md`` per the protocol. Setting
+                this to ``True`` would raise
+                :class:`TeamNotFoundError` since ``team_name`` is
+                user-defined — kept as an option for symmetry only.
 
         Raises:
             ValidationError: the team config is invalid. The raised
@@ -478,6 +552,13 @@ class Project:
            losing the old config silently would be a data hazard.
         4. Atomic write of the new config (``save_team_config``
            uses tmp-then-replace internally).
+        5. Deposit the protocol's promised on-disk artifacts:
+           ``LETTER-TO-ADMIN.md`` (the user manual) and the
+           ``workspace/`` cage with its README. These are baked into
+           ``fcop-rules.mdc`` Rule 1 Phase 1 / Rule 7.5 — every
+           ``init_*`` call promises them to ADMIN, so the lifecycle
+           method materializes them rather than leaving the promise
+           unredeemed (the 0.6.3 bug we fixed in 0.6.4).
 
         Private because the exact sequencing is an implementation
         detail; callers use the high-level ``init*`` methods.
@@ -508,6 +589,66 @@ class Project:
             config_path.replace(archive_path)
 
         save_team_config(cfg, config_path)
+
+        self._deposit_letter(cfg.lang, force=force)
+        self._deposit_workspace_cage(force=force)
+
+    def _deposit_letter(self, lang: str, *, force: bool) -> None:
+        """Write ``docs/agents/LETTER-TO-ADMIN.md`` from the bundled
+        manual.
+
+        Falls back to ``zh`` if the configured ``lang`` isn't a
+        bundled letter language — :func:`fcop.rules.get_letter` is
+        the source of truth for which languages exist, but a custom
+        ``lang`` (say a future ``ja``) shouldn't crash init.
+        """
+        try:
+            content = get_letter(lang)  # type: ignore[arg-type]
+        except ValueError:
+            content = get_letter("zh")
+
+        target = self._path / "docs" / "agents" / "LETTER-TO-ADMIN.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists() and not force:
+            return
+        if target.exists() and force:
+            self._archive_one_file(target, sub="letter")
+        target.write_text(content, encoding="utf-8", newline="\n")
+
+    def _deposit_workspace_cage(self, *, force: bool) -> None:
+        """Create ``workspace/`` + ``workspace/README.md`` per Rule 7.5.
+
+        The ``workspace/`` directory is the protocol's "cage for
+        actual work products" — keeping it created up-front matches
+        the user-facing promise in ``LETTER-TO-ADMIN.md`` ("起完之后
+        会落下这些东西") and gives agents a directory they can write
+        into without an extra ``new_workspace`` round-trip.
+        """
+        workspace_dir = self._path / "workspace"
+        workspace_dir.mkdir(parents=True, exist_ok=True)
+        readme = workspace_dir / "README.md"
+        if readme.exists() and not force:
+            return
+        if readme.exists() and force:
+            self._archive_one_file(readme, sub="workspace")
+        readme.write_text(_WORKSPACE_README_TEXT, encoding="utf-8", newline="\n")
+
+    def _archive_one_file(
+        self, path: pathlib.Path, *, sub: str
+    ) -> pathlib.Path:
+        """Move *path* into ``.fcop/migrations/<timestamp>/<sub>/``.
+
+        Used by ``_deposit_letter`` and ``_deposit_workspace_cage`` to
+        preserve hand-edited copies before overwriting on
+        ``init(force=True)``. Mirrors the archival pattern in
+        :meth:`deploy_protocol_rules` / :meth:`deploy_role_templates`.
+        """
+        stamp = _now_iso().replace(":", "").replace("-", "")
+        target_dir = self._migrations_dir / stamp / sub
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target = target_dir / path.name
+        path.replace(target)
+        return target
 
     # ── Template deployment ───────────────────────────────────────────
 
@@ -1817,6 +1958,40 @@ _FCOP_SUFFIXES = frozenset({".md", ".fcop"})
 _VALID_REPORT_STATUSES: frozenset[str] = frozenset(
     {"done", "blocked", "in_progress"}
 )
+
+# Boilerplate for ``workspace/README.md`` written on every init. Kept
+# minimal on purpose — the canonical Rule 7.5 explanation lives in
+# the bundled ``fcop-rules.mdc`` and ``LETTER-TO-ADMIN.md``; this
+# README is just the at-the-spot "you found me, here's what goes here".
+_WORKSPACE_README_TEXT = """\
+# workspace/
+
+按 FCoP Rule 7.5 / Rule 7.5 per FCoP protocol.
+
+**项目根只放协作元数据；具体产物（代码、脚本、数据）进
+`workspace/<slug>/`，一个目的一个 slug。**
+
+**Project root holds coordination metadata only; actual artefacts
+(code, scripts, data) live under `workspace/<slug>/` — one slug per
+piece of work.**
+
+- 推荐用 MCP 工具 `new_workspace(slug=..., title=..., description=...)`
+  创建 slug 子目录（会落 `.workspace.json` 元数据）。
+- 也可以手动 `mkdir workspace/<slug>`，`list_workspaces()` 同样能识别。
+- 跨 slug 共享的资产放 `workspace/shared/`（保留 slug）。
+
+- Recommended: MCP tool
+  `new_workspace(slug=..., title=..., description=...)`
+  (drops a `.workspace.json` marker).
+- Or manually `mkdir workspace/<slug>` — `list_workspaces()` will
+  pick it up either way.
+- Cross-slug shared assets go under `workspace/shared/`
+  (reserved slug).
+
+详见 `docs/agents/LETTER-TO-ADMIN.md` § "产物放哪：workspace/<slug>/ 约定".
+See `docs/agents/LETTER-TO-ADMIN.md` § "Where artefacts go" for the
+full convention.
+"""
 
 
 def _now_iso() -> str:

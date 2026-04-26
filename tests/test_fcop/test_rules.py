@@ -25,6 +25,7 @@ import pytest
 from fcop.errors import FcopError
 from fcop.rules import (
     get_letter,
+    get_letter_intro,
     get_protocol_commentary,
     get_protocol_version,
     get_rules,
@@ -81,6 +82,72 @@ class TestGetLetter:
     def test_unknown_language_raises(self) -> None:
         with pytest.raises(ValueError, match="unsupported letter language"):
             get_letter("fr")  # type: ignore[arg-type]
+
+
+class TestGetLetterIntro:
+    """Pin the intro slice that the MCP layer splices into the
+    post-init handover. This slice is what ADMIN actually *sees*
+    after running ``init_*`` — drift here is a UX regression, not a
+    cosmetic one, so we assert structural invariants rather than
+    exact bytes."""
+
+    def test_zh_starts_with_letter_title(self) -> None:
+        intro = get_letter_intro("zh")
+        assert intro.startswith("# FCoP 致 ADMIN 的一封信"), (
+            "intro slice must keep the H1 title — that's the cue "
+            "the agent uses when forwarding the block to ADMIN"
+        )
+
+    def test_zh_includes_064_summary_block(self) -> None:
+        intro = get_letter_intro("zh")
+        assert "0.6.4 摘要" in intro, (
+            "0.6.4 introduced the workflow hard-constraint and the "
+            "init-deposit fix; the intro must surface that summary"
+        )
+
+    def test_zh_is_strict_prefix_of_full_letter(self) -> None:
+        # No paraphrasing is allowed — the slice must be a verbatim
+        # prefix so the agent can paste it without divergence from
+        # the on-disk LETTER-TO-ADMIN.md.
+        intro = get_letter_intro("zh")
+        full = get_letter("zh")
+        assert full.startswith(intro.rstrip())
+
+    def test_zh_is_substantially_shorter_than_full_letter(self) -> None:
+        intro = get_letter_intro("zh")
+        full = get_letter("zh")
+        # Intro is meant to be ~50 lines; the full letter is ~500.
+        # The exact ratio drifts as 0.6.x ships, so we only pin the
+        # qualitative invariant: the intro is at most a quarter of
+        # the full letter.
+        assert len(intro) * 4 < len(full), (
+            "intro slice must stay short enough to splice into the "
+            "init reply without drowning the chat — currently "
+            f"{len(intro)} chars vs full {len(full)} chars"
+        )
+
+    def test_en_starts_with_letter_title(self) -> None:
+        intro = get_letter_intro("en")
+        # The EN letter title is "A Letter from FCoP to ADMIN — User
+        # Manual". We pin only the substring that's stable across
+        # wording revisions ("FCoP" + "ADMIN") so a future title
+        # tweak doesn't break the test, but a missing H1 still does.
+        first_line = intro.splitlines()[0] if intro else ""
+        assert first_line.startswith("# "), (
+            f"EN intro must lead with an H1; got: {first_line!r}"
+        )
+        assert "FCoP" in first_line and "ADMIN" in first_line, (
+            f"EN intro H1 must reference FCoP and ADMIN; got: {first_line!r}"
+        )
+
+    def test_en_is_strict_prefix_of_full_letter(self) -> None:
+        intro = get_letter_intro("en")
+        full = get_letter("en")
+        assert full.startswith(intro.rstrip())
+
+    def test_unknown_language_raises(self) -> None:
+        with pytest.raises(ValueError, match="unsupported letter language"):
+            get_letter_intro("fr")  # type: ignore[arg-type]
 
 
 class TestGetRulesVersion:

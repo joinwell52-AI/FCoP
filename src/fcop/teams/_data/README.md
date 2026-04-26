@@ -12,6 +12,7 @@ protocol right away.
 teams/
 ├── README.md          # 本文件 / this file
 ├── index.json         # 机器可读索引 / machine-readable index
+├── solo/              # 单 AI 协作 / single-AI collaboration  [0.6.4]
 ├── dev-team/          # 软件开发 / software development
 ├── media-team/        # 自媒体 / content media
 ├── mvp-team/          # 创业 MVP / startup MVP
@@ -39,18 +40,25 @@ teams/
 
 泛化程度递减,细节递增。读完前两层就能跑协作;第 3 层只在扮演该角色时深读。
 
-## 四个预设团队 / Four Preset Teams
+## 五种预设模式 / Five Preset Modes
 
-| 团队 | leader | 角色(AI) | 场景 |
-|------|--------|---------|------|
-| `dev-team` | `PM` | `PM / DEV / QA / OPS` | 软件开发、修复发布 |
-| `media-team` | `PUBLISHER` | `PUBLISHER / COLLECTOR / WRITER / EDITOR` | 内容选题、撰写、发布 |
-| `mvp-team` | `MARKETER` | `MARKETER / RESEARCHER / DESIGNER / BUILDER` | 创业 MVP、想法验证 |
-| `qa-team` | `LEAD-QA` | `LEAD-QA / TESTER / AUTO-TESTER / PERF-TESTER` | 独立测试、多战线并行 |
+| 模式/团队 | leader | 角色(AI) | 场景 | 起手工具 |
+|----------|--------|---------|------|----------|
+| `solo` *(0.6.4)* | `ME` | `ME` (1 个) | 一人单干、ADMIN ↔ ME 直接对接 | `init_solo(role_code="ME")` |
+| `dev-team` | `PM` | `PM / DEV / QA / OPS` | 软件开发、修复发布 | `init_project(team="dev-team")` |
+| `media-team` | `PUBLISHER` | `PUBLISHER / COLLECTOR / WRITER / EDITOR` | 内容选题、撰写、发布 | `init_project(team="media-team")` |
+| `mvp-team` | `MARKETER` | `MARKETER / RESEARCHER / DESIGNER / BUILDER` | 创业 MVP、想法验证 | `init_project(team="mvp-team")` |
+| `qa-team` | `LEAD-QA` | `LEAD-QA / TESTER / AUTO-TESTER / PERF-TESTER` | 独立测试、多战线并行 | `init_project(team="qa-team")` |
 
-每个团队的 AI 角色是 4 个,加上真人 `ADMIN`,一共 5 方协作。
+`solo` 的 AI 角色是 1 个,其余四个团队各 4 个,加上真人 `ADMIN`,一共 2-5 方协作。
 
 `ADMIN` 是**真人管理员**,FCoP 在协议层已为它保留,**不写入 `fcop.json.roles`**,也**不放在 `roles/` 目录**。关于 ADMIN 的说明请看每个团队自己的 `README.md`。
+
+## 自定义团队 / Custom Teams
+
+不想用预设?用 `init_custom(team_name="...", roles="...", leader="...")` 自建。FCoP **不带模板**,但建议 agent 先读一份最像的预设样本(`fcop://teams/<最像的预设>` 整套),改名成自己的角色,落到 `docs/agents/shared/` 下。这是 letter-to-admin.md 里"自建队不自带职责书,但可以抄样本"那一节的具体做法。
+
+Don't want a preset? Use `init_custom(team_name="...", roles="...", leader="...")` to roll your own. FCoP ships **no templates** for custom teams, but the recommended path is: agent reads the closest preset (full bundle from `fcop://teams/<closest-preset>`), renames the roles, and writes the result into `docs/agents/shared/`. This matches the letter-to-admin.md section "custom teams have no charter; copy a sample".
 
 ## 怎么用 / How to Use
 
