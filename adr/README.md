@@ -98,6 +98,7 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0003](./ADR-0003-stability-charter.md) | Pre-1.0 Stability Charter | Accepted | 2026-04-23 |
 | [ADR-0004](./ADR-0004-time-is-filesystem.md) | 时间由文件系统提供，不由 Frontmatter 提供 | Accepted | 2026-04-23 |
 | [ADR-0005](./ADR-0005-agent-output-layering.md) | Agent 产出物分层（Observation Output Lifecycle） | Accepted | 2026-04-23 |
+| [ADR-0006](./ADR-0006-host-neutral-rule-distribution.md) | 协议规则的宿主中立分发与升级 | Accepted | 2026-04-25 |
 
 ## 工作流
 

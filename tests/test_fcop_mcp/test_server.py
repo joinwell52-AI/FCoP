@@ -385,6 +385,185 @@ class TestSafetyAndMeta:
         assert "upgrade" in out.lower() or "升级" in out
 
 
+# ─── ADR-0006: fcop_report / redeploy_rules / deprecated alias ───────
+
+
+class TestSessionReportAndRedeploy:
+    """Coverage for the ADR-0006 surface added in 0.6.3.
+
+    Three tools land together:
+
+    * ``fcop_report`` — the new canonical session-status / init report;
+      replaces ``unbound_report``. Adds a ``[Versions]`` block + drift
+      warning when the project-local rules / protocol files are older
+      than the wheel-bundled ones.
+    * ``unbound_report`` — kept as a deprecated alias of ``fcop_report``
+      for back-compat with existing system prompts. Emits a
+      :class:`DeprecationWarning` on every call. Removed in 0.7.0.
+    * ``redeploy_rules`` — host-neutral redeploy of the four protocol-
+      rule targets. ADMIN-only; agents must not invoke directly.
+    """
+
+    # ── fcop_report (the new canonical name) ─────────────────────────
+
+    def test_fcop_report_uninitialized(self, project_dir: Path) -> None:
+        _call("set_project_dir", path=str(project_dir))
+        out = _call("fcop_report", lang="zh")
+        # Falls into the init-required branch; cf. uninitialized
+        # variant of unbound_report.
+        assert "init" in out.lower() or "初始化" in out
+        assert "FCoP" in out
+
+    def test_fcop_report_initialized(
+        self, initialized_project: Path
+    ) -> None:
+        out = _call("fcop_report", lang="zh")
+        # Same shape as the legacy unbound_report — UNBOUND banner
+        # over the bound team's metadata.
+        assert "UNBOUND" in out or "dev-team" in out
+
+    def test_fcop_report_renders_versions_block(
+        self, initialized_project: Path
+    ) -> None:
+        # ADR-0006 promises a "[Versions] / [版本]" block on every
+        # report so ADMIN can spot drift between the wheel-bundled
+        # rules and the project-local copy.
+        out = _call("fcop_report", lang="zh")
+        # zh report uses a bilingual header.
+        assert "版本" in out or "Versions" in out
+        # Both fcop-mcp and fcop versions are reported by name.
+        assert "fcop-mcp:" in out
+        assert "fcop:" in out
+        # The two protocol-rule version lines (rules / protocol) show
+        # up — keys are stable; the values are SemVer strings.
+        assert "rules:" in out
+        assert "protocol:" in out
+
+    def test_fcop_report_english_versions_block(
+        self, initialized_project: Path
+    ) -> None:
+        out = _call("fcop_report", lang="en")
+        # English report uses just "[Versions]".
+        assert "[Versions]" in out
+        # English-language version lines stay byte-stable across the
+        # zh/en split: same labels, same SemVer values, same drift
+        # markers. Just confirm the rules / protocol lines and the
+        # "local … | packaged …" comparison shape are present so
+        # future i18n tweaks don't silently drop the Versions data.
+        assert "rules:" in out
+        assert "protocol:" in out
+        assert "local " in out and "packaged " in out
+
+    def test_fcop_report_drift_warning_when_local_is_older(
+        self, initialized_project: Path
+    ) -> None:
+        # Plant an old fcop-rules.mdc with a stale fcop_rules_version
+        # in the project-local .cursor/rules/. fcop_report should then
+        # render the OUTDATED marker + redeploy_rules prompt.
+        rules_dir = initialized_project / ".cursor" / "rules"
+        rules_dir.mkdir(parents=True, exist_ok=True)
+        (rules_dir / "fcop-rules.mdc").write_text(
+            "---\n"
+            "fcop_rules_version: 0.0.1\n"
+            "alwaysApply: true\n"
+            "---\n"
+            "# stale\n",
+            encoding="utf-8",
+        )
+        (rules_dir / "fcop-protocol.mdc").write_text(
+            "---\n"
+            "fcop_protocol_version: 0.0.1\n"
+            "---\n"
+            "# stale\n",
+            encoding="utf-8",
+        )
+
+        out = _call("fcop_report", lang="zh")
+        # Drift detected → ADMIN-facing prompt for redeploy_rules.
+        assert "redeploy_rules" in out
+        assert "本地偏旧" in out or "OUTDATED" in out
+
+    # ── unbound_report (deprecated alias) ────────────────────────────
+
+    def test_unbound_report_still_works_as_alias(
+        self, initialized_project: Path
+    ) -> None:
+        # The alias must remain functional through 0.6.x — existing
+        # `LETTER-TO-ADMIN.md` system prompts still tell agents to call
+        # ``unbound_report``. Deprecation cycle removes the name in 0.7.0.
+        out = _call("unbound_report", lang="zh")
+        assert "UNBOUND" in out or "dev-team" in out
+
+    def test_unbound_report_emits_deprecation_warning(
+        self, initialized_project: Path
+    ) -> None:
+        # Call the underlying function directly so the warnings.warn()
+        # inside the body propagates into pytest's warning capture
+        # (FastMCP's call_tool path may swallow them in some setups).
+        # ``unbound_report`` is registered as an MCP tool but the
+        # decorator leaves the original Python function reachable via
+        # the module namespace.
+        from fcop_mcp import server as srv
+
+        # Pin the project so the report body actually composes.
+        _call("set_project_dir", path=str(initialized_project))
+
+        with pytest.warns(DeprecationWarning, match="unbound_report is deprecated"):
+            out = srv.unbound_report(lang="zh")
+
+        # And the alias produces the same body shape as fcop_report.
+        assert "UNBOUND" in out or "dev-team" in out
+
+    # ── redeploy_rules ───────────────────────────────────────────────
+
+    def test_redeploy_rules_writes_four_targets(
+        self, initialized_project: Path
+    ) -> None:
+        out = _call("redeploy_rules", force=True, archive=True, lang="zh")
+
+        # Every documented target lands on disk.
+        for rel in (
+            ".cursor/rules/fcop-rules.mdc",
+            ".cursor/rules/fcop-protocol.mdc",
+            "AGENTS.md",
+            "CLAUDE.md",
+        ):
+            assert (initialized_project / rel).is_file(), (
+                f"redeploy_rules did not write {rel!r}"
+            )
+        # And the report mentions each one.
+        assert "fcop-rules.mdc" in out
+        assert "AGENTS.md" in out
+        assert "CLAUDE.md" in out
+        assert "已部署" in out or "Deployed" in out
+
+    def test_redeploy_rules_archives_old_files(
+        self, initialized_project: Path
+    ) -> None:
+        # First populate the targets with stale content.
+        cursor_dir = initialized_project / ".cursor" / "rules"
+        cursor_dir.mkdir(parents=True, exist_ok=True)
+        (cursor_dir / "fcop-rules.mdc").write_text("# stale\n", encoding="utf-8")
+
+        out = _call("redeploy_rules", force=True, archive=True, lang="zh")
+
+        # Stale content was archived under .fcop/migrations/<ts>/rules/.
+        migrations_root = initialized_project / ".fcop" / "migrations"
+        assert migrations_root.is_dir()
+        # Find the archived stale file.
+        archived = list(
+            migrations_root.glob(
+                "*/rules/.cursor/rules/fcop-rules.mdc"
+            )
+        )
+        assert archived, (
+            "expected stale fcop-rules.mdc to be archived under "
+            ".fcop/migrations/*/rules/.cursor/rules/"
+        )
+        assert archived[0].read_text(encoding="utf-8") == "# stale\n"
+        assert "归档" in out or "Archived" in out
+
+
 # ─── Resources ───────────────────────────────────────────────────────
 
 

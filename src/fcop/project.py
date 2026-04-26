@@ -72,6 +72,12 @@ from fcop.models import (
     TeamConfig,
     ValidationIssue,
 )
+from fcop.rules import (
+    get_protocol_commentary,
+    get_protocol_version,
+    get_rules,
+    get_rules_version,
+)
 from fcop.teams import TeamTemplate, get_team_info, get_template
 
 __all__ = ["Project"]
@@ -193,15 +199,16 @@ class Project:
         team: str = "dev-team",
         lang: str = "zh",
         force: bool = False,
+        deploy_rules: bool = False,
     ) -> ProjectStatus:
         """Initialize this directory as an FCoP project with a preset team.
 
         Creates the ``docs/agents/{tasks,reports,issues,shared,log}/``
-        tree and writes ``fcop.json``. Role template deployment,
-        Cursor rule installation, and the welcome task are handled by
-        separate methods (:meth:`deploy_role_templates` + future work)
-        so ``init`` stays focused on the one invariant that
-        :meth:`is_initialized` probes for.
+        tree and writes ``fcop.json``. Role template deployment, Cursor
+        rule installation, and the welcome task are intentionally
+        decoupled — call :meth:`deploy_role_templates` and
+        :meth:`deploy_protocol_rules` after init, or pass
+        ``deploy_rules=True`` here to fold the second one in.
 
         Args:
             team: Name of a bundled preset team. See
@@ -214,6 +221,16 @@ class Project:
                    ``fcop.json``; the old file is archived to
                    ``.fcop/migrations/<timestamp>/`` before the new
                    one lands. Destructive — defaults to ``False``.
+            deploy_rules: If ``True``, also drop the bundled protocol
+                rules into the project root via
+                :meth:`deploy_protocol_rules` (writes
+                ``.cursor/rules/*.mdc``, ``AGENTS.md``, and
+                ``CLAUDE.md``). **Defaults to ``False``** to keep
+                pure-library users' behaviour identical to 0.6.2 —
+                they may not want the project root touched. The
+                ``fcop-mcp`` ``init_project`` tool overrides this to
+                ``True`` so MCP-driven inits get rules on disk
+                automatically. See ADR-0006 for the rationale.
 
         Returns:
             A :class:`ProjectStatus` snapshot of the freshly initialized
@@ -238,6 +255,12 @@ class Project:
             },
         )
         self._apply_init(cfg, force=force)
+        if deploy_rules:
+            # Use force=force so an init(force=True, deploy_rules=True)
+            # is internally consistent; archive defaults to True so
+            # any pre-existing local rule edits survive in
+            # .fcop/migrations/.
+            self.deploy_protocol_rules(force=force, archive=True)
         return self.status()
 
     def init_solo(
@@ -246,6 +269,7 @@ class Project:
         role_code: str = "ME",
         lang: str = "zh",
         force: bool = False,
+        deploy_rules: bool = False,
     ) -> ProjectStatus:
         """Initialize in Solo mode (single role interfacing with ADMIN).
 
@@ -262,6 +286,9 @@ class Project:
             lang: Persisted into ``fcop.json`` for later template
                 deployment; ignored by ``init_solo`` itself.
             force: Same semantics as :meth:`init`.
+            deploy_rules: Same semantics as :meth:`init` —
+                defaults to ``False`` to preserve pure-library
+                behaviour; the MCP layer flips this to ``True``.
 
         Raises:
             ValidationError: ``role_code`` fails
@@ -287,6 +314,8 @@ class Project:
             extra={"created_at": _now_iso()},
         )
         self._apply_init(cfg, force=force)
+        if deploy_rules:
+            self.deploy_protocol_rules(force=force, archive=True)
         return self.status()
 
     def init_custom(
@@ -297,6 +326,7 @@ class Project:
         leader: str,
         lang: str = "zh",
         force: bool = False,
+        deploy_rules: bool = False,
     ) -> ProjectStatus:
         """Initialize with a user-defined role set.
 
@@ -316,6 +346,9 @@ class Project:
                 ``ADMIN``-addressed tasks default to.
             lang: Persisted for later template deployment.
             force: Same semantics as :meth:`init`.
+            deploy_rules: Same semantics as :meth:`init` —
+                defaults to ``False`` to preserve pure-library
+                behaviour; the MCP layer flips this to ``True``.
 
         Raises:
             ValidationError: the team config is invalid. The raised
@@ -351,6 +384,8 @@ class Project:
             extra={"created_at": _now_iso()},
         )
         self._apply_init(cfg, force=force)
+        if deploy_rules:
+            self.deploy_protocol_rules(force=force, archive=True)
         return self.status()
 
     @staticmethod
@@ -614,6 +649,111 @@ class Project:
         _ensure_lang_supported(raw_lang)
         # Safe cast: _ensure_lang_supported guarantees raw_lang ∈ _DEPLOY_LANGS.
         return resolved_team, raw_lang  # type: ignore[return-value]
+
+    # ── Protocol rule distribution (host-neutral) ─────────────────────
+
+    def deploy_protocol_rules(
+        self,
+        *,
+        force: bool = True,
+        archive: bool = True,
+    ) -> DeploymentReport:
+        """Deploy the FCoP protocol rules to the project root, host-neutrally.
+
+        Writes the bundled :file:`fcop-rules.mdc` and
+        :file:`fcop-protocol.mdc` to **four** locations so any agent
+        host that the project runs under can pick them up:
+
+        .. code-block:: text
+
+            <root>/.cursor/rules/fcop-rules.mdc       # Cursor IDE auto-injects
+            <root>/.cursor/rules/fcop-protocol.mdc    # Cursor IDE auto-injects
+            <root>/AGENTS.md                          # Codex / Cursor / Devin / generic
+            <root>/CLAUDE.md                          # Claude Code CLI
+
+        The two ``.mdc`` files keep their original content byte-for-byte
+        (including the YAML frontmatter ``alwaysApply: true`` Cursor
+        relies on). ``AGENTS.md`` and ``CLAUDE.md`` carry the same
+        normative content as a single concatenated markdown file with
+        the YAML frontmatter stripped — Codex and Claude Code don't
+        understand the Cursor frontmatter and would otherwise render it
+        as visible noise. ``AGENTS.md`` and ``CLAUDE.md`` are
+        byte-identical; we duplicate because Claude Code reads
+        ``CLAUDE.md`` and most everyone else reads ``AGENTS.md``.
+
+        Per ADR-0006 (host-neutral rule distribution) this is the
+        canonical path for getting protocol rules into a project. Use
+        it in two situations:
+
+        * On project creation, if the user wants protocol rules on
+          disk immediately. The :meth:`init` family takes a
+          ``deploy_rules=True`` kwarg that delegates here.
+        * On package upgrade, after ``pip install -U fcop`` (or
+          ``-U fcop-mcp``), to refresh on-disk copies to the newly
+          packaged versions. The MCP layer exposes this as
+          ``redeploy_rules``.
+
+        Per ADR-0001 §"Rule 8" agents must NOT call this method
+        themselves — only ADMIN does, explicitly. The fcop-mcp tool
+        gates this with an explicit redeploy contract.
+
+        Args:
+            force: ``True`` (the default) overwrites any existing copy.
+                ``False`` skips files that already exist and records
+                them in :attr:`DeploymentReport.skipped`.
+            archive: When ``True`` (the default) and ``force=True``,
+                any file that would be overwritten is first moved to
+                :file:`.fcop/migrations/<timestamp>/rules/<rel>` so
+                ADMIN can diff or roll back. ``False`` skips archiving
+                — destructive, only sensible when callers are sure
+                the project has no local edits.
+
+        Returns:
+            :class:`DeploymentReport` listing every path written,
+            skipped, and archived. ``migration_dir`` points to the
+            archive root iff at least one file was archived.
+
+        Notes:
+            This method does **not** read or require ``fcop.json`` —
+            it works on any directory, initialized or not. That keeps
+            it usable as a manual recovery tool.
+        """
+        deployed: list[pathlib.Path] = []
+        skipped: list[pathlib.Path] = []
+        archived: list[pathlib.Path] = []
+        migration_dir: pathlib.Path | None = None
+
+        plan = _plan_protocol_rules_deployment()
+
+        for rel_path, content in plan:
+            target = self._path / rel_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+
+            if target.exists():
+                if not force:
+                    skipped.append(target)
+                    continue
+                if archive:
+                    if migration_dir is None:
+                        stamp = _now_iso().replace(":", "").replace("-", "")
+                        migration_dir = self._migrations_dir / stamp / "rules"
+                        migration_dir.mkdir(parents=True, exist_ok=True)
+                    archive_target = migration_dir / rel_path
+                    archive_target.parent.mkdir(parents=True, exist_ok=True)
+                    target.replace(archive_target)
+                    archived.append(archive_target)
+                # archive=False + force=True: just overwrite without
+                # archiving. The atomic-write below replaces in place.
+
+            target.write_text(content, encoding="utf-8", newline="\n")
+            deployed.append(target)
+
+        return DeploymentReport(
+            deployed=tuple(deployed),
+            skipped=tuple(skipped),
+            archived=tuple(archived),
+            migration_dir=migration_dir,
+        )
 
     # ── Config ────────────────────────────────────────────────────────
 
@@ -2212,3 +2352,93 @@ def _plan_template_deployment(
         for role in zh.roles:
             plan.append((f"roles/{role}{suffix(lang)}", bundle.roles[role]))
     return plan
+
+
+# ── Protocol-rule deployment helpers (ADR-0006) ──────────────────────
+
+
+def _strip_yaml_frontmatter(text: str) -> str:
+    """Remove a leading ``---\\n…\\n---\\n`` YAML frontmatter block.
+
+    Used when materializing host-neutral copies (``AGENTS.md`` /
+    ``CLAUDE.md``): the Cursor-specific frontmatter
+    (``alwaysApply: true`` etc.) would render as visible noise in
+    Codex / Claude Code which don't parse it. The frontmatter
+    *content* is still recoverable by reading
+    :func:`fcop.rules.get_rules_version` /
+    :func:`fcop.rules.get_protocol_version` from the package.
+
+    No-op when the text doesn't start with a frontmatter block, so
+    it's safe to apply unconditionally.
+    """
+    delim = "---\n"
+    if not text.startswith(delim):
+        return text
+    closing = text.find("\n" + delim, len(delim))
+    if closing == -1:
+        return text
+    return text[closing + len("\n" + delim):]
+
+
+_HOST_NEUTRAL_PREAMBLE = """\
+# FCoP Protocol Rules · agent-host-neutral copy
+
+> This file is deployed by `fcop` for agent hosts that read
+> `AGENTS.md` / `CLAUDE.md` as their system-prompt source
+> (Codex, Claude Code, Devin, Cursor, etc.). Cursor IDE users get
+> the same content via `.cursor/rules/fcop-rules.mdc` and
+> `.cursor/rules/fcop-protocol.mdc`.
+>
+> The source of truth is the `fcop` Python package. To upgrade
+> this file after `pip install -U fcop[-mcp]`, ADMIN runs the MCP
+> tool `redeploy_rules()` (or calls
+> `Project.deploy_protocol_rules(force=True)` directly).
+
+"""
+
+
+def _plan_protocol_rules_deployment() -> list[tuple[str, str]]:
+    """Compute ``[(relative_path, content), ...]`` for a host-neutral deploy.
+
+    Four targets, two payload variants:
+
+    * ``.cursor/rules/fcop-rules.mdc`` and
+      ``.cursor/rules/fcop-protocol.mdc`` get the bundled ``.mdc``
+      content **byte-for-byte** (frontmatter intact — Cursor needs
+      ``alwaysApply: true``).
+    * ``AGENTS.md`` and ``CLAUDE.md`` get a single concatenated
+      file: a small explanatory preamble + rules body
+      (frontmatter-stripped) + protocol-commentary body
+      (frontmatter-stripped). Content is byte-identical between the
+      two — duplicated because Codex reads ``AGENTS.md`` and Claude
+      Code reads ``CLAUDE.md`` and neither falls back to the other.
+
+    Cached at the module level via :func:`_load_text` (inherited
+    through ``fcop.rules.get_rules`` etc.), so repeated deploys
+    don't re-read the wheel.
+    """
+    rules_mdc = get_rules()
+    protocol_mdc = get_protocol_commentary()
+
+    rules_body = _strip_yaml_frontmatter(rules_mdc)
+    protocol_body = _strip_yaml_frontmatter(protocol_mdc)
+
+    version_block = (
+        f"> Rules version: `{get_rules_version()}` · "
+        f"Protocol commentary version: `{get_protocol_version()}`\n\n"
+    )
+    combined = (
+        _HOST_NEUTRAL_PREAMBLE
+        + version_block
+        + "---\n\n"
+        + rules_body.lstrip("\n")
+        + "\n\n---\n\n"
+        + protocol_body.lstrip("\n")
+    )
+
+    return [
+        (".cursor/rules/fcop-rules.mdc", rules_mdc),
+        (".cursor/rules/fcop-protocol.mdc", protocol_mdc),
+        ("AGENTS.md", combined),
+        ("CLAUDE.md", combined),
+    ]

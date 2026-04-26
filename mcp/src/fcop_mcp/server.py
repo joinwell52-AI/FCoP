@@ -29,6 +29,7 @@ import os
 import re
 import sys
 import threading
+import warnings
 from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
@@ -362,9 +363,13 @@ def init_project(team: str = "dev-team", lang: str = "zh") -> str:
     """Initialize an FCoP project with a bundled preset team.
 
     Creates ``docs/agents/`` (tasks / reports / issues / shared / log),
-    writes ``docs/agents/fcop.json``, drops the bundled protocol rules
-    into ``.cursor/rules/``, and deploys the team's three-layer role
-    documentation. Idempotent when the project is already initialized
+    writes ``docs/agents/fcop.json``, and (per ADR-0006) deploys the
+    bundled protocol rules to **four** locations so any agent host
+    sees them: ``.cursor/rules/fcop-rules.mdc``,
+    ``.cursor/rules/fcop-protocol.mdc``, ``AGENTS.md``, and
+    ``CLAUDE.md``. Existing copies are archived to
+    ``.fcop/migrations/<timestamp>/rules/`` before being overwritten.
+    Idempotent when the project is already initialized
     (re-running returns the existing status without clobbering files);
     use ``force`` from the library API if you need overwrite behaviour.
 
@@ -378,7 +383,7 @@ def init_project(team: str = "dev-team", lang: str = "zh") -> str:
     """
     try:
         project, _source = _get_project()
-        status = project.init(team=team, lang=lang)
+        status = project.init(team=team, lang=lang, deploy_rules=True)
     except fcop.ProjectAlreadyInitializedError as exc:
         return f"项目已初始化 / already initialized: {exc}"
     except fcop.FcopError as exc:
@@ -392,8 +397,9 @@ def init_project(team: str = "dev-team", lang: str = "zh") -> str:
         f"Roles: {', '.join(cfg.roles)}",
         f"Leader: {cfg.leader}",
         "Directories: tasks/, reports/, issues/, shared/, log/",
+        "Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md",
         "",
-        "下一步 / next: unbound_report 查看状态后，"
+        "下一步 / next: fcop_report 查看状态后，"
         "由 ADMIN 通过『你是 <ROLE>』语句为本会话分配角色。",
     ]
     return "\n".join(lines)
@@ -407,6 +413,10 @@ def init_solo(role_code: str = "ME", role_label: str = "", lang: str = "zh") -> 
     ADMIN. Rule 0.b still applies: the agent uses files to split itself
     into *proposer* and *reviewer*, even though there is no second role.
 
+    Per ADR-0006, this also deploys the bundled protocol rules to
+    ``.cursor/rules/*.mdc`` + ``AGENTS.md`` + ``CLAUDE.md`` (existing
+    copies archived under ``.fcop/migrations/``).
+
     Args:
         role_code: The single role code (uppercase letters / digits /
             underscore, must start with a letter; ``ADMIN`` and
@@ -418,7 +428,9 @@ def init_solo(role_code: str = "ME", role_label: str = "", lang: str = "zh") -> 
     """
     try:
         project, _source = _get_project()
-        status = project.init_solo(role_code=role_code, lang=lang)
+        status = project.init_solo(
+            role_code=role_code, lang=lang, deploy_rules=True
+        )
     except fcop.ProjectAlreadyInitializedError as exc:
         return f"项目已初始化 / already initialized: {exc}"
     except fcop.FcopError as exc:
@@ -432,7 +444,8 @@ def init_solo(role_code: str = "ME", role_label: str = "", lang: str = "zh") -> 
         f"Path: {status.path}\n"
         f"Role: {cfg.leader} ({label})\n"
         f"Lang: {cfg.lang}\n"
-        f"Directories: tasks/, reports/, issues/, shared/, log/"
+        f"Directories: tasks/, reports/, issues/, shared/, log/\n"
+        f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md"
     )
 
 
@@ -449,6 +462,10 @@ def create_custom_team(
     e.g. ``TASK-20260423-001-BOSS-to-CODER.md``. Use ``validate_team_config``
     first to catch illegal role codes without writing anything.
 
+    Per ADR-0006, this also deploys the bundled protocol rules to
+    ``.cursor/rules/*.mdc`` + ``AGENTS.md`` + ``CLAUDE.md`` (existing
+    copies archived under ``.fcop/migrations/``).
+
     Args:
         team_name: Display name for the team (e.g. ``"My Design Studio"``).
         roles: Comma-separated role codes (e.g. ``"BOSS,CODER,TESTER"``).
@@ -463,6 +480,7 @@ def create_custom_team(
             roles=role_list,
             leader=leader.strip().upper(),
             lang=lang,
+            deploy_rules=True,
         )
     except fcop.ProjectAlreadyInitializedError as exc:
         return f"项目已初始化 / already initialized: {exc}"
@@ -476,7 +494,8 @@ def create_custom_team(
         f"Path: {status.path}\n"
         f"Roles: {', '.join(cfg.roles)}\n"
         f"Leader: {cfg.leader}\n"
-        f"Lang: {cfg.lang}"
+        f"Lang: {cfg.lang}\n"
+        f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md"
     )
 
 
@@ -1267,27 +1286,170 @@ def drop_suggestion(content: str, context: str = "") -> str:
 # ─── Protocol meta tools ─────────────────────────────────────────────
 
 
-@mcp.tool
-def unbound_report(lang: str = "zh") -> str:
-    """**FCoP v1.1 Rule 0 — first tool call of every new session.**
+# ── Rule version drift detection (ADR-0006) ──────────────────────────
 
-    Returns one of two reports:
 
-    1. **Initialization report** when ``docs/agents/fcop.json`` is
-       missing. Lists the detected project path + resolution source
-       and the available init modes (Solo / preset teams / custom).
-       Does NOT ask for a role assignment — there's no team yet.
+_LOCAL_RULES_PATH = Path(".cursor") / "rules" / "fcop-rules.mdc"
+_LOCAL_PROTOCOL_PATH = Path(".cursor") / "rules" / "fcop-protocol.mdc"
 
-    2. **UNBOUND report** when the project is initialized but this
-       session has no role. Shows project state and a role-assignment
-       template for ADMIN to fill in.
 
-    While UNBOUND (or uninitialized) the agent MUST NOT read task
-    bodies, write any files (except via the explicit init tools), or
-    claim a role from context clues.
+def _read_local_frontmatter_version(file_path: Path, key: str) -> str | None:
+    """Pull a ``key: <semver>`` line out of a local .mdc's frontmatter.
 
-    Args:
-        lang: Output language, ``zh`` or ``en``. Default: ``zh``.
+    Mirrors the same regex shape ``fcop.rules._extract_frontmatter_version``
+    uses, but kept private here so we don't import a module-private
+    helper across the package boundary. Returns ``None`` for missing
+    files, missing fields, or unparseable content — every failure mode
+    collapses into "no local version detected", which the caller
+    surfaces as a "couldn't read" hint rather than a hard error.
+    """
+    try:
+        text = file_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    pattern = re.compile(
+        r"^" + re.escape(key) + r"\s*:\s*['\"]?([^'\"\s]+)['\"]?\s*$",
+        re.MULTILINE,
+    )
+    match = pattern.search(text)
+    return match.group(1) if match else None
+
+
+def _semver_tuple(version: str | None) -> tuple[int, int, int] | None:
+    """Best-effort semver parse for comparison only.
+
+    Returns ``None`` for ``None`` or for strings that don't start with
+    ``X.Y.Z`` integers — pre-release suffixes (``-rc1``, ``+build``)
+    are ignored so a 1.5.0-rc1 is treated as 1.5.0 for drift purposes.
+    """
+    if version is None:
+        return None
+    match = re.match(r"^\s*(\d+)\.(\d+)\.(\d+)", version)
+    if not match:
+        return None
+    return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
+
+
+def _format_versions_block(project_path: Path, *, is_en: bool) -> str:
+    """Render the ``[Versions]`` section + optional drift warning.
+
+    Always shows: fcop-mcp, fcop, rules (project-local | packaged),
+    protocol (project-local | packaged). Appends a one-paragraph
+    warning when the local rules or protocol version is older than
+    the packaged one — that's the ADMIN-facing prompt to call
+    ``redeploy_rules()``. Newer-than-packaged is rendered as a neutral
+    note (could happen when ADMIN has manually edited or a downgrade
+    is in progress); we don't push an action because there's no safe
+    automated remedy.
+    """
+    from fcop_mcp._version import __version__ as mcp_version
+
+    pkg_rules = fcop.rules.get_rules_version()
+    pkg_protocol = fcop.rules.get_protocol_version()
+    local_rules = _read_local_frontmatter_version(
+        project_path / _LOCAL_RULES_PATH, "fcop_rules_version"
+    )
+    local_protocol = _read_local_frontmatter_version(
+        project_path / _LOCAL_PROTOCOL_PATH, "fcop_protocol_version"
+    )
+
+    def render_pair(local: str | None, packaged: str) -> str:
+        if local is None:
+            return f"(not deployed) | packaged {packaged}" if is_en \
+                else f"（项目本地未部署）| 包内 {packaged}"
+        local_t = _semver_tuple(local)
+        packaged_t = _semver_tuple(packaged)
+        if local_t is None or packaged_t is None or local_t == packaged_t:
+            mark = "✓" if local == packaged else "?"
+            return (
+                f"local {local} | packaged {packaged} {mark}"
+                if is_en
+                else f"项目本地 {local} | 包内 {packaged} {mark}"
+            )
+        if local_t < packaged_t:
+            return (
+                f"local {local} | packaged {packaged} (OUTDATED)"
+                if is_en
+                else f"项目本地 {local} | 包内 {packaged} (本地偏旧)"
+            )
+        return (
+            f"local {local} | packaged {packaged} (newer than package)"
+            if is_en
+            else f"项目本地 {local} | 包内 {packaged} (本地比包还新)"
+        )
+
+    rules_line = render_pair(local_rules, pkg_rules)
+    protocol_line = render_pair(local_protocol, pkg_protocol)
+
+    if is_en:
+        body = (
+            "[Versions]\n"
+            f"  fcop-mcp:  {mcp_version}\n"
+            f"  fcop:      {fcop.__version__}\n"
+            f"  rules:     {rules_line}\n"
+            f"  protocol:  {protocol_line}"
+        )
+    else:
+        body = (
+            "[版本 / Versions]\n"
+            f"  fcop-mcp:  {mcp_version}\n"
+            f"  fcop:      {fcop.__version__}\n"
+            f"  rules:     {rules_line}\n"
+            f"  protocol:  {protocol_line}"
+        )
+
+    drift_lines: list[str] = []
+    rules_drift = (
+        _semver_tuple(local_rules) is not None
+        and _semver_tuple(pkg_rules) is not None
+        and _semver_tuple(local_rules) < _semver_tuple(pkg_rules)  # type: ignore[operator]
+    )
+    protocol_drift = (
+        _semver_tuple(local_protocol) is not None
+        and _semver_tuple(pkg_protocol) is not None
+        and _semver_tuple(local_protocol) < _semver_tuple(pkg_protocol)  # type: ignore[operator]
+    )
+    if rules_drift or protocol_drift:
+        if is_en:
+            drift_lines.append(
+                "\n  ⚠ Project-local protocol files are older than the "
+                "installed package."
+            )
+            drift_lines.append(
+                "    ADMIN, please run `redeploy_rules()` to refresh "
+                ".cursor/rules/*.mdc + AGENTS.md + CLAUDE.md."
+            )
+            drift_lines.append(
+                "    Old files are archived to "
+                ".fcop/migrations/<timestamp>/rules/. Agents must NOT "
+                "invoke redeploy_rules themselves."
+            )
+        else:
+            drift_lines.append(
+                "\n  ⚠ 项目本地协议规则文件比已安装包旧。"
+            )
+            drift_lines.append(
+                "    ADMIN 请调用 `redeploy_rules()` 升级 "
+                ".cursor/rules/*.mdc + AGENTS.md + CLAUDE.md。"
+            )
+            drift_lines.append(
+                "    旧文件会归档到 .fcop/migrations/<时间戳>/rules/。"
+                "Agent 不得自行调用 redeploy_rules。"
+            )
+
+    return body + ("\n" + "\n".join(drift_lines) if drift_lines else "")
+
+
+def _compose_session_report(lang: str) -> str:
+    """Build the `fcop_report` / `unbound_report` body.
+
+    Centralised so the new ``fcop_report`` tool and the deprecated
+    ``unbound_report`` alias can both call it without code drift. The
+    output structure mirrors the legacy ``unbound_report`` (two
+    branches: not-initialized vs initialized-no-role) and inserts a
+    ``[Versions]`` block on each branch, with an ADR-0006 drift
+    warning when the project-local rules or protocol version is
+    older than the wheel-bundled one.
     """
     is_en = lang.lower().startswith("en")
     try:
@@ -1297,6 +1459,8 @@ def unbound_report(lang: str = "zh") -> str:
         return _format_error(exc)
 
     project_path = str(status.path)
+    versions_block = _format_versions_block(status.path, is_en=is_en)
+
     if not status.is_initialized:
         teams = fcop.teams.get_available_teams()
         roster = "\n".join(
@@ -1309,6 +1473,7 @@ def unbound_report(lang: str = "zh") -> str:
                 f"Project path: {project_path}\n"
                 f"Source: {source}\n"
                 "Status: NOT initialized (docs/agents/fcop.json missing)\n\n"
+                f"{versions_block}\n\n"
                 "Available init modes:\n"
                 f"{roster}\n"
                 "  - solo (one role, direct ADMIN ↔ AI, no dispatch)\n"
@@ -1326,6 +1491,7 @@ def unbound_report(lang: str = "zh") -> str:
             f"项目路径 / path: {project_path}\n"
             f"来源 / source: {source}\n"
             "状态 / status: 未初始化（docs/agents/fcop.json 不存在）\n\n"
+            f"{versions_block}\n\n"
             "可选初始化方式：\n"
             f"{roster}\n"
             "  - solo（一个角色，直接对 ADMIN，不做派发）\n"
@@ -1351,6 +1517,7 @@ def unbound_report(lang: str = "zh") -> str:
             f"Project: {project_path}  (source: {source})\n"
             f"Team: {cfg.team}  Leader: {cfg.leader}  Lang: {cfg.lang}\n"
             f"Roles: {', '.join(cfg.roles)}\n\n"
+            f"{versions_block}\n\n"
             f"Tasks: {status.tasks_open} open, {status.tasks_archived} archived\n"
             f"Reports: {status.reports_count}  Issues: {status.issues_count}\n\n"
             "Recent activity:\n"
@@ -1368,6 +1535,7 @@ def unbound_report(lang: str = "zh") -> str:
         f"项目 / project: {project_path}  (来源: {source})\n"
         f"团队 / team: {cfg.team}  负责人 / leader: {cfg.leader}  lang: {cfg.lang}\n"
         f"角色 / roles: {', '.join(cfg.roles)}\n\n"
+        f"{versions_block}\n\n"
         f"任务 tasks: {status.tasks_open} 进行中, {status.tasks_archived} 已归档\n"
         f"报告 reports: {status.reports_count}  问题 issues: {status.issues_count}\n\n"
         "最近活动 / recent activity:\n"
@@ -1380,6 +1548,167 @@ def unbound_report(lang: str = "zh") -> str:
         "  - 从上下文自认角色\n"
         "  - 派发后续任务"
     )
+
+
+@mcp.tool
+def fcop_report(lang: str = "zh") -> str:
+    """**FCoP Rule 0 — first tool call of every new session, also the
+    general project-status report.**
+
+    Returns one of two reports plus a versions block + optional drift
+    warning (ADR-0006):
+
+    1. **Initialization report** when ``docs/agents/fcop.json`` is
+       missing. Lists the detected project path + resolution source
+       and the available init modes (Solo / preset teams / custom).
+       Does NOT ask for a role assignment — there's no team yet.
+
+    2. **UNBOUND report** when the project is initialized but this
+       session has no role. Shows project state and a role-assignment
+       template for ADMIN to fill in.
+
+    In both cases the ``[Versions]`` block reports installed
+    ``fcop-mcp`` / ``fcop`` versions plus the project-local vs
+    packaged versions of the protocol rules. When the project's
+    ``.cursor/rules/*.mdc`` is older than the wheel-bundled copy a
+    drift warning is appended prompting ADMIN to run
+    ``redeploy_rules()``. Agents must NOT invoke redeploy themselves.
+
+    While UNBOUND (or uninitialized) the agent MUST NOT read task
+    bodies, write any files (except via the explicit init tools), or
+    claim a role from context clues.
+
+    .. note::
+        This tool replaces ``unbound_report``. The old name is kept
+        as a deprecated alias and will be removed in fcop-mcp 0.7.0.
+
+    Args:
+        lang: Output language, ``zh`` or ``en``. Default: ``zh``.
+    """
+    return _compose_session_report(lang)
+
+
+@mcp.tool
+def unbound_report(lang: str = "zh") -> str:
+    """Deprecated alias for :func:`fcop_report`. Removed in 0.7.0.
+
+    Identical behaviour to :func:`fcop_report` — emits a
+    :class:`DeprecationWarning` on every invocation. Existing system
+    prompts and `LETTER-TO-ADMIN.md` references continue to work
+    until 0.7.0; new code should call ``fcop_report``.
+
+    Args:
+        lang: Output language, ``zh`` or ``en``. Default: ``zh``.
+    """
+    warnings.warn(
+        "unbound_report is deprecated; use fcop_report instead. "
+        "This alias will be removed in fcop-mcp 0.7.0. "
+        "See ADR-0006 for the rationale.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return _compose_session_report(lang)
+
+
+@mcp.tool
+def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -> str:
+    """**ADMIN-only.** Re-deploy bundled FCoP protocol rules to the project.
+
+    Writes the wheel-bundled :file:`fcop-rules.mdc` /
+    :file:`fcop-protocol.mdc` to **four** locations so any agent host
+    the project runs under sees the same rules:
+
+    .. code-block:: text
+
+        <root>/.cursor/rules/fcop-rules.mdc       # Cursor IDE
+        <root>/.cursor/rules/fcop-protocol.mdc    # Cursor IDE
+        <root>/AGENTS.md                          # Codex / Cursor / Devin / generic
+        <root>/CLAUDE.md                          # Claude Code CLI
+
+    Run this **after** ``pip install -U fcop-mcp`` (or ``-U fcop``)
+    to refresh on-disk copies to the newly packaged versions.
+    ``fcop_report()`` shows when this is needed via the version
+    drift warning.
+
+    Per ADR-0006, agents must NOT invoke this tool themselves —
+    only ADMIN does, explicitly.
+
+    Args:
+        force: When ``True`` (default) overwrite existing copies.
+            ``False`` skips files that already exist (no-op for an
+            up-to-date project).
+        archive: When ``True`` (default) and ``force=True``, the
+            existing copy is moved to
+            :file:`.fcop/migrations/<timestamp>/rules/<rel>` before
+            being overwritten so ADMIN can diff or roll back.
+            ``False`` skips archiving (destructive — only safe when
+            the project has no local edits).
+        lang: Output language, ``zh`` or ``en``.
+    """
+    is_en = lang.lower().startswith("en")
+    try:
+        project, _source = _get_project()
+        report = project.deploy_protocol_rules(force=force, archive=archive)
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    deployed_count = len(report.deployed)
+    skipped_count = len(report.skipped)
+    archived_count = len(report.archived)
+
+    if is_en:
+        lines = [
+            "=== FCoP Rule Redeployment ===",
+            f"Project: {project.path}",
+            f"Rules version (packaged):     {fcop.rules.get_rules_version()}",
+            f"Protocol version (packaged):  {fcop.rules.get_protocol_version()}",
+            "",
+            f"Deployed: {deployed_count}",
+        ]
+        for path in report.deployed:
+            lines.append(f"  + {path.relative_to(project.path)}")
+        if skipped_count:
+            lines.append(f"\nSkipped (already exist, force=False): {skipped_count}")
+            for path in report.skipped:
+                lines.append(f"  - {path.relative_to(project.path)}")
+        if archived_count:
+            lines.append(f"\nArchived: {archived_count}")
+            archive_root = report.migration_dir
+            if archive_root is not None:
+                lines.append(f"  Migration dir: {archive_root.relative_to(project.path)}")
+        lines.append(
+            "\nAgent hosts will pick up the new rules on next session restart "
+            "(Cursor: reload window; Claude Code: restart CLI; Codex: restart task)."
+        )
+        return "\n".join(lines)
+
+    lines = [
+        "=== FCoP 协议规则重新部署 ===",
+        f"项目 / project: {project.path}",
+        f"包内 rules 版本:    {fcop.rules.get_rules_version()}",
+        f"包内 protocol 版本: {fcop.rules.get_protocol_version()}",
+        "",
+        f"已部署 / deployed: {deployed_count}",
+    ]
+    for path in report.deployed:
+        lines.append(f"  + {path.relative_to(project.path)}")
+    if skipped_count:
+        lines.append(f"\n已跳过（force=False 且文件已存在）: {skipped_count}")
+        for path in report.skipped:
+            lines.append(f"  - {path.relative_to(project.path)}")
+    if archived_count:
+        lines.append(f"\n已归档 / archived: {archived_count}")
+        archive_root = report.migration_dir
+        if archive_root is not None:
+            lines.append(
+                f"  归档目录 / migration dir: "
+                f"{archive_root.relative_to(project.path)}"
+            )
+    lines.append(
+        "\nAgent host 重启后才会读到新规则（Cursor: 重载窗口；"
+        "Claude Code: 重启 CLI；Codex: 重启任务）。"
+    )
+    return "\n".join(lines)
 
 
 @mcp.tool

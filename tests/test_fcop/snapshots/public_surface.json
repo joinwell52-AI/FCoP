@@ -378,6 +378,29 @@
         ],
         "return": "Task"
       },
+      "deploy_protocol_rules": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "force"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "archive"
+          }
+        ],
+        "return": "DeploymentReport"
+      },
       "deploy_role_templates": {
         "params": [
           {
@@ -455,6 +478,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "force"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "deploy_rules"
           }
         ],
         "return": "ProjectStatus"
@@ -496,6 +525,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "force"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "deploy_rules"
           }
         ],
         "return": "ProjectStatus"
@@ -525,6 +560,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "force"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "deploy_rules"
           }
         ],
         "return": "ProjectStatus"
@@ -1009,6 +1050,10 @@
         "params": [],
         "return": "str"
       },
+      "get_protocol_version": {
+        "params": [],
+        "return": "str"
+      },
       "get_rules": {
         "params": [],
         "return": "str"
@@ -1021,6 +1066,7 @@
     "exports": [
       "get_letter",
       "get_protocol_commentary",
+      "get_protocol_version",
       "get_rules",
       "get_rules_version"
     ]

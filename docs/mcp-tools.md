@@ -8,7 +8,7 @@
 
 ## 总览
 
-- **工具（tools）24 个**：调用方主动触发，写盘或返回报告。  
+- **工具（tools）26 个**（其中 `unbound_report` 自 0.6.3 起 **deprecated**，0.7.0 删除）：调用方主动触发，写盘或返回报告。
 - **资源（resources）10 个**（含 `fcop://teams/{team}` 模板族）：只读 URI，常用于把规则/状态以引用方式塞进上下文。
 
 > 看名字与参数清单（机器可读、CI 校验）：[`tests/test_fcop_mcp/snapshots/tool_surface.json`](../tests/test_fcop_mcp/snapshots/tool_surface.json)。  
@@ -20,8 +20,9 @@
 
 | 工具 | 何时调 | 关键参数 |
 |---|---|---|
-| `unbound_report` | **每个新 MCP 会话的第一个调用**（FCoP Rule 0）。返回项目状态；**未初始化**时给出三选一初始化建议；**已初始化但本会话未认领角色**时输出 UNBOUND 报告，等 ADMIN 用「你是 \<ROLE\>」赋角色。 | `lang`（`zh` / `en`） |
-| `set_project_dir` | MCP 把项目根定位错了（典型：`unbound_report` 显示 `C:\Users\…` 不是你打开的工程）。**不改 `mcp.json`、不重启 Cursor**就能切到正确目录；UNBOUND 状态下也安全。 | `path`（绝对路径，目录须存在） |
+| `fcop_report` | **每个新 MCP 会话的第一个调用**（FCoP Rule 0）。返回项目状态；**未初始化**时给出三选一初始化建议；**已初始化但本会话未认领角色**时输出 UNBOUND 报告，等 ADMIN 用「你是 \<ROLE\>」赋角色。报告头部含 `[版本] / [Versions]` 段，自动比对本地 `.cursor/rules/` 与 wheel 内捆绑版本，漂移时提示 ADMIN 调 `redeploy_rules`。 | `lang`（`zh` / `en`） |
+| `set_project_dir` | MCP 把项目根定位错了（典型：`fcop_report` 显示 `C:\Users\…` 不是你打开的工程）。**不改 `mcp.json`、不重启 Cursor**就能切到正确目录；UNBOUND 状态下也安全。 | `path`（绝对路径，目录须存在） |
+| `unbound_report` | **deprecated**（0.6.3）。`fcop_report` 的别名，行为完全相同；调用即触发 `DeprecationWarning`，**0.7.0 移除**。把 system prompt / `LETTER-TO-ADMIN.md` 里的 `unbound_report` 改成 `fcop_report` 即可。 | `lang`（同上） |
 
 ---
 
@@ -99,8 +100,9 @@
 |---|---|---|
 | `check_update` | 比对本地 `fcop-mcp` 与 PyPI 最新版（不写盘、不安装）。 | `lang` |
 | `upgrade_fcop` | 打印**针对你的安装方式**（`pip` / `pipx` / `uvx`）的升级命令。**不**自动跑 pip——MCP 进程不能安全自升。 | `lang` |
+| `redeploy_rules` | **ADMIN-only**（agent 不应主动调）。把 wheel 里的四份协议规则——`.cursor/rules/fcop-rules.mdc`、`.cursor/rules/fcop-protocol.mdc`、`AGENTS.md`、`CLAUDE.md`——host-neutral 地写到项目根。`force=True` 覆写，`archive=True` 先把旧文件归档到 `.fcop/migrations/<时间戳>/rules/`。何时调：`fcop_report` 显示版本漂移、或 ADMIN 在聊天框明确说"重部署规则"。背景：[ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)。 | `force`（默认 `True`）、`archive`（默认 `True`）、`lang` |
 
-> 详细的升级流程（同环境升两包、重启 IDE、自检命令）：[`docs/upgrade-fcop-mcp.md`](./upgrade-fcop-mcp.md)。
+> 详细的升级流程（同环境升两包、重启 IDE、自检命令、协议规则文件升级）：[`docs/upgrade-fcop-mcp.md`](./upgrade-fcop-mcp.md)。
 
 ---
 

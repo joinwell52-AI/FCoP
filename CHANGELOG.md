@@ -10,9 +10,100 @@ versioning strategy.
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-04-26
+
+Lockstep release with two thrusts: (1) ratify **ADR-0006**, the
+host-neutral protocol-rule distribution & upgrade contract, so
+`fcop-mcp` finally writes the protocol rules to disk in a form every
+MCP host can read (Cursor `.mdc`, plus `AGENTS.md` / `CLAUDE.md`); and
+(2) rename `unbound_report` → `fcop_report` because the tool is the
+canonical project-status report, not just the unbound-session
+warning. All changes are additive per ADR-0003 (Pre-1.0 Stability
+Charter); every removed-in-0.7.0 alias is shipped through one full
+deprecation cycle. See [`docs/releases/0.6.3.md`](./docs/releases/0.6.3.md).
+
+### Added — governance
+
+- **ADR-0006 Host-Neutral Rule Distribution & Upgrade** ratified
+  ([`adr/ADR-0006`](./adr/ADR-0006-host-neutral-rule-distribution.md)).
+  Codifies that the protocol rule files (`fcop-rules.mdc`,
+  `fcop-protocol.mdc`) must reach every supported host (Cursor,
+  Claude Desktop, Claude Code CLI, Codex CLI, raw API scripts) and
+  that there must be an explicit, ADMIN-controlled upgrade path when
+  the wheel-bundled rules drift past the project-local copy.
+
+### Added — fcop (library)
+
+- **`fcop.rules.get_protocol_version()`** — returns the SemVer of the
+  shipped commentary (`fcop-protocol.mdc`), symmetric to the existing
+  `get_rules_version()`. The two documents version independently so a
+  wording-only edit to the commentary doesn't force a rules bump and
+  vice versa. Used by `Project.deploy_protocol_rules` and the MCP
+  layer's `fcop_report` / `redeploy_rules` to detect drift.
+- **`Project.deploy_protocol_rules(force=True, archive=True)`** — host-
+  neutral redeploy of the four protocol-rule targets to the project
+  root: `.cursor/rules/fcop-rules.mdc` + `.cursor/rules/fcop-protocol.mdc`
+  (Cursor), plus YAML-frontmatter-stripped `AGENTS.md` (Codex CLI) and
+  `CLAUDE.md` (Claude Code CLI). Stale targets are archived under
+  `.fcop/migrations/<ts>/rules/` before being overwritten. Returns a
+  `DeploymentReport` listing every file touched.
+- **`Project.init(deploy_rules=True)`** — `deploy_rules` now wires
+  through `deploy_protocol_rules` so a fresh project ships with the
+  four rule targets already on disk. Existing call sites that don't
+  pass the flag are unchanged.
+
+### Added — fcop-mcp (MCP server)
+
+- **`fcop_report(lang)`** — new canonical session-status / init report
+  tool. Same body shape as the legacy `unbound_report` plus a
+  `[Versions]` / `[版本]` block surfacing `fcop-mcp`, `fcop`, and
+  the local-vs-bundled rules / protocol versions, with an `OUTDATED`
+  / `本地偏旧` marker + `redeploy_rules` prompt when drift is
+  detected. Replaces `unbound_report` for all new system prompts.
+- **`redeploy_rules(force=True, archive=True, lang)`** — ADMIN-only
+  thin wrapper over `Project.deploy_protocol_rules`. Agents must not
+  invoke directly (the docstring says so), but the MCP surface stays
+  symmetric with `deploy_role_templates` so ADMIN can call it from
+  the chat box. The 24-tool count is now **26** with these two
+  additions; the snapshot
+  (`tests/test_fcop_mcp/snapshots/tool_surface.json`) is updated
+  accordingly per ADR-0003 commitment #2.
+
+### Deprecated — fcop-mcp
+
+- **`unbound_report`** is now a thin alias of `fcop_report` and emits
+  `DeprecationWarning("unbound_report is deprecated; use fcop_report
+  instead. This alias will be removed in fcop-mcp 0.7.0. See ADR-0006
+  for the rationale.")` on every call. The tool stays in the public
+  surface for one full minor (per ADR-0003 deprecation cycle); 0.7.0
+  removes the name. Migration is purely lexical: replace every
+  `unbound_report` in your system prompts with `fcop_report`.
+
+### Tests
+
+- **15 new tests** for `fcop`: `tests/test_fcop/test_rules.py` adds
+  `TestGetProtocolVersion`; new file
+  `tests/test_fcop/test_project_deploy_protocol.py` covers the four
+  deployment targets, byte-exactness of `.mdc`, frontmatter stripping
+  for `AGENTS.md` / `CLAUDE.md`, idempotency, archival, and the
+  `Project.init(deploy_rules=True)` integration path. Public-surface
+  snapshot regenerated for the additive `Project.deploy_protocol_rules`
+  + `fcop.rules.get_protocol_version` exports.
+- **9 new tests** for `fcop-mcp`:
+  `tests/test_fcop_mcp/test_server.py::TestSessionReportAndRedeploy`
+  covers `fcop_report` (uninitialized / initialized / `[Versions]`
+  block / English variant / drift warning), the `unbound_report`
+  alias (still works + `DeprecationWarning` is emitted), and
+  `redeploy_rules` (writes four targets + archives stale files).
+  Tool-surface snapshot regenerated for the additive
+  `fcop_report` / `redeploy_rules` registrations.
+
 ### CI
 
-- **`.github/workflows/release.yml`**: `verify` 步骤改为只从 `^__version__ =` 行解析版本；不再用「文件中首段双引号内文字」，避免匹配到 `src/fcop/_version.py` 里 **`"semver 承诺"`** 导致 tag 发版在 verify 即失败。行为与发版后用户升级无直接关系。
+- **`.github/workflows/release.yml`**: `verify` 步骤改为只从
+  `^__version__ =` 行解析版本；不再用「文件中首段双引号内文字」，避免
+  匹配到 `src/fcop/_version.py` 里 **`"semver 承诺"`** 导致 tag 发版
+  在 verify 即失败。行为与发版后用户升级无直接关系。
 
 ## [0.6.2] - 2026-04-25
 

@@ -378,10 +378,10 @@ list_workspaces()
 
 | 你说的话 | Agent 会调 | 结果 |
 |---|---|---|
-| （新会话开口第一句） | `unbound_report()` | Agent 先汇报项目状态，没初始化/没指派角色都会告诉你 |
+| （新会话开口第一句） | `fcop_report()` | Agent 先汇报项目状态，没初始化/没指派角色都会告诉你 |
 | "初始化 Solo 项目" / "一个人做" | `init_solo(role_code="ME")` | 落 `fcop.json`、建目录、部署规则和信、建 `workspace/` |
 | "初始化开发团队" / "我要个 4 人团队" | `init_project("dev-team")` 或 `create_custom_team(...)` | 同上，但是多角色 |
-| "MCP 目录绑错了" / `unbound_report` 里看到 `C:\Users\xxx` | `set_project_dir("E:\\你的项目")` | 运行时重绑，不用改配置也不用重启 |
+| "MCP 目录绑错了" / `fcop_report` 里看到 `C:\Users\xxx` | `set_project_dir("E:\\你的项目")` | 运行时重绑，不用改配置也不用重启 |
 | "你是 PM" / "你是 ME" | （不调工具，Agent 记下身份） | 进入 Phase 3，可以开始干活 |
 
 ### 日常干活
@@ -410,9 +410,9 @@ list_workspaces()
 
 ### 真正"你可能直接用到"的只有 2 个工具名
 
-- **`unbound_report`**：新会话 Agent 没自动汇报时，你说"先汇报"或直接
-  说"调 `unbound_report`"催它一下。
-- **`set_project_dir`**：发现 MCP 绑错目录（`unbound_report` 输出的项目
+- **`fcop_report`**：新会话 Agent 没自动汇报时，你说"先汇报"或直接
+  说"调 `fcop_report`"催它一下。
+- **`set_project_dir`**：发现 MCP 绑错目录（`fcop_report` 输出的项目
   路径是 `C:\Users\xxx` 之类），你说"绑到 `E:\你的项目`"或直接说
   "调 `set_project_dir("...")`"。
 
@@ -471,7 +471,7 @@ list_workspaces()
 打开 Cursor 的 MCP 面板能看到这 22 个工具每个旁边有个开关。点一下
 变灰 = 禁用。**其中这 2 个一灰你就惨了**：
 
-- `unbound_report` —— 灰了 Rule 0 失效，Agent 新会话没法做第一步
+- `fcop_report` —— 灰了 Rule 0 失效，Agent 新会话没法做第一步
 - `set_project_dir` —— 灰了 MCP 绑错目录时你只能改 `mcp.json` + 重启
 
 剩下的 20 个你用不到的可以灰——不过 Agent 突然少了工具会一脸懵，
@@ -486,7 +486,7 @@ list_workspaces()
 | 0.a | 落文件 | 聊天里的话没落成文件 = 没发生 |
 | 0.b | 多角色制衡 | 不允许一个 AI 独自完成决策到执行 |
 | **0.c** | **只落真话** | **不捏造、不臆断、引用必带出处** |
-| 1 | UNBOUND | Agent 新会话先调 `unbound_report()`，等你指派身份 |
+| 1 | UNBOUND | Agent 新会话先调 `fcop_report()`，等你指派身份 |
 
 完整 9 条在 `.cursor/rules/fcop-rules.mdc`（Agent 会自动读）。
 协议解释（命名、YAML、目录、巡检、0.c 的出处格式等）在
@@ -498,7 +498,7 @@ list_workspaces()
 
 FCoP 工具箱（`fcop` Python 包）会有版本更新。从 0.5.3 开始你什么都不用记：
 
-**每次新会话开始时，Agent 跑的 `unbound_report()` 会自动在末尾告诉你有没有新版。**
+**每次新会话开始时，Agent 跑的 `fcop_report()` 会自动在末尾告诉你有没有新版。**
 
 长这样：
 

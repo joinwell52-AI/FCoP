@@ -132,6 +132,16 @@
       ]
     },
     {
+      "name": "fcop_report",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "get_available_teams",
       "params": [
         {
@@ -337,6 +347,26 @@
         {
           "name": "filename",
           "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "redeploy_rules",
+      "params": [
+        {
+          "name": "archive",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "lang",
+          "required": false,
           "type": "string"
         }
       ]

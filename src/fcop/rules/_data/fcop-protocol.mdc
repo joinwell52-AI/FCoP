@@ -1,7 +1,7 @@
 ---
 description: FCoP Protocol — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 1.3.0
+fcop_protocol_version: 1.4.0
 ---
 
 <!--
@@ -255,7 +255,7 @@ pair of principles landing in a specific layer.
 **You start every new session as UNBOUND.** An UNBOUND agent has no role,
 no team, no thread. Before doing anything else you must:
 
-1. **Call `unbound_report()`.** Without MCP, produce the same report by hand:
+1. **Call `fcop_report()`.** Without MCP, produce the same report by hand:
    project path, `fcop.json` contents, visible `.cursor/rules/*.mdc`,
    active threads grouped by `thread_key` (**frontmatter only — NEVER read
    task bodies**), and `fcop-rules.mdc` + `fcop-protocol.mdc` hash/version.
@@ -277,7 +277,7 @@ clues alone**.
 新会话默认 **UNBOUND**。UNBOUND 的 Agent 没有角色、没有团队、没有线程。
 做任何事之前必须：
 
-1. 调 `unbound_report()`。没有 MCP 时手工出同等报告：项目路径、
+1. 调 `fcop_report()`。没有 MCP 时手工出同等报告：项目路径、
    `fcop.json` 内容、能看到的 `.cursor/rules/*.mdc`、按 `thread_key`
    去重的活跃线程（**只读 frontmatter，绝不读任务正文**）、
    `fcop-rules.mdc` 与 `fcop-protocol.mdc` 的 hash/版本。
@@ -916,7 +916,7 @@ Three things the protocol explicitly grants you:
   跨域组织空白。提案存证：`.fcop/proposals/20260421-171851.md`。
 
   Clauses / 条款清单:
-  - **0** · Session Startup / UNBOUND Protocol — `unbound_report()` +
+  - **0** · Session Startup / UNBOUND Protocol — `fcop_report()` +
     explicit ADMIN assignment before any write.
     会话启动 · UNBOUND 协议。
   - **1** · Solo vs Team Mode — `fcop.json` declares `mode`.
@@ -1028,3 +1028,90 @@ Patrol result / 巡检结果：
   完成任务后必须写报告（或派出后续任务）。
 - Always record blockers as `ISSUE-*.md` under `issues/`.
   阻塞 / 风险必须写成 `ISSUE-*.md` 落到 `issues/`。
+
+---
+
+## Protocol Rule Distribution & Upgrade · 协议规则的分发与升级
+
+> 本节自 `fcop_protocol_version: 1.4.0` 引入；规范性背景见 ADR-0006。
+> Introduced in `fcop_protocol_version: 1.4.0`; see ADR-0006 for the
+> normative background.
+
+### 三处部署，宿主中立 / Three deploy targets, host-neutral
+
+`fcop` 包同时把规则部署到项目根的**四个文件**，让 Cursor / Claude Code /
+Codex / 任何 LLM SDK 都能拿到同一份 FCoP 规则：
+
+```
+<project>/.cursor/rules/fcop-rules.mdc        # Cursor 自动注入 system prompt
+<project>/.cursor/rules/fcop-protocol.mdc     # Cursor 自动注入 system prompt
+<project>/AGENTS.md                           # Codex / Cursor / Devin / 通用 SDK
+<project>/CLAUDE.md                           # Claude Code CLI
+```
+
+`AGENTS.md` 与 `CLAUDE.md` 内容字节相同（业界两个互不重叠的事实标准都得各
+自一份）；它们承载的是 `fcop-rules.mdc` + `fcop-protocol.mdc` 的合体内容
+（去掉 Cursor 私有的 YAML frontmatter）。
+
+The `fcop` package deploys the rules to **four files at the project
+root** so Cursor, Claude Code, Codex, and any LLM SDK pick up the same
+content. `AGENTS.md` and `CLAUDE.md` are byte-identical (two
+non-overlapping de-facto standards each need their own copy); they
+carry the combined content of `fcop-rules.mdc` + `fcop-protocol.mdc`
+with the Cursor-specific YAML frontmatter stripped.
+
+### 包升级不会自动改项目文件 / Package upgrade does not auto-upgrade project files
+
+`pip install -U fcop[-mcp]` 只升级 wheel 里的规则文件——**不会**动项目
+里的副本（哪怕项目里那份是去年的版本）。理由是 Rule 8：agent 不得修改
+`.cursor/rules/*.mdc`，更不能在用户没明确要求时覆盖项目规则。
+
+`pip install -U fcop[-mcp]` only updates the wheel-bundled rules; it
+does **not** touch the project's local copy (even if that copy is a
+year old). This is by Rule 8: agents must not modify
+`.cursor/rules/*.mdc`, much less overwrite project rules without
+explicit ADMIN intent.
+
+### 升级路径 · ADMIN 显式调 / Upgrade path · ADMIN runs the tool explicitly
+
+| 触发方式 / Trigger | 谁调 / Who | 行为 / Behavior |
+|---|---|---|
+| MCP 工具 `redeploy_rules()` | ADMIN（在 IDE 聊天里发指令）| `force=True, archive=True`：覆盖四份目标文件，旧文件归档到 `.fcop/migrations/<时间戳>/rules/` |
+| Python `Project.deploy_protocol_rules(force=True)` | 库脚本 / 自动化 | 同上 |
+| `Project.init(deploy_rules=True)` 等 | 库 / MCP 初始化 | 首次部署，纯库 import 默认 `False`；MCP 层 `init_project` 默认 `True` |
+
+Agent **不得**自行调用 `redeploy_rules()`（Rule 8 + ADR-0006）。
+Agents **must not** invoke `redeploy_rules()` themselves
+(Rule 8 + ADR-0006).
+
+### 版本告警 / Version drift warning
+
+`fcop_report()`（旧名 `unbound_report()`）会自动比对：
+
+- **项目本地版本**：项目根 `.cursor/rules/fcop-rules.mdc` frontmatter 里
+  的 `fcop_rules_version` 字段
+- **包内版本**：已安装 wheel 里 `fcop.rules.get_rules_version()` 的返回值
+
+两者不一致时，工具输出底部会插入一段提醒，提示 ADMIN 调 `redeploy_rules()`。
+Agent 收到提醒后**不得**自行升级，只能告知 ADMIN。
+
+`fcop_report()` (formerly `unbound_report()`) compares the
+project-local version (read from
+`.cursor/rules/fcop-rules.mdc` frontmatter) against the package
+version (`fcop.rules.get_rules_version()`). On mismatch, the tool
+output appends a warning prompting ADMIN to run `redeploy_rules()`.
+The agent must surface the warning to ADMIN; it must not upgrade
+unilaterally.
+
+### 工具改名 · `unbound_report` → `fcop_report` / Tool rename
+
+- `unbound_report()` 在 `fcop-mcp` 0.6.3 起改名为 `fcop_report()`，原因：
+  会话开始 / 包升级 / 任何状态查询都可能调它，「unbound」字面只匹配
+  「无角色」一种状态，名字过窄。
+- 旧名 `unbound_report()` 保留为 deprecated alias（行为与新名等价，调用
+  时打 `DeprecationWarning`），**计划在 0.7.0 删除**。
+- The tool was renamed in `fcop-mcp` 0.6.3 because "unbound" only
+  matches the "no role" state; the tool is also useful after package
+  upgrades and at any status check. The old name remains as a
+  deprecated alias (same behavior, emits `DeprecationWarning`) and
+  **will be removed in 0.7.0**.

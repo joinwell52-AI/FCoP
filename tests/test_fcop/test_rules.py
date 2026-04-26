@@ -26,6 +26,7 @@ from fcop.errors import FcopError
 from fcop.rules import (
     get_letter,
     get_protocol_commentary,
+    get_protocol_version,
     get_rules,
     get_rules_version,
 )
@@ -89,6 +90,52 @@ class TestGetRulesVersion:
         assert re.fullmatch(r"\d+\.\d+\.\d+(-[\w.]+)?", version), (
             f"unexpected rules version shape: {version!r}"
         )
+
+
+class TestGetProtocolVersion:
+    """Symmetric to :class:`TestGetRulesVersion`.
+
+    The rules document and the protocol commentary version
+    independently — :func:`get_protocol_version` is the second
+    half of that pair, added in 0.6.3 (ADR-0006). It feeds
+    :meth:`Project.deploy_protocol_rules` and the MCP layer's
+    ``redeploy_rules`` so agents can detect a stale on-disk copy.
+    """
+
+    def test_semver_shape(self) -> None:
+        version = get_protocol_version()
+        assert re.fullmatch(r"\d+\.\d+\.\d+(-[\w.]+)?", version), (
+            f"unexpected protocol version shape: {version!r}"
+        )
+
+    def test_independent_of_rules_version(self) -> None:
+        # Both must parse, but they're separate strings — confirms we
+        # didn't accidentally wire get_protocol_version through the
+        # rules-document loader.
+        rules_v = get_rules_version()
+        protocol_v = get_protocol_version()
+        # Even if they happen to coincide today, the *sources* are
+        # different files; assert by re-loading both and checking the
+        # commentary file actually carries fcop_protocol_version.
+        commentary_text = get_protocol_commentary()
+        assert "fcop_protocol_version:" in commentary_text
+        assert protocol_v in commentary_text
+        # Sanity: neither is empty.
+        assert rules_v and protocol_v
+
+    def test_malformed_frontmatter_raises(self, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+        # Same failure-mode contract as the rules version: when the
+        # bundled commentary lacks a parseable version line, surface
+        # FcopError loudly with a key-specific message.
+        from fcop import rules as rules_mod
+
+        monkeypatch.setattr(
+            rules_mod,
+            "get_protocol_commentary",
+            lambda: "---\nno version here\n---\n# empty\n",
+        )
+        with pytest.raises(FcopError, match="fcop_protocol_version"):
+            rules_mod.get_protocol_version()
 
 
 # ── Packaging sanity ─────────────────────────────────────────────────

@@ -407,10 +407,10 @@ agent forgets what to do, you can spot it and nudge it back.
 
 | You say | Agent calls | Outcome |
 |---|---|---|
-| (first sentence of a new session) | `unbound_report()` | Agent reports project state; tells you if it's uninitialized or unassigned |
+| (first sentence of a new session) | `fcop_report()` | Agent reports project state; tells you if it's uninitialized or unassigned |
 | "initialize a Solo project" / "I'll do it myself" | `init_solo(role_code="ME")` | Writes `fcop.json`, creates directories, deploys rules + letter, creates `workspace/` |
 | "initialize a dev team" / "I want a 4-role team" | `init_project("dev-team")` or `create_custom_team(...)` | Same as above, multi-role |
-| "MCP is bound to the wrong dir" / `unbound_report` shows `C:\Users\xxx` | `set_project_dir("E:\\your-project")` | Rebinds at runtime; no config edits, no restart |
+| "MCP is bound to the wrong dir" / `fcop_report` shows `C:\Users\xxx` | `set_project_dir("E:\\your-project")` | Rebinds at runtime; no config edits, no restart |
 | "you are PM" / "you are ME" | (no tool call; the agent just remembers its role) | Enters Phase 3 and starts working |
 
 ### Day-to-day work
@@ -439,10 +439,10 @@ agent forgets what to do, you can spot it and nudge it back.
 
 ### The only 2 tool names you might actually type
 
-- **`unbound_report`** — if a new session's agent doesn't auto-report,
-  just say "report first" or literally "call `unbound_report`".
+- **`fcop_report`** — if a new session's agent doesn't auto-report,
+  just say "report first" or literally "call `fcop_report`".
 - **`set_project_dir`** — when you see the MCP bound to the wrong
-  directory (e.g. `unbound_report` shows a `C:\Users\xxx` path), say
+  directory (e.g. `fcop_report` shows a `C:\Users\xxx` path), say
   "bind to `E:\your-project`" or literally "call `set_project_dir("...")`".
 
 **The other 20 are never yours to memorize**. The agent picks.
@@ -460,7 +460,7 @@ Because FCoP tells it in three places **at once**:
 
 So your job is just plain language. If the agent misses something
 obvious (e.g. doesn't open a workspace when it should, or skips
-`unbound_report`), point it at the relevant row of this letter — the
+`fcop_report`), point it at the relevant row of this letter — the
 correction takes one line.
 
 ### 14 resources (agent-only; you never touch these)
@@ -504,7 +504,7 @@ correction takes one line.
 Cursor's MCP panel shows these 22 tools as buttons. Click → greyed =
 disabled. **Greying these two will hurt you**:
 
-- `unbound_report` — greyed out, Rule 0 breaks; agents can't take
+- `fcop_report` — greyed out, Rule 0 breaks; agents can't take
   their mandatory first step
 - `set_project_dir` — greyed out, your only rescue for a
   wrong-directory binding is editing `mcp.json` + restarting Cursor
@@ -521,7 +521,7 @@ confused when a tool suddenly disappears — **keep them all enabled**.
 | 0.a | Land it as a file | Unfiled chat = never happened |
 | 0.b | Multi-role checks | No single AI does decision-to-execution alone |
 | **0.c** | **Only land true things** | **No fabrication; every reference cited** |
-| 1 | UNBOUND | New sessions call `unbound_report()` first and wait for you |
+| 1 | UNBOUND | New sessions call `fcop_report()` first and wait for you |
 
 Full 9-rule set: `.cursor/rules/fcop-rules.mdc` (agents read it
 automatically). Commentary (naming, YAML, layout, patrol, citation
@@ -534,7 +534,7 @@ formats for 0.c, …): `.cursor/rules/fcop-protocol.mdc`.
 The FCoP toolbox (the `fcop` Python package) gets updates. From 0.5.3 on,
 you don't have to remember anything:
 
-**Every new session's `unbound_report()` automatically tells you at the
+**Every new session's `fcop_report()` automatically tells you at the
 tail whether a new version is available.**
 
 It looks like this:

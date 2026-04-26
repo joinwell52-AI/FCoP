@@ -28,6 +28,7 @@ __all__ = [
     "get_protocol_commentary",
     "get_letter",
     "get_rules_version",
+    "get_protocol_version",
 ]
 
 
@@ -44,6 +45,11 @@ _LETTER_FILENAMES: dict[str, str] = {
 # sync with the _data/fcop-rules.mdc header — bumped when the .mdc
 # changes semantically, independent of :data:`fcop.__version__`.
 _RULES_VERSION_KEY = "fcop_rules_version"
+
+# Frontmatter key that pins the semver of the protocol commentary.
+# The two are independent: rules can bump without touching the
+# commentary and vice versa, so each carries its own version field.
+_PROTOCOL_VERSION_KEY = "fcop_protocol_version"
 
 
 # ── Public API ───────────────────────────────────────────────────────
@@ -99,11 +105,40 @@ def get_rules_version() -> str:
             should surface loudly.
     """
     text = get_rules()
-    version = _extract_frontmatter_version(text)
+    version = _extract_frontmatter_version(text, _RULES_VERSION_KEY)
     if version is None:
         raise FcopError(
             f"{_RULES_FILENAME!r} is missing a parseable "
             f"{_RULES_VERSION_KEY!r} frontmatter field"
+        )
+    return version
+
+
+def get_protocol_version() -> str:
+    """Return the semver of the shipped protocol commentary, e.g. ``"1.3.0"``.
+
+    Symmetric to :func:`get_rules_version`: the rules document
+    (`fcop-rules.mdc`) and the protocol commentary
+    (`fcop-protocol.mdc`) version independently so a wording-only
+    edit to the commentary doesn't force a rules bump and vice versa.
+
+    Used by :class:`fcop.Project.deploy_protocol_rules` (and the MCP
+    layer's ``fcop_report`` / ``redeploy_rules``) to detect when a
+    project's local copy of the commentary has drifted from the
+    bundled wheel and an explicit redeploy is needed.
+
+    Raises:
+        FcopError: the bundled commentary file lacks a parseable
+            ``fcop_protocol_version:`` field. Indicates a packaging
+            bug — surfaces loudly rather than silently substituting
+            a placeholder.
+    """
+    text = get_protocol_commentary()
+    version = _extract_frontmatter_version(text, _PROTOCOL_VERSION_KEY)
+    if version is None:
+        raise FcopError(
+            f"{_PROTOCOL_FILENAME!r} is missing a parseable "
+            f"{_PROTOCOL_VERSION_KEY!r} frontmatter field"
         )
     return version
 
@@ -127,23 +162,22 @@ def _load_text(name: str) -> str:
     return data_dir.joinpath(name).read_text(encoding="utf-8")
 
 
-# Matches `fcop_rules_version: 1.4.0` on its own line, optionally
-# quoted. Quoting is tolerated because YAML permits it and hand-edited
-# files sometimes arrive that way.
-_VERSION_RE = re.compile(
-    r"^" + re.escape(_RULES_VERSION_KEY) + r"\s*:\s*['\"]?([^'\"\s]+)['\"]?\s*$",
-    re.MULTILINE,
-)
-
-
-def _extract_frontmatter_version(text: str) -> str | None:
-    """Pull ``fcop_rules_version`` out of a .mdc frontmatter block.
+def _extract_frontmatter_version(text: str, key: str) -> str | None:
+    """Pull a ``key: <semver>`` line out of a .mdc frontmatter block.
 
     Uses a line-scoped regex rather than a full YAML parse: the
-    frontmatter is tiny, the key is unique, and avoiding a YAML
-    round-trip here keeps :func:`get_rules_version` trivially cheap.
+    frontmatter is tiny, every key is unique on its own line, and
+    avoiding a YAML round-trip here keeps the public version getters
+    trivially cheap. Quoting is tolerated because YAML permits it and
+    hand-edited files sometimes arrive that way.
+
     Returns ``None`` when the field is absent so the caller can
-    decide how to surface the packaging error.
+    decide how to surface the packaging error with a key-specific
+    message.
     """
-    match = _VERSION_RE.search(text)
+    pattern = re.compile(
+        r"^" + re.escape(key) + r"\s*:\s*['\"]?([^'\"\s]+)['\"]?\s*$",
+        re.MULTILINE,
+    )
+    match = pattern.search(text)
     return match.group(1) if match else None
