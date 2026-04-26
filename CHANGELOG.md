@@ -10,6 +10,66 @@ versioning strategy.
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-04-27
+
+Hot-fix release wiring the **Rule 0.a.1 hard constraint** into the
+tool layer. 0.6.4 shipped the four-step `task → do → report → archive`
+hard constraint as text in 17 role charters and `fcop-rules.mdc`, but
+the first real-world solo test (`init_solo` → ADMIN: "做个俄罗斯方块"
+→ agent dove straight into code) showed the constraint never **bit**
+in practice: the agent could recite the rule perfectly but skipped
+Step 1 (`write_task`) anyway, because nothing in the actual tool
+return path reminded it at the moment of action. The agent's own
+post-mortem nailed the diagnosis: *"是我没有把刚建立的协议作为当前
+工作流的硬约束执行到底"* (= "I didn't execute the just-established
+protocol as a hard constraint on the current workflow"). 0.6.5 plants
+two soft tripwires — non-blocking, additive, ADR-0003 compatible — at
+the two moments where agents actually pivot between chat and
+artifacts. See [`docs/releases/0.6.5.md`](./docs/releases/0.6.5.md).
+
+### Fixed — Rule 0.a.1 enforcement gap
+
+- **`new_workspace` tripwire (`fcop-mcp`).** When an agent calls
+  `new_workspace(slug=...)` and **no open `TASK-*.md` mentions that
+  slug** in its `subject` / `body` / `references`, the tool now
+  prepends a bilingual Rule 0.a.1 reminder to the response,
+  recommending `write_task(...)` as Step 1 *before* dropping
+  artifacts. Workspace creation still succeeds (the tripwire is a
+  reminder, not a block) so legitimate offline / experimental flows
+  are not broken. New helper `_recent_task_mentions_slug()` does the
+  scan over `docs/agents/tasks/` (open status only, body+subject+
+  references substring match, IO/parse errors swallowed).
+- **`fcop_report` four-step template (`fcop-mcp`).** The initialized
+  branch of `_compose_session_report()` (a.k.a. the UNBOUND report
+  every bound agent re-reads when it self-checks state) now ends with
+  an explicit four-step cycle template — `write_task` →
+  `new_workspace` → `write_report` → `archive_task` — plus the
+  "skipping Step 1 or Step 3 violates Rule 0.a.1" callout. Both `zh`
+  and `en` reports get the template; bilingual phrasing matches the
+  bilingual rules block in `fcop-rules.mdc` Rule 0.a.1.
+
+### Tests
+
+- `tests/test_fcop_mcp/test_server.py`:
+  - `test_new_workspace_warns_when_no_open_task_mentions_slug` —
+    fresh project, agent calls `new_workspace` with no matching task
+    → response must contain `Rule 0.a.1`, `write_task`, and the
+    "before editing any file" callout.
+  - `test_new_workspace_silent_when_open_task_mentions_slug` —
+    `write_task` first (subject/body mentions slug), then
+    `new_workspace` → response must NOT contain the warning.
+  - `test_fcop_report_initialized_includes_four_step_template_zh` /
+    `_en` — both languages must list all four step verbs / tools and
+    the "no `simple = skip`" callout.
+
+### Compatibility / no breaking changes
+
+- All edits are additive per ADR-0003: tool signatures unchanged,
+  `tool_surface.json` snapshot unchanged, no new public API,
+  `public_surface.json` snapshot unchanged. Existing callers see
+  the same return-text *prefix* on the bound branches; only fresh
+  scenarios with no matching task get extra prepended copy.
+
 ## [0.6.4] - 2026-04-26
 
 Hot-fix release closing the **init-deposit gap** found while writing

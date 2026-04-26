@@ -14,4 +14,4 @@ adr/ADR-0003 (pre-1.0 stability charter):
 
 from __future__ import annotations
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"

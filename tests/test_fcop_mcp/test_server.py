@@ -388,6 +388,34 @@ class TestTeamAndWorkspace:
         out = _call("new_workspace", slug="Bad Slug!!")
         assert "slug" in out.lower() or "错误" in out
 
+    def test_new_workspace_warns_when_no_open_task_mentions_slug(
+        self, initialized_project: Path
+    ) -> None:
+        """0.6.5 Rule 0.a.1 tripwire: fresh project, agent skipped write_task."""
+        out = _call("new_workspace", slug="block-starfall")
+        # The base "Created workspace" text still appears (non-blocking).
+        assert "block-starfall" in out
+        # The warning is prepended.
+        assert "Rule 0.a.1" in out
+        assert "write_task" in out
+        assert "BEFORE editing any file" in out or "在动手写任何文件之前" in out
+
+    def test_new_workspace_silent_when_open_task_mentions_slug(
+        self, initialized_project: Path
+    ) -> None:
+        """0.6.5 Rule 0.a.1 tripwire: existing TASK mentions slug ⇒ no warning."""
+        _call(
+            "write_task",
+            sender="ADMIN",
+            recipient="PM",
+            subject="Build a starfall game",
+            body="Drop artifacts under workspace/block-starfall/.",
+            priority="P2",
+        )
+        out = _call("new_workspace", slug="block-starfall")
+        assert "block-starfall" in out
+        assert "Rule 0.a.1" not in out
+
     def test_list_workspaces_none(
         self, initialized_project: Path
     ) -> None:
@@ -502,6 +530,32 @@ class TestSessionReportAndRedeploy:
         assert "rules:" in out
         assert "protocol:" in out
         assert "local " in out and "packaged " in out
+
+    def test_fcop_report_initialized_includes_four_step_template_zh(
+        self, initialized_project: Path
+    ) -> None:
+        """0.6.5: agent reading fcop_report must see the 4-step cycle template."""
+        out = _call("fcop_report", lang="zh")
+        # All four step verbs/tools must be present so the agent has a
+        # ready-to-paste mental model the moment ADMIN sends a request.
+        assert "Rule 0.a.1" in out
+        assert "write_task" in out
+        assert "new_workspace" in out
+        assert "write_report" in out
+        assert "archive_task" in out
+        # The "no skip" message must be explicit.
+        assert "简单任务" in out or "no 'simple = skip'" in out
+
+    def test_fcop_report_initialized_includes_four_step_template_en(
+        self, initialized_project: Path
+    ) -> None:
+        out = _call("fcop_report", lang="en")
+        assert "Rule 0.a.1" in out
+        assert "write_task" in out
+        assert "new_workspace" in out
+        assert "write_report" in out
+        assert "archive_task" in out
+        assert "no 'simple = skip'" in out
 
     def test_fcop_report_drift_warning_when_local_is_older(
         self, initialized_project: Path

@@ -1216,6 +1216,66 @@ def _iso_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _recent_task_mentions_slug(project: Project, slug: str) -> bool:
+    """Return True iff any open ``TASK-*.md`` references the slug.
+
+    Used by :func:`new_workspace` to decide whether to attach a
+    ``Rule 0.a.1`` "you forgot Step 1 (write_task)" reminder. We check
+    three places where ADMIN's task could legitimately mention the slug:
+
+    * frontmatter ``subject`` (one-liner goal)
+    * frontmatter ``references`` (e.g. ``workspace/<slug>``)
+    * body text (anywhere)
+
+    Substring match is intentional — slugs are short, hyphenated, and
+    rarely appear in unrelated prose; a real task that scopes this
+    workspace will almost always name the slug somewhere.
+
+    Errors (broken frontmatter, IO) are swallowed: this is a soft
+    tripwire, never a blocker.
+    """
+    if not slug:
+        return False
+    needle = slug.lower()
+    try:
+        tasks = project.list_tasks(status="open", limit=200)
+    except Exception:
+        return False
+    for task in tasks:
+        haystack_parts: list[str] = []
+        if task.subject:
+            haystack_parts.append(task.subject)
+        haystack_parts.append(task.body or "")
+        haystack_parts.extend(task.frontmatter.references)
+        if any(needle in part.lower() for part in haystack_parts):
+            return True
+    return False
+
+
+_RULE_0A1_TRIPWIRE_BLOCK = (
+    "⚠️  FCoP Rule 0.a.1 check: no open TASK-*.md mentions slug `{slug}`.\n"
+    "    FCoP Rule 0.a.1 检查：当前没有任何开放 TASK-*.md 提及 slug `{slug}`。\n"
+    "\n"
+    "If you just got a request from ADMIN, Step 1 is **write_task** —\n"
+    "BEFORE editing any file. The 4-step cycle has no \"simple = skip\" exception.\n"
+    "如果你刚收到 ADMIN 的需求，第 1 步应当是 **write_task** ——\n"
+    "在动手写任何文件之前。4 步循环没有「简单任务可跳过」这种例外。\n"
+    "\n"
+    "  write_task(\n"
+    "      sender=\"ADMIN\", recipient=\"<your role>\", priority=\"P2\",\n"
+    "      subject=\"<one-line goal>\",\n"
+    "      body=\"<rephrase the request + scope + acceptance criteria>\",\n"
+    "  )\n"
+    "\n"
+    "Then drop artifacts into workspace/{slug}/, then write_report when done.\n"
+    "随后把产物落到 workspace/{slug}/，完成时再调 write_report 收尾。\n"
+    "\n"
+    "(Workspace was created — this is a reminder, not a block.\n"
+    "笼子已建好——这是提醒，不阻断创建。)\n"
+    "---\n"
+)
+
+
 @mcp.tool
 def new_workspace(slug: str, title: str = "", description: str = "") -> str:
     """Create a workspace subdirectory under ``workspace/<slug>/``.
@@ -1312,7 +1372,7 @@ def new_workspace(slug: str, title: str = "", description: str = "") -> str:
         rel = str(target)
 
     verb = "Created" if is_new else "Updated"
-    return (
+    base = (
         f"{verb} workspace: `{rel}/`\n"
         f"  slug: {slug_norm}\n"
         f"  title: {title.strip() or '(none)'}\n"
@@ -1320,6 +1380,9 @@ def new_workspace(slug: str, title: str = "", description: str = "") -> str:
         f"{verb} workspace at `{rel}/`. Put code / scripts / data here; "
         "do not write to the project root."
     )
+    if not _recent_task_mentions_slug(project, slug_norm):
+        return _RULE_0A1_TRIPWIRE_BLOCK.format(slug=slug_norm) + base
+    return base
 
 
 @mcp.tool
@@ -1691,7 +1754,16 @@ def _compose_session_report(lang: str) -> str:
             "  - read task bodies (metadata only)\n"
             "  - write any file\n"
             "  - claim a role from context\n"
-            "  - dispatch follow-up tasks"
+            "  - dispatch follow-up tasks\n\n"
+            "Once ADMIN binds you to a role, EVERY incoming request runs through\n"
+            "the Rule 0.a.1 four-step cycle — there is no 'simple = skip' exception:\n"
+            "  Step 1  write_task(sender=\"ADMIN\", recipient=\"<your role>\", ...)\n"
+            "          ← BEFORE editing any file\n"
+            "  Step 2  do the work (new_workspace + edit files in workspace/<slug>/)\n"
+            "  Step 3  write_report(task_id=\"TASK-...\", reporter=\"<your role>\", ...)\n"
+            "          ← BEFORE telling ADMIN \"done\" in chat\n"
+            "  Step 4  archive_task(\"TASK-...\")  (after ADMIN accepts)\n"
+            "Skipping Step 1 or Step 3 violates Rule 0.a.1."
         )
     return (
         "=== FCoP UNBOUND 报告 ===\n"
@@ -1709,7 +1781,16 @@ def _compose_session_report(lang: str) -> str:
         "  - 读取任务正文（只看元数据）\n"
         "  - 写入任何文件\n"
         "  - 从上下文自认角色\n"
-        "  - 派发后续任务"
+        "  - 派发后续任务\n\n"
+        "ADMIN 把你绑定到角色之后，**每一条**新需求都要走 Rule 0.a.1 4 步循环——\n"
+        "没有「简单任务可跳过」这种例外：\n"
+        "  第 1 步  write_task(sender=\"ADMIN\", recipient=\"<你的角色>\", ...)\n"
+        "           ← 在动手写任何文件之前\n"
+        "  第 2 步  做事（new_workspace + 在 workspace/<slug>/ 下落产物）\n"
+        "  第 3 步  write_report(task_id=\"TASK-...\", reporter=\"<你的角色>\", ...)\n"
+        "           ← 在聊天里说「做完了」之前\n"
+        "  第 4 步  archive_task(\"TASK-...\")（ADMIN 验收后）\n"
+        "跳过第 1 步或第 3 步即违反 Rule 0.a.1。"
     )
 
 
