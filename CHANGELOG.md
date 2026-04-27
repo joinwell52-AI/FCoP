@@ -36,6 +36,14 @@ full rationale and verification commands.
   template). Heading text is preserved verbatim so existing letter-intro
   tests keep passing; both bullets land inside the slice that
   `get_letter_intro()` surfaces to ADMIN at init time.
+- **Root `README.md` / `README.zh.md`**: rewrote the "0.6.3 highlights"
+  long paragraph (10 lines mixing five concerns, frozen at 0.6.3) into
+  three discrete blocks: a 5-row **Pointers** table (install /
+  agent-install / upgrade / tool index / changelog), a 3-row
+  **Recent releases** table (0.6.3 / 0.6.4 / 0.6.5 each linking to its
+  `docs/releases/<v>.md`), and a standalone "wrong `fcop` on PyPI"
+  blockquote. Same five pointers as before — no new package promises —
+  but version-coupling is contained to a single editable table.
 
 ## [0.6.5] - 2026-04-27
 

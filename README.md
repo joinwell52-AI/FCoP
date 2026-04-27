@@ -151,7 +151,25 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 | [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues programmatically. Zero MCP dependency. | `pyyaml` |
 | [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=0.6,<0.7`, `fastmcp`, `websockets` |
 
-**Install for customers (step-by-step, all platforms, verify commands):** see **[`mcp/README.md`](mcp/README.md)**. **Upgrading** an existing `0.6.x` install: **[`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md)** (`pip install -U` both packages in the same venv; **0.6.3+** also documents the host-neutral protocol-rule upgrade flow). **MCP tool & resource index (26 tools, 12 resources):** **[`docs/mcp-tools.md`](docs/mcp-tools.md)** — what every tool does, when to call it, parameters at a glance. **0.6.3 highlights** ([`docs/releases/0.6.3.md`](docs/releases/0.6.3.md)): new `fcop_report` (canonical session/init report with a `[Versions]` drift block), new `redeploy_rules` (ADMIN-only host-neutral rule deploy to `.cursor/rules/` + `AGENTS.md` + `CLAUDE.md`, [ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)), and `unbound_report` is now a deprecated alias of `fcop_report` (removed in 0.7.0). The official packages are **from this repository**; if `from fcop import Project, Issue` fails after `pip install fcop`, the wrong `fcop` distribution or another project is shadowing the library — the guide explains how to fix in a clean venv.
+**Pointers** (one row each, no version baked in):
+
+| You want to… | Go to |
+|---|---|
+| Install `fcop-mcp` into Cursor / Claude Desktop step-by-step | [`mcp/README.md`](mcp/README.md) |
+| Have an agent do the install for you (zero JSON editing) | [`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md) · [中文](src/fcop/rules/_data/agent-install-prompt.zh.md) (also live as MCP resource `fcop://prompt/install`) |
+| Upgrade an existing `0.6.x` install (both packages in lockstep + protocol-rule refresh) | [`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md) |
+| Browse all 26 MCP tools and 12 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| Read the per-release record (what changed when, why) | [`CHANGELOG.md`](CHANGELOG.md) and [`docs/releases/`](docs/releases/) |
+
+**Recent releases** (full notes in [`docs/releases/`](docs/releases/)):
+
+| Version | One-line |
+|---|---|
+| **0.6.5** ([notes](docs/releases/0.6.5.md)) | Rule 0.a.1 (`task → do → report → archive`) wired into the **tool layer**: `new_workspace` warns when no open `TASK-*.md` mentions the slug, `fcop_report` (initialised) ends with the four-step template. Bilingual, additive. |
+| **0.6.4** ([notes](docs/releases/0.6.4.md)) | Init-deposit gap closed: every `init_*` lands its full promised set (letter, three-layer team docs, rules quartet) in one transaction. New `fcop://prompt/install` zh+en resources. `force` parameter on every `init_*`. |
+| **0.6.3** ([notes](docs/releases/0.6.3.md)) | Canonical `fcop_report` (with `[Versions]` drift block); host-neutral `redeploy_rules` writing `.cursor/rules/*.mdc` + `AGENTS.md` + `CLAUDE.md` ([ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)); `unbound_report` deprecated (removed in 0.7.0). |
+
+> **Watch out — wrong `fcop` on PyPI shadows the library.** Both packages here are published from **this** repository. If `from fcop import Project, Issue` fails after `pip install fcop`, you most likely installed an unrelated `fcop` distribution or another local project shadows the library. Fix: clean venv + reinstall both packages from PyPI in lockstep. The verify commands are in [`mcp/README.md`](mcp/README.md).
 
 **Library** — use from any Python script or agent:
 
