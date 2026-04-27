@@ -94,12 +94,26 @@ released independently, but the `fcop` dependency pin in
 - [ ] `uvx --refresh fcop-mcp@X.Y.Z` from a clean machine (or `uv
       cache clean`) and call `fcop_report()` end-to-end. **This step
       catches the 0.7.0 pin-bug class — never skip it.**
-- [ ] If a previous version on PyPI has known-broken pins, **yank
-      it** so new installs don't pick it up. PyPI yank is web-UI-only
-      as of 2026-04: log in to https://pypi.org/manage/project/<name>/
-      → "Releases" → ⋮ next to the bad version → "Yank release" →
-      enter a one-line reason (shown to users in pip warnings). Yanks
-      are reversible from the same menu.
+- [ ] If a previous version on PyPI has known-broken pins, **decide
+      whether to yank** (it is optional). Per
+      [PEP 592](https://peps.python.org/pep-0592/), yank only excludes
+      the version from resolver candidate sets when no exact `==` pin
+      is given, and adds a warning at install time — it does **not**
+      uninstall existing copies and does **not** repair users already
+      on the broken version. If the new version supersedes the broken
+      one and the dominant install path resolves to it (e.g.
+      `uvx fcop-mcp` without a version), yank is mostly cosmetic.
+      Yank if: download counts on the broken version are climbing
+      post-release, or a second user reports the same failure, or the
+      bad version exposes a security risk. Skip if: the broken
+      version was up for hours, the supersession is automatic, and the
+      `CHANGELOG.md` already calls out the breakage. Yank is
+      web-UI-only as of 2026-04: log in to
+      https://pypi.org/manage/project/<name>/ → "Releases" → ⋮ next to
+      the bad version → "Yank release" → enter a one-line reason.
+      Reversible from the same menu. Whichever way you go, **record
+      the decision and reasoning** in the release notes
+      (`docs/releases/X.Y.Z.md`).
 
 ## Phase 7 — Git / GitHub
 

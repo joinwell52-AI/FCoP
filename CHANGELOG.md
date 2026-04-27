@@ -32,7 +32,12 @@ post-mortem on `ISSUE-20260427-006` and the rationale for closing
   (`tests/test_fcop/test_pyproject_pins.py`) reads
   `mcp/pyproject.toml` and asserts that the `fcop` lower bound
   matches `fcop-mcp`'s minor — see ADR-0002 "Lockstep pin rule" for
-  the formal rule. `fcop-mcp 0.7.0` is being yanked from PyPI.
+  the formal rule. `fcop-mcp 0.7.0` stays on PyPI, **not yanked**:
+  the dominant install path (`uvx fcop-mcp` / `pip install fcop-mcp`
+  without a pin) already resolves to 0.7.1, so yank would not
+  repair anyone currently broken — only `pip install -U` /
+  `uvx --refresh` does. Yank is kept as a reversible fallback;
+  rationale recorded in `docs/releases/0.7.1.md`.
 
 ### Protocol — `fcop_protocol_version: 1.6.0` / `fcop_rules_version: 1.8.0`
 
