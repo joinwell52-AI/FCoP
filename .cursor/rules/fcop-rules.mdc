@@ -1,7 +1,7 @@
 ---
 description: FCoP Rules — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 1.7.0
+fcop_rules_version: 1.8.0
 ---
 
 # FCoP Rules · FCoP 协议规则

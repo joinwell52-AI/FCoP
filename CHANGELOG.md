@@ -10,6 +10,65 @@ versioning strategy.
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-04-27
+
+Metadata-only patch release. **No behaviour change**, no new APIs,
+no new MCP tools, no protocol bump. Sole purpose: close
+`ISSUE-20260427-007` (rules.mdc frontmatter version stale at
+`1.7.0` while body changelog and content are `1.8.0`) and harden
+the build against the *class* of bug it represents — the third
+"multi-line edit, one edit dropped" incident in the 0.7.x cycle
+(after `ISSUE-20260427-006` dependency pin and the REPORT-005
+"yank" wording drift, both fixed in 0.7.1). See
+[`docs/releases/0.7.2.md`](./docs/releases/0.7.2.md) for the
+post-mortem.
+
+### Fixed — `fcop` library
+
+- **`fcop-rules.mdc` frontmatter version (`ISSUE-20260427-007`).**
+  `src/fcop/rules/_data/fcop-rules.mdc` shipped in 0.7.1 with
+  `fcop_rules_version: 1.7.0` in its frontmatter while the body
+  changelog and rule text were already `1.8.0` (sub-agent
+  identity clause in Rule 1, `AMEND-*` / `-v2` removal in Rule 5,
+  Rule 0.a.1 applicability clarification). `fcop_report()`
+  therefore reported `rules: 1.7.0`, masking the fact that the
+  bundled rules already behaved as 1.8.0. Frontmatter is now
+  `1.8.0`, in lockstep with the body.
+
+### Added — `fcop` library tests (regression guard)
+
+- **`tests/test_fcop/test_rules_metadata_consistency.py`.**
+  Three new tests that read both `fcop-rules.mdc` and
+  `fcop-protocol.mdc` and assert the frontmatter
+  `fcop_rules_version` / `fcop_protocol_version` fields equal the
+  highest version listed in the body changelog (`**X.Y.Z changes
+  ...**` for rules, `- **vX.Y** (date)` for protocol). This makes
+  the *class* of bug behind ISSUE-007 — and equally behind
+  ISSUE-006 (multi-line edit, one edit dropped) — unshippable: a
+  PR that bumps body but forgets frontmatter (or vice versa) now
+  fails the test suite before the wheel is built.
+
+### Documentation
+
+- `README.md` / `README.zh.md`: extended the **Recent releases**
+  table with `0.7.0`, `0.7.1`, `0.7.2`. The previous entries
+  stopped at `0.6.5`, so users following the table never saw the
+  `RoleOccupancy` (0.7.0) or the role-uniqueness protocol bump
+  (0.7.1) on the landing page.
+- `mcp/README.md`: "Already on `0.6.x`" / "**Stability (0.6.x)**"
+  upgraded to also speak about `0.7.x` (without dropping the
+  0.6.x → 0.7.x migration anchor — that lives in
+  [`docs/upgrade-fcop-mcp.md`](./docs/upgrade-fcop-mcp.md)).
+
+### Operational
+
+- No PyPI yank for `fcop-mcp 0.7.1` (mirrors the 0.7.0 decision).
+  `0.7.2` is the higher version on PyPI, so any unpinned
+  `pip install -U fcop-mcp` / `uvx --refresh fcop-mcp`
+  automatically picks it up. Same rationale as 0.7.1 applies; see
+  [`docs/releases/0.7.2.md`](./docs/releases/0.7.2.md) for the
+  short version.
+
 ## [0.7.1] - 2026-04-27
 
 Hotfix release rolling up the `fcop-mcp 0.7.0` dependency-pin

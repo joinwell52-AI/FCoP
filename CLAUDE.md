@@ -11,7 +11,7 @@
 > tool `redeploy_rules()` (or calls
 > `Project.deploy_protocol_rules(force=True)` directly).
 
-> Rules version: `1.7.0` · Protocol commentary version: `1.6.0`
+> Rules version: `1.8.0` · Protocol commentary version: `1.6.0`
 
 ---
 

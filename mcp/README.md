@@ -9,7 +9,7 @@ a second “FCoP product” and does not replace the protocol text.
 - **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
 - **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
 
-**Already on `0.6.x` and just upgrading?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) (`pip install -U` both `fcop` and `fcop-mcp` in the MCP venv, then restart the IDE; **0.6.3+** also documents how to refresh on-disk protocol rule files via `redeploy_rules`).
+**Already on `0.6.x` or `0.7.x` and just upgrading?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) (`pip install -U` both `fcop` and `fcop-mcp` in the MCP venv, then restart the IDE; **0.6.3+** also documents how to refresh on-disk protocol rule files via `redeploy_rules`). **0.7.x note**: `fcop-mcp 0.7.0` shipped with a stale `fcop` dependency pin (`<0.7`); install **0.7.2 or later** for a clean upgrade — the missing pin is fixed and a `tests/test_fcop/test_pyproject_pins.py` regression test prevents the same class of bug from recurring.
 
 **What can the server actually do?** The 26 MCP tools and 12 read-only resources are indexed (with grouping, when-to-call, and parameter cheatsheet) in [**`docs/mcp-tools.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md). Authoritative descriptions remain in source docstrings ([`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)). **0.6.4** adds 2 new resources (`fcop://prompt/install` zh + en) and gives every `init_*` tool a `force` parameter for clean ADMIN-driven team switches. **0.6.5** wires the **Rule 0.a.1 hard constraint** (`task → do → report → archive` four-step cycle) into the tool layer: `new_workspace` prepends a soft Rule 0.a.1 reminder when no open `TASK-*.md` mentions the slug, and `fcop_report` (initialised branch) ends with the explicit four-step template — both bilingual, both additive (no signature changes). See [`docs/releases/0.6.5.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/0.6.5.md).
 
@@ -155,7 +155,7 @@ python -c "from fcop import Issue, Project; print('fcop OK', Project)"
 python -c "from fcop_mcp.server import mcp; print('fcop-mcp OK')"
 ```
 
-If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, same `0.6.x` minor in lockstep with the current release).
+If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, same minor in lockstep with the current release; e.g. `fcop 0.7.2` + `fcop-mcp 0.7.2`).
 
 ---
 
@@ -197,9 +197,11 @@ To pin a folder in config:
 
 ---
 
-## Stability (0.6.x)
+## Stability (0.7.x)
 
-Tool and resource **shapes** are **additive-only** within `0.6.x` ([stability charter](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)). Configs that work on `fcop-mcp` `0.6.0+` should keep working on later `0.6.x` patch releases.
+Tool and resource **shapes** are **additive-only** within a single MINOR release line ([stability charter, ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)). Configs that work on `fcop-mcp` `0.7.0+` should keep working on later `0.7.x` patch releases. Breaking changes are allowed only at MINOR boundaries (e.g. the `0.6.x` → `0.7.x` removal of `unbound_report` and the addition of role-uniqueness invariants); patch releases (`0.7.1`, `0.7.2`) never break existing tool calls.
+
+For projects still on `fcop-mcp 0.6.x`, see [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and [`docs/releases/0.7.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/0.7.0.md) for the migration narrative.
 
 ---
 

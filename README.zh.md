@@ -151,6 +151,9 @@ mkdir -p docs/agents/{tasks,reports,issues,shared,log}
 
 | 版本 | 一句话 |
 |---|---|
+| **0.7.2**（[详细](docs/releases/0.7.2.md)） | 元数据 patch：修 `fcop-rules.mdc` frontmatter 错版本号（`1.7.0` → 实际内容已是 `1.8.0`）；新增三道 frontmatter↔body changelog 一致性测试 + 已有的两包 minor lockstep 测试，0.7.x 周期内连发三次"多行编辑漏一处"的同类 bug（ISSUE-006 / ISSUE-007）从此**结构性不可发**。无协议变化、无 API 变化。 |
+| **0.7.1**（[详细](docs/releases/0.7.1.md)） | hotfix `fcop-mcp 0.7.0` 依赖钉错版本（`fcop>=0.6,<0.7` → `<0.8`）+ 三处协议澄清：Rule 1 子 agent 身份（`session_id ↔ role` 审计）、Rule 0.a.1 适用所有写路径（不止 MCP 工具）、Rule 5 删 `AMEND-*` / `-v2`（用顺序报告 + `amends:`）。新增：`Project.audit_drift()` + `fcop_check()` MCP 工具 + 软角色锁。**协议升级**：rules `1.7.0` → `1.8.0`、protocol `1.5.0` → `1.6.0`。 |
+| **0.7.0**（[详细](docs/releases/0.7.0.md)） | **角色唯一性**正式入协议：新增 `Project.role_occupancy()` + `RoleOccupancy` 数据结构，`fcop_report()` 增 `[角色占用]` 段，`unbound_report` 删除（0.6.3 起已弃用）。Rule 1 收紧：角色 OCCUPIED 当且仅当**有落盘文件**以其为 `sender`。**协议升级**：rules `1.6.0` → `1.7.0`、protocol `1.4.0` → `1.5.0`。**注**：0.7.0 的 `fcop-mcp` 依赖钉错版本，请装 0.7.1+。 |
 | **0.6.5**（[详细](docs/releases/0.6.5.md)） | Rule 0.a.1（`task → 做 → report → archive`）落到**工具层**：`new_workspace` 在没有任何开放 `TASK-*.md` 提及当前 slug 时**预置一段提醒**；`fcop_report` 已初始化分支末尾加挂四步模板。中英双语、纯追加。 |
 | **0.6.4**（[详细](docs/releases/0.6.4.md)） | 修复初始化缺漏：每个 `init_*` 一次性把承诺的所有文件（信、三层团队文档、协议规则四件套）全部落齐。新增资源 `fcop://prompt/install` 中英两份。所有 `init_*` 新增 `force` 参数。 |
 | **0.6.3**（[详细](docs/releases/0.6.3.md)） | 引入 `fcop_report`（带 `[版本]` 漂移段）；host-neutral 的 `redeploy_rules` 同时写 `.cursor/rules/*.mdc` + `AGENTS.md` + `CLAUDE.md`（[ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)）；`unbound_report` 弃用（0.7.0 移除）。 |
