@@ -24,6 +24,16 @@ you and an AI team collaborate through **files**. Your one job:
 >   `.fcop/migrations/<timestamp>/`).
 > - **New MCP resource `fcop://prompt/install`** — canonical
 >   "have an agent install fcop-mcp for you" prompt.
+> - **0.6.5 polish**: `new_workspace` / `fcop_report` wire the
+>   **Rule 0.a.1 four-step cycle** (`write_task → do →
+>   write_report → archive_task`) into the tool layer. If an
+>   agent skips Step 1 and dives into code (typical: you say
+>   "build me a Tetris" and it goes straight to `new_workspace`
+>   without a `TASK-*.md`), the tool **prepends a soft Rule 0.a.1
+>   reminder** asking it to land the task first — non-blocking,
+>   the workspace still gets created. `fcop_report` (initialised
+>   branch) also ends with the four-step template so every
+>   self-check re-surfaces it.
 
 ---
 

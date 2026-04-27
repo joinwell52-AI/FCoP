@@ -20,6 +20,12 @@
 >   配置（旧文件自动归档到 `.fcop/migrations/<时间戳>/`）。
 > - **新增 MCP 资源 `fcop://prompt/install`**——agent 帮你装 fcop-mcp
 >   的标准提示词。
+> - **0.6.5 微调**：`new_workspace` / `fcop_report` 在工具层落地
+>   **Rule 0.a.1 四步循环**（`write_task → 做 → write_report →
+>   archive_task`）。agent 若直接动手（典型：你说"做个俄罗斯方块"
+>   它没写 `TASK-*.md` 就开干），`new_workspace` 会**预置一段提醒**
+>   让它先回头写任务单——**不阻塞**，工作区照常建。`fcop_report` 报告
+>   末尾也固定挂这段四步模板，agent 每次自检都看得到。
 
 ---
 

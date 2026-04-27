@@ -10,6 +10,33 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Documentation-only sync (destined for 0.6.6, no PyPI bump)
+
+These edits are **docs-only**: `_version.py` for both `fcop` and
+`fcop-mcp` stays at `0.6.5`, no PyPI upload, no behavior change. The
+next package release (whatever number it takes) will carry the docs
+forward. Pinned to a numbered release note for audit trail. See
+[`docs/releases/0.6.6.md`](./docs/releases/0.6.6.md) for the
+full rationale and verification commands.
+
+- **`docs/mcp-tools.md` resource count**: corrected "资源（resources）
+  **10 个**" → "**12 个**" (9 static + 3 templates, matches
+  `tool_surface.json` truth). Added the two missing 0.6.4 resource
+  rows for `fcop://prompt/install` (zh) and `fcop://prompt/install/en`.
+  Appended one-liner 0.6.5 behaviour notes to the `fcop_report` and
+  `new_workspace` rows.
+- **`mcp/README.md` (PyPI `fcop-mcp` long description)**: appended a
+  bilingual one-sentence summary of the 0.6.5 Rule 0.a.1 tripwires to
+  the existing "What can the server actually do?" lede. Before this
+  patch, PyPI users seeing `fcop-mcp 0.6.5` had no in-page explanation
+  of why `new_workspace` started prepending a reminder.
+- **`LETTER-TO-ADMIN.{zh,en}.md`**: added one bullet at the bottom of
+  the top "0.6.4 摘要" / "0.6.4 in one block:" block describing the
+  0.6.5 polish (`new_workspace` reminder + `fcop_report` four-step
+  template). Heading text is preserved verbatim so existing letter-intro
+  tests keep passing; both bullets land inside the slice that
+  `get_letter_intro()` surfaces to ADMIN at init time.
+
 ## [0.6.5] - 2026-04-27
 
 Hot-fix release wiring the **Rule 0.a.1 hard constraint** into the

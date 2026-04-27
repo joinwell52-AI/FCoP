@@ -9,7 +9,16 @@
 ## 总览
 
 - **工具（tools）26 个**（其中 `unbound_report` 自 0.6.3 起 **deprecated**，0.7.0 删除）：调用方主动触发，写盘或返回报告。
-- **资源（resources）10 个**（含 `fcop://teams/{team}` 模板族）：只读 URI，常用于把规则/状态以引用方式塞进上下文。
+- **资源（resources）12 个**（9 个静态 URI + `fcop://teams/{team}` / `.../{role}` / `.../{role}/en` 三套模板）：只读 URI，常用于把规则/状态/职责模板以引用方式塞进上下文。
+
+> **0.6.4 起新增** 2 个静态资源：`fcop://prompt/install`（中文）与
+> `fcop://prompt/install/en`——agent 帮 ADMIN 装 fcop-mcp 的标准提示词，
+> 装好以后随时可读。同时所有 `init_*` 工具新增 `force=True` 参数。
+>
+> **0.6.5 起**：`new_workspace` / `fcop_report` 在工具层落地
+> [Rule 0.a.1](../src/fcop/rules/_data/fcop-rules.mdc) 四步循环
+> （`write_task → 做 → write_report → archive_task`）——agent 跳步会被
+> 即时提醒（**不阻塞**），具体见各工具说明。
 
 > 看名字与参数清单（机器可读、CI 校验）：[`tests/test_fcop_mcp/snapshots/tool_surface.json`](../tests/test_fcop_mcp/snapshots/tool_surface.json)。  
 > 看「为什么这么设计」：[`adr/ADR-0001`](../adr/ADR-0001-library-api.md)、[`adr/ADR-0003`](../adr/ADR-0003-stability-charter.md)。
@@ -20,7 +29,7 @@
 
 | 工具 | 何时调 | 关键参数 |
 |---|---|---|
-| `fcop_report` | **每个新 MCP 会话的第一个调用**（FCoP Rule 0）。返回项目状态；**未初始化**时给出三选一初始化建议；**已初始化但本会话未认领角色**时输出 UNBOUND 报告，等 ADMIN 用「你是 \<ROLE\>」赋角色。报告头部含 `[版本] / [Versions]` 段，自动比对本地 `.cursor/rules/` 与 wheel 内捆绑版本，漂移时提示 ADMIN 调 `redeploy_rules`。 | `lang`（`zh` / `en`） |
+| `fcop_report` | **每个新 MCP 会话的第一个调用**（FCoP Rule 0）。返回项目状态；**未初始化**时给出三选一初始化建议；**已初始化但本会话未认领角色**时输出 UNBOUND 报告，等 ADMIN 用「你是 \<ROLE\>」赋角色。报告头部含 `[版本] / [Versions]` 段，自动比对本地 `.cursor/rules/` 与 wheel 内捆绑版本，漂移时提示 ADMIN 调 `redeploy_rules`。**0.6.5 起**：已初始化分支末尾追加 Rule 0.a.1 四步循环模板（`write_task` → 做 → `write_report` → `archive_task`），中英双语，提醒 agent 跳步即违规。 | `lang`（`zh` / `en`） |
 | `set_project_dir` | MCP 把项目根定位错了（典型：`fcop_report` 显示 `C:\Users\…` 不是你打开的工程）。**不改 `mcp.json`、不重启 Cursor**就能切到正确目录；UNBOUND 状态下也安全。 | `path`（绝对路径，目录须存在） |
 | `unbound_report` | **deprecated**（0.6.3）。`fcop_report` 的别名，行为完全相同；调用即触发 `DeprecationWarning`，**0.7.0 移除**。把 system prompt / `LETTER-TO-ADMIN.md` 里的 `unbound_report` 改成 `fcop_report` 即可。 | `lang`（同上） |
 
@@ -81,7 +90,7 @@
 |---|---|---|
 | `get_team_status` | 项目状态快照：是否初始化、团队/leader、open task / report / issue 数、最近 5 条活动。 | `lang` |
 | `deploy_role_templates` | 部署 / 刷新 `docs/agents/shared/` 里的 `TEAM-README` + `TEAM-ROLES` + `TEAM-OPERATING-RULES` 与角色档案。`force=True` 时**先归档**到 `.fcop/migrations/<时间戳>/` 再覆盖（可逆）。 | `team`、`lang`、`force`（默认 `True`） |
-| `new_workspace` | 在 `workspace/<slug>/` 下建工作目录，**不要把代码写到项目根**。幂等，二次调用更新元数据。 | `slug`（`^[a-z][a-z0-9-]*$`、≤ 40）、`title`、`description` |
+| `new_workspace` | 在 `workspace/<slug>/` 下建工作目录，**不要把代码写到项目根**。幂等，二次调用更新元数据。**0.6.5 起**：若当前没有任何开放 `TASK-*.md` 的 `subject` / `body` / `references` 提到这个 slug，工具返回头部会**预置一段 Rule 0.a.1 提醒**——建议先 `write_task` 把"要做什么"落文件，再开工作区动手。提醒不阻塞，工作区照常创建（合法的离线 / 实验流程不破坏）。 | `slug`（`^[a-z][a-z0-9-]*$`、≤ 40）、`title`、`description` |
 | `list_workspaces` | 列出现有 `workspace/<slug>/`（含手动建的）。 | `lang` |
 
 ---
@@ -118,6 +127,8 @@
 | `fcop://protocol` | `text/markdown` | 协议解释（`fcop-protocol.mdc`） |
 | `fcop://letter/zh` | `text/markdown` | 《FCoP 致 ADMIN 的一封信》中文版 |
 | `fcop://letter/en` | `text/markdown` | Letter to ADMIN — English |
+| `fcop://prompt/install` | `text/markdown` | *(0.6.4)* "让 agent 帮我装 fcop-mcp" 标准提示词（中文） |
+| `fcop://prompt/install/en` | `text/markdown` | *(0.6.4)* Same install prompt, English |
 | `fcop://teams` | `application/json` | 内置团队索引（name / roles / leader） |
 | `fcop://teams/{team}` | `text/markdown` | 指定团队的 `TEAM-README`（中文） |
 | `fcop://teams/{team}/{role}` | `text/markdown` | 团队 + 角色档案（中文） |
