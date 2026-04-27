@@ -10,6 +10,114 @@ versioning strategy.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-04-27
+
+Hotfix release rolling up the `fcop-mcp 0.7.0` dependency-pin
+incident together with three protocol clarifications discovered
+during dogfooding the same afternoon. See
+[`docs/releases/0.7.1.md`](./docs/releases/0.7.1.md) for the
+post-mortem on `ISSUE-20260427-006` and the rationale for closing
+`ISSUE-20260427-001 / -004 / -005`.
+
+### Fixed — `fcop-mcp` (release blocker)
+
+- **`fcop-mcp 0.7.0` dependency pin (`ISSUE-20260427-006`).**
+  `mcp/pyproject.toml` was published with the stale pin
+  `"fcop>=0.6,<0.7"`, which made `uvx fcop-mcp` resolve `fcop 0.6.5`
+  even though `fcop-mcp 0.7.0` imports symbols introduced in
+  `fcop 0.7.0` (`RoleOccupancy`, `Project.role_occupancy()`,
+  `OccupancyState`). Fresh installs hit `ImportError` on
+  `fcop_report()` until `uv cache clean` was run by hand. The pin is
+  now `"fcop>=0.7,<0.8"` and a regression test
+  (`tests/test_fcop/test_pyproject_pins.py`) reads
+  `mcp/pyproject.toml` and asserts that the `fcop` lower bound
+  matches `fcop-mcp`'s minor — see ADR-0002 "Lockstep pin rule" for
+  the formal rule. `fcop-mcp 0.7.0` is being yanked from PyPI.
+
+### Protocol — `fcop_protocol_version: 1.6.0` / `fcop_rules_version: 1.8.0`
+
+- **Rule 1 — sub-agent identity inheritance (`fcop`).** Rule 1 now
+  explicitly states that sub-agents and worker subprocesses
+  **inherit the parent session's bound role** and must not
+  self-assign a different role code, even temporarily, to satisfy
+  task language like "ME completes, COMMS reviews". A single
+  agent driving multiple subprocesses is one role, not many.
+  Detection now exists at audit time: `fcop_check()` flags any
+  `session_id` that signs files under more than one role. Closes
+  `ISSUE-20260427-004` and answers the AMEND-20260427-011 dogfood
+  case where a parent session let a sub-process write a `REPORT-*`
+  under a peer role. Source: `src/fcop/rules/_data/fcop-rules.mdc`.
+- **Rule 0.a.1 — tripwire applies to all write paths (`fcop`).**
+  Clarifies that the `task → do → report → archive` cycle binds
+  every write path, not just MCP tools — raw shell, `git commit`,
+  IDE-side edits, and external scripts are all in scope. The
+  protocol cannot prevent these channels from running; what it
+  guarantees is that the next `fcop_report()` / `fcop_check()`
+  surfaces the drift loud and unmissable. Closes
+  `ISSUE-20260427-001`. Source:
+  `src/fcop/rules/_data/fcop-rules.mdc`.
+- **Rule 5 — sequential corrections, no `AMEND-*` / `-v2` (`fcop`).**
+  Rule 5's allowed-correction examples drop the `AMEND-*` and `-v2`
+  filename patterns, which the `fcop` library never parsed. Append-
+  only history is now expressed by allocating the next
+  `REPORT-NNN` / `TASK-NNN` sequence number and cross-referencing
+  the prior file in frontmatter — no special filename grammar
+  required. Closes `ISSUE-20260427-005`. Source:
+  `src/fcop/rules/_data/fcop-rules.mdc`.
+- **`LETTER-TO-ADMIN.{zh,en}.md` — sub-agent warning.** The "one
+  role, one agent" warning gains a sibling section, "a sub-agent is
+  not an extra role", that tells ADMIN how to spot impersonation
+  via subprocesses and points at `fcop_check()` for evidence.
+
+### Added — `fcop`
+
+- **`Project.audit_drift()` and `DriftReport` model.** New read-only
+  API returning two independent audit streams: (1) working-tree
+  drift detected by parsing `git status --porcelain -z` and
+  removing every entry that lives under
+  `docs/agents/{tasks,reports,issues,log}` — whatever remains is
+  by definition work that bypassed the four-step cycle; (2)
+  `session_id ↔ role` conflicts detected by walking every
+  `TASK-*.md` / `REPORT-*.md` / `ISSUE-*.md` and grouping
+  frontmatter `session_id` by role code. The result is a frozen
+  `DriftReport(entries, session_role_conflicts, git_available)`,
+  with new dataclasses `DriftEntry` and `SessionRoleConflict` in
+  `fcop.models`. Detection-only by design — the protocol cannot
+  prevent an agent from spawning a subprocess and writing
+  arbitrary files; what FCoP guarantees is that the audit is
+  loud. Source: `src/fcop/project.py`,
+  `src/fcop/models.py`.
+
+### Added — `fcop-mcp`
+
+- **`fcop_check()` MCP tool.** New tool that wraps
+  `Project.audit_drift()` and renders both audit streams in human-
+  readable form. ADMIN now has a "is the ledger clean?" button.
+  Source: `mcp/src/fcop_mcp/server.py`.
+- **Per-MCP-process role lock for `write_*` tools.** `write_task`,
+  `write_report`, and `write_issue` remember the first `sender`
+  role observed in the current MCP process. If a later call uses a
+  different role, the tool drops a Rule-1 evidence file under
+  `.fcop/proposals/role-switch-*.md` and appends a warning to its
+  return value. This is **soft enforcement** by design — the agent
+  is not blocked, but the impersonation attempt is recorded
+  alongside the body it would have written. Source:
+  `mcp/src/fcop_mcp/server.py`.
+- **`fcop_report()` shows audit summary.** When the session is
+  UNBOUND, the report now folds in a one-screen
+  `audit_drift()` summary so ADMIN sees pre-existing drift
+  before assigning roles.
+
+### Documentation
+
+- **ADR-0002 — Lockstep pin rule.** The package-split ADR gains a
+  formal section requiring `fcop-mcp X.Y.Z` to depend on
+  `fcop>=X.Y,<X.(Y+1)` while pre-1.0, and a "发版前 lockstep 检查
+  表" pre-release checklist. References `ISSUE-20260427-006`.
+- **`docs/releases/RELEASE-CHECKLIST.md`** (new). Eight-phase release
+  checklist born from the 0.7.0 incident. Every future release must
+  walk through it.
+
 ## [0.7.0] - 2026-04-27
 
 Tightens the protocol around **role-identity uniqueness** and fixes the

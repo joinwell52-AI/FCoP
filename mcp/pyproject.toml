@@ -7,7 +7,7 @@ name = "fcop-mcp"
 dynamic = ["version"]
 # Not the same as the `fcop` wheel: that package is the library + PyYAML only.
 # This package is the optional IDE bridge. Protocol definition: same repo, see project_urls.
-description = "stdio MCP server for the FCoP Python library: exposes the fcop package's Project, task, report, and issue APIs to MCP clients (Cursor, Claude Desktop, …). Optional bridge, not a second protocol; depends on fcop 0.6.x, FastMCP, websockets."
+description = "stdio MCP server for the FCoP Python library: exposes the fcop package's Project, task, report, and issue APIs to MCP clients (Cursor, Claude Desktop, …). Optional bridge, not a second protocol; depends on fcop 0.7.x, FastMCP, websockets."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -43,9 +43,14 @@ classifiers = [
 
 # Runtime dependencies.
 #
-# * `fcop` is pinned to the matching 0.6.x minor by ADR-0002 rule
-#   "fcop-mcp depends on fcop >=0.6,<0.7" so a `pip install --upgrade
-#   fcop-mcp` never silently pulls a breaking 0.7 library version.
+# * `fcop` is pinned to the matching minor of the library by ADR-0002
+#   rule "fcop-mcp depends on fcop within the same MINOR" so that a
+#   `pip install --upgrade fcop-mcp` never silently pulls a breaking
+#   library version *and* an upgrade of fcop-mcp's MINOR pulls the
+#   matching fcop MINOR. The pin must be bumped in lockstep with
+#   every fcop / fcop-mcp MINOR release. Missing this bump in 0.7.0
+#   shipped a broken combo (`fcop-mcp 0.7.0` resolving against
+#   `fcop 0.6.x`); see `docs/releases/0.7.1.md` for the post-mortem.
 #
 # * `fastmcp` is the MCP SDK that provides the @tool / @resource
 #   decorators and the stdio transport. Pinned >= 3.2 because
@@ -56,7 +61,7 @@ classifiers = [
 #   Kept as a runtime dep because the relay bridge is a first-class
 #   feature, not an optional extra.
 dependencies = [
-    "fcop>=0.6,<0.7",
+    "fcop>=0.7,<0.8",
     "fastmcp>=3.2.0",
     "websockets>=12.0",
 ]

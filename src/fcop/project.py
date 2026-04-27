@@ -62,12 +62,15 @@ from fcop.errors import (
 )
 from fcop.models import (
     DeploymentReport,
+    DriftEntry,
+    DriftReport,
     Issue,
     Priority,
     ProjectStatus,
     RecentActivityEntry,
     Report,
     RoleOccupancy,
+    SessionRoleConflict,
     Severity,
     Task,
     TaskFrontmatter,
@@ -1041,6 +1044,82 @@ class Project:
             )
 
         return tuple(occupancies)
+
+    def audit_drift(self) -> DriftReport:
+        """Cross-reference ``git status`` and frontmatter against the FCoP ledger.
+
+        Two independent post-hoc audits surface here:
+
+        1. **Working-tree drift** (Rule 0.a.1, since 1.8.0). Calls
+           ``git status --porcelain`` from the project root and removes
+           every entry whose path lives under the FCoP ledger
+           directories (``docs/agents/{tasks,reports,issues,log}``).
+           Whatever remains is — by definition — work that landed
+           without going through the four-step task→do→report→archive
+           cycle, e.g. raw ``echo > foo.md``, IDE-side edits, `git
+           commit -am` from a peer process, or files dropped by
+           sub-agents that bypassed the toolchain entirely.
+
+        2. **Session/role conflicts** (Rule 1, since 1.8.0). Walks
+           every ``TASK-*.md`` / ``REPORT-*.md`` / ``ISSUE-*.md`` under
+           both active and archive directories, parses frontmatter
+           for ``session_id``, and groups files by session. Any
+           ``session_id`` that signed files under more than one role
+           code is direct evidence of sub-agent role impersonation —
+           one session = one role binding, period.
+
+        This is **detection, not prevention**. The protocol itself
+        cannot prevent an agent from spawning a sub-process and
+        writing whatever it wants; what FCoP can do is make the
+        evidence loud and unmissable by the next ``fcop_report()`` /
+        ``fcop_check()`` call. Prevention still depends on the agent
+        honouring Rule 0.a.1 + Rule 1.
+
+        Returns:
+            A :class:`DriftReport`. ``git_available`` is ``False``
+            when ``git`` is not installed or this is not a git repo;
+            in that case ``entries`` is empty and the caller should
+            note the limitation, but ``session_role_conflicts`` still
+            works since it does not depend on git.
+        """
+        entries: list[DriftEntry] = []
+        git_available = True
+
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                ["git", "status", "--porcelain", "-z"],
+                cwd=str(self._path),
+                capture_output=True,
+                text=False,
+                check=False,
+                timeout=15,
+            )
+        except (FileNotFoundError, OSError, subprocess.SubprocessError):
+            git_available = False
+            result = None
+
+        if result is not None and result.returncode == 0:
+            entries = list(_parse_git_porcelain(result.stdout, self._path))
+        elif result is not None:
+            # ``git status`` ran but failed — most often because this
+            # path is not a git repository. Treat the same as "git
+            # unavailable" so callers see ``git_available=False`` and
+            # know to surface the limitation.
+            git_available = False
+
+        # Filter to only the drift entries (outside ledger).
+        drift_only = tuple(e for e in entries if not e.in_ledger)
+
+        # ── Session ↔ role consistency audit ──────────────────────
+        conflicts = _scan_session_role_conflicts(self)
+
+        return DriftReport(
+            entries=drift_only,
+            session_role_conflicts=conflicts,
+            git_available=git_available,
+        )
 
     # ── Tasks ─────────────────────────────────────────────────────────
 
@@ -2222,6 +2301,127 @@ def _try_read_session_id(path: pathlib.Path) -> str | None:
     if isinstance(value, str) and value.strip():
         return value.strip()
     return None
+
+
+_LEDGER_RELATIVE_PREFIXES = (
+    "docs/agents/tasks/",
+    "docs/agents/reports/",
+    "docs/agents/issues/",
+    "docs/agents/log/",
+)
+
+
+def _parse_git_porcelain(
+    raw: bytes, project_root: pathlib.Path
+) -> Iterator[DriftEntry]:
+    """Parse the NUL-separated output of ``git status --porcelain -z``.
+
+    The ``-z`` form is necessary because plain ``--porcelain`` is
+    ambiguous on filenames containing spaces / quotes / newlines —
+    edge cases which absolutely show up in real codebases. Each entry
+    in ``-z`` output is ``XY <space> path <NUL>``, with renames using
+    a follow-up ``<NUL> oldpath`` segment which we drop because we
+    only care about the destination.
+    """
+    text = raw.decode("utf-8", errors="replace")
+    chunks = text.split("\x00")
+
+    skip_next = False
+    for chunk in chunks:
+        if not chunk:
+            continue
+        if skip_next:
+            # This chunk is the rename source path; we already
+            # captured the destination on the previous iteration.
+            skip_next = False
+            continue
+        if len(chunk) < 4:
+            continue
+        status = chunk[:2]
+        # Format is ``XY path``; the separator is a single space at
+        # index 2.
+        path_str = chunk[3:]
+        # Rename markers (``R `` / ``RM`` / ``RD`` / ``C `` etc.) are
+        # followed by a ``-z`` segment carrying the source path; skip
+        # it on the next iteration.
+        if status[0] in ("R", "C"):
+            skip_next = True
+        normalized = path_str.replace("\\", "/")
+        in_ledger = any(
+            normalized.startswith(prefix)
+            for prefix in _LEDGER_RELATIVE_PREFIXES
+        )
+        yield DriftEntry(path=normalized, status=status, in_ledger=in_ledger)
+
+
+def _scan_session_role_conflicts(
+    project: Project,
+) -> tuple[SessionRoleConflict, ...]:
+    """Scan every TASK / REPORT / ISSUE for ``session_id ↔ role`` conflicts.
+
+    A "conflict" here means: a single ``session_id`` signed files
+    under more than one role code. Per Rule 1 (since 1.8.0) one
+    session = one role binding for life, so this is direct evidence
+    of sub-agent role impersonation.
+
+    Reads frontmatter only — this is the same contract
+    :meth:`Project.role_occupancy` honours: never read task bodies.
+    """
+    from collections import defaultdict
+
+    if not project.is_initialized():
+        return ()
+
+    # session_id → role → set of paths
+    sessions: dict[str, dict[str, set[pathlib.Path]]] = defaultdict(
+        lambda: defaultdict(set)
+    )
+
+    bundles: list[tuple[pathlib.Path, object]] = []
+    bundles += _parse_dir_files(project.tasks_dir, parse_task_filename)
+    bundles += _parse_dir_files(
+        project.log_dir / "tasks", parse_task_filename
+    )
+    bundles += _parse_dir_files(project.reports_dir, parse_report_filename)
+    bundles += _parse_dir_files(
+        project.log_dir / "reports", parse_report_filename
+    )
+    bundles += _parse_dir_files(project.issues_dir, parse_issue_filename)
+    bundles += _parse_dir_files(
+        project.log_dir / "issues", parse_issue_filename
+    )
+
+    for path, parsed in bundles:
+        session_id = _try_read_session_id(path)
+        if not session_id:
+            continue
+        # The "role" we attribute to this file depends on the kind:
+        # tasks → sender, reports → reporter, issues → reporter.
+        role = (
+            getattr(parsed, "sender", None)
+            or getattr(parsed, "reporter", None)
+        )
+        if not role:
+            continue
+        sessions[session_id][role].add(path)
+
+    conflicts: list[SessionRoleConflict] = []
+    for session_id in sorted(sessions.keys()):
+        roles_map = sessions[session_id]
+        if len(roles_map) <= 1:
+            continue
+        all_files: set[pathlib.Path] = set()
+        for paths in roles_map.values():
+            all_files |= paths
+        conflicts.append(
+            SessionRoleConflict(
+                session_id=session_id,
+                roles=tuple(sorted(roles_map.keys())),
+                files=tuple(sorted(all_files, key=lambda p: str(p))),
+            )
+        )
+
+    return tuple(conflicts)
 
 
 def _existing_filenames_for_seq(*dirs: pathlib.Path) -> Iterator[str]:

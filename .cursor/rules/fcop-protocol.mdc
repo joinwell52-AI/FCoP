@@ -1,7 +1,7 @@
 ---
 description: FCoP Protocol — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 1.5.0
+fcop_protocol_version: 1.6.0
 ---
 
 <!--
@@ -990,6 +990,48 @@ Three things the protocol explicitly grants you:
   （`shared/TEAM-ROLES.md` + `shared/TEAM-OPERATING-RULES.md`）写进协议
   解释，并明确用现有 `archive_task()` 逐份把 Solo 历史归档到
   `log/solo-archive/`。不加新工具。
+
+- **v1.6** (2026-04-27) — three protocol clarifications shipped together
+  with `fcop 0.7.1` / `fcop-mcp 0.7.1`:
+  1. **Sub-agents inherit the caller's seat.** When a parent agent
+     spawns sub-processes, sub-tasks, parallel workers, or any shape of
+     "sub-agent", those units share the **same FCoP role binding** as
+     the parent session. Files written by a sub-agent MUST carry
+     `sender` / `reporter` equal to the role ADMIN assigned to the
+     parent session; sub-agents must NOT self-claim a different role
+     code (writing as `CODE_EXPERT` while the parent is `PLANNER` is a
+     Rule 1 violation regardless of how the child was spawned).
+     Detection now lives in `fcop_check()` — same `session_id` showing
+     up under two role codes is direct evidence and gets surfaced to
+     ADMIN.
+  2. **Rule 0.a.1 binds every write path, not only MCP tools.**
+     The `new_workspace` / `init_project` tripwires only guard their
+     own entry points — bypassing them with raw `echo > file.md`,
+     `git commit -am`, IDE-side editing, or any external script
+     remains a Rule 0.a.1 violation. `fcop_check()` (new in 0.7.1)
+     cross-references `git diff` against the FCoP ledger and lists
+     product changes that are not tied to any open task. This is
+     **post-hoc audit, not prevention** — prevention still depends
+     on the agent honouring the four-step cycle.
+  3. **Rule 5 corrections unify under sequential filenames.** The
+     historical `AMEND-*` and `*-v2.md` examples are removed. Parsers
+     never recognized those prefixes, so any file using them was a
+     ghost from the toolchain's perspective. To correct an existing
+     `TASK-*` / `REPORT-*` / `ISSUE-*`, append a new file under the
+     **same prefix with the next sequence number** and reference the
+     original in the new body.
+
+  v1.6 三处协议澄清，与 `fcop 0.7.1` / `fcop-mcp 0.7.1` 同发：
+  1. **子 agent 继承呼叫者的席位**——派生子进程、子任务、并行 worker
+     都视为同一个 FCoP 角色，子 agent 落盘时 `sender`/`reporter`
+     必须沿用父会话被指派的角色，禁止自命另一角色代写。
+     `fcop_check()` 做 `session_id ↔ role` 一致性审计来事后发现。
+  2. **Rule 0.a.1 适用所有写入路径**——MCP 工具层的 tripwire 只能拦
+     自己这条路；用 shell / git commit / IDE 直接写文件依旧违规。
+     `fcop_check()` 新增对照 `git diff` 与 FCoP 账本的事后审计。
+  3. **Rule 5 修正统一走"下一序号同前缀"**——移除 `AMEND-*` /
+     `*-v2.md` 历史例子（解析器从未识别这两种前缀，写出去就是幽灵
+     文件）。
 
 - **v1.3** (2026-04-17) — **Three-layer team docs** promoted from
   recommendation to **protocol rule** (Rule 4.5 in `fcop-rules.mdc`).

@@ -145,6 +145,16 @@
       ]
     },
     {
+      "name": "fcop_check",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "fcop_report",
       "params": [
         {

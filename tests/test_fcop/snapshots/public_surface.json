@@ -378,6 +378,17 @@
         ],
         "return": "Task"
       },
+      "audit_drift": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "DriftReport"
+      },
       "deploy_protocol_rules": {
         "params": [
           {
@@ -1170,6 +1181,8 @@
   "top_level_all": [
     "ConfigError",
     "DeploymentReport",
+    "DriftEntry",
+    "DriftReport",
     "FcopError",
     "Issue",
     "Priority",
@@ -1181,6 +1194,8 @@
     "RecentActivityEntry",
     "Report",
     "RoleNotFoundError",
+    "RoleOccupancy",
+    "SessionRoleConflict",
     "Severity",
     "Task",
     "TaskFrontmatter",

@@ -45,20 +45,29 @@ def reset_session_project() -> Iterator[None]:
     ``set_project_dir`` stores the choice in module-level state
     (``_SESSION_PROJECT_PATH``). Without this fixture, the first test
     that pins a path would leak into every subsequent test.
+
+    The 0.7.1 ``_ROLE_LOCK`` (per-MCP-process role lock from
+    ISSUE-20260427-004) lives in the same module — clear it here too
+    so a write_task in one test doesn't accidentally lock the role
+    for the next test's write_task.
     """
     from fcop_mcp import server as srv
 
     with srv._STATE_LOCK:
         prev_path = srv._SESSION_PROJECT_PATH
         prev_source = srv._SESSION_PROJECT_SOURCE
+        prev_role_lock = dict(srv._ROLE_LOCK)
         srv._SESSION_PROJECT_PATH = None
         srv._SESSION_PROJECT_SOURCE = "uninitialized"
+        srv._ROLE_LOCK.clear()
     try:
         yield
     finally:
         with srv._STATE_LOCK:
             srv._SESSION_PROJECT_PATH = prev_path
             srv._SESSION_PROJECT_SOURCE = prev_source
+            srv._ROLE_LOCK.clear()
+            srv._ROLE_LOCK.update(prev_role_lock)
 
 
 @pytest.fixture

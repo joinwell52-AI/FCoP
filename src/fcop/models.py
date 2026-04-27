@@ -27,6 +27,9 @@ __all__ = [
     "ProjectStatus",
     "RecentActivityEntry",
     "RoleOccupancy",
+    "DriftEntry",
+    "DriftReport",
+    "SessionRoleConflict",
     "ValidationIssue",
     "DeploymentReport",
 ]
@@ -239,6 +242,88 @@ class RoleOccupancy:
     last_session_id: str | None
     last_seen_at: datetime | None
     status: Literal["UNUSED", "ARCHIVED", "ACTIVE"]
+
+
+# ── Audit ─────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class DriftEntry:
+    """One file in the working tree that drifted outside the FCoP ledger.
+
+    Surfaces uncommitted / unstaged changes that were *not* produced
+    via the four-step task→do→report→archive cycle. Drift is detected
+    by parsing ``git status --porcelain`` and removing anything under
+    ``docs/agents/{tasks,reports,issues,log}/``.
+
+    Attributes:
+        path: Path relative to the project root.
+        status: Two-character porcelain code (``"M "``, ``"??"``, etc.).
+            Kept verbatim so callers can re-format if needed.
+        in_ledger: ``True`` only when the file lives under one of the
+            FCoP ledger directories above. Always ``False`` for the
+            entries returned in :attr:`DriftReport.entries`; included
+            on the dataclass so test fixtures and consumers can
+            inspect ledger files when scanning a wider set.
+    """
+
+    path: str
+    status: str
+    in_ledger: bool
+
+
+@dataclass(frozen=True, slots=True)
+class SessionRoleConflict:
+    """One ``session_id`` that produced files under multiple role codes.
+
+    Returned by :meth:`fcop.Project.audit_drift` (within
+    :class:`DriftReport.session_role_conflicts`). The presence of any
+    entry is direct evidence of Rule 1 sub-agent role impersonation
+    (since 1.8.0): one session = one role binding, period.
+
+    Attributes:
+        session_id: The shared frontmatter field that ties files
+            together.
+        roles: All distinct role codes the session signed files under
+            (sorted).
+        files: All ledger files where this conflict shows up (sorted
+            by path).
+    """
+
+    session_id: str
+    roles: tuple[str, ...]
+    files: tuple[Path, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class DriftReport:
+    """Result of :meth:`fcop.Project.audit_drift`.
+
+    Two independent audits live in this report:
+
+    1. **Working-tree drift**: files that ``git`` thinks are dirty
+       (``modified`` / ``untracked`` / ``deleted``) and that do *not*
+       sit under the FCoP ledger directories. These are the canonical
+       Rule 0.a.1 violations — work performed without the four-step
+       cycle.
+    2. **Session/role conflicts**: ``session_id`` values that appear
+       under more than one role code. These are the canonical Rule 1
+       sub-agent impersonation evidence (since 1.8.0).
+
+    Attributes:
+        entries: One :class:`DriftEntry` per drifting file.
+        session_role_conflicts: One :class:`SessionRoleConflict` per
+            conflicting session.
+        git_available: ``False`` when ``git`` could not be invoked
+            (no git binary, not a git repo). The audit falls back to
+            an empty :attr:`entries` and a warning printed by the
+            caller; :attr:`session_role_conflicts` still works because
+            it does not depend on git.
+    """
+
+    entries: tuple[DriftEntry, ...]
+    session_role_conflicts: tuple[SessionRoleConflict, ...]
+    git_available: bool
 
 
 # ── Validation ────────────────────────────────────────────────────────

@@ -54,6 +54,24 @@ _SESSION_PROJECT_PATH: Path | None = None
 _SESSION_PROJECT_SOURCE: str = "uninitialized"
 _LEGACY_ENV_WARNED: bool = False
 
+# Per-MCP-process role lock (since 0.7.1, ISSUE-20260427-004).
+#
+# The MCP server is one process per Cursor chat session. The first
+# write_task / write_report / write_issue caller "claims" a sender
+# role; subsequent calls with a *different* sender role are flagged
+# as a Rule 1 violation (parent agent shouldn't switch roles
+# mid-session, and a sub-agent claiming a different role is exactly
+# the impersonation pattern Rule 1 1.8.0 forbids).
+#
+# This is a soft lock — the call is *allowed* to land (Rule 0.b
+# admits proposer/reviewer flips, and reserved roles like ADMIN /
+# SYSTEM are write-throughs), but the violation is recorded under
+# ``.fcop/proposals/role-switch-{ts}.md`` so ADMIN sees evidence on
+# the next ``fcop_check()``. We deliberately do NOT block writes:
+# blocking just hides the impersonation; recording surfaces it.
+_ROLE_LOCK: dict[str, str] = {}  # project_path → first sender role
+_RESERVED_SENDERS: frozenset[str] = frozenset({"ADMIN", "SYSTEM"})
+
 
 def _home_dirs() -> set[Path]:
     """Return the set of paths the resolver refuses to treat as a project.
@@ -341,6 +359,83 @@ def _format_validation_issues(issues: Sequence[ValidationIssue]) -> str:
             prefix = f"{v.field}: " if v.field else ""
             lines.append(f"  - {prefix}{v.message}")
     return "\n".join(lines)
+
+
+def _record_role_switch(
+    project: Project, *, claimed_role: str, locked_role: str, kind: str
+) -> None:
+    """Drop a `.fcop/proposals/role-switch-{ts}.md` describing the violation.
+
+    Used by :func:`_check_role_lock` when a write_* tool is called
+    under a role that disagrees with the lock established by the
+    first write of this MCP-server lifetime. Failure is silent (best
+    effort) — the user-visible warning in the tool's return value is
+    the primary signal; this file is the durable evidence ADMIN finds
+    later via :func:`fcop_check` / git history.
+    """
+    proposals = project.path / ".fcop" / "proposals"
+    try:
+        proposals.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    target = proposals / f"role-switch-{ts}.md"
+    body = (
+        f"# Rule 1 role-switch evidence ({kind})\n\n"
+        f"- timestamp: {ts}\n"
+        f"- locked role (first write of this MCP session): `{locked_role}`\n"
+        f"- claimed role (this write): `{claimed_role}`\n"
+        f"- tool: `{kind}`\n\n"
+        "This MCP-server process previously wrote a file under the\n"
+        f"role `{locked_role}` and is now being asked to write under\n"
+        f"`{claimed_role}`. Per Rule 1 (sub-agents inherit the\n"
+        "caller's seat, since rules 1.8.0) one MCP session = one\n"
+        "role binding for life. The current write was *allowed* to\n"
+        "land — fcop-mcp records evidence rather than blocking, so\n"
+        "the impersonation cannot be hidden by working around the\n"
+        "block. ADMIN will see this conflict surfaced by\n"
+        "`fcop_check()` and decide handoff / co-review / distinct\n"
+        "role per Rule 1.\n"
+    )
+    try:
+        target.write_text(body, encoding="utf-8")
+    except OSError:
+        return
+
+
+def _check_role_lock(project: Project, sender: str, kind: str) -> str:
+    """Apply the per-MCP-process role lock from ISSUE-20260427-004.
+
+    Returns a non-empty warning string when a violation was recorded
+    (the caller appends it to the tool's normal return value), and
+    the empty string on the happy path. Reserved senders (``ADMIN``,
+    ``SYSTEM``) and the very first write of a project never produce a
+    warning.
+    """
+    sender_norm = (sender or "").strip().upper()
+    if not sender_norm or sender_norm in _RESERVED_SENDERS:
+        return ""
+    project_key = str(project.path)
+    with _STATE_LOCK:
+        locked = _ROLE_LOCK.get(project_key)
+        if locked is None:
+            _ROLE_LOCK[project_key] = sender_norm
+            return ""
+        if locked == sender_norm:
+            return ""
+    _record_role_switch(
+        project,
+        claimed_role=sender_norm,
+        locked_role=locked,
+        kind=kind,
+    )
+    return (
+        "\n\n[Rule 1 warning] this MCP session previously wrote as "
+        f"`{locked}` but is now writing as `{sender_norm}`. The write "
+        "landed; evidence dropped at `.fcop/proposals/role-switch-*.md`. "
+        "Run `fcop_check()` to confirm, then decide handoff / co-review "
+        "/ distinct-role per Rule 1."
+    )
 
 
 def _parse_roles_list(roles: str) -> list[str]:
@@ -732,7 +827,8 @@ def write_task(
     except ValueError as exc:
         return _format_error(exc)
 
-    return f"Task created: {task.filename}\nPath: {task.path}"
+    warning = _check_role_lock(project, sender, "write_task")
+    return f"Task created: {task.filename}\nPath: {task.path}{warning}"
 
 
 @mcp.tool
@@ -904,7 +1000,8 @@ def write_report(
     except ValueError as exc:
         return _format_error(exc)
 
-    return f"Report created: {report.filename}\nPath: {report.path}"
+    warning = _check_role_lock(project, reporter, "write_report")
+    return f"Report created: {report.filename}\nPath: {report.path}{warning}"
 
 
 @mcp.tool
@@ -998,7 +1095,8 @@ def write_issue(
     except ValueError as exc:
         return _format_error(exc)
 
-    return f"Issue created: {issue.filename}\nPath: {issue.path}"
+    warning = _check_role_lock(project, reporter, "write_issue")
+    return f"Issue created: {issue.filename}\nPath: {issue.path}{warning}"
 
 
 @mcp.tool
@@ -1736,6 +1834,7 @@ def _compose_session_report(lang: str) -> str:
         f"  - [{e.kind}] {e.filename} — {e.summary}" for e in recent
     ) or "  (none yet)"
     occupancy_lines = _format_role_occupancy(project, is_en=is_en)
+    drift_lines = _format_drift_summary(project, is_en=is_en)
 
     if is_en:
         return (
@@ -1750,6 +1849,8 @@ def _compose_session_report(lang: str) -> str:
             f"{activity_lines}\n\n"
             "Role occupancy (from on-disk ledger):\n"
             f"{occupancy_lines}\n\n"
+            "Drift audit (Rule 0.a.1 + Rule 1, since 0.7.1):\n"
+            f"{drift_lines}\n\n"
             "ADMIN: assign a role with the literal sentence:\n"
             '  "You are <ROLE> on <team>, thread <thread_key> (optional)"\n\n'
             "Until then this session MUST NOT:\n"
@@ -1787,6 +1888,8 @@ def _compose_session_report(lang: str) -> str:
         f"{activity_lines}\n\n"
         "角色占用（来自磁盘账本） / role occupancy:\n"
         f"{occupancy_lines}\n\n"
+        "漂移审计 / drift audit（Rule 0.a.1 + Rule 1，自 0.7.1 起）：\n"
+        f"{drift_lines}\n\n"
         "ADMIN 请用这句话给本会话分配角色：\n"
         "  「你是 <ROLE>，在 <team>，线程 <thread_key>（可选）」\n\n"
         "在此之前，本会话禁止：\n"
@@ -1812,6 +1915,77 @@ def _compose_session_report(lang: str) -> str:
         "  第 4 步  archive_task(\"TASK-...\")（ADMIN 验收后）\n"
         "跳过第 1 步或第 3 步即违反 Rule 0.a.1。"
     )
+
+
+def _format_drift_summary(
+    project: fcop.Project, *, is_en: bool
+) -> str:
+    """Render the audit_drift summary as a multi-line block.
+
+    Surfaces (a) working-tree files outside the FCoP ledger and
+    (b) `session_id ↔ role` cross-role conflicts. Used by both
+    `fcop_report()` (initialized branch, post 0.7.1) and the new
+    `fcop_check()` tool. Stays compact — the full evidence list is
+    available via `fcop_check()` itself.
+    """
+    try:
+        report = project.audit_drift()
+    except Exception as exc:  # noqa: BLE001 — best-effort audit
+        if is_en:
+            return f"  (audit_drift failed: {exc!r})"
+        return f"  （audit_drift 失败：{exc!r}）"
+
+    lines: list[str] = []
+    if not report.git_available:
+        lines.append(
+            "  (git not available — drift check skipped)"
+            if is_en
+            else "  （未检测到 git，跳过 drift 检查）"
+        )
+    else:
+        if report.entries:
+            head = (
+                f"  {len(report.entries)} drift file(s) outside FCoP ledger:"
+                if is_en
+                else f"  {len(report.entries)} 份文件在 FCoP 账本外漂移："
+            )
+            lines.append(head)
+            for entry in report.entries[:8]:
+                lines.append(f"    [{entry.status}] {entry.path}")
+            remaining = len(report.entries) - 8
+            if remaining > 0:
+                lines.append(
+                    f"    ... and {remaining} more (run fcop_check for the full list)"
+                    if is_en
+                    else f"    ……另有 {remaining} 份（调 fcop_check 看完整列表）"
+                )
+        else:
+            lines.append(
+                "  No working-tree drift outside the FCoP ledger."
+                if is_en
+                else "  工作树无漂移文件，全部修改都在 FCoP 账本内。"
+            )
+
+    if report.session_role_conflicts:
+        head = (
+            f"  ⚠ {len(report.session_role_conflicts)} session_id used under multiple roles:"
+            if is_en
+            else f"  ⚠ {len(report.session_role_conflicts)} 个 session_id 跨多个角色署名："
+        )
+        lines.append(head)
+        for conflict in report.session_role_conflicts[:5]:
+            lines.append(
+                f"    {conflict.session_id} → roles: {', '.join(conflict.roles)} "
+                f"({len(conflict.files)} files)"
+            )
+    else:
+        lines.append(
+            "  No session_id ↔ role conflicts detected."
+            if is_en
+            else "  未发现 session_id 跨角色冲突。"
+        )
+
+    return "\n".join(lines)
 
 
 def _format_role_occupancy(project: fcop.Project, *, is_en: bool) -> str:
@@ -1883,6 +2057,137 @@ def fcop_report(lang: str = "zh") -> str:
         lang: Output language, ``zh`` or ``en``. Default: ``zh``.
     """
     return _compose_session_report(lang)
+
+
+@mcp.tool
+def fcop_check(lang: str = "zh") -> str:
+    """**FCoP audit.** Cross-reference git working tree + frontmatter
+    against the FCoP ledger.
+
+    Two independent post-hoc audits, both new in 0.7.1
+    (``fcop_protocol_version: 1.6.0``):
+
+    1. **Rule 0.a.1 drift** — files in ``git status --porcelain``
+       that live outside ``docs/agents/{tasks,reports,issues,log}/``
+       are by definition work performed without the
+       task→do→report→archive cycle.
+    2. **Rule 1 sub-agent role impersonation** — any ``session_id``
+       that signed files under more than one role code. One session =
+       one role binding for life; cross-role usage is direct evidence
+       that a sub-agent self-claimed a role its parent session was
+       not assigned.
+
+    This tool is **detection, not prevention**. It surfaces the
+    evidence; the protocol-mandated response is for ADMIN to file an
+    ISSUE-* and decide handoff / co-review / distinct-role per
+    Rule 1, just as for the ``role_occupancy`` table in
+    ``fcop_report()``.
+
+    Decomposes to filesystem operations:
+    - ``git status --porcelain -z`` from the project root.
+    - Walk every ``TASK-*.md`` / ``REPORT-*.md`` / ``ISSUE-*.md`` in
+      ``docs/agents/{tasks,reports,issues}`` + ``docs/agents/log/*``.
+    - Read frontmatter only; never task bodies.
+
+    Args:
+        lang: Output language, ``zh`` or ``en``. Default: ``zh``.
+    """
+    is_en = lang.lower().startswith("en")
+    try:
+        project, source = _get_project()
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_initialized():
+        return (
+            "fcop_check requires an initialised project (docs/agents/fcop.json missing). "
+            "Run init_project / init_solo / create_custom_team first."
+            if is_en
+            else "fcop_check 需要已初始化的项目（docs/agents/fcop.json 不存在）。"
+            "请先用 init_project / init_solo / create_custom_team 初始化。"
+        )
+
+    try:
+        report = project.audit_drift()
+    except Exception as exc:  # noqa: BLE001
+        return _format_error(exc)
+
+    project_path = str(project.path)
+    lines: list[str] = []
+    if is_en:
+        lines.append("=== FCoP Check (audit_drift) ===")
+        lines.append(f"Project: {project_path}  (source: {source})")
+        if not report.git_available:
+            lines.append("git: NOT available (drift section skipped)")
+        else:
+            lines.append(
+                f"git: OK — {len(report.entries)} drift file(s) outside FCoP ledger"
+            )
+        lines.append("")
+        lines.append("--- Working-tree drift (Rule 0.a.1) ---")
+        if not report.entries:
+            lines.append("(none — every uncommitted change is inside the ledger)")
+        else:
+            for entry in report.entries:
+                lines.append(f"  [{entry.status}] {entry.path}")
+        lines.append("")
+        lines.append("--- session_id ↔ role conflicts (Rule 1) ---")
+        if not report.session_role_conflicts:
+            lines.append("(none — every session signs files under exactly one role)")
+        else:
+            for conflict in report.session_role_conflicts:
+                lines.append(
+                    f"  {conflict.session_id}  →  roles: {', '.join(conflict.roles)}"
+                )
+                for fp in conflict.files:
+                    try:
+                        rel = fp.relative_to(project.path)
+                    except ValueError:
+                        rel = fp
+                    lines.append(f"      {rel}")
+        lines.append("")
+        lines.append(
+            "Detection only — file an ISSUE-*.md in docs/agents/issues/ and "
+            "ask ADMIN to decide handoff / co-review / distinct-role per Rule 1."
+        )
+    else:
+        lines.append("=== FCoP Check（audit_drift） ===")
+        lines.append(f"项目 / project: {project_path}  （来源: {source}）")
+        if not report.git_available:
+            lines.append("git: 不可用（漂移段已跳过）")
+        else:
+            lines.append(
+                f"git: OK —— FCoP 账本外漂移 {len(report.entries)} 份"
+            )
+        lines.append("")
+        lines.append("--- 工作树漂移（Rule 0.a.1） ---")
+        if not report.entries:
+            lines.append("（无 —— 所有未提交修改都在 FCoP 账本内）")
+        else:
+            for entry in report.entries:
+                lines.append(f"  [{entry.status}] {entry.path}")
+        lines.append("")
+        lines.append("--- session_id ↔ role 冲突（Rule 1） ---")
+        if not report.session_role_conflicts:
+            lines.append("（无 —— 每个 session 都只在一个角色名下署名）")
+        else:
+            for conflict in report.session_role_conflicts:
+                lines.append(
+                    f"  {conflict.session_id}  →  涉及角色: {', '.join(conflict.roles)}"
+                )
+                for fp in conflict.files:
+                    try:
+                        rel = fp.relative_to(project.path)
+                    except ValueError:
+                        rel = fp
+                    lines.append(f"      {rel}")
+        lines.append("")
+        lines.append(
+            "本工具只做检测，不阻塞写入。请把异常落成 docs/agents/issues/ISSUE-*.md，"
+            "请 ADMIN 按 Rule 1 三选一裁决：交班 / 协审 / 改派。"
+        )
+
+    return "\n".join(lines)
 
 
 @mcp.tool

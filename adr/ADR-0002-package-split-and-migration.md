@@ -267,7 +267,9 @@ dynamic = ["version"]
 description = "FastMCP server exposing fcop's Project/Task/Report API to MCP clients."
 requires-python = ">=3.10"
 dependencies = [
-    "fcop >=0.6,<0.7",
+    # See "Lockstep pin rule" below — the upper bound is X.(Y+1) for
+    # an `fcop-mcp X.Y.Z` release.
+    "fcop >=X.Y,<X.(Y+1)",
     "fastmcp >=3.2.0",
     "websockets >=12.0",
 ]
@@ -276,15 +278,37 @@ dependencies = [
 fcop-mcp = "fcop_mcp.__main__:main"
 ```
 
-版本策略：**独立递增**。
+版本策略：**独立递增 + 同 minor lockstep**。
 
-- `fcop 0.6.0` 与 `fcop-mcp 0.6.0` **首发日对齐**
-- 之后 bugfix 各自独立发 patch（`fcop 0.6.1`、`fcop-mcp 0.6.2` 都可能发生）
-- `fcop-mcp` 的依赖范围 `>=0.6,<0.7`，兼容 0.6.x 任何版本
-- 0.7 到来时，`fcop-mcp 0.7.0` 跟着发，把依赖范围升到 `>=0.7,<0.8`
+- `fcop X.Y.0` 与 `fcop-mcp X.Y.0` **首发日对齐**（minor 一对一）
+- 之后 bugfix 各自独立发 patch（`fcop X.Y.1`、`fcop-mcp X.Y.2` 都可能发生）
+- 一个 `fcop-mcp X.Y.*` 永远只兼容同 minor 的 `fcop X.Y.*`，不准跨 minor
+- `X.(Y+1)` 到来时，`fcop X.(Y+1).0` 与 `fcop-mcp X.(Y+1).0` 同日发布，
+  把依赖范围一并升到 `>=X.(Y+1),<X.(Y+2)`
 - **1.0 作为一次"版本对齐锚点"**：届时 `fcop 1.0.0` 与 `fcop-mcp 1.0.0`
   同日发布，之后再次允许独立 minor/patch 漂移。1.0 是协议/API/服务器三方
   stable 宣告点，对齐这次版本号是对外信号。
+
+### Lockstep pin rule（自 0.7.1 起明文）
+
+`fcop-mcp X.Y.Z` 的 `fcop` 依赖必须严格写成 `fcop>=X.Y,<X.(Y+1)`。这条规矩
+不是"建议"，是 **CI 强制**——`tests/test_fcop/test_pyproject_pins.py` 在
+每次 `pytest` 运行时都会断言。背景：`fcop-mcp 0.7.0` 发到 PyPI 时仍带着
+`fcop>=0.6,<0.7` 的旧 pin，结果 uvx 给它装上 `fcop 0.6.5`、`server.py`
+import `RoleOccupancy` 立刻 `AttributeError`。详情见
+`docs/releases/0.7.1.md` post-mortem 与 ISSUE-20260427-006。
+
+发版前 lockstep 检查表（每次 minor / patch 都要走完）：
+
+| # | 检查 | 命令 / 文件 |
+|---|------|-------------|
+| 1 | `src/fcop/_version.py` 已 bump | `__version__ = "X.Y.Z"` |
+| 2 | `mcp/src/fcop_mcp/_version.py` 已 bump 到同 minor | `__version__ = "X.Y.Z"` |
+| 3 | `mcp/pyproject.toml` 的 `fcop` pin 已升到 `>=X.Y,<X.(Y+1)` | `dependencies` 段 |
+| 4 | `pytest tests/test_fcop/test_pyproject_pins.py` 全绿 | 自动核对 1–3 |
+| 5 | `CHANGELOG.md` 与 `docs/releases/X.Y.Z.md` 已写 | 人工确认 |
+| 6 | `pytest -q` + `ruff check` 全绿 | 全量校验 |
+| 7 | 先 `twine upload fcop`、后 `twine upload fcop-mcp` | 顺序硬约束 |
 
 **发布顺序硬约束**：`fcop` 先发，`fcop-mcp` 后发。理由是 `fcop-mcp` 在
 PyPI `twine upload` 时，`fastmcp` 能从 PyPI 先解析 `fcop` 的依赖；否则

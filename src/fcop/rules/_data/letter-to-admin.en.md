@@ -230,6 +230,32 @@ agent is for first**, then issue the assignment line. If two windows
 must run concurrently, use team mode with distinct roles (`PM` ↔ `DEV`),
 not two `PM`s.
 
+### ⚠️ A sub-agent is NOT an extra role (enforced since 0.7.1)
+
+Modern agents now spawn **their own sub-processes / sub-agents /
+parallel workers**. From FCoP's standpoint these still share the
+**same seat** as the parent — files written by a sub-agent MUST carry
+the role you assigned to the parent session, and **must not** self-claim
+a different role code to write "on behalf of" someone else.
+
+Real failure mode (observed 2026-04-27):
+
+> You assign `PLANNER`. PLANNER spawns a sub-agent to run tests. The
+> sub-agent then writes a report with `sender: CODE_EXPERT` — but you
+> never assigned `CODE_EXPERT` to anyone.
+
+This is a Rule 1 violation. One role = one duty = one ledger account.
+The only legal path to make `CODE_EXPERT` produce a report is Rule 4:
+dispatch a `TASK-*.md` to `CODE_EXPERT` and wait until you've
+separately assigned a session to that role.
+
+**0.7.1 ships a new `fcop_check()` tool** that runs a
+`session_id ↔ role` consistency audit — the same `session_id` showing
+up under two different role codes is direct evidence of impersonation
+and gets surfaced to you. This is post-hoc audit, not prevention —
+prevention still depends on the agent honouring the rule, but you
+can run `fcop_check()` any time to verify.
+
 ---
 
 ## Hard rules for custom roles
