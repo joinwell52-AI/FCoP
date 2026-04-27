@@ -440,18 +440,18 @@ class TestSafetyAndMeta:
         files = list(proposals.iterdir())
         assert len(files) == 1
 
-    def test_unbound_report_uninitialized(
+    def test_fcop_report_uninitialized(
         self, project_dir: Path
     ) -> None:
         _call("set_project_dir", path=str(project_dir))
-        out = _call("unbound_report", lang="zh")
+        out = _call("fcop_report", lang="zh")
         # Uninitialized project emits the init-required variant.
         assert "init" in out.lower() or "初始化" in out or "FCoP" in out
 
-    def test_unbound_report_initialized(
+    def test_fcop_report_initialized(
         self, initialized_project: Path
     ) -> None:
-        out = _call("unbound_report", lang="zh")
+        out = _call("fcop_report", lang="zh")
         assert "UNBOUND" in out or "dev-team" in out
 
     def test_upgrade_fcop_is_dry(self, project_dir: Path) -> None:
@@ -498,6 +498,29 @@ class TestSessionReportAndRedeploy:
         # Same shape as the legacy unbound_report — UNBOUND banner
         # over the bound team's metadata.
         assert "UNBOUND" in out or "dev-team" in out
+
+    def test_fcop_report_renders_role_occupancy_section(
+        self, initialized_project: Path
+    ) -> None:
+        # Since 0.7.0, the UNBOUND report carries a per-role occupancy
+        # table so an agent can detect double-bind before transitioning
+        # to BOUND (Rule 1 + protocol 1.5.0). dev-team has 4 roles, all
+        # UNUSED in a fresh init.
+        out = _call("fcop_report", lang="zh")
+        assert "角色占用" in out or "Role occupancy" in out
+        for role in ("PM", "DEV", "QA", "OPS"):
+            assert role in out, (
+                f"role {role!r} missing from occupancy table; "
+                "Rule 1 hardening relies on this rendering"
+            )
+        assert "UNUSED" in out
+
+    def test_fcop_report_english_role_occupancy_section(
+        self, initialized_project: Path
+    ) -> None:
+        out = _call("fcop_report", lang="en")
+        assert "Role occupancy" in out
+        assert "UNUSED" in out
 
     def test_fcop_report_renders_versions_block(
         self, initialized_project: Path
@@ -586,36 +609,20 @@ class TestSessionReportAndRedeploy:
         assert "redeploy_rules" in out
         assert "本地偏旧" in out or "OUTDATED" in out
 
-    # ── unbound_report (deprecated alias) ────────────────────────────
+    # ── unbound_report alias removed in 0.7.0 ────────────────────────
 
-    def test_unbound_report_still_works_as_alias(
+    def test_unbound_report_alias_is_gone(
         self, initialized_project: Path
     ) -> None:
-        # The alias must remain functional through 0.6.x — existing
-        # `LETTER-TO-ADMIN.md` system prompts still tell agents to call
-        # ``unbound_report``. Deprecation cycle removes the name in 0.7.0.
-        out = _call("unbound_report", lang="zh")
-        assert "UNBOUND" in out or "dev-team" in out
-
-    def test_unbound_report_emits_deprecation_warning(
-        self, initialized_project: Path
-    ) -> None:
-        # Call the underlying function directly so the warnings.warn()
-        # inside the body propagates into pytest's warning capture
-        # (FastMCP's call_tool path may swallow them in some setups).
-        # ``unbound_report`` is registered as an MCP tool but the
-        # decorator leaves the original Python function reachable via
-        # the module namespace.
+        # The deprecated alias from 0.6.3 was removed in fcop-mcp 0.7.0
+        # per ADR-0006's two-cycle deprecation window. New code must
+        # call ``fcop_report`` directly.
         from fcop_mcp import server as srv
 
-        # Pin the project so the report body actually composes.
-        _call("set_project_dir", path=str(initialized_project))
-
-        with pytest.warns(DeprecationWarning, match="unbound_report is deprecated"):
-            out = srv.unbound_report(lang="zh")
-
-        # And the alias produces the same body shape as fcop_report.
-        assert "UNBOUND" in out or "dev-team" in out
+        assert not hasattr(srv, "unbound_report"), (
+            "unbound_report should have been removed in 0.7.0; "
+            "see CHANGELOG.md"
+        )
 
     # ── redeploy_rules ───────────────────────────────────────────────
 

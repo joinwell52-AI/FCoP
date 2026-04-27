@@ -196,6 +196,40 @@ Tomorrow you need DEV. Open a new Cursor window, say:
 The two windows **do not chat with each other** — they coordinate
 through files under `docs/agents/tasks/`.
 
+### ⚠️ One role, one agent (FCoP enforces this automatically since 0.7.0)
+
+`ADMIN` (you) is bound by two dual constraints in the FCoP protocol:
+
+1. **`ADMIN` cannot be assigned to any agent** — you are the human;
+   AIs do not wear that hat.
+2. **The same role code cannot be assigned to multiple agents
+   simultaneously** — don't tell two Cursor windows "you are ME", and
+   don't tell two windows "you are PM". Those two agents will fight
+   over the same filename space under `docs/agents/tasks/`, `reports/`,
+   `issues/`, breaking Rule 0.b's self-review mechanism and Rule 4's
+   role routing.
+
+Since `fcop_protocol_version: 1.5.0` (fcop-mcp 0.7.0), an agent will
+**proactively** cross-check `fcop_report()`'s "Role occupancy" section
+before transitioning to BOUND:
+
+- You say "you are PM" but `tasks/` already shows another session has
+  written files as PM → the agent MUST refuse the binding under Rule 8,
+  drop a conflict note at `.fcop/proposals/`, and hand you three
+  options:
+  - **Handoff**: let the previous session wrap up, then re-assign.
+  - **Co-review**: literally say "you are PM's co-reviewer" — this is
+    a distinct binding, read-only + second-pass write.
+  - **Distinct role**: assign a role code never seen on disk (e.g.,
+    `PM2`).
+- "Let me temporarily fill in" is **not** a legal option — there is no
+  temporary identity state in the FCoP protocol.
+
+In practice: when you open a second Cursor window, **decide what that
+agent is for first**, then issue the assignment line. If two windows
+must run concurrently, use team mode with distinct roles (`PM` ↔ `DEV`),
+not two `PM`s.
+
 ---
 
 ## Hard rules for custom roles

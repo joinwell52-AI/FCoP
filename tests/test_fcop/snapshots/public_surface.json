@@ -790,6 +790,17 @@
         ],
         "return": "Task"
       },
+      "role_occupancy": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "tuple[RoleOccupancy, ...]"
+      },
       "status": {
         "params": [
           {

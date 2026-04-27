@@ -1,7 +1,7 @@
 ---
 description: FCoP Protocol — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 1.4.0
+fcop_protocol_version: 1.5.0
 ---
 
 <!--
@@ -258,7 +258,9 @@ no team, no thread. Before doing anything else you must:
 1. **Call `fcop_report()`.** Without MCP, produce the same report by hand:
    project path, `fcop.json` contents, visible `.cursor/rules/*.mdc`,
    active threads grouped by `thread_key` (**frontmatter only — NEVER read
-   task bodies**), and `fcop-rules.mdc` + `fcop-protocol.mdc` hash/version.
+   task bodies**), per-role occupancy derived from
+   `docs/agents/{tasks,reports,issues,log}/`, and `fcop-rules.mdc` +
+   `fcop-protocol.mdc` hash/version.
 2. **Stop and wait.** Do not infer your role from which tasks look
    unfinished. Do not write any file. Do not dispatch follow-up work.
    *"The pending task is for PM, therefore I am PM"* is exactly the failure
@@ -267,19 +269,39 @@ no team, no thread. Before doing anything else you must:
    > 你是 {ROLE}，在 {team}，线程 {thread_key}（可选）
    >
    > You are {ROLE} on {team}, thread {thread_key} (optional)
+4. **Verify role uniqueness from disk before transitioning to BOUND.**
+   Cross-check the assigned role code against `fcop_report()`'s
+   "Role occupancy" block (since 0.7.0 / `fcop_protocol_version: 1.5.0`):
+   - **Status `UNUSED` or `ARCHIVED`** → safe to transition to BOUND.
+   - **Status `ACTIVE` with `last_session_id` matching this session** →
+     same agent reconnecting, safe to BOUND (resume).
+   - **Status `ACTIVE` with a different `last_session_id`** → STOP.
+     Per Rule 1 + Rule 8, refuse the BOUND transition. Drop a note at
+     `.fcop/proposals/double-bind-{timestamp}.md` describing the
+     conflict (assigned role, observed occupancy, your `session_id`)
+     and return ADMIN three options: **handoff** (let the other agent
+     finish first, then re-assign), **co-review** (ADMIN literally
+     says "you are X's co-reviewer" — a distinct role binding,
+     read+second-pass-write only), or **distinct role** (assign a new
+     role code never seen on disk). Do *not* "temporarily" share the
+     role code — there is no legal temp state.
 
-   Only then do you transition to **BOUND** and may act as that role.
+   Only after the occupancy check passes do you transition to **BOUND**
+   and may act as that role.
 
 If ADMIN says "ok, just pick up that task", you are also BOUND — permission
 is inferred from the instruction. The ban is on **self-binding from context
-clues alone**.
+clues alone**. The occupancy check in step 4 still applies — pick-up only
+counts as a BOUND transition if no other session is currently driving the
+same role.
 
 新会话默认 **UNBOUND**。UNBOUND 的 Agent 没有角色、没有团队、没有线程。
 做任何事之前必须：
 
 1. 调 `fcop_report()`。没有 MCP 时手工出同等报告：项目路径、
    `fcop.json` 内容、能看到的 `.cursor/rules/*.mdc`、按 `thread_key`
-   去重的活跃线程（**只读 frontmatter，绝不读任务正文**）、
+   去重的活跃线程（**只读 frontmatter，绝不读任务正文**）、按角色
+   汇总的占用状态（来自 `docs/agents/{tasks,reports,issues,log}/`）、
    `fcop-rules.mdc` 与 `fcop-protocol.mdc` 的 hash/版本。
 2. **停住等。** 不许从"哪个任务没干完"反推角色，不许写任何文件，
    不许派发后续任务。*"待办任务是给 PM 的，所以我是 PM"* 正是这条款
@@ -287,11 +309,28 @@ clues alone**.
 3. 等 ADMIN 明确指派：
 
    > 你是 {ROLE}，在 {team}，线程 {thread_key}（可选）
+4. **转 BOUND 之前，按磁盘账本核对角色唯一性**。
+   把指派的角色码与 `fcop_report()` 的「角色占用 / Role occupancy」
+   段对照（自 0.7.0 / `fcop_protocol_version: 1.5.0` 起强制）：
+   - 状态 `UNUSED` 或 `ARCHIVED` → 可安全转 BOUND。
+   - 状态 `ACTIVE` 且 `last_session_id` 与本会话一致 → 同一 agent
+     重连，可继续 BOUND（恢复）。
+   - 状态 `ACTIVE` 但 `last_session_id` 与本会话不同 → 停。
+     按 Rule 1 + Rule 8 拒绝 BOUND，向
+     `.fcop/proposals/double-bind-{时间戳}.md` 写一份冲突说明
+     （指派的角色、观测到的占用情况、本会话 `session_id`），
+     向 ADMIN 三选一：**交班**（让旧 session 收尾后再指派）、
+     **协审**（ADMIN 明说"你做 X 的 co-reviewer"——这是另一种
+     绑定，只允许只读+二审写）、**改派**（指派一个磁盘上从未出
+     现过的新角色码）。**不要**"临时顶一下"——本协议里没有这种
+     合法中间态。
 
-   只有此时才转入 **BOUND** 并以该角色行事。
+   只有 step 4 通过后才转入 **BOUND** 并以该角色行事。
 
 ADMIN 说"就接那个任务吧"时你也是 BOUND——权限从指令里推出来即可。
-这条款禁的是**仅凭上下文线索自行认定角色**。
+这条款禁的是**仅凭上下文线索自行认定角色**。step 4 的占用核对在
+"接那个任务"这种简短指派下也照样适用——没有别的 session 正在驱动
+同一角色，才算合法的 BOUND 转换。
 
 ## Setting / 场景
 
@@ -1086,7 +1125,7 @@ Agents **must not** invoke `redeploy_rules()` themselves
 
 ### 版本告警 / Version drift warning
 
-`fcop_report()`（旧名 `unbound_report()`）会自动比对：
+`fcop_report()` 会自动比对：
 
 - **项目本地版本**：项目根 `.cursor/rules/fcop-rules.mdc` frontmatter 里
   的 `fcop_rules_version` 字段
@@ -1095,23 +1134,19 @@ Agents **must not** invoke `redeploy_rules()` themselves
 两者不一致时，工具输出底部会插入一段提醒，提示 ADMIN 调 `redeploy_rules()`。
 Agent 收到提醒后**不得**自行升级，只能告知 ADMIN。
 
-`fcop_report()` (formerly `unbound_report()`) compares the
-project-local version (read from
+`fcop_report()` compares the project-local version (read from
 `.cursor/rules/fcop-rules.mdc` frontmatter) against the package
 version (`fcop.rules.get_rules_version()`). On mismatch, the tool
 output appends a warning prompting ADMIN to run `redeploy_rules()`.
 The agent must surface the warning to ADMIN; it must not upgrade
 unilaterally.
 
-### 工具改名 · `unbound_report` → `fcop_report` / Tool rename
+### 工具改名历史 · `unbound_report` → `fcop_report` / Tool rename history
 
-- `unbound_report()` 在 `fcop-mcp` 0.6.3 起改名为 `fcop_report()`，原因：
-  会话开始 / 包升级 / 任何状态查询都可能调它，「unbound」字面只匹配
-  「无角色」一种状态，名字过窄。
-- 旧名 `unbound_report()` 保留为 deprecated alias（行为与新名等价，调用
-  时打 `DeprecationWarning`），**计划在 0.7.0 删除**。
-- The tool was renamed in `fcop-mcp` 0.6.3 because "unbound" only
-  matches the "no role" state; the tool is also useful after package
-  upgrades and at any status check. The old name remains as a
-  deprecated alias (same behavior, emits `DeprecationWarning`) and
-  **will be removed in 0.7.0**.
+- `unbound_report()` 在 `fcop-mcp` 0.6.3 起改名为 `fcop_report()`；旧名作
+  为 deprecated alias 并存了 0.6.3 ~ 0.6.5 三个版本，**自 0.7.0 起已删除**。
+  仍在使用 `unbound_report()` 的脚本/system prompt 必须改用 `fcop_report()`。
+- The tool was renamed in `fcop-mcp` 0.6.3; the deprecated alias lived
+  alongside through 0.6.3 ~ 0.6.5 and **was removed in 0.7.0**. Any
+  remaining script or system prompt that still calls `unbound_report()`
+  must switch to `fcop_report()`.

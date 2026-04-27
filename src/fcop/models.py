@@ -26,6 +26,7 @@ __all__ = [
     "TeamConfig",
     "ProjectStatus",
     "RecentActivityEntry",
+    "RoleOccupancy",
     "ValidationIssue",
     "DeploymentReport",
 ]
@@ -195,6 +196,49 @@ class ProjectStatus:
     reports_count: int
     issues_count: int
     recent_activity: tuple[RecentActivityEntry, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class RoleOccupancy:
+    """Per-role occupancy snapshot derived from the on-disk ledger.
+
+    Returned by :meth:`fcop.Project.role_occupancy`. Backs the
+    "Role occupancy" section of `fcop_report()`'s UNBOUND output and
+    is the canonical data source agents consult before transitioning
+    from UNBOUND to BOUND (Rule 1 + ``fcop_protocol_version: 1.5.0``
+    UNBOUND step 4).
+
+    A role's status is computed from filename parses only — bodies are
+    never read, so this method is safe to call from an UNBOUND session.
+
+    Attributes:
+        role: The role code as it appears in :class:`TeamConfig.roles`.
+        open_tasks: ``TASK-*.md`` files in ``tasks/`` where ``role`` is
+            sender or recipient.
+        open_reports: ``REPORT-*.md`` files in ``reports/`` where
+            ``role`` is reporter or recipient.
+        open_issues: ``ISSUE-*.md`` files in ``issues/`` where ``role``
+            is the reporter.
+        archived_tasks: ``TASK-*.md`` files in ``log/tasks/`` involving
+            ``role`` (sender or recipient).
+        last_session_id: ``session_id`` frontmatter value of the most
+            recently modified file involving the role, if any. May be
+            ``None`` if the field was never written by an older fcop
+            version, or if no files mention the role.
+        last_seen_at: ``mtime`` of the most recently modified file
+            involving the role.
+        status: ``"UNUSED"`` (no files anywhere), ``"ARCHIVED"`` (only
+            archived files), or ``"ACTIVE"`` (at least one open file).
+    """
+
+    role: str
+    open_tasks: int
+    open_reports: int
+    open_issues: int
+    archived_tasks: int
+    last_session_id: str | None
+    last_seen_at: datetime | None
+    status: Literal["UNUSED", "ARCHIVED", "ACTIVE"]
 
 
 # ── Validation ────────────────────────────────────────────────────────

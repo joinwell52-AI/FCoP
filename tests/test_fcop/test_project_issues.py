@@ -96,6 +96,37 @@ class TestWriteIssue:
         )
         assert first.filename != second.filename
 
+    def test_seq_skips_archived_basename(self, tmp_path: Path) -> None:
+        # Regression / preemptive guard for ISSUE-20260427-003 applied
+        # to issues. Today there is no archive_issue() so this branch
+        # is rarely hit in practice, but the same union-scan logic must
+        # apply for symmetry: if anyone (test, future tool, manual ops)
+        # places a file under ``log/issues/``, ``write_issue`` must not
+        # mint a colliding basename.
+        from fcop.core.filename import parse_issue_filename
+
+        project = Project(tmp_path)
+        first = project.write_issue(
+            reporter="DEV", summary="one", body="x"
+        )
+        first_parsed = parse_issue_filename(first.filename)
+        assert first_parsed is not None and first_parsed.sequence == 1
+
+        log_issues_dir = project.log_dir / "issues"
+        log_issues_dir.mkdir(parents=True, exist_ok=True)
+        first.path.replace(log_issues_dir / first.filename)
+        assert not list(project.issues_dir.iterdir())
+        assert len(list(log_issues_dir.iterdir())) == 1
+
+        second = project.write_issue(
+            reporter="DEV", summary="two", body="y"
+        )
+        second_parsed = parse_issue_filename(second.filename)
+        assert second_parsed is not None and second_parsed.sequence >= 2, (
+            "seq must skip 001 because it is taken in log/issues/; "
+            "see ISSUE-20260427-003"
+        )
+
     def test_rejects_empty_summary(self, tmp_path: Path) -> None:
         with pytest.raises(ValueError, match="summary"):
             Project(tmp_path).write_issue(

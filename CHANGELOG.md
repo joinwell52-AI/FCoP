@@ -10,40 +10,98 @@ versioning strategy.
 
 ## [Unreleased]
 
-### Documentation-only sync (destined for 0.6.6, no PyPI bump)
+## [0.7.0] - 2026-04-27
 
-These edits are **docs-only**: `_version.py` for both `fcop` and
-`fcop-mcp` stays at `0.6.5`, no PyPI upload, no behavior change. The
-next package release (whatever number it takes) will carry the docs
-forward. Pinned to a numbered release note for audit trail. See
-[`docs/releases/0.6.6.md`](./docs/releases/0.6.6.md) for the
-full rationale and verification commands.
+Tightens the protocol around **role-identity uniqueness** and fixes the
+sequence-collision bug spotted live during 0.6.6 documentation work.
+Carries forward all 0.6.6 documentation-only edits that never made it
+to PyPI. See [`docs/releases/0.7.0.md`](./docs/releases/0.7.0.md) for
+the full rationale, the "two ME" thought experiment that motivated the
+protocol changes, and the dogfood incident reports
+(`ISSUE-20260427-002` and `ISSUE-20260427-003`).
 
-- **`docs/mcp-tools.md` resource count**: corrected "资源（resources）
-  **10 个**" → "**12 个**" (9 static + 3 templates, matches
-  `tool_surface.json` truth). Added the two missing 0.6.4 resource
-  rows for `fcop://prompt/install` (zh) and `fcop://prompt/install/en`.
-  Appended one-liner 0.6.5 behaviour notes to the `fcop_report` and
-  `new_workspace` rows.
-- **`mcp/README.md` (PyPI `fcop-mcp` long description)**: appended a
-  bilingual one-sentence summary of the 0.6.5 Rule 0.a.1 tripwires to
-  the existing "What can the server actually do?" lede. Before this
-  patch, PyPI users seeing `fcop-mcp 0.6.5` had no in-page explanation
-  of why `new_workspace` started prepending a reminder.
-- **`LETTER-TO-ADMIN.{zh,en}.md`**: added one bullet at the bottom of
-  the top "0.6.4 摘要" / "0.6.4 in one block:" block describing the
-  0.6.5 polish (`new_workspace` reminder + `fcop_report` four-step
-  template). Heading text is preserved verbatim so existing letter-intro
-  tests keep passing; both bullets land inside the slice that
-  `get_letter_intro()` surfaces to ADMIN at init time.
-- **Root `README.md` / `README.zh.md`**: rewrote the "0.6.3 highlights"
-  long paragraph (10 lines mixing five concerns, frozen at 0.6.3) into
-  three discrete blocks: a 5-row **Pointers** table (install /
-  agent-install / upgrade / tool index / changelog), a 3-row
-  **Recent releases** table (0.6.3 / 0.6.4 / 0.6.5 each linking to its
-  `docs/releases/<v>.md`), and a standalone "wrong `fcop` on PyPI"
-  blockquote. Same five pointers as before — no new package promises —
-  but version-coupling is contained to a single editable table.
+### Protocol — `fcop_protocol_version: 1.5.0` / `fcop_rules_version: 1.7.0`
+
+- **Rule 1 — role-identity uniqueness (`fcop`).** Rule 1's
+  "Invariants across both phases" section now explicitly forbids the
+  same non-`ADMIN` / non-`SYSTEM` role code being bound to multiple
+  agents simultaneously, declares the on-disk ledger
+  (`docs/agents/{tasks,reports,issues,log}/`) as the **single
+  authority** on occupancy, and binds ADMIN symmetrically — ADMIN
+  must not assign the same role code to multiple agents either. The
+  rule is the dual of the existing "ADMIN cannot be assigned to an
+  agent" clause: the former protects the human seat, the latter
+  protects every AI seat. Agents that detect a double-bind during
+  the UNBOUND → BOUND transition must refuse under Rule 8 and
+  surface three options (handoff / co-review / distinct role) to
+  ADMIN; "temporarily filling in" is not a legal state.
+  Source: `src/fcop/rules/_data/fcop-rules.mdc`.
+- **UNBOUND step 4 — disk-based occupancy self-check (`fcop`).** The
+  UNBOUND protocol in `fcop-protocol.mdc` adds a fourth step: before
+  transitioning to BOUND, cross-check the assigned role against the
+  new "Role occupancy" section of `fcop_report()` and reject the
+  transition when another `session_id` is already driving the role.
+  Source: `src/fcop/rules/_data/fcop-protocol.mdc`.
+- **`LETTER-TO-ADMIN.{zh,en}.md` — ADMIN's symmetric duty.** The
+  "Standard opening lines" section gains an explicit "one role, one
+  agent" warning so ADMIN learns the constraint at the moment they
+  type "you are PM". Includes the three escape options when the
+  constraint is hit.
+
+### Added — `fcop`
+
+- **`Project.role_occupancy()` and `RoleOccupancy` model.** New
+  read-only API returning per-role status (`UNUSED` / `ARCHIVED` /
+  `ACTIVE`), open / archived counts across `tasks/`, `reports/`,
+  `issues/`, `log/`, plus the most recent `session_id` and `mtime`.
+  Computed from filename parses + frontmatter-only reads, so it is
+  safe to call from an UNBOUND session (Rule 1 still forbids body
+  reads). Roles in the on-disk ledger that are not declared in
+  `fcop.json` are surfaced as "ghost" rows so ADMIN can spot stale
+  team layouts.
+
+### Added — `fcop-mcp`
+
+- **`fcop_report()` "Role occupancy" section.** UNBOUND output now
+  renders the new `Project.role_occupancy()` data as a fixed-width
+  table (role / status / open & archived counts / `last_session_id`
+  / `last_seen_at`). The output also gains a four-line guide on how
+  to read the table and when to refuse a BOUND transition. Drives
+  the agent-side enforcement of Rule 1's role uniqueness clause.
+
+### Fixed — `fcop`
+
+- **`write_task` / `write_report` / `write_issue` sequence collision
+  after archive (`ISSUE-20260427-003`).** All three writers used to
+  scan only their active directory (`tasks/` / `reports/` /
+  `issues/`) when computing the next sequence number, ignoring
+  `log/<type>/`. After `archive_task` moved a file out, the next
+  same-day write reused the just-vacated sequence and produced a
+  basename that collided with its archived ancestor in `git log` /
+  cross-history grep. Fix: extracted shared helper
+  `_existing_filenames_for_seq(*dirs)` that yields basenames across
+  every passed directory; all three writers now union active and
+  archive paths. Three regression tests added (one per writer) under
+  the name `test_seq_skips_archived_basename`. Spotted live during
+  the dogfood session that produced `TASK-20260427-002` and
+  `REPORT-20260427-002`, both of which had to be hand-renamed.
+
+### Removed — `fcop-mcp`
+
+- **`unbound_report()` deprecated alias.** The 0.6.3 deprecation
+  cycle promised removal in 0.7.0; `fcop_report()` is now the only
+  way to produce the session report. Existing system prompts and
+  documentation that still call `unbound_report` must switch.
+  References to the alias in `fcop-protocol.mdc` were rewritten as
+  history. **Surface-breaking change** under ADR-0003 — explicitly
+  permitted at minor boundaries (0.6.x → 0.7.0).
+
+### Documentation
+
+- **Carries forward all 0.6.6 docs-only edits** that never shipped
+  to PyPI: `docs/mcp-tools.md` resource count, `mcp/README.md` 0.6.5
+  summary, `LETTER-TO-ADMIN.{zh,en}.md` 0.6.5 bullet, and the root
+  README "Recent releases" table.
 
 ## [0.6.5] - 2026-04-27
 

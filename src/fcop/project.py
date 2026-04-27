@@ -19,7 +19,7 @@ import contextlib
 import datetime as _dt
 import os
 import pathlib
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from typing import Literal
 
 import yaml
@@ -67,6 +67,7 @@ from fcop.models import (
     ProjectStatus,
     RecentActivityEntry,
     Report,
+    RoleOccupancy,
     Severity,
     Task,
     TaskFrontmatter,
@@ -951,6 +952,96 @@ class Project:
             recent_activity=recent,
         )
 
+    def role_occupancy(self) -> tuple[RoleOccupancy, ...]:
+        """Per-role occupancy snapshot derived from the on-disk ledger.
+
+        Returns one :class:`RoleOccupancy` per role declared in
+        ``fcop.json``, plus an entry per role that appears in the
+        ledger but is not declared (so ADMIN can spot stale role
+        codes from a previous team layout).
+
+        Counts are computed by parsing **filenames only** —
+        frontmatter is read solely to recover the optional
+        ``session_id`` field of the most recent file. Bodies are never
+        read, which makes this method safe to call from an UNBOUND
+        session where Rule 1 forbids reading task bodies.
+
+        On an uninitialized project an empty tuple is returned.
+
+        Backs the "Role occupancy" section of `fcop_report()`'s
+        UNBOUND output (since ``fcop_protocol_version: 1.5.0``,
+        fcop-mcp 0.7.0). Agents consult this section to detect the
+        double-bind scenario described in
+        ``ISSUE-20260427-002-ME.md`` before transitioning to BOUND.
+        """
+        if not self.is_initialized():
+            return ()
+
+        cfg = self.config
+        assert cfg is not None
+
+        # Parse all filenames once — cheap and avoids repeated regex
+        # compilations across every role.
+        active_tasks = _parse_dir_files(self.tasks_dir, parse_task_filename)
+        archived_tasks = _parse_dir_files(
+            self.log_dir / "tasks", parse_task_filename
+        )
+        active_reports = _parse_dir_files(
+            self.reports_dir, parse_report_filename
+        )
+        archived_reports = _parse_dir_files(
+            self.log_dir / "reports", parse_report_filename
+        )
+        active_issues = _parse_dir_files(
+            self.issues_dir, parse_issue_filename
+        )
+
+        seen_roles: set[str] = set()
+        occupancies: list[RoleOccupancy] = []
+
+        # Honor the order from fcop.json so output is deterministic
+        # and ADMIN sees teammates in the documented order.
+        for role in cfg.roles:
+            seen_roles.add(role)
+            occupancies.append(
+                _build_role_occupancy(
+                    role,
+                    active_tasks,
+                    archived_tasks,
+                    active_reports,
+                    archived_reports,
+                    active_issues,
+                )
+            )
+
+        # Surface any "ghost" roles that show up in files but not in
+        # fcop.json — those are exactly the situations Rule 1's role
+        # uniqueness clause helps ADMIN catch (e.g., team layout was
+        # changed but stale tasks remained on disk).
+        ledger_roles: set[str] = set()
+        for parsed_list in (
+            active_tasks,
+            archived_tasks,
+            active_reports,
+            archived_reports,
+            active_issues,
+        ):
+            for _path, parsed in parsed_list:
+                ledger_roles |= _roles_in_parsed(parsed)
+        for role in sorted(ledger_roles - seen_roles - _RESERVED_ROLES):
+            occupancies.append(
+                _build_role_occupancy(
+                    role,
+                    active_tasks,
+                    archived_tasks,
+                    active_reports,
+                    archived_reports,
+                    active_issues,
+                )
+            )
+
+        return tuple(occupancies)
+
     # ── Tasks ─────────────────────────────────────────────────────────
 
     def write_task(
@@ -1021,8 +1112,8 @@ class Project:
         payload = text.encode("utf-8")
 
         for _ in range(_MAX_WRITE_RETRIES):
-            existing = (
-                entry.name for entry in tasks_dir.iterdir() if entry.is_file()
+            existing = _existing_filenames_for_seq(
+                tasks_dir, self.log_dir / "tasks"
             )
             sequence = next_sequence(existing, date=date, kind="task")
             filename = build_task_filename(
@@ -1465,10 +1556,8 @@ class Project:
         payload = text.encode("utf-8")
 
         for _ in range(_MAX_WRITE_RETRIES):
-            existing = (
-                entry.name
-                for entry in reports_dir.iterdir()
-                if entry.is_file()
+            existing = _existing_filenames_for_seq(
+                reports_dir, self.log_dir / "reports"
             )
             sequence = next_sequence(existing, date=date, kind="report")
             filename = build_report_filename(
@@ -1707,10 +1796,8 @@ class Project:
         payload = text.encode("utf-8")
 
         for _ in range(_MAX_WRITE_RETRIES):
-            existing = (
-                entry.name
-                for entry in issues_dir.iterdir()
-                if entry.is_file()
+            existing = _existing_filenames_for_seq(
+                issues_dir, self.log_dir / "issues"
             )
             sequence = next_sequence(existing, date=date, kind="issue")
             filename = build_issue_filename(
@@ -2004,6 +2091,165 @@ def _now_iso() -> str:
     include microseconds because the value is informational only.
     """
     return _dt.datetime.now().replace(microsecond=0).isoformat()
+
+
+_RESERVED_ROLES: frozenset[str] = frozenset({"ADMIN", "SYSTEM"})
+
+
+def _parse_dir_files(
+    directory: pathlib.Path,
+    parser,  # type: ignore[no-untyped-def]
+) -> list[tuple[pathlib.Path, object]]:
+    """Return ``[(path, parsed_filename)]`` for every parseable file in ``directory``.
+
+    Missing directories yield an empty list. Files whose names don't
+    match the kind's grammar are silently skipped — those are stray
+    documents (a README, a backup) that don't carry routing info.
+    """
+    if not directory.is_dir():
+        return []
+    results: list[tuple[pathlib.Path, object]] = []
+    for entry in directory.iterdir():
+        if not entry.is_file():
+            continue
+        parsed = parser(entry.name)
+        if parsed is not None:
+            results.append((entry, parsed))
+    return results
+
+
+def _roles_in_parsed(parsed: object) -> set[str]:
+    """Return the set of role codes that a parsed filename involves.
+
+    The shape depends on the filename kind: tasks have sender +
+    recipient (slot is dropped — slot is a recipient *qualifier*, not
+    a separate role), reports have reporter + recipient, issues have
+    just the reporter.
+    """
+    roles: set[str] = set()
+    sender = getattr(parsed, "sender", None)
+    if sender:
+        roles.add(sender)
+    recipient = getattr(parsed, "recipient", None)
+    if recipient:
+        roles.add(recipient)
+    reporter = getattr(parsed, "reporter", None)
+    if reporter:
+        roles.add(reporter)
+    return roles
+
+
+def _build_role_occupancy(
+    role: str,
+    active_tasks: list[tuple[pathlib.Path, object]],
+    archived_tasks: list[tuple[pathlib.Path, object]],
+    active_reports: list[tuple[pathlib.Path, object]],
+    archived_reports: list[tuple[pathlib.Path, object]],
+    active_issues: list[tuple[pathlib.Path, object]],
+) -> RoleOccupancy:
+    """Compute one role's occupancy from the pre-parsed ledger snapshots."""
+    open_tasks = sum(
+        1 for _p, parsed in active_tasks if role in _roles_in_parsed(parsed)
+    )
+    archived_tasks_count = sum(
+        1 for _p, parsed in archived_tasks if role in _roles_in_parsed(parsed)
+    )
+    open_reports = sum(
+        1 for _p, parsed in active_reports if role in _roles_in_parsed(parsed)
+    )
+    open_issues = sum(
+        1 for _p, parsed in active_issues if role in _roles_in_parsed(parsed)
+    )
+
+    # Pick the most recently modified file involving this role across
+    # all five buckets — its frontmatter session_id (if any) is what
+    # the protocol's UNBOUND step 4 compares against.
+    candidates: list[pathlib.Path] = []
+    for parsed_list in (
+        active_tasks,
+        archived_tasks,
+        active_reports,
+        archived_reports,
+        active_issues,
+    ):
+        for path, parsed in parsed_list:
+            if role in _roles_in_parsed(parsed):
+                candidates.append(path)
+
+    last_seen_at: _dt.datetime | None = None
+    last_session_id: str | None = None
+    if candidates:
+        latest = max(candidates, key=lambda p: p.stat().st_mtime)
+        last_seen_at = _dt.datetime.fromtimestamp(latest.stat().st_mtime)
+        last_session_id = _try_read_session_id(latest)
+
+    if open_tasks or open_reports or open_issues:
+        status: Literal["UNUSED", "ARCHIVED", "ACTIVE"] = "ACTIVE"
+    elif archived_tasks_count or candidates:
+        status = "ARCHIVED"
+    else:
+        status = "UNUSED"
+
+    return RoleOccupancy(
+        role=role,
+        open_tasks=open_tasks,
+        open_reports=open_reports,
+        open_issues=open_issues,
+        archived_tasks=archived_tasks_count,
+        last_session_id=last_session_id,
+        last_seen_at=last_seen_at,
+        status=status,
+    )
+
+
+def _try_read_session_id(path: pathlib.Path) -> str | None:
+    """Best-effort frontmatter read for the optional ``session_id`` field.
+
+    Returns ``None`` on any error (file gone, malformed YAML, missing
+    field). This is metadata-only — the caller is reading frontmatter
+    to attribute occupancy, which the protocol explicitly permits even
+    for UNBOUND sessions.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        raw = parse_frontmatter_raw(text)
+    except Exception:
+        return None
+    value = raw.get("session_id")
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def _existing_filenames_for_seq(*dirs: pathlib.Path) -> Iterator[str]:
+    """Yield basenames of files across *every* given directory.
+
+    Used by :meth:`Project.write_task` / :meth:`write_report` /
+    :meth:`write_issue` to compute the next sequence number.
+
+    The ledger of "what basenames are already in use" lives in *both*
+    the active directory (e.g. ``docs/agents/tasks/``) **and** the
+    archive directory (e.g. ``docs/agents/log/tasks/``). Considering
+    only the active directory would let :func:`next_sequence` reuse a
+    basename that already exists in the archive — which is exactly the
+    bug ISSUE-20260427-003 documents: after ``archive_task`` moves
+    ``TASK-{date}-001-...`` to ``log/``, a subsequent ``write_task`` on
+    the same date would receive sequence ``001`` again and produce a
+    file that collides with its archived ancestor in any history grep.
+
+    Missing directories are tolerated silently; non-file entries are
+    skipped. Order between directories is unspecified — this is fine
+    because :func:`next_sequence` deduplicates via a ``set``.
+    """
+    for directory in dirs:
+        if not directory.is_dir():
+            continue
+        for entry in directory.iterdir():
+            if entry.is_file():
+                yield entry.name
 
 
 def _try_load_task(

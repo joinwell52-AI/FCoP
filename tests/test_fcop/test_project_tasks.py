@@ -150,6 +150,36 @@ class TestWriteTask:
         entries = list(task.path.parent.iterdir())
         assert entries == [task.path]
 
+    def test_seq_skips_archived_basename(self, tmp_path: Path) -> None:
+        # Regression for ISSUE-20260427-003: write_task's seq generator
+        # used to scan only ``tasks/``, ignoring ``log/tasks/``. After
+        # archive_task moved a task out, a new write_task on the same
+        # day re-issued the just-archived sequence and produced two
+        # files with the same basename across active+log dirs. Now the
+        # seq generator unions both directories and skips taken slots.
+        project = Project(tmp_path)
+        first = project.write_task(
+            sender="ADMIN", recipient="PM", priority="P2",
+            subject="a", body="a",
+        )
+        assert first.sequence == 1
+
+        project.archive_task(first.task_id)
+        # tasks/ is now empty; log/tasks/ holds TASK-...-001-...
+        assert not list(project.tasks_dir.iterdir())
+        archived = list((project.log_dir / "tasks").iterdir())
+        assert len(archived) == 1
+
+        second = project.write_task(
+            sender="ADMIN", recipient="PM", priority="P2",
+            subject="b", body="b",
+        )
+        assert second.sequence == 2, (
+            "seq must skip ``001`` because it is taken in log/tasks/; "
+            "see ISSUE-20260427-003"
+        )
+        assert second.filename != archived[0].name
+
 
 # ── round-trip ────────────────────────────────────────────────────────
 

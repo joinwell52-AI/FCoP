@@ -45,3 +45,6 @@ node_modules/
 /_scratch/
 /_local/
 /_ignore/
+
+# FCoP local state (rule deployment migrations etc.)
+/.fcop/

@@ -114,6 +114,48 @@ class TestWriteReport:
         # not because of the body / status.
         assert first.filename != second.filename
 
+    def test_seq_skips_archived_basename(self, tmp_path: Path) -> None:
+        # Regression for ISSUE-20260427-003: write_report's seq generator
+        # used to scan only ``reports/``, missing ``log/reports/`` even
+        # though archive_task moves the paired report alongside the
+        # task. After archive, the next write_report on the same day
+        # would re-issue the archived sequence — bug spotted live in the
+        # 2026-04-27 dogfood session.
+        from fcop.core.filename import parse_report_filename
+
+        project = Project(tmp_path)
+        task = _seed_task(project)
+        first_report = project.write_report(
+            task_id=task.task_id,
+            reporter="PM",
+            recipient="ADMIN",
+            body="One",
+        )
+        first_parsed = parse_report_filename(first_report.filename)
+        assert first_parsed is not None and first_parsed.sequence == 1
+
+        project.archive_task(task.task_id)
+        assert not list(project.reports_dir.iterdir())
+        archived_reports = list((project.log_dir / "reports").iterdir())
+        assert len(archived_reports) == 1
+
+        second_task = project.write_task(
+            sender="ADMIN", recipient="PM", priority="P2",
+            subject="next", body="x",
+        )
+        second_report = project.write_report(
+            task_id=second_task.task_id,
+            reporter="PM",
+            recipient="ADMIN",
+            body="Two",
+        )
+        second_parsed = parse_report_filename(second_report.filename)
+        assert second_parsed is not None and second_parsed.sequence >= 2, (
+            "seq must skip 001 because it is taken in log/reports/; "
+            "see ISSUE-20260427-003"
+        )
+        assert second_report.filename != archived_reports[0].name
+
     def test_accepts_priority_alias(self, tmp_path: Path) -> None:
         project = Project(tmp_path)
         task = _seed_task(project)

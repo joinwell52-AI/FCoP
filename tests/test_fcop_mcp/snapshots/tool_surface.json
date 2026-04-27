@@ -405,16 +405,6 @@
       ]
     },
     {
-      "name": "unbound_report",
-      "params": [
-        {
-          "name": "lang",
-          "required": false,
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "upgrade_fcop",
       "params": [
         {

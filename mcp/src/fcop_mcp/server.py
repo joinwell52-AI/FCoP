@@ -29,7 +29,6 @@ import os
 import re
 import sys
 import threading
-import warnings
 from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
@@ -1736,6 +1735,7 @@ def _compose_session_report(lang: str) -> str:
     activity_lines = "\n".join(
         f"  - [{e.kind}] {e.filename} — {e.summary}" for e in recent
     ) or "  (none yet)"
+    occupancy_lines = _format_role_occupancy(project, is_en=is_en)
 
     if is_en:
         return (
@@ -1748,6 +1748,8 @@ def _compose_session_report(lang: str) -> str:
             f"Reports: {status.reports_count}  Issues: {status.issues_count}\n\n"
             "Recent activity:\n"
             f"{activity_lines}\n\n"
+            "Role occupancy (from on-disk ledger):\n"
+            f"{occupancy_lines}\n\n"
             "ADMIN: assign a role with the literal sentence:\n"
             '  "You are <ROLE> on <team>, thread <thread_key> (optional)"\n\n'
             "Until then this session MUST NOT:\n"
@@ -1755,6 +1757,14 @@ def _compose_session_report(lang: str) -> str:
             "  - write any file\n"
             "  - claim a role from context\n"
             "  - dispatch follow-up tasks\n\n"
+            "Before transitioning to BOUND, cross-check the assigned role against\n"
+            "the 'Role occupancy' table above (Rule 1 + protocol 1.5.0):\n"
+            "  - UNUSED / ARCHIVED  → safe to BOUND\n"
+            "  - ACTIVE, same session_id  → resume / safe to BOUND\n"
+            "  - ACTIVE, different session_id  → STOP. Refuse under Rule 8,\n"
+            "    drop a note in .fcop/proposals/double-bind-{ts}.md, and\n"
+            "    return three options to ADMIN: handoff / co-review / distinct\n"
+            "    role. Do NOT 'temporarily' share the role code.\n\n"
             "Once ADMIN binds you to a role, EVERY incoming request runs through\n"
             "the Rule 0.a.1 four-step cycle — there is no 'simple = skip' exception:\n"
             "  Step 1  write_task(sender=\"ADMIN\", recipient=\"<your role>\", ...)\n"
@@ -1775,6 +1785,8 @@ def _compose_session_report(lang: str) -> str:
         f"报告 reports: {status.reports_count}  问题 issues: {status.issues_count}\n\n"
         "最近活动 / recent activity:\n"
         f"{activity_lines}\n\n"
+        "角色占用（来自磁盘账本） / role occupancy:\n"
+        f"{occupancy_lines}\n\n"
         "ADMIN 请用这句话给本会话分配角色：\n"
         "  「你是 <ROLE>，在 <team>，线程 <thread_key>（可选）」\n\n"
         "在此之前，本会话禁止：\n"
@@ -1782,6 +1794,14 @@ def _compose_session_report(lang: str) -> str:
         "  - 写入任何文件\n"
         "  - 从上下文自认角色\n"
         "  - 派发后续任务\n\n"
+        "转 BOUND 之前，请把指派的角色码与上面的「角色占用」表对照\n"
+        "（Rule 1 + 协议 1.5.0）：\n"
+        "  - UNUSED / ARCHIVED  → 可安全 BOUND\n"
+        "  - ACTIVE 且 session_id 与本会话一致 → 同一 agent 重连，可 BOUND\n"
+        "  - ACTIVE 但 session_id 不一致 → 停。按 Rule 8 拒绝绑定，向\n"
+        "    .fcop/proposals/double-bind-{时间戳}.md 落一份冲突说明，\n"
+        "    把三选一交还 ADMIN：交班 / 协审 / 改派一个未占用角色码。\n"
+        "    不要「临时顶一下」——本协议里没有这种合法状态。\n\n"
         "ADMIN 把你绑定到角色之后，**每一条**新需求都要走 Rule 0.a.1 4 步循环——\n"
         "没有「简单任务可跳过」这种例外：\n"
         "  第 1 步  write_task(sender=\"ADMIN\", recipient=\"<你的角色>\", ...)\n"
@@ -1792,6 +1812,37 @@ def _compose_session_report(lang: str) -> str:
         "  第 4 步  archive_task(\"TASK-...\")（ADMIN 验收后）\n"
         "跳过第 1 步或第 3 步即违反 Rule 0.a.1。"
     )
+
+
+def _format_role_occupancy(project: fcop.Project, *, is_en: bool) -> str:
+    """Render :meth:`fcop.Project.role_occupancy` as a fixed-width table.
+
+    Backs the "Role occupancy" section of `fcop_report()` UNBOUND
+    output (since fcop-mcp 0.7.0 / `fcop_protocol_version: 1.5.0`).
+    Each line carries one role's status, counts, and the most recent
+    `session_id` seen on disk so an UNBOUND agent can detect the
+    double-bind scenario described in ISSUE-20260427-002 before
+    transitioning to BOUND.
+    """
+    occupancies = project.role_occupancy()
+    if not occupancies:
+        return "  (no roles declared)" if is_en else "  （未声明任何角色）"
+
+    lines: list[str] = []
+    for occ in occupancies:
+        sid = occ.last_session_id or ("none" if is_en else "无")
+        when = (
+            occ.last_seen_at.strftime("%Y-%m-%dT%H:%M")
+            if occ.last_seen_at is not None
+            else "—"
+        )
+        lines.append(
+            f"  {occ.role:<10} {occ.status:<8} "
+            f"tasks={occ.open_tasks} open / {occ.archived_tasks} archived  "
+            f"reports={occ.open_reports}  issues={occ.open_issues}  "
+            f"last: {sid} @ {when}"
+        )
+    return "\n".join(lines)
 
 
 @mcp.tool
@@ -1823,34 +1874,14 @@ def fcop_report(lang: str = "zh") -> str:
     claim a role from context clues.
 
     .. note::
-        This tool replaces ``unbound_report``. The old name is kept
-        as a deprecated alias and will be removed in fcop-mcp 0.7.0.
+        This tool replaced ``unbound_report`` in 0.6.3. The deprecated
+        alias was removed in 0.7.0; existing system prompts and
+        ``LETTER-TO-ADMIN.md`` references that still reference
+        ``unbound_report`` must switch to ``fcop_report``.
 
     Args:
         lang: Output language, ``zh`` or ``en``. Default: ``zh``.
     """
-    return _compose_session_report(lang)
-
-
-@mcp.tool
-def unbound_report(lang: str = "zh") -> str:
-    """Deprecated alias for :func:`fcop_report`. Removed in 0.7.0.
-
-    Identical behaviour to :func:`fcop_report` — emits a
-    :class:`DeprecationWarning` on every invocation. Existing system
-    prompts and `LETTER-TO-ADMIN.md` references continue to work
-    until 0.7.0; new code should call ``fcop_report``.
-
-    Args:
-        lang: Output language, ``zh`` or ``en``. Default: ``zh``.
-    """
-    warnings.warn(
-        "unbound_report is deprecated; use fcop_report instead. "
-        "This alias will be removed in fcop-mcp 0.7.0. "
-        "See ADR-0006 for the rationale.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
     return _compose_session_report(lang)
 
 
