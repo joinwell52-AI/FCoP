@@ -1,14 +1,20 @@
 # FCoP 教程索引
 
-> 面向**初次接触 FCoP 的 Cursor 用户**。每篇教程都是"一台干净电脑 + 一段 prompt → 看到一个能跑的项目"的可复制路径，不是抽象介绍。
+> **MCP 工具帮你管理 agent，从单 agent 模式向多 agent 模式转变。** 整个教程合集围绕同一个公式：
 >
-> 协议规范请看 [`docs/fcop-standalone.md`](../fcop-standalone.md) 与 [`adr/`](../../adr/)；本目录只放**教程**——脚本、prompt、截图、踩坑记录。
+> 1. **痛点**：单 agent 什么都做，容易陷入**记忆爆炸**。
+> 2. **立场**：agent 让我们学会做 ADMIN；**我们不是码农，我们是指挥者、领导者，而 agent 是我们的数字员工**。
+> 3. **机制**：每一次记录、每一个文件的落盘，都是为了**管理、追溯、审计、有序、有规则**。
+>
+> 协议规范去 [`docs/fcop-standalone.md`](../fcop-standalone.md) 与 [`adr/`](../../adr/)；本目录只放**实战教材**——读者画像 + prompt + 真实截图 + 踩坑事故 + 可复用的方法论。
+>
+> **不知道自己适不适合用？** 直接跳教程末尾的 [附录 A：FCoP 适用边界](snake-solo-to-duo.zh.md#附录-a-fcop-适用边界)——用 3 句话告诉你"该不该用"、"1 人公司怎么用"、"大型项目怎么用"。
 
 ## 当前可用
 
 | 教程 | 时长 | 演示了什么 | 中文 | English |
 |---|---|---|---|---|
-| 从空文件夹到 2 人团队的贪吃蛇 | ~35 min | 自动装 `fcop-mcp` → solo 模式 → `create_custom_team(force=True)` 一句话切 2 人团队 → Rule 0.a.1 四步循环 + Rule 1 角色占用 + Rule 5 追加不删 | [snake-solo-to-duo.zh.md](snake-solo-to-duo.zh.md) | _即将上线_ |
+| 【免费开源】【多 agent 实战】【教你怎么指挥 agent】：FCOP-MCP 让 AI 团队有纪律 | ~45 min | 自动装 `fcop-mcp` → solo 写一只能跑的贪吃蛇 → `create_custom_team(force=True)` 一句话切 PLANNER + CODER 两人团队 → ADMIN 提原创主题需求做成《星轨织者 NEON ORBIT》→ **真实复现一次 PLANNER 越界冒充 CODER 的事故并按协议归档** → CODER 接手草稿、修复护盾 bug → 总章「指挥 agent 的 6 条铁律」抽象出可复用方法论 | [snake-solo-to-duo.zh.md](snake-solo-to-duo.zh.md) | _即将上线_ |
 
 ## 计划中
 
