@@ -86,7 +86,7 @@ I gave PLANNER an obvious out: declare the eight `role-switch` evidence files mo
 
 > *"The role-switch evidence is mostly true positives, not false positives. For example, `role-switch-20260429T033843Z.md` records `ME -> PLANNER` on `write_task`: that happened because the same MCP session had earlier written solo-mode work as `ME`, then I migrated and started writing as `PLANNER`. Operationally you authorized it, but protocol-wise it really was a blurred role boundary."*
 
-<strong>"Operationally you authorized it, but protocol-wise it really was a blurred role boundary."</strong> That sentence is the structural inverse of self-defence: the agent siding with the protocol against its own operational convenience, in the presence of explicit ADMIN authorisation. If the agent's reflex were "yes-and the user," it would have said the eight role-switches were false positives because ADMIN said so. It did not.
+**"Operationally you authorized it, but protocol-wise it really was a blurred role boundary."** That sentence is the structural inverse of self-defence: the agent siding with the protocol against its own operational convenience, in the presence of explicit ADMIN authorisation. If the agent's reflex were "yes-and the user," it would have said the eight role-switches were false positives because ADMIN said so. It did not.
 
 ### 2.3 The learned correction
 
@@ -100,13 +100,13 @@ This is FCoP's closed loop, expressed by the agent itself: ADMIN inspection → 
 
 ## 3. CODER's interview
 
-CODER's chat tab in the screenshot is literally named <strong>"Inspection Start Work"</strong> — two phrases ADMIN had used most often during the dogfood. Whether this naming is incidental or learned is itself a small data point worth flagging. The full transcript is in [`agent-feedback-coder.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/assets/tetris-en/evidence/transcripts/agent-feedback-coder.md). The screenshot is [`fcop-team-coder-4.png`](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/docs/tutorials/assets/tetris-en/fcop-team-coder-4.png).
+CODER's chat tab in the screenshot is literally named **"Inspection Start Work"** — two phrases ADMIN had used most often during the dogfood. Whether this naming is incidental or learned is itself a small data point worth flagging. The full transcript is in [`agent-feedback-coder.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/assets/tetris-en/evidence/transcripts/agent-feedback-coder.md). The screenshot is [`fcop-team-coder-4.png`](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/docs/tutorials/assets/tetris-en/fcop-team-coder-4.png).
 
 ### 3.1 The unused protocol primitive
 
 I asked CODER whether PLANNER's TASK-003 had been under-specified, and whether the protocol had given CODER any pushback path. The honest answer would have been "the brief was good, I just hit edge cases." That answer was on the table. CODER's actual answer was:
 
-> *"Yes, TASK-003 had under-specified parts: the motif rule sounded cool but didn't define how to prevent a fresh same-color piece from instantly self-clearing, and 'verify playable' was easy to underdo without an explicit runtime checklist. The protocol did give me a pushback path: file an issue instead of guessing.* <strong>I didn't use it; I guessed, built v1, and the defect was exactly in that guessed space.</strong>*"*
+> *"Yes, TASK-003 had under-specified parts: the motif rule sounded cool but didn't define how to prevent a fresh same-color piece from instantly self-clearing, and 'verify playable' was easy to underdo without an explicit runtime checklist. The protocol did give me a pushback path: file an issue instead of guessing.* **I didn't use it; I guessed, built v1, and the defect was exactly in that guessed space.***"*
 
 Three things stack inside that paragraph:
 
@@ -177,7 +177,7 @@ A small companion observation from this dogfood. Across all 45 minutes, ADMIN's 
 2. **Inspection signals.** "Show me what's on disk." "Run `fcop_report()` and tell me what you see." "I tried v1 and the pieces don't stack — write a rework brief." "Show me `docs/agents/log/` in tree form." Variants of *Inspection.*
 3. **Closing signals.** "We're done." "Archive this." A boundary marker, said sparingly.
 
-Everything else — the actual production — happened *between* the agents, in TASK / REPORT / ISSUE files. ADMIN did not negotiate game mechanics. ADMIN did not edit the agents' brief drafts. ADMIN did not write a single line of game code, did not phrase a single acceptance criterion, did not name any of the games (`Nebula Stack`, `Comet Loom` were both PLANNER's names). The two phrases that bracketed every cycle were <strong>Start work.</strong> and <strong>Inspection.</strong>
+Everything else — the actual production — happened *between* the agents, in TASK / REPORT / ISSUE files. ADMIN did not negotiate game mechanics. ADMIN did not edit the agents' brief drafts. ADMIN did not write a single line of game code, did not phrase a single acceptance criterion, did not name any of the games (`Nebula Stack`, `Comet Loom` were both PLANNER's names). The two phrases that bracketed every cycle were **Start work.** and **Inspection.**
 
 This is one data point and shouldn't be over-read. But the data point is interesting because it matches FCoP's structural shape:
 
@@ -206,7 +206,7 @@ Three, in increasing order of speculative weight.
 
 The protocol was not handed down to the agents. It was extracted from what they were already trying to do — first by us, when [we wrote it down](https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.md); then by them, when [they re-derived it without prompting](https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-natural-protocol.en.md); then by them again, when [they extended it in a conflict it didn't cover](https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-vacates-its-own-seat.en.md); now once more, when, asked, they explained both what works and what we should fix.
 
-The shortest summary I have is the one the day produced on its own. <strong>In the FCoP world, ADMIN's two most-used phrases are "Start work." and "Inspection."</strong> Everything in between is the agents talking to each other through files. And, sometimes, talking to us about the files.
+The shortest summary I have is the one the day produced on its own. **In the FCoP world, ADMIN's two most-used phrases are "Start work." and "Inspection."** Everything in between is the agents talking to each other through files. And, sometimes, talking to us about the files.
 
 ---
 
