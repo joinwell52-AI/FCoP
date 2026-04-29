@@ -4,20 +4,35 @@ Dev.to publication of essay 06 — English full version
 Source of truth on GitHub:
   https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-agents-say-about-fcop.en.md
 
-Recommended Dev.to UI metadata (set in the right-side panel,
-NOT in the article body — Dev.to's rich editor will misrender YAML):
-  Title:        What the agents say about FCoP, when you ask them
-  Subtitle:     Two field interviews at the end of an English dogfood — and the two phrases ADMIN says most
-  Tags (max 4): fcop, agents, ai, alignment    (or: fcop, llm, mcp, alignment)
-  Cover image:  https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/essay-06-cover.png
-  Canonical:    https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-agents-say-about-fcop.en.md
-  Series:       FCoP field reports   (optional, links it to your other essays)
+EDITOR REQUIREMENT: Use Dev.to's "Basic markdown" editor (NOT
+"Rich + markdown"). The Rich editor wraps raw HTML in implicit
+{% raw %}...{% endraw %} Liquid tags whose closing tag is
+sometimes lost, producing a backend-cached `Liquid syntax error`
+that survives even after the offending HTML is removed. The
+Basic markdown editor accepts a YAML frontmatter block at the
+top of the body for all post metadata (title, tags, cover image,
+canonical URL); the right-side UI panel is not used in this mode.
 
-Body to paste starts AFTER the marker below (the H1 line).
-Dev.to recommendation: use the rich editor, paste, then preview.
+Copy EVERYTHING between '=== COPY FROM HERE ===' and
+'=== STOP COPYING HERE ===', including the YAML frontmatter at
+the top, into the Basic markdown editor body. Dev.to will read
+title/tags/cover_image/canonical_url from the frontmatter
+directly; do NOT also fill them in any UI field.
+
+If "Liquid syntax error" appears anyway, the draft has stale
+backend cache from a previous failed paste — delete the draft
+and create a fresh one at https://dev.to/new before pasting again.
 ============================================================
 === COPY FROM HERE ===
--->
+---
+title: What the agents say about FCoP, when you ask them
+published: false
+description: Third-class evidence that agents endorse FCoP — PLANNER and CODER, asked directly at the end of a 45-minute Cursor dogfood, name the rules they self-endorse and the rules they had to fight RLHF instinct to follow.
+tags: fcop, agents, ai, alignment
+cover_image: https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/essay-06-cover.png
+canonical_url: https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-agents-say-about-fcop.en.md
+---
+
 
 # What the agents say about FCoP, when you ask them
 
