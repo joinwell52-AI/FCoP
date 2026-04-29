@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebula Stack</title>
+  <style>
+    :root {
+      --bg-a: #07091a;
+      --bg-b: #151044;
+      --panel: rgba(11, 17, 40, 0.78);
+      --panel-strong: rgba(12, 18, 45, 0.94);
+      --text: #f5f7ff;
+      --muted: #9aa7d9;
+      --accent: #7cf4ff;
+      --accent-2: #ff65d8;
+      --danger: #ff5f76;
+      --good: #a8ff7a;
+      --cell: 30px;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(124, 244, 255, 0.26), transparent 28rem),
+        radial-gradient(circle at 82% 8%, rgba(255, 101, 216, 0.18), transparent 26rem),
+        linear-gradient(145deg, var(--bg-a), var(--bg-b) 58%, #060813);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body.shake {
+      animation: shake 220ms linear;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-5px, 3px); }
+      40% { transform: translate(4px, -3px); }
+      60% { transform: translate(-3px, -2px); }
+      80% { transform: translate(3px, 2px); }
+    }
+
+    .stars,
+    .stars::before,
+    .stars::after {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.9) 0 1px, transparent 1px),
+        radial-gradient(circle, rgba(124,244,255,.75) 0 1px, transparent 1px);
+      background-size: 140px 140px, 210px 210px;
+      animation: drift 32s linear infinite;
+      opacity: .42;
+    }
+
+    .stars::before,
+    .stars::after {
+      content: "";
+      opacity: .5;
+    }
+
+    .stars::before {
+      background-size: 90px 90px, 180px 180px;
+      animation-duration: 45s;
+    }
+
+    .stars::after {
+      background-size: 260px 260px, 340px 340px;
+      animation-duration: 70s;
+    }
+
+    @keyframes drift {
+      to { transform: translateY(140px); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 26px 0 36px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 5vw, 4.4rem);
+      line-height: .92;
+      letter-spacing: -0.08em;
+      text-shadow: 0 0 28px rgba(124, 244, 255, 0.55);
+    }
+
+    .tagline {
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 55rem;
+    }
+
+    .hud-pill {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(255,255,255,.07);
+      box-shadow: 0 0 20px rgba(124,244,255,.08);
+      white-space: nowrap;
+    }
+
+    .game-shell {
+      display: grid;
+      grid-template-columns: minmax(190px, 1fr) auto minmax(220px, 1fr);
+      align-items: start;
+      gap: 18px;
+    }
+
+    .panel {
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 22px;
+      padding: 16px;
+      background: var(--panel);
+      box-shadow: 0 24px 80px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .board-wrap {
+      position: relative;
+      padding: 12px;
+      border-radius: 26px;
+      background:
+        linear-gradient(145deg, rgba(124,244,255,.52), rgba(255,101,216,.42)),
+        rgba(255,255,255,.08);
+      box-shadow: 0 0 42px rgba(124,244,255,.18), 0 0 72px rgba(255,101,216,.12);
+    }
+
+    canvas {
+      display: block;
+      image-rendering: crisp-edges;
+    }
+
+    #game {
+      width: 300px;
+      height: 600px;
+      border-radius: 14px;
+      background: rgba(5, 8, 20, .86);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+    }
+
+    #fx {
+      position: absolute;
+      inset: 12px;
+      width: 300px;
+      height: 600px;
+      pointer-events: none;
+      border-radius: 14px;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 12px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(4, 7, 18, .66);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay h2 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      letter-spacing: -0.04em;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.55rem;
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: 88px 88px;
+      gap: 12px;
+      margin: 12px 0 16px;
+    }
+
+    .mini {
+      display: grid;
+      place-items: center;
+      min-height: 96px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .mini p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .item-card {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .item-icon {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      color: #07101f;
+      font-weight: 900;
+      background: var(--accent);
+      box-shadow: 0 0 22px rgba(124,244,255,.32);
+      flex: none;
+    }
+
+    .controls {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.4;
+    }
+
+    kbd {
+      display: inline-block;
+      min-width: 1.9em;
+      padding: 3px 7px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.18);
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      text-align: center;
+      font-size: .78rem;
+      box-shadow: inset 0 -2px rgba(0,0,0,.24);
+    }
+
+    button,
+    select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 14px;
+      padding: 11px 12px;
+      color: var(--text);
+      background: rgba(255,255,255,.09);
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 800;
+      letter-spacing: .01em;
+      background: linear-gradient(135deg, rgba(124,244,255,.22), rgba(255,101,216,.22));
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(124,244,255,.68);
+      box-shadow: 0 0 24px rgba(124,244,255,.2);
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      color: var(--text);
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+    }
+
+    .combo {
+      margin-top: 13px;
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(135deg, rgba(168,255,122,.12), rgba(124,244,255,.11));
+      border: 1px solid rgba(168,255,122,.24);
+      color: var(--good);
+      min-height: 50px;
+    }
+
+    .mobile-buttons {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mobile-buttons button {
+      min-height: 48px;
+      padding: 8px;
+    }
+
+    @media (max-width: 920px) {
+      header,
+      .game-shell {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        align-items: start;
+      }
+
+      .board-wrap {
+        width: max-content;
+        margin: 0 auto;
+      }
+
+      .panel.left {
+        order: 2;
+      }
+
+      .panel.right {
+        order: 3;
+      }
+
+      .mobile-buttons {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <main class="app">
+    <header>
+      <div>
+        <h1>Nebula Stack</h1>
+        <p class="tagline">Stack star-forged blocks, crack power cores, swap skins, and chase ridiculous combo bursts.</p>
+      </div>
+      <div class="hud-pill" id="statusPill">Press Start or Space</div>
+    </header>
+
+    <section class="game-shell" aria-label="Nebula Stack game">
+      <aside class="panel left">
+        <p class="section-title">Scoreboard</p>
+        <div class="stat-grid">
+          <div class="stat"><span>Score</span><strong id="score">0</strong></div>
+          <div class="stat"><span>Lines</span><strong id="lines">0</strong></div>
+          <div class="stat"><span>Level</span><strong id="level">1</strong></div>
+          <div class="stat"><span>Best</span><strong id="best">0</strong></div>
+        </div>
+        <div class="combo" id="combo">Clear lines to charge the nebula.</div>
+        <div class="mobile-buttons" aria-label="Touch controls">
+          <button data-action="left">Left</button>
+          <button data-action="rotate">Spin</button>
+          <button data-action="right">Right</button>
+          <button data-action="drop">Drop</button>
+          <button data-action="hold">Hold</button>
+          <button data-action="down">Soft</button>
+          <button data-action="item">Item</button>
+          <button data-action="pause">Pause</button>
+        </div>
+      </aside>
+
+      <div class="board-wrap" aria-live="polite">
+        <canvas id="game" width="300" height="600"></canvas>
+        <canvas id="fx" width="300" height="600"></canvas>
+        <div class="overlay show" id="overlay">
+          <div>
+            <h2 id="overlayTitle">Ready to stack?</h2>
+            <p id="overlayText">Use arrow keys or WASD. Items trigger with <kbd>X</kbd>.</p>
+            <button id="startBtn">Start Nebula Stack</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel right">
+        <p class="section-title">Next / Hold</p>
+        <div class="mini-row">
+          <div class="mini">
+            <div>
+              <p>Next</p>
+              <canvas id="next" width="72" height="72"></canvas>
+            </div>
+          </div>
+          <div class="mini">
+            <div>
+              <p>Hold</p>
+              <canvas id="hold" width="72" height="72"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <p class="section-title">Skin</p>
+        <select id="skinSelect" aria-label="Choose block skin">
+          <option value="aurora">Aurora Candy</option>
+          <option value="ember">Ember Arcade</option>
+          <option value="mono">Moonstone Mono</option>
+        </select>
+
+        <div style="height: 14px"></div>
+        <button id="restartBtn">Restart Run</button>
+
+        <div style="height: 18px"></div>
+        <p class="section-title">Power Items</p>
+        <div class="item-list">
+          <div class="item-card"><span class="item-icon">B</span><span><b>Bomb:</b> clears a 3x3 blast around the falling piece.</span></div>
+          <div class="item-card"><span class="item-icon">S</span><span><b>Stasis:</b> slows gravity for ten seconds.</span></div>
+          <div class="item-card"><span class="item-icon">P</span><span><b>Prism:</b> vaporizes one color across the board.</span></div>
+        </div>
+
+        <div style="height: 18px"></div>
+        <p class="section-title">Controls</p>
+        <div class="controls">
+          <div><kbd>←</kbd><kbd>→</kbd> or <kbd>A</kbd><kbd>D</kbd> move</div>
+          <div><kbd>↑</kbd> / <kbd>W</kbd> rotate, <kbd>Z</kbd> counter-rotate</div>
+          <div><kbd>↓</kbd> soft drop, <kbd>Space</kbd> hard drop</div>
+          <div><kbd>C</kbd> hold, <kbd>X</kbd> use item, <kbd>P</kbd> pause</div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const COLS = 10;
+      const ROWS = 20;
+      const CELL = 30;
+      const PIECES = {
+        I: [[1, 1, 1, 1]],
+        J: [[1, 0, 0], [1, 1, 1]],
+        L: [[0, 0, 1], [1, 1, 1]],
+        O: [[1, 1], [1, 1]],
+        S: [[0, 1, 1], [1, 1, 0]],
+        T: [[0, 1, 0], [1, 1, 1]],
+        Z: [[1, 1, 0], [0, 1, 1]]
+      };
+      const TYPES = Object.keys(PIECES);
+      const ITEMS = ["bomb", "stasis", "prism"];
+      const SKINS = {
+        aurora: {
+          bg: ["#081020", "#111a46"],
+          colors: {
+            I: "#62f4ff", J: "#7197ff", L: "#ffb15d", O: "#ffe66d",
+            S: "#87ff79", T: "#dd7cff", Z: "#ff657b"
+          }
+        },
+        ember: {
+          bg: ["#160909", "#3a130f"],
+          colors: {
+            I: "#ffd166", J: "#ef476f", L: "#f78c6b", O: "#f9f871",
+            S: "#06d6a0", T: "#c77dff", Z: "#ff4d6d"
+          }
+        },
+        mono: {
+          bg: ["#071016", "#1d2633"],
+          colors: {
+            I: "#c7f9ff", J: "#b8c0ff", L: "#d7e3fc", O: "#edf6f9",
+            S: "#caffbf", T: "#e0aaff", Z: "#ffccd5"
+          }
+        }
+      };
+
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const fxCanvas = document.getElementById("fx");
+      const fx = fxCanvas.getContext("2d");
+      const nextCanvas = document.getElementById("next");
+      const nextCtx = nextCanvas.getContext("2d");
+      const holdCanvas = document.getElementById("hold");
+      const holdCtx = holdCanvas.getContext("2d");
+      const els = {
+        score: document.getElementById("score"),
+        lines: document.getElementById("lines"),
+        level: document.getElementById("level"),
+        best: document.getElementById("best"),
+        combo: document.getElementById("combo"),
+        status: document.getElementById("statusPill"),
+        overlay: document.getElementById("overlay"),
+        overlayTitle: document.getElementById("overlayTitle"),
+        overlayText: document.getElementById("overlayText"),
+        startBtn: document.getElementById("startBtn"),
+        restartBtn: document.getElementById("restartBtn"),
+        skinSelect: document.getElementById("skinSelect")
+      };
+
+      let grid;
+      let current;
+      let next;
+      let hold = null;
+      let canHold = true;
+      let bag = [];
+      let running = false;
+      let paused = false;
+      let gameOver = false;
+      let score = 0;
+      let lines = 0;
+      let level = 1;
+      let combo = -1;
+      let dropCounter = 0;
+      let lastTime = 0;
+      let particles = [];
+      let floatingTexts = [];
+      let activeItem = null;
+      let stasisUntil = 0;
+      let skin = localStorage.getItem("nebula-stack-skin") || "aurora";
+      let best = Number(localStorage.getItem("nebula-stack-best") || 0);
+
+      els.skinSelect.value = SKINS[skin] ? skin : "aurora";
+      els.best.textContent = best.toLocaleString();
+
+      function makeGrid() {
+        return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+      }
+
+      function randomBagPiece() {
+        if (!bag.length) {
+          bag = TYPES.slice().sort(() => Math.random() - 0.5);
+        }
+        return bag.pop();
+      }
+
+      function cloneShape(shape) {
+        return shape.map(row => row.slice());
+      }
+
+      function createPiece(type = randomBagPiece()) {
+        const piece = {
+          type,
+          shape: cloneShape(PIECES[type]),
+          x: Math.floor(COLS / 2) - Math.ceil(PIECES[type][0].length / 2),
+          y: -1,
+          item: Math.random() < 0.22 ? ITEMS[Math.floor(Math.random() * ITEMS.length)] : null
+        };
+        return piece;
+      }
+
+      function rotate(shape, dir = 1) {
+        const h = shape.length;
+        const w = shape[0].length;
+        const out = Array.from({ length: w }, () => Array(h).fill(0));
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            if (dir > 0) out[x][h - 1 - y] = shape[y][x];
+            else out[w - 1 - x][y] = shape[y][x];
+          }
+        }
+        return out;
+      }
+
+      function collides(piece, ox = 0, oy = 0, shape = piece.shape) {
+        for (let y = 0; y < shape.length; y++) {
+          for (let x = 0; x < shape[y].length; x++) {
+            if (!shape[y][x]) continue;
+            const bx = piece.x + x + ox;
+            const by = piece.y + y + oy;
+            if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+            if (by >= 0 && grid[by][bx]) return true;
+          }
+        }
+        return false;
+      }
+
+      function merge(piece) {
+        let itemLanded = false;
+        piece.shape.forEach((row, y) => {
+          row.forEach((v, x) => {
+            if (!v) return;
+            const by = piece.y + y;
+            const bx = piece.x + x;
+            if (by >= 0) {
+              grid[by][bx] = {
+                type: piece.type,
+                color: SKINS[skin].colors[piece.type],
+                item: piece.item && !itemLanded ? piece.item : null
+              };
+              itemLanded = true;
+            }
+          });
+        });
+      }
+
+      function clearLines() {
+        let cleared = 0;
+        const foundItems = [];
+        for (let y = ROWS - 1; y >= 0; y--) {
+          if (grid[y].every(Boolean)) {
+            grid[y].forEach((cell, x) => {
+              burst(x, y, cell.color, 8);
+              if (cell.item) foundItems.push(cell.item);
+            });
+            grid.splice(y, 1);
+            grid.unshift(Array(COLS).fill(null));
+            cleared++;
+            y++;
+          }
+        }
+        if (cleared) {
+          lines += cleared;
+          level = 1 + Math.floor(lines / 8);
+          combo++;
+          const lineScore = [0, 120, 340, 620, 1100][cleared] * level;
+          const comboScore = Math.max(0, combo) * 70 * level;
+          score += lineScore + comboScore;
+          foundItems.forEach(item => collectItem(item));
+          showText(`+${lineScore + comboScore}`, canvas.width / 2, 130, "#a8ff7a");
+          els.combo.textContent = combo > 0
+            ? `Combo x${combo + 1}! Nebula charge is singing.`
+            : `${cleared} line${cleared > 1 ? "s" : ""} cleared.`;
+          if (cleared >= 4) shake();
+        } else {
+          combo = -1;
+          els.combo.textContent = activeItem
+            ? `Item ready: ${activeItem.toUpperCase()} - press X.`
+            : "Clear a glowing item block to bank a power-up.";
+        }
+      }
+
+      function collectItem(item) {
+        activeItem = item;
+        showText(`${item.toUpperCase()} READY`, canvas.width / 2, 210, "#7cf4ff");
+        els.combo.textContent = `${item.toUpperCase()} item ready. Press X to fire it.`;
+      }
+
+      function useItem() {
+        if (!activeItem || !running || paused || gameOver) return;
+        const item = activeItem;
+        activeItem = null;
+        if (item === "bomb") {
+          const cx = Math.max(0, Math.min(COLS - 1, current.x + Math.floor(current.shape[0].length / 2)));
+          const cy = Math.max(0, Math.min(ROWS - 1, current.y + Math.floor(current.shape.length / 2)));
+          let removed = 0;
+          for (let y = cy - 1; y <= cy + 1; y++) {
+            for (let x = cx - 1; x <= cx + 1; x++) {
+              if (grid[y] && grid[y][x]) {
+                burst(x, y, grid[y][x].color, 10);
+                grid[y][x] = null;
+                removed++;
+              }
+            }
+          }
+          score += removed * 45;
+          showText("BOMB!", cx * CELL + CELL / 2, cy * CELL + CELL / 2, "#ff657b");
+          shake();
+        }
+        if (item === "stasis") {
+          stasisUntil = performance.now() + 10000;
+          showText("STASIS FIELD", canvas.width / 2, 180, "#62f4ff");
+        }
+        if (item === "prism") {
+          const filled = grid.flat().filter(Boolean);
+          if (filled.length) {
+            const target = filled[Math.floor(Math.random() * filled.length)].type;
+            let removed = 0;
+            for (let y = 0; y < ROWS; y++) {
+              for (let x = 0; x < COLS; x++) {
+                if (grid[y][x] && grid[y][x].type === target) {
+                  burst(x, y, grid[y][x].color, 5);
+                  grid[y][x] = null;
+                  removed++;
+                }
+              }
+            }
+            score += removed * 35;
+            showText(`PRISM ${target}`, canvas.width / 2, 170, "#dd7cff");
+          }
+        }
+        updateHud();
+      }
+
+      function spawn() {
+        current = next || createPiece();
+        current.x = Math.floor(COLS / 2) - Math.ceil(current.shape[0].length / 2);
+        current.y = -1;
+        next = createPiece();
+        canHold = true;
+        drawMini(nextCtx, next);
+        drawMini(holdCtx, hold);
+        if (collides(current, 0, 1)) endGame();
+      }
+
+      function hardDrop() {
+        if (!running || paused || gameOver) return;
+        let dist = 0;
+        while (!collides(current, 0, 1)) {
+          current.y++;
+          dist++;
+        }
+        score += dist * 2;
+        lock();
+      }
+
+      function softDrop() {
+        if (!running || paused || gameOver) return;
+        if (!collides(current, 0, 1)) {
+          current.y++;
+          score++;
+        } else {
+          lock();
+        }
+        dropCounter = 0;
+      }
+
+      function move(dir) {
+        if (!running || paused || gameOver) return;
+        if (!collides(current, dir, 0)) current.x += dir;
+      }
+
+      function spin(dir = 1) {
+        if (!running || paused || gameOver) return;
+        const rotated = rotate(current.shape, dir);
+        const kicks = [0, -1, 1, -2, 2];
+        for (const kick of kicks) {
+          if (!collides(current, kick, 0, rotated)) {
+            current.x += kick;
+            current.shape = rotated;
+            return;
+          }
+        }
+      }
+
+      function holdPiece() {
+        if (!running || paused || gameOver || !canHold) return;
+        const heldType = current.type;
+        const heldItem = current.item;
+        if (hold) {
+          const swap = hold;
+          current = createPiece(hold.type);
+          current.item = swap.item;
+          hold = { type: heldType, shape: cloneShape(PIECES[heldType]), item: heldItem };
+        } else {
+          hold = { type: heldType, shape: cloneShape(PIECES[heldType]), item: heldItem };
+          spawn();
+        }
+        canHold = false;
+        drawMini(holdCtx, hold);
+      }
+
+      function lock() {
+        merge(current);
+        clearLines();
+        spawn();
+        updateHud();
+      }
+
+      function dropInterval() {
+        const base = Math.max(90, 850 - (level - 1) * 58);
+        return performance.now() < stasisUntil ? base * 2.3 : base;
+      }
+
+      function update(time = 0) {
+        const delta = time - lastTime;
+        lastTime = time;
+        if (running && !paused && !gameOver) {
+          dropCounter += delta;
+          if (dropCounter > dropInterval()) softDrop();
+        }
+        draw();
+        drawFx(delta);
+        requestAnimationFrame(update);
+      }
+
+      function draw() {
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, SKINS[skin].bg[0]);
+        grad.addColorStop(1, SKINS[skin].bg[1]);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawGrid();
+        drawGhost();
+        for (let y = 0; y < ROWS; y++) {
+          for (let x = 0; x < COLS; x++) {
+            if (grid[y][x]) drawCell(ctx, x, y, grid[y][x]);
+          }
+        }
+        if (current) drawPiece(ctx, current);
+      }
+
+      function drawGrid() {
+        ctx.strokeStyle = "rgba(255,255,255,.055)";
+        ctx.lineWidth = 1;
+        for (let x = 1; x < COLS; x++) {
+          ctx.beginPath();
+          ctx.moveTo(x * CELL, 0);
+          ctx.lineTo(x * CELL, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 1; y < ROWS; y++) {
+          ctx.beginPath();
+          ctx.moveTo(0, y * CELL);
+          ctx.lineTo(canvas.width, y * CELL);
+          ctx.stroke();
+        }
+      }
+
+      function drawGhost() {
+        if (!current || paused || gameOver) return;
+        const ghost = { ...current, y: current.y, shape: current.shape };
+        while (!collides(ghost, 0, 1)) ghost.y++;
+        ctx.globalAlpha = 0.22;
+        drawPiece(ctx, ghost, true);
+        ctx.globalAlpha = 1;
+      }
+
+      function drawPiece(context, piece, ghost = false) {
+        piece.shape.forEach((row, y) => {
+          row.forEach((v, x) => {
+            if (!v) return;
+            const by = piece.y + y;
+            if (by < 0) return;
+            drawCell(context, piece.x + x, by, {
+              type: piece.type,
+              color: SKINS[skin].colors[piece.type],
+              item: !ghost && piece.item && x === firstFilledX(piece.shape) && y === firstFilledY(piece.shape) ? piece.item : null
+            }, ghost);
+          });
+        });
+      }
+
+      function firstFilledX(shape) {
+        for (let y = 0; y < shape.length; y++) {
+          for (let x = 0; x < shape[y].length; x++) if (shape[y][x]) return x;
+        }
+        return 0;
+      }
+
+      function firstFilledY(shape) {
+        for (let y = 0; y < shape.length; y++) {
+          for (let x = 0; x < shape[y].length; x++) if (shape[y][x]) return y;
+        }
+        return 0;
+      }
+
+      function drawCell(context, x, y, cell, ghost = false) {
+        const px = x * CELL;
+        const py = y * CELL;
+        const pad = ghost ? 6 : 2;
+        context.save();
+        context.shadowColor = cell.color;
+        context.shadowBlur = ghost ? 0 : 12;
+        const g = context.createLinearGradient(px, py, px + CELL, py + CELL);
+        g.addColorStop(0, lighten(cell.color, 22));
+        g.addColorStop(1, cell.color);
+        context.fillStyle = ghost ? "rgba(255,255,255,.12)" : g;
+        roundRect(context, px + pad, py + pad, CELL - pad * 2, CELL - pad * 2, 7);
+        context.fill();
+        context.shadowBlur = 0;
+        context.strokeStyle = ghost ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.28)";
+        context.stroke();
+        if (cell.item && !ghost) {
+          context.fillStyle = "#06111f";
+          context.font = "900 15px system-ui";
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+          context.fillText(cell.item[0].toUpperCase(), px + CELL / 2, py + CELL / 2 + 1);
+        }
+        context.restore();
+      }
+
+      function drawMini(context, piece) {
+        context.clearRect(0, 0, 72, 72);
+        if (!piece) return;
+        const shape = piece.shape || PIECES[piece.type];
+        const size = 15;
+        const ox = (72 - shape[0].length * size) / 2;
+        const oy = (72 - shape.length * size) / 2;
+        shape.forEach((row, y) => row.forEach((v, x) => {
+          if (!v) return;
+          context.fillStyle = SKINS[skin].colors[piece.type];
+          context.shadowColor = SKINS[skin].colors[piece.type];
+          context.shadowBlur = 10;
+          roundRect(context, ox + x * size, oy + y * size, size - 2, size - 2, 4);
+          context.fill();
+          context.shadowBlur = 0;
+        }));
+      }
+
+      function drawFx(delta) {
+        fx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+        particles = particles.filter(p => p.life > 0);
+        floatingTexts = floatingTexts.filter(t => t.life > 0);
+        particles.forEach(p => {
+          p.life -= delta;
+          p.x += p.vx * delta / 16;
+          p.y += p.vy * delta / 16;
+          p.vy += 0.018 * delta;
+          fx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          fx.fillStyle = p.color;
+          fx.beginPath();
+          fx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          fx.fill();
+        });
+        floatingTexts.forEach(t => {
+          t.life -= delta;
+          t.y -= 0.045 * delta;
+          fx.globalAlpha = Math.max(0, t.life / t.maxLife);
+          fx.fillStyle = t.color;
+          fx.font = "900 22px system-ui";
+          fx.textAlign = "center";
+          fx.fillText(t.text, t.x, t.y);
+        });
+        fx.globalAlpha = 1;
+      }
+
+      function burst(x, y, color, count) {
+        const cx = x * CELL + CELL / 2;
+        const cy = y * CELL + CELL / 2;
+        for (let i = 0; i < count; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const speed = 1 + Math.random() * 4;
+          particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(a) * speed,
+            vy: Math.sin(a) * speed,
+            color,
+            size: 1.6 + Math.random() * 3.2,
+            life: 360 + Math.random() * 420,
+            maxLife: 780
+          });
+        }
+      }
+
+      function showText(text, x, y, color) {
+        floatingTexts.push({ text, x, y, color, life: 900, maxLife: 900 });
+      }
+
+      function roundRect(context, x, y, w, h, r) {
+        context.beginPath();
+        context.moveTo(x + r, y);
+        context.arcTo(x + w, y, x + w, y + h, r);
+        context.arcTo(x + w, y + h, x, y + h, r);
+        context.arcTo(x, y + h, x, y, r);
+        context.arcTo(x, y, x + w, y, r);
+        context.closePath();
+      }
+
+      function lighten(hex, amount) {
+        const n = parseInt(hex.slice(1), 16);
+        const r = Math.min(255, (n >> 16) + amount);
+        const g = Math.min(255, ((n >> 8) & 255) + amount);
+        const b = Math.min(255, (n & 255) + amount);
+        return `rgb(${r},${g},${b})`;
+      }
+
+      function shake() {
+        document.body.classList.remove("shake");
+        void document.body.offsetWidth;
+        document.body.classList.add("shake");
+      }
+
+      function updateHud() {
+        els.score.textContent = score.toLocaleString();
+        els.lines.textContent = lines.toLocaleString();
+        els.level.textContent = level.toLocaleString();
+        if (score > best) {
+          best = score;
+          localStorage.setItem("nebula-stack-best", String(best));
+          els.best.textContent = best.toLocaleString();
+        }
+        const stasis = performance.now() < stasisUntil ? " | STASIS" : "";
+        els.status.textContent = running
+          ? paused ? "Paused" : `Level ${level}${activeItem ? ` | ${activeItem.toUpperCase()} ready` : ""}${stasis}`
+          : "Press Start or Space";
+      }
+
+      function start() {
+        grid = makeGrid();
+        bag = [];
+        current = null;
+        next = createPiece();
+        hold = null;
+        canHold = true;
+        running = true;
+        paused = false;
+        gameOver = false;
+        score = 0;
+        lines = 0;
+        level = 1;
+        combo = -1;
+        activeItem = null;
+        stasisUntil = 0;
+        particles = [];
+        floatingTexts = [];
+        dropCounter = 0;
+        els.overlay.classList.remove("show");
+        els.combo.textContent = "Clear a glowing item block to bank a power-up.";
+        spawn();
+        updateHud();
+      }
+
+      function endGame() {
+        running = false;
+        gameOver = true;
+        els.overlayTitle.textContent = "Run Complete";
+        els.overlayText.innerHTML = `Final score: <b>${score.toLocaleString()}</b><br>Press Space to try again.`;
+        els.startBtn.textContent = "Play Again";
+        els.overlay.classList.add("show");
+        els.status.textContent = "Game over";
+        shake();
+      }
+
+      function togglePause() {
+        if (!running || gameOver) return;
+        paused = !paused;
+        els.overlayTitle.textContent = "Paused";
+        els.overlayText.textContent = "Catch your breath, then press P or Resume.";
+        els.startBtn.textContent = "Resume";
+        els.overlay.classList.toggle("show", paused);
+        updateHud();
+      }
+
+      function resumeOrStart() {
+        if (paused) {
+          paused = false;
+          els.overlay.classList.remove("show");
+          updateHud();
+        } else {
+          start();
+        }
+      }
+
+      const keys = {
+        ArrowLeft: () => move(-1),
+        a: () => move(-1),
+        A: () => move(-1),
+        ArrowRight: () => move(1),
+        d: () => move(1),
+        D: () => move(1),
+        ArrowDown: softDrop,
+        s: softDrop,
+        S: softDrop,
+        ArrowUp: () => spin(1),
+        w: () => spin(1),
+        W: () => spin(1),
+        z: () => spin(-1),
+        Z: () => spin(-1),
+        " ": () => running && !paused && !gameOver ? hardDrop() : resumeOrStart(),
+        c: holdPiece,
+        C: holdPiece,
+        x: useItem,
+        X: useItem,
+        p: togglePause,
+        P: togglePause
+      };
+
+      document.addEventListener("keydown", event => {
+        if (keys[event.key]) {
+          event.preventDefault();
+          keys[event.key]();
+          updateHud();
+        }
+      });
+
+      document.querySelectorAll("[data-action]").forEach(button => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.action;
+          if (action === "left") move(-1);
+          if (action === "right") move(1);
+          if (action === "rotate") spin(1);
+          if (action === "drop") hardDrop();
+          if (action === "down") softDrop();
+          if (action === "hold") holdPiece();
+          if (action === "item") useItem();
+          if (action === "pause") togglePause();
+          updateHud();
+        });
+      });
+
+      els.startBtn.addEventListener("click", resumeOrStart);
+      els.restartBtn.addEventListener("click", start);
+      els.skinSelect.addEventListener("change", () => {
+        skin = els.skinSelect.value;
+        localStorage.setItem("nebula-stack-skin", skin);
+        drawMini(nextCtx, next);
+        drawMini(holdCtx, hold);
+        draw();
+      });
+
+      grid = makeGrid();
+      next = createPiece();
+      drawMini(nextCtx, next);
+      draw();
+      updateHud();
+      requestAnimationFrame(update);
+    })();
+  </script>
+</body>
+</html>

@@ -1,6 +1,10 @@
 # 【免费开源】【多 agent 实战】【教你怎么指挥 agent】：FCOP-MCP 让 AI 团队有纪律
 
-> 装一个免费开源的 MCP 工具（`fcop-mcp`），在 Cursor 里让 AI 团队有纪律。你只需文本语言，AI 自己把任务、报告、问题、归档都写成 markdown 文件。教程让 AI 写一个模仿贪吃蛇的小游戏，从 solo 模式到 team 模式，最后还有真实"彩蛋"，你会发现多 agent 协作其实没那么复杂。
+> *"你不再是码农，你是指挥官。AI 是你的数字员工。"*
+>
+> *"在 FCoP 的世界里，ADMIN 用得最多的两句话是「开始干活。」和「检查。」中间发生的所有事，都是 agent 通过文件互相对话。"*
+>
+> 装一个免费开源的 MCP 工具（`fcop-mcp`），在 Cursor 里让 AI 团队有纪律。你只需文本语言，AI 自己把任务、报告、问题、归档都写成 markdown 文件。教程让 AI 写一个模仿贪吃蛇的小游戏，从 solo 模式到 team 模式，最后还有真实"彩蛋"，你会发现多 agent 协作其实没那么复杂。同一份 dogfood 的英文 Tetris 版本与 agent 自评见姊妹文 [*"What the agents say about FCoP, when you ask them"*](../../essays/what-agents-say-about-fcop.en.md)。
 
 ## 前言：单 agent 的瓶颈，每个用 AI 的人正在经历
 

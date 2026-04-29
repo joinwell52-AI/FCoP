@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comet Loom</title>
+  <style>
+    :root {
+      --bg0: #07091b;
+      --bg1: #111a3d;
+      --panel: rgba(8, 12, 30, 0.72);
+      --panel2: rgba(255, 255, 255, 0.08);
+      --text: #f5f7ff;
+      --muted: #aab4df;
+      --accent: #68e8ff;
+      --accent2: #b965ff;
+      --danger: #ff4f8c;
+      --gold: #ffd36d;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 15%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 26rem),
+        radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--accent2) 24%, transparent), transparent 24rem),
+        linear-gradient(135deg, var(--bg0), var(--bg1));
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      inset: -20vmax;
+      z-index: -3;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.55) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,0.28) 0 1px, transparent 1.4px);
+      background-size: 90px 90px, 150px 150px;
+      animation: starDrift 42s linear infinite;
+      opacity: 0.38;
+    }
+
+    body::after {
+      z-index: -2;
+      background:
+        linear-gradient(110deg, transparent 0 38%, color-mix(in srgb, var(--accent) 22%, transparent) 42%, transparent 48% 100%),
+        repeating-linear-gradient(100deg, transparent 0 26px, color-mix(in srgb, var(--accent2) 14%, transparent) 27px 28px, transparent 29px 80px);
+      filter: blur(1px);
+      animation: auroraSlide 16s ease-in-out infinite alternate;
+      opacity: 0.45;
+    }
+
+    @keyframes starDrift {
+      from { transform: translate3d(0, 0, 0) rotate(0deg); }
+      to { transform: translate3d(90px, 150px, 0) rotate(1deg); }
+    }
+
+    @keyframes auroraSlide {
+      from { transform: translateX(-5vw) skewX(-7deg); opacity: 0.28; }
+      to { transform: translateX(7vw) skewX(5deg); opacity: 0.58; }
+    }
+
+    .app {
+      width: min(1180px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 18px 0 26px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 6vw, 5rem);
+      letter-spacing: 0.08em;
+      line-height: 0.9;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .tagline {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      max-width: 620px;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(210px, 260px) minmax(320px, 520px) minmax(220px, 280px);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 22px;
+      padding: 14px;
+      background: var(--panel);
+      box-shadow: 0 18px 45px var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+    }
+
+    .loom-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      border-radius: 28px;
+      background:
+        linear-gradient(90deg, transparent 0 7%, rgba(255,255,255,0.09) 8%, transparent 9% 91%, rgba(255,255,255,0.09) 92%, transparent 93%),
+        radial-gradient(circle at 50% 0, color-mix(in srgb, var(--accent) 25%, transparent), transparent 16rem),
+        var(--panel);
+      transition: transform 120ms ease;
+    }
+
+    .loom-wrap.shake { animation: shake 260ms linear; }
+    .loom-wrap.pulse { animation: pulse 360ms ease; }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-8px, 3px); }
+      40% { transform: translate(7px, -4px); }
+      60% { transform: translate(-4px, 6px); }
+      80% { transform: translate(5px, -2px); }
+    }
+
+    @keyframes pulse {
+      0% { filter: brightness(1); }
+      45% { filter: brightness(1.45) saturate(1.4); }
+      100% { filter: brightness(1); }
+    }
+
+    canvas {
+      display: block;
+      max-width: 100%;
+    }
+
+    #board {
+      width: min(72vw, 420px);
+      aspect-ratio: 10 / 20;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(3, 5, 16, 0.72);
+      box-shadow:
+        0 0 0 7px rgba(255,255,255,0.035),
+        0 0 36px color-mix(in srgb, var(--accent) 28%, transparent),
+        inset 0 0 35px rgba(0,0,0,0.55);
+    }
+
+    .hud {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 14px;
+      background: var(--panel2);
+    }
+
+    .metric span:first-child { color: var(--muted); }
+    .metric strong { letter-spacing: 0.04em; }
+
+    .tension-track {
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.11);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .tension-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--gold), var(--danger));
+      box-shadow: 0 0 16px color-mix(in srgb, var(--danger) 40%, transparent);
+      transition: width 180ms ease;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    select, button {
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--accent) 70%, white);
+      background: color-mix(in srgb, var(--accent) 18%, rgba(255,255,255,0.1));
+    }
+
+    .preview-box {
+      display: grid;
+      place-items: center;
+      min-height: 112px;
+      margin-top: 8px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .rules {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .rules h2, .card h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .rules ul {
+      padding-left: 1.2rem;
+      margin: 8px 0 0;
+    }
+
+    .touch {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .touch button {
+      min-height: 44px;
+      padding: 8px;
+      border-radius: 16px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.hidden { display: none; }
+
+    .dialog {
+      width: min(620px, 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 30px;
+      padding: 28px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0, color-mix(in srgb, var(--accent) 18%, transparent), transparent 16rem),
+        rgba(9, 12, 28, 0.9);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+    }
+
+    .dialog h2 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 8vw, 4.5rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+
+    .dialog p {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .float-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .float-text {
+      position: absolute;
+      color: var(--text);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 14px var(--accent), 0 2px 8px rgba(0,0,0,0.5);
+      animation: floatUp 980ms ease-out forwards;
+      white-space: nowrap;
+    }
+
+    @keyframes floatUp {
+      from { opacity: 0; transform: translate(-50%, 10px) scale(0.85); }
+      18% { opacity: 1; }
+      to { opacity: 0; transform: translate(-50%, -70px) scale(1.12); }
+    }
+
+    .skin-rain body::after { opacity: 0.8; }
+
+    body.skin-solar::before {
+      background-image:
+        radial-gradient(circle, rgba(255,227,130,0.85) 0 1.4px, transparent 2px),
+        radial-gradient(circle, rgba(255,84,160,0.42) 0 1px, transparent 1.6px);
+      background-size: 72px 72px, 128px 128px;
+      opacity: 0.48;
+    }
+
+    body.skin-solar::after {
+      background:
+        conic-gradient(from 25deg at 50% 35%, transparent 0 12%, rgba(255,209,82,0.24) 15%, transparent 20% 36%, rgba(255,54,151,0.18) 39%, transparent 45% 100%),
+        radial-gradient(circle at 55% 8%, rgba(255,198,82,0.34), transparent 18rem);
+      animation: auroraSlide 9s ease-in-out infinite alternate;
+      opacity: 0.72;
+    }
+
+    body.skin-rain::before {
+      background-image:
+        linear-gradient(110deg, transparent 0 48%, rgba(210,235,245,0.32) 49%, transparent 51%),
+        radial-gradient(circle, rgba(190,220,230,0.35) 0 1px, transparent 1.5px);
+      background-size: 42px 140px, 110px 110px;
+      opacity: 0.5;
+    }
+
+    body.skin-rain::after {
+      background:
+        repeating-linear-gradient(105deg, transparent 0 20px, rgba(125,206,212,0.2) 21px 23px, transparent 24px 70px);
+      animation: auroraSlide 6s linear infinite alternate;
+      opacity: 0.82;
+    }
+
+    body.skin-moss::before {
+      background-image:
+        radial-gradient(ellipse, rgba(142,228,105,0.42) 0 1.5px, transparent 2px),
+        radial-gradient(circle, rgba(240,184,74,0.38) 0 1px, transparent 1.5px);
+      background-size: 96px 70px, 160px 130px;
+      opacity: 0.44;
+    }
+
+    body.skin-moss::after {
+      background:
+        radial-gradient(ellipse at 20% 70%, rgba(86,154,80,0.28), transparent 20rem),
+        repeating-linear-gradient(12deg, transparent 0 38px, rgba(225,170,68,0.12) 39px 41px, transparent 42px 86px);
+      opacity: 0.5;
+    }
+
+    body.skin-lantern::before {
+      background-image:
+        radial-gradient(ellipse at center, rgba(255,224,163,0.7) 0 2px, transparent 5px),
+        radial-gradient(circle, rgba(168,47,65,0.36) 0 1px, transparent 1.5px);
+      background-size: 130px 96px, 88px 88px;
+      opacity: 0.55;
+    }
+
+    body.skin-lantern::after {
+      background:
+        linear-gradient(90deg, rgba(255,239,205,0.08) 0 1px, transparent 1px 48px),
+        radial-gradient(circle at 75% 20%, rgba(255,180,92,0.28), transparent 15rem),
+        radial-gradient(circle at 20% 80%, rgba(185,52,72,0.2), transparent 14rem);
+      filter: blur(0.5px);
+      animation: auroraSlide 22s ease-in-out infinite alternate;
+      opacity: 0.66;
+    }
+
+    @media (max-width: 920px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .shell { grid-template-columns: 1fr; }
+      .side-left { order: 2; }
+      .loom-wrap { order: 1; }
+      .side-right { order: 3; }
+      #board { width: min(92vw, 420px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Comet Loom</h1>
+        <div class="tagline">Weave comet-thread constellations into a living cosmic tapestry before the loom snaps.</div>
+      </div>
+      <button id="startBtn">Start / Restart</button>
+    </header>
+
+    <main class="shell">
+      <aside class="card hud side-left">
+        <h2>Loom Readout</h2>
+        <div class="metric"><span>Score</span><strong id="score">0</strong></div>
+        <div class="metric"><span>Best</span><strong id="best">0</strong></div>
+        <div class="metric"><span>Speed Tier</span><strong id="level">1</strong></div>
+        <div class="metric"><span>Charm</span><strong id="charm">None</strong></div>
+        <div>
+          <div class="metric"><span>Tension</span><strong id="tensionText">0%</strong></div>
+          <div class="tension-track"><div id="tensionFill" class="tension-fill"></div></div>
+        </div>
+        <label>
+          Skin
+          <select id="skinSelect"></select>
+        </label>
+        <div>
+          <h2>Next Thread</h2>
+          <div class="preview-box"><canvas id="preview" width="150" height="110"></canvas></div>
+        </div>
+      </aside>
+
+      <section id="loomWrap" class="card loom-wrap">
+        <canvas id="board" width="360" height="720" aria-label="Comet Loom game board"></canvas>
+      </section>
+
+      <aside class="card rules side-right">
+        <h2>Rules & Controls</h2>
+        <p>Complete horizontal <strong>weft lines</strong>. Trigger <strong>motif bursts</strong> when newly locked knots connect to older board knots to form 3+ matching cells diagonally or orthogonally; a plain fresh piece alone will not burst.</p>
+        <ul>
+          <li>Move: Arrows or A/D</li>
+          <li>Rotate: Up/W, counter Z</li>
+          <li>Soft drop: Down/S</li>
+          <li>Hard drop: Space</li>
+          <li>Hold: C</li>
+          <li>Use charm: X</li>
+          <li>Pause: P</li>
+        </ul>
+        <p><strong>Charms:</strong> Needle clears a column, Knot locks a wild piece, Gale shifts the loom left or right.</p>
+        <div class="touch" aria-label="Touch controls">
+          <button data-action="left">←</button>
+          <button data-action="right">→</button>
+          <button data-action="rotate">⟳</button>
+          <button data-action="drop">Drop</button>
+          <button data-action="charm">X</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="floatLayer" class="float-layer"></div>
+
+  <div id="overlay" class="overlay">
+    <div class="dialog">
+      <h2 id="overlayTitle">Comet Loom</h2>
+      <p id="overlayText">Thread constellations fall through a vertical loom. Stack mixed-color pieces, complete weft lines, connect new knots to older matching knots for motif bursts, and spend charms before tension reaches 100.</p>
+      <button id="overlayButton">Begin Weaving</button>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    "use strict";
+
+    const COLS = 10;
+    const ROWS = 20;
+    const CELL = 36;
+    const boardCanvas = document.getElementById("board");
+    const ctx = boardCanvas.getContext("2d");
+    const previewCanvas = document.getElementById("preview");
+    const pctx = previewCanvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayText = document.getElementById("overlayText");
+    const overlayButton = document.getElementById("overlayButton");
+    const startBtn = document.getElementById("startBtn");
+    const loomWrap = document.getElementById("loomWrap");
+    const floatLayer = document.getElementById("floatLayer");
+    const scoreEl = document.getElementById("score");
+    const bestEl = document.getElementById("best");
+    const levelEl = document.getElementById("level");
+    const charmEl = document.getElementById("charm");
+    const tensionText = document.getElementById("tensionText");
+    const tensionFill = document.getElementById("tensionFill");
+    const skinSelect = document.getElementById("skinSelect");
+
+    const skins = {
+      "Deep Aurora": {
+        className: "skin-aurora",
+        vars: ["#050719", "#121b46", "#63e7ff", "#ba74ff", "#ff5fb7", "#ffd36d"],
+        cells: ["#5ee9ff", "#9d7cff", "#44f3b0", "#f6ec7c", "#ff78c8", "#65a7ff"],
+        style: "aurora"
+      },
+      "Solar Loom": {
+        className: "skin-solar",
+        vars: ["#170511", "#3a1024", "#ffd25e", "#ff4aac", "#ff6b6b", "#fff0a6"],
+        cells: ["#ffd45f", "#ff8c42", "#ff4aa5", "#ffe66d", "#ff6363", "#f7b2ff"],
+        style: "solar"
+      },
+      "Rain Archive": {
+        className: "skin-rain",
+        vars: ["#071118", "#1b2a32", "#6fd3c8", "#b6cad7", "#8da2b0", "#d7f7ff"],
+        cells: ["#78d5d7", "#8aa6bf", "#c6d7df", "#4aa3a2", "#a6e3e9", "#6f8fa6"],
+        style: "rain"
+      },
+      "Moss Galaxy": {
+        className: "skin-moss",
+        vars: ["#061108", "#152412", "#81e55d", "#f0b84a", "#d86f45", "#fff2a8"],
+        cells: ["#87e05f", "#b6cf4e", "#f2b84b", "#4fc27a", "#d7e87b", "#8a6f3f"],
+        style: "moss"
+      },
+      "Paper Lanterns": {
+        className: "skin-lantern",
+        vars: ["#16100d", "#3a241f", "#ffe3a3", "#e94d45", "#ff8f5e", "#fff7d0"],
+        cells: ["#ffe2a3", "#e64d45", "#ff9c5e", "#ffd15c", "#f7eee0", "#b83b5e"],
+        style: "lantern"
+      }
+    };
+
+    const shapes = [
+      [[0,0],[1,0],[-1,0],[2,0]],                 // thread spear
+      [[0,0],[1,0],[0,1],[1,1]],                  // star knot
+      [[0,0],[-1,0],[1,0],[0,1]],                 // comet fork
+      [[0,0],[-1,0],[1,0],[1,1]],                 // crooked ribbon
+      [[0,0],[-1,0],[1,0],[-1,1]],                // mirrored ribbon
+      [[0,0],[1,0],[0,1],[-1,1]],                 // spark zig
+      [[0,0],[-1,0],[0,1],[1,1]],                 // mirrored spark zig
+      [[0,0],[-1,0],[1,0],[0,1],[0,-1]],          // pentomino star
+      [[0,0],[1,0],[-1,0],[2,0],[0,1]],           // needle tail
+      [[0,0],[0,1],[0,-1],[1,1],[-1,-1]]          // comet braid
+    ];
+
+    const state = {
+      board: [],
+      current: null,
+      next: null,
+      hold: null,
+      holdUsed: false,
+      particles: [],
+      pendingBursts: [],
+      score: 0,
+      best: Number(localStorage.getItem("cometLoomBest") || 0),
+      tension: 0,
+      level: 1,
+      charm: null,
+      combo: 0,
+      running: false,
+      paused: false,
+      gameOver: false,
+      lastTime: 0,
+      dropTimer: 0,
+      skinName: localStorage.getItem("cometLoomSkin") || "Deep Aurora"
+    };
+
+    function makeBoard() {
+      return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    }
+
+    function rand(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    function sample(arr) {
+      return arr[rand(arr.length)];
+    }
+
+    function normalize(points) {
+      const minX = Math.min(...points.map(p => p[0]));
+      const minY = Math.min(...points.map(p => p[1]));
+      return points.map(([x, y]) => [x - minX, y - minY]);
+    }
+
+    function rotate(points, dir = 1) {
+      const turned = points.map(([x, y]) => dir > 0 ? [-y, x] : [y, -x]);
+      return normalize(turned);
+    }
+
+    function createPiece() {
+      const colors = skins[state.skinName].cells;
+      const pts = normalize(sample(shapes).map(p => [...p]));
+      const maxX = Math.max(...pts.map(p => p[0]));
+      const pieceColors = pts.map((_, i) => colors[(rand(colors.length) + i * 2) % colors.length]);
+      return {
+        x: Math.floor((COLS - maxX - 1) / 2),
+        y: -1,
+        points: pts,
+        colors: pieceColors,
+        color: pieceColors[0],
+        wild: false
+      };
+    }
+
+    function pieceCells(piece = state.current, dx = 0, dy = 0, pts = piece.points) {
+      return pts.map(([x, y], i) => ({
+        x: piece.x + x + dx,
+        y: piece.y + y + dy,
+        color: piece.wild ? "wild" : (piece.colors?.[i] || piece.color),
+        index: i
+      }));
+    }
+
+    function collides(piece = state.current, dx = 0, dy = 0, pts = piece.points) {
+      return pieceCells(piece, dx, dy, pts).some(({ x, y }) => {
+        if (x < 0 || x >= COLS || y >= ROWS) return true;
+        return y >= 0 && state.board[y][x];
+      });
+    }
+
+    function spawn() {
+      state.current = state.next || createPiece();
+      state.next = createPiece();
+      state.holdUsed = false;
+      if (collides(state.current, 0, 0)) endGame("The loom overflows with unbound starlight.");
+    }
+
+    function startGame() {
+      state.board = makeBoard();
+      state.particles = [];
+      state.pendingBursts = [];
+      state.score = 0;
+      state.tension = 0;
+      state.level = 1;
+      state.charm = null;
+      state.combo = 0;
+      state.running = true;
+      state.paused = false;
+      state.gameOver = false;
+      state.next = createPiece();
+      spawn();
+      overlay.classList.add("hidden");
+      updateHud();
+      renderPreview();
+      requestAnimationFrame(loop);
+    }
+
+    function setSkin(name) {
+      state.skinName = skins[name] ? name : "Deep Aurora";
+      const skin = skins[state.skinName];
+      const keys = ["--bg0", "--bg1", "--accent", "--accent2", "--danger", "--gold"];
+      keys.forEach((key, i) => document.documentElement.style.setProperty(key, skin.vars[i]));
+      document.body.className = skin.className;
+      localStorage.setItem("cometLoomSkin", state.skinName);
+      renderPreview();
+    }
+
+    function updateHud() {
+      state.level = Math.max(1, Math.floor(state.score / 1000) + 1 + Math.floor(state.tension / 35));
+      scoreEl.textContent = state.score.toLocaleString();
+      bestEl.textContent = state.best.toLocaleString();
+      levelEl.textContent = state.level;
+      charmEl.textContent = state.charm || "None";
+      tensionText.textContent = Math.round(state.tension) + "%";
+      tensionFill.style.width = Math.min(100, state.tension) + "%";
+    }
+
+    function dropInterval() {
+      return Math.max(85, 760 - state.level * 42 - state.tension * 4.1);
+    }
+
+    function move(dx) {
+      if (!state.running || state.paused) return;
+      if (!collides(state.current, dx, 0)) state.current.x += dx;
+    }
+
+    function softDrop() {
+      if (!state.running || state.paused) return;
+      if (!collides(state.current, 0, 1)) {
+        state.current.y++;
+        state.score += 1;
+      } else {
+        lockPiece();
+      }
+    }
+
+    function hardDrop() {
+      if (!state.running || state.paused) return;
+      let dist = 0;
+      while (!collides(state.current, 0, 1)) {
+        state.current.y++;
+        dist++;
+      }
+      state.score += dist * 2;
+      lockPiece();
+    }
+
+    function rotateCurrent(dir = 1) {
+      if (!state.running || state.paused) return;
+      const pts = rotate(state.current.points, dir);
+      for (const kick of [0, -1, 1, -2, 2]) {
+        if (!collides(state.current, kick, 0, pts)) {
+          state.current.x += kick;
+          state.current.points = pts;
+          return;
+        }
+      }
+    }
+
+    function holdPiece() {
+      if (!state.running || state.paused || state.holdUsed) return;
+      const old = state.current;
+      if (!state.hold) {
+        state.hold = { points: old.points, colors: old.colors, color: old.color, wild: old.wild };
+        spawn();
+      } else {
+        state.current = {
+          x: 3,
+          y: -1,
+          points: state.hold.points,
+          colors: state.hold.colors,
+          color: state.hold.color,
+          wild: state.hold.wild
+        };
+        state.hold = { points: old.points, colors: old.colors, color: old.color, wild: old.wild };
+      }
+      state.holdUsed = true;
+      floatText("Held Thread", 50, 48);
+    }
+
+    function lockPiece(forceWild = false) {
+      const cells = pieceCells();
+      for (const { x, y, color } of cells) {
+        if (y < 0) return endGame("A comet thread tangles above the frame.");
+        state.board[y][x] = {
+          color: forceWild || state.current.wild ? "wild" : color,
+          glow: 1,
+          fresh: true,
+          marked: 0
+        };
+        burst(x, y, forceWild ? "#ffffff" : state.board[y][x].color, 4, 0.8);
+      }
+
+      const result = resolveWeave();
+      if (result.lines || result.motifs) {
+        state.combo++;
+        const comboName = comboNameFor(state.combo);
+        if (comboName) floatText(comboName, 50, 45);
+        state.tension = Math.max(0, state.tension - result.lines * 10 - result.motifs * 4);
+        maybeEarnCharm(result.lines, result.motifs);
+      } else {
+        state.combo = 0;
+        state.tension = Math.min(100, state.tension + 5.5);
+      }
+
+      if (state.tension >= 100) return endGame("The loom snaps under comet tension.");
+      spawn();
+      renderPreview();
+      updateHud();
+    }
+
+    function resolveWeave() {
+      let lines = clearLines();
+      let motifs = clearMotifs();
+      ageFreshCells();
+      if (lines || motifs) {
+        state.score += lines * 180 + motifs * 65 + Math.max(0, state.combo - 1) * 90;
+        pulse(lines > 1 || motifs > 1 ? "shake" : "pulse");
+      }
+      return { lines, motifs };
+    }
+
+    function clearLines() {
+      let cleared = 0;
+      for (let y = ROWS - 1; y >= 0; y--) {
+        if (state.board[y].every(Boolean)) {
+          for (let x = 0; x < COLS; x++) {
+            burst(x, y, state.board[y][x].color, 10, 1.3);
+          }
+          state.board.splice(y, 1);
+          state.board.unshift(Array(COLS).fill(null));
+          cleared++;
+          y++;
+        }
+      }
+      if (cleared) floatText(`${cleared} Weft Line${cleared > 1 ? "s" : ""}`, 50, 35);
+      return cleared;
+    }
+
+    function clearMotifs() {
+      const dirs = [-1, 0, 1].flatMap(dx => [-1, 0, 1].map(dy => [dx, dy])).filter(([dx, dy]) => dx || dy);
+      const targetColors = skins[state.skinName].cells;
+      const groups = [];
+      const claimed = new Set();
+
+      for (const target of targetColors) {
+        const seen = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+        for (let y = 0; y < ROWS; y++) {
+          for (let x = 0; x < COLS; x++) {
+            const cell = state.board[y][x];
+            if (!matchesMotifColor(cell, target) || seen[y][x]) continue;
+            const group = [];
+            const queue = [[x, y]];
+            seen[y][x] = true;
+            while (queue.length) {
+              const [cx, cy] = queue.pop();
+              group.push([cx, cy]);
+              for (const [dx, dy] of dirs) {
+                const nx = cx + dx, ny = cy + dy;
+                if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS || seen[ny][nx]) continue;
+                if (!matchesMotifColor(state.board[ny][nx], target)) continue;
+                seen[ny][nx] = true;
+                queue.push([nx, ny]);
+              }
+            }
+            const hasFresh = group.some(([gx, gy]) => state.board[gy][gx]?.fresh);
+            const hasOlder = group.some(([gx, gy]) => state.board[gy][gx] && !state.board[gy][gx].fresh);
+            const key = group.map(([gx, gy]) => `${gx},${gy}`).sort().join("|");
+            if (group.length >= 3 && hasFresh && hasOlder && !claimed.has(key)) {
+              claimed.add(key);
+              groups.push(group);
+            }
+          }
+        }
+      }
+
+      groups.forEach(group => {
+        group.forEach(([x, y]) => {
+          if (state.board[y][x]) state.board[y][x].marked = 18;
+        });
+        state.pendingBursts.push({ cells: group, delay: 18 });
+      });
+      if (groups.length) floatText(`Motif Burst x${groups.length}`, 50, 40);
+      return groups.length;
+    }
+
+    function matchesMotifColor(cell, target) {
+      return !!cell && (cell.color === target || cell.color === "wild");
+    }
+
+    function ageFreshCells() {
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          if (state.board[y][x]) state.board[y][x].fresh = false;
+        }
+      }
+    }
+
+    function findNearbyColor(x, y) {
+      for (let r = 1; r < 4; r++) {
+        for (let yy = Math.max(0, y - r); yy <= Math.min(ROWS - 1, y + r); yy++) {
+          for (let xx = Math.max(0, x - r); xx <= Math.min(COLS - 1, x + r); xx++) {
+            const c = state.board[yy][xx];
+            if (c && c.color !== "wild") return c.color;
+          }
+        }
+      }
+      return "wild";
+    }
+
+    function maybeEarnCharm(lines, motifs) {
+      if (!state.charm && (lines || motifs || state.combo >= 2)) {
+        state.charm = sample(["Needle", "Knot", "Gale"]);
+        floatText(`${state.charm} Charm`, 50, 52);
+      } else if (state.charm && Math.random() < 0.2 + Math.min(0.25, state.combo * 0.04)) {
+        state.score += 90;
+        floatText("Charm Resonance +90", 50, 52);
+      }
+    }
+
+    function useCharm() {
+      if (!state.running || state.paused || !state.charm) return;
+      const charm = state.charm;
+      state.charm = null;
+      if (charm === "Needle") useNeedle();
+      if (charm === "Knot") {
+        state.current.wild = true;
+        lockPiece(true);
+      }
+      if (charm === "Gale") useGale();
+      floatText(charm, 50, 50);
+      updateHud();
+    }
+
+    function useNeedle() {
+      const cells = pieceCells();
+      const avg = Math.round(cells.reduce((sum, c) => sum + c.x, 0) / cells.length);
+      const col = Math.max(0, Math.min(COLS - 1, avg));
+      for (let y = 0; y < ROWS; y++) {
+        if (state.board[y][col]) {
+          burst(col, y, state.board[y][col].color, 9, 1.1);
+          state.board[y][col] = null;
+          state.score += 18;
+        }
+      }
+      state.tension = Math.max(0, state.tension - 4);
+      pulse("pulse");
+    }
+
+    function useGale() {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      for (let y = 0; y < ROWS; y++) {
+        if (dir < 0) state.board[y].push(state.board[y].shift());
+        else state.board[y].unshift(state.board[y].pop());
+      }
+      for (let i = 0; i < 70; i++) {
+        state.particles.push({
+          x: (dir < 0 ? COLS + Math.random() : -Math.random()) * CELL,
+          y: Math.random() * ROWS * CELL,
+          vx: dir * (2 + Math.random() * 5),
+          vy: (Math.random() - 0.5) * 1.5,
+          life: 30 + Math.random() * 20,
+          color: skins[state.skinName].vars[2],
+          size: 1 + Math.random() * 3
+        });
+      }
+      state.score += 70;
+      pulse("shake");
+    }
+
+    function comboNameFor(count) {
+      if (count === 1) return "Whisper";
+      if (count === 2) return "Chorus";
+      if (count === 3) return "Aurora";
+      if (count >= 4) return "Myth";
+      return "";
+    }
+
+    function endGame(message) {
+      state.running = false;
+      state.gameOver = true;
+      state.best = Math.max(state.best, state.score);
+      localStorage.setItem("cometLoomBest", String(state.best));
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) burst(x, y, sample(skins[state.skinName].cells), 2, 1);
+      }
+      pulse("shake");
+      updateHud();
+      overlayTitle.textContent = "Loom Snap";
+      overlayText.textContent = `${message} Final score: ${state.score.toLocaleString()}. Best: ${state.best.toLocaleString()}.`;
+      overlayButton.textContent = "Reweave";
+      setTimeout(() => overlay.classList.remove("hidden"), 650);
+    }
+
+    function togglePause() {
+      if (!state.running || state.gameOver) return;
+      state.paused = !state.paused;
+      if (state.paused) {
+        overlayTitle.textContent = "Paused";
+        overlayText.textContent = "The loom hums in place. Press P or resume to continue weaving.";
+        overlayButton.textContent = "Resume";
+        overlay.classList.remove("hidden");
+      } else {
+        overlay.classList.add("hidden");
+        requestAnimationFrame(loop);
+      }
+    }
+
+    function ghostY() {
+      let dy = 0;
+      while (!collides(state.current, 0, dy + 1)) dy++;
+      return state.current.y + dy;
+    }
+
+    function drawCell(context, x, y, color, alpha = 1, wild = false, marked = 0) {
+      const px = x * CELL;
+      const py = y * CELL;
+      const cx = px + CELL / 2;
+      const cy = py + CELL / 2;
+      const skin = skins[state.skinName];
+      context.save();
+      context.globalAlpha = alpha;
+      const grd = skin.style === "lantern"
+        ? context.createLinearGradient(px + 3, py + 3, px + CELL - 3, py + CELL - 3)
+        : context.createRadialGradient(cx - 6, cy - 7, 3, cx, cy, CELL * 0.55);
+      if (skin.style === "lantern") {
+        grd.addColorStop(0, wild ? "#fffdf2" : "#fff3d0");
+        grd.addColorStop(0.48, wild ? "#ffffff" : color);
+        grd.addColorStop(1, "#2a1713");
+      } else if (skin.style === "solar") {
+        grd.addColorStop(0, "#fff8bc");
+        grd.addColorStop(0.3, wild ? "#ffffff" : color);
+        grd.addColorStop(1, "#5d0a25");
+      } else if (skin.style === "rain") {
+        grd.addColorStop(0, "#eefaff");
+        grd.addColorStop(0.34, wild ? "#ffffff" : color);
+        grd.addColorStop(1, "#14252e");
+      } else {
+        grd.addColorStop(0, "#ffffff");
+        grd.addColorStop(0.22, wild ? "#ffffff" : color);
+        grd.addColorStop(1, "rgba(0,0,0,0.22)");
+      }
+      context.fillStyle = grd;
+      context.shadowColor = wild ? "#ffffff" : color;
+      context.shadowBlur = (wild ? 20 : 14) + (marked ? 12 : 0);
+      context.beginPath();
+      if (skin.style === "rain") {
+        context.moveTo(cx, py + 3);
+        context.lineTo(px + CELL - 4, cy);
+        context.lineTo(cx, py + CELL - 3);
+        context.lineTo(px + 4, cy);
+        context.closePath();
+      } else {
+        context.roundRect(px + 4, py + 4, CELL - 8, CELL - 8, skin.style === "lantern" ? 4 : 10);
+      }
+      context.fill();
+      context.strokeStyle = marked ? "#ffffff" : (skin.style === "lantern" ? "rgba(34,20,16,0.9)" : (wild ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.36)"));
+      context.lineWidth = marked ? 3 : 1.5;
+      context.stroke();
+      if (marked) {
+        context.strokeStyle = "#ffffff";
+        context.lineWidth = 1;
+        context.setLineDash([4, 4]);
+        context.strokeRect(px + 7, py + 7, CELL - 14, CELL - 14);
+      }
+      context.fillStyle = skin.style === "lantern" ? "rgba(50,24,18,0.32)" : "rgba(255,255,255,0.45)";
+      context.beginPath();
+      context.arc(cx - 6, cy - 7, skin.style === "solar" ? 4.6 : 3.2, 0, Math.PI * 2);
+      context.fill();
+      context.restore();
+    }
+
+    function drawThreads(context, cells, color, alpha = 1) {
+      context.save();
+      context.globalAlpha = alpha;
+      context.strokeStyle = color;
+      context.lineWidth = 3;
+      context.shadowColor = color;
+      context.shadowBlur = 12;
+      context.beginPath();
+      cells.forEach((cell, i) => {
+        const x = cell.x * CELL + CELL / 2;
+        const y = cell.y * CELL + CELL / 2;
+        if (i === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      });
+      context.stroke();
+      context.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
+      const t = performance.now() * 0.001;
+      const skin = skins[state.skinName];
+      const bg = ctx.createLinearGradient(0, 0, boardCanvas.width, boardCanvas.height);
+      if (skin.style === "solar") {
+        bg.addColorStop(0, "rgba(255,190,64,0.16)");
+        bg.addColorStop(0.55, "rgba(255,61,151,0.08)");
+        bg.addColorStop(1, "rgba(60,0,24,0.35)");
+      } else if (skin.style === "lantern") {
+        bg.addColorStop(0, "rgba(255,230,180,0.16)");
+        bg.addColorStop(1, "rgba(45,22,16,0.42)");
+      } else if (skin.style === "rain") {
+        bg.addColorStop(0, "rgba(135,180,196,0.12)");
+        bg.addColorStop(1, "rgba(5,22,30,0.36)");
+      } else {
+        bg.addColorStop(0, "rgba(255,255,255,0.035)");
+        bg.addColorStop(1, "rgba(0,0,0,0.22)");
+      }
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+
+      ctx.strokeStyle = skin.style === "lantern"
+        ? `rgba(45,24,18,${0.16 + state.tension / 1400})`
+        : `rgba(255,255,255,${0.055 + state.tension / 1800})`;
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= COLS; x++) {
+        ctx.beginPath();
+        ctx.moveTo(x * CELL, 0);
+        const sway = skin.style === "rain" ? Math.sin(t * 2 + x) * 1.2 : Math.sin(t + x) * 3;
+        ctx.lineTo(x * CELL + sway, ROWS * CELL);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= ROWS; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * CELL);
+        ctx.lineTo(COLS * CELL, y * CELL + Math.cos(t + y) * 2);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const cell = state.board[y][x];
+          if (cell) drawCell(ctx, x, y, cell.color === "wild" ? "#ffffff" : cell.color, 1, cell.color === "wild", cell.marked || 0);
+        }
+      }
+
+      if (state.current) {
+        const gy = ghostY();
+        const ghostCells = state.current.points.map(([x, y], i) => ({ x: state.current.x + x, y: gy + y, color: state.current.colors?.[i] || state.current.color }));
+        drawThreads(ctx, ghostCells.filter(c => c.y >= 0), "rgba(255,255,255,0.55)", 0.35);
+        ghostCells.forEach(c => c.y >= 0 && drawCell(ctx, c.x, c.y, c.color, 0.16, state.current.wild));
+        const cells = pieceCells().filter(c => c.y >= 0);
+        drawThreads(ctx, cells, state.current.wild ? "#ffffff" : state.current.color, 0.95);
+        cells.forEach(c => drawCell(ctx, c.x, c.y, c.color, 1, state.current.wild));
+      }
+
+      updateParticles(ctx);
+    }
+
+    function renderPreview() {
+      pctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+      if (!state.next) return;
+      const pts = state.next.points;
+      const minX = Math.min(...pts.map(p => p[0]));
+      const maxX = Math.max(...pts.map(p => p[0]));
+      const minY = Math.min(...pts.map(p => p[1]));
+      const maxY = Math.max(...pts.map(p => p[1]));
+      const size = 24;
+      const ox = (previewCanvas.width - (maxX - minX + 1) * size) / 2;
+      const oy = (previewCanvas.height - (maxY - minY + 1) * size) / 2;
+      pctx.save();
+      pctx.scale(size / CELL, size / CELL);
+      pts.forEach(([x, y], i) => drawCell(pctx, (ox / size) + x - minX, (oy / size) + y - minY, state.next.colors?.[i] || state.next.color, 1));
+      pctx.restore();
+    }
+
+    function burst(x, y, color, amount = 8, force = 1) {
+      const resolved = color === "wild" ? "#ffffff" : color;
+      for (let i = 0; i < amount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = (1 + Math.random() * 3.2) * force;
+        state.particles.push({
+          x: x * CELL + CELL / 2,
+          y: y * CELL + CELL / 2,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 22 + Math.random() * 24,
+          color: resolved,
+          size: 1.5 + Math.random() * 3.5
+        });
+      }
+    }
+
+    function updateParticles(context) {
+      context.save();
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.025;
+        p.life--;
+        if (p.life <= 0) {
+          state.particles.splice(i, 1);
+          continue;
+        }
+        context.globalAlpha = Math.max(0, p.life / 44);
+        context.fillStyle = p.color;
+        context.shadowColor = p.color;
+        context.shadowBlur = 10;
+        context.beginPath();
+        context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.restore();
+    }
+
+    function floatText(text, xPercent, yPercent) {
+      const el = document.createElement("div");
+      el.className = "float-text";
+      el.textContent = text;
+      el.style.left = xPercent + "vw";
+      el.style.top = yPercent + "vh";
+      floatLayer.appendChild(el);
+      setTimeout(() => el.remove(), 1050);
+    }
+
+    function pulse(className) {
+      loomWrap.classList.remove("shake", "pulse");
+      void loomWrap.offsetWidth;
+      loomWrap.classList.add(className);
+      setTimeout(() => loomWrap.classList.remove(className), 380);
+    }
+
+    function loop(time) {
+      if (!state.running || state.paused) {
+        draw();
+        return;
+      }
+      const dt = time - (state.lastTime || time);
+      state.lastTime = time;
+      state.dropTimer += dt;
+      if (state.dropTimer >= dropInterval()) {
+        state.dropTimer = 0;
+        softDrop();
+      }
+      updatePendingBursts();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    function updatePendingBursts() {
+      for (let i = state.pendingBursts.length - 1; i >= 0; i--) {
+        const burstGroup = state.pendingBursts[i];
+        burstGroup.delay--;
+        for (const [x, y] of burstGroup.cells) {
+          if (state.board[y]?.[x]) state.board[y][x].marked = Math.max(state.board[y][x].marked || 0, burstGroup.delay);
+        }
+        if (burstGroup.delay <= 0) {
+          for (const [x, y] of burstGroup.cells) {
+            const cell = state.board[y]?.[x];
+            if (!cell) continue;
+            burst(x, y, cell.color, 10, 1.2);
+            state.board[y][x] = null;
+          }
+          state.pendingBursts.splice(i, 1);
+        }
+      }
+    }
+
+    function handleKey(event) {
+      const key = event.key.toLowerCase();
+      if (["arrowleft", "arrowright", "arrowup", "arrowdown", " ", "a", "d", "w", "s", "z", "x", "c", "p"].includes(key)) {
+        event.preventDefault();
+      }
+      if (key === "p") return togglePause();
+      if (key === "arrowleft" || key === "a") move(-1);
+      if (key === "arrowright" || key === "d") move(1);
+      if (key === "arrowup" || key === "w") rotateCurrent(1);
+      if (key === "z") rotateCurrent(-1);
+      if (key === "arrowdown" || key === "s") softDrop();
+      if (key === " ") hardDrop();
+      if (key === "x") useCharm();
+      if (key === "c") holdPiece();
+      updateHud();
+    }
+
+    function action(name) {
+      if (name === "left") move(-1);
+      if (name === "right") move(1);
+      if (name === "rotate") rotateCurrent(1);
+      if (name === "drop") hardDrop();
+      if (name === "charm") useCharm();
+      updateHud();
+    }
+
+    Object.keys(skins).forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      skinSelect.appendChild(option);
+    });
+    skinSelect.value = state.skinName;
+    setSkin(state.skinName);
+    bestEl.textContent = state.best.toLocaleString();
+
+    skinSelect.addEventListener("change", () => setSkin(skinSelect.value));
+    startBtn.addEventListener("click", startGame);
+    overlayButton.addEventListener("click", () => {
+      if (state.paused && state.running) togglePause();
+      else startGame();
+    });
+    document.addEventListener("keydown", handleKey);
+    document.querySelectorAll("[data-action]").forEach(btn => {
+      btn.addEventListener("click", () => action(btn.dataset.action));
+    });
+
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        this.beginPath();
+        this.moveTo(x + radius, y);
+        this.arcTo(x + w, y, x + w, y + h, radius);
+        this.arcTo(x + w, y + h, x, y + h, radius);
+        this.arcTo(x, y + h, x, y, radius);
+        this.arcTo(x, y, x + w, y, radius);
+        this.closePath();
+        return this;
+      };
+    }
+
+    state.board = makeBoard();
+    state.next = createPiece();
+    updateHud();
+    renderPreview();
+    draw();
+  })();
+  </script>
+</body>
+</html>
