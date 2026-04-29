@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FCoP — A File-based Coordination Protocol for Multi-Agent AI Systems</title>
+<meta name="description" content="FCoP makes AI agents collaborate through markdown files instead of middleware. Open-source MCP server for Cursor. MIT-licensed. DOI 10.5281/zenodo.19886036." />
+<meta name="author" content="Zhu, Wei" />
+<meta property="og:title" content="FCoP — A File-based Coordination Protocol for Multi-Agent AI Systems" />
+<meta property="og:description" content="Make your AI agents collaborate through markdown files. No middleware. No SaaS. MIT-licensed. Cite via Zenodo DOI." />
+<meta property="og:image" content="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-mcp-tutorial-cover-v1.png" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://joinwell52-ai.github.io/FCoP/" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" type="image/png" sizes="256x256" href="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-256.png" />
+
+<style>
+  /* === Design tokens (mirrors essay-06-cover palette) ============== */
+  :root {
+    --bg: #0a1628;
+    --bg-elev-1: #112440;
+    --bg-elev-2: #182f4f;
+    --grid: rgba(77, 208, 225, 0.06);
+    --text: #e6edf5;
+    --text-dim: #9aabc2;
+    --text-faint: #5a6f8a;
+    --accent: #4dd0e1;          /* cyan, primary highlight */
+    --accent-glow: rgba(77, 208, 225, 0.3);
+    --planner: #b39ddb;          /* purple, used for PLANNER */
+    --coder: #ff8a65;            /* orange, used for CODER */
+    --cream: #f5e6d3;            /* document-card cream */
+    --border: rgba(77, 208, 225, 0.18);
+    --border-strong: rgba(77, 208, 225, 0.45);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 24px rgba(77, 208, 225, 0.18);
+    --radius-sm: 8px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --max-w: 1200px;
+    --font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+    --font-serif: 'Merriweather', 'Georgia', serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  /* Bilingual toggle ------------------------------------------------ */
+  [data-lang="en"] .zh-only { display: none !important; }
+  [data-lang="zh"] .en-only { display: none !important; }
+
+  /* === Layout primitives ========================================== */
+  .container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  @media (max-width: 720px) { .container { padding: 0 20px; } }
+
+  section {
+    padding: 96px 0;
+    position: relative;
+  }
+  @media (max-width: 720px) { section { padding: 56px 0; } }
+
+  h1, h2, h3, h4 { line-height: 1.25; margin: 0 0 16px; }
+  h2 { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; }
+  h3 { font-size: 22px; font-weight: 600; }
+  @media (max-width: 720px) { h2 { font-size: 28px; } }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  code, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+  :not(pre) > code {
+    background: var(--bg-elev-1);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 0.88em;
+  }
+
+  pre {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    margin: 16px 0;
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: rgba(77, 208, 225, 0.08);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* === Top nav ==================================================== */
+  nav.top {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(10, 22, 40, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 14px 0;
+  }
+  nav.top .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  nav.top .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text);
+  }
+  nav.top .brand img {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+  }
+  nav.top .links {
+    display: flex; gap: 24px; align-items: center;
+    font-size: 14px;
+  }
+  nav.top .links a {
+    color: var(--text-dim);
+    transition: color 0.18s;
+  }
+  nav.top .links a:hover { color: var(--accent); text-decoration: none; }
+  @media (max-width: 720px) {
+    nav.top .links a:not(.lang-toggle) { display: none; }
+  }
+
+  .lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px;
+    gap: 0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+  }
+  .lang-toggle span {
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.18s;
+  }
+  [data-lang="en"] .lang-toggle .lt-en,
+  [data-lang="zh"] .lang-toggle .lt-zh {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* === Hero ======================================================= */
+  .hero {
+    padding-top: 156px;
+    padding-bottom: 88px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(77, 208, 225, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -200px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(179, 157, 219, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-size: 60px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 16px 0 8px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.05;
+  }
+  @media (max-width: 720px) { .hero h1 { font-size: 40px; } }
+  .hero .tagline {
+    font-size: 22px;
+    color: var(--text-dim);
+    max-width: 760px;
+    margin: 8px 0 32px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  @media (max-width: 720px) { .hero .tagline { font-size: 18px; } }
+
+  .hero-badges {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 24px 0;
+  }
+  .hero-badges img { height: 28px; }
+
+  .hero-cta {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 32px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  .btn-primary:hover {
+    background: #6ddfee;
+    box-shadow: 0 0 0 6px var(--accent-glow);
+    text-decoration: none;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .btn-secondary:hover {
+    background: var(--bg-elev-1);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .quote-hero {
+    margin-top: 64px;
+    padding: 32px;
+    background: var(--bg-elev-1);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--cream);
+    max-width: 820px;
+    box-shadow: var(--shadow);
+  }
+  @media (max-width: 720px) { .quote-hero { font-size: 16px; padding: 24px; } }
+  .quote-hero .attr {
+    display: block;
+    margin-top: 12px;
+    font-style: normal;
+    font-family: var(--font-sans);
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* === Section: What is FCoP ===================================== */
+  .what-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .what-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+  .what-grid p {
+    color: var(--text-dim);
+    font-size: 17px;
+    margin: 0 0 16px;
+    line-height: 1.7;
+  }
+  .what-grid strong { color: var(--text); }
+
+  .what-img {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), var(--shadow-glow);
+    border: 1px solid var(--border);
+  }
+
+  /* === Quick start ================================================ */
+  .qs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  @media (max-width: 900px) { .qs-grid { grid-template-columns: 1fr; } }
+
+  .qs-card {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .qs-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .qs-card .step-num {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+  .qs-card h3 { font-size: 18px; margin: 0 0 12px; }
+  .qs-card p { color: var(--text-dim); margin: 0 0 16px; font-size: 14px; }
+  .qs-card pre { margin: 0; font-size: 12.5px; padding: 12px 14px; }
+
+  /* === Field reports (essays grid) ================================ */
+  .essays-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  @media (max-width: 900px) { .essays-grid { grid-template-columns: 1fr; } }
+
+  .essay-card {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .essay-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .essay-card .num {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .essay-card h3 { color: var(--text); font-size: 18px; margin-bottom: 10px; }
+  .essay-card .hook {
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-bottom: 18px;
+    flex-grow: 1;
+  }
+  .essay-card .hook em {
+    color: var(--cream);
+    font-style: italic;
+  }
+  .essay-card .hook strong { color: var(--accent); font-weight: 600; }
+
+  .channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .channels a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    background: rgba(77, 208, 225, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .channels a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(77, 208, 225, 0.12);
+    text-decoration: none;
+  }
+
+  /* === Tutorials ================================================== */
+  .tut-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    margin-top: 32px;
+  }
+  @media (max-width: 900px) { .tut-grid { grid-template-columns: 1fr; } }
+
+  .tut-card {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .tut-card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .tut-card .cover {
+    height: 200px;
+    background: var(--bg-elev-2);
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .tut-card .body { padding: 24px 28px; }
+  .tut-card .lang-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(77, 208, 225, 0.08);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .tut-card h3 { margin-bottom: 8px; }
+  .tut-card p { color: var(--text-dim); font-size: 14.5px; margin: 0 0 16px; line-height: 1.6; }
+
+  /* === Cite =====================================================  */
+  .cite-block {
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 40px;
+    align-items: center;
+    margin-top: 32px;
+  }
+  @media (max-width: 900px) { .cite-block { grid-template-columns: 1fr; gap: 24px; padding: 28px; } }
+
+  .cite-block .doi-box {
+    text-align: center;
+    padding: 24px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .cite-block .doi-box .doi {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--accent);
+    word-break: break-all;
+    margin: 12px 0 8px;
+  }
+  .cite-block .doi-box img { margin: 0 auto 12px; display: block; }
+
+  .cite-block .bibtex-wrap {
+    position: relative;
+  }
+  .cite-block pre {
+    margin: 0;
+    font-size: 12.5px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--bg-elev-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .copy-btn.copied { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* === Footer ===================================================== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 0 64px;
+    color: var(--text-faint);
+    font-size: 14px;
+  }
+  footer .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 720px) { footer .footer-grid { grid-template-columns: 1fr 1fr; } }
+  footer h4 {
+    color: var(--text);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+  footer ul { list-style: none; padding: 0; margin: 0; }
+  footer ul li { margin-bottom: 8px; }
+  footer ul a { color: var(--text-dim); }
+  footer ul a:hover { color: var(--accent); text-decoration: none; }
+  footer .legal {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer .brand-line {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+  }
+  footer .brand-line img { width: 36px; height: 36px; border-radius: 6px; }
+  footer .brand-line span { color: var(--text); font-weight: 700; font-size: 16px; }
+
+  /* tiny utilities */
+  .mb-12 { margin-bottom: 12px; }
+  .mt-32 { margin-top: 32px; }
+  .text-dim { color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- ============================== TOP NAV ============================== -->
+<nav class="top">
+  <div class="container row">
+    <a href="#" class="brand">
+      <img src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-256.png" alt="FCoP logo" />
+      <span>FCoP</span>
+    </a>
+    <div class="links">
+      <a href="#what" class="en-only">What is FCoP</a>
+      <a href="#what" class="zh-only">什么是 FCoP</a>
+      <a href="#start" class="en-only">Quick Start</a>
+      <a href="#start" class="zh-only">快速开始</a>
+      <a href="#essays" class="en-only">Field Reports</a>
+      <a href="#essays" class="zh-only">现场报告</a>
+      <a href="#tutorials" class="en-only">Tutorials</a>
+      <a href="#tutorials" class="zh-only">教程</a>
+      <a href="#cite" class="en-only">Cite</a>
+      <a href="#cite" class="zh-only">引用</a>
+      <a href="https://github.com/joinwell52-AI/FCoP" target="_blank" rel="noopener">GitHub →</a>
+      <button class="lang-toggle" onclick="toggleLang()" aria-label="toggle language">
+        <span class="lt-en">EN</span><span class="lt-zh">中</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================== HERO ============================== -->
+<header class="hero">
+  <div class="container">
+    <div class="pill">
+      <span class="en-only">Open Source · MIT · Cite via Zenodo</span>
+      <span class="zh-only">开源 · MIT · 可引用 Zenodo</span>
+    </div>
+    <h1>FCoP</h1>
+    <p class="tagline en-only">A File-based Coordination Protocol for Multi-Agent AI Systems. Make your AI agents collaborate through markdown files. No middleware. No SaaS. No new infrastructure to learn.</p>
+    <p class="tagline zh-only">多智能体 AI 协作的文件协议。让 AI agent 之间通过 markdown 文件协作。没有中间件、没有 SaaS、没有新基础设施要学。</p>
+
+    <div class="hero-badges">
+      <a href="https://github.com/joinwell52-AI/FCoP" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/joinwell52-AI/FCoP?style=flat-square&color=4dd0e1&label=GitHub&logo=github" alt="GitHub stars" /></a>
+      <a href="https://pypi.org/project/fcop-mcp/" target="_blank" rel="noopener"><img src="https://img.shields.io/pypi/v/fcop-mcp?style=flat-square&color=4dd0e1&label=fcop-mcp" alt="fcop-mcp on PyPI" /></a>
+      <a href="https://pypi.org/project/fcop/" target="_blank" rel="noopener"><img src="https://img.shields.io/pypi/v/fcop?style=flat-square&color=4dd0e1&label=fcop" alt="fcop on PyPI" /></a>
+      <a href="https://doi.org/10.5281/zenodo.19886036" target="_blank" rel="noopener"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI" /></a>
+      <img src="https://img.shields.io/badge/license-MIT-4dd0e1?style=flat-square" alt="MIT License" />
+    </div>
+
+    <div class="hero-cta">
+      <a href="#start" class="btn btn-primary">
+        <span class="en-only">Quick Start →</span>
+        <span class="zh-only">快速开始 →</span>
+      </a>
+      <a href="https://github.com/joinwell52-AI/FCoP" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="#cite" class="btn btn-secondary">
+        <span class="en-only">Cite this work</span>
+        <span class="zh-only">引用本作</span>
+      </a>
+    </div>
+
+    <blockquote class="quote-hero">
+      <span class="en-only">
+        "You are not a coder anymore. You are a commander. The agents are your digital employees."
+        <span class="attr">— Essay 06, <em>What the agents say about FCoP, when you ask them</em></span>
+      </span>
+      <span class="zh-only">
+        "你不再是 coder，你是指挥官。Agent 们是你的数字员工。"
+        <span class="attr">—— Essay 06，《直接问 agent 它怎么看 FCoP——它说出了我们没让它说的话》</span>
+      </span>
+    </blockquote>
+  </div>
+</header>
+
+<!-- ============================== WHAT IS FCOP ============================== -->
+<section id="what">
+  <div class="container">
+    <div class="eyebrow en-only">What is FCoP</div>
+    <div class="eyebrow zh-only">什么是 FCoP</div>
+    <h2>
+      <span class="en-only">A protocol so small the agents already obey it before being told.</span>
+      <span class="zh-only">一个小到 agent 不用被教就已经遵守的协议。</span>
+    </h2>
+    <div class="what-grid mt-32">
+      <div>
+        <p class="en-only"><strong>FCoP</strong> is a minimal protocol that lets multiple AI agents — running in Cursor, Claude Code, plain shells, CI runners — collaborate through ordinary markdown files in a folder. Agents write <code>TASK-*.md</code> when they're starting work, <code>REPORT-*.md</code> when they're done, <code>ISSUE-*.md</code> when they need clarification.</p>
+        <p class="en-only">No message bus. No new framework. No vendor lock-in. The whole protocol is one document and four file conventions, MIT-licensed.</p>
+        <p class="en-only">It came out of <strong>field observation</strong>: agents kept inventing this exact pattern on their own, three independent times, across unrelated tasks. We just wrote down what they were already doing — then archived a Zenodo DOI for it.</p>
+
+        <p class="zh-only"><strong>FCoP</strong> 是一个极小的协议，让运行在 Cursor、Claude Code、普通 shell、CI runner 里的多个 AI agent，通过一个文件夹里的普通 markdown 文件互相协作。Agent 开始干活时写一份 <code>TASK-*.md</code>，干完写一份 <code>REPORT-*.md</code>，需要澄清写一份 <code>ISSUE-*.md</code>。</p>
+        <p class="zh-only">没有消息总线。没有新框架。没有 vendor lock-in。整个协议就是一份文档加四条文件命名约定，MIT 许可。</p>
+        <p class="zh-only">它来自<strong>现场观察</strong>：agent 自己在三次互不相干的场景里都不约而同地发明了这同一种模式。我们只是把它们已经在做的事写下来 —— 然后给它打了个 Zenodo DOI 备案。</p>
+      </div>
+      <div>
+        <img src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-mcp-tutorial-cover-v1.png" alt="FCoP-MCP architecture: ADMIN at a podium directing agents who exchange markdown files" class="what-img" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== QUICK START ============================== -->
+<section id="start" style="background: rgba(17, 36, 64, 0.4);">
+  <div class="container">
+    <div class="eyebrow en-only">Quick Start</div>
+    <div class="eyebrow zh-only">快速开始</div>
+    <h2>
+      <span class="en-only">From zero to a 2-agent team in 90 seconds.</span>
+      <span class="zh-only">90 秒内从零到一个 2-agent 团队。</span>
+    </h2>
+    <p class="text-dim" style="max-width:680px;">
+      <span class="en-only">Three steps. Tested on Cursor, but the protocol itself is host-neutral — any MCP-capable IDE or even <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.md">a plain shell</a> works.</span>
+      <span class="zh-only">三步。在 Cursor 上验证过，但协议本身是 host-neutral 的——任何支持 MCP 的 IDE 甚至 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.md">纯 shell</a> 都能用。</span>
+    </p>
+
+    <div class="qs-grid">
+      <div class="qs-card">
+        <div class="step-num">1</div>
+        <h3 class="en-only">Install fcop-mcp</h3>
+        <h3 class="zh-only">安装 fcop-mcp</h3>
+        <p class="en-only">One line. Recommended: <code>pipx</code> for an isolated install.</p>
+        <p class="zh-only">一行。推荐用 <code>pipx</code> 做隔离安装。</p>
+<pre><code>pipx install fcop-mcp</code></pre>
+      </div>
+
+      <div class="qs-card">
+        <div class="step-num">2</div>
+        <h3 class="en-only">Configure Cursor</h3>
+        <h3 class="zh-only">配置 Cursor</h3>
+        <p class="en-only">Add to <code>~/.cursor/mcp.json</code>:</p>
+        <p class="zh-only">加到 <code>~/.cursor/mcp.json</code>：</p>
+<pre><code>{
+  "mcpServers": {
+    "fcop": {
+      "command": "fcop-mcp"
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="qs-card">
+        <div class="step-num">3</div>
+        <h3 class="en-only">Tell the agent</h3>
+        <h3 class="zh-only">告诉 agent</h3>
+        <p class="en-only">Open a project, then say:</p>
+        <p class="zh-only">打开一个项目，然后说：</p>
+<pre><code class="en-only">Initialize me as a solo developer
+using FCoP. Then build me a working
+Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵开发者。
+然后给我做一个能跑的俄罗斯方块。</code></pre>
+      </div>
+    </div>
+
+    <p class="text-dim mt-32" style="font-size:14px;">
+      <span class="en-only">Need a complete walk-through? See the <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/tetris-solo-to-duo.en.md">English Tetris tutorial</a> (full dogfood, 22 screenshots) or the <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/snake-solo-to-duo.zh.md">中文 Snake 教程</a>.</span>
+      <span class="zh-only">需要完整走查？看 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/snake-solo-to-duo.zh.md">中文贪吃蛇教程</a>（完整 dogfood，18 张截图）或 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/tetris-solo-to-duo.en.md">英文 Tetris 教程</a>。</span>
+    </p>
+  </div>
+</section>
+
+<!-- ============================== FIELD REPORTS (ESSAYS) ============================== -->
+<section id="essays">
+  <div class="container">
+    <div class="eyebrow en-only">Field Reports</div>
+    <div class="eyebrow zh-only">现场报告</div>
+    <h2>
+      <span class="en-only">Six essays. The protocol evolves through field reports, not committee edits.</span>
+      <span class="zh-only">六篇 essay。协议是从现场报告里长出来的，不是委员会编辑出来的。</span>
+    </h2>
+
+    <div class="essays-grid">
+      <!-- Essay 01 -->
+      <div class="essay-card">
+        <div class="num">Essay 01</div>
+        <h3 class="en-only">When AI Organizes Its Own Work</h3>
+        <h3 class="zh-only">当 AI 自己组织起自己的工作</h3>
+        <p class="hook en-only">A 4-agent team (PM / DEV / QA / OPS), 48 hours, nothing but a folder — and <strong>six coordination patterns we never wrote down</strong>.</p>
+        <p class="hook zh-only">一个 4-agent 团队（PM / DEV / QA / OPS），48 小时，只有一个文件夹——<strong>六种我们从未写下来的协调模式</strong>。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-organizes-its-own-work.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-organizes-its-own-work.md" target="_blank" rel="noopener">GitHub 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/160344932" target="_blank" rel="noopener">CSDN</a>
+        </div>
+      </div>
+
+      <!-- Essay 02 -->
+      <div class="essay-card">
+        <div class="num">Essay 02</div>
+        <h3 class="en-only">An unexplainable thing I saw — the agent didn't just comply, it endorsed</h3>
+        <h3 class="zh-only">一件我没法解释的事——agent 不止照做了，它认同了</h3>
+        <p class="hook en-only">A single agent, on a completely unrelated music-video task, <strong>spontaneously split into 4 FCoP roles</strong> and synthesised a principle we had never written.</p>
+        <p class="hook zh-only">一个 agent，在完全无关的音乐视频任务上，<strong>自发拆出 4 个 FCoP 角色</strong>，并升华出一条我们从未写下的原则。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-natural-protocol.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-natural-protocol.md" target="_blank" rel="noopener">GitHub 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/160345043" target="_blank" rel="noopener">CSDN</a>
+          <a href="https://dev.to/joinwell52/an-unexplainable-thing-i-saw-the-agent-didnt-just-comply-with-rules-it-endorsed-them-5ecd" target="_blank" rel="noopener">Dev.to</a>
+          <a href="https://forum.cursor.com/t/i-asked-cursor-to-make-a-video-it-wrote-itself-4-protocol-memos-field-report-on-rule-internalization/158524" target="_blank" rel="noopener">Cursor Forum</a>
+        </div>
+      </div>
+
+      <!-- Essay 03 -->
+      <div class="essay-card">
+        <div class="num">Essay 03</div>
+        <h3 class="en-only">Why the natural protocol holds up — FCoP's lineage from TMPA</h3>
+        <h3 class="zh-only">自然协议为什么站得住——FCoP 从 TMPA 中抽出来的那条伦理</h3>
+        <p class="hook en-only">Companion to essay 02. FCoP turns out to be the <strong>minimal-viable form of an AI ethics mandate</strong> already written in TMPA. <em>The agents weren't reinventing — they were re-discovering.</em></p>
+        <p class="hook zh-only">essay 02 的姊妹篇。FCoP 实际上是 <strong>TMPA 里早已写下的 AI 伦理强制的最小可行形式</strong>。<em>Agent 不是在发明，是在重新发现。</em></p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-tmpa-lineage.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-tmpa-lineage.md" target="_blank" rel="noopener">GitHub 中文</a>
+        </div>
+      </div>
+
+      <!-- Essay 04 -->
+      <div class="essay-card">
+        <div class="num">Essay 04</div>
+        <h3 class="en-only">Saying "No" Is the Hardest Thing for an LLM — FCoP Gives It Grammar</h3>
+        <h3 class="zh-only">让 LLM 说"不"——FCoP 给它语法</h3>
+        <p class="hook en-only">Two GPT-5 minor versions, a <code>PM.TEMP</code> seat dispute, no built-in arbitration. One agent <strong>self-de-escalates to UNBOUND</strong>; the other <strong>invents field-downgrade-with-body-annotation grammar</strong>. Neither behaviour was in the rules.</p>
+        <p class="hook zh-only">两个 GPT-5 小版本，<code>PM.TEMP</code> 席位之争，没有内置仲裁。一个 agent <strong>主动自降级到 UNBOUND</strong>，另一个 <strong>发明了"字段降级 + body 元注解"语法</strong>。两种行为都不在规则里。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-vacates-its-own-seat.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-ai-vacates-its-own-seat.md" target="_blank" rel="noopener">GitHub 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/160513899" target="_blank" rel="noopener">CSDN</a>
+          <a href="https://dev.to/joinwell52/saying-no-is-the-hardest-thing-for-an-llm-fcop-gives-it-grammar-3ccd" target="_blank" rel="noopener">Dev.to</a>
+          <a href="https://forum.cursor.com/t/saying-no-is-the-hardest-thing-for-an-llm-fcop-gives-it-grammar/159037" target="_blank" rel="noopener">Cursor Forum</a>
+        </div>
+      </div>
+
+      <!-- Essay 05 (tutorial-style essay) -->
+      <div class="essay-card">
+        <div class="num">Essay 05 · Tutorial</div>
+        <h3 class="en-only">From Solo to a 2-Person AI Crew</h3>
+        <h3 class="zh-only">从单兵到 2 人 AI 队</h3>
+        <p class="hook en-only">Two parallel case studies — Chinese Snake game, English Tetris game — walking through the four-step cycle, the team migration, the bounce-and-rework loop. <strong>Same protocol, two real games, two live easter eggs.</strong></p>
+        <p class="hook zh-only">两个并行案例——中文贪吃蛇、英文俄罗斯方块——走完四步循环、团队迁移、打回返工闭环。<strong>同一个协议，两个真实游戏，两个现场彩蛋。</strong></p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/tetris-solo-to-duo.en.md" target="_blank" rel="noopener">Tetris EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/snake-solo-to-duo.zh.md" target="_blank" rel="noopener">Snake 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/160603953" target="_blank" rel="noopener">CSDN</a>
+          <a href="https://dev.to/joinwell52/free-open-source-multi-agent-hands-on-how-to-command-agents-fcop-mcp-brings-discipline-to-1j3j" target="_blank" rel="noopener">Dev.to</a>
+          <a href="https://forum.cursor.com/t/free-open-source-multi-agent-hands-on-how-to-command-agents-fcop-mcp-brings-discipline-to-ai-teams/159329" target="_blank" rel="noopener">Cursor Forum</a>
+        </div>
+      </div>
+
+      <!-- Essay 06 -->
+      <div class="essay-card">
+        <div class="num">Essay 06 · Latest</div>
+        <h3 class="en-only">What the agents say about FCoP, when you ask them</h3>
+        <h3 class="zh-only">直接问 agent 它怎么看 FCoP——它说出了我们没让它说的话</h3>
+        <p class="hook en-only">End-of-dogfood interviews with PLANNER and CODER. Both name the rules they self-endorse and the rules they had to <strong>fight RLHF instinct</strong> to follow. CODER admits: <em>"I had a protocol primitive I didn't use — the v1 defect was exactly in that uncovered space."</em></p>
+        <p class="hook zh-only">dogfood 末尾对 PLANNER 和 CODER 的访谈。两位都说出了自己自发认同的规则、和需要 <strong>对抗 RLHF 本能</strong> 才能守住的规则。CODER 承认：<em>"协议给了我一条 pushback 路径我没用——v1 缺陷正好长在那块没覆盖的空白上。"</em></p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-agents-say-about-fcop.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-agents-say-about-fcop.md" target="_blank" rel="noopener">GitHub 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/160636177" target="_blank" rel="noopener">CSDN</a>
+          <a href="https://dev.to/joinwell52/what-the-agents-say-about-fcop-when-you-ask-them-3ajk" target="_blank" rel="noopener">Dev.to</a>
+          <a href="https://forum.cursor.com/t/what-the-agents-say-about-fcop-when-you-ask-them-two-field-interviews-at-the-end-of-an-english-dogfood/159368" target="_blank" rel="noopener">Cursor Forum</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== TUTORIALS ============================== -->
+<section id="tutorials" style="background: rgba(17, 36, 64, 0.4);">
+  <div class="container">
+    <div class="eyebrow en-only">Hands-on case studies</div>
+    <div class="eyebrow zh-only">动手案例</div>
+    <h2>
+      <span class="en-only">Two real dogfoods. Every step on disk.</span>
+      <span class="zh-only">两次真实 dogfood。每一步都在磁盘上。</span>
+    </h2>
+
+    <div class="tut-grid">
+      <div class="tut-card">
+        <div class="cover" style="background-image: url('https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-mcp-tutorial-cover-v1.png')"></div>
+        <div class="body">
+          <span class="lang-tag">中文 · Snake</span>
+          <h3>
+            <span class="en-only">Solo to 2-Person AI Crew (Chinese Snake)</span>
+            <span class="zh-only">从单兵到 2 人 AI 队（贪吃蛇案例）</span>
+          </h3>
+          <p class="en-only">18 dogfood screenshots. Captures a real <strong>PLANNER-impersonating-CODER easter egg</strong> from the 0.6.x era — surfaced by the protocol itself, not by us.</p>
+          <p class="zh-only">18 张 dogfood 截图。抓到一个 <strong>0.6.x 时代真实的 PLANNER 冒充 CODER 彩蛋</strong>——是协议自己浮出来的，不是我们抓的。</p>
+          <div class="channels">
+            <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/snake-solo-to-duo.zh.md" target="_blank" rel="noopener">GitHub 中文</a>
+            <a href="https://blog.csdn.net/m0_51507544/article/details/160603953" target="_blank" rel="noopener">CSDN</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="tut-card">
+        <div class="cover" style="background-image: url('https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/essay-06-cover.png')"></div>
+        <div class="body">
+          <span class="lang-tag">English · Tetris</span>
+          <h3>
+            <span class="en-only">Solo to 2-Person AI Crew (English Tetris)</span>
+            <span class="zh-only">从单兵到 2 人 AI 队（俄罗斯方块案例）</span>
+          </h3>
+          <p class="en-only">22 dogfood screenshots, 14 TASK/REPORT files, 8 silent <code>role-switch</code> evidence files, 2 game artefacts, 2 verbatim agent-interview transcripts. The dogfood that became Essay 06.</p>
+          <p class="zh-only">22 张 dogfood 截图、14 份 TASK/REPORT、8 份静默 <code>role-switch</code> 证据、2 个游戏产物、2 份逐字 agent 访谈。这次 dogfood 变成了 Essay 06。</p>
+          <div class="channels">
+            <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/tetris-solo-to-duo.en.md" target="_blank" rel="noopener">GitHub EN</a>
+            <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/tetris-solo-to-duo.zh.md" target="_blank" rel="noopener">中文译本</a>
+            <a href="https://dev.to/joinwell52/free-open-source-multi-agent-hands-on-how-to-command-agents-fcop-mcp-brings-discipline-to-1j3j" target="_blank" rel="noopener">Dev.to</a>
+            <a href="https://forum.cursor.com/t/free-open-source-multi-agent-hands-on-how-to-command-agents-fcop-mcp-brings-discipline-to-ai-teams/159329" target="_blank" rel="noopener">Cursor Forum</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CITE ============================== -->
+<section id="cite">
+  <div class="container">
+    <div class="eyebrow en-only">Cite this work</div>
+    <div class="eyebrow zh-only">如何引用</div>
+    <h2>
+      <span class="en-only">Citable. DOI-archived. CFF-ready.</span>
+      <span class="zh-only">可引用。已归档 DOI。CITATION.cff 就绪。</span>
+    </h2>
+    <p class="text-dim" style="max-width:760px;">
+      <span class="en-only">FCoP is archived on Zenodo as a research snapshot. GitHub renders a "Cite this repository" button automatically from the included <a href="https://github.com/joinwell52-AI/FCoP/blob/main/CITATION.cff"><code>CITATION.cff</code></a>.</span>
+      <span class="zh-only">FCoP 已经作为 research snapshot 归档到 Zenodo。GitHub 会自动从仓库根的 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/CITATION.cff"><code>CITATION.cff</code></a> 渲染一个 "Cite this repository" 按钮。</span>
+    </p>
+
+    <div class="cite-block">
+      <div class="doi-box">
+        <a href="https://doi.org/10.5281/zenodo.19886036" target="_blank" rel="noopener">
+          <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
+        </a>
+        <div class="doi">10.5281/zenodo.19886036</div>
+        <div style="font-size:13px; color: var(--text-dim);">
+          <span class="en-only">Research snapshot, April 2026</span>
+          <span class="zh-only">Research snapshot, 2026 年 4 月</span>
+        </div>
+      </div>
+      <div class="bibtex-wrap">
+        <button class="copy-btn" onclick="copyBibtex(this)">
+          <span class="en-only">Copy BibTeX</span>
+          <span class="zh-only">复制 BibTeX</span>
+        </button>
+<pre id="bibtex-block"><code>@misc{zhu_fcop_2026,
+  author       = {Zhu, Wei},
+  title        = {{FCoP}: A File-based Coordination Protocol
+                  for Multi-Agent AI Systems},
+  year         = 2026,
+  month        = apr,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.19886036},
+  url          = {https://doi.org/10.5281/zenodo.19886036},
+  note         = {Research snapshot 2026-04-29}
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== FOOTER ============================== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand-line">
+          <img src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-256.png" alt="FCoP logo" />
+          <span>FCoP</span>
+        </div>
+        <p class="text-dim" style="margin:0; font-size:13px; line-height:1.6;">
+          <span class="en-only">A File-based Coordination Protocol for Multi-Agent AI Systems. Built in the open. Evolved through field reports.</span>
+          <span class="zh-only">多智能体 AI 协作的文件协议。开源建造。通过现场报告演进。</span>
+        </p>
+      </div>
+      <div>
+        <h4 class="en-only">Code</h4>
+        <h4 class="zh-only">代码</h4>
+        <ul>
+          <li><a href="https://github.com/joinwell52-AI/FCoP" target="_blank" rel="noopener">GitHub repository</a></li>
+          <li><a href="https://pypi.org/project/fcop/" target="_blank" rel="noopener">PyPI · fcop</a></li>
+          <li><a href="https://pypi.org/project/fcop-mcp/" target="_blank" rel="noopener">PyPI · fcop-mcp</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="en-only">Read</h4>
+        <h4 class="zh-only">阅读</h4>
+        <ul>
+          <li><a href="https://forum.cursor.com/t/fcop-let-multiple-cursor-agents-collaborate-by-filename-mit-0-infra/158447" target="_blank" rel="noopener">Cursor Forum</a></li>
+          <li><a href="https://dev.to/joinwell52" target="_blank" rel="noopener">Dev.to</a></li>
+          <li><a href="https://blog.csdn.net/m0_51507544" target="_blank" rel="noopener">CSDN</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="en-only">Cite</h4>
+        <h4 class="zh-only">引用</h4>
+        <ul>
+          <li><a href="https://doi.org/10.5281/zenodo.19886036" target="_blank" rel="noopener">Zenodo DOI</a></li>
+          <li><a href="https://github.com/joinwell52-AI/FCoP/blob/main/CITATION.cff" target="_blank" rel="noopener">CITATION.cff</a></li>
+          <li><a href="https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29" target="_blank" rel="noopener">Research snapshot</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>
+        <span class="en-only">© 2026 Zhu, Wei · MIT License · Author: <a href="https://github.com/joinwell52-AI" target="_blank" rel="noopener">@joinwell52</a></span>
+        <span class="zh-only">© 2026 朱 卫 · MIT 许可 · 作者：<a href="https://github.com/joinwell52-AI" target="_blank" rel="noopener">@joinwell52</a></span>
+      </span>
+      <span class="text-dim">
+        <span class="en-only">The protocol evolves through field reports, not committee edits.</span>
+        <span class="zh-only">协议是从现场报告里长出来的，不是委员会编辑出来的。</span>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleLang() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-lang') === 'en' ? 'zh' : 'en';
+    html.setAttribute('data-lang', next);
+    html.setAttribute('lang', next === 'zh' ? 'zh-CN' : 'en');
+    try { localStorage.setItem('fcop-lang', next); } catch(e) {}
+  }
+  (function initLang() {
+    try {
+      const saved = localStorage.getItem('fcop-lang');
+      if (saved === 'en' || saved === 'zh') {
+        document.documentElement.setAttribute('data-lang', saved);
+        document.documentElement.setAttribute('lang', saved === 'zh' ? 'zh-CN' : 'en');
+        return;
+      }
+    } catch(e) {}
+    // Auto-detect: zh if browser language starts with zh, else en
+    const bl = (navigator.language || 'en').toLowerCase();
+    if (bl.startsWith('zh')) {
+      document.documentElement.setAttribute('data-lang', 'zh');
+      document.documentElement.setAttribute('lang', 'zh-CN');
+    }
+  })();
+
+  function copyBibtex(btn) {
+    const txt = document.getElementById('bibtex-block').innerText;
+    navigator.clipboard.writeText(txt).then(() => {
+      const orig = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML = document.documentElement.getAttribute('data-lang') === 'zh' ? '已复制 ✓' : 'Copied ✓';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = orig;
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
