@@ -9,7 +9,7 @@ NOT in the article body — Dev.to's rich editor will misrender YAML):
   Title:        What the agents say about FCoP, when you ask them
   Subtitle:     Two field interviews at the end of an English dogfood — and the two phrases ADMIN says most
   Tags (max 4): fcop, agents, ai, alignment    (or: fcop, llm, mcp, alignment)
-  Cover image:  https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/docs/tutorials/assets/tetris-en/fcop-team-planner-6.png
+  Cover image:  https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/essay-06-cover.png
   Canonical:    https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-agents-say-about-fcop.en.md
   Series:       FCoP field reports   (optional, links it to your other essays)
 

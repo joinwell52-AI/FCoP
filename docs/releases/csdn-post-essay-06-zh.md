@@ -9,7 +9,7 @@ Recommended CSDN UI metadata:
   Subtitle (副标题):  一次英文 dogfood 末尾的两场现场访谈，以及 ADMIN 全程说得最多的两句话
   Tags (标签 max 5):  AI, 多智能体, agent, MCP, FCoP
   Category (分类):    人工智能 / Multi-Agent Systems
-  Cover (封面图):     https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/docs/tutorials/assets/tetris-en/fcop-team-planner-6.png
+  Cover (封面图):     https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/essay-06-cover.png
 ============================================================
 === COPY FROM HERE ===
 -->
