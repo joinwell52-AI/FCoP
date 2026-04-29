@@ -253,22 +253,72 @@
     .hero-logo-watermark { animation: none; transform: translateY(-50%); }
   }
 
-  /* Cite section corner stamp — academic-paper "publisher mark" */
-  #cite { overflow: hidden; }
-  .cite-stamp {
+  /* === Roaming logo "small celestial bodies" =====================
+     Tiny FCoP logos drifting on slow elliptical paths in the back-
+     ground of every section. Each instance picks a different keyframe
+     + duration + delay so the field never looks synchronised. */
+  section, footer { overflow: hidden; }
+  section > .container, footer > .container { position: relative; z-index: 2; }
+
+  .logo-orbit {
     position: absolute;
-    right: 32px;
-    bottom: 24px;
-    width: 110px;
-    height: 110px;
-    opacity: 0.22;
     pointer-events: none;
     user-select: none;
-    z-index: 1;
-    filter: drop-shadow(0 0 18px rgba(77, 208, 225, 0.3));
+    z-index: 0;
+    filter: drop-shadow(0 0 12px rgba(77, 208, 225, 0.28));
+    will-change: transform;
+  }
+  @keyframes orbit-a {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    25%  { transform: translate(38px, -28px) rotate(90deg); }
+    50%  { transform: translate(20px, 26px) rotate(180deg); }
+    75%  { transform: translate(-32px, 12px) rotate(270deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+  }
+  @keyframes orbit-b {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50%      { transform: translate(-44px, 30px) rotate(-180deg); }
+  }
+  @keyframes orbit-c {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    33%  { transform: translate(28px, 36px) rotate(120deg); }
+    66%  { transform: translate(-22px, 22px) rotate(240deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+  }
+  @keyframes orbit-d {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50%      { transform: translate(46px, -22px) rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-orbit { animation: none !important; }
+  }
+
+  /* === Cite section large brand layer (mirror of hero watermark) === */
+  .cite-logo-large {
+    position: absolute;
+    left: -120px;
+    top: 50%;
+    width: 520px;
+    height: 520px;
+    opacity: 0.09;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    filter: drop-shadow(0 0 50px rgba(77, 208, 225, 0.22));
+    animation: cite-logo-float 16s ease-in-out infinite alternate;
+  }
+  @keyframes cite-logo-float {
+    from { transform: translate(0, -52%) rotate(2deg); }
+    to   { transform: translate(22px, -48%) rotate(-2deg); }
+  }
+  @media (max-width: 1100px) {
+    .cite-logo-large { left: -200px; width: 400px; height: 400px; opacity: 0.07; }
   }
   @media (max-width: 720px) {
-    .cite-stamp { width: 70px; height: 70px; right: 16px; bottom: 12px; opacity: 0.16; }
+    .cite-logo-large { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cite-logo-large { animation: none; transform: translate(0, -50%); }
   }
   .hero h1 {
     font-size: 60px;
@@ -659,6 +709,8 @@
 <!-- ============================== HERO ============================== -->
 <header class="hero">
   <img class="hero-logo-watermark" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="bottom: 12%; left: 6%; width: 52px; height: 52px; opacity: 0.14; animation: orbit-a 32s ease-in-out infinite;" />
   <div class="container">
     <div class="pill">
       <span class="en-only">Open Source · MIT · Cite via Zenodo</span>
@@ -703,6 +755,10 @@
 
 <!-- ============================== WHAT IS FCOP ============================== -->
 <section id="what">
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 18%; right: 4%; width: 60px; height: 60px; opacity: 0.12; animation: orbit-b 38s ease-in-out infinite;" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="bottom: 14%; left: 10%; width: 36px; height: 36px; opacity: 0.10; animation: orbit-c 26s ease-in-out infinite -8s;" />
   <div class="container">
     <div class="eyebrow en-only">What is FCoP</div>
     <div class="eyebrow zh-only">什么是 FCoP</div>
@@ -729,6 +785,10 @@
 
 <!-- ============================== QUICK START ============================== -->
 <section id="start" style="background: rgba(17, 36, 64, 0.4);">
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="bottom: 18%; right: 6%; width: 72px; height: 72px; opacity: 0.10; animation: orbit-d 34s ease-in-out infinite -12s;" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 22%; left: 3%; width: 30px; height: 30px; opacity: 0.13; animation: orbit-a 22s ease-in-out infinite -4s;" />
   <div class="container">
     <div class="eyebrow en-only">Quick Start</div>
     <div class="eyebrow zh-only">快速开始</div>
@@ -788,12 +848,18 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
 
 <!-- ============================== FIELD REPORTS (ESSAYS) ============================== -->
 <section id="essays">
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 6%; left: 5%; width: 64px; height: 64px; opacity: 0.11; animation: orbit-c 40s ease-in-out infinite;" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 48%; right: 2%; width: 44px; height: 44px; opacity: 0.09; animation: orbit-b 28s ease-in-out infinite -10s;" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="bottom: 8%; left: 42%; width: 28px; height: 28px; opacity: 0.12; animation: orbit-a 24s ease-in-out infinite -6s;" />
   <div class="container">
     <div class="eyebrow en-only">Field Reports</div>
     <div class="eyebrow zh-only">现场报告</div>
     <h2>
-      <span class="en-only">Six essays. What agents actually did under FCoP — recorded, not theorised.</span>
-      <span class="zh-only">六篇 essay。Agent 在 FCoP 下真实做了什么——是记录，不是空想。</span>
+      <span class="en-only">Six essays. Command the agents — FCoP brings discipline to an AI team.</span>
+      <span class="zh-only">六篇 essay。指挥 agent —— FCoP 让 AI 团队有纪律。</span>
     </h2>
 
     <div class="essays-grid">
@@ -893,6 +959,10 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
 
 <!-- ============================== TUTORIALS ============================== -->
 <section id="tutorials" style="background: rgba(17, 36, 64, 0.4);">
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="bottom: 12%; left: 4%; width: 68px; height: 68px; opacity: 0.10; animation: orbit-d 36s ease-in-out infinite;" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 14%; right: 8%; width: 34px; height: 34px; opacity: 0.13; animation: orbit-c 20s ease-in-out infinite -3s;" />
   <div class="container">
     <div class="eyebrow en-only">Hands-on case studies</div>
     <div class="eyebrow zh-only">动手案例</div>
@@ -947,7 +1017,11 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
 
 <!-- ============================== CITE ============================== -->
 <section id="cite">
-  <img class="cite-stamp" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true" />
+  <img class="cite-logo-large" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 14%; right: 10%; width: 50px; height: 50px; opacity: 0.11; animation: orbit-b 30s ease-in-out infinite;" />
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="bottom: 18%; right: 24%; width: 32px; height: 32px; opacity: 0.13; animation: orbit-a 22s ease-in-out infinite -7s;" />
   <div class="container">
     <div class="eyebrow en-only">Cite this work</div>
     <div class="eyebrow zh-only">如何引用</div>
@@ -994,6 +1068,8 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
 
 <!-- ============================== FOOTER ============================== -->
 <footer>
+  <img class="logo-orbit" src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-logo-512.png" alt="" aria-hidden="true"
+       style="top: 30%; right: 6%; width: 44px; height: 44px; opacity: 0.08; animation: orbit-c 34s ease-in-out infinite;" />
   <div class="container">
     <div class="footer-grid">
       <div>
