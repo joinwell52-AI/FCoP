@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+message: "If you use this work in research, software, or writing, please cite it as below."
+type: software
+title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
+abstract: >-
+  FCoP (File-based Coordination Protocol) is a minimalist multi-agent
+  coordination protocol whose only sync primitive is os.rename() over a
+  shared folder tree. Directories are statuses, filenames are routing,
+  Markdown files are payload. No database, no message queue, no daemon —
+  the filesystem itself is the protocol. Two reference implementations
+  ship with the repository (the `fcop` Python library and the `fcop-mcp`
+  MCP server for Cursor), alongside six field-report essays documenting
+  observed agent behaviour under the protocol across multiple elicitation
+  conditions, and two case-study tutorials with full dogfood evidence.
+authors:
+  - family-names: "Zhu"
+    given-names: "Wei"
+    affiliation: "Independent researcher"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.19886036"
+    description: "Research Snapshot — April 2026 (commit 7f59395)"
+repository-code: "https://github.com/joinwell52-AI/FCoP"
+url: "https://github.com/joinwell52-AI/FCoP"
+license: MIT
+date-released: "2026-04-29"
+version: "research-snapshot-2026-04-29"
+keywords:
+  - "multi-agent coordination"
+  - "filename as protocol"
+  - "filesystem protocol"
+  - "AI alignment"
+  - "human-AI collaboration"
+  - "human-computer interaction"
+  - "software engineering"
+  - "MCP"
+  - "Model Context Protocol"
+  - "Cursor"
+  - "agent endorsement"
+  - "RLHF tension"
+  - "append-only history"
+preferred-citation:
+  type: misc
+  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development (Research Snapshot, April 2026)"
+  authors:
+    - family-names: "Zhu"
+      given-names: "Wei"
+      affiliation: "Independent researcher"
+  year: 2026
+  month: 4
+  doi: "10.5281/zenodo.19886036"
+  url: "https://doi.org/10.5281/zenodo.19886036"
+  publisher:
+    name: "Zenodo"

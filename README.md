@@ -31,6 +31,9 @@
   <a href="spec/fcop-spec.md">
     <img src="https://img.shields.io/badge/spec-v1.0.3-green?style=flat-square" alt="Spec v1.0.3" />
   </a>
+  <a href="https://doi.org/10.5281/zenodo.19886036">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
+  </a>
 </p>
 
 ---
@@ -237,6 +240,30 @@ Two official reference implementations, both MIT-licensed:
 - **Current spec**: v1.0.3 (2026-04-19)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - Change log is embedded in [`spec/fcop-spec-v1.0.3.md`](spec/fcop-spec-v1.0.3.md) (Chinese).
+- **Research snapshot**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) archived on Zenodo with a citable DOI (see *How to cite* below).
+
+## How to cite
+
+If FCoP — the protocol, the field-report essays, the tutorials, or the reference implementations — informs your research, software, or writing, please cite the [Zenodo research snapshot](https://doi.org/10.5281/zenodo.19886036):
+
+- **DOI**: [`10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036)
+- **Snapshot tag**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) (commit `7f59395`)
+- **Machine-readable metadata**: [`CITATION.cff`](CITATION.cff) (GitHub auto-renders a *Cite this repository* button from this file in the right sidebar)
+
+```bibtex
+@misc{fcop2026snapshot,
+  author       = {Zhu, Wei},
+  title        = {{FCoP}: A Filename-as-Protocol coordination layer for multi-agent {AI} development (Research Snapshot, April 2026)},
+  month        = apr,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {research-snapshot-2026-04-29},
+  doi          = {10.5281/zenodo.19886036},
+  url          = {https://doi.org/10.5281/zenodo.19886036}
+}
+```
+
+For citations of individual essays or tutorials, the same DOI applies — please reference the essay's filename (e.g. `essays/what-agents-say-about-fcop.en.md`) and the snapshot version in your citation note.
 
 ## Contributing
 
