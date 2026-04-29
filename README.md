@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
   <a href="README.zh.md">简体中文</a> ·
   <a href="primer/fcop-primer.en.md">60-second Primer</a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·

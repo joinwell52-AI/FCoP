@@ -21,7 +21,7 @@ identifiers:
     value: "10.5281/zenodo.19886036"
     description: "Research Snapshot — April 2026 (commit 7f59395)"
 repository-code: "https://github.com/joinwell52-AI/FCoP"
-url: "https://github.com/joinwell52-AI/FCoP"
+url: "https://joinwell52-ai.github.io/FCoP/"
 license: MIT
 date-released: "2026-04-29"
 version: "research-snapshot-2026-04-29"
