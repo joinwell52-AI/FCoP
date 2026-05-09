@@ -21,11 +21,14 @@ __all__ = [
     "Severity",
     "ReviewDecision",
     "ReviewSubjectType",
+    "AgentLayer",
     "TaskFrontmatter",
     "Task",
     "Report",
     "Issue",
     "Review",
+    "Capability",
+    "BoundaryViolation",
     "TeamConfig",
     "ProjectStatus",
     "RecentActivityEntry",
@@ -76,6 +79,23 @@ class ReviewDecision(str, Enum):
     REJECTED = "rejected"
     NEEDS_CHANGES = "needs_changes"
     ABSTAINED = "abstained"
+
+
+class AgentLayer(str, Enum):
+    """Agent 的三层 capability bundle 简写（v1.0 frozen，per ADR-0020）。
+
+    - WORKER：默认；只能动 file_io / task_io / modify_code 等
+    - GOVERNANCE：can review_decision；不能 modify_code，不能 spawn_agent
+    - ADMIN：人类操作员；不能由 ``fcop.json.roles`` 显式声明
+      （per ADR-0020 §决议 4 + rule ``NO_ADMIN_PROGRAMMATIC_CREATE``）
+
+    显式 ``can`` / ``cannot`` 字段覆盖 layer 默认（rule
+    ``EXPLICIT_OVERRIDES_LAYER``）。
+    """
+
+    WORKER = "worker"
+    GOVERNANCE = "governance"
+    ADMIN = "admin"
 
 
 class ReviewSubjectType(str, Enum):
@@ -242,6 +262,64 @@ class Review:
     body: str
     is_archived: bool
     mtime: datetime
+
+
+# ── Boundary / Capability ────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class Capability:
+    """一个 role code 的 capability 视图（v1.0，per ADR-0020）。
+
+    `lookup_capability(role_code, config)` 的返回值。把 fcop.json 里
+    显式声明的 layer/can/cannot 与 layer 默认 bundle 合并后得到。
+
+    Attributes:
+        code: role code（已通过 role-code 校验）。
+        layer: ``AgentLayer`` 枚举。``ADMIN`` 仅能由 reserved sender
+            （人类）使用，不能由 fcop.json.roles 显式声明——若声明了，
+            ``lookup_capability`` 会 raise ``BoundaryViolationError``。
+        can: 显式允许的 capability token tuple（已与 layer 默认 union）。
+        cannot: 显式禁止的 capability token tuple（已与 layer 默认
+            union；优先级高于 can —— rule ``EXPLICIT_OVERRIDES_LAYER``）。
+        is_explicit: 该 role 在 fcop.json 是否显式声明了 layer/can/cannot
+            字段。``False`` 意味着完全继承 layer default（fallback worker）；
+            用于 ``fcop_report()`` 的"capability 缺字段"警告。
+    """
+
+    code: str
+    layer: AgentLayer
+    can: tuple[str, ...]
+    cannot: tuple[str, ...]
+    is_explicit: bool
+
+
+@dataclass(frozen=True, slots=True)
+class BoundaryViolation:
+    """一条 boundary 规则被触发的记录（v1.0，per ADR-0020）。
+
+    由 `core.boundary.validate_action` 产生；当
+    `Project.assert_boundary` 收集到 ≥1 条时打包成
+    :class:`fcop.errors.BoundaryViolationError` raise 出去。
+
+    Attributes:
+        rule_id: ADR-0020 §决议 5 表里的规则 id 之一，或扩展常量
+            ``UNKNOWN_CAPABILITY``（severity == warning）。
+        actor: 主语角色 code。
+        action: capability token；可能是 v1.0 词表外的字符串
+            （UNKNOWN_CAPABILITY 时）。
+        target: 宾语角色 code，或 ``None``（如 spawn_agent 类无对象动作）。
+        message: 人类可读的违规说明。
+        severity: ``"error"`` 表示阻塞操作；``"warning"`` 仅 advisory
+            （目前唯一来源是 UNKNOWN_CAPABILITY）。
+    """
+
+    rule_id: str
+    actor: str
+    action: str
+    target: str | None
+    message: str
+    severity: Literal["error", "warning"] = "error"
 
 
 # ── Project configuration ────────────────────────────────────────────

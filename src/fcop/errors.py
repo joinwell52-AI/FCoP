@@ -13,11 +13,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fcop.models import ValidationIssue
+    from fcop.models import BoundaryViolation, ValidationIssue
 
 __all__ = [
     "FcopError",
     "ProtocolViolation",
+    "BoundaryViolationError",
     "ValidationError",
     "ProjectNotFoundError",
     "ProjectAlreadyInitializedError",
@@ -49,6 +50,34 @@ class ProtocolViolation(FcopError):  # noqa: N818 — "Violation" names the
     def __init__(self, message: str, *, rule: str) -> None:
         super().__init__(message)
         self.rule = rule
+
+
+class BoundaryViolationError(FcopError):  # noqa: N818 — same rationale as
+    # ProtocolViolation: the domain term is "boundary violation"; an extra
+    # -Error suffix on top of FcopError says less. The class name is
+    # `...Error` (not `...Violation`) here only to avoid a collision with
+    # the :class:`fcop.models.BoundaryViolation` value object — they
+    # describe two facets of the same event (one is a record, the other
+    # is the raisable form).
+    """A requested operation would violate one or more boundary rules.
+
+    Per ADR-0020 (Agent Boundary & Capability) + TASK-20260509-005.
+    Raised from :meth:`fcop.Project.assert_boundary` and from
+    :meth:`fcop.Project.write_review` when the reviewer's layer + the
+    subject's layer trip rule ``NO_WORKER_REVIEWS_GOVERNANCE`` (or any
+    other rule listed in :data:`fcop.core.boundary.BOUNDARY_RULES`).
+
+    Attributes:
+        violations: One :class:`fcop.models.BoundaryViolation` record
+            per rule that was tripped. Always ``len >= 1`` — if the call
+            site has nothing to report, it should not raise this class.
+    """
+
+    def __init__(
+        self, message: str, *, violations: list[BoundaryViolation]
+    ) -> None:
+        super().__init__(message)
+        self.violations = violations
 
 
 class ValidationError(FcopError):

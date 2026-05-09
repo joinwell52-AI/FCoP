@@ -44,6 +44,7 @@ from __future__ import annotations
 from fcop import rules, teams
 from fcop._version import __version__
 from fcop.errors import (
+    BoundaryViolationError,
     ConfigError,
     FcopError,
     ProjectAlreadyInitializedError,
@@ -55,6 +56,9 @@ from fcop.errors import (
     ValidationError,
 )
 from fcop.models import (
+    AgentLayer,
+    BoundaryViolation,
+    Capability,
     DeploymentReport,
     DriftEntry,
     DriftReport,
@@ -89,6 +93,9 @@ __all__ = [
     "Review",
     "ReviewDecision",
     "ReviewSubjectType",
+    "AgentLayer",
+    "Capability",
+    "BoundaryViolation",
     "TeamConfig",
     "ProjectStatus",
     "RecentActivityEntry",
@@ -103,6 +110,7 @@ __all__ = [
     # Exceptions
     "FcopError",
     "ProtocolViolation",
+    "BoundaryViolationError",
     "ValidationError",
     "ProjectNotFoundError",
     "ProjectAlreadyInitializedError",

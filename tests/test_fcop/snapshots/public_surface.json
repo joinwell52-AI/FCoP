@@ -348,6 +348,7 @@
     }
   },
   "errors": [
+    "BoundaryViolationError",
     "ConfigError",
     "FcopError",
     "Path",
@@ -1342,6 +1343,10 @@
     ]
   },
   "top_level_all": [
+    "AgentLayer",
+    "BoundaryViolation",
+    "BoundaryViolationError",
+    "Capability",
     "ConfigError",
     "DeploymentReport",
     "DriftEntry",
