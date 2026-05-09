@@ -1,6 +1,6 @@
 # ADR-0014: `Skill.tools[]` Risk Metadata
 
-- **Status**: Proposed
+- **Status**: Deferred to v1.1+（2026-05-09，由 [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §Non-Goals 决定：Skill 是 Encoding 扩展，不是协议本体；v1.0 不做）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN（待批准）
 - **Related**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（roadmap 第 8 项）；[ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md)；[ADR-0011](./ADR-0011-task-risk-level-field.md)（同 enum 集合）；触发：[Issue #2 Field 5](https://github.com/joinwell52-AI/FCoP/issues/2)；外部参考：[CodeFlow §3.6 Skill Schema](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/docs/design/codeflow-v2-on-fcop-sdk.md)

@@ -1,6 +1,6 @@
 # ADR-0007: FCoP 1.0 Protocol Freeze Charter
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md)（2026-05-09，同日；framing 升级为 AI OS Protocol，scope 收紧为 7 核心抽象的最小可运行内核）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN
 - **Related**: [ADR-0001](./ADR-0001-library-api.md)（库 API 契约）、[ADR-0002](./ADR-0002-package-split-and-migration.md)（包拆分硬切）、[ADR-0003](./ADR-0003-stability-charter.md)（pre-1.0 稳定宪章）、[ADR-0006](./ADR-0006-host-neutral-rule-distribution.md)（规则分发）；下游触发：[Issue #2](https://github.com/joinwell52-AI/FCoP/issues/2)；外部参考：[CodeFlow v2 Design §3 / §3.3.1.b / §8.0 hard rule #4](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/docs/design/codeflow-v2-on-fcop-sdk.md)

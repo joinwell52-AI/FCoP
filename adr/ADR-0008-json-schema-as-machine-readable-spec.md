@@ -1,6 +1,6 @@
 # ADR-0008: JSON Schema as Machine-Readable Spec
 
-- **Status**: Proposed
+- **Status**: Superseded by [ADR-0016](./ADR-0016-json-schema-for-7-abstractions.md)（2026-05-09，同日；从"5 类 schema"reframe 为"7 核心抽象"）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN（待批准）
 - **Related**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（1.0 charter，本 ADR 落地版本：1.0.0）；外部参考：[CodeFlow §3.1 原则 #1](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/docs/design/codeflow-v2-on-fcop-sdk.md)

@@ -1,6 +1,6 @@
 # ADR-0013: `Review.human_approval` Sub-structure
 
-- **Status**: Proposed
+- **Status**: Deferred to v1.2+（2026-05-09，由 [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §Non-Goals 决定：human_approval 与 needs_human 同步推后到 v1.2）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN（待批准）
 - **Related**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（roadmap 第 7 项）；[ADR-0009](./ADR-0009-review-file-type-and-grammar.md)；[ADR-0010](./ADR-0010-agent-layer-field.md)（admin layer 校验）；[ADR-0012](./ADR-0012-review-decision-needs-human.md)（必须配套）；触发：[Issue #2 Field 4](https://github.com/joinwell52-AI/FCoP/issues/2)

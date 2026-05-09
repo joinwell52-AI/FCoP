@@ -1,6 +1,6 @@
 # ADR-0009: REVIEW-* File Type & Filename Grammar
 
-- **Status**: Proposed
+- **Status**: Superseded by [ADR-0017](./ADR-0017-review-file-type-minimal.md)（2026-05-09，同日；砍掉与 ADR-0012/0013 的 needs_human / human_approval 紧耦合，仅保留 v1.0 最小 surface）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN（待批准）
 - **Related**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（1.0 charter）；[ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md)（review.schema.json）；下游字段：[ADR-0012](./ADR-0012-review-decision-needs-human.md) / [ADR-0013](./ADR-0013-review-human-approval.md)

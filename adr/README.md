@@ -99,14 +99,21 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0004](./ADR-0004-time-is-filesystem.md) | 时间由文件系统提供，不由 Frontmatter 提供 | Accepted | 2026-04-23 |
 | [ADR-0005](./ADR-0005-agent-output-layering.md) | Agent 产出物分层（Observation Output Lifecycle） | Accepted | 2026-04-23 |
 | [ADR-0006](./ADR-0006-host-neutral-rule-distribution.md) | 协议规则的宿主中立分发与升级 | Accepted | 2026-04-25 |
-| [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md) | FCoP 1.0 Protocol Freeze Charter（响应 [Issue #2](https://github.com/joinwell52-AI/FCoP/issues/2) / 8 ADR roadmap） | Accepted | 2026-05-09 |
-| [ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md) | JSON Schema as Machine-Readable Spec（1.0.0 地基） | Proposed | 2026-05-09 |
-| [ADR-0009](./ADR-0009-review-file-type-and-grammar.md) | `REVIEW-*.md` File Type & Filename Grammar（1.0.0 地基） | Proposed | 2026-05-09 |
-| [ADR-0010](./ADR-0010-agent-layer-field.md) | `Agent.layer` field（1.1.0 governance / Issue #2 Field 1） | Proposed | 2026-05-09 |
-| [ADR-0011](./ADR-0011-task-risk-level-field.md) | `Task.risk_level` field（1.1.0 governance / Issue #2 Field 2） | Proposed | 2026-05-09 |
-| [ADR-0012](./ADR-0012-review-decision-needs-human.md) | `Review.decision = needs_human` enum extension（1.1.0 governance / Issue #2 Field 3） | Proposed | 2026-05-09 |
-| [ADR-0013](./ADR-0013-review-human-approval.md) | `Review.human_approval` sub-structure（1.1.0 governance / Issue #2 Field 4） | Proposed | 2026-05-09 |
-| [ADR-0014](./ADR-0014-skill-tools-risk-metadata.md) | `Skill.tools[]` risk metadata（1.1.0 governance / Issue #2 Field 5） | Proposed | 2026-05-09 |
+| [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md) | FCoP 1.0 Protocol Freeze Charter（5 字段进 1.1.0 路线） | **Superseded by ADR-0015** | 2026-05-09 |
+| [ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md) | JSON Schema as Machine-Readable Spec（5 类 schema 视角） | **Superseded by ADR-0016** | 2026-05-09 |
+| [ADR-0009](./ADR-0009-review-file-type-and-grammar.md) | `REVIEW-*.md` File Type & Filename Grammar（含 needs_human / human_approval 紧耦合）| **Superseded by ADR-0017** | 2026-05-09 |
+| [ADR-0010](./ADR-0010-agent-layer-field.md) | `Agent.layer` field（单字段视角） | **Superseded by ADR-0020** | 2026-05-09 |
+| [ADR-0011](./ADR-0011-task-risk-level-field.md) | `Task.risk_level` field（Issue #2 Field 2） | **Deferred to v1.1+** | 2026-05-09 |
+| [ADR-0012](./ADR-0012-review-decision-needs-human.md) | `Review.decision = needs_human` enum extension（Issue #2 Field 3） | **Deferred to v1.2+** | 2026-05-09 |
+| [ADR-0013](./ADR-0013-review-human-approval.md) | `Review.human_approval` sub-structure（Issue #2 Field 4） | **Deferred to v1.2+** | 2026-05-09 |
+| [ADR-0014](./ADR-0014-skill-tools-risk-metadata.md) | `Skill.tools[]` risk metadata（Issue #2 Field 5） | **Deferred to v1.1+** | 2026-05-09 |
+| **[ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md)** | **FCoP 1.0 AI OS Protocol Charter**（取代 ADR-0007；7 核心抽象 + POSIX 层定位）| **Accepted** | 2026-05-09 |
+| [ADR-0016](./ADR-0016-json-schema-for-7-abstractions.md) | JSON Schema for 7 Core Abstractions（取代 ADR-0008） | Proposed | 2026-05-09 |
+| [ADR-0017](./ADR-0017-review-file-type-minimal.md) | REVIEW File Type — Minimal v1.0 Surface（取代 ADR-0009） | Proposed | 2026-05-09 |
+| [ADR-0018](./ADR-0018-event-model.md) | Event Model（v1.0 新增 · 协议本体最关键缺失） | Proposed | 2026-05-09 |
+| [ADR-0019](./ADR-0019-failure-and-recovery-semantics.md) | Failure & Recovery Semantics（v1.0 新增 · 协议本体次关键缺失） | Proposed | 2026-05-09 |
+| [ADR-0020](./ADR-0020-agent-boundary-and-capability.md) | Agent Boundary & Capability（取代 ADR-0010） | Proposed | 2026-05-09 |
+| [ADR-0021](./ADR-0021-encoding-abstraction.md) | Encoding Abstraction — Markdown as Reference Encoding（v1.0 新增） | Proposed | 2026-05-09 |
 
 ## 工作流
 

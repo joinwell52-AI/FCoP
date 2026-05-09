@@ -1,6 +1,6 @@
 # ADR-0012: `Review.decision = needs_human` Enum Extension
 
-- **Status**: Proposed
+- **Status**: Deferred to v1.2+（2026-05-09，由 [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §Non-Goals 决定：REVIEW v1.0 仅最小 surface，needs_human 推到 Audit 抽象成熟后）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN（待批准）
 - **Related**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（roadmap 第 6 项）；[ADR-0009](./ADR-0009-review-file-type-and-grammar.md)（REVIEW 文件类型）；[ADR-0011](./ADR-0011-task-risk-level-field.md)（high/irreversible 自动触发本字段）；[ADR-0013](./ADR-0013-review-human-approval.md)（必须配套）；触发：[Issue #2 Field 3](https://github.com/joinwell52-AI/FCoP/issues/2)

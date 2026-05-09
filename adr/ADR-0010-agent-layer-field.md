@@ -1,6 +1,6 @@
 # ADR-0010: `Agent.layer` Field (`worker` / `governance` / `admin`)
 
-- **Status**: Proposed
+- **Status**: Superseded by [ADR-0020](./ADR-0020-agent-boundary-and-capability.md)（2026-05-09，同日；layer 单字段升级为 Agent Boundary & Capability 完整抽象，含 can/cannot 显式词表）
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN（待批准）
 - **Related**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（roadmap 第 4 项）；[ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md)；触发：[Issue #2 Field 1](https://github.com/joinwell52-AI/FCoP/issues/2)；外部参考：[CodeFlow §0.9.1 三层组织](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/docs/design/codeflow-v2-on-fcop-sdk.md)
