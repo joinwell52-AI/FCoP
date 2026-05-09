@@ -25,6 +25,10 @@ __all__ = [
     "FailureType",
     "RecoveryAction",
     "SessionRecoveryAction",
+    "EventType",
+    "Event",
+    "EventSource",
+    "EventSourceKind",
     "TaskFrontmatter",
     "Task",
     "Report",
@@ -391,6 +395,105 @@ class BoundaryViolation:
     target: str | None
     message: str
     severity: Literal["error", "warning"] = "error"
+
+
+# ── Event Model ──────────────────────────────────────────────────────
+
+
+class EventType(str, Enum):
+    """v1.0 事件词表 12 值（per ADR-0018 + ADR-0019）。
+
+    与 ``event.schema.json#/$defs/eventType/enum`` 必须**完全一致**。
+    test_event_type_aligns_with_schema 在 CI 守门。
+
+    扩 enum 必须发新 ADR + bump MINOR；移除任何值是 MAJOR breaking。
+
+    分类（per TASK-007 §决议 5 双触发路径）：
+
+    - **文件 polling 派生**（8）：TASK_CREATED / TASK_ACCEPTED /
+      TASK_BLOCKED / TASK_COMPLETED / REPORT_FILED / REVIEW_DECIDED /
+      ROLE_SWITCHED （+ BOUNDARY_VIOLATED 部分场景）
+    - **同步 callback 触发**（4-5）：BOUNDARY_VIOLATED /
+      FAILURE_DETECTED / RECOVERY_INITIATED / RECOVERY_COMPLETED /
+      SESSION_LOST
+    """
+
+    TASK_CREATED = "TASK_CREATED"
+    TASK_ACCEPTED = "TASK_ACCEPTED"
+    TASK_BLOCKED = "TASK_BLOCKED"
+    TASK_COMPLETED = "TASK_COMPLETED"
+    REPORT_FILED = "REPORT_FILED"
+    REVIEW_DECIDED = "REVIEW_DECIDED"
+    BOUNDARY_VIOLATED = "BOUNDARY_VIOLATED"
+    ROLE_SWITCHED = "ROLE_SWITCHED"
+    FAILURE_DETECTED = "FAILURE_DETECTED"
+    RECOVERY_INITIATED = "RECOVERY_INITIATED"
+    RECOVERY_COMPLETED = "RECOVERY_COMPLETED"
+    SESSION_LOST = "SESSION_LOST"
+
+
+class EventSourceKind(str, Enum):
+    """事件来源 4 值枚举（per event.schema.json source.kind enum）。
+
+    - ``file``：从 filesystem state diff 派生（v1.0 reference impl 主路径）
+    - ``git``：从 git ref / commit diff 派生（v1.0 不实现，留 enum）
+    - ``derived``：reference impl 计算得出（如 TASK_COMPLETED 是
+      TASK 移动 + REPORT status 的复合判定）
+    - ``callback``：同步代码路径直接调 emit（boundary / failure 类）
+    """
+
+    FILE = "file"
+    GIT = "git"
+    DERIVED = "derived"
+    CALLBACK = "callback"
+
+
+@dataclass(frozen=True, slots=True)
+class EventSource:
+    """事件来源（对应 event.schema.json source 子句）。
+
+    Attributes:
+        kind: 4 类来源枚举。
+        path: ``kind=file/derived`` 时的相对 workspace 文件路径；其他 None。
+        git_ref: ``kind=git`` 时的 commit hash 或 ref；其他 None。
+        watcher: 实现标识（如 ``"polling-watcher@v1.0"``），可选。
+    """
+
+    kind: EventSourceKind
+    path: str | None = None
+    git_ref: str | None = None
+    watcher: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Event:
+    """运行时事件（v1.0，per ADR-0018）。
+
+    与 :class:`Failure` 类似，Event 是**内存 record，不写盘**。
+    v1.0 不持久化事件流（per ADR-0018 §design-details + TASK-007
+    §决议 4）；事件仅在订阅瞬间发出，caller 自己决定是否记录到
+    自己的日志。
+
+    Attributes:
+        event_id: 实现分配的唯一 id（v1.0 reference impl 用
+            ``"<type>:<sha1(subject)[:12]>"``，UUID/ULID 也合规）。
+        event_type: 12 值枚举之一。
+        occurred_at: ISO-8601 时间戳；v1.0 仅保证单 agent 内单调
+            （per ADR-0018 §open-question 2）。
+        subject: 自由 dict —— shape 随 event_type 而变（per
+            event.schema.json $defs/subject）。常见键：``task_id``、
+            ``report_id``、``review_id``、``actor``、``target``、
+            ``decision``、``failure_type`` 等。
+        source: 来源元数据。
+        metadata: 实现特有元数据；consumer MUST 容忍未知键。
+    """
+
+    event_id: str
+    event_type: EventType
+    occurred_at: datetime
+    subject: dict[str, object]
+    source: EventSource
+    metadata: dict[str, object] = field(default_factory=dict)
 
 
 # ── Failure & Recovery ───────────────────────────────────────────────
