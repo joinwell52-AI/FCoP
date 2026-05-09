@@ -40,23 +40,29 @@ __all__ = [
     "TASK_FILENAME_PREFIX",
     "REPORT_FILENAME_PREFIX",
     "ISSUE_FILENAME_PREFIX",
+    "REVIEW_FILENAME_PREFIX",
     "TASK_FILENAME_RE",
     "REPORT_FILENAME_RE",
     "ISSUE_FILENAME_RE",
+    "REVIEW_FILENAME_RE",
+    "REVIEW_SUBJECT_SHORT_RE",
     "DATE_RE",
     "MAX_SEQUENCE",
     # Structural types
     "TaskFilename",
     "ReportFilename",
     "IssueFilename",
+    "ReviewFilename",
     "FilenameKind",
     # Parse / build
     "parse_task_filename",
     "parse_report_filename",
     "parse_issue_filename",
+    "parse_review_filename",
     "build_task_filename",
     "build_report_filename",
     "build_issue_filename",
+    "build_review_filename",
     # Validators & helpers
     "validate_date",
     "validate_sequence",
@@ -70,11 +76,12 @@ __all__ = [
 TASK_FILENAME_PREFIX: str = "TASK"
 REPORT_FILENAME_PREFIX: str = "REPORT"
 ISSUE_FILENAME_PREFIX: str = "ISSUE"
+REVIEW_FILENAME_PREFIX: str = "REVIEW"
 
 MAX_SEQUENCE: int = 999
 """Largest per-day sequence number the 3-digit field can encode."""
 
-FilenameKind = Literal["task", "report", "issue"]
+FilenameKind = Literal["task", "report", "issue", "review"]
 
 
 # The role-code subpattern here must match :data:`fcop.core.schema.ROLE_CODE_RE`
@@ -99,6 +106,22 @@ REPORT_FILENAME_RE: re.Pattern[str] = re.compile(
 
 ISSUE_FILENAME_RE: re.Pattern[str] = re.compile(
     r"^ISSUE-(\d{8})-(\d{3})-(" + _ROLE + r")\.md$"
+)
+
+REVIEW_SUBJECT_SHORT_RE: re.Pattern[str] = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+"""REVIEW filename 中 ``-on-{subject_short}`` 段的合法 shape。
+
+Subject-short 是一个**人类可读的短 slug**（与 subject_ref 区分）：
+小写字母 / 数字 / 短横线，首字符必须是字母或数字。例如 ``task-001``、
+``adr-0017``、``commit-3c35e0e``。
+
+不直接复用 _ROLE 是因为：role-code 强制大写首字母，与 subject-short
+小写习惯不同；review 的 subject_short 通常引用工件 id（lowercase
+slug），不是角色。
+"""
+
+REVIEW_FILENAME_RE: re.Pattern[str] = re.compile(
+    r"^REVIEW-(\d{8})-(\d{3})-(" + _ROLE + r")-on-([a-z0-9][a-z0-9-]*)\.md$"
 )
 
 
@@ -147,6 +170,42 @@ class ReportFilename:
 
     def render(self) -> str:
         return f"{self.report_id}-{self.reporter}-to-{self.recipient}.md"
+
+
+@dataclass(frozen=True, slots=True)
+class ReviewFilename:
+    """Parsed components of a REVIEW filename（v1.0，per ADR-0017）。
+
+    REVIEW 文件名的 ``subject_short`` 段是个**人类可读的 slug**，
+    不是 frontmatter 里的完整 ``subject_ref``——两者解耦：subject_ref
+    可以是绝对路径或 hash，太长不适合进文件名；subject_short 是手工
+    选的简称（``task-001`` / ``adr-0017`` / ``commit-3c35e0e``）。
+
+    ``Project.write_review`` 在 build 文件名时，会按规则从 ``subject_ref``
+    自动派生 ``subject_short``——caller 不必显式提供。
+    """
+
+    date: str
+    sequence: int
+    reviewer: str
+    subject_short: str
+
+    @property
+    def review_id(self) -> str:
+        """Canonical review identifier（含 reviewer + subject 段）。
+
+        与 task_id / report_id / issue_id 不同：REVIEW 的 review_id
+        包含 reviewer 与 subject_short，因为 ``-on-{subject}`` 是文件
+        identity 的一部分（同一天同一 reviewer 可对多个 subject 发不
+        同 REVIEW，date+seq 不足以定位）。完整 review_id 即文件名 stem。
+        """
+        return (
+            f"{REVIEW_FILENAME_PREFIX}-{self.date}-{self.sequence:03d}"
+            f"-{self.reviewer}-on-{self.subject_short}"
+        )
+
+    def render(self) -> str:
+        return f"{self.review_id}.md"
 
 
 @dataclass(frozen=True, slots=True)
@@ -216,6 +275,20 @@ def parse_issue_filename(name: str) -> IssueFilename | None:
     return IssueFilename(date=date, sequence=int(seq), reporter=reporter)
 
 
+def parse_review_filename(name: str) -> ReviewFilename | None:
+    """Parse a REVIEW filename into its components, or ``None`` if no match."""
+    m = REVIEW_FILENAME_RE.fullmatch(name)
+    if not m:
+        return None
+    date, seq, reviewer, subject_short = m.groups()
+    return ReviewFilename(
+        date=date,
+        sequence=int(seq),
+        reviewer=reviewer,
+        subject_short=subject_short,
+    )
+
+
 # ── Builders ─────────────────────────────────────────────────────────
 
 
@@ -281,6 +354,40 @@ def build_issue_filename(
         role_fields={"reporter": reporter},
     )
     return IssueFilename(date=date, sequence=sequence, reporter=reporter).render()
+
+
+def build_review_filename(
+    *,
+    date: str,
+    sequence: int,
+    reviewer: str,
+    subject_short: str,
+) -> str:
+    """Build a canonical REVIEW filename from components.
+
+    ``subject_short`` 必须满足 :data:`REVIEW_SUBJECT_SHORT_RE`（小写字母
+    数字加短横线，首字母字母或数字）。Caller 通常通过
+    :func:`derive_review_subject_short`（在 project 层）把任意 subject_ref
+    （路径 / hash）映射成合法 short slug。
+    """
+    _check_components(
+        date=date,
+        sequence=sequence,
+        role_fields={"reviewer": reviewer},
+    )
+    if not subject_short:
+        raise ValueError("subject_short must not be empty")
+    if not REVIEW_SUBJECT_SHORT_RE.fullmatch(subject_short):
+        raise ValueError(
+            f"subject_short {subject_short!r} is not a legal slug "
+            f"(must match {REVIEW_SUBJECT_SHORT_RE.pattern})"
+        )
+    return ReviewFilename(
+        date=date,
+        sequence=sequence,
+        reviewer=reviewer,
+        subject_short=subject_short,
+    ).render()
 
 
 # ── Validators ───────────────────────────────────────────────────────
@@ -380,6 +487,7 @@ def next_sequence(
         "task": parse_task_filename,
         "report": parse_report_filename,
         "issue": parse_issue_filename,
+        "review": parse_review_filename,
     }
     parse = parser[kind]
 

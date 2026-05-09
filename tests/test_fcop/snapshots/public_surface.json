@@ -361,6 +361,23 @@
   ],
   "project": {
     "methods": {
+      "archive_review": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "Review"
+      },
       "archive_task": {
         "params": [
           {
@@ -703,6 +720,53 @@
         ],
         "return": "list[Report]"
       },
+      "list_reviews": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "reviewer_role"
+          },
+          {
+            "annotation": "str | ReviewDecision | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "decision"
+          },
+          {
+            "annotation": "str | ReviewSubjectType | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "subject_type"
+          },
+          {
+            "annotation": "Literal['open', 'archived', 'all']",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "status"
+          },
+          {
+            "annotation": "int | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "limit"
+          },
+          {
+            "annotation": "int",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "offset"
+          }
+        ],
+        "return": "list[Review]"
+      },
       "list_tasks": {
         "params": [
           {
@@ -783,6 +847,23 @@
           }
         ],
         "return": "Report"
+      },
+      "read_review": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          }
+        ],
+        "return": "Review"
       },
       "read_task": {
         "params": [
@@ -922,6 +1003,77 @@
         ],
         "return": "Report"
       },
+      "write_review": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "reviewer_role"
+          },
+          {
+            "annotation": "str | ReviewSubjectType",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "subject_type"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "subject_ref"
+          },
+          {
+            "annotation": "str | ReviewDecision",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "decision"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "rationale"
+          },
+          {
+            "annotation": "Sequence[str]",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "required_changes"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "reviewer_agent"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "body"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "date"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "subject_short"
+          }
+        ],
+        "return": "Review"
+      },
       "write_task": {
         "params": [
           {
@@ -1039,6 +1191,17 @@
         "return": "pathlib.Path"
       },
       "reports_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "reviews_dir": {
         "params": [
           {
             "annotation": null,
@@ -1193,6 +1356,9 @@
     "ProtocolViolation",
     "RecentActivityEntry",
     "Report",
+    "Review",
+    "ReviewDecision",
+    "ReviewSubjectType",
     "RoleNotFoundError",
     "RoleOccupancy",
     "SessionRoleConflict",

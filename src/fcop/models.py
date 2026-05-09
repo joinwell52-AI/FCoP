@@ -19,10 +19,13 @@ from typing import Literal
 __all__ = [
     "Priority",
     "Severity",
+    "ReviewDecision",
+    "ReviewSubjectType",
     "TaskFrontmatter",
     "Task",
     "Report",
     "Issue",
+    "Review",
     "TeamConfig",
     "ProjectStatus",
     "RecentActivityEntry",
@@ -54,6 +57,40 @@ class Severity(str, Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+
+
+class ReviewDecision(str, Enum):
+    """REVIEW 决议四值枚举（v1.0 frozen，per ADR-0017）。
+
+    - APPROVED：通过
+    - REJECTED：驳回（subject 整体不可用）
+    - NEEDS_CHANGES：要求修改（必须配合非空 required_changes 列出条目）
+    - ABSTAINED：弃权 / 不在职责范围内
+
+    刻意**不含** ``needs_human``——人类介入语义推迟到 v1.2，按 ADR-0017
+    §explicit-deferrals。任何想偷塞 ``needs_human`` 的 PR 会被 schema
+    层（review.schema.json#/$defs/decisionEnum）和本 enum 双重拒。
+    """
+
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    NEEDS_CHANGES = "needs_changes"
+    ABSTAINED = "abstained"
+
+
+class ReviewSubjectType(str, Enum):
+    """REVIEW 评审对象的四类型枚举（v1.0 frozen，per ADR-0017）。
+
+    - TASK：评审某个 TASK envelope（典型：governance 层批准/驳回）
+    - REPORT：评审某个 REPORT envelope（典型：成果验收）
+    - ROLE_SWITCH：评审一次角色切换决策
+    - CODE_CHANGE：评审一段代码改动（commit / PR / patch hash）
+    """
+
+    TASK = "task"
+    REPORT = "report"
+    ROLE_SWITCH = "role_switch"
+    CODE_CHANGE = "code_change"
 
 
 # ── Task ──────────────────────────────────────────────────────────────
@@ -151,6 +188,59 @@ class Issue:
     severity: Severity
     reporter: str
     body: str
+    mtime: datetime
+
+
+# ── Review ────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class Review:
+    """A REVIEW envelope file on disk（v1.0 引入，per ADR-0017）。
+
+    REVIEW 是 FCoP v1.0 落地的第七个核心抽象（Audit）的唯一文件载体。
+    它**不**承载人类批准语义——任何 ``human_approval`` 子对象、
+    ``mark_human_approved`` API 都被推迟到 v1.2，本 dataclass 也刻意
+    不含相关字段（schema 层 + dataclass 层双锁）。
+
+    Attributes:
+        path: 绝对路径。
+        filename: 文件名（``REVIEW-YYYYMMDD-NNN-{reviewer}-on-{subject_short}.md``）。
+        review_id: 文件名 stem 的稳定 id；与 frontmatter ``review_id``
+            字段同值。
+        date: ``YYYYMMDD``。
+        sequence: 当日序号 1..999。
+        subject_type: 评审对象类型枚举。
+        subject_ref: 对象引用——TASK/REPORT 是路径，CODE_CHANGE 是 hash。
+        reviewer_role: 评审者角色 code（必须通过 role-code 校验，允许
+            reserved 如 ADMIN）。
+        reviewer_agent: 可选；标识具体 session / agent 实例。
+        decision: 四值决议枚举。
+        rationale: 可选自由文本理由。
+        required_changes: ``decision == NEEDS_CHANGES`` 时必须非空；
+            其他决议下应为空 tuple。
+        decided_at: 决议时间（解析为 datetime；YAML 自动 ISO parse）。
+        body: REVIEW Markdown body（rationale 与 required_changes 已在
+            frontmatter，body 是补充论证 / 上下文）。
+        is_archived: 是否在 ``log/reviews/`` 下。
+        mtime: 文件 mtime。
+    """
+
+    path: Path
+    filename: str
+    review_id: str
+    date: str
+    sequence: int
+    subject_type: ReviewSubjectType
+    subject_ref: str
+    reviewer_role: str
+    reviewer_agent: str | None
+    decision: ReviewDecision
+    rationale: str | None
+    required_changes: tuple[str, ...]
+    decided_at: datetime
+    body: str
+    is_archived: bool
     mtime: datetime
 
 

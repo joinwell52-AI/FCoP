@@ -28,22 +28,32 @@ from fcop.core.config import load_team_config, save_team_config
 from fcop.core.filename import (
     ISSUE_FILENAME_RE,
     REPORT_FILENAME_RE,
+    REVIEW_FILENAME_RE,
+    REVIEW_SUBJECT_SHORT_RE,
     TASK_FILENAME_RE,
     build_issue_filename,
     build_report_filename,
+    build_review_filename,
     build_task_filename,
     next_sequence,
     parse_issue_filename,
     parse_report_filename,
+    parse_review_filename,
     parse_task_filename,
     today_iso,
 )
 from fcop.core.frontmatter import (
     FRONTMATTER_DELIMITER,
+    assemble_review_file,
     assemble_task_file,
     parse_frontmatter_raw,
+    parse_review_frontmatter,
     parse_task_frontmatter,
     split_frontmatter,
+)
+from fcop.core.jsonschema_validator import (
+    normalize_for_json,
+    validate_envelope_frontmatter,
 )
 from fcop.core.schema import (
     PROTOCOL_NAME,
@@ -69,6 +79,9 @@ from fcop.models import (
     ProjectStatus,
     RecentActivityEntry,
     Report,
+    Review,
+    ReviewDecision,
+    ReviewSubjectType,
     RoleOccupancy,
     SessionRoleConflict,
     Severity,
@@ -156,6 +169,17 @@ class Project:
     def log_dir(self) -> pathlib.Path:
         """``<project>/docs/agents/log/`` (archive root)."""
         return self._path / "docs" / "agents" / "log"
+
+    @property
+    def reviews_dir(self) -> pathlib.Path:
+        """``<project>/docs/agents/reviews/`` —— REVIEW envelopes（v1.0）。
+
+        REVIEW 是 FCoP v1.0 引入的第四种 IPC envelope（per ADR-0017）。
+        与 tasks/reports/issues 一样位于 ``docs/agents/`` 下，归档时移到
+        ``log/reviews/``。目录在首次 :meth:`write_review` 时按需创建——
+        老项目（v1 之前 init 的）不主动 mkdir，避免 churn。
+        """
+        return self._path / "docs" / "agents" / "reviews"
 
     @property
     def config_path(self) -> pathlib.Path:
@@ -2022,6 +2046,405 @@ class Project:
                 return entry
         return None
 
+    # ── Reviews (v1.0 / Audit) ────────────────────────────────────────
+    #
+    # REVIEW envelope 端到端，per ADR-0017 + review.schema.json。是 v1.0
+    # 唯一**新增**的 envelope 类型——其他 6 个抽象（Agent / IPC / Encoding
+    # / Event / Failure / Boundary）的 reference impl 由 TASK-005..008
+    # 各自落地。
+    #
+    # 设计要点：
+    # - decision 与 subject_type 都用闭枚举，需要绕开必须改 ADR + 升 MINOR。
+    # - decision == NEEDS_CHANGES 必配非空 required_changes（schema if/then
+    #   也守门，本层先拒以给更友好的错误）。
+    # - 刻意**不**实现 needs_human / human_approval / mark_human_approved
+    #   ——v1.2 工作；本层 enum 限制 + schema 双锁拒绝任何偷塞。
+
+    def write_review(
+        self,
+        *,
+        reviewer_role: str,
+        subject_type: str | ReviewSubjectType,
+        subject_ref: str,
+        decision: str | ReviewDecision,
+        rationale: str | None = None,
+        required_changes: Sequence[str] = (),
+        reviewer_agent: str | None = None,
+        body: str = "",
+        date: str | None = None,
+        subject_short: str | None = None,
+    ) -> Review:
+        """Write a REVIEW envelope to ``reviews_dir``（v1.0，per ADR-0017）。
+
+        Args:
+            reviewer_role: 评审者角色 code（允许 reserved 如 ADMIN）。
+            subject_type: ``ReviewSubjectType`` 枚举或同名字符串
+                （``"task"`` / ``"report"`` / ``"role_switch"`` / ``"code_change"``）。
+            subject_ref: 被评对象引用——TASK/REPORT 是文件路径，
+                CODE_CHANGE 是 commit hash 或 patch identifier。
+            decision: ``ReviewDecision`` 枚举或字符串
+                （``"approved"`` / ``"rejected"`` / ``"needs_changes"`` / ``"abstained"``）。
+                **``"needs_human"`` 永远会被拒** —— 它是 v1.2 推迟值。
+            rationale: 可选自由文本理由。
+            required_changes: 当 ``decision == NEEDS_CHANGES`` 时必须非空；
+                其他决议下应为空（本层不强制为空，但 schema 层检查
+                if/then 子句）。
+            reviewer_agent: 可选；标识具体 session / agent 实例。
+            body: REVIEW Markdown body。frontmatter 已含 rationale 与
+                required_changes，body 是补充论证 / 上下文。
+            date: 强制日期覆盖（``YYYYMMDD``）；默认 = 今天。便于测试。
+            subject_short: 可选；显式覆盖文件名 ``-on-{slug}`` 段。
+                未提供时自动从 subject_ref 派生（取 basename / 截断）。
+
+        Returns:
+            新写入的 :class:`Review` 实例。
+
+        Raises:
+            ValidationError: reviewer_role 不合 role-code grammar；
+                decision/subject_type 不在枚举内；needs_changes 但
+                required_changes 空；schema 校验失败。
+        """
+        decision_enum = self._coerce_review_decision(decision)
+        subject_type_enum = self._coerce_review_subject_type(subject_type)
+
+        cleaned_required = tuple(
+            s.strip() for s in required_changes if s and str(s).strip()
+        )
+
+        if decision_enum is ReviewDecision.NEEDS_CHANGES and not cleaned_required:
+            raise ValidationError(
+                "decision='needs_changes' requires non-empty required_changes",
+                issues=[
+                    ValidationIssue(
+                        severity="error",
+                        field="required_changes",
+                        message=(
+                            "needs_changes decision must list at least one "
+                            "non-blank item; use 'rejected' if there is nothing "
+                            "actionable"
+                        ),
+                    )
+                ],
+            )
+
+        role_issues = validate_role_code(
+            reviewer_role, field="reviewer_role", allow_reserved=True
+        )
+        role_errors = [i for i in role_issues if i.severity == "error"]
+        if role_errors:
+            raise ValidationError(
+                f"invalid reviewer_role {reviewer_role!r}",
+                issues=role_errors,
+            )
+
+        if not subject_ref or not str(subject_ref).strip():
+            raise ValueError("subject_ref must be a non-empty string")
+        subject_ref = str(subject_ref).strip()
+
+        date_str = date if date is not None else today_iso()
+        slug = subject_short or _derive_review_subject_short(subject_ref)
+        if not REVIEW_SUBJECT_SHORT_RE.fullmatch(slug):
+            raise ValidationError(
+                f"derived subject_short {slug!r} from subject_ref "
+                f"{subject_ref!r} is not a legal slug; pass subject_short= explicitly",
+                issues=[
+                    ValidationIssue(
+                        severity="error",
+                        field="subject_short",
+                        message=(
+                            f"slug must match {REVIEW_SUBJECT_SHORT_RE.pattern}"
+                        ),
+                    )
+                ],
+            )
+
+        reviews_dir = self.reviews_dir
+        reviews_dir.mkdir(parents=True, exist_ok=True)
+        archive_dir = self.log_dir / "reviews"
+
+        decided_at_iso = _now_iso()
+
+        for _ in range(_MAX_WRITE_RETRIES):
+            existing = _existing_filenames_for_seq(reviews_dir, archive_dir)
+            sequence = next_sequence(existing, date=date_str, kind="review")
+            filename = build_review_filename(
+                date=date_str,
+                sequence=sequence,
+                reviewer=reviewer_role,
+                subject_short=slug,
+            )
+            review_id = filename[: -len(".md")]
+
+            fm: dict[str, object] = {
+                "protocol": PROTOCOL_NAME,
+                "version": PROTOCOL_VERSION,
+                "type": "REVIEW",
+                "sender": reviewer_role,
+                "review_id": review_id,
+                "subject_type": subject_type_enum.value,
+                "subject_ref": subject_ref,
+                "reviewer_role": reviewer_role,
+                "decision": decision_enum.value,
+                "decided_at": decided_at_iso,
+            }
+            if reviewer_agent:
+                fm["reviewer_agent"] = reviewer_agent
+            if rationale:
+                fm["rationale"] = rationale
+            if cleaned_required:
+                fm["required_changes"] = list(cleaned_required)
+
+            schema_issues = validate_envelope_frontmatter(fm, "REVIEW")
+            if schema_issues:
+                # Validator 还报错 = 上层 logic 有遗漏；不应继续写盘。
+                raise ValidationError(
+                    "REVIEW frontmatter failed JSON Schema validation",
+                    issues=schema_issues,
+                )
+
+            text = assemble_review_file(fm, body)
+            payload = text.encode("utf-8")
+
+            target = reviews_dir / filename
+            try:
+                fd = os.open(
+                    os.fspath(target),
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                )
+            except FileExistsError:
+                continue
+
+            try:
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(payload)
+            except BaseException:
+                with contextlib.suppress(OSError):
+                    target.unlink()
+                raise
+
+            mtime = _dt.datetime.fromtimestamp(target.stat().st_mtime)
+            decided_at_dt = _dt.datetime.fromisoformat(decided_at_iso)
+            return Review(
+                path=target,
+                filename=filename,
+                review_id=review_id,
+                date=date_str,
+                sequence=sequence,
+                subject_type=subject_type_enum,
+                subject_ref=subject_ref,
+                reviewer_role=reviewer_role,
+                reviewer_agent=reviewer_agent,
+                decision=decision_enum,
+                rationale=rationale,
+                required_changes=cleaned_required,
+                decided_at=decided_at_dt,
+                body=body,
+                is_archived=False,
+                mtime=mtime,
+            )
+
+        raise RuntimeError(
+            f"failed to reserve a review sequence after "
+            f"{_MAX_WRITE_RETRIES} retries"
+        )
+
+    def list_reviews(
+        self,
+        *,
+        reviewer_role: str | None = None,
+        decision: str | ReviewDecision | None = None,
+        subject_type: str | ReviewSubjectType | None = None,
+        status: Literal["open", "archived", "all"] = "open",
+        limit: int | None = None,
+        offset: int = 0,
+    ) -> list[Review]:
+        """List REVIEWs, optionally filtered.
+
+        Args:
+            reviewer_role: 仅匹配指定评审者角色的 REVIEW。
+            decision: 仅匹配指定决议的 REVIEW（接受字符串别名）。
+            subject_type: 仅匹配指定 subject_type 的 REVIEW。
+            status: ``"open"`` 扫 ``reviews_dir``；``"archived"`` 扫
+                ``log/reviews/``；``"all"`` 两者都扫。
+            limit / offset: 分页窗口（先排序后切片）。
+
+        Returns:
+            按 (date, sequence) 倒序——最新在前。畸形 / 不可解析的
+            REVIEW 文件被静默跳过，与 list_tasks/reports 行为一致。
+        """
+        decision_filter = (
+            self._coerce_review_decision(decision) if decision is not None else None
+        )
+        subject_filter = (
+            self._coerce_review_subject_type(subject_type)
+            if subject_type is not None
+            else None
+        )
+
+        directories: list[tuple[pathlib.Path, bool]] = []
+        if status in ("open", "all"):
+            directories.append((self.reviews_dir, False))
+        if status in ("archived", "all"):
+            directories.append((self.log_dir / "reviews", True))
+
+        reviews: list[Review] = []
+        for directory, archived in directories:
+            if not directory.is_dir():
+                continue
+            for entry in directory.iterdir():
+                review = _try_load_review(entry, is_archived=archived)
+                if review is None:
+                    continue
+                if reviewer_role is not None and review.reviewer_role != reviewer_role:
+                    continue
+                if decision_filter is not None and review.decision is not decision_filter:
+                    continue
+                if subject_filter is not None and review.subject_type is not subject_filter:
+                    continue
+                reviews.append(review)
+
+        def _sort_key(r: Review) -> tuple[str, int]:
+            parsed = parse_review_filename(r.filename)
+            if parsed is None:
+                return ("", 0)
+            return (parsed.date, parsed.sequence)
+
+        reviews.sort(key=_sort_key, reverse=True)
+
+        end = None if limit is None else offset + max(0, limit)
+        return reviews[offset:end]
+
+    def read_review(self, filename_or_id: str) -> Review:
+        """Load one REVIEW by filename or review id.
+
+        Resolution: 先扫 ``reviews_dir``，再扫 ``log/reviews/``。
+
+        Raises:
+            TaskNotFoundError: 没有匹配（复用 TaskNotFoundError，与
+                read_report / read_issue 一致；v1.x 不新建专属异常）。
+            ProtocolViolation / ValidationError: 文件存在但畸形。
+        """
+        target, archived = self._resolve_review_file(filename_or_id)
+        if target is None:
+            raise TaskNotFoundError(
+                f"no review matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+        return _load_review_strict(target, is_archived=archived)
+
+    def archive_review(self, filename_or_id: str) -> Review:
+        """Move a REVIEW to ``log/reviews/``.
+
+        与 :meth:`archive_task` 不同，REVIEW 没有"关联文件"要顺带移动
+        ——它是终点。Idempotent：归档已归档的 REVIEW 直接返回当前状态。
+
+        Raises:
+            TaskNotFoundError: 没有匹配文件。
+            ProtocolViolation / ValidationError: 文件畸形（不归档，
+                先暴露问题）。
+        """
+        source, archived = self._resolve_review_file(filename_or_id)
+        if source is None:
+            raise TaskNotFoundError(
+                f"cannot archive: no review matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+        if archived:
+            return _load_review_strict(source, is_archived=True)
+
+        log_reviews_dir = self.log_dir / "reviews"
+        log_reviews_dir.mkdir(parents=True, exist_ok=True)
+        destination = log_reviews_dir / source.name
+        source.replace(destination)
+        return _load_review_strict(destination, is_archived=True)
+
+    def _resolve_review_file(
+        self, filename_or_id: str
+    ) -> tuple[pathlib.Path | None, bool]:
+        """Resolve a user handle to a REVIEW path. Open dir wins over archive."""
+        if REVIEW_FILENAME_RE.fullmatch(filename_or_id):
+            for directory, archived in (
+                (self.reviews_dir, False),
+                (self.log_dir / "reviews", True),
+            ):
+                candidate = directory / filename_or_id
+                if candidate.is_file():
+                    return candidate, archived
+            return None, False
+
+        # 允许传 stem（无 .md）作为完整 review_id
+        if REVIEW_FILENAME_RE.fullmatch(f"{filename_or_id}.md"):
+            return self._resolve_review_file(f"{filename_or_id}.md")
+
+        prefix = filename_or_id
+        for directory, archived in (
+            (self.reviews_dir, False),
+            (self.log_dir / "reviews", True),
+        ):
+            if not directory.is_dir():
+                continue
+            for entry in directory.iterdir():
+                if not entry.is_file():
+                    continue
+                parsed = parse_review_filename(entry.name)
+                if parsed is None:
+                    continue
+                if entry.name.startswith(prefix + "-") or entry.stem == prefix:
+                    return entry, archived
+        return None, False
+
+    @staticmethod
+    def _coerce_review_decision(value: str | ReviewDecision) -> ReviewDecision:
+        """Strict coerce —— 拒绝 v1.2 推迟值（needs_human）以及任何未知值。"""
+        if isinstance(value, ReviewDecision):
+            return value
+        if isinstance(value, str):
+            try:
+                return ReviewDecision(value)
+            except ValueError as exc:
+                raise ValidationError(
+                    f"unknown decision {value!r}",
+                    issues=[
+                        ValidationIssue(
+                            severity="error",
+                            field="decision",
+                            message=(
+                                f"decision must be one of "
+                                f"{[d.value for d in ReviewDecision]}; "
+                                f"got {value!r}. Note: 'needs_human' is "
+                                f"deferred to v1.2 per ADR-0017."
+                            ),
+                        )
+                    ],
+                ) from exc
+        raise TypeError(f"decision must be str or ReviewDecision, got {type(value).__name__}")
+
+    @staticmethod
+    def _coerce_review_subject_type(value: str | ReviewSubjectType) -> ReviewSubjectType:
+        if isinstance(value, ReviewSubjectType):
+            return value
+        if isinstance(value, str):
+            try:
+                return ReviewSubjectType(value)
+            except ValueError as exc:
+                raise ValidationError(
+                    f"unknown subject_type {value!r}",
+                    issues=[
+                        ValidationIssue(
+                            severity="error",
+                            field="subject_type",
+                            message=(
+                                f"subject_type must be one of "
+                                f"{[s.value for s in ReviewSubjectType]}; "
+                                f"got {value!r}"
+                            ),
+                        )
+                    ],
+                ) from exc
+        raise TypeError(
+            f"subject_type must be str or ReviewSubjectType, got {type(value).__name__}"
+        )
+
     # ── Suggestions ───────────────────────────────────────────────────
 
     def drop_suggestion(
@@ -2786,6 +3209,149 @@ def _load_issue_strict(path: pathlib.Path) -> Issue:
         severity=severity_enum,
         reporter=reporter,
         body=body,
+        mtime=mtime,
+    )
+
+
+def _derive_review_subject_short(subject_ref: str) -> str:
+    """Derive a filename-safe ``subject_short`` slug from ``subject_ref``。
+
+    规则：
+    1. 若 ``subject_ref`` 看起来是路径，取 basename 去 ``.md`` 后缀
+    2. 全部小写
+    3. 非 [a-z0-9-] 字符替换为 ``-``
+    4. 折叠连续 ``-``，去首尾 ``-``
+    5. 截断到 64 字符（slug 太长会让文件名超过常见 Windows MAX_PATH 边界）
+
+    例：
+    - ``fcop/tasks/TASK-20260601-001-PM-to-DEV.md`` → ``task-20260601-001-pm-to-dev``
+    - ``adr/ADR-0017-review-file-type-minimal.md`` → ``adr-0017-review-file-type-minimal``
+    - ``commit:3c35e0e``                            → ``commit-3c35e0e``
+
+    若 derive 结果不合 :data:`fcop.core.filename.REVIEW_SUBJECT_SHORT_RE`，
+    caller 应该显式传 ``subject_short=`` 覆盖。
+    """
+    import re as _re
+
+    raw = str(subject_ref).strip()
+    if "/" in raw or "\\" in raw:
+        raw = pathlib.PurePath(raw).name
+    if raw.lower().endswith(".md"):
+        raw = raw[: -len(".md")]
+    raw = raw.lower()
+    raw = _re.sub(r"[^a-z0-9-]+", "-", raw)
+    raw = _re.sub(r"-+", "-", raw).strip("-")
+    if len(raw) > 64:
+        raw = raw[:64].rstrip("-")
+    return raw
+
+
+def _try_load_review(
+    path: pathlib.Path, *, is_archived: bool
+) -> Review | None:
+    """Best-effort review load; return ``None`` on any problem.
+
+    Mirrors :func:`_try_load_report` —— 用于 :meth:`Project.list_reviews`
+    的扫描场景，单个畸形文件不应中断列表。
+    """
+    if not path.is_file():
+        return None
+    if path.suffix.lower() not in _FCOP_SUFFIXES:
+        return None
+    parsed = parse_review_filename(path.name)
+    if parsed is None:
+        return None
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        fm, body = parse_review_frontmatter(text)
+    except Exception:
+        return None
+    try:
+        return _hydrate_review(path, fm, body, parsed, is_archived=is_archived)
+    except Exception:
+        return None
+
+
+def _load_review_strict(
+    path: pathlib.Path, *, is_archived: bool
+) -> Review:
+    """Strict REVIEW load for :meth:`Project.read_review` / archive_review."""
+    text = path.read_text(encoding="utf-8")
+    fm, body = parse_review_frontmatter(text)
+    parsed = parse_review_filename(path.name)
+    assert parsed is not None, (
+        f"_resolve_review_file returned {path.name!r} but it does not match "
+        "REVIEW_FILENAME_RE — this is a bug in the resolver."
+    )
+    return _hydrate_review(path, fm, body, parsed, is_archived=is_archived)
+
+
+def _hydrate_review(
+    path: pathlib.Path,
+    fm: dict[str, object],
+    body: str,
+    parsed,  # type: ignore[no-untyped-def]
+    *,
+    is_archived: bool,
+) -> Review:
+    """Build a Review dataclass from parsed frontmatter + filename + body."""
+    # Required fields —— 缺任何一个都拒；schema validator 会给同样判决，
+    # 这里手动检 1 次以给出清晰错误（schema 错误聚合在 oneOf 下不直观）。
+    for required in ("subject_type", "subject_ref", "reviewer_role", "decision", "decided_at"):
+        if required not in fm:
+            raise ProtocolViolation(
+                f"REVIEW {path.name} missing required frontmatter field: {required}",
+                rule="frontmatter.required",
+            )
+
+    decision = Project._coerce_review_decision(str(fm["decision"]))
+    subject_type = Project._coerce_review_subject_type(str(fm["subject_type"]))
+    subject_ref = str(fm["subject_ref"]).strip()
+    reviewer_role = str(fm["reviewer_role"]).strip()
+    rationale_raw = fm.get("rationale")
+    rationale = str(rationale_raw).strip() if rationale_raw else None
+    reviewer_agent_raw = fm.get("reviewer_agent")
+    reviewer_agent = (
+        str(reviewer_agent_raw).strip() if reviewer_agent_raw else None
+    )
+    raw_required = fm.get("required_changes") or ()
+    if isinstance(raw_required, str):
+        required_changes = (raw_required.strip(),) if raw_required.strip() else ()
+    else:
+        required_changes = tuple(
+            str(s).strip() for s in raw_required if s and str(s).strip()
+        )
+
+    # decided_at 接受 datetime / date / str（YAML 自动 parse 时机不定）
+    decided_raw = fm["decided_at"]
+    if isinstance(decided_raw, _dt.datetime):
+        decided_at = decided_raw
+    elif isinstance(decided_raw, _dt.date):
+        decided_at = _dt.datetime.combine(decided_raw, _dt.time())
+    else:
+        decided_at = _dt.datetime.fromisoformat(str(decided_raw))
+
+    review_id = str(fm.get("review_id") or path.name[: -len(".md")]).strip()
+    mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime)
+    return Review(
+        path=path,
+        filename=path.name,
+        review_id=review_id,
+        date=parsed.date,
+        sequence=parsed.sequence,
+        subject_type=subject_type,
+        subject_ref=subject_ref,
+        reviewer_role=reviewer_role,
+        reviewer_agent=reviewer_agent,
+        decision=decision,
+        rationale=rationale,
+        required_changes=required_changes,
+        decided_at=decided_at,
+        body=body,
+        is_archived=is_archived,
         mtime=mtime,
     )
 

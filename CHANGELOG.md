@@ -10,6 +10,62 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Added — `fcop` library
+
+- **JSON Schema 校验基础设施**（TASK-20260509-004 R1）。新增模块
+  `fcop.core.jsonschema_validator` 暴露
+  `validate_envelope_frontmatter(fm, type)` /
+  `validate_record(record, schema_name)` /
+  `normalize_for_json(value)` 三个函数，以及模块级 `SCHEMA_REGISTRY` /
+  `SCHEMA_NAMES` / `ENVELOPE_TYPES` / `BUNDLED_SCHEMA_DIR` 常量。7 份
+  v1.0 协议 schema（`spec/schemas/*.schema.json`）随 wheel 打包到
+  `src/fcop/_data/schemas/`，跨文件 `$ref` 通过 `referencing.Registry`
+  按 `$id` 解析。**opt-in**：现有 `write_task` / `write_report` /
+  `write_issue` 路径完全不变，仅 `write_review` 启用了校验。
+- **`Project.write_review` / `read_review` / `list_reviews` /
+  `archive_review`**（TASK-20260509-004 R2，per ADR-0017）。FCoP v1.0
+  引入的第四种 IPC envelope —— Audit 抽象的端到端实现。文件落在
+  `docs/agents/reviews/`，归档到 `log/reviews/`。
+- **`Project.reviews_dir` property**（v1.0）。指向
+  `<project>/docs/agents/reviews/`。
+- **`Review` dataclass + `ReviewDecision` / `ReviewSubjectType` enums**
+  从顶层 `fcop` 包导出。`ReviewDecision` 为 4 值闭枚举
+  （`approved` / `rejected` / `needs_changes` / `abstained`）；
+  `needs_human` **刻意推迟到 v1.2**（per ADR-0017），schema 与
+  dataclass 双层拒。
+- **`fcop.core.filename` 新增 REVIEW 文件名 grammar**：
+  `REVIEW_FILENAME_PREFIX` / `REVIEW_FILENAME_RE` /
+  `REVIEW_SUBJECT_SHORT_RE` / `ReviewFilename` /
+  `parse_review_filename` / `build_review_filename`，并把
+  `FilenameKind` 加 `"review"` 选项。
+- **`fcop.core.frontmatter` 新增 REVIEW 序列化**：
+  `parse_review_frontmatter` / `serialize_review_frontmatter` /
+  `assemble_review_file`。
+- **`tests/test_schemas/` 测试套件**（10 份文件，116 用例）。每份
+  schema ≥ 3 用例（合法/缺必填/非法枚举），加横切的 in-sync 守门
+  与全部 0.7.x envelope 文件回归（I5 见证）。
+- **`tests/test_fcop/test_project_reviews.py` + 关联的 filename /
+  frontmatter / no-v12-features 测试**（共 4 份，58 用例）。
+
+### Changed — `fcop` library
+
+- **`spec/schemas/ipc-envelope.schema.json` 放宽以满足 I5**（TASK-004
+  R1）：`TASK.subject` 改 SHOULD（0.7.x 常把 subject 写在 markdown
+  H1）；REPORT 接受 `references` / `related_task` / `related_issues` /
+  `report_id`（0.7.x 字段别名），仍推荐新文件用 `ref_task`；新增
+  `task_id` / `session_id` 为已知可选字段。
+
+### Added — packaging
+
+- `pyproject.toml` `tool.hatch.build.targets.wheel` `include` glob 加
+  `src/fcop/_data/schemas/*.schema.json`，确保 wheel 内含 7 份 v1.0
+  协议 schema。
+
+### Internal
+
+- 中文为主、英文括注的内部文档约定从 `TASK-20260509-004` 起恢复
+  （此前 TASK-002 / TASK-003 / 多份 ADR 临时全英文）。
+
 ## [0.7.2] - 2026-04-27
 
 Metadata-only patch release. **No behaviour change**, no new APIs,

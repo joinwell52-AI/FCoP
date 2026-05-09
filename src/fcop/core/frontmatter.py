@@ -49,6 +49,9 @@ __all__ = [
     "parse_task_frontmatter",
     "serialize_task_frontmatter",
     "assemble_task_file",
+    "parse_review_frontmatter",
+    "serialize_review_frontmatter",
+    "assemble_review_file",
 ]
 
 
@@ -310,6 +313,137 @@ def serialize_task_frontmatter(fm: TaskFrontmatter) -> str:
         default_flow_style=False,
     )
     return f"{FRONTMATTER_DELIMITER}\n{yaml_text}{FRONTMATTER_DELIMITER}\n"
+
+
+# ── Review frontmatter ───────────────────────────────────────────────
+
+
+# REVIEW frontmatter 字段集（与 review.schema.json 对齐）。本模块按字典
+# 维护（不引入 ReviewFrontmatter dataclass）——REVIEW 的字段相对扁平，
+# Project.write_review 直接构造 dict 比包一层 dataclass 更直接。
+_REVIEW_REQUIRED_KEYS: frozenset[str] = frozenset(
+    {
+        "protocol",
+        "version",
+        "type",
+        "sender",
+        "review_id",
+        "subject_type",
+        "subject_ref",
+        "reviewer_role",
+        "decision",
+        "decided_at",
+    }
+)
+
+_REVIEW_OPTIONAL_KEYS: frozenset[str] = frozenset(
+    {
+        "reviewer_agent",
+        "rationale",
+        "required_changes",
+        "session_id",
+    }
+)
+
+_REVIEW_FIELD_ORDER: tuple[str, ...] = (
+    "protocol",
+    "version",
+    "type",
+    "sender",
+    "review_id",
+    "subject_type",
+    "subject_ref",
+    "reviewer_role",
+    "reviewer_agent",
+    "decision",
+    "rationale",
+    "required_changes",
+    "decided_at",
+    "session_id",
+)
+
+
+def parse_review_frontmatter(text: str) -> tuple[dict[str, object], str]:
+    """Parse a REVIEW-*.md document into ``(frontmatter_dict, body)``.
+
+    与 :func:`parse_task_frontmatter` 不同，本函数返回**原生 dict**而
+    非 dataclass —— REVIEW 的字段集小且扁平，调用方（``Project.read_review``）
+    直接组装 :class:`fcop.models.Review`。
+
+    本函数只做最小的协议层校验（protocol/version 存在且匹配），结构
+    校验交给 :mod:`fcop.core.jsonschema_validator` 统一兜底。
+
+    Raises:
+        ProtocolViolation: ``protocol`` 字段缺失或非 fcop 别名；
+            ``version`` 字段缺失或不等于本库 PROTOCOL_VERSION。
+        ValidationError: YAML 本身畸形。
+    """
+    raw = parse_frontmatter_raw(text)
+    _, body = split_frontmatter(text)
+
+    if "protocol" not in raw:
+        raise ProtocolViolation(
+            "missing required frontmatter field: protocol",
+            rule="frontmatter.required",
+        )
+    proto_raw = str(raw["protocol"]).strip()
+    canonical = normalize_protocol_name(proto_raw)
+    if canonical is None:
+        raise ProtocolViolation(
+            f"unknown protocol value {proto_raw!r}; expected 'fcop'",
+            rule="frontmatter.protocol",
+        )
+
+    if "version" not in raw:
+        raise ProtocolViolation(
+            "missing required frontmatter field: version",
+            rule="frontmatter.required",
+        )
+    version = _coerce_version(raw["version"])
+    if version != PROTOCOL_VERSION:
+        raise ProtocolViolation(
+            f"unsupported FCoP version {version}; "
+            f"this library speaks v{PROTOCOL_VERSION}",
+            rule="frontmatter.version",
+        )
+
+    out = dict(raw)
+    out["protocol"] = canonical
+    out["version"] = version
+    out.setdefault("type", "REVIEW")
+    return out, body
+
+
+def serialize_review_frontmatter(fm: dict[str, object]) -> str:
+    """Render a REVIEW frontmatter dict to a YAML block with fences.
+
+    Field order is deterministic per :data:`_REVIEW_FIELD_ORDER`，未知
+    字段（向前兼容）追加在后并按字母排序。
+    """
+    ordered: dict[str, object] = {}
+    for key in _REVIEW_FIELD_ORDER:
+        if key in fm and fm[key] is not None:
+            ordered[key] = fm[key]
+    for key in sorted(fm):
+        if key not in ordered and fm[key] is not None:
+            ordered[key] = fm[key]
+
+    yaml_text = yaml.safe_dump(
+        ordered,
+        sort_keys=False,
+        allow_unicode=True,
+        default_flow_style=False,
+    )
+    return f"{FRONTMATTER_DELIMITER}\n{yaml_text}{FRONTMATTER_DELIMITER}\n"
+
+
+def assemble_review_file(fm: dict[str, object], body: str) -> str:
+    """Combine a REVIEW frontmatter dict and body into the full file text."""
+    fm_text = serialize_review_frontmatter(fm)
+    if not body:
+        return fm_text
+    body_stripped = body.lstrip("\n")
+    return f"{fm_text}\n{body_stripped}"
 
 
 def assemble_task_file(fm: TaskFrontmatter, body: str) -> str:
