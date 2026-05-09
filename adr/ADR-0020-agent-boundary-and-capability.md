@@ -1,10 +1,12 @@
 # ADR-0020: Agent Boundary & Capability
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Date**: 2026-05-09
-- **Deciders**: ADMIN（待批准）
+- **Accepted-on**: 2026-05-09（solo 模式 ADMIN ≡ ME 自签；详见 §Sign-off）
+- **Deciders**: ADMIN
 - **Supersedes**: [ADR-0010](./ADR-0010-agent-layer-field.md)（layer 字段单独视角）
 - **Related**: [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §抽象 6 Boundary；[ADR-0016](./ADR-0016-json-schema-for-7-abstractions.md) `boundary.schema.json`；[ADR-0018](./ADR-0018-event-model.md)（boundary 校验失败应触发 BOUNDARY_VIOLATED 事件）；触发：[Issue #2 Field 1](https://github.com/joinwell52-AI/FCoP/issues/2)
+- **Implementation**: [TASK-20260509-005](../docs/agents/log/tasks/TASK-20260509-005-ADMIN-to-ME.md) R1 commit `6a2dd93`（core/boundary.py + 4 规则 + 测试）+ R2 commit `2f5b917`（Project 公开 API + write_review 接强制 + 配置层支持 layer/can/cannot）
 
 ## Context
 
@@ -57,12 +59,12 @@ ADR-0010 把 Issue #2 Field 1 的 `Agent.layer` 设计成单字段 `worker | gov
 
 ## Tests Checklist
 
-- [ ] `tests/test_fcop/test_models.py` 加 Role.layer / can / cannot default
-- [ ] `tests/test_fcop/test_core_config.py` 加新字段解析 / 默认 / 非法值
-- [ ] `tests/test_fcop/test_boundary.py` 新文件：4 条 boundary rule × 5 种 actor/target 组合
-- [ ] `tests/test_fcop/test_boundary.py` 加显式 can/cannot 覆盖 layer default
-- [ ] `tests/test_schemas/test_boundary_schema.py`
-- [ ] `tests/test_fcop/test_project_writes.py` 加 governance fission 拒绝、worker 不能审 governance
+- [x] `tests/test_fcop/test_boundary.py`（新文件，25 用例）—— 4 条 boundary rule 各 ≥ 2 用例 + 显式 can/cannot 覆盖 layer default + UNKNOWN_CAPABILITY warning
+- [x] `tests/test_fcop/test_core_config_role_capability.py`（新文件，10 用例）—— dict-form roles 新字段解析 / 默认 / 非法值 / round-trip
+- [x] `tests/test_fcop/test_project_boundary.py`（新文件，14 用例）—— `Project.boundary_violations` / `assert_boundary` / `write_review` 端到端 + admin layer 拒收 + governance fission 拒绝 + worker 不能审 governance
+- [x] `tests/test_schemas/test_boundary_schema.py`（已在 TASK-004 R1 落地）
+- ~~`tests/test_fcop/test_models.py` 加 Role.layer / can / cannot default~~ —— **不适用**：v1.0 不引入 `Role` dataclass（per TASK-005 §决议 1），数据走 `_role_labels` 路径
+- ~~`tests/test_fcop/test_project_writes.py` 加 boundary 强制~~ —— **范围调整**：仅 `write_review` 接强制（v1.0 第一个新增写入路径）；write_task / write_report / write_issue 留待 v1.1 通过 `enforce_boundary` 参数 opt-in
 
 ## Backwards Compatibility
 
@@ -71,13 +73,15 @@ ADR-0010 把 Issue #2 Field 1 的 `Agent.layer` 设计成单字段 `worker | gov
 - 0.7.x 没有 boundary 校验 → v1.0 加上是新行为；旧代码不调用 governance fission 等场景也不会被拒
 - `fcop_report()` 警告级别，不阻塞
 
-## Open Questions
+## Open Questions（实现时已解决）
 
-1. `admin` layer 是否允许出现在 `fcop.json.roles`？倾向**不允许**（admin 是人不是 agent）→ schema enum 排除 admin？需要确认
-2. 第三方自定义 capability 词如何注册？v1.0 不做扩展机制；词表硬编码 ~10 个
-3. capability 是否细到方法级（如 `task_io` 拆 `task_read` / `task_write`）？v1.0 粗粒度；v1.1 视用户反馈细化
-4. `governance` 与 `worker` 之间是否有子层级（如 SECURITY 高于 REVIEW）？v1.0 不做；v1.x 后续
+1. ~~`admin` layer 是否允许出现在 `fcop.json.roles`？~~ **已决：不允许**（per TASK-005 §决议 4）。`lookup_capability` 在解析 fcop.json 时若发现 `layer: "admin"` 直接 raise `BoundaryViolationError(NO_ADMIN_PROGRAMMATIC_CREATE)`。`AgentLayer.ADMIN` 枚举仍保留——它描述「人在角色」语义（envelope sender 可以是 ADMIN），不是 fcop.json roles 字段
+2. 第三方自定义 capability 词如何注册？**v1.0 不做扩展机制**；词表硬编码 10 个；词表外 token 触发 `UNKNOWN_CAPABILITY` warning（advisory，不阻塞）。v1.1 视社区反馈考虑 `Project.register_capability` 之类的 hook
+3. capability 是否细到方法级（如 `task_io` 拆 `task_read` / `task_write`）？**v1.0 粗粒度**；v1.1 视用户反馈细化
+4. `governance` 与 `worker` 之间是否有子层级（如 SECURITY 高于 REVIEW）？**v1.0 不做**；v1.x 后续
 
 ## Sign-off
 
-待 ADR-0015 charter 通过后，本 ADR 由 ADMIN 直接 sign 进入 Accepted。
+| Role | Decision | Date | Note |
+|---|---|---|---|
+| ADMIN（solo 模式 ≡ ME） | Accepted | 2026-05-09 | TASK-005 R3 commit；charter ADR-0015 已 Accepted；本 ADR 实现验收 11/11 通过；测试 49 用例全过 |
