@@ -1,10 +1,17 @@
 # ADR-0016: JSON Schema for 7 Core Abstractions
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Date**: 2026-05-09
-- **Deciders**: ADMIN（待批准）
+- **Accepted-on**: 2026-05-09（随 TASK-20260509-003 物化 + TASK-20260509-004 校验器落地）
+- **Deciders**: ADMIN
 - **Supersedes**: [ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md)（5 类 schema 视角）
 - **Related**: [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md)（charter，本 ADR 落地 §7 核心抽象冻结 #1）；[ADR-0017](./ADR-0017-review-file-type-minimal.md)；[ADR-0018](./ADR-0018-event-model.md)；[ADR-0019](./ADR-0019-failure-and-recovery-semantics.md)；[ADR-0020](./ADR-0020-agent-boundary-and-capability.md)；[ADR-0021](./ADR-0021-encoding-abstraction.md)
+
+## TL;DR
+
+**中文**：v1.0 把 7 抽象（Agent / IPC / Encoding / Event / Failure / Boundary / Audit）形式化为 7 份 **JSON Schema 2020-12**，物化到 `spec/schemas/`，作为协议唯一真相。Schema 通过 `referencing.Registry` 跨文件 `$ref` 解析；wheel 内 byte-identical 副本由测试守门。
+
+**English**: v1.0 formalises the 7 abstractions (Agent / IPC / Encoding / Event / Failure / Boundary / Audit) as 7 **JSON Schema 2020-12** files under `spec/schemas/` — the single source of truth for the protocol body. Cross-file `$ref` resolves via `referencing.Registry`; a byte-identical copy ships in the wheel and is guarded by tests.
 
 ## Context
 

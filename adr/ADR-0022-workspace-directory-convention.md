@@ -5,6 +5,12 @@
 - **Deciders**: ADMIN
 - **Related**: [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md)（charter，本 ADR 是 §抽象 2 Encoding 的子决议）；[ADR-0021](./ADR-0021-encoding-abstraction.md)（workspace_dir 是 encoding contract 的一部分）；[ADR-0006](./ADR-0006-host-neutral-rule-distribution.md)（rule 分发位置约定）
 
+## TL;DR
+
+**中文**：v1.0 把默认 workspace 从 `docs/agents/` 迁到顶层 `fcop/`——协议命名空间清晰，与 `.git/` / `.cursor/` / `node_modules/` 同族。提供 `fcop migrate-workspace` 一键迁移工具（git-aware + 默认 dry-run + 幂等）。`Project(workspace_dir="docs/agents/")` 显式调用永远合法（escape hatch 永久保留）。Phase 1（CLI）已落地；Phase 2（Project 默认改造）留 v1.0 final 之前。
+
+**English**: v1.0 moves the default workspace from `docs/agents/` to top-level `fcop/` — a clear protocol namespace alongside `.git/` / `.cursor/` / `node_modules/`. Ships `fcop migrate-workspace` as a one-shot migration tool (git-aware, dry-run by default, idempotent). `Project(workspace_dir="docs/agents/")` remains legal forever as an escape hatch. Phase 1 (CLI) has landed; Phase 2 (Project default refactor) is deferred to before v1.0 final.
+
 ## Context
 
 ADMIN 在 ADR-0015 charter 落定后约 30 分钟，提出第二轮元批评：

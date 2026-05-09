@@ -5,6 +5,12 @@
 - **Accepted-on**: 2026-05-09（solo 模式 ADMIN ≡ ME 自签；详见 §Sign-off）
 - **Deciders**: ADMIN
 - **Supersedes**: [ADR-0010](./ADR-0010-agent-layer-field.md)（layer 字段单独视角）
+
+## TL;DR
+
+**中文**：把 `layer` 字段升级为完整的 capability bundle：10 token 词表（write_task / write_report / write_review / write_issue / read_workspace / archive / config_change / boundary_assert / recover_session / role_switch）+ 3 layer 默认 bundle（worker / governance / admin）+ 4 条 normative 规则。`Project.assert_boundary` API；违规自动 emit `BOUNDARY_VIOLATED` 事件。
+
+**English**: Upgrades the `layer` field to a full capability bundle: a 10-token vocabulary (write_task / write_report / write_review / write_issue / read_workspace / archive / config_change / boundary_assert / recover_session / role_switch) + 3 layer-default bundles (worker / governance / admin) + 4 normative rules. `Project.assert_boundary` is the API entry; violations auto-emit a `BOUNDARY_VIOLATED` event.
 - **Related**: [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §抽象 6 Boundary；[ADR-0016](./ADR-0016-json-schema-for-7-abstractions.md) `boundary.schema.json`；[ADR-0018](./ADR-0018-event-model.md)（boundary 校验失败应触发 BOUNDARY_VIOLATED 事件）；触发：[Issue #2 Field 1](https://github.com/joinwell52-AI/FCoP/issues/2)
 - **Implementation**: [TASK-20260509-005](../docs/agents/log/tasks/TASK-20260509-005-ADMIN-to-ME.md) R1 commit `6a2dd93`（core/boundary.py + 4 规则 + 测试）+ R2 commit `2f5b917`（Project 公开 API + write_review 接强制 + 配置层支持 layer/can/cannot）
 

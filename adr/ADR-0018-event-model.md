@@ -4,6 +4,12 @@
 - **Date**: 2026-05-09
 - **Accepted-on**: 2026-05-09
 - **Deciders**: ADMIN（solo 模式 sign-off）
+
+## TL;DR
+
+**中文**：v1.0 把"事件"作为协议本体（Runtime 的核心是事件，不只是对象）。冻结 12 类 event 枚举（8 类来自最小集 + 4 类来自 Failure 集合）+ polling watcher reference impl + `Project.subscribe_events` / `poll_once` API。v1.0 不引入后台线程，事件不持久化——由 caller 显式触发轮询。
+
+**English**: v1.0 elevates "events" to the protocol body (a Runtime is fundamentally events, not just objects). Freezes a 12-value event enum (8 from the minimal set + 4 from the Failure set) + a polling-watcher reference impl + `Project.subscribe_events` / `poll_once` APIs. No background threads in v1.0; events are not persisted — the caller drives the polling explicitly.
 - **Implementation**:
   - Schema: `spec/schemas/event.schema.json`（v1.0 frozen 12 enum，TASK-003 R1）
   - Reference impl：`src/fcop/core/events.py`（commit `3706d9b`，TASK-007 R1）

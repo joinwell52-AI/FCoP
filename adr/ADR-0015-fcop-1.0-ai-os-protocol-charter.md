@@ -6,6 +6,12 @@
 - **Supersedes**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（Plan B "5 字段进 1.1.0" 路线）
 - **Related**: [ADR-0001](./ADR-0001-library-api.md)、[ADR-0002](./ADR-0002-package-split-and-migration.md)、[ADR-0003](./ADR-0003-stability-charter.md)、[ADR-0006](./ADR-0006-host-neutral-rule-distribution.md)；下游触发：[Issue #2](https://github.com/joinwell52-AI/FCoP/issues/2)；外部参考：[CodeFlow v2 Design §3 / §3.3.1.b / §8.0 hard rule #4](https://github.com/joinwell52-AI/codeflow-pwa/blob/main/docs/design/codeflow-v2-on-fcop-sdk.md)；本 ADR 上游 TASK：[TASK-20260509-002](../docs/agents/log/tasks/TASK-20260509-002-ADMIN-to-ME.md)
 
+## TL;DR
+
+**中文**：FCoP 不是"AI 协作规则"，而是 **AI OS 的 POSIX 层 / Agent Runtime Protocol**。v1.0 冻结 7 核心抽象（Agent / IPC / Encoding / Event / Failure / Boundary / Audit）的最小语义合约，并把 "FCoP 是 agent 的协议，我们发现了他，而不是发明" 抬升为协议级宪章——所有 v1.x 决策的 tiebreaker。
+
+**English**: FCoP is not "AI collaboration rules" but the **POSIX layer of the AI OS / Agent Runtime Protocol**. v1.0 freezes the minimum-semantic contract for 7 core abstractions (Agent / IPC / Encoding / Event / Failure / Boundary / Audit) and elevates "FCoP is the protocol of agents — we discovered it, we did not invent it" to a protocol-level charter that serves as the tiebreaker for all v1.x decisions.
+
 ## FCoP is discovered, not invented
 
 > 「FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。」

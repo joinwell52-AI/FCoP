@@ -4,6 +4,12 @@
 - **Date**: 2026-05-09
 - **Accepted-on**: 2026-05-09
 - **Deciders**: ADMIN（solo 模式 sign-off）
+
+## TL;DR
+
+**中文**：Runtime 必须正面回答"失败了怎么办"。v1.0 冻结 4 类 failure（TIMEOUT / CRASH / DEADLOCK / DRIFT）+ 5 类 recovery action（RETRY / RESUME / ROLLBACK / ABORT / ESCALATE）。RETRY/RESUME/ROLLBACK 是 plan-only（不引入 git 依赖），ABORT/ESCALATE 实际写盘 REPORT/ISSUE。`Project.report_failure / apply_recovery / recover_session` 三个 API 入口。
+
+**English**: A runtime must answer "what happens when it fails?" head-on. v1.0 freezes 4 failure types (TIMEOUT / CRASH / DEADLOCK / DRIFT) + 5 recovery actions (RETRY / RESUME / ROLLBACK / ABORT / ESCALATE). RETRY/RESUME/ROLLBACK are plan-only (no git dependency); ABORT/ESCALATE actually write a REPORT/ISSUE to disk. Three Project entry points: `report_failure / apply_recovery / recover_session`.
 - **Implementation**:
   - Schema: `spec/schemas/failure.schema.json`（v1.0 frozen，TASK-003 R1）
   - Reference impl：`src/fcop/core/recovery.py`（commit `442cbe9`，TASK-006 R1）

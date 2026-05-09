@@ -1,10 +1,17 @@
 # ADR-0017: REVIEW File Type — Minimal v1.0 Surface
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Date**: 2026-05-09
-- **Deciders**: ADMIN（待批准）
+- **Accepted-on**: 2026-05-09（随 TASK-20260509-004 落地——`Project.write_review` + `review.schema.json`）
+- **Deciders**: ADMIN
 - **Supersedes**: [ADR-0009](./ADR-0009-review-file-type-and-grammar.md)（含 needs_human / human_approval 紧耦合的版本）
 - **Related**: [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §抽象 7 Audit；[ADR-0016](./ADR-0016-json-schema-for-7-abstractions.md)
+
+## TL;DR
+
+**中文**：v1.0 把 REVIEW 作为第 4 类 IPC envelope 落地，但只冻结**最小面**：4 值 decision 枚举（approved / changes_requested / blocked / rejected），不在 v1.0 引入 `needs_human` / `human_approval`——避免 Review 角色膨胀成"神级守门人"。延后字段进 v1.2 路线。
+
+**English**: v1.0 lands REVIEW as the 4th IPC envelope but freezes only the **minimum surface**: a 4-value decision enum (approved / changes_requested / blocked / rejected). `needs_human` / `human_approval` are deliberately deferred to v1.2 to prevent Review from inflating into a god-tier gatekeeper.
 
 ## Context
 

@@ -1,9 +1,16 @@
 # ADR-0021: Encoding Abstraction — Markdown as Reference Encoding
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Date**: 2026-05-09
-- **Deciders**: ADMIN（待批准）
+- **Accepted-on**: 2026-05-09（随 TASK-20260509-003 物化 `encoding.schema.json` 落地；workspace_dir 子决议 ADR-0022 独立 sign-off）
+- **Deciders**: ADMIN
 - **Related**: [ADR-0015](./ADR-0015-fcop-1.0-ai-os-protocol-charter.md) §抽象 2 Encoding + §术语表（"FCoP Reference Encoding"）；[ADR-0016](./ADR-0016-json-schema-for-7-abstractions.md) `encoding.schema.json`；子决议：[ADR-0022](./ADR-0022-workspace-directory-convention.md)（`workspace_dir` 默认从 `docs/agents/` 改为 `fcop/`）
+
+## TL;DR
+
+**中文**：把 Encoding 抽象切成两面——**IPC Surface**（协议必须管：TASK/REPORT/ISSUE/REVIEW envelope grammar）+ **Open Knowledge Surface**（agent 自由命名：`SPEC-` / `STATUS-` / `GUIDE-` 等涌现前缀，协议只承认 grammar 不限定语义）。Markdown 是 v1.0 的**唯一推荐 reference encoding**，不是协议本体——未来 alternative encoding（JSON / SQLite）正交。
+
+**English**: Splits Encoding into two facets — the **IPC Surface** (which the protocol must govern: TASK/REPORT/ISSUE/REVIEW envelope grammar) and the **Open Knowledge Surface** (where agents invent names freely: `SPEC-` / `STATUS-` / `GUIDE-` prefixes the protocol only acknowledges as grammar, not as semantics). Markdown is v1.0's **sole recommended reference encoding** — not the protocol itself; future alternative encodings (JSON / SQLite) remain orthogonal.
 
 ## Context
 
