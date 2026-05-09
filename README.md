@@ -5,18 +5,18 @@
 <h1 align="center">FCoP — File-based Coordination Protocol</h1>
 
 <p align="center">
-  <em>A minimalist protocol that lets multiple AI agents collaborate through a shared filesystem.</em><br/>
-  <strong>Core innovation: <code>Filename as Protocol</code>.</strong>
+  <em>The <strong>AI OS protocol layer</strong> — the agent runtime contract for filesystem-based collaboration.</em><br/>
+  <strong>Core invariant: <code>Filename as Protocol</code>. Folders are the message bus.</strong>
 </p>
 
 <p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
   <a href="README.zh.md">简体中文</a> ·
-  <a href="primer/fcop-primer.en.md">60-second Primer</a> ·
+  <a href="docs/getting-started.en.md">Getting started</a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
   <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
-  <a href="docs/fcop-standalone.en.md">Standalone</a>
+  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 Charter</a>
 </p>
 
 <p align="center">
@@ -36,6 +36,27 @@
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
 </p>
+
+---
+
+## Where FCoP sits in the stack
+
+FCoP is the **protocol layer** in the AI OS stack — the same position as **POSIX** in Unix, **OCI** in container ecosystems, **CRD** in Kubernetes:
+
+```
+Application       CodeFlow / Cursor / Claude Desktop          ← business products
+Host Adapter      fcop-mcp / fcop-cli / @fcop/claude          ← libc position
+★ FCoP Protocol ★ Agent / IPC / Encoding / Event /            ← POSIX position
+                  Failure / Boundary / Audit                     this is FCoP
+Reference Impl    fcop (Python lib)                           ← protocol reference impl
+Kernel Primitives LLM API / Filesystem / Process Mgr          ← AI OS kernel
+```
+
+> **FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too.** — [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
+
+The v1.0 line freezes the **minimum semantic contract** for the seven core abstractions above. Spec is locked; encodings are open: the *IPC Surface* (TASK / REPORT / ISSUE / REVIEW) is strongly typed, while the *Open Knowledge Surface* (`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`) leaves vocabulary open for agents to invent — see [ADR-0021](adr/ADR-0021-encoding-abstraction.md).
+
+→ **Start here**: [`docs/getting-started.md`](docs/getting-started.md) · [`docs/getting-started.en.md`](docs/getting-started.en.md)
 
 ---
 

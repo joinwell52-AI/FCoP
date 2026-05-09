@@ -720,8 +720,8 @@
       <span class="zh-only">开源 · MIT · 可引用 Zenodo</span>
     </div>
     <h1>FCoP</h1>
-    <p class="tagline en-only">A File-based Coordination Protocol for Multi-Agent AI Systems. Make your AI agents collaborate through markdown files. No middleware. No SaaS. No new infrastructure to learn.</p>
-    <p class="tagline zh-only">多智能体 AI 协作的文件协议。让 AI agent 之间通过 markdown 文件协作。没有中间件、没有 SaaS、没有新基础设施要学。</p>
+    <p class="tagline en-only">The <strong>AI OS protocol layer</strong>. The agent runtime contract for filesystem-based collaboration — the POSIX of the AI OS, written by agents, readable by humans.</p>
+    <p class="tagline zh-only"><strong>AI OS 协议层</strong>。agent 在共享文件系统上协作的运行时契约——AI OS 里的 POSIX，由 agent 写、人正好看得懂。</p>
 
     <div class="hero-badges">
       <a href="https://github.com/joinwell52-AI/FCoP" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/joinwell52-AI/FCoP?style=flat-square&color=4dd0e1&label=GitHub&logo=github" alt="GitHub stars" /></a>
@@ -766,18 +766,18 @@
     <div class="eyebrow en-only">What is FCoP</div>
     <div class="eyebrow zh-only">什么是 FCoP</div>
     <h2>
-      <span class="en-only">A protocol so small the agents already obey it before being told.</span>
-      <span class="zh-only">一个小到 agent 不用被教就已经遵守的协议。</span>
+      <span class="en-only">FCoP is the protocol of agents. We discovered it; we did not invent it.</span>
+      <span class="zh-only">FCoP 是 agent 的协议。我们发现了他，而不是发明。</span>
     </h2>
     <div class="what-grid mt-32">
       <div>
-        <p class="en-only"><strong>FCoP</strong> is a minimal protocol that lets multiple AI agents — running in Cursor, Claude Code, plain shells, CI runners — collaborate through ordinary markdown files in a folder. Agents write <code>TASK-*.md</code> when they're starting work, <code>REPORT-*.md</code> when they're done, <code>ISSUE-*.md</code> when they need clarification.</p>
-        <p class="en-only">No message bus. No new framework. No vendor lock-in. The whole protocol is one document and four file conventions, MIT-licensed.</p>
-        <p class="en-only">It came out of <strong>field observation</strong>: agents kept inventing this exact pattern on their own, three independent times, across unrelated tasks. We just wrote down what they were already doing — then archived a Zenodo DOI for it.</p>
+        <p class="en-only"><strong>FCoP sits at the protocol layer of the AI OS stack</strong> — the same position as <strong>POSIX</strong> in Unix, <strong>OCI</strong> in container ecosystems, <strong>CRD</strong> in Kubernetes. It freezes the minimum semantic contract for seven core abstractions: <em>Agent, IPC, Encoding, Event, Failure, Boundary, Audit</em>.</p>
+        <p class="en-only">The encoding has <strong>two surfaces</strong>: an <em>IPC Surface</em> (TASK / REPORT / ISSUE / REVIEW — strongly typed) and an <em>Open Knowledge Surface</em> (<code>shared/</code> + <code>{ALL-CAPS-PREFIX}-{slug}.md</code> — vocabulary stays open so agents can invent their own sub-languages). Both happen to live as ordinary markdown in ordinary folders, so humans get to watch for free.</p>
+        <p class="en-only">The protocol came from <strong>field observation</strong>: across three independent dogfoods — unprompted off-task, conflict-forced, directly asked — agents kept inventing the same coordination pattern. v1.0 only writes down what they were already doing, then locks it under stability-charter rules ([ADR-0015](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)) and archives a Zenodo DOI.</p>
 
-        <p class="zh-only"><strong>FCoP</strong> 是一个极小的协议，让运行在 Cursor、Claude Code、普通 shell、CI runner 里的多个 AI agent，通过一个文件夹里的普通 markdown 文件互相协作。Agent 开始干活时写一份 <code>TASK-*.md</code>，干完写一份 <code>REPORT-*.md</code>，需要澄清写一份 <code>ISSUE-*.md</code>。</p>
-        <p class="zh-only">没有消息总线。没有新框架。没有 vendor lock-in。整个协议就是一份文档加四条文件命名约定，MIT 许可。</p>
-        <p class="zh-only">它来自<strong>现场观察</strong>：agent 自己在三次互不相干的场景里都不约而同地发明了这同一种模式。我们只是把它们已经在做的事写下来 —— 然后给它打了个 Zenodo DOI 备案。</p>
+        <p class="zh-only"><strong>FCoP 处于 AI OS 栈的协议层</strong>——位置等同于 Unix 的 <strong>POSIX</strong>、容器生态的 <strong>OCI</strong>、Kubernetes 的 <strong>CRD</strong>。它冻结 7 个核心抽象的最小语义契约：<em>Agent、IPC、Encoding、Event、Failure、Boundary、Audit</em>。</p>
+        <p class="zh-only">编码层有<strong>两个面</strong>：<em>IPC Surface</em>（TASK / REPORT / ISSUE / REVIEW，强类型）和 <em>Open Knowledge Surface</em>（<code>shared/</code> + <code>{ALL-CAPS-PREFIX}-{slug}.md</code>，词表完全开放，让 agent 自由发明子语言）。两个面恰好都落在普通文件夹里的普通 markdown 上，所以人正好白看得到。</p>
+        <p class="zh-only">协议本身来自<strong>现场观察</strong>：三次互不相干的 dogfood——自发触发、冲突逼出、直接问——agent 都在发明同一种协作模式。v1.0 只是把它们已经在做的事写下来，按 stability charter 锁住（[ADR-0015](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)），并打了 Zenodo DOI。</p>
       </div>
       <div>
         <img src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-mcp-tutorial-cover-v1.png" alt="FCoP-MCP architecture: ADMIN at a podium directing agents who exchange markdown files" class="what-img" />
@@ -800,8 +800,8 @@
       <span class="zh-only">90 秒内从零到一个 2-agent 团队。</span>
     </h2>
     <p class="text-dim" style="max-width:680px;">
-      <span class="en-only">Three steps. Tested on Cursor, but the protocol itself is host-neutral — any MCP-capable IDE or even <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.md">a plain shell</a> works.</span>
-      <span class="zh-only">三步。在 Cursor 上验证过，但协议本身是 host-neutral 的——任何支持 MCP 的 IDE 甚至 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.md">纯 shell</a> 都能用。</span>
+      <span class="en-only">Three steps. Tested on Cursor, but the protocol itself is host-neutral — any MCP-capable IDE or even <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md">a plain shell</a> works.</span>
+      <span class="zh-only">三步。在 Cursor 上验证过，但协议本身是 host-neutral 的——任何支持 MCP 的 IDE 甚至 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.md">纯 shell</a> 都能用。</span>
     </p>
 
     <div class="qs-grid">

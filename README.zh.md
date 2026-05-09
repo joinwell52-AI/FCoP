@@ -5,18 +5,18 @@
 <h1 align="center">FCoP — 文件驱动的 Agent 协作协议</h1>
 
 <p align="center">
-  <em>一套极简协议，让多个 AI Agent 透过<strong>共享文件系统</strong>协作。</em><br/>
-  <strong>核心创新：<code>Filename as Protocol</code>（文件名即协议）</strong>
+  <em><strong>AI OS 协议层</strong>——agent 在共享文件系统上协作的运行时契约。</em><br/>
+  <strong>核心不变量：<code>Filename as Protocol</code>（文件名即协议）·文件夹就是消息总线</strong>
 </p>
 
 <p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 项目主页</a></strong> ·
   <a href="README.md">English</a> ·
-  <a href="primer/fcop-primer.md">60 秒入门</a> ·
+  <a href="docs/getting-started.md">上手 FCoP</a> ·
   <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
   <a href="essays/fcop-natural-protocol.md">自然协议</a> ·
   <a href="spec/fcop-spec.md">规范入口</a> ·
-  <a href="docs/fcop-standalone.md">纯 FCoP 说明</a>
+  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 章程</a>
 </p>
 
 <p align="center">
@@ -36,6 +36,27 @@
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
 </p>
+
+---
+
+## FCoP 在协议栈里的位置
+
+FCoP 是 **AI OS 栈中的协议层**——位置等同于 Unix 的 **POSIX**、容器生态的 **OCI**、Kubernetes 的 **CRD**：
+
+```
+Application       CodeFlow / Cursor / Claude Desktop          ← 业务产品
+Host Adapter      fcop-mcp / fcop-cli / @fcop/claude          ← libc 的位置
+★ FCoP Protocol ★ Agent / IPC / Encoding / Event /            ← POSIX 的位置
+                  Failure / Boundary / Audit                     这就是 FCoP
+Reference Impl    fcop (Python lib)                           ← 协议参考实现
+Kernel Primitives LLM API / Filesystem / Process Mgr          ← AI OS 内核
+```
+
+> **FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。** —— [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
+
+v1.0 这条线**冻结**上述 7 个核心抽象的最小语义契约。spec 锁死、encoding 留白：*IPC Surface*（TASK / REPORT / ISSUE / REVIEW）强类型；*Open Knowledge Surface*（`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`）词表完全开放，让 agent 自由发明——见 [ADR-0021](adr/ADR-0021-encoding-abstraction.md)。
+
+→ **从这里开始**：[`docs/getting-started.md`](docs/getting-started.md) · [`docs/getting-started.en.md`](docs/getting-started.en.md)
 
 ---
 
