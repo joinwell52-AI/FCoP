@@ -114,6 +114,7 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0019](./ADR-0019-failure-and-recovery-semantics.md) | Failure & Recovery Semantics（v1.0 新增 · 协议本体次关键缺失） | Proposed | 2026-05-09 |
 | [ADR-0020](./ADR-0020-agent-boundary-and-capability.md) | Agent Boundary & Capability（取代 ADR-0010） | Proposed | 2026-05-09 |
 | [ADR-0021](./ADR-0021-encoding-abstraction.md) | Encoding Abstraction — Markdown as Reference Encoding（v1.0 新增） | Proposed | 2026-05-09 |
+| **[ADR-0022](./ADR-0022-workspace-directory-convention.md)** | **Workspace Directory Convention — `docs/agents/` → `fcop/`**（v1.0 breaking change，配自动迁移工具） | **Accepted** | 2026-05-09 |
 
 ## 工作流
 
