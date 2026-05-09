@@ -10,13 +10,46 @@ versioning strategy.
 
 ## [Unreleased]
 
-> 进入 v1.0.0 final 倒计时窗口。下列变更已落 main，等 final tag 时
-> 合入 `[1.0.0]` 段。1.0.0-rc.1 → 1.0.0 final 的 SemVer 政策 per
-> [ADR-0003](./adr/ADR-0003-stability-charter.md)：仅允许 bug fix /
-> 文档 / 内部重构 / additive deferred-from-RC 项；任何破坏 RC 已冻结
-> 的协议表面者 → bump 到 rc.2 重走 RC。
+_（无未发布项；上一段所有变更已并入 [1.0.0]。）_
 
-### Added — `fcop` library
+## [1.0.0] — 2026-05-09 — AI OS Protocol Layer (final)
+
+### 中文 TL;DR
+
+`fcop@1.0.0` 是把 0.7.x 的"AI 协作规则"完整升级为 **AI OS 协议层 /
+Agent Runtime Protocol** 的第一个稳定版。**协议表面与 `1.0.0-rc.1`
+按位相同**——本 final 仅在 RC 之上增量交付 ADR-0022 Phase 2
+（`Project.workspace_dir` 重构 + 4-detect + `workspace_layout`
+introspection property）+ `docs/MIGRATION-1.0.md` 用户向迁移指南
++ release notes finalize。7 抽象最小语义合约**永久冻结**，任何修改
+协议的变更要求 MAJOR bump 到 v2.x。
+
+### English TL;DR
+
+`fcop@1.0.0` is the first stable release that promotes 0.7.x's
+"AI collaboration rules" into a real **AI OS Protocol Layer /
+Agent Runtime Protocol**. **Protocol surface is bit-identical to
+`1.0.0-rc.1`** — this final ships only incremental deliverables
+on top of the RC: ADR-0022 Phase 2 (`Project.workspace_dir`
+refactor + 4-detect + `workspace_layout` introspection property),
+`docs/MIGRATION-1.0.md` user-facing migration guide, and release
+notes finalize. The minimum semantic contract of seven
+abstractions is **frozen forever**; any protocol-breaking change
+requires a MAJOR bump to v2.x.
+
+> **Status**: Final release. Any project that ran on
+> `1.0.0-rc.1` keeps running on `1.0.0` with zero changes; any
+> 0.7.x project can opt into v1.0 with `pip install --upgrade
+> fcop fcop-mcp` + an optional `fcop migrate-workspace --apply`
+> run.
+>
+> Full release notes: [`docs/releases/1.0.0.md`](./docs/releases/1.0.0.md).
+
+### Delta vs `1.0.0-rc.1`
+
+Only the items below are new since RC. Everything else is identical.
+
+#### Added — `fcop` library
 
 - **`Project.workspace_dir` Phase 2 改造 — ADR-0022 第二阶段全量
   落地**（TASK-20260509-012，commit `861713b`，per
@@ -63,7 +96,7 @@ versioning strategy.
     mcp test 与本改动无关；从 Phase 2 改造前的 954 passed 上涨
     +17）
 
-### Added — docs
+#### Added — docs
 
 - **`docs/MIGRATION-1.0.md` 用户向 0.7.x → 1.0 迁移指南**
   （TASK-20260509-013，per ADR-0022 §"Tests Checklist" 最后一项）。
@@ -75,8 +108,12 @@ versioning strategy.
 - **README.md / README.zh.md 头部加 v1.0 升级 callout**，与既有
   0.5.x → 0.6 callout 并列；指向 `docs/MIGRATION-1.0.md` +
   ADR-0022。
+- **`docs/releases/1.0.0.md` finalize**（commit `03810f4`）：去
+  DRAFT marker，重写为 final canonical release notes（双语 TL;DR
+  + 7-step release commands + annotated tag message template +
+  RC-issue 回链）。
 
-### Changed — `fcop-mcp` server
+#### Changed — `fcop-mcp` server
 
 - **init reply LETTER 路径动态化**（同 TASK-012，commit `861713b`）：
   `init_project` / `init_solo` / `create_custom_team` 三处 reply
@@ -85,6 +122,15 @@ versioning strategy.
   v1.0 default 项目看到 `fcop/LETTER-TO-ADMIN.md`，0.7.x legacy 项目
   仍看到 `docs/agents/LETTER-TO-ADMIN.md`，explicit override 项目
   看到自定义路径。
+
+#### Release plumbing
+
+- **Version bump**：`1.0.0rc1` → `1.0.0`
+  （`src/fcop/_version.py` + `mcp/src/fcop_mcp/_version.py`）
+- **`fcop-mcp` pin relax**：`fcop>=1.0.0rc1,<2.0` → `fcop>=1.0,<2.0`
+  （`mcp/pyproject.toml`），允许 v1.x MINOR 漂移
+- **CHANGELOG fold**：`[Unreleased]` → `[1.0.0]`，本段以下 RC delta
+  归档于此
 
 ## [1.0.0-rc.1] — 2026-05-09 — AI OS Protocol Layer release candidate
 
