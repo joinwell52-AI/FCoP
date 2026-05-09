@@ -227,7 +227,31 @@ def _extract_roles(
                     path=source,
                 )
             code = raw_code
+            # 0.7.x：把任何非 code 字段塞进 leftover 落到 _role_labels
+            # v1.0：layer / can / cannot 走同一路径 —— 无需新加 schema
+            # 字段；core/boundary.lookup_capability 从 _role_labels[code]
+            # 读 layer / can / cannot 字段，per TASK-005 §决议 1。
             leftover = {k: v for k, v in entry.items() if k != "code"}
+            # v1.0 boundary 字段类型校验（仅 shape，违规规则交给 boundary
+            # 模块的 lookup_capability raise）。
+            if "layer" in leftover and not isinstance(leftover["layer"], str):
+                raise ConfigError(
+                    f"fcop.json roles[{i}].layer must be a string",
+                    path=source,
+                )
+            for token_field in ("can", "cannot"):
+                if token_field in leftover:
+                    val = leftover[token_field]
+                    if val is None:
+                        continue
+                    if not isinstance(val, list) or any(
+                        not isinstance(t, str) for t in val
+                    ):
+                        raise ConfigError(
+                            f"fcop.json roles[{i}].{token_field} must be a "
+                            "list of strings",
+                            path=source,
+                        )
             if leftover:
                 labels[code] = leftover
         else:

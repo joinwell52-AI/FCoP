@@ -51,6 +51,12 @@ from fcop.core.frontmatter import (
     parse_task_frontmatter,
     split_frontmatter,
 )
+from fcop.core.boundary import (
+    BOUNDARY_RULES,
+    RULE_UNKNOWN_CAPABILITY,
+    lookup_capability,
+    validate_action,
+)
 from fcop.core.jsonschema_validator import (
     normalize_for_json,
     validate_envelope_frontmatter,
@@ -64,6 +70,7 @@ from fcop.core.schema import (
     validate_role_code,
 )
 from fcop.errors import (
+    BoundaryViolationError,
     ProjectAlreadyInitializedError,
     ProtocolViolation,
     TaskNotFoundError,
@@ -71,6 +78,8 @@ from fcop.errors import (
     ValidationError,
 )
 from fcop.models import (
+    BoundaryViolation,
+    Capability,
     DeploymentReport,
     DriftEntry,
     DriftReport,
@@ -2141,6 +2150,29 @@ class Project:
             raise ValueError("subject_ref must be a non-empty string")
         subject_ref = str(subject_ref).strip()
 
+        # v1.0 boundary 强制（per ADR-0020 + TASK-005 §决议 3）：
+        # 在写盘之前调 assert_boundary。target 角色仅当 subject 是
+        # TASK / REPORT 文件且能解析出 recipient 时才传——code_change
+        # / role_switch / 不存在的文件路径都跳过 target 检查（target
+        # 为 None 时 NO_WORKER_REVIEWS_GOVERNANCE 永不触发，是 conservative
+        # default）。assert_boundary 失败立即 raise，文件不会被创建。
+        target_role: str | None = None
+        if subject_type_enum in (ReviewSubjectType.TASK, ReviewSubjectType.REPORT):
+            target_role = self._infer_review_target_role(
+                subject_type_enum, subject_ref
+            )
+        try:
+            self.assert_boundary(
+                reviewer_role,
+                "review_decision",
+                target_role=target_role,
+            )
+        except (TaskNotFoundError, FileNotFoundError):
+            # project 未 initialized 时 self.config 抛 → 跳过 boundary
+            # （test 场景常出）。production 中 init 是 write_review 的
+            # 前置条件，此分支事实上不会命中。
+            pass
+
         date_str = date if date is not None else today_iso()
         slug = subject_short or _derive_review_subject_short(subject_ref)
         if not REVIEW_SUBJECT_SHORT_RE.fullmatch(slug):
@@ -2393,6 +2425,43 @@ class Project:
                     return entry, archived
         return None, False
 
+    def _infer_review_target_role(
+        self,
+        subject_type: ReviewSubjectType,
+        subject_ref: str,
+    ) -> str | None:
+        """从 REVIEW 的 subject_ref 推断被评对象的 role code（boundary 用）。
+
+        语义：subject 是某个 envelope 文件，它的 ``sender`` 字段标识
+        了"谁产出了它"——boundary 检查时这就是 review 的 target role。
+
+        - TASK：sender = 派任务的人 → target_role = sender
+        - REPORT：sender = 写报告的人 → target_role = sender
+        - role_switch / code_change / 不存在的路径 → ``None``
+
+        无法解析时返回 ``None``（不抛错；review 仍会被写入，只是不
+        触发 NO_WORKER_REVIEWS_GOVERNANCE 检查——这是 conservative
+        default：信息不足时不挡）。
+        """
+        if subject_type not in (ReviewSubjectType.TASK, ReviewSubjectType.REPORT):
+            return None
+        if not subject_ref:
+            return None
+        # subject_ref 可能是绝对路径、相对项目根的相对路径、或 task_id
+        # 短手；只有"能落到一个真实文件"时才查 frontmatter。
+        candidate = pathlib.Path(subject_ref)
+        if not candidate.is_absolute():
+            candidate = self._path / candidate
+        if not candidate.is_file():
+            return None
+        try:
+            text = candidate.read_text(encoding="utf-8")
+            raw_fm = parse_frontmatter_raw(text)
+        except Exception:
+            return None
+        sender = raw_fm.get("sender") or raw_fm.get("from")
+        return str(sender).strip() if sender else None
+
     @staticmethod
     def _coerce_review_decision(value: str | ReviewDecision) -> ReviewDecision:
         """Strict coerce —— 拒绝 v1.2 推迟值（needs_human）以及任何未知值。"""
@@ -2444,6 +2513,85 @@ class Project:
         raise TypeError(
             f"subject_type must be str or ReviewSubjectType, got {type(value).__name__}"
         )
+
+    # ── Boundary (v1.0 / Capability) ──────────────────────────────────
+    #
+    # ADR-0020 4 条规则的 user-facing 入口。判定逻辑在
+    # :mod:`fcop.core.boundary`；本层只把 fcop.json 角色查 →
+    # validate_action 调 → 整合违规列表 / raise 包好。
+    #
+    # 设计原则（per TASK-005 §决议 3）：
+    # - opt-in 显式查询：boundary_violations 永不 raise，返回列表
+    # - opt-in 守门 wrapper：assert_boundary 违规即 raise
+    # - v1.0 仅 write_review 主动接 assert_boundary（reviewer →
+    #   review_decision → subject 角色）；write_task / write_report /
+    #   write_issue 维持 0.7.x 行为不变（v1.1 通过 enforce_boundary 参数
+    #   逐步引入）。
+
+    def boundary_violations(
+        self,
+        actor_role: str,
+        action: str,
+        *,
+        target_role: str | None = None,
+    ) -> list[BoundaryViolation]:
+        """查询 actor 执行 action（可选 target）的 boundary 违规。
+
+        永不 raise（除非 fcop.json 本身畸形）。空列表 ≡ 该操作允许。
+
+        Args:
+            actor_role: 主语角色 code。必须已通过 role-code 校验
+                （allow_reserved=True，即 ADMIN / SYSTEM 也可）。
+            action: capability token（如 ``"review_decision"`` /
+                ``"spawn_agent"`` / ``"modify_code"``）。词表外 token
+                会得到一条 severity="warning" 的 UNKNOWN_CAPABILITY 记录。
+            target_role: 可选；review_decision 等需要受影响方的动作传。
+
+        Returns:
+            :class:`BoundaryViolation` 列表（可能是 error / warning 混合）。
+
+        Raises:
+            ConfigError: project 未 initialized 或 fcop.json 缺失。
+            BoundaryViolationError: 仅在 fcop.json 把某 role 显式声明
+                为 ``layer: "admin"`` 时（NO_ADMIN_PROGRAMMATIC_CREATE
+                由 ``lookup_capability`` 直接 raise，不进列表）。
+        """
+        cfg = self.config
+        actor = lookup_capability(actor_role, cfg)
+        target = (
+            lookup_capability(target_role, cfg)
+            if target_role is not None
+            else None
+        )
+        return validate_action(actor, action, target=target)
+
+    def assert_boundary(
+        self,
+        actor_role: str,
+        action: str,
+        *,
+        target_role: str | None = None,
+    ) -> None:
+        """守门 wrapper：违规（severity=error）即 raise。
+
+        Warning 级别（如 UNKNOWN_CAPABILITY）不 raise，只在
+        :meth:`boundary_violations` 返回里可见。
+
+        Raises:
+            BoundaryViolationError: 违规列表包含至少一条 severity="error"。
+        """
+        violations = self.boundary_violations(
+            actor_role, action, target_role=target_role
+        )
+        errors = [v for v in violations if v.severity == "error"]
+        if errors:
+            details = "; ".join(f"{v.rule_id}: {v.message[:200]}" for v in errors)
+            raise BoundaryViolationError(
+                f"boundary check failed for {actor_role!r} → {action!r}"
+                + (f" → {target_role!r}" if target_role else "")
+                + f": {details}",
+                violations=errors,
+            )
 
     # ── Suggestions ───────────────────────────────────────────────────
 

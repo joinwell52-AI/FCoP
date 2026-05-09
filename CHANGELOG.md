@@ -55,6 +55,40 @@ versioning strategy.
   `report_id`（0.7.x 字段别名），仍推荐新文件用 `ref_task`；新增
   `task_id` / `session_id` 为已知可选字段。
 
+### Added — `fcop` library（TASK-005 / Boundary 抽象）
+
+- **`fcop.core.boundary` 模块**（per ADR-0020）。10 token v1.0
+  capability 词表、3 layer × 默认 bundle、4 条 normative boundary
+  规则（NO_ADMIN_PROGRAMMATIC_CREATE / NO_GOVERNANCE_FISSION /
+  NO_WORKER_REVIEWS_GOVERNANCE / EXPLICIT_OVERRIDES_LAYER）+ 1 条
+  advisory（UNKNOWN_CAPABILITY warning）+ `lookup_capability(role,
+  config)` / `validate_action(actor, action, target=)` 公开函数。
+- **`Project.boundary_violations` / `Project.assert_boundary` 公开
+  方法**。前者返回 `BoundaryViolation` 列表（永不 raise），后者
+  违规即 raise `BoundaryViolationError`。warning 级别（如
+  UNKNOWN_CAPABILITY）不进 raise。
+- **`AgentLayer` / `Capability` / `BoundaryViolation` dataclasses +
+  `BoundaryViolationError` 异常**从顶层 `fcop` 包导出。
+- **`Project.write_review` 接进 boundary 强制**——reviewer →
+  `review_decision` → 推断的 subject sender role 走 `assert_boundary`，
+  违规即 raise，文件不创建。这是 v1.0 第一个**默认强制 boundary**
+  的写入路径；write_task / write_report / write_issue **不**接
+  （0.7.x 兼容性，留给 v1.1 通过 `enforce_boundary` 参数 opt-in）。
+- **`fcop.json.roles` 接受 dict-form `layer` / `can` / `cannot` 字段**。
+  解析后落进 `TeamConfig.extra["_role_labels"][code]`，
+  `lookup_capability` 从这条路径读。`layer` 类型必须 string，
+  `can` / `cannot` 必须 list[str] 或 null。**不引入 `Role` dataclass
+  以保 ADR-0003 additive-only**（per TASK-005 §决议 1）。
+- **`tests/test_fcop/test_boundary.py` × 25 用例**：词表对齐 schema、
+  4 规则各 ≥ 2 用例、layer 默认与 ADR §decision 表对照、
+  EXPLICIT_OVERRIDES_LAYER 优先级、UNKNOWN_CAPABILITY warning。
+- **`tests/test_fcop/test_project_boundary.py` × 14 用例**：
+  Project.boundary_violations / assert_boundary / write_review 端到端
+  + admin layer 拒收。
+- **`tests/test_fcop/test_core_config_role_capability.py` × 10 用例**：
+  dict-form roles 的 layer/can/cannot 解析 / round-trip / 类型校验
+  / string-form backward compat。
+
 ### Added — packaging
 
 - `pyproject.toml` `tool.hatch.build.targets.wheel` `include` glob 加
