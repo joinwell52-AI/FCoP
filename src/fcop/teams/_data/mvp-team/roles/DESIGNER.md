@@ -21,7 +21,7 @@ updated_at: 2026-04-17
 
 ### 第 1 步：先写 task
 
-在动手之前，**第一动作**是把"做什么"落到 `docs/agents/tasks/`：
+在动手之前，**第一动作**是把"做什么"落到 `fcop/tasks/`：
 
 - 作为 leader 接到 `ADMIN` 的需求 → 写
   `TASK-YYYYMMDD-NNN-ADMIN-to-DESIGNER.md`

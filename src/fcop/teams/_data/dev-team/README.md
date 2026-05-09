@@ -69,7 +69,7 @@ ADMIN  ──发需求──▶  PM  ──派任务──▶  DEV
 > 用预设团队 `dev-team` 初始化项目。
 
 Agent 会调 `init_project(team="dev-team", lang="zh")`,把本目录的三层文档部署到
-`docs/agents/shared/`,并建好 `fcop.json`。
+`fcop/shared/`,并建好 `fcop.json`。
 
 ### 情况 B:Agent 被指派为本团队的某个角色
 

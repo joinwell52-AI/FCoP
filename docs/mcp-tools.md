@@ -39,7 +39,7 @@
 
 | 工具 | 用途 | 关键参数 |
 |---|---|---|
-| `init_project` | 用**预设团队**模板初始化：`dev-team` / `media-team` / `mvp-team` / `qa-team`。建立 `docs/agents/` 五目录、写 `fcop.json`、把规则注入 `.cursor/rules/`、部署三层文档。**幂等**。 | `team`（默认 `dev-team`）、`lang` |
+| `init_project` | 用**预设团队**模板初始化：`dev-team` / `media-team` / `mvp-team` / `qa-team`。建立 `fcop/` 五目录、写 `fcop.json`、把规则注入 `.cursor/rules/`、部署三层文档。**幂等**。 | `team`（默认 `dev-team`）、`lang` |
 | `init_solo` | **Solo 模式**：单 AI 角色直接对 ADMIN，不做派发；Rule 0.b 仍生效（用文件做提议-审阅自审）。 | `role_code`（默认 `ME`）、`role_label`、`lang` |
 | `create_custom_team` | **自定义角色**初始化。角色名进文件名、进权限。**强烈建议先 `validate_team_config` 干跑**。 | `team_name`、`roles`（逗号分隔）、`leader`、`lang` |
 | `validate_team_config` | **不写盘**地校验自定义团队（中文字符、保留名、`leader` 不在 `roles` 等） | `roles`、`leader` |
@@ -49,7 +49,7 @@
 
 ## 3. 任务流（tasks/）
 
-任务文件在 `docs/agents/tasks/`，命名 `TASK-YYYYMMDD-NNN-{SENDER}-to-{RECIPIENT}.md`。
+任务文件在 `fcop/tasks/`，命名 `TASK-YYYYMMDD-NNN-{SENDER}-to-{RECIPIENT}.md`。
 
 | 工具 | 用途 | 关键参数 |
 |---|---|---|
@@ -57,7 +57,7 @@
 | `read_task` | 读任务全文（含归档）。 | `filename`（文件名或纯 `TASK-…-NNN`） |
 | `list_tasks` | 按发件人 / 收件人 / 状态 / 日期过滤；带分页。 | `sender`、`recipient`、`status`（`open` / `archived` / `all`）、`date`、`limit`、`offset` |
 | `inspect_task` | **离线校验** schema 与「文件名↔frontmatter」一致性（典型：文件名说 `to-DEV` 但正文是 `recipient: QA`）。 | `filename` |
-| `archive_task` | 把已完成任务（含同名报告）一起搬到 `docs/agents/log/`。 | `task_id` |
+| `archive_task` | 把已完成任务（含同名报告）一起搬到 `fcop/log/`。 | `task_id` |
 
 ---
 
@@ -89,7 +89,7 @@
 | 工具 | 用途 | 关键参数 |
 |---|---|---|
 | `get_team_status` | 项目状态快照：是否初始化、团队/leader、open task / report / issue 数、最近 5 条活动。 | `lang` |
-| `deploy_role_templates` | 部署 / 刷新 `docs/agents/shared/` 里的 `TEAM-README` + `TEAM-ROLES` + `TEAM-OPERATING-RULES` 与角色档案。`force=True` 时**先归档**到 `.fcop/migrations/<时间戳>/` 再覆盖（可逆）。 | `team`、`lang`、`force`（默认 `True`） |
+| `deploy_role_templates` | 部署 / 刷新 `fcop/shared/` 里的 `TEAM-README` + `TEAM-ROLES` + `TEAM-OPERATING-RULES` 与角色档案。`force=True` 时**先归档**到 `.fcop/migrations/<时间戳>/` 再覆盖（可逆）。 | `team`、`lang`、`force`（默认 `True`） |
 | `new_workspace` | 在 `workspace/<slug>/` 下建工作目录，**不要把代码写到项目根**。幂等，二次调用更新元数据。**0.6.5 起**：若当前没有任何开放 `TASK-*.md` 的 `subject` / `body` / `references` 提到这个 slug，工具返回头部会**预置一段 Rule 0.a.1 提醒**——建议先 `write_task` 把"要做什么"落文件，再开工作区动手。提醒不阻塞，工作区照常创建（合法的离线 / 实验流程不破坏）。 | `slug`（`^[a-z][a-z0-9-]*$`、≤ 40）、`title`、`description` |
 | `list_workspaces` | 列出现有 `workspace/<slug>/`（含手动建的）。 | `lang` |
 
@@ -122,7 +122,7 @@
 | URI | MIME | 内容 |
 |---|---|---|
 | `fcop://status` | `text/markdown` | 与 `get_team_status()` 一致的项目状态快照 |
-| `fcop://config` | `application/json` | `docs/agents/fcop.json` 原文（未初始化返回 `{"initialized": false, …}`） |
+| `fcop://config` | `application/json` | `fcop/fcop.json` 原文（未初始化返回 `{"initialized": false, …}`） |
 | `fcop://rules` | `text/markdown` | 协议规则正文（`fcop-rules.mdc`） |
 | `fcop://protocol` | `text/markdown` | 协议解释（`fcop-protocol.mdc`） |
 | `fcop://letter/zh` | `text/markdown` | 《FCoP 致 ADMIN 的一封信》中文版 |
@@ -139,7 +139,7 @@
 ## 10. 一些常被问到的细节
 
 **项目根是怎么找到的？**  
-`set_project_dir` → `FCOP_PROJECT_DIR` → 历史变量 `CODEFLOW_PROJECT_DIR`（弃用警告）→ 向上找 `docs/agents/fcop.json` / `fcop-rules.mdc` / `docs/agents/tasks/` → 当前 cwd。  
+`set_project_dir` → `FCOP_PROJECT_DIR` → 历史变量 `CODEFLOW_PROJECT_DIR`（弃用警告）→ 向上找 `fcop/fcop.json` / `fcop-rules.mdc` / `fcop/tasks/` → 当前 cwd。  
 详见 [`mcp/README.md`](../mcp/README.md) 与 [ADR-0003](../adr/ADR-0003-stability-charter.md)。
 
 **ADMIN / leader / 角色谁是谁？**  

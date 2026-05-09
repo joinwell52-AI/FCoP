@@ -33,7 +33,7 @@ This essay documents what those agents did, why a filesystem-only protocol survi
 **What it looks like**:
 
 ```
-docs/agents/
+fcop/
 ├── tasks/     ← pending tasks
 ├── reports/   ← completion reports
 ├── issues/    ← issues
@@ -102,7 +102,7 @@ The initial spec was almost too simple to bother writing down. Three things at t
 **① Shared directory layout**
 
 ```
-docs/agents/
+fcop/
 ├── tasks/     ← task files
 ├── reports/   ← completion reports
 ├── issues/    ← issue logs
@@ -184,7 +184,7 @@ No DEV, no QA, no OPS — even the role names are project-specific. The spec nev
 Two days in, `docs/agents/` really looks like this (excerpt; headline numbers: 42 tasks + 22 reports + 10 standing documents):
 
 ```
-docs/agents/
+fcop/
 ├── BUILDER.md  DESIGNER.md  MARKETER.md  RESEARCHER.md    ← role manuals
 ├── fcop.json                                               ← team config
 ├── CURRENT-SPRINT-STATUS.md                                ← AI-invented

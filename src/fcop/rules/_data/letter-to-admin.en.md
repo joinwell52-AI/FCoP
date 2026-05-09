@@ -106,7 +106,7 @@ Tool call: `init_project(team="dev-team", lang="en")`
 preset ships a full template — `TEAM-README.md` (team positioning) +
 `TEAM-ROLES.md` (role boundaries) + `TEAM-OPERATING-RULES.md`
 (operating rules) + `roles/{ROLE}.md` (single-role depth), bilingual.
-`init_project` drops everything under `docs/agents/shared/` so an
+`init_project` drops everything under `fcop/shared/` so an
 agent just assigned a role reads its own `roles/{ROLE}.md` for
 responsibilities and the two top-level files for shared rules — no
 need for you to spell anything out. The three-layer structure is a
@@ -194,7 +194,7 @@ Tomorrow you need DEV. Open a new Cursor window, say:
 > **"You are DEV on dev-team"** (optionally with `, thread feature_login`)
 
 The two windows **do not chat with each other** — they coordinate
-through files under `docs/agents/tasks/`.
+through files under `fcop/tasks/`.
 
 ### ⚠️ One role, one agent (FCoP enforces this automatically since 0.7.0)
 
@@ -205,7 +205,7 @@ through files under `docs/agents/tasks/`.
 2. **The same role code cannot be assigned to multiple agents
    simultaneously** — don't tell two Cursor windows "you are ME", and
    don't tell two windows "you are PM". Those two agents will fight
-   over the same filename space under `docs/agents/tasks/`, `reports/`,
+   over the same filename space under `fcop/tasks/`, `reports/`,
    `issues/`, breaking Rule 0.b's self-review mechanism and Rule 4's
    role routing.
 
@@ -342,7 +342,7 @@ concrete reason.
 
 ```
 project root/
-├── docs/agents/                      ← Coordination metadata (who does what)
+├── fcop/                      ← Coordination metadata (who does what)
 │   ├── fcop.json                     ← Project identity (mode / roles / leader)
 │   ├── tasks/                        ← Tasks in flight
 │   ├── reports/                      ← Completion reports
@@ -530,7 +530,7 @@ agent forgets what to do, you can spot it and nudge it back.
 | "validate this team config before creating it" | `validate_team_config("MANAGER,CODER", "MANAGER")` | Dry-run check, returns suggestions on error |
 | "what team presets exist?" | `get_available_teams()` | Lists Solo / dev-team / media-team / mvp-team / qa-team |
 | "upgrade the team docs to the three-layer set" / "switch to qa-team templates" | `deploy_role_templates(team="qa-team")` | Legacy files archived to `.fcop/migrations/<timestamp>/`; fresh three-layer set lands under `shared/` |
-| "let me re-read the manual" | Reads `fcop://letter/en` or opens `docs/agents/LETTER-TO-ADMIN.md` | Re-renders this letter |
+| "let me re-read the manual" | Reads `fcop://letter/en` or opens `fcop/LETTER-TO-ADMIN.md` | Re-renders this letter |
 
 ### The only 2 tool names you might actually type
 
@@ -694,7 +694,7 @@ directly.
   `.fcop/proposals/` without polluting the collaboration directory
 - Want to switch templates → one line: "re-initialize with `{team}`"
 - Want to re-read this letter → `fcop://letter/en` or
-  `docs/agents/LETTER-TO-ADMIN.md`
+  `fcop/LETTER-TO-ADMIN.md`
 
 Welcome aboard.
 

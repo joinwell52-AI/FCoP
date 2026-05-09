@@ -65,7 +65,7 @@ ADMIN ──发选题──▶  PUBLISHER ──派采集──▶  COLLECTOR
 > 用预设团队 `media-team` 初始化项目。
 
 Agent 会调 `init_project(team="media-team", lang="zh")`,把本目录的三层文档部署到
-`docs/agents/shared/`,并建好 `fcop.json`。
+`fcop/shared/`,并建好 `fcop.json`。
 
 ### Agent 被指派为本团队的某个角色
 

@@ -33,7 +33,7 @@ This essay documents what those agents did, why a filesystem-only protocol survi
 **它长什么样 / How it looks**：
 
 ```
-docs/agents/
+fcop/
 ├── tasks/     ← 待办任务 / pending tasks
 ├── reports/   ← 完成回执 / completion reports
 ├── issues/    ← 问题登记 / issues
@@ -102,7 +102,7 @@ TASK-{date}-{seq}-{sender}-to-{recipient}.md
 **① 共享目录结构**
 
 ```
-docs/agents/
+fcop/
 ├── tasks/     ← 任务单
 ├── reports/   ← 完成回执
 ├── issues/    ← 问题登记
@@ -184,7 +184,7 @@ priority: P1
 两天之后，`docs/agents/` 真实目录长这样（节选，统计口径：tasks 42 个 + reports 22 个 + 常驻文档 10 个）：
 
 ```
-docs/agents/
+fcop/
 ├── BUILDER.md  DESIGNER.md  MARKETER.md  RESEARCHER.md    ← 角色手册
 ├── fcop.json                                               ← 团队配置
 ├── CURRENT-SPRINT-STATUS.md                                ← AI 自己发明

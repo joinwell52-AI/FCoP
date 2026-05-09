@@ -76,7 +76,7 @@ Tell the agent in plain English:
 > Initialize this project in solo mode, role code `ME`.
 
 The agent will call `init_solo(role_code="ME", lang="en")`, deploying the
-three-layer documents into `docs/agents/shared/`, plus
+three-layer documents into `fcop/shared/`, plus
 `fcop.json` / `LETTER-TO-ADMIN.md` / `workspace/`.
 
 ### Case B: An agent has been assigned the `ME` role

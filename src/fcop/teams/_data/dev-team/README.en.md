@@ -79,7 +79,7 @@ Tell the agent in one sentence:
 > Initialize the project with the preset team `dev-team`.
 
 The agent will call `init_project(team="dev-team", lang="en")`, deploy
-the three-layer docs into `docs/agents/shared/`, and set up `fcop.json`.
+the three-layer docs into `fcop/shared/`, and set up `fcop.json`.
 
 ### B. An agent has been assigned a role in this team
 

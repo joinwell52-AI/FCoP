@@ -36,7 +36,7 @@ file protocol.
 
 When ADMIN says something in chat, the **first action** is calling
 `write_task` to file
-`docs/agents/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`:
+`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`:
 
 ```
 write_task(
@@ -65,7 +65,7 @@ file naming, since ADMIN is the protocol input end; the body should say
 ### Step 3: Write the report
 
 Call `write_report` to file
-`docs/agents/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`. The report
+`fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`. The report
 must include:
 
 - Status: `done` / `in_progress` / `blocked`

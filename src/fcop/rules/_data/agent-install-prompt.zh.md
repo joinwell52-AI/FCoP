@@ -55,5 +55,5 @@
 里 agent 会先调 `fcop_report()`，输出会包含**三选一**清单——你选完，agent 才
 能调对应的 `init_*` 工具。
 
-更细的解读看仓库里的 `docs/agents/LETTER-TO-ADMIN.md`，那是 fcop 给 ADMIN
+更细的解读看仓库里的 `fcop/LETTER-TO-ADMIN.md`，那是 fcop 给 ADMIN
 的完整说明书。

@@ -63,7 +63,7 @@ Don't want a preset? Use `init_custom(team_name="...", roles="...",
 leader="...")` to roll your own. FCoP ships **no templates** for custom
 teams, but the recommended path is: agent reads the closest preset (full
 bundle from `fcop://teams/<closest-preset>`), renames the roles, and
-writes the result into `docs/agents/shared/`. This matches the
+writes the result into `fcop/shared/`. This matches the
 letter-to-admin.md section "custom teams have no charter; copy a sample".
 
 ## How to use
@@ -77,7 +77,7 @@ One sentence to the agent:
 > Initialize the project with the preset team `<team-id>`.
 
 Agent calls `init_project(team="<team-id>", lang="en" or "zh")`. The
-three-layer docs are deployed to `docs/agents/shared/`, and `fcop.json`
+three-layer docs are deployed to `fcop/shared/`, and `fcop.json`
 is set up.
 
 ### B. Existing project — deploy or upgrade role docs only
@@ -107,9 +107,9 @@ All URIs accept a language suffix: `?lang=zh` (default) or `?lang=en`.
 
 ## Not in here
 
-- Real task files (`TASK-*.md`) — produced at runtime, live in `docs/agents/tasks/`.
+- Real task files (`TASK-*.md`) — produced at runtime, live in `fcop/tasks/`.
 - Real reports / issues (`REPORT-*.md` / `ISSUE-*.md`) — same.
-- Project-specific norms — put them in the project's own `docs/agents/shared/`,
+- Project-specific norms — put them in the project's own `fcop/shared/`,
   don't modify these bundled templates.
 
 The goal of this template library is to make FCoP **work out of the box**,

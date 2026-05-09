@@ -64,5 +64,5 @@ restarts, in a new chat the agent will first call `fcop_report()`,
 whose output includes a **3-way choice**. You pick, then the agent
 can invoke the matching `init_*` tool.
 
-For the full reasoning, read `docs/agents/LETTER-TO-ADMIN.md` in your
+For the full reasoning, read `fcop/LETTER-TO-ADMIN.md` in your
 project — that's fcop's complete manual for ADMIN.

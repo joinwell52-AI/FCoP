@@ -18,7 +18,7 @@ pip install fcop
 Runtime: **Python 3.10+** and **PyYAML** only — no `fastmcp`, no `websockets`, no LLM SDK.
 
 `fcop` gives you a **`Project` API** for creating and maintaining
-`docs/agents/` (tasks, reports, issues, `fcop.json`, team templates) and
+`fcop/` (tasks, reports, issues, `fcop.json`, team templates) and
 reading/writing the protocol’s Markdown+YAML files. The normative **rules
 files** for agents (`fcop-rules.mdc`, `fcop-protocol.mdc`) ship inside the
 package and can be written into a repo by `init` / `deploy` flows.

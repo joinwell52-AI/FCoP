@@ -72,7 +72,7 @@ solo 用回成 "AI 自由发挥"。
 > 用 solo 模式初始化项目，角色代码叫 `ME`。
 
 Agent 会调 `init_solo(role_code="ME", lang="zh")`，把本目录的三层文档部署到
-`docs/agents/shared/`，并建好 `fcop.json` / `LETTER-TO-ADMIN.md` /
+`fcop/shared/`，并建好 `fcop.json` / `LETTER-TO-ADMIN.md` /
 `workspace/`。
 
 ### 情况 B：Agent 被指派为本团队的 `ME`

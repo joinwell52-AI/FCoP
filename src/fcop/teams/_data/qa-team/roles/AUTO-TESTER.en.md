@@ -24,7 +24,7 @@ updated_at: 2026-04-17
 ### Step 1 — write the task first
 
 Before doing anything, the **first action** is to land "what we're
-about to do" under `docs/agents/tasks/`:
+about to do" under `fcop/tasks/`:
 
 - Acting as leader receiving an `ADMIN` request → write
   `TASK-YYYYMMDD-NNN-ADMIN-to-AUTO-TESTER.md`.

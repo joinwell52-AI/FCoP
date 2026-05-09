@@ -31,7 +31,7 @@ updated_at: 2026-04-26
 ### 第 1 步：先写 task
 
 收到 ADMIN 在聊天里说的需求，**第一动作**是调 `write_task` 落
-`docs/agents/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
+`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
 
 ```
 write_task(
@@ -56,7 +56,7 @@ write_task(
 
 ### 第 3 步：再写 report
 
-调 `write_report` 落 `docs/agents/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
+调 `write_report` 落 `fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
 回执必须包含：
 
 - 状态：`done` / `in_progress` / `blocked`
