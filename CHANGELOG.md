@@ -10,6 +10,66 @@ versioning strategy.
 
 ## [Unreleased]
 
+_（无未发布项；上一段所有变更已并入 [1.0.0-rc.1]。）_
+
+## [1.0.0-rc.1] — 2026-05-09 — AI OS Protocol Layer release candidate
+
+> **Status**: Release candidate. Protocol surface frozen; only bug fixes
+> + non-protocol release tooling will land before final `1.0.0`.
+>
+> 7 抽象 reference-impl wiring **100% 完成**。这是 `fcop@1.x` 系列的
+> 第一个候选发车版本——把 0.7.x 的"AI 协作规则"完整升级为
+> **AI OS Protocol Layer / Agent Runtime Protocol**。
+
+### Highlights
+
+- **协议本体重 framing**：FCoP 不再是"协作规则"，而是 **AI OS 的 POSIX
+  层** —— 7 核心抽象（Agent / IPC / Encoding / Event / Failure /
+  Boundary / Audit）的最小语义合约（per ADR-0015）。
+- **7 份 JSON Schema** v1.0 frozen 在 `spec/schemas/`，作为协议唯一
+  真相（per ADR-0016）。schemas 通过 `referencing.Registry` 跨文件
+  解析 `$ref`；wheel 内副本 byte-identical 守门。
+- **4 类 IPC envelope** 全落地：TASK / REPORT / ISSUE / **REVIEW**
+  （新增 v1.0 Audit 抽象，per ADR-0017；4 值 decision，
+  `needs_human` 刻意推迟 v1.2）。
+- **Failure & Recovery 语义**（per ADR-0019）：4 类失败枚举（TIMEOUT
+  / CRASH / DEADLOCK / DRIFT）+ 5 类恢复枚举（RETRY / RESUME /
+  ROLLBACK / ABORT / ESCALATE）+ Session 恢复 hook。RETRY/RESUME/
+  ROLLBACK 是 plan-only（不引入 git 依赖）；ABORT/ESCALATE 实际写盘。
+- **Boundary 抽象**（per ADR-0020）：10 token capability 词表 +
+  3 layer 默认 bundle（worker / governance / admin）+ 4 条 normative
+  规则（NO_ADMIN_PROGRAMMATIC_CREATE / NO_GOVERNANCE_FISSION /
+  NO_WORKER_REVIEWS_GOVERNANCE / EXPLICIT_OVERRIDES_LAYER）。
+- **Event Model**（per ADR-0018）：12 事件枚举 + polling watcher
+  reference impl（pure functions，不引入后台线程；caller 显式调
+  `Project.poll_once`）+ 同步 callback 触发。事件不持久化，仅在
+  订阅瞬间发出。
+- **公开 API 增量约 30 项**，全 additive：从 `fcop` 顶层可 import
+  `Review` / `Failure` / `Recovery` / `Event` / `EventSubscription`
+  / `BoundaryViolation` / 12 个 Action/Type enum / `Project` 方法
+  `write_review` / `report_failure` / `apply_recovery` /
+  `recover_session` / `assert_boundary` / `subscribe_events` /
+  `poll_once` 等。详细清单见上一段每个 TASK 的子 section。
+- **0.7.x 100% 兼容**：所有 0.7.x TASK / REPORT / ISSUE 文件不动可用；
+  `Project(workspace_dir="docs/agents/")` 显式传永远合法（escape
+  hatch 永久保留，per ADR-0022）；既有公开 API 全部不变；
+  `_emit_event_stub` 设计为 bridge，TASK-006 22 个测试零修改通过。
+- **测试规模**：从 0.7.2 的约 600 用例增长到 871（仅 fcop 库；
+  fcop-mcp 65 个）。
+
+### Stats — 7 抽象 reference-impl wiring 集成总账
+
+| 任务 | commits | 文件次 | +/- | 测试用例 |
+|---|---|---|---|---|
+| TASK-002（reframing） | 6 | ~30 | ~+3500 / ~-150 | 文档 |
+| TASK-003（schema 物化） | 2 | ~20 | ~+1500 / 0 | 116 |
+| TASK-004（schema 校验器 + REVIEW） | 3 | 35 | +3885 / -8 | 58 |
+| TASK-005（Boundary） | 4 | 17 | +1731 / -16 | 49 |
+| TASK-006（Failure） | 4 | 15 | +2476 / -23 | 46 |
+| TASK-007（Event） | 4 | 17 | +2277 / -54 | 43 |
+
+详细每一段的子条目见下面（按 TASK 时间倒序）。
+
 ### Added — `fcop` library
 
 - **Event 抽象端到端 — v1.0 7 抽象闭合最后一环**（TASK-20260509-007

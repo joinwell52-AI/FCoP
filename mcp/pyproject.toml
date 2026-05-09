@@ -61,7 +61,7 @@ classifiers = [
 #   Kept as a runtime dep because the relay bridge is a first-class
 #   feature, not an optional extra.
 dependencies = [
-    "fcop>=0.7,<0.8",
+    "fcop>=1.0.0rc1,<2.0",
     "fastmcp>=3.2.0",
     "websockets>=12.0",
 ]
