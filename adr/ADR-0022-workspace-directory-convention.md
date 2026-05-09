@@ -114,13 +114,61 @@ ADR-0021 §Decision 表"Encoding Abstraction (协议本体)"加一行 "**workspa
 
 ## Tests Checklist
 
-- [ ] `tests/test_fcop/test_migrate_workspace.py`：dry run / --apply / 已迁移幂等 / git history 保留
-- [ ] `tests/test_fcop/test_project_init.py`：新项目 init 默认创建 `fcop/`
-- [ ] `tests/test_fcop/test_project_detect.py`：4 种 detect 场景（仅 fcop/、仅 docs/agents/、两者都有、两者都无）
-- [ ] `tests/test_fcop/test_project_detect.py`：detect 到 docs/agents/ 时打 warning 而不报错
-- [ ] `tests/test_fcop_mcp/test_init_tool.py`：MCP `init_project` tool 创建 `fcop/`
-- [ ] CHANGELOG.md `[1.0.0]` 段含 workspace 迁移条目
-- [ ] `MIGRATION-1.0.md` 必须有"Workspace 迁移"段（含命令 + 风险说明）
+- [x] `tests/test_fcop/test_migrate_workspace.py`：dry run / --apply / 已迁移幂等 / git history 保留（25 用例，2026-05-09 by ME，commit 见下方 Implementation 段）
+- [ ] `tests/test_fcop/test_project_init.py`：新项目 init 默认创建 `fcop/`（**deferred 到 v1.0 final 之前的独立 task**：见下方 v1.0 RC Implementation Notes）
+- [ ] `tests/test_fcop/test_project_detect.py`：4 种 detect 场景（仅 fcop/、仅 docs/agents/、两者都有、两者都无）（**deferred**，同上）
+- [ ] `tests/test_fcop/test_project_detect.py`：detect 到 docs/agents/ 时打 warning 而不报错（**deferred**，同上）
+- [ ] `tests/test_fcop_mcp/test_init_tool.py`：MCP `init_project` tool 创建 `fcop/`（**deferred**，同上）
+- [x] CHANGELOG.md `[1.0.0-rc.1]` 段含 workspace 迁移条目（commit 见下）
+- [ ] `MIGRATION-1.0.md` 必须有"Workspace 迁移"段（含命令 + 风险说明）（**deferred** 到 v1.0 final）
+
+## v1.0 RC Implementation Notes (2026-05-09)
+
+TASK-008 把 ADR-0022 拆成两阶段交付：
+
+**Phase 1 — v1.0.0-rc.1（本次落地）**
+
+- 完整交付 `fcop migrate-workspace` CLI（dry-run / `--apply` / `--target` /
+  `--source` / `--project-root`）
+- git-aware：检测到 git 工作区 + path 已 tracked 时自动用 `git mv`，
+  否则 fallback `shutil.move`
+- 幂等：`apply()` 在已迁移的 tree 上是 no-op
+- 安全：both-exist 时 `--apply` 退出码 2 并 ABORT，绝不合并
+- 留痕：移动后写 `MIGRATED_FROM_DOCS_AGENTS.md` 含时间戳 + 版本号
+- 顾问扫描：检测 `.gitignore` / `.cursor/rules/*.mdc` / `AGENTS.md` /
+  `CLAUDE.md` / `README*.md` 中的 `docs/agents` 字符串引用，**列出但不
+  自动改写**（per ADR-0022 §"Design Details" item 3 规避误伤用户文档）
+- `fcop` console-script entry 从 `_compat_cli:main` 升级为
+  `cli._main:main`：subcommand 派发器；`fcop`（无参）仍打印 0.5→0.6
+  legacy migration 信息以兼容历史
+
+**Phase 2 — v1.0.0 final 之前（deferred 到独立 task）**
+
+- `Project()` 构造加 `workspace_dir=` 参数 + 4 种 detect 场景
+- 把 `Project` 内 30+ 处 hard-coded `docs/agents/` 路径替换为
+  `self.workspace_dir / X`
+- `Project()` 默认在新 init 时创建 `fcop/`，老项目检测到 `docs/agents/`
+  打 DeprecationWarning
+- `MIGRATION-1.0.md`（用户向）
+
+理由：Phase 2 改动 `Project` 30+ 处路径会触动 600+ 既有测试；RC 期不
+应承担该范围风险。CLI 是 ADR-0022 §"Design Details" §自动迁移工具的
+核心交付物，独立可用，不依赖 Phase 2。
+
+## Implementation
+
+- **ME** — 2026-05-09 (commit `<TBD this commit>`):
+  - `src/fcop/cli/__init__.py`（新建）
+  - `src/fcop/cli/_main.py`（新建，subcommand 派发器 + 0.5→0.6 legacy
+    fallback）
+  - `src/fcop/cli/migrate_workspace.py`（新建，~340 行：plan/apply/
+    render_summary/argparse glue）
+  - `pyproject.toml`：entry point bump
+  - `tests/test_fcop/test_migrate_workspace.py`（新建，25 用例：
+    plan / apply / render / CLI / standalone run）
+  - `tests/test_fcop/test_compat_cli.py`：放宽 `test_console_script_
+    resolves_to_cli_main` 接受 v1.0 + v0.7 entry value
+  - `CHANGELOG.md` `[1.0.0-rc.1]`：新增 "fcop migrate-workspace CLI" 段
 
 ## Backwards Compatibility
 
@@ -195,7 +243,7 @@ ADMIN 拍板。
 ## Sign-off
 
 - **ADMIN**：已批准（2026-05-09 14:50 CST，AskQuestion 选 B - migrate）
-- **ME**：负责实施；REPORT-20260509-002 中显式 sign-off
+- **ME**：Phase 1 已实施（2026-05-09，TASK-008，commit 见 Implementation 段）；Phase 2 待 v1.0.0 final 前独立 task
 
 ---
 

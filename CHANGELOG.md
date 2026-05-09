@@ -70,6 +70,60 @@ _（无未发布项；上一段所有变更已并入 [1.0.0-rc.1]。）_
 
 详细每一段的子条目见下面（按 TASK 时间倒序）。
 
+### Added — `fcop` CLI
+
+- **`fcop migrate-workspace` 子命令 — 0.7.x → v1.0 workspace 迁移工具**
+  （TASK-20260509-008，per [ADR-0022](./adr/ADR-0022-workspace-directory-convention.md)）：
+
+  把 `docs/agents/` 迁到 `fcop/`（顶层协议命名空间），保留 git 历史。
+  RC 阶段先交付 CLI 本身；`Project` 默认目录改造留 v1.0 final。
+
+  - **`fcop` console-script entry point bump**：从
+    `fcop._compat_cli:main` 升级为 `fcop.cli._main:main`——subcommand
+    派发器；`fcop`（无参）仍打印 0.5→0.6 MCP 迁移信息以兼容历史
+    用户（per ADR-0002 §0.6 入站契约）
+  - **`fcop migrate-workspace`**：
+    - 默认 dry-run；`--apply` 才真改盘
+    - git-aware：在 git 工作树 + path 已 tracked 时自动 `git mv`，
+      否则 fallback `shutil.move`，附 warning
+    - 幂等：已迁移的 tree 上 `--apply` 是 no-op，退出 0
+    - both-exist 防呆：若 `docs/agents/` 与 `fcop/` 同时存在则 ABORT
+      （退出 2），绝不自动合并（per ADR-0022 §"启动时 detect 行为"）
+    - 留痕：迁移成功后写 `fcop/MIGRATED_FROM_DOCS_AGENTS.md`
+      含时间戳、源路径、目标路径、CLI 版本号
+    - 顾问扫描：列出 `.gitignore` / `.cursor/rules/*.mdc` /
+      `AGENTS.md` / `CLAUDE.md` / `README*.md` 中 `docs/agents`
+      字符串引用——**仅列出，不自动改写**（避免误伤用户文档；
+      per ADR-0022 §"Design Details" item 3）
+    - 选项：`--apply` / `--target=path` / `--source=path` /
+      `--project-root=path`
+  - **新增模块**：
+    - `src/fcop/cli/__init__.py`（CLI namespace 占位 + docstring）
+    - `src/fcop/cli/_main.py`（subcommand 派发器；63 行）
+    - `src/fcop/cli/migrate_workspace.py`（plan/apply/render_summary
+      + argparse glue；~340 行）
+  - **测试**：`tests/test_fcop/test_migrate_workspace.py` 共 25 用例：
+    - `TestPlan`（7）：canonical / already_migrated / source_missing /
+      conflict / advisory hits / 自定义 source 与 target / surprise
+      entry note
+    - `TestApply`（6）：shutil fallback / git mv 保留历史 / 幂等 /
+      conflict raises / source-missing no-op / breadcrumb 内容
+    - `TestRenderSummary`（3）：dry-run hint / applied 不带 hint /
+      advisory 显示
+    - `TestCli`（6）：dry-run / apply / conflict 退 2 / 自定义 target /
+      bare `fcop` 走 legacy / `--help` 退 0
+    - `TestRunStandalone`（2）：standalone `mw.run()` 入口 dry-run /
+      apply
+  - **测试调整**：
+    - `tests/test_fcop/test_compat_cli.py` ::
+      `test_console_script_resolves_to_cli_main`：放宽接受
+      `fcop.cli._main:main`（v1.0+） 或 `fcop._compat_cli:main`
+      （未 reinstall 的老 editable install），加历史说明 docstring
+  - **deferred to v1.0 final**：`Project()` 加 `workspace_dir=` 参数 +
+    4 种 detect 场景 + 30+ 处 hard-coded 路径替换 + `MIGRATION-1.0.md`。
+    范围太大，与 RC tag 解耦更安全；详见 [ADR-0022 §v1.0 RC
+    Implementation Notes](./adr/ADR-0022-workspace-directory-convention.md)。
+
 ### Added — `fcop` library
 
 - **Event 抽象端到端 — v1.0 7 抽象闭合最后一环**（TASK-20260509-007
