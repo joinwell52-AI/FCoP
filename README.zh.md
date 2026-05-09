@@ -15,8 +15,9 @@
   <a href="docs/getting-started.md">上手 FCoP</a> ·
   <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
   <a href="essays/fcop-natural-protocol.md">自然协议</a> ·
-  <a href="spec/fcop-spec.md">规范入口</a> ·
-  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 章程</a>
+  <a href="spec/fcop-runtime-protocol-v1.0.md">v1.0 规范</a> ·
+  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 章程</a> ·
+  <a href="docs/releases/1.0.0-rc.1.md">v1.0.0-rc.1 发布</a>
 </p>
 
 <p align="center">
@@ -29,8 +30,11 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
-  <a href="spec/fcop-spec.md">
-    <img src="https://img.shields.io/badge/spec-v1.0.3-green?style=flat-square" alt="规范 v1.0.3" />
+  <a href="spec/fcop-runtime-protocol-v1.0.md">
+    <img src="https://img.shields.io/badge/spec-v1.0%20RC-green?style=flat-square" alt="规范 v1.0 RC" />
+  </a>
+  <a href="docs/releases/1.0.0-rc.1.md">
+    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-1.0.0--rc.1-orange?style=flat-square" alt="1.0.0-rc.1 发布说明" />
   </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />

@@ -14,6 +14,24 @@ _（无未发布项；上一段所有变更已并入 [1.0.0-rc.1]。）_
 
 ## [1.0.0-rc.1] — 2026-05-09 — AI OS Protocol Layer release candidate
 
+### 中文 TL;DR
+
+把 0.7.x 的 "AI 协作规则" 升级为 **AI OS 协议层 / Agent Runtime
+Protocol**。7 抽象（Agent / IPC / Encoding / Event / Failure / Boundary
+/ Audit）最小语义合约 frozen + reference impl 全部 wiring 完成 +
+新增 `fcop migrate-workspace` CLI（per ADR-0022）。0.7.x 文件 100%
+向后兼容；v1.x 之后不再允许 workspace 默认迁移。
+
+### English TL;DR
+
+Promotes 0.7.x's "AI collaboration rules" to a real **AI OS protocol
+layer / Agent Runtime Protocol**. Seven abstractions (Agent / IPC /
+Encoding / Event / Failure / Boundary / Audit) frozen at a
+minimum-semantic-contract level + reference implementation fully
+wired + new `fcop migrate-workspace` CLI (per ADR-0022). All 0.7.x
+files remain 100% backward compatible; no further workspace default
+migrations after v1.x.
+
 > **Status**: Release candidate. Protocol surface frozen; only bug fixes
 > + non-protocol release tooling will land before final `1.0.0`.
 >

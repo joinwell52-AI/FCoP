@@ -20,6 +20,16 @@ This document is the **normative specification** for FCoP v1.0. It freezes the m
 
 > **FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too.** — [ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)
 
+### 摘要（简体中文）
+
+FCoP（**F**ile-based **Co**ordination **P**rotocol）是 **AI OS 协议层**——agent 在共享文件系统上协作的运行时契约。它在 AI OS 栈中的位置等同于 Unix 中的 **POSIX**、容器生态中的 **OCI**、Kubernetes 中的 **CRD**。
+
+本文是 **FCoP v1.0 的规范性说明**，冻结了 **七个核心抽象**（Agent / Encoding / IPC / Event / Failure / Boundary / Audit）的最小语义合约——任何合规实现都必须满足。
+
+> 「FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。」——[ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)
+
+> **本规范以英文为权威版本**（normative）；中文段落仅作摘要参考，与英文不一致时以英文为准。完整中文翻译请见 [`docs/getting-started.md`](../docs/getting-started.md)（L0+L1 入口）+ [ADR-0015 中文章程](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)。
+
 ---
 
 ## §1 · Scope, status, conformance

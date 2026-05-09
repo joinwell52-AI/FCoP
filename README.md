@@ -16,7 +16,8 @@
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
   <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
-  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 Charter</a>
+  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 Charter</a> ·
+  <a href="docs/releases/1.0.0-rc.1.md">v1.0.0-rc.1 release notes</a>
 </p>
 
 <p align="center">
@@ -29,8 +30,11 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
-  <a href="spec/fcop-spec.md">
-    <img src="https://img.shields.io/badge/spec-v1.0.3-green?style=flat-square" alt="Spec v1.0.3" />
+  <a href="spec/fcop-runtime-protocol-v1.0.md">
+    <img src="https://img.shields.io/badge/spec-v1.0%20RC-green?style=flat-square" alt="Spec v1.0 RC" />
+  </a>
+  <a href="docs/releases/1.0.0-rc.1.md">
+    <img src="https://img.shields.io/badge/release-1.0.0--rc.1-orange?style=flat-square" alt="1.0.0-rc.1 release notes" />
   </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
