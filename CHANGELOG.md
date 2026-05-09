@@ -10,7 +10,14 @@ versioning strategy.
 
 ## [Unreleased]
 
-_（无未发布项；上一段所有变更已并入 [1.0.0]。）_
+### Docs — 完善 v1.0.0 文档（2026-05-10）
+
+- **术语统一**：全面将「冻结七个核心抽象」替换为「固化七大核心概念：Agent、Encoding、IPC、Event、Failure、Boundary、Audit」（5 个文件：spec / CHANGELOG / README.zh.md / 1.0.0.md / MIGRATION-1.0.md）
+- **spec §7.1** 节标题改为 "Stability of the seven core concepts (normative)"；英文 Abstract 改用 "stabilises"；Status 行更新为 "Ratified"
+- **spec §9 Glossary** 新增 6 词条：Stabilised / MAJOR version / MINOR version / PATCH version / Pre-release（5 个 SemVer 词条 + Stabilised，均双语）
+- **spec Appendix B** 从单平铺表升级为 4 类分组文档地图（B.1 规范 / B.2 ADR / B.3 用户指南 / B.4 发布记录）
+- **README.md + README.zh.md** 新增「How to read FCoP docs / 如何阅读 FCoP 文档」导航表；Status 章节更新至 v1.0.0
+- **docs/releases/1.1.0.md** 刷新为 v1.0.0 final 之后的实际状态（标注 ADR-0023..0026 待开、目标日期 ≥2026-08-07）
 
 ## [1.0.0] — 2026-05-09 — AI OS Protocol Layer (final)
 

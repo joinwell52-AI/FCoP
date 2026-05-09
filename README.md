@@ -58,7 +58,7 @@ Kernel Primitives LLM API / Filesystem / Process Mgr          ← AI OS kernel
 
 > **FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too.** — [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
 
-The v1.0 line freezes the **minimum semantic contract** for the seven core abstractions above. Spec is locked; encodings are open: the *IPC Surface* (TASK / REPORT / ISSUE / REVIEW) is strongly typed, while the *Open Knowledge Surface* (`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`) leaves vocabulary open for agents to invent — see [ADR-0021](adr/ADR-0021-encoding-abstraction.md).
+v1.0 stabilises the minimum semantic contract for the **seven core concepts** above. Spec is stable; encodings are open: the *IPC Surface* (TASK / REPORT / ISSUE / REVIEW) is strongly typed, while the *Open Knowledge Surface* (`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`) leaves vocabulary open for agents to invent — see [ADR-0021](adr/ADR-0021-encoding-abstraction.md).
 
 → **Start here**: [`docs/getting-started.md`](docs/getting-started.md) · [`docs/getting-started.en.md`](docs/getting-started.en.md)
 
@@ -248,6 +248,19 @@ Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`a
 >
 > **Upgrading from 0.5.x?** The MCP server moved from `fcop` to `fcop-mcp` — update your `mcp.json` to `uvx fcop-mcp`. See [`docs/MIGRATION-0.6.md`](docs/MIGRATION-0.6.md) for the full migration guide and the [0.6.0 release record](docs/releases/0.6.0.md) for what shipped.
 
+## How to read FCoP docs
+
+| Your goal | Start here |
+|---|---|
+| **New to FCoP** — hands-on 45-min setup | [`docs/getting-started.en.md`](docs/getting-started.en.md) |
+| **Upgrading from 0.7.x** — workspace migration + new abstractions | [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md) |
+| **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) |
+| **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md) |
+| **Release notes** — what changed in v1.0.0 | [`docs/releases/1.0.0.md`](docs/releases/1.0.0.md) |
+| **Full document map** — every file and its role | [spec Appendix B](spec/fcop-runtime-protocol-v1.0.md#appendix-b--authoritative-document-map) |
+
+---
+
 ## Design principles
 
 1. **Filename is the single source of truth.** Directory + filename define the state; frontmatter is redundant metadata.
@@ -265,9 +278,10 @@ Two official reference implementations, both MIT-licensed:
 
 ## Status & versioning
 
-- **Current spec**: v1.0.3 (2026-04-19)
+- **Current release**: `v1.0.0` (2026-05-09) — seven core concepts stabilised for the v1.x series. See [release notes](docs/releases/1.0.0.md).
+- **Normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) · machine-readable contracts in [`spec/schemas/`](spec/schemas/)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
-- Change log is embedded in [`spec/fcop-spec-v1.0.3.md`](spec/fcop-spec-v1.0.3.md) (Chinese).
+- **Change log**: [`CHANGELOG.md`](CHANGELOG.md)
 - **Research snapshot**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) archived on Zenodo with a citable DOI (see *How to cite* below).
 
 ## How to cite

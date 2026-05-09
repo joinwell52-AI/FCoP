@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft (frozen for v1.0 implementation; ratification on v1.0.0 tag) |
+| **Status** | **Ratified** — seven core concepts stabilised for the v1.x series (tagged `v1.0.0` 2026-05-09) |
 | **Version** | 1.0.0 |
 | **Date** | 2026-05-09 |
 | **Charter** | [ADR-0015](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md) |
@@ -16,7 +16,7 @@
 
 FCoP — the **F**ile-based **Co**ordination **P**rotocol — is the **AI OS protocol layer**: the agent runtime contract for filesystem-based collaboration. It occupies the same position in the AI OS stack that **POSIX** occupies in Unix, **OCI** in container ecosystems, and **CRD** in Kubernetes.
 
-This document is the **normative specification** for FCoP v1.0. It freezes the minimum semantic contract for **seven core abstractions** — Agent, Encoding, IPC, Event, Failure, Boundary, Audit — that any conforming implementation MUST satisfy.
+This document is the **normative specification** for FCoP v1.0. It stabilises the minimum semantic contract for the **seven core concepts** — Agent, Encoding, IPC, Event, Failure, Boundary, Audit — that any conforming implementation MUST satisfy.
 
 > **FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too.** — [ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)
 
@@ -407,6 +407,11 @@ A v1.0-conforming implementation SHOULD pass the test suite at `tests/test_schem
 | **Reference Implementation** | The `fcop` Python library shipped from this repository. |
 | **REVIEW** | The 4th IPC envelope type, added in v1.0; encodes a governance decision. |
 | **Schema** | A JSON Schema file in [`spec/schemas/`](./schemas/) defining the field contract for an abstraction. |
+| **Stabilised / 固化** | The state of the seven core concepts under v1.x: their five frozen properties (field set, field types, enum values, field semantics, filename grammar) cannot change without a MAJOR bump. Chinese: *七大核心概念已固化*. See §7.1 for the full normative definition. |
+| **MAJOR version / 大版本** | Increment when the protocol contract changes in a backward-incompatible way. v2.0 requires a protocol-level RFC + 6-month v1/v2 coexistence window + official migration script. |
+| **MINOR version / 小版本** | Increment for additive, backward-compatible extensions: new optional fields, new enum values, new schemas, new public API methods. Allowed within v1.x without breaking conformance. |
+| **PATCH version / 补丁版本** | Increment for backward-compatible fixes and improvements: refactoring, performance, bug fixes, documentation, test additions. No protocol contract changes. |
+| **Pre-release / 预发布版** | A version suffixed with `-rc.N` (e.g., `1.0.0-rc.1`). Signals that the contract is under final review; should not be used in production. |
 | **Workspace dir** | The protocol namespace directory inside a host project. v1.0 default: `fcop/`. v0.7.x legacy: `docs/agents/`. |
 
 ---
@@ -432,17 +437,53 @@ A v1.0-conforming implementation SHOULD pass the test suite at `tests/test_schem
 
 ## Appendix B · Authoritative document map
 
-| File | Role |
+阅读顺序建议 / Recommended reading order:
+**入门** → `README` / `getting-started` →
+**迁移** → `MIGRATION-1.0` →
+**深入** → 本文（spec） + ADR →
+**参考** → schemas + CHANGELOG
+
+### B.1 规范文件 / Normative
+
+| 文件 / File | 说明 / Role |
 |---|---|
-| `spec/fcop-runtime-protocol-v1.0.md` | **This document — the v1.0 normative spec** |
-| `spec/schemas/*.schema.json` | Machine-readable field contracts |
-| `spec/schemas/README.md` | Schema index, conformance language, validation snippet |
-| `spec/fcop-spec-v1.0.3.md` | Frozen 0.7.x baseline (legacy conformance only) |
-| `adr/ADR-0001..0006` | Pre-1.0 architectural decisions |
-| `adr/ADR-0015` | v1.0 charter |
-| `adr/ADR-0016..0022` | Per-abstraction implementation ADRs |
-| `adr/ADR-0007..0014` | Superseded / deferred (preserved for history) |
-| `docs/getting-started.md` (+ `.en.md`) | L0 + L1 entry point (tutorial; not normative) |
+| `spec/fcop-runtime-protocol-v1.0.md` | **本文 / This document — v1.0 normative spec** |
+| `spec/schemas/*.schema.json` | 机器可读字段契约 / Machine-readable field contracts (7 schemas) |
+| `spec/schemas/README.md` | Schema 索引、合规语言、校验代码片段 / Index, conformance language, validation snippet |
+
+### B.2 架构决策记录 / Architectural Decision Records (ADRs)
+
+| 文件 / File | 说明 / Role |
+|---|---|
+| `adr/ADR-0015` | v1.0 总章程 / v1.0 charter (AI OS Protocol framing) |
+| `adr/ADR-0016` | 7 抽象 JSON Schema 决策 / JSON Schema for all 7 abstractions |
+| `adr/ADR-0017` | Review 文件类型 / REVIEW envelope type |
+| `adr/ADR-0018` | Event 模型（12 事件类型）/ Event model (12 types) |
+| `adr/ADR-0019` | Failure / Recovery 语义 |
+| `adr/ADR-0020` | Boundary 能力模型 / Boundary capability model |
+| `adr/ADR-0021` | Encoding 抽象（双 surface）/ Encoding abstraction (IPC + Open Knowledge) |
+| `adr/ADR-0022` | Workspace 目录约定 / Workspace directory convention (`fcop/` migration) |
+| `adr/ADR-0001..0006` | v1.0 前的基础决策 / Pre-1.0 foundational decisions |
+| `adr/ADR-0003` | 稳定性章程（SemVer 策略）/ Stability charter (SemVer policy) |
+| `adr/ADR-0007..0014` | 已废弃 / 暂缓（保留历史）/ Superseded / deferred (preserved for history) |
+
+### B.3 用户指南 / User Guides
+
+| 文件 / File | 说明 / Role |
+|---|---|
+| `README.md` / `README.zh.md` | 项目入口（英文 / 中文）/ Project entry point |
+| `docs/getting-started.md` (+ `.en.md`) | L0+L1 教程入口 / Tutorial entry point (not normative) |
+| `docs/MIGRATION-1.0.md` | 0.7.x → 1.0 迁移指南 / Migration guide |
+| `docs/tutorials/` | 手把手实战教程 / Hands-on walkthroughs |
+
+### B.4 发布记录 / Release Artefacts
+
+| 文件 / File | 说明 / Role |
+|---|---|
+| `CHANGELOG.md` | 按版本归档的变更列表 / Chronological change log |
+| `docs/releases/1.0.0.md` | v1.0.0 最终发布说明 / Final release notes |
+| `docs/releases/1.0.0-rc.1.md` | v1.0.0-rc.1 预发布说明 / Pre-release notes |
+| `spec/fcop-spec-v1.0.3.md` | 0.7.x 基线（遗留合规测试用）/ 0.7.x baseline (legacy conformance only) |
 
 ---
 
