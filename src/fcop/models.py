@@ -22,6 +22,9 @@ __all__ = [
     "ReviewDecision",
     "ReviewSubjectType",
     "AgentLayer",
+    "FailureType",
+    "RecoveryAction",
+    "SessionRecoveryAction",
     "TaskFrontmatter",
     "Task",
     "Report",
@@ -29,6 +32,14 @@ __all__ = [
     "Review",
     "Capability",
     "BoundaryViolation",
+    "Failure",
+    "Recovery",
+    "RetryPlan",
+    "ResumePayload",
+    "RollbackPlan",
+    "RecoveryOutcome",
+    "SessionRecoveryResult",
+    "FailureReceipt",
     "TeamConfig",
     "ProjectStatus",
     "RecentActivityEntry",
@@ -96,6 +107,66 @@ class AgentLayer(str, Enum):
     WORKER = "worker"
     GOVERNANCE = "governance"
     ADMIN = "admin"
+
+
+class FailureType(str, Enum):
+    """Runtime 失败类型四值枚举（v1.0 frozen，per ADR-0019）。
+
+    POSIX 类比：FCoP 之于 Failure = Unix 之于 errno。本 enum 的值与
+    ``failure.schema.json#/$defs/failureType/enum`` 必须一致——
+    test_failure_record_schema_compat 在 CI 守门。
+
+    扩展失败类型必须发新 ADR + bump MINOR（schema 同步加值）。
+
+    - TIMEOUT：agent 在约定时间内未交付（如超过 TASK.timeout_at）
+    - CRASH：reference impl / host adapter 异常退出（如 OOM、SIGKILL）
+    - DEADLOCK：多 agent 互相等待（如 A 等 B 的 REVIEW，B 等 A 的 REPORT）
+    - DRIFT：agent 输出与 TASK 约定不符（越界、答非所问）
+    """
+
+    TIMEOUT = "TIMEOUT"
+    CRASH = "CRASH"
+    DEADLOCK = "DEADLOCK"
+    DRIFT = "DRIFT"
+
+
+class RecoveryAction(str, Enum):
+    """Runtime 恢复动作五值枚举（v1.0 frozen，per ADR-0019）。
+
+    每个 Failure 必须配对至少一个 Recovery；具体 mapping 由 host
+    adapter 决定，FCoP 协议层不强制 enforce。Project.apply_recovery
+    把这 5 类映射到 reference impl 函数（per TASK-006 §决议 3）。
+
+    - RETRY：同一 agent 重做同一 TASK（v1.0 仅返回 RetryPlan，不实际重试）
+    - RESUME：加载 session state 从中断点继续（v1.0 仅返回 ResumePayload）
+    - ROLLBACK：回到 TASK 创建前文件状态（v1.0 仅返回 RollbackPlan，不
+      实际跑 git revert——per TASK-006 §决议 3）
+    - ABORT：终止 TASK，写 REPORT status: aborted
+    - ESCALATE：升级到 leader 写 ISSUE
+    """
+
+    RETRY = "RETRY"
+    RESUME = "RESUME"
+    ROLLBACK = "ROLLBACK"
+    ABORT = "ABORT"
+    ESCALATE = "ESCALATE"
+
+
+class SessionRecoveryAction(str, Enum):
+    """``Project.recover_session`` 仅暴露的 3 类 action（v1.0 frozen）。
+
+    per ADR-0019 §session-recovery-hook + failure.schema.json
+    sessionRecoveryAction enum：仅 ``resume`` / ``rollback`` / ``abort``
+    是 session 级动作。RETRY 是 task 级、ESCALATE 跨 session，它们走
+    :meth:`fcop.Project.apply_recovery` 而非 ``recover_session``。
+
+    任何想偷塞 RETRY / ESCALATE 进 recover_session 的 PR 会被本 enum +
+    schema enum 双层拒。
+    """
+
+    RESUME = "resume"
+    ROLLBACK = "rollback"
+    ABORT = "abort"
 
 
 class ReviewSubjectType(str, Enum):
@@ -320,6 +391,185 @@ class BoundaryViolation:
     target: str | None
     message: str
     severity: Literal["error", "warning"] = "error"
+
+
+# ── Failure & Recovery ───────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class Failure:
+    """一次 runtime 失败的内存记录（v1.0，per ADR-0019）。
+
+    与 :class:`Review` 不同，Failure 不是 IPC envelope —— **不写盘**
+    （per TASK-006 §决议 1）。它是 ``Project.report_failure`` 的入参
+    与 ``apply_recovery`` 的依据；持久化由 caller 自己的日志系统负责。
+
+    Attributes:
+        failure_type: 4 类失败枚举之一。
+        subject_task_id: 失败发生在哪个 task 上下文（可选——CRASH 类
+            可能没具体 task，留 None）。
+        subject_agent_code: 哪个 agent 失败（必填——失败必有主体）。
+        detected_at: 检测到失败的时间戳。
+        evidence: 自由文本证据（last seen log、stack trace 摘要、
+            partial output 等）。
+        suggested_recovery: 建议的恢复动作枚举；可选（reporter 不一定
+            知道最佳恢复路径）。
+    """
+
+    failure_type: FailureType
+    subject_agent_code: str
+    detected_at: datetime
+    subject_task_id: str | None = None
+    evidence: str = ""
+    suggested_recovery: RecoveryAction | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Recovery:
+    """一次 recovery 尝试的内存记录（v1.0，per ADR-0019）。
+
+    由 :meth:`fcop.Project.apply_recovery` 内部构造；记录"针对哪个
+    failure 应用了哪个 recovery action"。同样不写盘。
+
+    Attributes:
+        recovery_action: 5 类恢复动作枚举之一。
+        trigger_failure: 触发本次恢复的 :class:`Failure` 实例。
+        initiated_at: 恢复发起时间。
+        outcome: 自由 enum 字符串（``"in_progress"`` / ``"succeeded"``
+            / ``"failed"``）；v1.0 不冻 outcome 词表。
+    """
+
+    recovery_action: RecoveryAction
+    trigger_failure: Failure
+    initiated_at: datetime
+    outcome: str = "in_progress"
+
+
+@dataclass(frozen=True, slots=True)
+class RetryPlan:
+    """RETRY recovery 的返回 plan（v1.0 不实际重试，仅给 plan）。
+
+    Attributes:
+        task_path: 要重试的 TASK 文件绝对路径（caller 用它重新喂给 agent）。
+        suggested_delay_seconds: 建议在重试前等待的秒数（exponential
+            backoff 启发；v1.0 默认 0）。
+        attempt_count: 已尝试次数（v1.0 reporter 自报；本字段不强制
+            防 infinite retry——per ADR-0019 §open-question 3）。
+    """
+
+    task_path: Path
+    suggested_delay_seconds: int = 0
+    attempt_count: int = 1
+
+
+@dataclass(frozen=True, slots=True)
+class ResumePayload:
+    """RESUME recovery 的返回 payload（只读）。
+
+    Caller（host adapter / LLM driver）拿到这个 payload 自己重建
+    agent context。v1.0 不持久化 LLM context / tool history（推 v1.x）。
+
+    Attributes:
+        task_path: TASK 文件绝对路径。
+        last_report_path: 最近一份 REPORT 的绝对路径；可能为 None
+            （首次 retry 时还没 REPORT）。
+        session_id: 解析后的 session_id 字符串（与入参一致）。
+        metadata: 自由 dict —— v1.0 兜底 placeholder for future
+            session schema fields；目前包含 ``{"task_id": ...,
+            "agent_code": ...}``。
+    """
+
+    task_path: Path
+    last_report_path: Path | None
+    session_id: str
+    metadata: dict[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class RollbackPlan:
+    """ROLLBACK recovery 的返回 plan（v1.0 **不实际跑 git revert**）。
+
+    per TASK-006 §决议 3：v1.0 仅返回需要 revert 的信息，由 host
+    adapter / human 决定是否执行。这避免了 reference impl 引入 git
+    依赖 + 防止脚本误删工作。
+
+    Attributes:
+        target_commit_hash: 建议 revert 到的 commit hash；v1.0 best-effort
+            （从 git log 找 TASK 创建前的 commit），失败时 None。
+        affected_files: 该 TASK 工作期间修改过的文件清单（路径相对
+            project root）。caller 可基于此打预览 diff。
+        executed: **永远是 False**，标识 v1.0 plan-only 语义。
+    """
+
+    target_commit_hash: str | None
+    affected_files: tuple[str, ...]
+    executed: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class RecoveryOutcome:
+    """``Project.apply_recovery`` 的返回值。
+
+    包装 :class:`Recovery` record + 5 类 recovery 各自的 plan/payload
+    + 写盘类 recovery（ABORT/ESCALATE）实际生成的文件路径。
+
+    Attributes:
+        recovery: 内存记录。
+        plan: 5 类的具体 plan/payload；类型与 recovery_action 对应：
+            - RETRY → :class:`RetryPlan`
+            - RESUME → :class:`ResumePayload`
+            - ROLLBACK → :class:`RollbackPlan`
+            - ABORT / ESCALATE → 写出的文件路径 :class:`pathlib.Path`
+              （ABORT 写 REPORT，ESCALATE 写 ISSUE）
+        artifact_path: ``ABORT`` / ``ESCALATE`` 写出的文件路径；其他
+            recovery 时为 None。冗余于 plan 但便于 caller 直接拿到。
+    """
+
+    recovery: Recovery
+    plan: object
+    artifact_path: Path | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class SessionRecoveryResult:
+    """``Project.recover_session`` 的返回值。
+
+    Attributes:
+        session_id: 入参回显（解析后的）。
+        action: 实际执行的 SessionRecoveryAction。
+        outcome: ``"succeeded"`` / ``"session_not_found"`` /
+            ``"failed"`` 之一。
+        payload: action 对应的具体 payload；resume → ResumePayload，
+            rollback → RollbackPlan，abort → 写出的 REPORT 路径。
+            ``outcome != "succeeded"`` 时为 None。
+        error: outcome 非 succeeded 时的人类可读说明。
+    """
+
+    session_id: str
+    action: SessionRecoveryAction
+    outcome: str
+    payload: object | None = None
+    error: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class FailureReceipt:
+    """``Project.report_failure`` 的返回值（acknowledge）。
+
+    v1.0 不写盘，所以只返回一个收据告诉 caller "已收到、stub 事件
+    已 emit"。TASK-007 接事件后会换成真实 event_id。
+
+    Attributes:
+        failure: 入参回显。
+        accepted_at: 收到时间（与 failure.detected_at 不同——前者是
+            report 时刻）。
+        event_emitted: bool，stub 事件是否被调（v1.0 总是 True；
+            TASK-007 接事件后可能因订阅者抛错变 False）。
+    """
+
+    failure: Failure
+    accepted_at: datetime
+    event_emitted: bool = True
 
 
 # ── Project configuration ────────────────────────────────────────────
