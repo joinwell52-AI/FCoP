@@ -17,6 +17,8 @@
 **作者**：FCoP Maintainers · 2026-04-29
 **关键词**：FCoP, fcop-mcp, Cursor MCP, 多 agent 协作, 角色边界, append-only 历史, ADMIN 指挥官, 文件协议, "开始干活"/"检查" 方言, agent 上下文预算, 单 agent 上下文爆炸, true-positive role-switch 证据, agent 自评, 指挥 agent 6 条铁律
 
+> **v1.0 兼容说明**：本教程录制于 `fcop-mcp 0.7.2`。在 **FCoP v1.0**（2026-05-09 发布）中，默认 workspace 目录已从 `docs/agents/` 改为 `fcop/`（ADR-0022）。所有协议规则和 MCP 工具名称不变，仅路径不同。跟做时将文中 `docs/agents/` 替换为 `fcop/` 即可。
+
 ---
 
 ## 这篇文章为什么存在

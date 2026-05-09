@@ -10,14 +10,53 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Docs — 全局路径迁移对齐（2026-05-10）
+
+- **49 个文件** 完成 `docs/agents/` → `fcop/` 迁移——覆盖：
+  模板文件（`letter-to-admin` × 2、`agent-install-prompt` × 2）、
+  41 个团队角色模板（solo / dev / media / mvp / qa 全部中英双语）、
+  essays 目录结构示例、`docs/mcp-tools.md`、`fcop-README.pypi.md`
+- **历史性文件保留**（正确上下文）：CHANGELOG 历史条目、MIGRATION-1.0.md、
+  旧版 release notes、`docs/agents/` 运行时日志
+
+### Docs — AI OS 定位与七大核心概念写入运行时规则（2026-05-10）
+
+- **`fcop-rules.mdc` → v2.1.0**：在 Purpose 节后新增双语小节
+  "FCoP 的定位与七大核心概念 / Protocol Position & Seven Core Concepts"：
+  - AI OS 协议栈三层图示（Application / FCoP / Host·LLM）
+  - 七大核心概念对照表（Agent · IPC · Encoding · Event · Failure · Boundary · Audit）
+  - 指向 `spec/fcop-runtime-protocol-v1.0.md` 的规范性引用
+- **`fcop-protocol.mdc` → v1.9.0**：
+  - 删除 v1.7.0 "Rule 9 commentary 待补" 占位 note
+  - 新增 "Rule 9 Commentary" 完整节（9.1–9.4）：
+    - 9.1 REVIEW 文件命名规范 + YAML frontmatter 必填字段
+    - 9.2 Boundary 三层表 + `can`/`cannot` 示例 + agent 自查清单
+    - 9.3 Failure 4 类触发场景 × 5 类恢复动作说明表 + SDK 示例
+    - 9.4 Event 12 类型清单 + `subscribe_events` / `poll_once()` 使用模式
+- **四个部署目标全部重新生成**（`AGENTS.md` / `CLAUDE.md` / `.cursor/rules/`）
+  → rules 2.1.0 / protocol 1.9.0
+
+### Docs — spec 入口与架构梳理（2026-05-10）
+
+- **`spec/fcop-spec.md`** 入口从旧 `fcop-spec-v1.0.3.md`（0.7.x 遗留）
+  更新为 `fcop-runtime-protocol-v1.0.md`（v1.0 权威版）；
+  明确版本历史：v1.0（当前正式版）vs v0.7.x（遗留参考）
+- **`.mdc` 文件架构澄清**：在 spec Appendix B 中将 `fcop-rules.mdc` /
+  `fcop-protocol.mdc` 归入 "B.2b Host Adapter Artefacts (Cursor)"，
+  与核心协议文件明确分层
+- **四个部署目标分工文档化**：
+  `.cursor/rules/*.mdc`（Cursor）/ `AGENTS.md`（Codex/Devin）/
+  `CLAUDE.md`（Claude Code CLI）
+
 ### Docs — 完善 v1.0.0 文档（2026-05-10）
 
 - **术语统一**：全面将「冻结七个核心抽象」替换为「固化七大核心概念：Agent、Encoding、IPC、Event、Failure、Boundary、Audit」（5 个文件：spec / CHANGELOG / README.zh.md / 1.0.0.md / MIGRATION-1.0.md）
-- **spec §7.1** 节标题改为 "Stability of the seven core concepts (normative)"；英文 Abstract 改用 "stabilises"；Status 行更新为 "Ratified"
-- **spec §9 Glossary** 新增 6 词条：Stabilised / MAJOR version / MINOR version / PATCH version / Pre-release（5 个 SemVer 词条 + Stabilised，均双语）
-- **spec Appendix B** 从单平铺表升级为 4 类分组文档地图（B.1 规范 / B.2 ADR / B.3 用户指南 / B.4 发布记录）
-- **README.md + README.zh.md** 新增「How to read FCoP docs / 如何阅读 FCoP 文档」导航表；Status 章节更新至 v1.0.0
-- **docs/releases/1.1.0.md** 刷新为 v1.0.0 final 之后的实际状态（标注 ADR-0023..0026 待开、目标日期 ≥2026-08-07）
+- **spec 英中分离**：`spec/fcop-runtime-protocol-v1.0.md` 清理为纯英文；
+  新建 `spec/fcop-runtime-protocol-v1.0.zh.md` 作为完整中文平行版（informative）
+- **spec §7.1** 节标题改为 "Stability of the seven core concepts (normative)"
+- **spec Appendix B** 升级为 4 类分组文档地图（B.1 规范 / B.2 ADR / B.3 用户指南 / B.4 发布记录）
+- **README.md + README.zh.md** 新增「How to read FCoP docs / 如何阅读 FCoP 文档」导航表
+- **docs/releases/1.1.0.md** 刷新为 v1.0.0 final 之后的实际状态
 
 ## [1.0.0] — 2026-05-09 — AI OS Protocol Layer (final)
 

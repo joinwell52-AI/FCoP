@@ -13,6 +13,12 @@
 **Author**: FCoP Maintainers · 2026-04-29
 **Keywords**: FCoP, fcop-mcp, MCP for Cursor, multi-agent collaboration, role boundaries, append-only history, ADMIN as commander, file-based protocol, "Start work" "Inspection" dialect, agent context budget, single-agent context explosion, true-positive role-switch evidence, agent self-assessment, six iron rules of commanding agents
 
+> **v1.0 compatibility note**: This tutorial was recorded with `fcop-mcp 0.7.2`.
+> In **FCoP v1.0** (released 2026-05-09), the default workspace directory changed
+> from `docs/agents/` to `fcop/` (ADR-0022). All protocol rules and MCP tool names
+> remain identical — only the workspace path differs. When following along, replace
+> `docs/agents/` with `fcop/` in your own project.
+
 ---
 
 ## Why this exists

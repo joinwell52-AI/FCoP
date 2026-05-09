@@ -204,12 +204,13 @@ fcop/shared/GUIDE-dark-mode-implementation-notes.md
 |---|---|---|
 | L0 + L1 入口 | [`docs/getting-started.md`](./getting-started.md)（本文）| 30 秒 + 5 分钟 |
 | L2 长文规范 | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/)（v1.0 ship 时上线）| 完整 spec |
-| L2 给 agent 读的规则 | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Agent 必读规约 |
+| L2 给 agent 读的规则（Cursor） | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor 宿主，`alwaysApply: true` |
+| L2 给 agent 读的规则（其他宿主） | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / 通用 SDK |
 | L2 机器可读 schema | [`spec/schemas/*.schema.json`](../spec/schemas/)（v1.0 ship 时上线）| JSON Schema × 7 抽象 |
 | L3 故事 | [`essays/`](../essays/) | 现场报告与随笔 |
 | 决策史 | [`adr/`](../adr/)（含 ADR-0001..0022） | 为什么这么做 |
 
-> **`.cursor/rules/*.mdc` 是 source-of-truth。** Python 包内 `src/fcop/rules/_data/` 是真本，由 `fcop deploy_rules` 自动 sync 到 `.cursor/rules/`。详见 [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)。
+> **`src/fcop/rules/_data/` 是规则的唯一来源（canonical source）。** `deploy_protocol_rules()`（或 MCP `redeploy_rules()`）将其同步到：`.cursor/rules/*.mdc`（Cursor 宿主）以及 `AGENTS.md` / `CLAUDE.md`（其他宿主）。详见 [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)。
 
 ---
 

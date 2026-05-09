@@ -204,12 +204,13 @@ Honestly:
 |---|---|---|
 | L0 + L1 entry | [`docs/getting-started.md`](./getting-started.md) (this page) | 30-second + 5-minute |
 | L2 long-form spec | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/) (ships with v1.0) | Full spec |
-| L2 agent-readable rules | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Mandatory agent rules |
+| L2 agent-readable rules (Cursor) | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor host — `alwaysApply: true` |
+| L2 agent-readable rules (others) | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / generic SDK |
 | L2 machine-readable | [`spec/schemas/*.schema.json`](../spec/schemas/) (ships with v1.0) | JSON Schema × 7 abstractions |
 | L3 stories | [`essays/`](../essays/) | Field reports & notes |
 | Decision history | [`adr/`](../adr/) (ADR-0001..0022) | Why we did things |
 
-> **`.cursor/rules/*.mdc` is source-of-truth.** Inside the Python package, `src/fcop/rules/_data/` is the canonical copy; `fcop deploy_rules` syncs it to `.cursor/rules/`. See [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md).
+> **`src/fcop/rules/_data/` is the canonical source.** `deploy_protocol_rules()` (or MCP `redeploy_rules()`) syncs it to `.cursor/rules/*.mdc` (Cursor) and `AGENTS.md` / `CLAUDE.md` (other hosts). See [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md).
 
 ---
 
