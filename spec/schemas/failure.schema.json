@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/failure/v1.0.json",
+  "title": "FCoP Failure & Recovery",
+  "description": "Abstraction 5 of 7 — Failure. Per ADR-0019 (which addresses the most pointed external-architecture critique: 'A real runtime is not the happy path; it is how anomalies survive'). v1.0 freezes 4 failure modes + 5 recovery actions + a minimal Session-recovery hook. POSIX analogy: this is FCoP's errno + signal-handler. Each Failure MUST be paired with at least one Recovery (the pairing rule is enforced at runtime, not in schema, since the mapping is implementation-defined per ADR-0019 §decision).",
+  "version": "1.0.0",
+  "$defs": {
+    "failureType": {
+      "type": "string",
+      "enum": ["TIMEOUT", "CRASH", "DEADLOCK", "DRIFT"],
+      "description": "Per ADR-0019 §failure-modes. FROZEN at 4 for v1.0. TIMEOUT = agent missed `timeout_at`; CRASH = host adapter / reference impl exited abnormally; DEADLOCK = mutual wait between agents; DRIFT = agent output does not match the TASK contract."
+    },
+    "recoveryAction": {
+      "type": "string",
+      "enum": ["RETRY", "RESUME", "ROLLBACK", "ABORT", "ESCALATE"],
+      "description": "Per ADR-0019 §recovery-actions. FROZEN at 5 for v1.0. RETRY = same agent redoes same TASK; RESUME = load session state and continue; ROLLBACK = git-revert to pre-TASK state; ABORT = terminate TASK with status=aborted; ESCALATE = lift to next governance layer."
+    },
+    "isoDateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})?$"
+    },
+    "agentSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id"],
+      "properties": {
+        "task_id":    {"type": "string"},
+        "agent_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9]{0,15}$"}
+      }
+    },
+    "failureRecord": {
+      "type": "object",
+      "title": "Failure record",
+      "description": "Per ADR-0019 §design-details — `Project.report_failure(failure)` accepts this shape and emits a FAILURE_DETECTED event (event.schema.json).",
+      "additionalProperties": false,
+      "required": ["kind", "failure_type", "subject", "detected_at"],
+      "properties": {
+        "kind":         {"const": "failure"},
+        "failure_type": {"$ref": "#/$defs/failureType"},
+        "subject":      {"$ref": "#/$defs/agentSubject"},
+        "detected_at":  {"$ref": "#/$defs/isoDateTime"},
+        "evidence": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Free-form evidence. Per ADR-0019, suggested fields: `last_seen_at`, `exit_code`, `stderr_tail`, `expected`, `actual`, `cycle` (for DEADLOCK)."
+        },
+        "suggested_recovery": {"$ref": "#/$defs/recoveryAction"}
+      }
+    },
+    "recoveryRecord": {
+      "type": "object",
+      "title": "Recovery record",
+      "description": "Per ADR-0019 §design-details — paired with a FailureRecord; emitted as RECOVERY_INITIATED then RECOVERY_COMPLETED events.",
+      "additionalProperties": false,
+      "required": ["kind", "recovery_action", "subject", "initiated_at"],
+      "properties": {
+        "kind":            {"const": "recovery"},
+        "recovery_action": {"$ref": "#/$defs/recoveryAction"},
+        "subject":         {"$ref": "#/$defs/agentSubject"},
+        "initiated_at":    {"$ref": "#/$defs/isoDateTime"},
+        "completed_at":    {"$ref": "#/$defs/isoDateTime"},
+        "outcome": {
+          "type": "string",
+          "enum": ["succeeded", "failed", "in_progress"],
+          "description": "Recovery outcome. `succeeded` triggers RECOVERY_COMPLETED with this value; `failed` triggers RECOVERY_COMPLETED with this value; `in_progress` means RECOVERY_COMPLETED has not yet fired."
+        },
+        "trigger_failure_id": {"type": "string", "description": "ID of the FailureRecord that triggered this recovery (correlation key)."}
+      }
+    },
+    "sessionRecoveryCall": {
+      "type": "object",
+      "title": "Session recovery call",
+      "description": "Per ADR-0019 §session-recovery-hook. The call contract for `Project.recover_session(session_id, action)`. v1.0 minimal surface; full Session schema (LLM context, tool history) is deferred to v1.x.",
+      "additionalProperties": false,
+      "required": ["kind", "session_id", "action"],
+      "properties": {
+        "kind":        {"const": "session_recovery_call"},
+        "session_id":  {"type": "string", "pattern": "^[A-Za-z0-9_.:-]+$", "description": "Per ADR-0019 — implementation-defined; reference impl uses '<task_id>:<agent_code>'."},
+        "action":      {"type": "string", "enum": ["resume", "rollback", "abort"], "description": "Per ADR-0019 — only 3 of the 5 recovery actions are exposed via this hook (RETRY and ESCALATE are caller-side decisions, not session-state operations)."},
+        "metadata":    {"type": "object", "additionalProperties": true, "description": "Free-form bag for v1.x Session schema migration; v1.0 reference impl ignores."}
+      }
+    }
+  },
+  "type": "object",
+  "oneOf": [
+    {"$ref": "#/$defs/failureRecord"},
+    {"$ref": "#/$defs/recoveryRecord"},
+    {"$ref": "#/$defs/sessionRecoveryCall"}
+  ]
+}

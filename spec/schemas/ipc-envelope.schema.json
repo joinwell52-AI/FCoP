@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/ipc-envelope/v1.0.json",
+  "title": "FCoP IPC Envelope",
+  "description": "Abstraction 3 of 7 — IPC. Per ADR-0015 §abstractions and ADR-0021 §IPC-Surface, this schema covers the four envelope types that share a common frontmatter base: TASK, REPORT, ISSUE, REVIEW. The shared base is intentionally small (protocol/version/sender/type); per-envelope discriminator branches add the type-specific required fields. Root uses `additionalProperties: true` so 0.7.x files with extra unknown frontmatter keys remain valid (per ADR-0003 backward-compat).",
+  "version": "1.0.0",
+  "type": "object",
+  "$defs": {
+    "roleCode": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]{0,15}$",
+      "description": "An agent role code. Per agent.schema.json."
+    },
+    "isoDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})?)?$",
+      "description": "ISO-8601 date or datetime."
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["P0", "P1", "P2", "P3"],
+      "description": "Priority bucket inherited from 0.7.x convention. P0 = critical, P3 = low. Per existing fcop-spec-v1.0.3.md (preserved verbatim for v1.0)."
+    },
+    "envelopeBase": {
+      "type": "object",
+      "description": "Shared frontmatter base for all four envelope types (per ADR-0021 §required_frontmatter_base).",
+      "required": ["protocol", "version", "type", "sender"],
+      "properties": {
+        "protocol": {"const": "fcop", "description": "Conformance marker. MUST be the literal string 'fcop'."},
+        "version":  {"const": 1, "description": "FCoP envelope version. v1.0 uses integer 1; will become 2 only on a MAJOR protocol bump per ADR-0003."},
+        "type":     {"type": "string", "enum": ["TASK", "REPORT", "ISSUE", "REVIEW"]},
+        "sender":   {"$ref": "#/$defs/roleCode"},
+        "date":     {"$ref": "#/$defs/isoDate", "description": "Authoring date. Per 0.7.x convention; not strictly required for v1.0 but MUST validate against isoDate when present."},
+        "subject":  {"type": "string", "minLength": 1, "description": "One-line human-readable subject."}
+      }
+    },
+    "task": {
+      "title": "TASK envelope",
+      "description": "Per existing 0.7.x spec + ADR-0015. A directive from sender to recipient. Filename: TASK-{date}-{seq}-{from}-to-{to}.md.",
+      "allOf": [{"$ref": "#/$defs/envelopeBase"}],
+      "required": ["recipient", "subject"],
+      "properties": {
+        "type": {"const": "TASK"},
+        "recipient": {"$ref": "#/$defs/roleCode"},
+        "priority":  {"$ref": "#/$defs/priority"},
+        "status":    {"type": "string", "enum": ["pending", "accepted", "in_progress", "blocked", "done", "aborted"], "description": "Optional explicit status; absent = 'pending'. Per 0.7.x + ADR-0019 (`aborted` added by ADR-0019 §abort recovery action)."},
+        "ref_task":  {"type": "string", "description": "Optional reference to a parent TASK file path."},
+        "timeout_at": {"$ref": "#/$defs/isoDate", "description": "Per ADR-0019 §TIMEOUT failure mode trigger."}
+      }
+    },
+    "report": {
+      "title": "REPORT envelope",
+      "description": "Per existing 0.7.x spec. The recipient's self-reported status reply to a TASK. Filename: REPORT-{date}-{seq}-{from}-to-{to}.md.",
+      "allOf": [{"$ref": "#/$defs/envelopeBase"}],
+      "required": ["recipient", "ref_task", "status"],
+      "properties": {
+        "type": {"const": "REPORT"},
+        "recipient": {"$ref": "#/$defs/roleCode"},
+        "ref_task":  {"type": "string", "description": "Path to the TASK file this REPORT replies to."},
+        "status":    {"type": "string", "enum": ["accepted", "in_progress", "blocked", "done", "aborted"], "description": "Worker self-status. `aborted` per ADR-0019 §recovery."},
+        "priority":  {"$ref": "#/$defs/priority"}
+      }
+    },
+    "issue": {
+      "title": "ISSUE envelope",
+      "description": "Per existing 0.7.x spec. A blocker or open question raised by sender, not directed at a single recipient. Filename: ISSUE-{date}-{seq}-{from}.md.",
+      "allOf": [{"$ref": "#/$defs/envelopeBase"}],
+      "required": ["subject"],
+      "properties": {
+        "type": {"const": "ISSUE"},
+        "priority": {"$ref": "#/$defs/priority"},
+        "ref_task": {"type": "string", "description": "Optional reference to a TASK that triggered the issue."}
+      }
+    },
+    "review": {
+      "title": "REVIEW envelope (v1.0 minimal surface)",
+      "description": "Per ADR-0017. New envelope type added in v1.0. Filename: REVIEW-{date}-{seq}-{reviewer}-on-{subject_ref_short}.md. v1.0 deliberately does NOT include needs_human / human_approval — those are deferred to v1.2+ per ADR-0015 §non-goals. Detailed REVIEW schema is in review.schema.json; this stub covers the envelope-level requirements only.",
+      "allOf": [{"$ref": "#/$defs/envelopeBase"}],
+      "required": ["subject_type", "subject_ref", "decision"],
+      "properties": {
+        "type": {"const": "REVIEW"},
+        "subject_type": {"$ref": "https://fcop.dev/schemas/review/v1.0.json#/$defs/subjectType"},
+        "subject_ref":  {"type": "string", "description": "Reference to the artefact under review (file path for task/report/code_change, fcop.json roles diff for role_switch). Per ADR-0017."},
+        "decision":     {"$ref": "https://fcop.dev/schemas/review/v1.0.json#/$defs/decisionEnum"},
+        "rationale":    {"type": "string", "description": "Body-text rationale for the decision. SHOULD be present for non-`abstained` decisions."},
+        "required_changes": {"type": "array", "items": {"type": "string"}, "description": "Per ADR-0017. Required only when decision = `needs_changes`; SHOULD be empty otherwise."}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["protocol", "version", "type", "sender"],
+  "oneOf": [
+    {"$ref": "#/$defs/task"},
+    {"$ref": "#/$defs/report"},
+    {"$ref": "#/$defs/issue"},
+    {"$ref": "#/$defs/review"}
+  ]
+}
