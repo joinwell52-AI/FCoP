@@ -1,7 +1,7 @@
 ---
 description: FCoP Protocol commentary (AI OS protocol layer · v1.0) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（AI OS 协议层 · v1.0）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 1.8.0
+fcop_protocol_version: 1.9.0
 ---
 
 <!--
@@ -28,18 +28,14 @@ works the same.
 > directory layout, patrol triggers. Both files are `alwaysApply: true`.
 > In case of conflict, **`fcop-rules.mdc` wins**.
 
-> **v1.0 Capabilities pointer**（v1.7.0 起）：v1.0 新增 Rule 9（4 子段
-> 对应 REVIEW / Boundary / Failure / Event 4 抽象）的详细 commentary
-> 留 v1.0 final 版本补完；现阶段 agent 想用这些能力，参考：
+> **v1.0 final（fcop_protocol_version 1.9.0）**：Rule 9 的完整
+> commentary 已补入文末"Rule 9 Commentary"节。七大核心概念的规范性定义
+> 见 `spec/fcop-runtime-protocol-v1.0.md`（英文）/ `.zh.md`（中文）。
 >
-> - `spec/schemas/{review,boundary,failure,event}.schema.json` — 字段层面
-> - `adr/ADR-0017..0020` — 决策与理由
-> - `docs/getting-started.md` 末尾"v1.0 新能力速查" — 5 行示例
->
-> v1.7.0+: detailed commentary for Rule 9 sub-sections (REVIEW /
-> Boundary / Failure / Event) is deferred to v1.0 final. For now,
-> consult `spec/schemas/`, ADR-0017..0020, and the "v1.0 capability
-> cheatsheet" appendix in `docs/getting-started.en.md`.
+> **v1.0 final (fcop_protocol_version 1.9.0)**: Full Rule 9 commentary
+> is now in the "Rule 9 Commentary" section at the end of this file.
+> Normative definitions of the seven core concepts:
+> `spec/fcop-runtime-protocol-v1.0.md` (EN) / `.zh.md` (ZH).
 
 ## Core Principle / 核心原则
 
@@ -954,6 +950,23 @@ Three things the protocol explicitly grants you:
 
 ## Protocol Version Log / 协议版本记录
 
+- **v1.9** (2026-05-10) — **v1.0 final · Rule 9 complete commentary + 七大核心概念**,
+  shipped with `fcop@1.0.0`:
+  1. **Rule 9 Commentary** 节（9.1–9.4）补完——REVIEW 命名、Boundary 层级检查清单、
+     Failure 4×5 操作指南、Event 12 类型与 `poll_once()` 使用说明。
+  2. 顶部 v1.7.0 占位 note 替换为指向正式 commentary 节的引用。
+  3. `fcop-rules.mdc` 同步升至 **2.1.0**：新增"FCoP 定位与七大核心概念"双语小节
+     （AI OS 协议栈三层图示 + 七概念对照表）。
+  4. `AGENTS.md` / `CLAUDE.md` 同步重新生成（rules 2.1.0 / protocol 1.9.0）。
+
+  v1.9 changes:
+  1. Added **Rule 9 Commentary** section (9.1–9.4): REVIEW naming, Boundary
+     layer checklist, Failure 4×5 operations guide, Event 12 types & `poll_once()`.
+  2. Replaced v1.7 deferral note at top with a pointer to the now-complete section.
+  3. `fcop-rules.mdc` bumped to **2.1.0**: new bilingual "Protocol Position &
+     Seven Core Concepts" section (AI OS stack diagram + seven-concept table).
+  4. `AGENTS.md` / `CLAUDE.md` regenerated (rules 2.1.0 / protocol 1.9.0).
+
 - **v1.7** (2026-05-09) — **AI OS Protocol Layer + Rule 9 (v1.0 capabilities)**,
   shipped with `fcop 1.0.0-rc.1` / `fcop-mcp 1.0.0-rc.1`:
   1. New **Rule 9 · v1.0 Capabilities** in `fcop-rules.mdc` (1.9.0)
@@ -1144,6 +1157,156 @@ Patrol result / 巡检结果：
   完成任务后必须写报告（或派出后续任务）。
 - Always record blockers as `ISSUE-*.md` under `issues/`.
   阻塞 / 风险必须写成 `ISSUE-*.md` 落到 `issues/`。
+
+---
+
+## Rule 9 Commentary · v1.0 新增能力的协议解释
+
+> 本节是 `fcop-rules.mdc` Rule 9（9.1–9.4）的**协议解释**，
+> 说明四个 v1.0 抽象在实际操作中如何落地。规则本身以 `fcop-rules.mdc` 为准。
+>
+> This section is the **protocol commentary** for Rule 9 (9.1–9.4)
+> — how the four v1.0 abstractions apply in practice.
+> The authoritative rules are in `fcop-rules.mdc`.
+
+### 9.1 Commentary · REVIEW 文件命名与 Audit 链
+
+**文件命名 / File naming**
+
+```
+REVIEW-{YYYYMMDD}-{NNN}-{REVIEWER}.md
+# 示例 / example
+REVIEW-20260510-001-LEAD-QA.md
+```
+
+`{NNN}` 是当天的三位序号，与 TASK/REPORT/ISSUE 共用同一命名空间
+（不是 review 独立的序号体系）。
+
+**YAML frontmatter 必填字段 / Required frontmatter fields**
+
+```yaml
+subject_id: TASK-20260510-002-ADMIN-to-ME   # 被审核的文件 ID
+decision: approved                           # approved | changes_requested | blocked | rejected
+reviewer: LEAD-QA
+reviewed_at: "2026-05-10T01:30:00+08:00"
+```
+
+**写 REVIEW 的时机 / When to write a REVIEW**
+
+- agent 被要求对某 TASK/REPORT/ISSUE 给出判断时。
+- 不要用 REVIEW 替代 REPORT 关闭任务（Rule 6 互惠）。
+- REVIEW 是 **audit 痕迹**，不启动新工作轮次。
+
+When an agent is asked to render a judgment on a TASK / REPORT / ISSUE.
+Do not substitute REVIEW for REPORT when closing a task (Rule 6
+reciprocity still applies). REVIEW is an **audit artefact**, not a
+new work round.
+
+### 9.2 Commentary · Boundary 层级与能力检查清单
+
+**层级定义 / Layer definitions**（`fcop.json` → `roles[n].layer`）
+
+| 层级 / Layer | 典型角色 | 权限范围 |
+|---|---|---|
+| `worker` | ME, DEV, QA, WRITER … | 执行任务；不能审核 governance 主体 |
+| `governance` | LEAD-*, PM, PLANNER | 决策派发；不能新建 governance 角色 |
+| `admin` | ADMIN | 最高权限；programmatic 创建须显式 override |
+
+**能力 `can` / `cannot` 示例**（`fcop.json`）
+
+```json
+{
+  "role": "DEV",
+  "layer": "worker",
+  "can": ["write_code", "write_report", "write_issue"],
+  "cannot": ["approve_pr", "create_role"]
+}
+```
+
+**Agent 自查清单 / Self-check checklist**
+
+在写下敏感操作前，逐项确认：
+1. 我的 `layer` 允许此操作吗？
+2. 此操作是否违反 `cannot` 列表？
+3. 操作对象是 `governance` subject 吗？（`worker` 止步）
+
+Before a sensitive write, check:
+1. Does my `layer` allow this?
+2. Is this action in my `cannot` list?
+3. Is the subject a `governance` artefact? (`worker` must stop.)
+
+**违规处置 / Violation handling**
+
+调用 `report_failure(failure_type="BOUNDARY_VIOLATED", ...)` 并写
+`ISSUE-` 记录违规。**禁止** "just this once" 绕过。
+
+Call `report_failure(failure_type="BOUNDARY_VIOLATED", ...)` and write
+an `ISSUE-`. No "just this once" bypass.
+
+### 9.3 Commentary · Failure 检测与恢复操作指南
+
+**4 类 failure 的触发场景 / When each failure type fires**
+
+| 类型 | 触发场景 | 典型表现 |
+|---|---|---|
+| `TIMEOUT` | 任务超过约定截止时间无 REPORT | 任务文件存在但无响应 |
+| `CRASH` | agent 中途停止，未写 REPORT | 文件半成品 |
+| `DEADLOCK` | 两个角色互等对方先动 | 双方 TASK 均 pending |
+| `DRIFT` | 实际执行偏离 TASK 描述 | REPORT 内容与 TASK 不匹配 |
+
+**5 类恢复动作说明 / Recovery action guide**
+
+| 动作 | 行为 | 注意 |
+|---|---|---|
+| `RETRY` | 重新执行同一任务（plan-only） | agent 拿到 plan 自行执行 |
+| `RESUME` | 从断点继续（plan-only） | 需确认文件状态 |
+| `ROLLBACK` | 回退到上一稳定状态（plan-only） | FCoP 不替你 git revert |
+| `ABORT` | 放弃，自动写 `status=aborted` REPORT | 永久记录 |
+| `ESCALATE` | 上报，自动写 ISSUE 给 leader | 人工介入入口 |
+
+**检测示例（Python SDK）**
+
+```python
+project.report_failure(
+    failure_type="TIMEOUT",
+    subject_id="TASK-20260510-003-ADMIN-to-ME",
+    detail="No REPORT received within 2-hour window.",
+)
+```
+
+### 9.4 Commentary · Event 订阅与扫描操作指南
+
+**v1.0 frozen 12 事件类型 / 12 frozen event types**（`event_type` enum）
+
+```
+TASK_CREATED  TASK_ARCHIVED  TASK_CANCELLED
+REPORT_CREATED  ISSUE_CREATED  ISSUE_RESOLVED
+REVIEW_CREATED  PATROL_TRIGGERED  PATROL_COMPLETED
+FAILURE_DETECTED  BOUNDARY_VIOLATED  PROJECT_INITIALIZED
+```
+
+完整 schema 见 `spec/schemas/event.schema.json`。
+
+**订阅与扫描 / Subscribe & scan**
+
+```python
+def on_event(event):
+    print(event.event_type, event.subject_id)
+
+project.subscribe_events(callback=on_event)
+project.poll_once()          # 必须显式调用——v1.0 无后台线程
+```
+
+**重要约束 / Key constraints**
+
+- 事件**不持久化**——重启后不重播。需要审计的必须落成文件。
+- 绝不创造 schema 未承认的事件类型。
+- `poll_once()` 是同步调用；高频场景自行在外部 loop。
+
+Events are **not persisted** — they don't replay after restart. All
+audit-relevant activity must be landed as files. Never invent event
+types not in the schema. `poll_once()` is synchronous; wrap it in
+your own loop for high-frequency scenarios.
 
 ---
 

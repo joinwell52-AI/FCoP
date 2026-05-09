@@ -1,7 +1,7 @@
 ---
 description: FCoP Rules (AI OS protocol layer · v1.0 — agent runtime contract for filesystem-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（AI OS 协议层 · v1.0 —— agent 在共享文件系统上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 2.0.0
+fcop_rules_version: 2.1.0
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -35,6 +35,58 @@ A "team" can be multi-agent/multi-role or single-agent (`solo`). In every
 case: coordination goes through files (Rule 0.a), no single role completes
 decision-plus-execution alone (Rule 0.b), and what gets landed in a file
 must be truthful (Rule 0.c).
+
+---
+
+## FCoP 的定位与七大核心概念 / Protocol Position & Seven Core Concepts
+
+### 协议层定位 / Protocol Layer
+
+FCoP 工作在 **AI OS 协议层**——位于 LLM 推理层之上、业务应用层之下，
+类似 POSIX 对操作系统的作用：它定义 agent 之间通过**共享文件系统**
+进行协调的标准接口，与底层 LLM、宿主 IDE 和业务代码无关。
+
+FCoP operates at the **AI OS protocol layer** — above LLM inference,
+below application code. Analogous to POSIX: it defines the standard
+interface by which agents coordinate through a **shared file system**,
+independent of the underlying LLM, host IDE, or business logic.
+
+```
+┌─────────────────────────────────────────────────┐
+│            Business / Application Layer          │
+├─────────────────────────────────────────────────┤
+│   FCoP · AI OS Protocol Layer  ← 本协议所在层   │
+│   (Agent · IPC · Encoding · Event ·             │
+│    Failure · Boundary · Audit)                  │
+├─────────────────────────────────────────────────┤
+│         Host IDE / LLM Inference Layer          │
+└─────────────────────────────────────────────────┘
+```
+
+### 七大核心概念 / Seven Core Concepts
+
+v1.0 固化以下七个核心概念——它们是整份协议的骨架，
+Rule 0–9 都是这七个概念在不同场景下的具体实施。
+
+v1.0 stabilises seven core concepts — the skeleton of the entire
+protocol. Rules 0–9 are their concrete manifestations in specific
+scenarios.
+
+| 概念 / Concept | 中文定义 | English definition |
+|---|---|---|
+| **Agent** | 拥有身份 + 能力边界的 AI 执行单元 | An AI execution unit with an identity and a capability boundary |
+| **IPC** | 通过文件（TASK / REPORT / ISSUE / REVIEW）进行的进程间通信 | Inter-process communication via files (TASK / REPORT / ISSUE / REVIEW) |
+| **Encoding** | YAML frontmatter + Markdown 正文的统一文件模式 | Uniform file schema: YAML frontmatter + Markdown body |
+| **Event** | 状态变更的推送通知（事件总线） | Push notifications for state changes (event bus) |
+| **Failure** | 失败检测与恢复语义（4 类型 × 5 动作） | Failure detection and recovery semantics (4 types × 5 actions) |
+| **Boundary** | agent 的能力许可与权限边界 | Agent capability permissions and scope boundaries |
+| **Audit** | 不可篡改的操作审计链（不得重写历史） | Immutable audit trail — history must not be rewritten |
+
+> 详细定义见 `spec/fcop-runtime-protocol-v1.0.md`（英文规范）
+> 或 `spec/fcop-runtime-protocol-v1.0.zh.md`（中文版）。
+>
+> Full normative definitions: `spec/fcop-runtime-protocol-v1.0.md` (EN)
+> or `spec/fcop-runtime-protocol-v1.0.zh.md` (ZH).
 
 ---
 
@@ -658,8 +710,16 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.0.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 2.1.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**2.1.0 changes / 2.1.0 变更**:
+
+- 新增 **"FCoP 的定位与七大核心概念"** 小节（在 Purpose 之后）：
+  - AI OS 协议栈三层图示（Application / FCoP / Host·LLM）
+  - 七大核心概念对照表（Agent / IPC / Encoding / Event / Failure / Boundary / Audit）
+  - 指向 `spec/fcop-runtime-protocol-v1.0.md` 的规范性引用
+- Rule 0–9 主体不变。
 
 **1.9.0 changes / 1.9.0 变更**（随 `fcop@1.0.0-rc.1`）:
 
