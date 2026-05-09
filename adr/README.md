@@ -99,6 +99,14 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0004](./ADR-0004-time-is-filesystem.md) | 时间由文件系统提供，不由 Frontmatter 提供 | Accepted | 2026-04-23 |
 | [ADR-0005](./ADR-0005-agent-output-layering.md) | Agent 产出物分层（Observation Output Lifecycle） | Accepted | 2026-04-23 |
 | [ADR-0006](./ADR-0006-host-neutral-rule-distribution.md) | 协议规则的宿主中立分发与升级 | Accepted | 2026-04-25 |
+| [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md) | FCoP 1.0 Protocol Freeze Charter（响应 [Issue #2](https://github.com/joinwell52-AI/FCoP/issues/2) / 8 ADR roadmap） | Accepted | 2026-05-09 |
+| [ADR-0008](./ADR-0008-json-schema-as-machine-readable-spec.md) | JSON Schema as Machine-Readable Spec（1.0.0 地基） | Proposed | 2026-05-09 |
+| [ADR-0009](./ADR-0009-review-file-type-and-grammar.md) | `REVIEW-*.md` File Type & Filename Grammar（1.0.0 地基） | Proposed | 2026-05-09 |
+| [ADR-0010](./ADR-0010-agent-layer-field.md) | `Agent.layer` field（1.1.0 governance / Issue #2 Field 1） | Proposed | 2026-05-09 |
+| [ADR-0011](./ADR-0011-task-risk-level-field.md) | `Task.risk_level` field（1.1.0 governance / Issue #2 Field 2） | Proposed | 2026-05-09 |
+| [ADR-0012](./ADR-0012-review-decision-needs-human.md) | `Review.decision = needs_human` enum extension（1.1.0 governance / Issue #2 Field 3） | Proposed | 2026-05-09 |
+| [ADR-0013](./ADR-0013-review-human-approval.md) | `Review.human_approval` sub-structure（1.1.0 governance / Issue #2 Field 4） | Proposed | 2026-05-09 |
+| [ADR-0014](./ADR-0014-skill-tools-risk-metadata.md) | `Skill.tools[]` risk metadata（1.1.0 governance / Issue #2 Field 5） | Proposed | 2026-05-09 |
 
 ## 工作流
 
