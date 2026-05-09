@@ -1466,6 +1466,17 @@
           }
         ],
         "return": "pathlib.Path"
+      },
+      "workspace_layout": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "str"
       }
     }
   },

@@ -31,7 +31,7 @@ def _write_minimal(project: Project, **overrides) -> Review:
     kwargs = dict(
         reviewer_role="ADMIN",
         subject_type="task",
-        subject_ref="docs/agents/tasks/TASK-20260601-001-PM-to-DEV.md",
+        subject_ref="fcop/tasks/TASK-20260601-001-PM-to-DEV.md",
         decision="approved",
     )
     kwargs.update(overrides)
@@ -69,7 +69,7 @@ class TestWriteReview:
     def test_subject_short_derived(self, project):
         r = _write_minimal(
             project,
-            subject_ref="docs/agents/tasks/TASK-20260601-001-PM-to-DEV.md",
+            subject_ref="fcop/tasks/TASK-20260601-001-PM-to-DEV.md",
             date="20260601",
         )
         # 应 derive 出 task-20260601-001-pm-to-dev

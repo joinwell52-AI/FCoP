@@ -54,12 +54,12 @@ class TestIdentity:
         project = Project(tmp_path)
         root = project.path
 
-        assert project.tasks_dir == root / "docs" / "agents" / "tasks"
-        assert project.reports_dir == root / "docs" / "agents" / "reports"
-        assert project.issues_dir == root / "docs" / "agents" / "issues"
-        assert project.shared_dir == root / "docs" / "agents" / "shared"
-        assert project.log_dir == root / "docs" / "agents" / "log"
-        assert project.config_path == root / "docs" / "agents" / "fcop.json"
+        assert project.tasks_dir == root / "fcop" / "tasks"
+        assert project.reports_dir == root / "fcop" / "reports"
+        assert project.issues_dir == root / "fcop" / "issues"
+        assert project.shared_dir == root / "fcop" / "shared"
+        assert project.log_dir == root / "fcop" / "log"
+        assert project.config_path == root / "fcop" / "fcop.json"
 
 
 # ── is_initialized ────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ class TestIsInitialized:
         assert Project(tmp_path).is_initialized() is False
 
     def test_true_when_fcop_json_present(self, tmp_path: Path) -> None:
-        cfg_path = tmp_path / "docs" / "agents" / "fcop.json"
+        cfg_path = tmp_path / "fcop" / "fcop.json"
         cfg_path.parent.mkdir(parents=True)
         cfg_path.write_text("{}", encoding="utf-8")
         assert Project(tmp_path).is_initialized() is True
@@ -84,7 +84,7 @@ class TestIsInitialized:
     def test_malformed_json_does_not_raise(self, tmp_path: Path) -> None:
         # Sensible agents should be able to *ask* whether init is needed
         # without handling ConfigError just to get a boolean.
-        cfg_path = tmp_path / "docs" / "agents" / "fcop.json"
+        cfg_path = tmp_path / "fcop" / "fcop.json"
         cfg_path.parent.mkdir(parents=True)
         cfg_path.write_text("not json", encoding="utf-8")
         assert Project(tmp_path).is_initialized() is True
@@ -92,7 +92,7 @@ class TestIsInitialized:
     def test_directory_at_config_path_is_not_init(self, tmp_path: Path) -> None:
         # A directory accidentally named fcop.json shouldn't be mistaken
         # for an initialized project — use is_file() specifically.
-        dir_at_cfg = tmp_path / "docs" / "agents" / "fcop.json"
+        dir_at_cfg = tmp_path / "fcop" / "fcop.json"
         dir_at_cfg.mkdir(parents=True)
         assert Project(tmp_path).is_initialized() is False
 
@@ -102,7 +102,7 @@ class TestIsInitialized:
 
 def _write_config(root: Path, payload: dict[str, object]) -> Path:
     """Helper: write *payload* as docs/agents/fcop.json under *root*."""
-    path = root / "docs" / "agents" / "fcop.json"
+    path = root / "fcop" / "fcop.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     return path
@@ -181,11 +181,11 @@ class TestConfigLoading:
         # The error should carry the offending path so agents can report
         # it without reimplementing the layout logic.
         assert excinfo.value.path == (
-            tmp_path / "docs" / "agents" / "fcop.json"
+            tmp_path / "fcop" / "fcop.json"
         )
 
     def test_malformed_json_raises(self, tmp_path: Path) -> None:
-        cfg_path = tmp_path / "docs" / "agents" / "fcop.json"
+        cfg_path = tmp_path / "fcop" / "fcop.json"
         cfg_path.parent.mkdir(parents=True)
         cfg_path.write_text("{ not valid", encoding="utf-8")
         with pytest.raises(ConfigError):
@@ -274,9 +274,9 @@ class TestStatus:
         assert status.path == tmp_path.resolve()
 
     def test_counts_tasks_reports_and_issues(self, tmp_path: Path) -> None:
-        tasks = tmp_path / "docs" / "agents" / "tasks"
-        reports = tmp_path / "docs" / "agents" / "reports"
-        issues = tmp_path / "docs" / "agents" / "issues"
+        tasks = tmp_path / "fcop" / "tasks"
+        reports = tmp_path / "fcop" / "reports"
+        issues = tmp_path / "fcop" / "issues"
 
         _write(tasks / "TASK-20260101-001-ADMIN-to-PM.md")
         _write(tasks / "TASK-20260101-002-PM-to-DEV.md")
@@ -296,7 +296,7 @@ class TestStatus:
         assert status.issues_count == 1
 
     def test_archived_tasks_counted_separately(self, tmp_path: Path) -> None:
-        log_tasks = tmp_path / "docs" / "agents" / "log" / "tasks"
+        log_tasks = tmp_path / "fcop" / "log" / "tasks"
         _write(log_tasks / "TASK-20251230-001-ADMIN-to-PM.md")
         _write(log_tasks / "TASK-20251231-001-PM-to-DEV.md")
 
@@ -305,9 +305,9 @@ class TestStatus:
         assert status.tasks_archived == 2
 
     def test_recent_activity_sorted_newest_first(self, tmp_path: Path) -> None:
-        tasks = tmp_path / "docs" / "agents" / "tasks"
-        reports = tmp_path / "docs" / "agents" / "reports"
-        issues = tmp_path / "docs" / "agents" / "issues"
+        tasks = tmp_path / "fcop" / "tasks"
+        reports = tmp_path / "fcop" / "reports"
+        issues = tmp_path / "fcop" / "issues"
 
         # Write in one order, then perturb mtimes so ordering isn't just
         # iteration order.

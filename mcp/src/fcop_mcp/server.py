@@ -450,7 +450,27 @@ def _parse_refs_list(references: str) -> tuple[str, ...]:
     return tuple(r.strip() for r in references.split(",") if r.strip())
 
 
-def _letter_handover_block(lang: str) -> str:
+def _letter_relpath(project: fcop.Project) -> str:
+    """Return the project-root-relative path of the deposited LETTER.
+
+    v1.0 (per ADR-0022) lets the workspace live at ``fcop/`` (default),
+    ``docs/agents/`` (legacy 0.7.x), or any caller-specified directory.
+    The init reply must point ADMIN at the *real* path, not a
+    hard-coded one — otherwise the user follows the chat's instructions
+    and lands in the wrong directory.
+    """
+    try:
+        rel = project.workspace_dir.relative_to(project.path).as_posix()
+    except ValueError:
+        # Workspace lives outside project root (rare; explicit absolute
+        # override). Surface the absolute path; not pretty but correct.
+        rel = str(project.workspace_dir).replace("\\", "/")
+    return f"{rel}/LETTER-TO-ADMIN.md"
+
+
+def _letter_handover_block(
+    lang: str, *, letter_relpath: str = "fcop/LETTER-TO-ADMIN.md"
+) -> str:
     """Compose the post-init "give the letter to ADMIN" block.
 
     Why this exists. 0.6.3 deposited ``LETTER-TO-ADMIN.md`` to disk
@@ -464,10 +484,14 @@ def _letter_handover_block(lang: str) -> str:
 
     The slice is bounded — pasting the entire 500-line letter into
     every init reply would torch the chat context. Agents needing
-    the full text read it from ``docs/agents/LETTER-TO-ADMIN.md``
-    on disk or from the ``fcop://letter/zh|en`` MCP resource
-    (already exposed). Both endpoints are advertised inside the
-    handover block so the next step is obvious.
+    the full text read it from the ``letter_relpath`` argument
+    (project-root-relative) or the ``fcop://letter/zh|en`` MCP
+    resource (already exposed). Both endpoints are advertised inside
+    the handover block so the next step is obvious.
+
+    Per ADR-0022 the on-disk path is now project-aware (``fcop/`` for
+    v1.0 default, ``docs/agents/`` for legacy projects, or whatever
+    explicit override the project was constructed with).
 
     The Chinese / English copy track each other and use a fenced
     region with a leading marker line so a follow-up parser (or a
@@ -493,7 +517,7 @@ def _letter_handover_block(lang: str) -> str:
             "has read it, ask whether they want the full manual.\n"
             "\n"
             "Full manual lives in two places:\n"
-            "  • on disk: docs/agents/LETTER-TO-ADMIN.md\n"
+            f"  • on disk: {letter_relpath}\n"
             "  • MCP resource: fcop://letter/en\n"
             "\n"
             "──────── BEGIN LETTER (intro slice) ────────\n"
@@ -517,7 +541,7 @@ def _letter_handover_block(lang: str) -> str:
             "看完整版。\n"
             "\n"
             "完整说明书有两处可读：\n"
-            "  • 本地文件：docs/agents/LETTER-TO-ADMIN.md\n"
+            f"  • 本地文件：{letter_relpath}\n"
             "  • MCP 资源：fcop://letter/zh\n"
             "\n"
             "──────── 信件开始（前导段） ────────\n"
@@ -589,6 +613,7 @@ def init_project(
 
     cfg = status.config
     assert cfg is not None, "init must produce a config"
+    letter_relpath = _letter_relpath(project)
     lines = [
         f"Project initialized: {cfg.team} (lang={cfg.lang})",
         f"Path: {status.path}",
@@ -596,12 +621,12 @@ def init_project(
         f"Leader: {cfg.leader}",
         "Directories: tasks/, reports/, issues/, shared/, log/",
         "Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md",
-        "Letter deposited: docs/agents/LETTER-TO-ADMIN.md",
+        f"Letter deposited: {letter_relpath}",
         "",
         "下一步 / next: fcop_report 查看状态后，"
         "由 ADMIN 通过『你是 <ROLE>』语句为本会话分配角色。",
         "",
-        _letter_handover_block(cfg.lang),
+        _letter_handover_block(cfg.lang, letter_relpath=letter_relpath),
     ]
     return "\n".join(lines)
 
@@ -662,6 +687,7 @@ def init_solo(
     cfg = status.config
     assert cfg is not None
     label = role_label.strip() or cfg.leader
+    letter_relpath = _letter_relpath(project)
     return (
         f"Solo-mode project initialized.\n"
         f"Path: {status.path}\n"
@@ -669,9 +695,9 @@ def init_solo(
         f"Lang: {cfg.lang}\n"
         f"Directories: tasks/, reports/, issues/, shared/, log/\n"
         f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md\n"
-        f"Letter deposited: docs/agents/LETTER-TO-ADMIN.md\n"
+        f"Letter deposited: {letter_relpath}\n"
         f"\n"
-        f"{_letter_handover_block(cfg.lang)}"
+        f"{_letter_handover_block(cfg.lang, letter_relpath=letter_relpath)}"
     )
 
 
@@ -735,6 +761,7 @@ def create_custom_team(
 
     cfg = status.config
     assert cfg is not None
+    letter_relpath = _letter_relpath(project)
     return (
         f"Custom team created: {team_name}\n"
         f"Path: {status.path}\n"
@@ -742,9 +769,9 @@ def create_custom_team(
         f"Leader: {cfg.leader}\n"
         f"Lang: {cfg.lang}\n"
         f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md\n"
-        f"Letter deposited: docs/agents/LETTER-TO-ADMIN.md\n"
+        f"Letter deposited: {letter_relpath}\n"
         f"\n"
-        f"{_letter_handover_block(cfg.lang)}"
+        f"{_letter_handover_block(cfg.lang, letter_relpath=letter_relpath)}"
     )
 
 

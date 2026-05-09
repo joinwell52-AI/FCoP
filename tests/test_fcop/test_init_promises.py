@@ -26,8 +26,8 @@ from fcop import Project
 # init-time deposits are introduced; intentionally kept as a flat
 # list so a regression shows up as a missing path, not a logic bug.
 _BASE_DEPOSITS = (
-    "docs/agents/fcop.json",
-    "docs/agents/LETTER-TO-ADMIN.md",
+    "fcop/fcop.json",
+    "fcop/LETTER-TO-ADMIN.md",
     "workspace/README.md",
     ".cursor/rules/fcop-rules.mdc",
     ".cursor/rules/fcop-protocol.mdc",
@@ -39,12 +39,12 @@ _BASE_DEPOSITS = (
 # three-layer team docs). Custom teams have no bundled templates so
 # this set is *not* asserted for them.
 _TEAM_TEMPLATE_DEPOSITS = (
-    "docs/agents/shared/TEAM-README.md",
-    "docs/agents/shared/TEAM-README.en.md",
-    "docs/agents/shared/TEAM-ROLES.md",
-    "docs/agents/shared/TEAM-ROLES.en.md",
-    "docs/agents/shared/TEAM-OPERATING-RULES.md",
-    "docs/agents/shared/TEAM-OPERATING-RULES.en.md",
+    "fcop/shared/TEAM-README.md",
+    "fcop/shared/TEAM-README.en.md",
+    "fcop/shared/TEAM-ROLES.md",
+    "fcop/shared/TEAM-ROLES.en.md",
+    "fcop/shared/TEAM-OPERATING-RULES.md",
+    "fcop/shared/TEAM-OPERATING-RULES.en.md",
 )
 
 
@@ -66,12 +66,12 @@ class TestInitPresetDeposits:
         # Per-role layer-3 charters land for every role in the team.
         for role in ("PM", "DEV", "QA", "OPS"):
             for ext in (".md", ".en.md"):
-                rel = f"docs/agents/shared/roles/{role}{ext}"
+                rel = f"fcop/shared/roles/{role}{ext}"
                 assert (tmp_path / rel).is_file(), f"missing role charter {rel}"
 
     def test_letter_lang_follows_init_lang_zh(self, tmp_path: Path) -> None:
         Project(tmp_path).init(team="dev-team", lang="zh", deploy_rules=True)
-        letter = (tmp_path / "docs/agents/LETTER-TO-ADMIN.md").read_text(
+        letter = (tmp_path / "fcop/LETTER-TO-ADMIN.md").read_text(
             encoding="utf-8"
         )
         # The Chinese letter has a recognisable opening; checking a
@@ -80,7 +80,7 @@ class TestInitPresetDeposits:
 
     def test_letter_lang_follows_init_lang_en(self, tmp_path: Path) -> None:
         Project(tmp_path).init(team="dev-team", lang="en", deploy_rules=True)
-        letter = (tmp_path / "docs/agents/LETTER-TO-ADMIN.md").read_text(
+        letter = (tmp_path / "fcop/LETTER-TO-ADMIN.md").read_text(
             encoding="utf-8"
         )
         assert "Hi ADMIN" in letter or "User Manual" in letter
@@ -93,7 +93,7 @@ class TestInitPresetDeposits:
         with pytest.raises(ValueError) as excinfo:
             Project(tmp_path).init(team="solo")
         assert "init_solo" in str(excinfo.value)
-        assert not (tmp_path / "docs/agents/fcop.json").exists()
+        assert not (tmp_path / "fcop/fcop.json").exists()
 
 
 # ── init_solo() ──────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ class TestInitSoloDeposits:
         # Solo's only role charter.
         for ext in (".md", ".en.md"):
             assert (
-                tmp_path / f"docs/agents/shared/roles/ME{ext}"
+                tmp_path / f"fcop/shared/roles/ME{ext}"
             ).is_file(), f"missing solo ME charter {ext}"
 
     def test_solo_me_charter_has_workflow_hard_constraint(
@@ -121,12 +121,12 @@ class TestInitSoloDeposits:
         # forbids "simple tasks may run directly" soft-constraints
         # (companion to fcop-rules.mdc Rule 0.a.1).
         Project(tmp_path).init_solo(role_code="ME", lang="zh")
-        zh = (tmp_path / "docs/agents/shared/roles/ME.md").read_text(
+        zh = (tmp_path / "fcop/shared/roles/ME.md").read_text(
             encoding="utf-8"
         )
         assert "硬约束" in zh, "solo ME.md (zh) must declare 硬约束"
 
-        en = (tmp_path / "docs/agents/shared/roles/ME.en.md").read_text(
+        en = (tmp_path / "fcop/shared/roles/ME.en.md").read_text(
             encoding="utf-8"
         )
         # English copy uses "hard constraint" verbatim somewhere in
@@ -185,7 +185,7 @@ class TestInitCustomDeposits:
         # implicitly).
         for role in ("LEAD", "BUILDER"):
             assert not (
-                tmp_path / f"docs/agents/shared/roles/{role}.md"
+                tmp_path / f"fcop/shared/roles/{role}.md"
             ).is_file(), (
                 f"custom team must not auto-write a bundled charter for {role}"
             )

@@ -90,7 +90,7 @@ class TestMakeEvent:
 def _make_workspace(tmp_path: Path) -> tuple[Path, Path]:
     """Build minimal FCoP workspace skeleton for scan_workspace tests."""
     project_root = tmp_path / "proj"
-    workspace = project_root / "docs" / "agents"
+    workspace = project_root / "fcop"
     for sub in ("tasks", "reports", "reviews", "issues",
                 "log/tasks", "log/reports", "log/reviews"):
         (workspace / sub).mkdir(parents=True, exist_ok=True)

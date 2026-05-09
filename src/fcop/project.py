@@ -19,6 +19,7 @@ import contextlib
 import datetime as _dt
 import os
 import pathlib
+import warnings
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
 from typing import Literal
@@ -204,9 +205,93 @@ class Project:
         path: str | os.PathLike[str],
         *,
         strict: bool = True,
+        workspace_dir: str | os.PathLike[str] | None = None,
     ) -> None:
+        """Bind a :class:`Project` instance to ``path``.
+
+        Args:
+            path: Project root.
+            strict: Validation toggle (see class docstring).
+            workspace_dir: Override the workspace root location. Either
+                a relative path (resolved against ``path``) or an
+                absolute path. ``None`` triggers v1.0 auto-detect:
+                  - if ``<path>/fcop/`` exists  → use it (v1.0 default)
+                  - if only ``<path>/docs/agents/`` exists → use it
+                    + emit ``DeprecationWarning`` (per ADR-0022)
+                  - if both exist                → raise
+                    :class:`ConfigError`
+                  - if neither exists            → default to
+                    ``<path>/fcop/`` (v1.0 fresh-init layout)
+                Passing the string ``"docs/agents"`` (or
+                ``"docs/agents/"``) explicitly is the永久 escape
+                hatch — it is legal even in v2.x — and never emits
+                the DeprecationWarning since the choice is intentional.
+        """
         self._path = pathlib.Path(path).resolve()
         self._strict = strict
+        self._workspace_root, self._workspace_layout = (
+            self._resolve_workspace_root(workspace_dir)
+        )
+
+    def _resolve_workspace_root(
+        self,
+        explicit: str | os.PathLike[str] | None,
+    ) -> tuple[pathlib.Path, str]:
+        """Decide the workspace root and tag the layout.
+
+        Returns ``(absolute_path, layout)`` where ``layout`` is one of:
+          - ``"v1"``      — ``<root>/fcop/`` (v1.0 default)
+          - ``"legacy"``  — ``<root>/docs/agents/`` (0.7.x layout,
+                            auto-detected; emits DeprecationWarning)
+          - ``"explicit"``— caller-supplied path (no warning, no
+                            assumption about layout shape)
+
+        Per ADR-0022 §"启动时 detect 行为".
+        """
+        if explicit is not None:
+            ws = pathlib.Path(explicit)
+            if not ws.is_absolute():
+                ws = (self._path / ws).resolve()
+            else:
+                ws = ws.resolve()
+            return ws, "explicit"
+
+        v1_root = self._path / "fcop"
+        legacy_root = self._path / "docs" / "agents"
+        v1_exists = v1_root.exists()
+        legacy_exists = legacy_root.exists()
+
+        if v1_exists and legacy_exists:
+            from fcop.errors import ConfigError as _ConfigError
+
+            raise _ConfigError(
+                f"both {v1_root.relative_to(self._path).as_posix()!r} and "
+                f"{legacy_root.relative_to(self._path).as_posix()!r} "
+                "exist under the project root. FCoP refuses to guess. "
+                "Either remove one, or pass `workspace_dir=` "
+                "explicitly to disambiguate. See ADR-0022 §'启动时 "
+                "detect 行为'.",
+                path=self._path,
+            )
+
+        if v1_exists:
+            return v1_root.resolve(), "v1"
+
+        if legacy_exists:
+            warnings.warn(
+                f"{legacy_root.relative_to(self._path).as_posix()!r} is "
+                "the 0.7.x-style FCoP workspace. v1.0 default is "
+                f"{v1_root.relative_to(self._path).as_posix()!r}. Run "
+                "`fcop migrate-workspace --apply` to migrate, or "
+                "pass `workspace_dir=\"docs/agents\"` to silence "
+                "this warning. See ADR-0022.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            return legacy_root.resolve(), "legacy"
+
+        # Neither exists — assume fresh v1.0 init.
+        return v1_root.resolve(), "v1"
 
     # ── Identity ──────────────────────────────────────────────────────
 
@@ -217,59 +302,60 @@ class Project:
 
     @property
     def tasks_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/tasks/``."""
-        return self._path / "docs" / "agents" / "tasks"
+        """``<workspace>/tasks/`` (v1.0: ``<project>/fcop/tasks/``)."""
+        return self._workspace_root / "tasks"
 
     @property
     def reports_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/reports/``."""
-        return self._path / "docs" / "agents" / "reports"
+        """``<workspace>/reports/`` (v1.0: ``<project>/fcop/reports/``)."""
+        return self._workspace_root / "reports"
 
     @property
     def issues_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/issues/``."""
-        return self._path / "docs" / "agents" / "issues"
+        """``<workspace>/issues/`` (v1.0: ``<project>/fcop/issues/``)."""
+        return self._workspace_root / "issues"
 
     @property
     def shared_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/shared/``."""
-        return self._path / "docs" / "agents" / "shared"
+        """``<workspace>/shared/`` (v1.0: ``<project>/fcop/shared/``)."""
+        return self._workspace_root / "shared"
 
     @property
     def log_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/log/`` (archive root)."""
-        return self._path / "docs" / "agents" / "log"
+        """``<workspace>/log/`` (archive root)."""
+        return self._workspace_root / "log"
 
     @property
     def workspace_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/`` —— FCoP workspace 根（v1.0）。
+        """FCoP workspace root.
 
-        Convenience accessor —— 现有 0.7.x 代码用 ``tasks_dir.parent`` /
-        ``log_dir.parent`` 取等价路径。本 property 是 v1.0 引入的
-        显式形式，便于 :meth:`subscribe_events` / :meth:`poll_once`
-        定位 polling watcher 的扫描根。
+        v1.0 default is ``<project>/fcop/``; 0.7.x legacy projects keep
+        ``<project>/docs/agents/`` (with a DeprecationWarning at
+        construction time). Caller can override via the
+        ``workspace_dir=`` constructor arg.
         """
-        return self._path / "docs" / "agents"
+        return self._workspace_root
+
+    @property
+    def workspace_layout(self) -> str:
+        """``"v1"`` / ``"legacy"`` / ``"explicit"`` — see
+        :meth:`_resolve_workspace_root`."""
+        return self._workspace_layout
 
     @property
     def reviews_dir(self) -> pathlib.Path:
-        """``<project>/docs/agents/reviews/`` —— REVIEW envelopes（v1.0）。
-
-        REVIEW 是 FCoP v1.0 引入的第四种 IPC envelope（per ADR-0017）。
-        与 tasks/reports/issues 一样位于 ``docs/agents/`` 下，归档时移到
-        ``log/reviews/``。目录在首次 :meth:`write_review` 时按需创建——
-        老项目（v1 之前 init 的）不主动 mkdir，避免 churn。
-        """
-        return self._path / "docs" / "agents" / "reviews"
+        """``<workspace>/reviews/`` —— REVIEW envelopes (v1.0,
+        per ADR-0017)."""
+        return self._workspace_root / "reviews"
 
     @property
     def config_path(self) -> pathlib.Path:
-        """``<project>/docs/agents/fcop.json``.
+        """``<workspace>/fcop.json``.
 
         The presence of this file is the canonical signal that a project
         has been initialized — see :meth:`is_initialized`.
         """
-        return self._path / "docs" / "agents" / "fcop.json"
+        return self._workspace_root / "fcop.json"
 
     @property
     def _migrations_dir(self) -> pathlib.Path:
@@ -716,7 +802,7 @@ class Project:
         except ValueError:
             content = get_letter("zh")
 
-        target = self._path / "docs" / "agents" / "LETTER-TO-ADMIN.md"
+        target = self._workspace_root / "LETTER-TO-ADMIN.md"
         target.parent.mkdir(parents=True, exist_ok=True)
         if target.exists() and not force:
             return
@@ -1206,7 +1292,11 @@ class Project:
             result = None
 
         if result is not None and result.returncode == 0:
-            entries = list(_parse_git_porcelain(result.stdout, self._path))
+            entries = list(
+                _parse_git_porcelain(
+                    result.stdout, self._path, _ledger_prefixes_for(self),
+                )
+            )
         elif result is not None:
             # ``git status`` ran but failed — most often because this
             # path is not a git repository. Treat the same as "git
@@ -3558,6 +3648,11 @@ def _try_read_session_id(path: pathlib.Path) -> str | None:
     return None
 
 
+# 0.7.x layout prefixes — kept as fallback for projects that have not
+# yet migrated to the v1.0 ``fcop/`` layout. The dynamic per-project
+# prefix list is built in :func:`_ledger_prefixes_for` from
+# ``Project.workspace_dir`` so it works for both ``fcop/`` and
+# ``docs/agents/`` (and explicit overrides) without code duplication.
 _LEDGER_RELATIVE_PREFIXES = (
     "docs/agents/tasks/",
     "docs/agents/reports/",
@@ -3566,8 +3661,36 @@ _LEDGER_RELATIVE_PREFIXES = (
 )
 
 
+def _ledger_prefixes_for(project: Project) -> tuple[str, ...]:
+    """Return the per-project workspace prefixes the drift parser uses.
+
+    Always derived from ``project.workspace_dir`` relative to
+    ``project.path`` so that a v1.0 ``fcop/`` project, a 0.7.x
+    ``docs/agents/`` project, and an explicit ``custom-ws/`` project
+    all behave identically. We additionally union in the historical
+    ``docs/agents/...`` prefixes so half-migrated repos (those still
+    holding stray legacy files) keep getting ``in_ledger=True`` and
+    are surfaced rather than hidden.
+    """
+    try:
+        rel = project.workspace_dir.relative_to(project.path).as_posix().rstrip("/")
+    except ValueError:
+        # Workspace lives outside project root (rare; explicit override
+        # case). The ledger probe needs project-root-relative prefixes,
+        # so we fall back to the historical pair for that case.
+        rel = ""
+    if not rel:
+        return _LEDGER_RELATIVE_PREFIXES
+    own = tuple(f"{rel}/{sub}/" for sub in ("tasks", "reports", "issues", "log"))
+    if rel == "docs/agents":
+        return own
+    return own + _LEDGER_RELATIVE_PREFIXES
+
+
 def _parse_git_porcelain(
-    raw: bytes, project_root: pathlib.Path
+    raw: bytes,
+    project_root: pathlib.Path,
+    ledger_prefixes: tuple[str, ...] = _LEDGER_RELATIVE_PREFIXES,
 ) -> Iterator[DriftEntry]:
     """Parse the NUL-separated output of ``git status --porcelain -z``.
 
@@ -3604,7 +3727,7 @@ def _parse_git_porcelain(
         normalized = path_str.replace("\\", "/")
         in_ledger = any(
             normalized.startswith(prefix)
-            for prefix in _LEDGER_RELATIVE_PREFIXES
+            for prefix in ledger_prefixes
         )
         yield DriftEntry(path=normalized, status=status, in_ledger=in_ledger)
 

@@ -63,7 +63,7 @@ class TestWriteReport:
         assert report.status == "done"
         assert report.path.is_file()
         assert report.path == (
-            tmp_path / "docs" / "agents" / "reports" / report.filename
+            tmp_path / "fcop" / "reports" / report.filename
         )
         assert report.filename.startswith("REPORT-")
         assert report.filename.endswith("-PM-to-ADMIN.md")
@@ -206,7 +206,7 @@ class TestWriteReport:
                 status="wtf",  # type: ignore[arg-type]
             )
         # No file should have been created on rejection.
-        reports_dir = tmp_path / "docs" / "agents" / "reports"
+        reports_dir = tmp_path / "fcop" / "reports"
         if reports_dir.exists():
             assert not any(reports_dir.iterdir())
 
@@ -220,7 +220,7 @@ class TestWriteReport:
                 body="dangling",
             )
         # Reports directory must not have been populated.
-        reports_dir = tmp_path / "docs" / "agents" / "reports"
+        reports_dir = tmp_path / "fcop" / "reports"
         if reports_dir.exists():
             assert not any(reports_dir.iterdir())
 

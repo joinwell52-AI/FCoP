@@ -113,7 +113,7 @@ class TestInit:
         _call("set_project_dir", path=str(project_dir))
         out = _call("init_project", team="dev-team", lang="zh")
         assert "dev-team" in out
-        assert (project_dir / "docs" / "agents" / "fcop.json").exists()
+        assert (project_dir / "fcop" / "fcop.json").exists()
 
     def test_init_project_unknown_team(self, project_dir: Path) -> None:
         _call("set_project_dir", path=str(project_dir))
@@ -124,7 +124,7 @@ class TestInit:
     def test_init_solo(self, project_dir: Path) -> None:
         _call("set_project_dir", path=str(project_dir))
         out = _call("init_solo", role_code="ME", role_label="", lang="zh")
-        cfg = project_dir / "docs" / "agents" / "fcop.json"
+        cfg = project_dir / "fcop" / "fcop.json"
         assert cfg.exists()
         data = json.loads(cfg.read_text(encoding="utf-8"))
         assert "ME" in data["roles"]
@@ -140,7 +140,7 @@ class TestInit:
             team_name="my-team",
         )
         assert "PM" in out and "DEV" in out
-        cfg = project_dir / "docs" / "agents" / "fcop.json"
+        cfg = project_dir / "fcop" / "fcop.json"
         assert cfg.exists()
         data = json.loads(cfg.read_text(encoding="utf-8"))
         assert data["team"] == "my-team"
@@ -161,7 +161,7 @@ class TestInit:
         assert "原样" in out
         assert "FCoP 致 ADMIN 的一封信" in out
         assert "0.6.4 摘要" in out
-        assert "docs/agents/LETTER-TO-ADMIN.md" in out
+        assert "fcop/LETTER-TO-ADMIN.md" in out
 
     def test_init_project_reply_letter_handover_en(
         self, project_dir: Path
@@ -367,7 +367,7 @@ class TestTeamAndWorkspace:
     ) -> None:
         out = _call("deploy_role_templates", team="", lang="", force=True)
         assert "Deployed" in out
-        shared = initialized_project / "docs" / "agents" / "shared"
+        shared = initialized_project / "fcop" / "shared"
         assert shared.exists()
         assert any(shared.iterdir())
 

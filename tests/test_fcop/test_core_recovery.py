@@ -230,7 +230,7 @@ class TestMakeAbortArtifact:
         result = make_abort_artifact(
             f,
             write_report_fn=fake_write_report,
-            ref_task="docs/agents/tasks/TASK-foo.md",
+            ref_task="fcop/tasks/TASK-foo.md",
             sender="ME",
             recipient="ADMIN",
         )
@@ -238,7 +238,7 @@ class TestMakeAbortArtifact:
         assert captured["sender"] == "ME"
         assert captured["recipient"] == "ADMIN"
         assert captured["status"] == "aborted"
-        assert captured["ref_task"] == "docs/agents/tasks/TASK-foo.md"
+        assert captured["ref_task"] == "fcop/tasks/TASK-foo.md"
         assert "TIMEOUT" in captured["body"]
         assert "ME" in captured["body"]
         assert "Evidence" in captured["body"]

@@ -38,7 +38,7 @@ class TestWriteTask:
         assert isinstance(task, Task)
         assert task.sequence == 1  # first task of the day
         assert task.path.is_file()
-        assert task.path == tmp_path / "docs" / "agents" / "tasks" / task.filename
+        assert task.path == tmp_path / "fcop" / "tasks" / task.filename
         assert task.filename.startswith("TASK-")
         assert task.filename.endswith("-ADMIN-to-PM.md")
         assert task.is_archived is False
@@ -223,7 +223,7 @@ class TestRoundTrip:
         # Manually place a file under log/tasks/ and confirm read_task
         # finds it and flags it archived. (archive_task itself lands
         # in a later slice — we pre-stage the file here.)
-        log_tasks = tmp_path / "docs" / "agents" / "log" / "tasks"
+        log_tasks = tmp_path / "fcop" / "log" / "tasks"
         log_tasks.mkdir(parents=True)
         fname = "TASK-20250101-001-ADMIN-to-PM.md"
         body = (
@@ -313,7 +313,7 @@ class TestListTasks:
             subject="open", body="b",
         )
 
-        log_tasks = tmp_path / "docs" / "agents" / "log" / "tasks"
+        log_tasks = tmp_path / "fcop" / "log" / "tasks"
         log_tasks.mkdir(parents=True)
         (log_tasks / "TASK-20250101-001-ADMIN-to-PM.md").write_text(
             "---\nprotocol: fcop\nversion: 1\nsender: ADMIN\n"

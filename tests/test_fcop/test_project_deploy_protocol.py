@@ -165,7 +165,7 @@ class TestUninitializedProject:
         assert len(report.deployed) == 4
         # We did NOT magically initialize the project as a side-effect.
         assert project.is_initialized() is False
-        assert not (tmp_path / "docs" / "agents" / "fcop.json").exists()
+        assert not (tmp_path / "fcop" / "fcop.json").exists()
 
 
 # ── Force / archive / skip ───────────────────────────────────────────

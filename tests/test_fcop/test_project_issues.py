@@ -41,7 +41,7 @@ class TestWriteIssue:
         assert issue.severity is Severity.HIGH
         assert issue.path.is_file()
         assert issue.path == (
-            tmp_path / "docs" / "agents" / "issues" / issue.filename
+            tmp_path / "fcop" / "issues" / issue.filename
         )
         assert issue.filename.startswith("ISSUE-")
         assert issue.filename.endswith("-DEV.md")
