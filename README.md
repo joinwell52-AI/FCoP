@@ -244,6 +244,8 @@ three-way choice (solo / preset team / custom).
 
 Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`adr/ADR-0003-stability-charter.md`](adr/ADR-0003-stability-charter.md).
 
+> **Upgrading from 0.7.x to v1.0?** Default workspace moved from `docs/agents/` to top-level `fcop/` (per [ADR-0022](adr/ADR-0022-workspace-directory-convention.md)). Run `fcop migrate-workspace --apply` for one-shot git-aware migration, or pin via `Project(workspace_dir="docs/agents")` to stay on the legacy layout. Full walkthrough — including the 4 new abstractions (REVIEW / Failure / Boundary / Event) and JSON Schema integration — in [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md).
+>
 > **Upgrading from 0.5.x?** The MCP server moved from `fcop` to `fcop-mcp` — update your `mcp.json` to `uvx fcop-mcp`. See [`docs/MIGRATION-0.6.md`](docs/MIGRATION-0.6.md) for the full migration guide and the [0.6.0 release record](docs/releases/0.6.0.md) for what shipped.
 
 ## Design principles

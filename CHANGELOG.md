@@ -63,6 +63,19 @@ versioning strategy.
     mcp test 与本改动无关；从 Phase 2 改造前的 954 passed 上涨
     +17）
 
+### Added — docs
+
+- **`docs/MIGRATION-1.0.md` 用户向 0.7.x → 1.0 迁移指南**
+  （TASK-20260509-013，per ADR-0022 §"Tests Checklist" 最后一项）。
+  覆盖 8 章节：TL;DR / 心智模型（3 个独立 breaking 维度）/ 协议
+  framing 升级 / workspace 目录迁移 3 选项 + auto-detect 矩阵 +
+  完全 rollback / 4 新抽象 walkthrough（REVIEW / Failure /
+  Boundary / Event）/ JSON Schema 形式化 / 6 类常见踩坑 / 估时表
+  + 进一步阅读链接。
+- **README.md / README.zh.md 头部加 v1.0 升级 callout**，与既有
+  0.5.x → 0.6 callout 并列；指向 `docs/MIGRATION-1.0.md` +
+  ADR-0022。
+
 ### Changed — `fcop-mcp` server
 
 - **init reply LETTER 路径动态化**（同 TASK-012，commit `861713b`）：

@@ -126,7 +126,7 @@ ADR-0021 §Decision 表"Encoding Abstraction (协议本体)"加一行 "**workspa
 - [x] `tests/test_fcop/test_project_workspace_dir.py`：detect 到 `docs/agents/` 时打 `DeprecationWarning` 而不报错（`test_legacy_root_when_only_docs_agents_exists`，commit `861713b`）
 - [x] `tests/test_fcop_mcp/test_server.py`：MCP `init_project` / `init_solo` / `create_custom_team` 创建 `fcop/`（4 处测试期望路径已 swap 为 `fcop/fcop.json`，commit `861713b`）
 - [x] CHANGELOG.md `[1.0.0-rc.1]` 段含 workspace 迁移条目（commit 见下）
-- [ ] `MIGRATION-1.0.md` 必须有"Workspace 迁移"段（含命令 + 风险说明）（**deferred** 到 v1.0 final，TASK-013）
+- [x] `MIGRATION-1.0.md` 必须有"Workspace 迁移"段（含命令 + 风险说明）（`docs/MIGRATION-1.0.md` §2，2026-05-09 by ME，TASK-013）
 
 ## v1.0 RC Implementation Notes (2026-05-09)
 
@@ -167,7 +167,10 @@ TASK-008 把 ADR-0022 拆成两阶段交付：
 - ✅ 既有 9 个 fcop test 文件 + mcp `test_server.py` 中 53 处
   hard-coded `docs/agents/` 期望批量 swap 为 `fcop/`（migration tool
   / legacy fixture / raw schema 测试故意保留）
-- ⏳ `MIGRATION-1.0.md`（用户向）—— 拆到 TASK-013
+- ✅ `MIGRATION-1.0.md`（用户向）—— `docs/MIGRATION-1.0.md`，
+  TASK-013（2026-05-09）。包含 8 段：TL;DR / 心智模型 / framing
+  升级 / workspace 迁移 3 选项 + auto-detect 矩阵 / 4 新抽象 walkthrough
+  / JSON Schema 形式化 / 常见踩坑 6 项 / 时间线参考
 
 回归数据：971 passed, 1 failed (pre-existing date-pinned mcp test
 unrelated to ADR-0022)；从 Phase 2 改造前的 954 passed 上涨 +17，
@@ -298,8 +301,10 @@ ADMIN 拍板。
 - **ADMIN**：已批准（2026-05-09 14:50 CST，AskQuestion 选 B - migrate）
 - **ME**：Phase 1 已实施（2026-05-09，TASK-008，commit 见
   Implementation §Phase 1）；Phase 2 已实施（2026-05-09，TASK-012，
-  commit `861713b`，见 Implementation §Phase 2）。ADR-0022 全量交付
-  完成，仅余 `MIGRATION-1.0.md` 用户向迁移指南（拆到 TASK-013）
+  commit `861713b`，见 Implementation §Phase 2）；用户向 `MIGRATION-1.0.md`
+  已交付（2026-05-09，TASK-013，`docs/MIGRATION-1.0.md`）。
+  **ADR-0022 全量完成**——v1.0 final 之前关于 workspace 目录约定
+  的所有 deliverables 100% 落地。
 
 ---
 
