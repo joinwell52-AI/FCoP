@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/review/v1.0.json",
+  "title": "FCoP REVIEW (Audit abstraction)",
+  "description": "Abstraction 7 of 7 — Audit. Per ADR-0017, the REVIEW file type encodes a governance-layer decision about an artefact (TASK / REPORT / role-switch / code-change). v1.0 ships the MINIMAL surface only: 4-value decision enum + subject reference + optional rationale and required_changes. Per ADR-0017 §decision, v1.0 deliberately OMITS `needs_human` enum value, `human_approval` sub-object, `Project.mark_human_approved()` API, and admin-layer manual_file_edit guards. Those are deferred to v1.2 by ADR-0015 §non-goals to keep REVIEW from inflating into a deity role.",
+  "version": "1.0.0",
+  "type": "object",
+  "$defs": {
+    "decisionEnum": {
+      "type": "string",
+      "enum": ["approved", "rejected", "needs_changes", "abstained"],
+      "description": "Per ADR-0017 §decision. The 4-value enum is FROZEN for v1.0. v1.2 may extend additively (e.g. `needs_human`) but never removes a value."
+    },
+    "subjectType": {
+      "type": "string",
+      "enum": ["task", "report", "role_switch", "code_change"],
+      "description": "Per ADR-0017 §design-details. What kind of artefact this REVIEW is about. `code_change` is included so REVIEWs can target git diffs; `role_switch` lets a REVIEW audit a fcop.json roles edit."
+    }
+  },
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["protocol", "version", "type", "review_id", "subject_type", "subject_ref", "reviewer_role", "decision", "decided_at"],
+  "properties": {
+    "protocol":      {"const": "fcop", "description": "Conformance marker. MUST be 'fcop'."},
+    "version":       {"const": 1, "description": "Envelope version. v1.0 = 1."},
+    "type":          {"const": "REVIEW", "description": "Discriminator."},
+    "review_id":     {"type": "string", "pattern": "^REVIEW-\\d{8}-\\d{3}-[A-Z][A-Z0-9]{0,15}-on-[a-z0-9-]+$", "description": "Per ADR-0017 §filename-grammar. Equals the filename stem (no `.md`)."},
+    "subject_type":  {"$ref": "#/$defs/subjectType"},
+    "subject_ref":   {"type": "string", "minLength": 1, "description": "Reference to the artefact under review. Per ADR-0017: file path for task/report/code_change; for role_switch use the diff hash or the fcop.json line range."},
+    "reviewer_role": {"type": "string", "pattern": "^[A-Z][A-Z0-9]{0,15}$", "description": "Per ADR-0017. The role code authoring this review. SHOULD have `review_decision` capability per boundary.schema.json."},
+    "reviewer_agent": {"type": "string", "description": "Optional concrete agent identifier (e.g. session_id) on top of the role code. Per ADR-0020 §session_id."},
+    "decision":      {"$ref": "#/$defs/decisionEnum"},
+    "rationale":     {"type": "string", "description": "Free-text rationale. SHOULD be present for `rejected` and `needs_changes`; MAY be omitted for `approved` and `abstained`. Per ADR-0017."},
+    "required_changes": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "description": "Per ADR-0017. List of changes the reviewer requires before re-review. MUST be present and non-empty when decision = `needs_changes`; MUST be empty or omitted otherwise. Implementations SHOULD validate this conditional."
+    },
+    "decided_at":    {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})?)?$", "description": "ISO-8601 timestamp."},
+    "subject": {"type": "string", "description": "Optional one-line human-readable summary (envelopeBase compatibility)."}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"decision": {"const": "needs_changes"}}, "required": ["decision"]},
+      "then": {"required": ["required_changes"], "properties": {"required_changes": {"minItems": 1}}, "$comment": "Per ADR-0017: needs_changes implies non-empty required_changes."}
+    }
+  ]
+}

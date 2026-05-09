@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/agent/v1.0.json",
+  "title": "FCoP Agent",
+  "description": "Abstraction 1 of 7 — Agent. Lifecycle + identity of an agent participating in an FCoP project. Per ADR-0015 §abstractions and ADR-0020 §roles, an Agent has an identity (code), a layer (worker/governance — not admin, see §boundary), and a capability bundle (can/cannot). This schema defines what a single agent record in `fcop.json` looks like, plus the ephemeral 'session' identity used by Failure recovery. Schema version is 1.0.0; field set is frozen for v1.x per ADR-0003 stability charter.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["code", "label"],
+  "additionalProperties": true,
+  "properties": {
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]{0,15}$",
+      "description": "Stable role code (per ADR-0020). Uppercase, 1-16 chars, A-Z 0-9 only. Examples: PM, DEV, QA, OPS, ME, ADMIN. The code, not the human label, is the routing key in TASK/REPORT filenames."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable label (per ADR-0020). Free text, any language. Used in UIs and logs; not used for routing."
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["worker", "governance", "admin"],
+      "default": "worker",
+      "description": "Capability bundle shorthand (per ADR-0020 §layer). 'worker' is the default for code-producing agents; 'governance' for review-only agents; 'admin' MUST NOT appear in fcop.json — admin is reserved for human operators and runtime MUST reject programmatic creation of admin agents (ADR-0020 §validation rule 1)."
+    },
+    "can": {
+      "type": "array",
+      "items": {"$ref": "https://fcop.dev/schemas/boundary/v1.0.json#/$defs/capabilityToken"},
+      "uniqueItems": true,
+      "description": "Explicit allow-list of capability tokens (per ADR-0020). Overrides the layer default bundle when present. See boundary.schema.json for the full v1.0 capability vocabulary."
+    },
+    "cannot": {
+      "type": "array",
+      "items": {"$ref": "https://fcop.dev/schemas/boundary/v1.0.json#/$defs/capabilityToken"},
+      "uniqueItems": true,
+      "description": "Explicit deny-list of capability tokens (per ADR-0020). Takes precedence over both `can` and the layer default. Use to subtract capabilities from a layer bundle without rewriting the whole bundle."
+    },
+    "session_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "description": "Ephemeral session identifier (per ADR-0019 §session-recovery-hook). Format is implementation-defined; the reference implementation uses '<task_id>:<agent_code>'. Not stored in fcop.json — only present on the in-memory Agent object during a live session."
+    }
+  }
+}

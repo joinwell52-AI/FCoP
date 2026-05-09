@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/encoding/v1.0.json",
+  "title": "FCoP Encoding Abstraction",
+  "description": "Abstraction 2 of 7 — Encoding. Per ADR-0021, FCoP separates the protocol body (this abstraction) from the concrete on-disk encoding (Markdown is the v1.0 reference encoding; alternatives like JSON / SQLite / event-stream are permitted in v1.x). Encoding has TWO surfaces: an IPC Surface (strong contract — TASK/REPORT/ISSUE/REVIEW envelopes) and an Open Knowledge Surface (weak contract — agent-invented PREFIXes under `shared/`). Both share a workspace_dir contract per ADR-0022 (default 'fcop/'). This schema defines the abstraction-level contract that any encoding MUST satisfy; the concrete Markdown reference encoding is documented in spec/fcop-runtime-protocol-v1.0.md §6.",
+  "version": "1.0.0",
+  "type": "object",
+  "$defs": {
+    "ipcSurface": {
+      "type": "object",
+      "title": "IPC Surface (strong contract)",
+      "description": "Per ADR-0021 §design-details. The closed set of envelope types FCoP spec predefines. Filename grammar is strict; required frontmatter fields are mandatory; PREFIX vocabulary is closed and frozen at 4.",
+      "additionalProperties": false,
+      "required": ["envelope_types", "filename_grammar", "required_frontmatter_base"],
+      "properties": {
+        "envelope_types": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["TASK", "REPORT", "ISSUE", "REVIEW"]},
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "description": "v1.0 envelope vocabulary, frozen at exactly 4. Adding a 5th envelope is a MAJOR-version protocol change per ADR-0003."
+        },
+        "filename_grammar": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["TASK", "REPORT", "ISSUE", "REVIEW"],
+          "properties": {
+            "TASK":   {"type": "string", "default": "^TASK-(\\d{8})-(\\d{3})-([A-Z][A-Z0-9]{0,15})-to-([A-Z][A-Z0-9]{0,15})\\.md$"},
+            "REPORT": {"type": "string", "default": "^REPORT-(\\d{8})-(\\d{3})-([A-Z][A-Z0-9]{0,15})-to-([A-Z][A-Z0-9]{0,15})\\.md$"},
+            "ISSUE":  {"type": "string", "default": "^ISSUE-(\\d{8})-(\\d{3})-([A-Z][A-Z0-9]{0,15})\\.md$"},
+            "REVIEW": {"type": "string", "default": "^REVIEW-(\\d{8})-(\\d{3})-([A-Z][A-Z0-9]{0,15})-on-([a-z0-9-]+)\\.md$"}
+          },
+          "description": "PCRE patterns for each envelope's filename. Implementations MUST match these patterns exactly. Date is YYYYMMDD, seq is 3-digit zero-padded monotonic per-day. Per ADR-0021 §IPC Surface and ADR-0017 §filename-grammar."
+        },
+        "required_frontmatter_base": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true,
+          "default": ["protocol", "version", "sender"],
+          "description": "Minimum required frontmatter keys for ALL IPC envelopes. Per-envelope schemas (ipc-envelope.schema.json) add more required fields. `protocol: fcop` and `version: 1` are conformance markers."
+        }
+      }
+    },
+    "openKnowledgeSurface": {
+      "type": "object",
+      "title": "Open Knowledge Surface (weak contract)",
+      "description": "Per ADR-0021 §design-details. The OPEN namespace agents invent PREFIXes in. Spec MUST NOT enumerate the PREFIX vocabulary (this is a §FCoP-is-discovered tiebreaker per ADR-0015). Field evidence shows agents converge on GUIDE / SPEC / STATUS / TEAM / LETTER, but those names are INFORMATIVE only, not normative.",
+      "additionalProperties": false,
+      "required": ["default_dir", "filename_grammar", "frontmatter_required"],
+      "properties": {
+        "default_dir": {
+          "const": "shared",
+          "description": "Per ADR-0021. The Open Knowledge Surface lives at `<workspace_dir>/shared/`. Implementations MAY create additional sibling subdirs but MUST honor `shared/` as the default landing zone."
+        },
+        "filename_grammar": {
+          "type": "string",
+          "default": "^[A-Z][A-Z0-9-]*-[a-z0-9-]+(\\.[a-z]{2,5})?\\.md$",
+          "description": "{ALL-CAPS-PREFIX}-{kebab-slug}[.{lang}].md. The PREFIX vocabulary is open; agents invent. Per ADR-0021 §why-two-surfaces (philosophy root: ADR-0015)."
+        },
+        "frontmatter_required": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [],
+          "description": "Open Knowledge frontmatter is OPTIONAL per ADR-0021. Default is the empty list. Agents SHOULD still include `protocol: fcop` and `version: 1` when convenient, but it is not required."
+        },
+        "informative_observed_prefixes": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]*$"},
+          "description": "INFORMATIVE only — list of PREFIXes observed in field deployments. NOT normative. NOT validated against. Implementations MUST NOT reject a PREFIX for being absent from this list. Provided as a courtesy for documentation tools.",
+          "default": ["GUIDE", "SPEC", "STATUS", "TEAM", "LETTER", "MEMO", "RECIPE", "ARCHIVE"]
+        }
+      }
+    },
+    "workspaceDirContract": {
+      "type": "object",
+      "title": "workspace_dir contract",
+      "description": "Per ADR-0022. The protocol namespace directory inside a host project. v1.0 default is `fcop/`. Legacy v0.7.x layout `docs/agents/` is detected and MUST trigger a deprecation warning; one-shot migration via `fcop migrate-workspace`.",
+      "additionalProperties": false,
+      "required": ["default", "legacy_paths", "subdirs_ipc", "subdirs_open_knowledge", "subdirs_archive"],
+      "properties": {
+        "default": {
+          "const": "fcop",
+          "description": "Per ADR-0022 §decision. v1.0 default workspace_dir."
+        },
+        "legacy_paths": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": ["docs/agents"],
+          "description": "Per ADR-0022 §detect-and-warn. Paths that an implementation MUST recognize as legacy and emit a deprecation warning for."
+        },
+        "subdirs_ipc": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 4,
+          "maxItems": 4,
+          "default": ["tasks", "reports", "issues", "reviews"],
+          "description": "Per ADR-0021. Subdirs under workspace_dir for the IPC Surface envelope types. `reviews/` is new in v1.0 (ADR-0017)."
+        },
+        "subdirs_open_knowledge": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "default": ["shared"],
+          "description": "Per ADR-0021. Subdirs for the Open Knowledge Surface."
+        },
+        "subdirs_archive": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": ["log/tasks", "log/reports", "log/issues", "log/reviews"],
+          "description": "Per ADR-0021 + existing 0.7.x convention. Where archived (completed) IPC envelopes go."
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ipc_surface", "open_knowledge_surface", "workspace_dir"],
+  "properties": {
+    "encoding_name": {
+      "type": "string",
+      "default": "MarkdownEncoding",
+      "description": "Per ADR-0021. Identifier for the concrete encoding implementation. v1.0 ships exactly one: 'MarkdownEncoding'. Alternative encodings register their own name."
+    },
+    "encoding_version": {
+      "const": "1.0.0",
+      "description": "Encoding contract version. Pinned to 1.0.0 for v1.x."
+    },
+    "ipc_surface": {"$ref": "#/$defs/ipcSurface"},
+    "open_knowledge_surface": {"$ref": "#/$defs/openKnowledgeSurface"},
+    "workspace_dir": {"$ref": "#/$defs/workspaceDirContract"}
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/event/v1.0.json",
+  "title": "FCoP Event Model",
+  "description": "Abstraction 4 of 7 — Event. Per ADR-0018, FCoP v1.0 events are DERIVED from filesystem state changes; there is NO `EVENT-*.md` envelope type. Events are emitted by an implementation's polling watcher (or equivalent) and exposed via `Project.subscribe_events()`. v1.0 ships exactly 12 event types (8 from ADR-0018 §minimal-event-set + 4 failure-related from ADR-0019). Adding events is additive (MINOR-version) per ADR-0003. v1.0 does NOT persist event log; events are emitted at subscription time only.",
+  "version": "1.0.0",
+  "type": "object",
+  "$defs": {
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "TASK_CREATED",
+        "TASK_ACCEPTED",
+        "TASK_BLOCKED",
+        "TASK_COMPLETED",
+        "REPORT_FILED",
+        "REVIEW_DECIDED",
+        "BOUNDARY_VIOLATED",
+        "ROLE_SWITCHED",
+        "FAILURE_DETECTED",
+        "RECOVERY_INITIATED",
+        "RECOVERY_COMPLETED",
+        "SESSION_LOST"
+      ],
+      "description": "v1.0 event vocabulary. The first 8 are from ADR-0018; the last 4 are from ADR-0019 §design-details (Failure & Recovery surface). FROZEN for v1.0 — additions go to v1.1+."
+    },
+    "subject": {
+      "type": "object",
+      "description": "Per ADR-0018. The artefact this event is about. Shape varies by event_type; see the per-type table in spec/fcop-runtime-protocol-v1.0.md §abstraction-4. Additional properties are permitted for forward compatibility.",
+      "additionalProperties": true,
+      "properties": {
+        "task_id":     {"type": "string"},
+        "report_id":   {"type": "string"},
+        "review_id":   {"type": "string"},
+        "actor":       {"type": "string", "description": "Role code of the agent involved (per agent.schema.json)."},
+        "target":      {"type": "string", "description": "Path or identifier of the resource the actor touched."},
+        "from":        {"type": "string", "description": "For ROLE_SWITCHED: previous role code or 'UNBOUND'."},
+        "to":          {"type": "string", "description": "For ROLE_SWITCHED: new role code or 'UNBOUND'."},
+        "reason":      {"type": "string"},
+        "decision":    {"$ref": "https://fcop.dev/schemas/review/v1.0.json#/$defs/decisionEnum"},
+        "subject_ref": {"type": "string"},
+        "attempted_action": {"$ref": "https://fcop.dev/schemas/boundary/v1.0.json#/$defs/capabilityToken"},
+        "failure_type": {"$ref": "https://fcop.dev/schemas/failure/v1.0.json#/$defs/failureType"},
+        "recovery_action": {"$ref": "https://fcop.dev/schemas/failure/v1.0.json#/$defs/recoveryAction"},
+        "session_id":  {"type": "string"}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "event_type", "occurred_at", "subject", "source"],
+  "properties": {
+    "event_id":    {"type": "string", "minLength": 1, "description": "Implementation-assigned unique id (UUID/ULID/hash). Per ADR-0018."},
+    "event_type":  {"$ref": "#/$defs/eventType"},
+    "occurred_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})?$", "description": "ISO-8601 timestamp with time component. Per ADR-0018 §design-details, only single-agent monotonic ordering is guaranteed by v1.0; cross-agent happens-before is out of scope."},
+    "subject":     {"$ref": "#/$defs/subject"},
+    "source": {
+      "type": "object",
+      "description": "Where the implementation derived this event from. Per ADR-0018, v1.0 derives events from file paths and (optionally) git refs.",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"type": "string", "enum": ["file", "git", "derived", "callback"]},
+        "path": {"type": "string", "description": "Filesystem path when kind = file. Relative to workspace_dir."},
+        "git_ref": {"type": "string", "description": "Git ref (commit SHA or branch) when kind = git."},
+        "watcher": {"type": "string", "description": "Implementation identifier of the watcher that emitted this event. e.g. 'polling-watcher@v1.0'"}
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Free-form per-implementation metadata (per ADR-0018). Implementations MAY put diagnostic info here; consumers MUST tolerate unknown keys."
+    }
+  }
+}

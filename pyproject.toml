@@ -100,6 +100,7 @@ include = [
     "src/fcop/rules/_data/*.md",
     "src/fcop/teams/_data/**/*.md",
     "src/fcop/teams/_data/**/*.json",
+    "src/fcop/_data/schemas/*.schema.json",
 ]
 
 [tool.hatch.build.targets.sdist]

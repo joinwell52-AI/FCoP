@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/boundary/v1.0.json",
+  "title": "FCoP Boundary & Capability",
+  "description": "Abstraction 6 of 7 — Boundary. Defines the v1.0 capability vocabulary and the four boundary rules a runtime MUST enforce when a write op (write_task / write_report / write_review / archive_*) is dispatched. Per ADR-0020. Per ADR-0015 §abstractions, this is the POSIX-permissions analogue of FCoP. The vocabulary is hard-coded at 10 tokens for v1.0; v1.1 may extend additively.",
+  "version": "1.0.0",
+  "type": "object",
+  "$defs": {
+    "capabilityToken": {
+      "type": "string",
+      "enum": [
+        "file_io",
+        "task_io",
+        "modify_code",
+        "review_decision",
+        "approve_release",
+        "escalate",
+        "spawn_agent",
+        "override",
+        "archive",
+        "mark_done"
+      ],
+      "description": "v1.0 capability vocabulary (per ADR-0020 §design-details). Frozen for v1.x. Meanings: file_io = read/write any file under workspace_dir; task_io = create TASK and reply with REPORT; modify_code = touch source files outside workspace_dir; review_decision = author a REVIEW with decision != null; approve_release = sign off on tagged release; escalate = re-route a task up the governance chain; spawn_agent = create new role entries in fcop.json; override = bypass another agent's REVIEW decision; archive = move TASK/REPORT/REVIEW into log/; mark_done = flip TASK status to done without producing a REPORT."
+    },
+    "layerDefaults": {
+      "type": "object",
+      "description": "Default capability bundles per layer (per ADR-0020 §design-details table). Implementations MAY consult this object when an Agent has no explicit can/cannot. Informational only — not enforced as schema.",
+      "additionalProperties": false,
+      "properties": {
+        "worker": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "can": {"type": "array", "items": {"$ref": "#/$defs/capabilityToken"}, "default": ["file_io", "task_io"]},
+            "cannot": {"type": "array", "items": {"$ref": "#/$defs/capabilityToken"}, "default": ["approve_release", "escalate", "spawn_agent"]}
+          }
+        },
+        "governance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "can": {"type": "array", "items": {"$ref": "#/$defs/capabilityToken"}, "default": ["file_io", "task_io", "review_decision"]},
+            "cannot": {"type": "array", "items": {"$ref": "#/$defs/capabilityToken"}, "default": ["modify_code", "spawn_agent"]}
+          }
+        },
+        "admin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "can": {"type": "array", "items": {"$ref": "#/$defs/capabilityToken"}, "default": ["file_io", "task_io", "review_decision", "escalate", "override"]},
+            "cannot": {"type": "array", "items": {"$ref": "#/$defs/capabilityToken"}, "default": []}
+          }
+        }
+      }
+    },
+    "boundaryRule": {
+      "type": "object",
+      "description": "One of the four v1.0 boundary rules (per ADR-0020 §validation). Implementations MUST enforce all four when handling any write op.",
+      "required": ["id", "rule"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "enum": ["NO_ADMIN_PROGRAMMATIC_CREATE", "NO_GOVERNANCE_FISSION", "NO_WORKER_REVIEWS_GOVERNANCE", "EXPLICIT_OVERRIDES_LAYER"]},
+        "rule": {"type": "string"}
+      }
+    }
+  },
+  "type": "object",
+  "title_": "Capability vocabulary registry",
+  "additionalProperties": false,
+  "properties": {
+    "vocabulary_version": {
+      "const": "1.0.0",
+      "description": "Pinned at 1.0.0 for the entire FCoP v1.x line. Bumping requires a new ADR superseding ADR-0020."
+    },
+    "tokens": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/capabilityToken"},
+      "uniqueItems": true,
+      "minItems": 10,
+      "maxItems": 10,
+      "description": "The 10-token v1.0 capability vocabulary. Length is hard-pinned to detect accidental drift."
+    },
+    "layer_defaults": {"$ref": "#/$defs/layerDefaults"},
+    "rules": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/boundaryRule"},
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "The 4 v1.0 boundary rules (per ADR-0020). Length pinned to 4."
+    }
+  }
+}
