@@ -1,7 +1,7 @@
 ---
 description: FCoP Protocol commentary (AI OS protocol layer · v1.0) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（AI OS 协议层 · v1.0）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 1.6.0
+fcop_protocol_version: 1.7.0
 ---
 
 <!--
@@ -18,15 +18,28 @@ works the same.
 
 # FCoP Protocol · 协议解释 / Protocol Commentary
 
-> 本文件是 FCoP 的**协议解释**——把 `fcop-rules.mdc` 里那 9 条协议规则
-> （Rule 0–8）落到实际场景里：文件怎么命名、YAML 怎么写、目录怎么组织、
+> 本文件是 FCoP 的**协议解释**——把 `fcop-rules.mdc` 里那 10 条协议规则
+> （Rule 0–9）落到实际场景里：文件怎么命名、YAML 怎么写、目录怎么组织、
 > 巡检怎么触发。两个文件**同为 `alwaysApply: true`**，但当本文件与
 > 协议规则冲突时，**以 `fcop-rules.mdc` 为准**。
 >
 > This file is the **protocol commentary** on `fcop-rules.mdc` — how each
-> rule (0–8) actually applies in practice: file naming, YAML shape,
+> rule (0–9) actually applies in practice: file naming, YAML shape,
 > directory layout, patrol triggers. Both files are `alwaysApply: true`.
 > In case of conflict, **`fcop-rules.mdc` wins**.
+
+> **v1.0 Capabilities pointer**（v1.7.0 起）：v1.0 新增 Rule 9（4 子段
+> 对应 REVIEW / Boundary / Failure / Event 4 抽象）的详细 commentary
+> 留 v1.0 final 版本补完；现阶段 agent 想用这些能力，参考：
+>
+> - `spec/schemas/{review,boundary,failure,event}.schema.json` — 字段层面
+> - `adr/ADR-0017..0020` — 决策与理由
+> - `docs/getting-started.md` 末尾"v1.0 新能力速查" — 5 行示例
+>
+> v1.7.0+: detailed commentary for Rule 9 sub-sections (REVIEW /
+> Boundary / Failure / Event) is deferred to v1.0 final. For now,
+> consult `spec/schemas/`, ADR-0017..0020, and the "v1.0 capability
+> cheatsheet" appendix in `docs/getting-started.en.md`.
 
 ## Core Principle / 核心原则
 
@@ -940,6 +953,28 @@ Three things the protocol explicitly grants you:
    自我审查烧 token，本身就是反模式。
 
 ## Protocol Version Log / 协议版本记录
+
+- **v1.7** (2026-05-09) — **AI OS Protocol Layer + Rule 9 (v1.0 capabilities)**,
+  shipped with `fcop 1.0.0-rc.1` / `fcop-mcp 1.0.0-rc.1`:
+  1. New **Rule 9 · v1.0 Capabilities** in `fcop-rules.mdc` (1.9.0)
+     covering 4 sub-sections (REVIEW envelope / Agent Boundary /
+     Failure & Recovery / Event Model) — formal rules surface for
+     the v1.0 reframing as **AI OS Protocol Layer**.
+  2. Detailed protocol-commentary expansion of Rule 9 sub-sections is
+     **deferred to v1.0 final**. Until then this file points readers
+     to `spec/schemas/{review,boundary,failure,event}.schema.json`,
+     `adr/ADR-0017..0020`, and `docs/getting-started.md`'s v1.0
+     capability cheatsheet section. See the "v1.0 Capabilities
+     pointer" callout near the top of this file.
+  3. Frontmatter `description` retains the "AI OS protocol layer ·
+     v1.0" framing introduced in v1.6.
+
+  v1.7 升级（与 `fcop 1.0.0-rc.1` / `fcop-mcp 1.0.0-rc.1` 同发）：
+  1. `fcop-rules.mdc`（1.9.0）新增 **Rule 9 · v1.0 Capabilities**——4 子段对应 v1.0 reframing 为 **AI OS 协议层** 后新增的 4 抽象（REVIEW 第 4 类 IPC / Agent Boundary / Failure & Recovery / Event Model）。
+  2. 详细 commentary 留 v1.0 final；现阶段顶部 callout 指向 schema +
+     ADR + getting-started 速查。
+  3. Frontmatter description 保持 v1.6 的 "AI OS 协议层 · v1.0"
+     framing。
 
 - **v1.0** (2026-04-20) — initial filename-is-routing + YAML-frontmatter-is-
   payload core protocol. `protocol:` field renamed from `agent_bridge` to

@@ -88,6 +88,28 @@ migrations after v1.x.
 
 详细每一段的子条目见下面（按 TASK 时间倒序）。
 
+### Changed — bundled rules / 协议规则文件
+
+- **`fcop-rules.mdc` 1.8.0 → 1.9.0**（TASK-20260509-010，per
+  [ADR-0015](./adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
+  §execution roadmap）：
+  - 新增 **Rule 9 · v1.0 Capabilities**（4 子段对应 v1.0 reframing
+    新增的 4 抽象，纯 additive 不改 Rule 0..8）：
+    - 9.1 REVIEW envelope（第 4 类 IPC，per ADR-0017）
+    - 9.2 Agent Boundary（layer + can/cannot capability，per ADR-0020）
+    - 9.3 Failure & Recovery（4 failure × 5 recovery，per ADR-0019）
+    - 9.4 Event Model（12 事件 + subscribe_events 显式 poll，per ADR-0018）
+  - frontmatter `fcop_rules_version` 1.8.0 → 1.9.0；body changelog
+    顶部加 1.9.0 段
+- **`fcop-protocol.mdc` 1.6.0 → 1.7.0**：
+  - 顶部加 "v1.0 Capabilities pointer" callout，指向
+    `spec/schemas/`、ADR-0017..0020、`docs/getting-started.md` 速查
+    （Rule 9 的详细 commentary 留 v1.0 final 之前的独立 task）
+  - Protocol Version Log 顶部加 v1.7 双语条目
+  - 顶部 nav "Rule 0–8" → "Rule 0–9"
+- **既有 Rule 0..8 主体不变**——v1.0 是 additive expansion of contract
+  （per ADR-0003 §1.x SemVer §MINOR additive），所有既有规则继续生效
+
 ### Added — `fcop` CLI
 
 - **`fcop migrate-workspace` 子命令 — 0.7.x → v1.0 workspace 迁移工具**

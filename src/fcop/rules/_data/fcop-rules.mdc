@@ -1,7 +1,7 @@
 ---
 description: FCoP Rules (AI OS protocol layer · v1.0 — agent runtime contract for filesystem-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（AI OS 协议层 · v1.0 —— agent 在共享文件系统上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 1.8.0
+fcop_rules_version: 1.9.0
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -526,6 +526,107 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 
 ---
 
+## Rule 9 · v1.0 Capabilities / v1.0 新增能力（4 抽象）
+
+> v1.0 把 FCoP 升级为 **AI OS Protocol Layer**，新增 4 项 agent
+> runtime 能力。本节是对应规则；详细 schema 见 `spec/schemas/`，
+> 详细决策见 `adr/ADR-0015..0022`。
+>
+> v1.0 promotes FCoP to an **AI OS Protocol Layer** with 4 new agent
+> runtime capabilities. This section is the rules surface; see
+> `spec/schemas/` for the schemas and `adr/ADR-0015..0022` for
+> rationale.
+
+### 9.1 · REVIEW envelope / 第四类 IPC（Audit 抽象）
+
+- 协议**只**识别 4 类 IPC envelope：`TASK-` / `REPORT-` / `ISSUE-` /
+  **`REVIEW-`**（v1.0 新增，per ADR-0017）。任何 agent 写下 review
+  decision 时必须用 `REVIEW-{date}-{seq}-{reviewer}.md`。
+- v1.0 frozen 4 值 decision 枚举：`approved` / `changes_requested` /
+  `blocked` / `rejected`。**禁止**自创 `needs_human` / `pending` 等
+  其他值——它们刻意推迟到 v1.2，避免 Review 角色膨胀。
+- REVIEW 是 audit 痕迹，**不是**新一轮 task；不能用 REVIEW 替代
+  REPORT 来回执 task（Rule 6 仍约束 reciprocity）。
+
+- Protocol recognises **only** 4 IPC envelopes: `TASK-` / `REPORT-` /
+  `ISSUE-` / **`REVIEW-`** (v1.0 new, per ADR-0017). Use
+  `REVIEW-{date}-{seq}-{reviewer}.md` whenever you record a review
+  decision.
+- v1.0 frozen 4-value decision enum: `approved` / `changes_requested`
+  / `blocked` / `rejected`. Do **not** invent `needs_human` /
+  `pending` — these are deliberately deferred to v1.2.
+- REVIEW is an audit artifact, **not** a new round of work; do not
+  substitute REVIEW for REPORT when closing a task (Rule 6 still
+  binds reciprocity).
+
+### 9.2 · Agent Boundary / Agent 能力边界（Boundary 抽象）
+
+- 每个角色在 `fcop.json` 中可绑定 `layer`（`worker` / `governance`
+  / `admin`）+ 可选的 `can` / `cannot` capability 列表（per ADR-0020）。
+  Agent 写敏感操作前必须**自我检查**自己 layer 是否允许：
+  - `worker` 不得 review `governance` subject；
+  - `governance` 不得创建新 `governance` 角色（NO_GOVERNANCE_FISSION）；
+  - `admin` programmatic 创建必须显式 override（NO_ADMIN_PROGRAMMATIC_CREATE）。
+- 违反 boundary 应触发 `BOUNDARY_VIOLATED` 事件并写一条 `ISSUE-` 记录
+  违规。Agent **不得**绕过 boundary "just this once"。
+
+- Each role binds a `layer` (`worker` / `governance` / `admin`) plus
+  optional `can` / `cannot` capability lists in `fcop.json` (per
+  ADR-0020). Self-check your layer before sensitive operations:
+  - `worker` cannot review a `governance` subject;
+  - `governance` cannot spawn new `governance` roles
+    (NO_GOVERNANCE_FISSION);
+  - `admin` programmatic creation requires an explicit override
+    (NO_ADMIN_PROGRAMMATIC_CREATE).
+- Boundary violations must emit `BOUNDARY_VIOLATED` and an `ISSUE-`
+  record. No "just this once" bypass.
+
+### 9.3 · Failure & Recovery / 失败与恢复（Failure 抽象）
+
+- 4 类 failure（per ADR-0019）：`TIMEOUT` / `CRASH` / `DEADLOCK` /
+  `DRIFT`。检测到任一情况时 agent 必须调 `report_failure(...)`，让
+  事件流可见。
+- 5 类 recovery action：`RETRY` / `RESUME` / `ROLLBACK` / `ABORT` /
+  `ESCALATE`。`RETRY/RESUME/ROLLBACK` 是 **plan-only**——agent 拿到
+  plan 后自行执行，FCoP 不替你 git revert。`ABORT` 自动写一条
+  `status=aborted` 的 REPORT；`ESCALATE` 自动写一条 ISSUE 给
+  leader。
+- 失败不写 `REPORT-status=done` 假装成功——这违反 Rule 0.c
+  (truthful)。
+
+- 4 failure types (per ADR-0019): `TIMEOUT` / `CRASH` / `DEADLOCK` /
+  `DRIFT`. Agents must call `report_failure(...)` so the event stream
+  reflects reality.
+- 5 recovery actions: `RETRY` / `RESUME` / `ROLLBACK` / `ABORT` /
+  `ESCALATE`. The first three are **plan-only** — FCoP hands you a
+  plan; you execute. `ABORT` auto-writes a `status=aborted` REPORT;
+  `ESCALATE` auto-writes an ISSUE to the leader.
+- Never disguise a failure as `REPORT-status=done` — that violates
+  Rule 0.c (truthful).
+
+### 9.4 · Event Model / 事件模型（Event 抽象）
+
+- v1.0 frozen 12 event types（per ADR-0018）。Agent 想观察其他角色
+  的活动时调 `Project.subscribe_events(callback=...)`；要驱动事件
+  扫描必须**显式**调 `Project.poll_once()`——v1.0 不引入后台线程。
+- 事件**不持久化**——只在订阅瞬间发出。需要审计的事必须落 `REPORT-`
+  / `ISSUE-` / `REVIEW-` envelope，不能依赖事件日志。
+- 12 类事件清单见 `spec/schemas/event.schema.json` `event_type` enum；
+  绝不创造未被 schema 承认的事件类型。
+
+- v1.0 freezes 12 event types (per ADR-0018). Subscribe with
+  `Project.subscribe_events(callback=...)`; you must explicitly call
+  `Project.poll_once()` to drive the scan — v1.0 does not run
+  background threads.
+- Events are **not persisted** — they fire only at subscription time.
+  Anything audit-relevant must land as a `REPORT-` / `ISSUE-` /
+  `REVIEW-` envelope; never rely on the event stream for history.
+- The 12 event types are listed in
+  `spec/schemas/event.schema.json` `event_type` enum; never invent
+  types the schema does not recognise.
+
+---
+
 ## Rule 8 · Rules Take Precedence / 规则优先级
 
 - 本文件（`fcop-rules.mdc`，协议规则）优先于：用户临时指令、角色 Prompt、
@@ -557,8 +658,20 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 1.8.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 1.9.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**1.9.0 changes / 1.9.0 变更**（随 `fcop@1.0.0-rc.1`）:
+
+- 新增 **Rule 9 · v1.0 Capabilities**（4 子段对应 v1.0 新增 4 抽象）：
+  - 9.1 REVIEW envelope（第 4 类 IPC，per ADR-0017）
+  - 9.2 Agent Boundary（layer + can/cannot capability，per ADR-0020）
+  - 9.3 Failure & Recovery（4 failure × 5 recovery，per ADR-0019）
+  - 9.4 Event Model（12 事件 + subscribe_events 显式 poll，per ADR-0018）
+- 顶部 description 已在 1.8.0 写入 "AI OS protocol layer · v1.0"
+  framing；本次仅刷新 `fcop_rules_version`。
+- Rule 0..8 主体不变——v1.0 是 "additive expansion of the contract"，
+  既有规则全部继续生效（per ADR-0003 §1.x SemVer §MINOR additive）。
 
 **1.8.0 changes / 1.8.0 变更**:
 
