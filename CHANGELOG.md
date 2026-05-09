@@ -10,7 +10,68 @@ versioning strategy.
 
 ## [Unreleased]
 
-_（无未发布项；上一段所有变更已并入 [1.0.0-rc.1]。）_
+> 进入 v1.0.0 final 倒计时窗口。下列变更已落 main，等 final tag 时
+> 合入 `[1.0.0]` 段。1.0.0-rc.1 → 1.0.0 final 的 SemVer 政策 per
+> [ADR-0003](./adr/ADR-0003-stability-charter.md)：仅允许 bug fix /
+> 文档 / 内部重构 / additive deferred-from-RC 项；任何破坏 RC 已冻结
+> 的协议表面者 → bump 到 rc.2 重走 RC。
+
+### Added — `fcop` library
+
+- **`Project.workspace_dir` Phase 2 改造 — ADR-0022 第二阶段全量
+  落地**（TASK-20260509-012，commit `861713b`，per
+  [ADR-0022 §Implementation §Phase 2](./adr/ADR-0022-workspace-directory-convention.md#implementation)）。
+  RC 阶段以 `fcop migrate-workspace` CLI（Phase 1，TASK-008）独立
+  交付；本阶段把 `Project` 类的 workspace 路径决议从 hard-coded
+  `docs/agents/` 升级为可配置 + 自动 detect。
+  - **新构造参数**：`Project(path, *, strict=True, workspace_dir=None)`。
+    `workspace_dir=None`（默认）触发 4 种 detect：
+    1. `<root>/fcop/` 存在  → use it（v1.0 默认，无 warning）
+    2. 仅 `<root>/docs/agents/` 存在 → use it + `DeprecationWarning`
+       指向 `fcop migrate-workspace`
+    3. 两者并存                → `ConfigError` ABORT，提示用 explicit
+       override 消歧
+    4. 两者均不存在            → 默认 `<root>/fcop/`（v1.0 fresh init）
+  - 显式 `workspace_dir="docs/agents"` / 任意相对/绝对路径 → 永远合
+    法，永不 warn（escape hatch 永久保留）
+  - **新公开 property**：`Project.workspace_layout` →
+    `"v1"` / `"legacy"` / `"explicit"`，便于下游工具识别项目状态
+  - **路径 derivation 收敛**：8 个公开路径 properties（`tasks_dir` /
+    `reports_dir` / `issues_dir` / `shared_dir` / `log_dir` /
+    `reviews_dir` / `config_path` / `workspace_dir`）+
+    `LETTER-TO-ADMIN.md` deposit 路径 + drift parser ledger
+    prefixes 全部从 `self._workspace_root` 派生，单 Project 实例
+    对应单 workspace
+  - **MCP 端协同**：`init_project` / `init_solo` / `create_custom_team`
+    reply 以及 `_letter_handover_block` 中 `LETTER-TO-ADMIN.md`
+    引用路径动态化（基于 `project.workspace_dir.relative_to
+    (project.path)`），确保 ADMIN 看到的路径与文件实际落地处一致
+  - **测试**：`tests/test_fcop/test_project_workspace_dir.py`
+    （新建，15 用例：`TestAutoDetect`(4) + `TestExplicitOverride`(4)
+    + `TestPathPropertiesFollowWorkspace`(3 parametrize) +
+    `TestIsInitializedHonoursWorkspace`(3) +
+    `TestInitUnderExplicitWorkspace`(1)）
+  - **既有测试 swap**：9 个 fcop test 文件 + 1 个 mcp test 文件
+    53 处 hard-coded `docs/agents/` 期望批量改为 `fcop/`；
+    `test_migrate_workspace.py` / `test_legacy_files_validate.py` /
+    `test_encoding_schema.py` / `test_audit_drift.py` 故意保留
+    （migration tool / legacy fixture / raw schema 用例）
+  - **public_surface snapshot bump**：`Project.__init__` 新增
+    `workspace_dir` kwarg + 新 property `workspace_layout` 进
+    `tests/test_fcop/snapshots/public_surface.json`
+  - **回归数据**：971 passed, 1 failed（pre-existing date-pinned
+    mcp test 与本改动无关；从 Phase 2 改造前的 954 passed 上涨
+    +17）
+
+### Changed — `fcop-mcp` server
+
+- **init reply LETTER 路径动态化**（同 TASK-012，commit `861713b`）：
+  `init_project` / `init_solo` / `create_custom_team` 三处 reply
+  + `_letter_handover_block` 不再硬编码 `docs/agents/LETTER-TO-ADMIN.md`，
+  改为从 `project.workspace_dir.relative_to(project.path)` 动态拼装。
+  v1.0 default 项目看到 `fcop/LETTER-TO-ADMIN.md`，0.7.x legacy 项目
+  仍看到 `docs/agents/LETTER-TO-ADMIN.md`，explicit override 项目
+  看到自定义路径。
 
 ## [1.0.0-rc.1] — 2026-05-09 — AI OS Protocol Layer release candidate
 
@@ -159,10 +220,25 @@ migrations after v1.x.
       `test_console_script_resolves_to_cli_main`：放宽接受
       `fcop.cli._main:main`（v1.0+） 或 `fcop._compat_cli:main`
       （未 reinstall 的老 editable install），加历史说明 docstring
-  - **deferred to v1.0 final**：`Project()` 加 `workspace_dir=` 参数 +
-    4 种 detect 场景 + 30+ 处 hard-coded 路径替换 + `MIGRATION-1.0.md`。
-    范围太大，与 RC tag 解耦更安全；详见 [ADR-0022 §v1.0 RC
-    Implementation Notes](./adr/ADR-0022-workspace-directory-convention.md)。
+  - **Phase 2 已落地**（RC 之后、final 之前；TASK-20260509-012，
+    commit `861713b`）：
+    - `Project()` 构造加 `workspace_dir=` 参数 + 4 detect 场景
+      （`fcop/` / 仅 `docs/agents/` / 都有 / 都无）+ 公开
+      `workspace_layout` property（`"v1"` / `"legacy"` /
+      `"explicit"`）
+    - 检测到 `docs/agents/` 时打 `DeprecationWarning` 指向
+      `fcop migrate-workspace`；两者并存时 `ConfigError` ABORT
+    - `Project` 内 8 个 `*_dir` / `config_path` properties + drift
+      parser ledger prefixes + `LETTER-TO-ADMIN.md` deposit 全部
+      derive from `self._workspace_root`
+    - MCP server `init_project` / `init_solo` / `create_custom_team`
+      reply 中 LETTER 路径动态化
+    - `tests/test_fcop/test_project_workspace_dir.py` 新建 15 用例；
+      9 个 fcop test 文件 + 1 个 mcp test 文件 53 处 hard-coded
+      `docs/agents/` 期望批量 swap 为 `fcop/`
+    - 详见 [ADR-0022 §Implementation §Phase 2](./adr/ADR-0022-workspace-directory-convention.md#implementation)
+  - **仍 deferred 到 v1.0 final**：`MIGRATION-1.0.md` 用户向迁移
+    指南（拆到 TASK-013）
 
 ### Added — `fcop` library
 
