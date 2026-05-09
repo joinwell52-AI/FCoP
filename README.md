@@ -113,17 +113,17 @@ FCoP/
 │                                # bundles fcop-rules / fcop-protocol (templates for `init` deploy)
 ├── mcp/                         # `fcop-mcp` subproject (MCP server; has its own pyproject)
 ├── tests/                       # pytest for `fcop` and `fcop-mcp`
-├── spec/                        # Human spec + legacy URL stub
-│   ├── codeflow-core.mdc        # Deprecated stub (keeps old URLs); real rules: `src/.../fcop-*`
-│   ├── fcop-spec.md             # Spec index (Chinese)
-│   └── fcop-spec-v1.0.3.md      # Long human spec (non-normative)
-├── docs/                        # Migrations, releases, [`fcop-standalone.en.md`](docs/fcop-standalone.en.md)
-├── adr/                         # Architecture decision records
+├── spec/                        # Normative spec (v1.0)
+│   ├── fcop-runtime-protocol-v1.0.md    # ★ English normative spec (authoritative)
+│   ├── fcop-runtime-protocol-v1.0.zh.md # Chinese parallel (informative)
+│   ├── fcop-spec.md             # Spec index / entry point
+│   ├── fcop-spec-v1.0.3.md      # Legacy 0.7.x spec (kept for backward compat)
+│   └── schemas/                 # 7 JSON Schemas (machine-readable)
+├── docs/                        # Getting-started, migrations, releases, MCP tools
+│   └── getting-started.en.md   # ← start here if new to FCoP
+├── adr/                         # Architecture decision records (ADR-0001..0022)
 ├── .github/workflows/           # CI
 ├── pyproject.toml               # Root `fcop` package and tooling
-├── primer/
-│   ├── fcop-primer.en.md
-│   └── fcop-primer.md
 ├── essays/
 │   ├── when-ai-organizes-its-own-work.en.md
 │   ├── when-ai-organizes-its-own-work.md

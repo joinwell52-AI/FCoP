@@ -5,7 +5,7 @@ library. It is **not** the MCP server; the optional IDE bridge is the **separate
 [PyPI `fcop-mcp`](https://pypi.org/project/fcop-mcp/) project.
 
 - **FCoP protocol (what it is, no product pitch):**  
-  <https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.en.md>
+  <https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md>
 - **This repository (specs, essays, source):**  
   <https://github.com/joinwell52-AI/FCoP>
 

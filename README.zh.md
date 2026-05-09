@@ -111,17 +111,17 @@ FCoP/
 ├── src/fcop/                    # `fcop` 包：Project 等库 API；`rules/_data/` 内置 fcop-rules / fcop-protocol（init 时可选部署的母版）
 ├── mcp/                         # `fcop-mcp` 子项目（MCP 服务器，自有 pyproject）
 ├── tests/                       # `fcop` / `fcop-mcp` 的 pytest
-├── spec/                        # 人读规范 + 可粘贴的 Agent 单文件 .mdc 镜像
-│   ├── codeflow-core.mdc        # 已弃用占位（防旧链接 404）；权威为 `../src/.../fcop-rules` + `fcop-protocol`
-│   ├── fcop-spec.md             # 规范入口（中文）
-│   └── fcop-spec-v1.0.3.md      # 长版人读（非规范）
-├── docs/                        # 迁移、发版记录；[`fcop-standalone.md`](docs/fcop-standalone.md) 为纯协议说明
-├── adr/                         # 架构决策
+├── spec/                        # 规范文件（v1.0）
+│   ├── fcop-runtime-protocol-v1.0.md    # ★ 英文规范（权威版）
+│   ├── fcop-runtime-protocol-v1.0.zh.md # 中文平行版（informative）
+│   ├── fcop-spec.md             # 规范入口索引
+│   ├── fcop-spec-v1.0.3.md      # 0.7.x 遗留规范（向后兼容保留）
+│   └── schemas/                 # 7 个 JSON Schema（机器可读）
+├── docs/                        # 入门、迁移、发版记录、MCP 工具说明
+│   └── getting-started.md      # ← 新用户从这里开始
+├── adr/                         # 架构决策（ADR-0001..0022）
 ├── .github/workflows/           # CI
 ├── pyproject.toml               # 根 `fcop` 包与工具配置
-├── primer/
-│   ├── fcop-primer.md
-│   └── fcop-primer.en.md
 ├── essays/
 │   ├── when-ai-organizes-its-own-work.md
 │   ├── when-ai-organizes-its-own-work.en.md
