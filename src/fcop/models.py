@@ -254,7 +254,7 @@ class Report:
     task_id: str
     reporter: str
     recipient: str
-    status: Literal["done", "blocked", "in_progress"]
+    status: Literal["done", "blocked", "in_progress", "aborted"]
     body: str
     is_archived: bool
     mtime: datetime

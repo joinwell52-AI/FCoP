@@ -12,6 +12,34 @@ versioning strategy.
 
 ### Added — `fcop` library
 
+- **Failure & Recovery 抽象端到端**（TASK-20260509-006 R1+R2，
+  per ADR-0019）。v1.0 7 抽象 reference-impl wiring 进度
+  **3/7**——Failure 落地。
+  - 新模块 `fcop.core.recovery` 暴露 5 类 RecoveryAction 的 pure
+    reference-impl 函数：`make_retry_plan` / `make_resume_payload` /
+    `make_rollback_plan` / `make_abort_artifact` /
+    `make_escalate_artifact` + `parse_session_id`（接受
+    `TASK-...:agent` 与 0.7.x `sess-YYYYMMDD-...` 两种形状）+
+    `build_recovery_record` 工厂。
+  - 公开 13 个新符号：`Failure` / `Recovery` / `RetryPlan` /
+    `ResumePayload` / `RollbackPlan` / `RecoveryOutcome` /
+    `SessionRecoveryResult` / `FailureReceipt`（8 dataclass）+
+    `FailureType` / `RecoveryAction` / `SessionRecoveryAction`
+    （3 enum）+ `Project.report_failure` / `Project.apply_recovery`
+    / `Project.recover_session`（3 方法）。
+  - `Project.report_failure(failure)` 触发 stub 事件
+    `FAILURE_DETECTED`（TASK-007 接事件后换成真实推送）+ 返回
+    `FailureReceipt`，**不写盘**。
+  - `Project.apply_recovery(failure, action=None, ...)` 把 5 类
+    Recovery 映射到 reference impl：RETRY/RESUME/ROLLBACK 是 plan-only
+    （per TASK-006 §决议 3，v1.0 不引入 git 依赖；ROLLBACK
+    `executed=False` 永远）；ABORT 写一份 `status: aborted` REPORT；
+    ESCALATE 写一份 ISSUE 给 leader。
+  - `Project.recover_session(session_id, action, ...)` action 仅 3 值
+    `resume` / `rollback` / `abort`（RETRY / ESCALATE 不是 session
+    级，会被拒）。
+  - 测试套件：`test_core_recovery.py`（24 用例）+
+    `test_project_failure.py`（22 用例）。
 - **JSON Schema 校验基础设施**（TASK-20260509-004 R1）。新增模块
   `fcop.core.jsonschema_validator` 暴露
   `validate_envelope_frontmatter(fm, type)` /
@@ -48,6 +76,13 @@ versioning strategy.
   frontmatter / no-v12-features 测试**（共 4 份，58 用例）。
 
 ### Changed — `fcop` library
+
+- **`Project.write_report` 接受 `status="aborted"`**（TASK-20260509-006
+  R2）。原 Literal `"done" | "blocked" | "in_progress"` 扩展为四值，
+  追上 `ipc-envelope.schema.json` 已 frozen 的 `aborted` enum。这是
+  ABORT recovery 写盘前提；纯 additive，不影响现有 callers。
+  `models.Report.status` Literal 同步扩展。
+
 
 - **`spec/schemas/ipc-envelope.schema.json` 放宽以满足 I5**（TASK-004
   R1）：`TASK.subject` 改 SHOULD（0.7.x 常把 subject 写在 markdown

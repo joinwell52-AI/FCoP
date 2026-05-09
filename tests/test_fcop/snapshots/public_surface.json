@@ -166,7 +166,7 @@
         {
           "has_default": false,
           "name": "status",
-          "type": "Literal['done', 'blocked', 'in_progress']"
+          "type": "Literal['done', 'blocked', 'in_progress', 'aborted']"
         },
         {
           "has_default": false,
@@ -362,6 +362,59 @@
   ],
   "project": {
     "methods": {
+      "apply_recovery": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Failure",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "failure"
+          },
+          {
+            "annotation": "RecoveryAction | str | None",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "action"
+          },
+          {
+            "annotation": "pathlib.Path | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "task_path"
+          },
+          {
+            "annotation": "pathlib.Path | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "last_report_path"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "leader_recipient"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "rollback_target_commit"
+          },
+          {
+            "annotation": "Sequence[str] | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "rollback_affected_files"
+          }
+        ],
+        "return": "RecoveryOutcome"
+      },
       "archive_review": {
         "params": [
           {
@@ -941,6 +994,82 @@
         ],
         "return": "Task"
       },
+      "recover_session": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "session_id"
+          },
+          {
+            "annotation": "SessionRecoveryAction | str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "action"
+          },
+          {
+            "annotation": "pathlib.Path | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "task_path"
+          },
+          {
+            "annotation": "pathlib.Path | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "last_report_path"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "rollback_target_commit"
+          },
+          {
+            "annotation": "Sequence[str] | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "rollback_affected_files"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "ref_task"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "recipient"
+          }
+        ],
+        "return": "SessionRecoveryResult"
+      },
+      "report_failure": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Failure",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "failure"
+          }
+        ],
+        "return": "FailureReceipt"
+      },
       "role_occupancy": {
         "params": [
           {
@@ -1048,7 +1177,7 @@
             "name": "body"
           },
           {
-            "annotation": "Literal['done', 'blocked', 'in_progress']",
+            "annotation": "Literal['done', 'blocked', 'in_progress', 'aborted']",
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "status"

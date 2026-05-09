@@ -77,21 +77,40 @@ from fcop.errors import (
     TeamNotFoundError,
     ValidationError,
 )
+from fcop.core.recovery import (
+    build_recovery_record,
+    make_abort_artifact,
+    make_escalate_artifact,
+    make_resume_payload,
+    make_retry_plan,
+    make_rollback_plan,
+    parse_session_id,
+)
 from fcop.models import (
     BoundaryViolation,
     Capability,
     DeploymentReport,
     DriftEntry,
     DriftReport,
+    Failure,
+    FailureReceipt,
     Issue,
     Priority,
     ProjectStatus,
     RecentActivityEntry,
+    Recovery,
+    RecoveryAction,
+    RecoveryOutcome,
     Report,
+    ResumePayload,
     Review,
     ReviewDecision,
     ReviewSubjectType,
+    RetryPlan,
+    RollbackPlan,
     RoleOccupancy,
+    SessionRecoveryAction,
+    SessionRecoveryResult,
     SessionRoleConflict,
     Severity,
     Task,
@@ -1595,7 +1614,7 @@ class Project:
         reporter: str,
         recipient: str,
         body: str,
-        status: Literal["done", "blocked", "in_progress"] = "done",
+        status: Literal["done", "blocked", "in_progress", "aborted"] = "done",
         priority: Priority | str = "P2",
     ) -> Report:
         """Create a report responding to an existing task.
@@ -1613,9 +1632,10 @@ class Project:
             recipient: Role code receiving the report. Typically the
                 original task's sender, so the thread loops back.
             body: Markdown body of the report.
-            status: ``done`` / ``blocked`` / ``in_progress``. Written
-                as a top-level YAML field and echoed in
-                :attr:`Report.status`.
+            status: ``done`` / ``blocked`` / ``in_progress`` /
+                ``aborted``. Written as a top-level YAML field and
+                echoed in :attr:`Report.status`. ``aborted`` was
+                added in v1.0 per ADR-0019 §abort recovery action.
             priority: Report priority, same normalization rules as
                 :meth:`write_task`. Defaults to ``P2``.
 
@@ -2425,6 +2445,414 @@ class Project:
                     return entry, archived
         return None, False
 
+    # ── Failure & Recovery (v1.0, per ADR-0019 + TASK-006) ──────────
+
+    def report_failure(self, failure: Failure) -> FailureReceipt:
+        """Acknowledge a runtime failure（v1.0，per ADR-0019）。
+
+        v1.0 reference impl 不写盘——本方法只做 3 件事：
+
+        1. 触发 stub 事件 ``FAILURE_DETECTED``（见 :meth:`_emit_event_stub`；
+           TASK-007 接事件后会换成真实 watcher 推送）；
+        2. 返回 :class:`FailureReceipt` 给 caller，包含 accepted_at
+           时间戳；
+        3. 不调用 :meth:`apply_recovery` ——是否触发 recovery 由 caller
+           决定（per ADR-0019 §design-details "Failure 与 Recovery 解
+           耦"）。
+
+        Args:
+            failure: :class:`Failure` 内存记录。caller 自己构造（含
+                detected_at / evidence / suggested_recovery 等）。
+
+        Returns:
+            :class:`FailureReceipt`，``accepted_at = datetime.now(UTC)``。
+
+        Raises:
+            TypeError: ``failure`` 不是 :class:`Failure` 实例。
+        """
+        if not isinstance(failure, Failure):
+            raise TypeError(
+                f"failure must be a Failure instance, got {type(failure).__name__}"
+            )
+        emitted = self._emit_event_stub(
+            "FAILURE_DETECTED", subject=failure
+        )
+        return FailureReceipt(
+            failure=failure,
+            accepted_at=_dt.datetime.now(_dt.timezone.utc),
+            event_emitted=emitted,
+        )
+
+    def apply_recovery(
+        self,
+        failure: Failure,
+        action: RecoveryAction | str | None = None,
+        *,
+        task_path: pathlib.Path | str | None = None,
+        last_report_path: pathlib.Path | str | None = None,
+        leader_recipient: str | None = None,
+        rollback_target_commit: str | None = None,
+        rollback_affected_files: Sequence[str] | None = None,
+    ) -> RecoveryOutcome:
+        """Run a single recovery action against a failure.
+
+        v1.0 把 5 类 RecoveryAction 映射到 :mod:`fcop.core.recovery`
+        reference-impl 函数（per TASK-006 §决议 3）：
+
+        ============  ====================================================
+        Action        v1.0 行为
+        ============  ====================================================
+        ``RETRY``     返回 :class:`RetryPlan`（不实际重试）
+        ``RESUME``    返回 :class:`ResumePayload`（只读 metadata）
+        ``ROLLBACK``  返回 :class:`RollbackPlan` with ``executed=False``
+        ``ABORT``     写一份 ``status=aborted`` REPORT（实际写盘）
+        ``ESCALATE`` 写一份 ISSUE 给 leader（实际写盘）
+        ============  ====================================================
+
+        Args:
+            failure: :class:`Failure` 实例。
+            action: 显式 RecoveryAction；``None`` 时取
+                ``failure.suggested_recovery``。两者都 ``None`` 时
+                raise ``ValueError``。
+            task_path: RETRY / RESUME 必填——指向 TASK 文件。可以是
+                绝对路径或相对 project root 的字符串。
+            last_report_path: RESUME 可选——上一份 REPORT 路径。
+            leader_recipient: ESCALATE 必填——leader 角色 code。
+            rollback_target_commit: ROLLBACK 可选——commit hash。
+            rollback_affected_files: ROLLBACK 可选——受影响文件清单。
+
+        Returns:
+            :class:`RecoveryOutcome`，``recovery`` 是构造好的
+            :class:`Recovery` 记录，``plan`` 字段类型与 action 对应。
+
+        Raises:
+            ValueError: action 和 failure.suggested_recovery 都为 None；
+                必填路径缺失。
+        """
+        chosen_action = self._coerce_recovery_action(action, failure)
+        recovery = build_recovery_record(failure, chosen_action)
+
+        if chosen_action == RecoveryAction.RETRY:
+            tp = self._coerce_required_path(task_path, "task_path")
+            plan = make_retry_plan(failure, task_path=tp)
+            return RecoveryOutcome(
+                recovery=recovery, plan=plan, artifact_path=None
+            )
+
+        if chosen_action == RecoveryAction.RESUME:
+            tp = self._coerce_required_path(task_path, "task_path")
+            rp = self._coerce_optional_path(last_report_path)
+            session_id = self._build_session_id_from_failure(failure)
+            payload = make_resume_payload(
+                session_id=session_id,
+                task_path=tp,
+                last_report_path=rp,
+            )
+            return RecoveryOutcome(
+                recovery=recovery, plan=payload, artifact_path=None
+            )
+
+        if chosen_action == RecoveryAction.ROLLBACK:
+            plan = make_rollback_plan(
+                target_commit_hash=rollback_target_commit,
+                affected_files=tuple(rollback_affected_files or ()),
+            )
+            return RecoveryOutcome(
+                recovery=recovery, plan=plan, artifact_path=None
+            )
+
+        if chosen_action == RecoveryAction.ABORT:
+            if failure.subject_task_id is None:
+                raise ValueError(
+                    "ABORT recovery requires failure.subject_task_id "
+                    "(no task to abort otherwise)"
+                )
+
+            def _write_report_adapter(
+                *, sender: str, recipient: str, ref_task: str,
+                body: str, status: str
+            ) -> Report:
+                return self.write_report(
+                    task_id=failure.subject_task_id,
+                    reporter=sender,
+                    recipient=recipient,
+                    body=body,
+                    status=status,  # type: ignore[arg-type]
+                )
+
+            recipient = self._infer_task_sender(failure.subject_task_id) or "ADMIN"
+            artifact = make_abort_artifact(
+                failure,
+                write_report_fn=_write_report_adapter,
+                ref_task=failure.subject_task_id,
+                sender=failure.subject_agent_code,
+                recipient=recipient,
+            )
+            return RecoveryOutcome(
+                recovery=recovery,
+                plan=artifact,
+                artifact_path=artifact,
+            )
+
+        if chosen_action == RecoveryAction.ESCALATE:
+            if not leader_recipient:
+                raise ValueError(
+                    "ESCALATE recovery requires leader_recipient= "
+                    "(role code of the escalation target)"
+                )
+
+            def _write_issue_adapter(
+                *, sender: str, recipient: str, title: str,
+                severity: str, body: str
+            ) -> Issue:
+                annotated_body = (
+                    f"> Auto-escalated to: `{recipient}`\n\n{body}"
+                )
+                return self.write_issue(
+                    reporter=sender,
+                    summary=title,
+                    body=annotated_body,
+                    severity=severity,  # type: ignore[arg-type]
+                )
+
+            artifact = make_escalate_artifact(
+                failure,
+                write_issue_fn=_write_issue_adapter,
+                sender=failure.subject_agent_code,
+                leader_recipient=leader_recipient,
+            )
+            return RecoveryOutcome(
+                recovery=recovery,
+                plan=artifact,
+                artifact_path=artifact,
+            )
+
+        # Unreachable (enum exhausts), but keeps type checker happy.
+        raise ValueError(f"unsupported recovery action: {chosen_action!r}")
+
+    def recover_session(
+        self,
+        session_id: str,
+        action: SessionRecoveryAction | str,
+        *,
+        task_path: pathlib.Path | str | None = None,
+        last_report_path: pathlib.Path | str | None = None,
+        rollback_target_commit: str | None = None,
+        rollback_affected_files: Sequence[str] | None = None,
+        ref_task: str | None = None,
+        recipient: str | None = None,
+    ) -> SessionRecoveryResult:
+        """Resume / rollback / abort a session（v1.0，per ADR-0019）。
+
+        action 仅接受 3 个值——RETRY / ESCALATE 不是 session 级动作
+        （前者是 task 级，后者跨 session）；想要它们走
+        :meth:`apply_recovery`。
+
+        Args:
+            session_id: 接受两种形状（per TASK-006 §决议 5）——
+                ``TASK-...:agent``（per ADR-0019）或
+                ``sess-YYYYMMDD-agent-NNN``（0.7.x 历史）。
+            action: ``"resume"`` / ``"rollback"`` / ``"abort"`` 字符串
+                或 :class:`SessionRecoveryAction` 枚举；任何其他值会被
+                ``ValueError`` 拒。
+            task_path: ``resume`` 必填。
+            last_report_path: ``resume`` 可选。
+            rollback_target_commit: ``rollback`` 可选。
+            rollback_affected_files: ``rollback`` 可选。
+            ref_task: ``abort`` 必填——TASK 文件路径或 task_id。
+            recipient: ``abort`` 必填——REPORT 的 recipient 角色。
+
+        Returns:
+            :class:`SessionRecoveryResult`，``outcome`` 字段是
+            ``"succeeded"`` / ``"session_not_found"`` / ``"failed"``。
+            session_id 解析失败时返回 outcome=session_not_found
+            （**不**抛异常）；其他错误（如 abort 缺 ref_task）抛
+            ``ValueError`` 由 caller 处理。
+
+        Raises:
+            ValueError: action 不在 3 值内、必填参数缺失。
+        """
+        action_enum = self._coerce_session_action(action)
+
+        try:
+            parsed = parse_session_id(session_id)
+        except ValueError as exc:
+            return SessionRecoveryResult(
+                session_id=session_id,
+                action=action_enum,
+                outcome="session_not_found",
+                payload=None,
+                error=str(exc),
+            )
+
+        if action_enum == SessionRecoveryAction.RESUME:
+            tp = self._coerce_required_path(task_path, "task_path")
+            rp = self._coerce_optional_path(last_report_path)
+            payload = make_resume_payload(
+                session_id=parsed.raw,
+                task_path=tp,
+                last_report_path=rp,
+            )
+            return SessionRecoveryResult(
+                session_id=parsed.raw,
+                action=action_enum,
+                outcome="succeeded",
+                payload=payload,
+            )
+
+        if action_enum == SessionRecoveryAction.ROLLBACK:
+            plan = make_rollback_plan(
+                target_commit_hash=rollback_target_commit,
+                affected_files=tuple(rollback_affected_files or ()),
+            )
+            return SessionRecoveryResult(
+                session_id=parsed.raw,
+                action=action_enum,
+                outcome="succeeded",
+                payload=plan,
+            )
+
+        # abort
+        if not ref_task:
+            raise ValueError("abort action requires ref_task=")
+        if not recipient:
+            raise ValueError("abort action requires recipient=")
+        report = self.write_report(
+            task_id=ref_task,
+            reporter=parsed.agent_code,
+            recipient=recipient,
+            body=(
+                f"# Aborted via recover_session\n\n"
+                f"- session_id: `{parsed.raw}`\n"
+                f"- agent_code: `{parsed.agent_code}`\n"
+            ),
+            status="aborted",
+        )
+        return SessionRecoveryResult(
+            session_id=parsed.raw,
+            action=action_enum,
+            outcome="succeeded",
+            payload=report.path,
+        )
+
+    # ── Failure / Recovery internal helpers ──────────────────────────
+
+    _emit_event_stub_calls: list[tuple[str, object]]
+    """Per-instance event log; exposed read-only for testing.
+
+    TASK-007 will replace this with a real watcher pub-sub. v1.0 keeps
+    the calls in-memory so :meth:`report_failure` is observable by
+    tests without coupling to the not-yet-built event bus.
+    """
+
+    def _emit_event_stub(self, event_type: str, *, subject: object) -> bool:
+        """No-op event hook (TASK-007 replaces this).
+
+        Records ``(event_type, subject)`` into ``self._emit_event_stub_calls``
+        so unit tests can assert calls happened. Returns ``True`` so
+        ``FailureReceipt.event_emitted`` reflects "the stub successfully
+        ran"; production caller should not depend on this return value
+        until TASK-007 lands a real bus.
+        """
+        try:
+            log = self._emit_event_stub_calls
+        except AttributeError:
+            log = []
+            self._emit_event_stub_calls = log
+        log.append((event_type, subject))
+        return True
+
+    def _coerce_recovery_action(
+        self,
+        action: RecoveryAction | str | None,
+        failure: Failure,
+    ) -> RecoveryAction:
+        if action is None:
+            if failure.suggested_recovery is None:
+                raise ValueError(
+                    "apply_recovery: action= is required when failure has "
+                    "no suggested_recovery"
+                )
+            return failure.suggested_recovery
+        if isinstance(action, RecoveryAction):
+            return action
+        if isinstance(action, str):
+            try:
+                return RecoveryAction(action.upper())
+            except ValueError as exc:
+                raise ValueError(
+                    f"unknown RecoveryAction string {action!r}; "
+                    f"valid: {[a.value for a in RecoveryAction]}"
+                ) from exc
+        raise ValueError(
+            f"action must be RecoveryAction / str / None; got {type(action).__name__}"
+        )
+
+    @staticmethod
+    def _coerce_session_action(
+        action: SessionRecoveryAction | str,
+    ) -> SessionRecoveryAction:
+        if isinstance(action, SessionRecoveryAction):
+            return action
+        if isinstance(action, str):
+            try:
+                return SessionRecoveryAction(action.lower())
+            except ValueError as exc:
+                raise ValueError(
+                    f"unknown SessionRecoveryAction {action!r}; "
+                    f"valid: {[a.value for a in SessionRecoveryAction]} "
+                    "(RETRY / ESCALATE are not session-level; use "
+                    "apply_recovery)"
+                ) from exc
+        raise ValueError(
+            f"action must be SessionRecoveryAction / str; "
+            f"got {type(action).__name__}"
+        )
+
+    def _coerce_required_path(
+        self,
+        path: pathlib.Path | str | None,
+        field_name: str,
+    ) -> pathlib.Path:
+        if path is None:
+            raise ValueError(f"{field_name}= is required for this recovery action")
+        p = pathlib.Path(path)
+        if not p.is_absolute():
+            p = self._path / p
+        return p
+
+    def _coerce_optional_path(
+        self,
+        path: pathlib.Path | str | None,
+    ) -> pathlib.Path | None:
+        if path is None:
+            return None
+        return self._coerce_required_path(path, "_optional")
+
+    def _build_session_id_from_failure(self, failure: Failure) -> str:
+        """Best-effort session_id 构造 from Failure（per TASK-006 §决议 5 形状 A）。"""
+        if failure.subject_task_id:
+            return f"{failure.subject_task_id}:{failure.subject_agent_code}"
+        # 退到形状 B 大致：sess-{detected_date}-{agent_lower}-000
+        date = failure.detected_at.strftime("%Y%m%d")
+        return f"sess-{date}-{failure.subject_agent_code.lower()}-000"
+
+    def _infer_task_sender(self, task_id_or_path: str) -> str | None:
+        """查 TASK 文件的 sender；用于 ABORT recovery 写 REPORT 时确定 recipient。"""
+        try:
+            path, _ = self._resolve_task_file(task_id_or_path)
+        except Exception:
+            return None
+        if path is None:
+            return None
+        try:
+            text = path.read_text(encoding="utf-8")
+            raw_fm = parse_frontmatter_raw(text)
+        except Exception:
+            return None
+        sender = raw_fm.get("sender") or raw_fm.get("from")
+        return str(sender).strip() if sender else None
+
     def _infer_review_target_role(
         self,
         subject_type: ReviewSubjectType,
@@ -2693,7 +3121,7 @@ _FCOP_SUFFIXES = frozenset({".md", ".fcop"})
 # the status rides in ``TaskFrontmatter.extra["status"]`` for 0.6 and
 # will migrate when we split report parsing into its own module.
 _VALID_REPORT_STATUSES: frozenset[str] = frozenset(
-    {"done", "blocked", "in_progress"}
+    {"done", "blocked", "in_progress", "aborted"}
 )
 
 # Boilerplate for ``workspace/README.md`` written on every init. Kept
