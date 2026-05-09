@@ -12,6 +12,38 @@ versioning strategy.
 
 ### Added — `fcop` library
 
+- **Event 抽象端到端 — v1.0 7 抽象闭合最后一环**（TASK-20260509-007
+  R1+R2，per ADR-0018 + ADR-0019）。reference-impl wiring 进度
+  **4/7**——Event 落地后 v1.0.0 RC 候选条件全达成。
+  - 新模块 `fcop.core.events` 暴露 polling watcher 的纯函数 reference
+    impl：`scan_workspace(workspace_dir, project_root)` /
+    `compute_diff(prev, curr)` / `make_event` / `make_event_id` +
+    `WatcherState` / `FileSnapshot` dataclass + `WATCHER_ID` 常量。
+  - 公开 5 个新符号（4 dataclass/enum + 1 Subscription）：`Event` /
+    `EventSource` / `EventSourceKind` / `EventType`（12 值，与
+    `event.schema.json` 词表对齐）+ `EventSubscription` 句柄。
+  - `Project.subscribe_events(types, callback)` 注册订阅；返回
+    `EventSubscription`，调 `unsubscribe()` 取消。`types=None` 表示
+    订阅所有 12 类；字符串自动 coerce 为 `EventType`。
+  - `Project.poll_once()` 显式跑一次 polling 周期：scan + diff +
+    dispatch + 缓存当前 state。**v1.0 不引入后台线程**（per TASK-007
+    §决议 3 + 7），caller 负责调度。
+  - `Project.workspace_dir` property —— v1.0 显式 accessor，
+    `tasks_dir.parent` 的等价别名。
+  - 12 类事件中 8 类（TASK_CREATED / TASK_ACCEPTED / TASK_BLOCKED /
+    TASK_COMPLETED / REPORT_FILED / REVIEW_DECIDED / ROLE_SWITCHED +
+    部分 BOUNDARY_VIOLATED）由 polling 派生；剩 4-5 类
+    （FAILURE_DETECTED / RECOVERY_INITIATED / RECOVERY_COMPLETED /
+    SESSION_LOST / 同步 BOUNDARY_VIOLATED）由 Project 内部代码
+    同步触发。
+  - **接住 TASK-005/006 的 stub 钩子**：`Project.assert_boundary` 现
+    在 raise 之前 emit `BOUNDARY_VIOLATED`；`apply_recovery` 头尾
+    emit `RECOVERY_INITIATED` / `RECOVERY_COMPLETED`；
+    `recover_session` session_not_found 时 emit `SESSION_LOST`。
+    `_emit_event_stub` 改为 bridge——既保留 TASK-006 测试观察的
+    legacy log（`_emit_event_stub_calls`），又派发到真实事件总线。
+  - 测试套件：`test_core_events.py`（23 用例）+
+    `test_project_events.py`（20 用例）。
 - **Failure & Recovery 抽象端到端**（TASK-20260509-006 R1+R2，
   per ADR-0019）。v1.0 7 抽象 reference-impl wiring 进度
   **3/7**——Failure 落地。

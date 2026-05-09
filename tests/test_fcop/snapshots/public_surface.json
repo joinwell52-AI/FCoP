@@ -926,6 +926,17 @@
         ],
         "return": "list[Task]"
       },
+      "poll_once": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "list[Event]"
+      },
       "read_issue": {
         "params": [
           {
@@ -1091,6 +1102,29 @@
           }
         ],
         "return": "ProjectStatus"
+      },
+      "subscribe_events": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Sequence[EventType | str] | None",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "types"
+          },
+          {
+            "annotation": "'Callable[[Event], None] | None'",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "callback"
+          }
+        ],
+        "return": "'EventSubscription'"
       },
       "validate_team": {
         "params": [
@@ -1421,6 +1455,17 @@
           }
         ],
         "return": "pathlib.Path"
+      },
+      "workspace_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
       }
     }
   },
@@ -1541,6 +1586,7 @@
     "Event",
     "EventSource",
     "EventSourceKind",
+    "EventSubscription",
     "EventType",
     "Failure",
     "FailureReceipt",

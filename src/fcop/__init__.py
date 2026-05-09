@@ -93,7 +93,7 @@ from fcop.models import (
     TeamConfig,
     ValidationIssue,
 )
-from fcop.project import Project
+from fcop.project import EventSubscription, Project
 
 __all__ = [
     # Version
@@ -114,6 +114,7 @@ __all__ = [
     "Event",
     "EventSource",
     "EventSourceKind",
+    "EventSubscription",
     "EventType",
     "Failure",
     "FailureType",

@@ -295,18 +295,23 @@ def scan_workspace(workspace_dir: Path, *, project_root: Path) -> WatcherState:
     for sub in ("tasks", "reports", "reviews"):
         _scan_dir(log_root / sub, archived=True)
 
-    config = project_root / "fcop.json"
-    if config.is_file():
+    # fcop.json 实际位于 workspace_dir 下（per Project.config_path），
+    # 但为了兼容老 layout 也兼查 project_root。
+    for config in (workspace_dir / "fcop.json", project_root / "fcop.json"):
+        if not config.is_file():
+            continue
         try:
             mtime = config.stat().st_mtime
         except OSError:
             mtime = 0.0
-        snapshots["fcop.json"] = FileSnapshot(
-            relpath="fcop.json",
+        relpath = config.relative_to(project_root).as_posix()
+        snapshots[relpath] = FileSnapshot(
+            relpath=relpath,
             mtime=mtime,
             kind="config",
             config_blob_hash=_read_config_hash(config),
         )
+        break  # 只取第一个找到的
 
     return WatcherState(files=snapshots)
 

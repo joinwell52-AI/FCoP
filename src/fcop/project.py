@@ -19,7 +19,8 @@ import contextlib
 import datetime as _dt
 import os
 import pathlib
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
+from dataclasses import dataclass
 from typing import Literal
 
 import yaml
@@ -77,6 +78,13 @@ from fcop.errors import (
     TeamNotFoundError,
     ValidationError,
 )
+from fcop.core.events import (
+    WATCHER_ID,
+    WatcherState,
+    compute_diff,
+    make_event,
+    scan_workspace,
+)
 from fcop.core.recovery import (
     build_recovery_record,
     make_abort_artifact,
@@ -92,6 +100,10 @@ from fcop.models import (
     DeploymentReport,
     DriftEntry,
     DriftReport,
+    Event,
+    EventSource,
+    EventSourceKind,
+    EventType,
     Failure,
     FailureReceipt,
     Issue,
@@ -127,7 +139,37 @@ from fcop.rules import (
 )
 from fcop.teams import TeamTemplate, get_team_info, get_template
 
-__all__ = ["Project"]
+__all__ = ["Project", "EventSubscription"]
+
+
+@dataclass(slots=True)
+class EventSubscription:
+    """A handle returned by :meth:`Project.subscribe_events`（v1.0）。
+
+    Attributes:
+        project: 反向引用，便于 :meth:`unsubscribe` 操作 registry。
+        types: 关心的事件类型元组；``None`` = 所有 12 类。
+        callback: 事件回调；``None`` 表示静默订阅。
+    """
+
+    project: "Project"
+    types: tuple[EventType, ...] | None
+    callback: Callable[[Event], None] | None
+    _active: bool = True
+
+    def unsubscribe(self) -> None:
+        """Stop receiving further events. Idempotent."""
+        if not self._active:
+            return
+        self._active = False
+        try:
+            self.project._subscriptions.remove(self)
+        except ValueError:
+            pass
+
+    @property
+    def active(self) -> bool:
+        return self._active
 
 
 class Project:
@@ -197,6 +239,17 @@ class Project:
     def log_dir(self) -> pathlib.Path:
         """``<project>/docs/agents/log/`` (archive root)."""
         return self._path / "docs" / "agents" / "log"
+
+    @property
+    def workspace_dir(self) -> pathlib.Path:
+        """``<project>/docs/agents/`` —— FCoP workspace 根（v1.0）。
+
+        Convenience accessor —— 现有 0.7.x 代码用 ``tasks_dir.parent`` /
+        ``log_dir.parent`` 取等价路径。本 property 是 v1.0 引入的
+        显式形式，便于 :meth:`subscribe_events` / :meth:`poll_once`
+        定位 polling watcher 的扫描根。
+        """
+        return self._path / "docs" / "agents"
 
     @property
     def reviews_dir(self) -> pathlib.Path:
@@ -2531,13 +2584,18 @@ class Project:
         """
         chosen_action = self._coerce_recovery_action(action, failure)
         recovery = build_recovery_record(failure, chosen_action)
+        # Emit RECOVERY_INITIATED before doing the work; subscribers see
+        # the attempt even if the recovery itself fails partway.
+        self._emit_event_stub("RECOVERY_INITIATED", subject=recovery)
 
         if chosen_action == RecoveryAction.RETRY:
             tp = self._coerce_required_path(task_path, "task_path")
             plan = make_retry_plan(failure, task_path=tp)
-            return RecoveryOutcome(
+            outcome = RecoveryOutcome(
                 recovery=recovery, plan=plan, artifact_path=None
             )
+            self._emit_event_stub("RECOVERY_COMPLETED", subject=recovery)
+            return outcome
 
         if chosen_action == RecoveryAction.RESUME:
             tp = self._coerce_required_path(task_path, "task_path")
@@ -2548,18 +2606,22 @@ class Project:
                 task_path=tp,
                 last_report_path=rp,
             )
-            return RecoveryOutcome(
+            outcome = RecoveryOutcome(
                 recovery=recovery, plan=payload, artifact_path=None
             )
+            self._emit_event_stub("RECOVERY_COMPLETED", subject=recovery)
+            return outcome
 
         if chosen_action == RecoveryAction.ROLLBACK:
             plan = make_rollback_plan(
                 target_commit_hash=rollback_target_commit,
                 affected_files=tuple(rollback_affected_files or ()),
             )
-            return RecoveryOutcome(
+            outcome = RecoveryOutcome(
                 recovery=recovery, plan=plan, artifact_path=None
             )
+            self._emit_event_stub("RECOVERY_COMPLETED", subject=recovery)
+            return outcome
 
         if chosen_action == RecoveryAction.ABORT:
             if failure.subject_task_id is None:
@@ -2588,11 +2650,13 @@ class Project:
                 sender=failure.subject_agent_code,
                 recipient=recipient,
             )
-            return RecoveryOutcome(
+            outcome = RecoveryOutcome(
                 recovery=recovery,
                 plan=artifact,
                 artifact_path=artifact,
             )
+            self._emit_event_stub("RECOVERY_COMPLETED", subject=recovery)
+            return outcome
 
         if chosen_action == RecoveryAction.ESCALATE:
             if not leader_recipient:
@@ -2621,11 +2685,13 @@ class Project:
                 sender=failure.subject_agent_code,
                 leader_recipient=leader_recipient,
             )
-            return RecoveryOutcome(
+            outcome = RecoveryOutcome(
                 recovery=recovery,
                 plan=artifact,
                 artifact_path=artifact,
             )
+            self._emit_event_stub("RECOVERY_COMPLETED", subject=recovery)
+            return outcome
 
         # Unreachable (enum exhausts), but keeps type checker happy.
         raise ValueError(f"unsupported recovery action: {chosen_action!r}")
@@ -2677,6 +2743,10 @@ class Project:
         try:
             parsed = parse_session_id(session_id)
         except ValueError as exc:
+            self._emit_event_stub(
+                "SESSION_LOST",
+                subject={"session_id": session_id, "reason": str(exc)},
+            )
             return SessionRecoveryResult(
                 session_id=session_id,
                 action=action_enum,
@@ -2735,31 +2805,198 @@ class Project:
             payload=report.path,
         )
 
-    # ── Failure / Recovery internal helpers ──────────────────────────
+    # ── Event subscription & polling (v1.0, per ADR-0018 + TASK-007) ──
 
-    _emit_event_stub_calls: list[tuple[str, object]]
-    """Per-instance event log; exposed read-only for testing.
+    def subscribe_events(
+        self,
+        types: Sequence[EventType | str] | None = None,
+        callback: "Callable[[Event], None] | None" = None,
+    ) -> "EventSubscription":
+        """Subscribe to runtime events（v1.0，per ADR-0018）。
 
-    TASK-007 will replace this with a real watcher pub-sub. v1.0 keeps
-    the calls in-memory so :meth:`report_failure` is observable by
-    tests without coupling to the not-yet-built event bus.
-    """
+        本方法**不**启动后台线程 —— caller 必须显式调
+        :meth:`poll_once` 才会触发文件类事件（per TASK-007 §决议 3）。
+        同步类事件（FAILURE_DETECTED / BOUNDARY_VIOLATED 等）在被
+        :meth:`report_failure` / :meth:`write_review` 等触发时立即
+        发到所有订阅者。
 
-    def _emit_event_stub(self, event_type: str, *, subject: object) -> bool:
-        """No-op event hook (TASK-007 replaces this).
+        Args:
+            types: 关心的事件类型；``None`` 表示订阅所有 12 类。
+                可传 :class:`EventType` 枚举或字符串（自动 coerce）。
+                未知字符串会立即 raise ``ValueError``。
+            callback: 接收 :class:`Event` 的同步回调；``None`` 时只是
+                注册一个静默订阅（事件仍会进 ``Project`` 内部 log，
+                便于 caller 之后通过 :attr:`_emitted_events` 取）。
 
-        Records ``(event_type, subject)`` into ``self._emit_event_stub_calls``
-        so unit tests can assert calls happened. Returns ``True`` so
-        ``FailureReceipt.event_emitted`` reflects "the stub successfully
-        ran"; production caller should not depend on this return value
-        until TASK-007 lands a real bus.
+        Returns:
+            :class:`EventSubscription` —— 调它的 ``unsubscribe()`` 可
+            取消。Subscription 不持有 Project 强引用之外的资源，可
+            安全丢弃。
+
+        Raises:
+            ValueError: types 含未知字符串。
+        """
+
+        if types is None:
+            normalized: tuple[EventType, ...] | None = None
+        else:
+            buf: list[EventType] = []
+            for t in types:
+                if isinstance(t, EventType):
+                    buf.append(t)
+                elif isinstance(t, str):
+                    try:
+                        buf.append(EventType(t.upper()))
+                    except ValueError as exc:
+                        raise ValueError(
+                            f"unknown EventType {t!r}; valid: "
+                            f"{[e.value for e in EventType]}"
+                        ) from exc
+                else:
+                    raise ValueError(
+                        f"types items must be EventType / str; got "
+                        f"{type(t).__name__}"
+                    )
+            normalized = tuple(buf)
+
+        sub = EventSubscription(
+            project=self, types=normalized, callback=callback
+        )
+        self._subscriptions.append(sub)
+        return sub
+
+    def poll_once(self) -> list[Event]:
+        """Run one polling cycle and emit all derived events.
+
+        v1.0 reference impl 行为（per TASK-007 §决议 3）：
+
+        1. 调 :func:`fcop.core.events.scan_workspace` 拍当前快照
+        2. 与上次快照（首次为 ``None``）调 :func:`compute_diff` 派生事件
+        3. 把派生事件按顺序发到所有订阅者（含静默订阅）
+        4. 把当前快照存到 ``self._last_watcher_state`` 以备下次
+
+        Returns:
+            按 :func:`compute_diff` 排序的事件列表。Caller 可用此返
+            回值直接遍历事件，无需注册 callback。
+        """
+
+        curr = scan_workspace(
+            workspace_dir=self.workspace_dir, project_root=self._path
+        )
+        events = compute_diff(prev=self._last_watcher_state, curr=curr)
+        self._last_watcher_state = curr
+        for ev in events:
+            self._dispatch_event(ev)
+        return events
+
+    @property
+    def _subscriptions(self) -> "list[EventSubscription]":
+        """Lazy per-instance subscription registry."""
+        try:
+            return self.__dict__["_subscriptions_list"]
+        except KeyError:
+            buf: list[EventSubscription] = []
+            self.__dict__["_subscriptions_list"] = buf
+            return buf
+
+    @property
+    def _last_watcher_state(self) -> WatcherState | None:
+        return self.__dict__.get("_last_watcher_state_cache")
+
+    @_last_watcher_state.setter
+    def _last_watcher_state(self, value: WatcherState | None) -> None:
+        self.__dict__["_last_watcher_state_cache"] = value
+
+    @property
+    def _emitted_events(self) -> "list[Event]":
+        """Per-instance log of every event the project has dispatched.
+
+        Useful for tests and post-hoc debugging. Production callers
+        should use :meth:`subscribe_events` instead of polling this list.
         """
         try:
-            log = self._emit_event_stub_calls
-        except AttributeError:
-            log = []
-            self._emit_event_stub_calls = log
-        log.append((event_type, subject))
+            return self.__dict__["_emitted_events_list"]
+        except KeyError:
+            buf: list[Event] = []
+            self.__dict__["_emitted_events_list"] = buf
+            return buf
+
+    def _dispatch_event(self, event: Event) -> None:
+        """Send ``event`` to every matching subscription + record it."""
+        self._emitted_events.append(event)
+        for sub in list(self._subscriptions):
+            if sub.types is not None and event.event_type not in sub.types:
+                continue
+            if sub.callback is not None:
+                try:
+                    sub.callback(event)
+                except Exception:
+                    # subscriber 抛错不应影响其他 subscriber 或主路径；
+                    # v1.0 静默吞，由 caller 自己加 logging
+                    pass
+
+    # ── Failure / Recovery internal helpers ──────────────────────────
+
+    @property
+    def _emit_event_stub_calls(self) -> list[tuple[str, object]]:
+        """Backward-compat shim for TASK-006 tests.
+
+        TASK-007 把真实 emitter 接进来后，此 property 仍返回每次
+        :meth:`_emit_event_stub` 调用的 (event_type_str, subject)
+        元组列表。新代码应订阅 :meth:`subscribe_events` 而不是直接
+        读这个 list。
+        """
+        try:
+            return self.__dict__["_emit_event_stub_calls_list"]
+        except KeyError:
+            buf: list[tuple[str, object]] = []
+            self.__dict__["_emit_event_stub_calls_list"] = buf
+            return buf
+
+    def _emit_event_stub(self, event_type: str, *, subject: object) -> bool:
+        """Bridge legacy stub call sites to the v1.0 event bus.
+
+        TASK-006 wrote ``self._emit_event_stub("FAILURE_DETECTED",
+        subject=...)`` from ``report_failure`` / ``apply_recovery``.
+        This shim now (1) appends to the legacy log so
+        ``test_project_failure`` keeps observing the same surface and
+        (2) translates the call into a real :class:`Event` and
+        dispatches it through the new bus.
+        """
+
+        # 1) preserve legacy log shape for TASK-006 tests
+        self._emit_event_stub_calls.append((event_type, subject))
+
+        # 2) translate to a real Event when the type is in v1.0 vocab
+        try:
+            etype = EventType(event_type)
+        except ValueError:
+            return True  # unknown type → legacy log only
+
+        subject_dict: dict[str, object] = {}
+        if isinstance(subject, Failure):
+            subject_dict["failure_type"] = subject.failure_type.value
+            subject_dict["actor"] = subject.subject_agent_code
+            if subject.subject_task_id:
+                subject_dict["task_id"] = subject.subject_task_id
+        elif isinstance(subject, Recovery):
+            subject_dict["recovery_action"] = subject.recovery_action.value
+            subject_dict["actor"] = subject.trigger_failure.subject_agent_code
+            if subject.trigger_failure.subject_task_id:
+                subject_dict["task_id"] = subject.trigger_failure.subject_task_id
+        elif isinstance(subject, dict):
+            subject_dict.update(subject)
+        elif subject is not None:
+            subject_dict["payload"] = repr(subject)
+
+        ev = make_event(
+            etype,
+            subject=subject_dict,
+            source=EventSource(
+                kind=EventSourceKind.CALLBACK, watcher=WATCHER_ID
+            ),
+        )
+        self._dispatch_event(ev)
         return True
 
     def _coerce_recovery_action(
@@ -3014,6 +3251,25 @@ class Project:
         errors = [v for v in violations if v.severity == "error"]
         if errors:
             details = "; ".join(f"{v.rule_id}: {v.message[:200]}" for v in errors)
+            # Emit BOUNDARY_VIOLATED event before raising, so subscribers
+            # see the violation even if the caller swallows the exception.
+            try:
+                ev = make_event(
+                    EventType.BOUNDARY_VIOLATED,
+                    subject={
+                        "actor": actor_role,
+                        "attempted_action": action,
+                        **({"target": target_role} if target_role else {}),
+                        "rule_id": errors[0].rule_id,
+                    },
+                    source=EventSource(
+                        kind=EventSourceKind.CALLBACK, watcher=WATCHER_ID
+                    ),
+                )
+                self._dispatch_event(ev)
+            except Exception:
+                # event dispatch must never break the raise path
+                pass
             raise BoundaryViolationError(
                 f"boundary check failed for {actor_role!r} → {action!r}"
                 + (f" → {target_role!r}" if target_role else "")

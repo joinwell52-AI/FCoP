@@ -94,7 +94,7 @@ def _make_workspace(tmp_path: Path) -> tuple[Path, Path]:
     for sub in ("tasks", "reports", "reviews", "issues",
                 "log/tasks", "log/reports", "log/reviews"):
         (workspace / sub).mkdir(parents=True, exist_ok=True)
-    (project_root / "fcop.json").write_text(
+    (workspace / "fcop.json").write_text(
         json.dumps({"team": "x", "roles": ["ME", "ADMIN"], "leader": "ADMIN"}),
         encoding="utf-8",
     )
@@ -159,9 +159,10 @@ class TestScanWorkspace:
     def test_empty_workspace(self, tmp_path: Path):
         project_root, workspace = _make_workspace(tmp_path)
         state = scan_workspace(workspace, project_root=project_root)
-        # 仅含 fcop.json
-        assert "fcop.json" in state.files
-        assert state.files["fcop.json"].kind == "config"
+        # 仅含 fcop.json（位于 docs/agents/ 下）
+        config_paths = [p for p, s in state.files.items() if s.kind == "config"]
+        assert len(config_paths) == 1
+        assert config_paths[0].endswith("fcop.json")
 
     def test_scans_task_with_metadata(self, tmp_path: Path):
         project_root, workspace = _make_workspace(tmp_path)
@@ -205,9 +206,10 @@ class TestScanWorkspace:
     def test_scans_config_blob_hash(self, tmp_path: Path):
         project_root, _ws = _make_workspace(tmp_path)
         state = scan_workspace(_ws, project_root=project_root)
-        config = state.files["fcop.json"]
-        assert config.config_blob_hash is not None
-        assert len(config.config_blob_hash) == 16
+        configs = [s for s in state.files.values() if s.kind == "config"]
+        assert len(configs) == 1
+        assert configs[0].config_blob_hash is not None
+        assert len(configs[0].config_blob_hash) == 16
 
     def test_ignores_non_envelope_files(self, tmp_path: Path):
         project_root, workspace = _make_workspace(tmp_path)
@@ -286,8 +288,8 @@ class TestComputeDiff:
     def test_role_switched_emits_on_config_change(self, tmp_path: Path):
         project_root, workspace = _make_workspace(tmp_path)
         s1 = scan_workspace(workspace, project_root=project_root)
-        # 修改 fcop.json
-        (project_root / "fcop.json").write_text(
+        # 修改 fcop.json（位于 workspace 下）
+        (workspace / "fcop.json").write_text(
             json.dumps({"team": "x", "roles": ["ME", "ADMIN", "PM"], "leader": "PM"}),
             encoding="utf-8",
         )
