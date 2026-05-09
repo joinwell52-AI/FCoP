@@ -65,13 +65,13 @@ dev = [
 ]
 
 [project.scripts]
-# Compat shim for 0.5.x users. Up through fcop 0.5.4 the `fcop` command
-# started an MCP server. In 0.6.0 that server moved to the `fcop-mcp`
-# package (ADR-0002), which would have left users with a bare
-# "command not found" after upgrading. This shim prints a friendly
-# migration message and exits with status 1 so callers can detect it.
-# Pure additive per ADR-0003.
-fcop = "fcop._compat_cli:main"
+# Console entry point. Up through fcop 0.7.x this called the 0.5→0.6
+# legacy compat shim (which only printed migration guidance and exited
+# 1). v1.0 promotes ``fcop`` to a real subcommand dispatcher; bare
+# ``fcop`` (no subcommand) still prints the legacy guidance for
+# backward compat with users who upgrade in place. The first real
+# subcommand is ``fcop migrate-workspace`` (ADR-0022).
+fcop = "fcop.cli._main:main"
 
 [project.urls]
 Homepage = "https://github.com/joinwell52-AI/FCoP"

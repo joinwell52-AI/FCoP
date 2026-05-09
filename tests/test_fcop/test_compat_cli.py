@@ -79,12 +79,21 @@ def test_main_accepts_argv(capsys: pytest.CaptureFixture[str]) -> None:
     sys.version_info < (3, 10),
     reason="requires entry_points(group=...) keyword (3.10+)",
 )
-def test_console_script_resolves_to_compat_cli() -> None:
+def test_console_script_resolves_to_cli_main() -> None:
     """The ``fcop`` console script in the installed wheel must point at
+    :func:`fcop.cli._main.main` (v1.0+) or — for users still on a
+    pre-1.0 editable install that has not been reinstalled —
     :func:`fcop._compat_cli.main`.
 
     This runs only after ``pip install`` (editable or wheel) so that
     ``importlib.metadata`` can see the entry-point table.
+
+    History: through 0.7.x the entry point was ``fcop._compat_cli:main``;
+    v1.0 promotes ``fcop`` to a real subcommand dispatcher rooted at
+    ``fcop.cli._main:main`` while still preserving the legacy 0.5→0.6
+    message when invoked with no subcommand. We accept both values
+    here so that the test does not turn red purely because the user
+    hasn't run ``pip install -e .`` after pulling main.
     """
 
     entry_points = importlib.metadata.entry_points(group="console_scripts")
@@ -92,6 +101,7 @@ def test_console_script_resolves_to_compat_cli() -> None:
     if not matches:
         pytest.skip("fcop console script not installed (editable install required)")
     ep = matches[0]
-    assert ep.value == "fcop._compat_cli:main", (
-        f"expected fcop._compat_cli:main, got {ep.value}"
+    accepted = {"fcop.cli._main:main", "fcop._compat_cli:main"}
+    assert ep.value in accepted, (
+        f"expected one of {sorted(accepted)}, got {ep.value}"
     )
