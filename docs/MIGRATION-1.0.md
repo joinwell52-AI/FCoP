@@ -16,7 +16,7 @@
 | 写过 `from fcop.core.event_log import _emit_event_stub` 这种私有符号 | 改用 `Project.subscribe_events()` / `Project.poll_once()`（per ADR-0018）|
 | 用 `docs/agents/` 字符串做过 hard-coded 路径拼接 | 改读 `project.workspace_dir` / `project.tasks_dir` 等 property，不要再拼字面量 |
 
-1.0 的核心 framing 是：**FCoP 不再是 "AI 协作规则"，而是 AI OS 协议层（Agent Runtime Protocol）**——7 抽象（Agent / IPC / Encoding / Event / Failure / Boundary / Audit）冻结成形。
+1.0 的核心 framing 是：**FCoP 不再是 "AI 协作规则"，而是 AI OS 协议层（Agent Runtime Protocol）**——七大核心概念（Agent、IPC、Encoding、Event、Failure、Boundary、Audit）的最小语义契约正式固化为稳定标准。
 
 但**对你的现有文件而言**，1.0 是 **零迁移升级**：所有 0.7.x 文件继续 100% 可读，agent 行为同语义。唯一物理动作是 workspace 目录从 `docs/agents/` → `fcop/`，且**只在你想动的时候动**（escape hatch 永久保留）。
 
@@ -111,7 +111,7 @@ project = Project(repo_root, workspace_dir="docs/agents")
 
 或者保持不传任何参数——0.7.x 项目检测到 `docs/agents/` 后会**自动用它**，只是会打一次 `DeprecationWarning` 提醒你 migrator 的存在。把 warning 当 lint hint，不影响功能。
 
-如果你用 `fcop-mcp`，目前 MCP 没有暴露 `workspace_dir` 参数（per ADR-0022 §"MCP 表面冻结"），所以选 B 时建议直接在调用 `Project()` 处显式传，或者干脆走选项 A。
+如果你用 `fcop-mcp`，目前 MCP 没有暴露 `workspace_dir` 参数（per ADR-0022 §"MCP 表面稳定约束"），所以选 B 时建议直接在调用 `Project()` 处显式传，或者干脆走选项 A。
 
 #### 选项 C — 用自定义路径（罕见，monorepo / 多项目共享）
 
@@ -166,7 +166,7 @@ mv fcop docs/agents
 
 ## 3. 4 个新抽象（REVIEW / Failure / Boundary / Event）—— 加不加随意
 
-1.0 把 7 抽象全部冻结，但其中 4 个（除 Agent / IPC / Encoding 之外）在 0.7.x 没有任何 API 表面，是**纯 additive expansion**。你不主动用就**永远碰不到它们**——你的 0.7.x 代码 100% 继续工作。
+1.0 将七大核心概念（Agent、IPC、Encoding、Event、Failure、Boundary、Audit）全部固化，但其中 4 个（除 Agent / IPC / Encoding 之外）在 0.7.x 没有任何 API 表面，是**纯 additive expansion**。你不主动用就**永远碰不到它们**——你的 0.7.x 代码 100% 继续工作。
 
 下面给极简 walkthrough，详细见 each ADR + `spec/schemas/`。
 

@@ -21,7 +21,7 @@ Agent Runtime Protocol** 的第一个稳定版。**协议表面与 `1.0.0-rc.1`
 按位相同**——本 final 仅在 RC 之上增量交付 ADR-0022 Phase 2
 （`Project.workspace_dir` 重构 + 4-detect + `workspace_layout`
 introspection property）+ `docs/MIGRATION-1.0.md` 用户向迁移指南
-+ release notes finalize。7 抽象最小语义合约**永久冻结**，任何修改
++ release notes finalize。七大核心概念（Agent、Encoding、IPC、Event、Failure、Boundary、Audit）最小语义合约**已固化为稳定标准**，任何修改
 协议的变更要求 MAJOR bump 到 v2.x。
 
 ### English TL;DR

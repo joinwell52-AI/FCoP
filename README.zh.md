@@ -58,7 +58,7 @@ Kernel Primitives LLM API / Filesystem / Process Mgr          ← AI OS 内核
 
 > **FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。** —— [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
 
-v1.0 这条线**冻结**上述 7 个核心抽象的最小语义契约。spec 锁死、encoding 留白：*IPC Surface*（TASK / REPORT / ISSUE / REVIEW）强类型；*Open Knowledge Surface*（`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`）词表完全开放，让 agent 自由发明——见 [ADR-0021](adr/ADR-0021-encoding-abstraction.md)。
+v1.0 将七大核心概念——**Agent、Encoding、IPC、Event、Failure、Boundary、Audit**——的最小语义契约正式固化为稳定标准。spec 固化、encoding 留白：*IPC Surface*（TASK / REPORT / ISSUE / REVIEW）强类型；*Open Knowledge Surface*（`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`）词表完全开放，让 agent 自由发明——见 [ADR-0021](adr/ADR-0021-encoding-abstraction.md)。
 
 → **从这里开始**：[`docs/getting-started.md`](docs/getting-started.md) · [`docs/getting-started.en.md`](docs/getting-started.en.md)
 

@@ -24,7 +24,7 @@ This document is the **normative specification** for FCoP v1.0. It freezes the m
 
 FCoP（**F**ile-based **Co**ordination **P**rotocol）是 **AI OS 协议层**——agent 在共享文件系统上协作的运行时契约。它在 AI OS 栈中的位置等同于 Unix 中的 **POSIX**、容器生态中的 **OCI**、Kubernetes 中的 **CRD**。
 
-本文是 **FCoP v1.0 的规范性说明**，冻结了 **七个核心抽象**（Agent / Encoding / IPC / Event / Failure / Boundary / Audit）的最小语义合约——任何合规实现都必须满足。
+本文是 **FCoP v1.0 的规范性说明**，将七大核心概念——**Agent、Encoding、IPC、Event、Failure、Boundary、Audit**——的最小语义契约正式固化为稳定标准，任何合规实现都必须满足。
 
 > 「FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。」——[ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)
 
@@ -338,6 +338,43 @@ The PyPI package family ([ADR-0015 §terminology](../adr/ADR-0015-fcop-1.0-ai-os
 | `fcop-cli` | Host Adapter for command line | (v1.x candidate) |
 
 A protocol-level v1.0.0 release tag corresponds to all of `fcop` and `fcop-mcp` simultaneously crossing 1.0.0.
+
+### §7.1 Stability of the seven core concepts (normative)
+
+The phrase **"the seven core concepts — Agent, Encoding, IPC, Event, Failure, Boundary, Audit — are stabilised for the v1.x major series"** (Chinese: *七大核心概念已固化*) appears throughout this spec, the README, the release notes, and `docs/MIGRATION-1.0.md`. This sub-section is the single normative source; all other documents MUST refer here rather than restate the meaning.
+
+**Scope of the freeze.** The following properties of every abstraction in §3–§6 are frozen for the entire v1.x major series:
+
+1. The set of fields defined for each envelope / event / failure / recovery / boundary / agent / encoding contract.
+2. The type of each field (string vs integer vs enum vs array vs object).
+3. The set of legal values for each enum (e.g. `EventType` has 12 values; `Failure.kind` has 4; `Recovery.action` has 5; `Review.decision` has 4).
+4. The semantics of each field (the meaning a conforming implementation MUST attach to it).
+5. The filename grammar defined in §6.2 (`{TYPE}-{YYYYMMDD}-{NNN}-{SENDER}-to-{RECIPIENT}.md`).
+
+**Forbidden changes during v1.x.** A conforming implementation MUST NOT:
+
+- delete an existing field from any contract above;
+- change the type of an existing field;
+- remove a value from an existing enum;
+- change the semantics of an existing field while keeping its name;
+- tighten the filename grammar (regex narrowing).
+
+Any of the above requires a MAJOR bump to v2.0, which itself MUST satisfy the three hard requirements in the SemVer table above (RFC + ≥ 6 months coexistence + official migration tool) per [ADR-0015 §SemVer](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md) and [ADR-0003 §Stability charter](../adr/ADR-0003-stability-charter.md).
+
+**Allowed changes during v1.x (additive expansion).** A conforming implementation MAY, in any MINOR release:
+
+- add a new optional field with a default value (old consumers ignore it);
+- add a new enum value where adding it cannot break existing consumers (e.g. a new `EventType` value extends discriminated dispatch but does not invalidate existing dispatch arms);
+- add a new schema file for a new abstraction extension;
+- add new public API methods on `fcop.Project` and new MCP tools on `fcop-mcp` (per the same additive rule).
+
+A conforming implementation MAY, in any PATCH release, fix bugs in the reference implementation provided no observable behaviour visible through the v1.x contract changes.
+
+**Frozen ≠ stagnant.** What is frozen is the **contract surface** above, not the **implementation**. The reference implementation (`fcop` Python library), the host adapter (`fcop-mcp`), the schemas (additive), the documentation, the tutorials, the performance, and the bug-fix posture remain free to evolve throughout v1.x. The analogy is the POSIX `read()` syscall: the signature has not changed in decades while the Linux kernel implementation evolves continuously.
+
+**What "permanent" means.** "Permanent" in this spec means: for the lifetime of the v1.x major series (1.0.0 through 1.99.99). Beyond v1.x, the freeze is broken only by a MAJOR bump as specified above; v1.x and v2.x MUST coexist for at least 6 months and an official migration tool MUST ship before v1.x can be deprecated.
+
+> **中文释义（informative）**：七大核心概念（Agent、Encoding、IPC、Event、Failure、Boundary、Audit）在整个 v1.x 大版本（1.0.0 到 1.99.99）期间已正式固化——上述 5 项属性（字段集 / 字段类型 / 枚举值集合 / 字段语义 / 文件名 grammar）禁止变动；想变动只能 MAJOR bump 到 v2.0，且 v2.0 自带"协议级 RFC + v1/v2 共存 6 个月 + 官方迁移脚本"三条硬要求。**允许**的是 additive expansion（加可选字段 / 加新枚举值 / 加新 schema / 加新公开方法）走 MINOR；**实现**层面（refactor / 性能 / bug fix / 文档 / 教程）整个 v1.x 完全自由演进——概念固化 ≠ 停滞，类比 POSIX `read()` syscall 几十年 signature 不变但 Linux kernel 实现一直演化。
 
 ---
 
