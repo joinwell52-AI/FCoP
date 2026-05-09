@@ -4,7 +4,7 @@
 wraps the official [`fcop`](https://pypi.org/project/fcop/) library; it is **not**
 a second “FCoP product” and does not replace the protocol text.
 
-- **What FCoP is (protocol only, product-agnostic):** [`docs/fcop-standalone.en.md`](../docs/fcop-standalone.en.md) (中文 [`fcop-standalone.md`](../docs/fcop-standalone.md))  
+- **What FCoP is (protocol only, product-agnostic):** [`docs/getting-started.en.md`](../docs/getting-started.en.md) (中文 [`getting-started.md`](../docs/getting-started.md))  
 - **Pure Python lib / `pip install fcop`:** filesystem + Project API, PyYAML only — [PyPI `fcop`](https://pypi.org/project/fcop/) (see that package’s `description` and **Documentation**).  
 - **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
 - **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)

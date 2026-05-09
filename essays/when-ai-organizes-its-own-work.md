@@ -67,7 +67,7 @@ TASK-{date}-{seq}-{sender}-to-{recipient}.md
 
 **想深读 / Want more?**
 
-- 60 秒版（可外链）：[`fcop-primer.md`](../primer/fcop-primer.md)
+- 60 秒版（可外链）：[`docs/getting-started.md`](../docs/getting-started.md)
 - 成对规范（总则 + 解释）：[`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) · [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc)
 - 本文：继续往下翻 ↓
 

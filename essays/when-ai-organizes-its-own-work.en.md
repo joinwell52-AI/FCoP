@@ -67,7 +67,7 @@ One shared directory, one naming convention, and every agent taking ownership of
 
 **Want more?**
 
-- 60-second companion: [`fcop-primer.en.md`](../primer/fcop-primer.en.md)
+- 60-second companion: [`docs/getting-started.en.md`](../docs/getting-started.en.md)
 - Normative pair: [`fcop-rules.mdc`](../src/fcop/rules/_data/fcop-rules.mdc) · [`fcop-protocol.mdc`](../src/fcop/rules/_data/fcop-protocol.mdc)
 - This essay: keep scrolling ↓
 

@@ -934,8 +934,10 @@ Examples / 例：
 
 任何一条变成"否"，就是**协议在往运行时里掉**，应该停下来重审。
 
-完整定位论述见 [`docs/essays/fcop-position.md`](../../docs/essays/fcop-position.md)。
-Full positioning essay at `docs/essays/fcop-position.md`.
+完整协议定位见 [`spec/fcop-runtime-protocol-v1.0.zh.md`](../../spec/fcop-runtime-protocol-v1.0.zh.md)（中文规范）
+或 [`essays/when-ai-organizes-its-own-work.md`](../../essays/when-ai-organizes-its-own-work.md)（现场报告）。
+Full protocol positioning: [`spec/fcop-runtime-protocol-v1.0.md`](../../spec/fcop-runtime-protocol-v1.0.md) (normative spec)
+or [`essays/when-ai-organizes-its-own-work.en.md`](../../essays/when-ai-organizes-its-own-work.en.md) (field report).
 
 ## How Rule 0.c Applies: Truthfulness on Disk / Rule 0.c 的展开：落盘的必须是真话
 
