@@ -10,6 +10,21 @@ versioning strategy.
 
 ## [Unreleased]
 
+---
+
+## [1.0.1] — 2026-05-10
+
+### feat(mcp) — 新增 `fcop://spec` / `fcop://spec/en` 资源（2026-05-10）
+
+- **`fcop.rules.get_spec(lang)`**：新 API，从 wheel 内读取完整 FCoP v1.0 规范（中文 / 英文）
+- **`fcop://spec`**：新 MCP 资源，返回 `spec/fcop-runtime-protocol-v1.0.zh.md`（中文，参考译文）
+- **`fcop://spec/en`**：新 MCP 资源，返回 `spec/fcop-runtime-protocol-v1.0.md`（英文，权威版）
+- 两份规范文件随 wheel 打包（`src/fcop/rules/_data/fcop-spec-v1.0.{zh,en}.md`）
+- `docs/mcp-tools.md` 更新资源数量（12 → 14）并记录新条目
+- 依赖两者 `pyproject.toml`：`Development Status :: 4 - Beta` → `5 - Production/Stable`
+- `mcp/pyproject.toml` description：`fcop 0.7.x` → `fcop 1.x`
+- `mcp/README.md` Stability 章节更新为 `1.x` + 升级提示指向 MIGRATION-1.0.md
+
 ### Docs — 全局路径迁移对齐（2026-05-10）
 
 - **49 个文件** 完成 `docs/agents/` → `fcop/` 迁移——覆盖：

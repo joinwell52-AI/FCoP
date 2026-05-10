@@ -31,6 +31,7 @@ __all__ = [
     "get_install_prompt",
     "get_rules_version",
     "get_protocol_version",
+    "get_spec",
 ]
 
 
@@ -45,6 +46,10 @@ _LETTER_FILENAMES: dict[str, str] = {
 _INSTALL_PROMPT_FILENAMES: dict[str, str] = {
     "zh": "agent-install-prompt.zh.md",
     "en": "agent-install-prompt.en.md",
+}
+_SPEC_FILENAMES: dict[str, str] = {
+    "zh": "fcop-spec-v1.0.zh.md",
+    "en": "fcop-spec-v1.0.en.md",
 }
 
 # Frontmatter key that pins the semver of the rules document. Kept in
@@ -210,6 +215,33 @@ def get_protocol_version() -> str:
             f"{_PROTOCOL_VERSION_KEY!r} frontmatter field"
         )
     return version
+
+
+def get_spec(lang: Literal["zh", "en"] = "zh") -> str:
+    """Return the full FCoP v1.0 protocol spec in the requested language.
+
+    * ``"zh"`` — Simplified Chinese version (informative reference
+      translation of the normative English spec).
+    * ``"en"`` — English version (authoritative; takes precedence when
+      the two versions conflict).
+
+    The spec is bundled as ``fcop-spec-v1.0.{lang}.md`` under
+    ``fcop/rules/_data/`` so it is available offline and version-locked
+    to the installed wheel. Agents that need to look up the exact
+    contract for one of the seven core abstractions (Agent, IPC,
+    Encoding, Event, Failure, Boundary, Audit) should fetch this
+    resource rather than relying on the condensed summary in
+    ``fcop://rules``.
+
+    Raises:
+        ValueError: ``lang`` is not a supported language code.
+    """
+    if lang not in _SPEC_FILENAMES:
+        raise ValueError(
+            f"unsupported spec language {lang!r}; "
+            f"expected one of {sorted(_SPEC_FILENAMES)}"
+        )
+    return _load_text(_SPEC_FILENAMES[lang])
 
 
 # ── Internal helpers ─────────────────────────────────────────────────

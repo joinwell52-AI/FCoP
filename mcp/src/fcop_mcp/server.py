@@ -2450,6 +2450,41 @@ def resource_protocol() -> str:
     return fcop.rules.get_protocol_commentary()
 
 
+@mcp.resource("fcop://spec", mime_type="text/markdown")
+def resource_spec_zh() -> str:
+    """FCoP v1.0 full protocol spec — Simplified Chinese (informative).
+
+    Returns the complete ``spec/fcop-runtime-protocol-v1.0.zh.md``
+    bundled with this wheel. Covers all seven core abstractions
+    (Agent, IPC, Encoding, Event, Failure, Boundary, Audit) with
+    their normative contracts, POSIX analogies, and ADR cross-references.
+
+    Use this when an agent needs to look up the precise contract for
+    one of the seven abstractions — e.g. which ``status`` values are
+    valid for a TASK envelope, or what constitutes a Boundary violation.
+
+    The English authoritative version is available at ``fcop://spec/en``.
+    When the two versions conflict, the English version takes precedence.
+    """
+    return fcop.rules.get_spec("zh")
+
+
+@mcp.resource("fcop://spec/en", mime_type="text/markdown")
+def resource_spec_en() -> str:
+    """FCoP v1.0 full protocol spec — English (authoritative).
+
+    Returns the complete ``spec/fcop-runtime-protocol-v1.0.md``
+    bundled with this wheel. This is the normative English version;
+    when it conflicts with the Chinese translation (``fcop://spec``),
+    this version takes precedence.
+
+    Covers all seven core abstractions (Agent, IPC, Encoding, Event,
+    Failure, Boundary, Audit) with their normative contracts, JSON
+    Schema references, and POSIX analogies.
+    """
+    return fcop.rules.get_spec("en")
+
+
 @mcp.resource("fcop://letter/zh", mime_type="text/markdown")
 def resource_letter_zh() -> str:
     """Chinese Letter-to-ADMIN user manual."""

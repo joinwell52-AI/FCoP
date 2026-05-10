@@ -1,15 +1,15 @@
-# FCoP MCP 工具与资源清单（fcop-mcp 0.6.x）
+# FCoP MCP 工具与资源清单（fcop-mcp 1.x）
 
 > 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具与资源**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组、给出何时调用、参数要点。
 >
-> 稳定承诺：**整个 `0.6.x` 周期工具与资源「只增不改」**（[ADR-0003](../adr/ADR-0003-stability-charter.md)）。新增工具/参数允许；改名、删除、改语义不允许。
+> 稳定承诺：**整个 `1.x` 周期工具与资源「只增不改」**（[ADR-0003](../adr/ADR-0003-stability-charter.md)）。新增工具/参数允许；改名、删除、改语义不允许。
 
 ---
 
 ## 总览
 
 - **工具（tools）26 个**（其中 `unbound_report` 自 0.6.3 起 **deprecated**，0.7.0 删除）：调用方主动触发，写盘或返回报告。
-- **资源（resources）12 个**（9 个静态 URI + `fcop://teams/{team}` / `.../{role}` / `.../{role}/en` 三套模板）：只读 URI，常用于把规则/状态/职责模板以引用方式塞进上下文。
+- **资源（resources）14 个**（11 个静态 URI + `fcop://teams/{team}` / `.../{role}` / `.../{role}/en` 三套模板）：只读 URI，常用于把规则/状态/职责模板以引用方式塞进上下文。
 
 > **0.6.4 起新增** 2 个静态资源：`fcop://prompt/install`（中文）与
 > `fcop://prompt/install/en`——agent 帮 ADMIN 装 fcop-mcp 的标准提示词，
@@ -125,6 +125,8 @@
 | `fcop://config` | `application/json` | `fcop/fcop.json` 原文（未初始化返回 `{"initialized": false, …}`） |
 | `fcop://rules` | `text/markdown` | 协议规则正文（`fcop-rules.mdc`） |
 | `fcop://protocol` | `text/markdown` | 协议解释（`fcop-protocol.mdc`） |
+| `fcop://spec` | `text/markdown` | *(v1.0.1)* FCoP v1.0 完整规范——中文版（参考译文），含七大核心概念详细契约 |
+| `fcop://spec/en` | `text/markdown` | *(v1.0.1)* FCoP v1.0 完整规范——英文版（权威版），与中文版冲突时以本版为准 |
 | `fcop://letter/zh` | `text/markdown` | 《FCoP 致 ADMIN 的一封信》中文版 |
 | `fcop://letter/en` | `text/markdown` | Letter to ADMIN — English |
 | `fcop://prompt/install` | `text/markdown` | *(0.6.4)* "让 agent 帮我装 fcop-mcp" 标准提示词（中文） |
