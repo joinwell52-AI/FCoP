@@ -151,16 +151,23 @@ class TestRoleLock:
     ) -> None:
         _init_team(project_dir)
 
-        _call(
+        task_out = _call(
             "write_task",
             sender="PLANNER",
             recipient="CODE_EXPERT",
             subject="initial task",
             body="lock to PLANNER",
         )
+        # Extract task_id from the output (e.g. "TASK-20260510-001")
+        import re
+
+        m = re.search(r"TASK-\d{8}-\d{3}", task_out)
+        assert m, f"write_task did not return a TASK-* id; got: {task_out!r}"
+        task_id = m.group(0)
+
         out = _call(
             "write_report",
-            task_id="TASK-20260427-001",
+            task_id=task_id,
             reporter="CODE_EXPERT",
             recipient="PLANNER",
             body="report under a different role",

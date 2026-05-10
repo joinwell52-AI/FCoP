@@ -31,6 +31,14 @@
       },
       {
         "mime_type": "text/markdown",
+        "uri": "fcop://spec"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://spec/en"
+      },
+      {
+        "mime_type": "text/markdown",
         "uri": "fcop://status"
       },
       {
