@@ -72,7 +72,7 @@ def main(argv: list[str] | None = None, *, stdout: IO[str] | None = None) -> int
         parser.print_help(file=stdout or sys.stdout)
         return 1
 
-    return func(args, stdout=stdout)
+    return func(args, stdout=stdout)  # type: ignore[no-any-return]
 
 
 if __name__ == "__main__":  # pragma: no cover — manual invocation

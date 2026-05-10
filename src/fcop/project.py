@@ -22,7 +22,7 @@ import pathlib
 import warnings
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, cast
 
 import yaml
 
@@ -44,6 +44,7 @@ from fcop.core.filename import (
     REVIEW_FILENAME_RE,
     REVIEW_SUBJECT_SHORT_RE,
     TASK_FILENAME_RE,
+    ReviewFilename,
     build_issue_filename,
     build_report_filename,
     build_review_filename,
@@ -2689,12 +2690,12 @@ class Project:
             return outcome
 
         if chosen_action == RecoveryAction.ROLLBACK:
-            plan = make_rollback_plan(
+            rollback_plan = make_rollback_plan(
                 target_commit_hash=rollback_target_commit,
                 affected_files=tuple(rollback_affected_files or ()),
             )
             outcome = RecoveryOutcome(
-                recovery=recovery, plan=plan, artifact_path=None
+                recovery=recovery, plan=rollback_plan, artifact_path=None
             )
             self._emit_event_stub("RECOVERY_COMPLETED", subject=recovery)
             return outcome
@@ -2711,7 +2712,7 @@ class Project:
                 body: str, status: str
             ) -> Report:
                 return self.write_report(
-                    task_id=failure.subject_task_id,
+                    task_id=failure.subject_task_id or "",
                     reporter=sender,
                     recipient=recipient,
                     body=body,
@@ -2752,7 +2753,7 @@ class Project:
                     reporter=sender,
                     summary=title,
                     body=annotated_body,
-                    severity=severity,  # type: ignore[arg-type]
+                    severity=severity,
                 )
 
             artifact = make_escalate_artifact(
@@ -2969,7 +2970,7 @@ class Project:
     def _subscriptions(self) -> list[EventSubscription]:
         """Lazy per-instance subscription registry."""
         try:
-            return self.__dict__["_subscriptions_list"]
+            return cast(list[EventSubscription], self.__dict__["_subscriptions_list"])
         except KeyError:
             buf: list[EventSubscription] = []
             self.__dict__["_subscriptions_list"] = buf
@@ -2991,7 +2992,7 @@ class Project:
         should use :meth:`subscribe_events` instead of polling this list.
         """
         try:
-            return self.__dict__["_emitted_events_list"]
+            return cast(list[Event], self.__dict__["_emitted_events_list"])
         except KeyError:
             buf: list[Event] = []
             self.__dict__["_emitted_events_list"] = buf
@@ -3021,7 +3022,7 @@ class Project:
         读这个 list。
         """
         try:
-            return self.__dict__["_emit_event_stub_calls_list"]
+            return cast(list[tuple[str, object]], self.__dict__["_emit_event_stub_calls_list"])
         except KeyError:
             buf: list[tuple[str, object]] = []
             self.__dict__["_emit_event_stub_calls_list"] = buf
@@ -3506,7 +3507,7 @@ _RESERVED_ROLES: frozenset[str] = frozenset({"ADMIN", "SYSTEM"})
 
 def _parse_dir_files(
     directory: pathlib.Path,
-    parser,  # type: ignore[no-untyped-def]
+    parser: Callable[..., object],
 ) -> list[tuple[pathlib.Path, object]]:
     """Return ``[(path, parsed_filename)]`` for every parseable file in ``directory``.
 
@@ -4232,7 +4233,7 @@ def _hydrate_review(
     path: pathlib.Path,
     fm: dict[str, object],
     body: str,
-    parsed,  # type: ignore[no-untyped-def]
+    parsed: ReviewFilename,
     *,
     is_archived: bool,
 ) -> Review:
@@ -4257,12 +4258,15 @@ def _hydrate_review(
         str(reviewer_agent_raw).strip() if reviewer_agent_raw else None
     )
     raw_required = fm.get("required_changes") or ()
+    required_changes: tuple[str, ...]
     if isinstance(raw_required, str):
         required_changes = (raw_required.strip(),) if raw_required.strip() else ()
-    else:
+    elif isinstance(raw_required, (list, tuple)):
         required_changes = tuple(
             str(s).strip() for s in raw_required if s and str(s).strip()
         )
+    else:
+        required_changes = ()
 
     # decided_at 接受 datetime / date / str（YAML 自动 parse 时机不定）
     decided_raw = fm["decided_at"]

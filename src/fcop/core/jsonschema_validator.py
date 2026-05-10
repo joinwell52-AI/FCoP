@@ -38,7 +38,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 from referencing import Registry, Resource
 
 from fcop.models import ValidationIssue
@@ -64,7 +64,7 @@ def _resolve_bundled_schema_dir() -> Path:
     使用 ``importlib.resources`` 让 wheel 安装与 editable 安装都能找到。
     返回的是文件系统路径（``as_file`` 解出），便于直接 ``read_bytes()``。
     """
-    pkg_root = resources.files("fcop").joinpath("_data", "schemas")
+    pkg_root = resources.files("fcop").joinpath("_data").joinpath("schemas")
     return Path(str(pkg_root))
 
 
@@ -109,7 +109,7 @@ def load_bundled_schema(name: str) -> dict[str, Any]:
         raise FileNotFoundError(
             f"bundled schema missing: {path} (wheel packaging error?)"
         )
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8"))  # type: ignore[no-any-return]
 
 
 def _build_registry() -> tuple[Registry, dict[str, dict[str, Any]]]:
