@@ -1118,13 +1118,13 @@
             "name": "types"
           },
           {
-            "annotation": "'Callable[[Event], None] | None'",
+            "annotation": "Callable[[Event], None] | None",
             "has_default": true,
             "kind": "POSITIONAL_OR_KEYWORD",
             "name": "callback"
           }
         ],
-        "return": "'EventSubscription'"
+        "return": "EventSubscription"
       },
       "validate_team": {
         "params": [
