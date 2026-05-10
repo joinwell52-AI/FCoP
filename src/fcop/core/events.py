@@ -24,10 +24,10 @@ SESSION_LOST / 同步 BOUNDARY_VIOLATED）由 :class:`fcop.Project`
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Mapping
 
 from fcop.core.filename import (
     parse_report_filename,
@@ -121,7 +121,7 @@ def make_event_id(event_type: EventType, subject: Mapping[str, object]) -> str:
 
     canonical = "&".join(f"{k}={subject[k]}" for k in sorted(subject))
     digest = hashlib.sha1(
-        f"{event_type.value}|{canonical}".encode("utf-8")
+        f"{event_type.value}|{canonical}".encode()
     ).hexdigest()
     return f"{event_type.value}:{digest[:12]}"
 
@@ -182,10 +182,7 @@ def _read_envelope_meta(
         return None, None, None, None, None
 
     status = fm.get("status")
-    if isinstance(status, str):
-        status = status.strip().lower() or None
-    else:
-        status = None
+    status = status.strip().lower() or None if isinstance(status, str) else None
 
     decision: str | None = None
     if kind == "review":

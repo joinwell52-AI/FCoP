@@ -125,7 +125,7 @@ def _coerce_layer(raw: object) -> AgentLayer:
         except ValueError as exc:
             raise ValueError(
                 f"unknown layer {raw!r}; expected one of "
-                f"{[l.value for l in AgentLayer]}"
+                f"{[layer.value for layer in AgentLayer]}"
             ) from exc
     raise TypeError(f"layer must be str or AgentLayer, got {type(raw).__name__}")
 

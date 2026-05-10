@@ -26,7 +26,18 @@ from typing import Literal
 
 import yaml
 
+from fcop.core.boundary import (
+    lookup_capability,
+    validate_action,
+)
 from fcop.core.config import load_team_config, save_team_config
+from fcop.core.events import (
+    WATCHER_ID,
+    WatcherState,
+    compute_diff,
+    make_event,
+    scan_workspace,
+)
 from fcop.core.filename import (
     ISSUE_FILENAME_RE,
     REPORT_FILENAME_RE,
@@ -53,15 +64,17 @@ from fcop.core.frontmatter import (
     parse_task_frontmatter,
     split_frontmatter,
 )
-from fcop.core.boundary import (
-    BOUNDARY_RULES,
-    RULE_UNKNOWN_CAPABILITY,
-    lookup_capability,
-    validate_action,
-)
 from fcop.core.jsonschema_validator import (
-    normalize_for_json,
     validate_envelope_frontmatter,
+)
+from fcop.core.recovery import (
+    build_recovery_record,
+    make_abort_artifact,
+    make_escalate_artifact,
+    make_resume_payload,
+    make_retry_plan,
+    make_rollback_plan,
+    parse_session_id,
 )
 from fcop.core.schema import (
     PROTOCOL_NAME,
@@ -79,25 +92,8 @@ from fcop.errors import (
     TeamNotFoundError,
     ValidationError,
 )
-from fcop.core.events import (
-    WATCHER_ID,
-    WatcherState,
-    compute_diff,
-    make_event,
-    scan_workspace,
-)
-from fcop.core.recovery import (
-    build_recovery_record,
-    make_abort_artifact,
-    make_escalate_artifact,
-    make_resume_payload,
-    make_retry_plan,
-    make_rollback_plan,
-    parse_session_id,
-)
 from fcop.models import (
     BoundaryViolation,
-    Capability,
     DeploymentReport,
     DriftEntry,
     DriftReport,
@@ -115,12 +111,9 @@ from fcop.models import (
     RecoveryAction,
     RecoveryOutcome,
     Report,
-    ResumePayload,
     Review,
     ReviewDecision,
     ReviewSubjectType,
-    RetryPlan,
-    RollbackPlan,
     RoleOccupancy,
     SessionRecoveryAction,
     SessionRecoveryResult,
@@ -153,7 +146,7 @@ class EventSubscription:
         callback: 事件回调；``None`` 表示静默订阅。
     """
 
-    project: "Project"
+    project: Project
     types: tuple[EventType, ...] | None
     callback: Callable[[Event], None] | None
     _active: bool = True
@@ -163,10 +156,8 @@ class EventSubscription:
         if not self._active:
             return
         self._active = False
-        try:
+        with contextlib.suppress(ValueError):
             self.project._subscriptions.remove(self)
-        except ValueError:
-            pass
 
     @property
     def active(self) -> bool:
@@ -250,10 +241,7 @@ class Project:
         """
         if explicit is not None:
             ws = pathlib.Path(explicit)
-            if not ws.is_absolute():
-                ws = (self._path / ws).resolve()
-            else:
-                ws = ws.resolve()
+            ws = (self._path / ws).resolve() if not ws.is_absolute() else ws.resolve()
             return ws, "explicit"
 
         v1_root = self._path / "fcop"
@@ -2324,17 +2312,15 @@ class Project:
             target_role = self._infer_review_target_role(
                 subject_type_enum, subject_ref
             )
-        try:
+        with contextlib.suppress(TaskNotFoundError, FileNotFoundError):
+            # project 未 initialized 时 self.config 抛 → 跳过 boundary
+            # （test 场景常出）。production 中 init 是 write_review 的
+            # 前置条件，此分支事实上不会命中。
             self.assert_boundary(
                 reviewer_role,
                 "review_decision",
                 target_role=target_role,
             )
-        except (TaskNotFoundError, FileNotFoundError):
-            # project 未 initialized 时 self.config 抛 → 跳过 boundary
-            # （test 场景常出）。production 中 init 是 write_review 的
-            # 前置条件，此分支事实上不会命中。
-            pass
 
         date_str = date if date is not None else today_iso()
         slug = subject_short or _derive_review_subject_short(subject_ref)
@@ -2900,8 +2886,8 @@ class Project:
     def subscribe_events(
         self,
         types: Sequence[EventType | str] | None = None,
-        callback: "Callable[[Event], None] | None" = None,
-    ) -> "EventSubscription":
+        callback: Callable[[Event], None] | None = None,
+    ) -> EventSubscription:
         """Subscribe to runtime events（v1.0，per ADR-0018）。
 
         本方法**不**启动后台线程 —— caller 必须显式调
@@ -2980,7 +2966,7 @@ class Project:
         return events
 
     @property
-    def _subscriptions(self) -> "list[EventSubscription]":
+    def _subscriptions(self) -> list[EventSubscription]:
         """Lazy per-instance subscription registry."""
         try:
             return self.__dict__["_subscriptions_list"]
@@ -2998,7 +2984,7 @@ class Project:
         self.__dict__["_last_watcher_state_cache"] = value
 
     @property
-    def _emitted_events(self) -> "list[Event]":
+    def _emitted_events(self) -> list[Event]:
         """Per-instance log of every event the project has dispatched.
 
         Useful for tests and post-hoc debugging. Production callers
@@ -3018,12 +3004,10 @@ class Project:
             if sub.types is not None and event.event_type not in sub.types:
                 continue
             if sub.callback is not None:
-                try:
-                    sub.callback(event)
-                except Exception:
+                with contextlib.suppress(Exception):
                     # subscriber 抛错不应影响其他 subscriber 或主路径；
                     # v1.0 静默吞，由 caller 自己加 logging
-                    pass
+                    sub.callback(event)
 
     # ── Failure / Recovery internal helpers ──────────────────────────
 

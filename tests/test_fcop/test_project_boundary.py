@@ -29,10 +29,7 @@ def _make_project_with_roles(tmp_project: Path, roles_meta: dict) -> Project:
     # 把 string 角色升级为 dict-form
     new_roles = []
     for code in raw["roles"]:
-        if code in roles_meta:
-            entry = {"code": code, **roles_meta[code]}
-        else:
-            entry = code
+        entry = {"code": code, **roles_meta[code]} if code in roles_meta else code
         new_roles.append(entry)
     # 加任何在 roles_meta 但不在原 roles 的额外角色
     existing_codes = set(raw["roles"])
