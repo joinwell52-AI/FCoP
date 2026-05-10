@@ -24,12 +24,14 @@ import pytest
 
 from fcop.errors import FcopError
 from fcop.rules import (
+    get_install_prompt,
     get_letter,
     get_letter_intro,
     get_protocol_commentary,
     get_protocol_version,
     get_rules,
     get_rules_version,
+    get_spec,
 )
 
 # ── Happy paths ──────────────────────────────────────────────────────
@@ -256,24 +258,24 @@ class TestGetSpec:
     """Tests for the get_spec() accessor added in v1.0.1."""
 
     def test_get_spec_zh_returns_string(self) -> None:
-        text = fcop.rules.get_spec("zh")
+        text = get_spec("zh")
         assert isinstance(text, str)
         assert len(text) > 100
 
     def test_get_spec_en_returns_string(self) -> None:
-        text = fcop.rules.get_spec("en")
+        text = get_spec("en")
         assert isinstance(text, str)
         assert len(text) > 100
 
     def test_get_spec_zh_contains_core_concepts(self) -> None:
-        text = fcop.rules.get_spec("zh")
+        text = get_spec("zh")
         assert "七大核心概念" in text or "Agent" in text
 
     def test_get_spec_en_contains_core_concepts(self) -> None:
-        text = fcop.rules.get_spec("en")
+        text = get_spec("en")
         assert "seven core concepts" in text.lower() or "Agent" in text
 
     def test_get_spec_invalid_lang_raises(self) -> None:
         with pytest.raises(ValueError, match="unsupported spec language"):
-            fcop.rules.get_spec("fr")  # type: ignore[arg-type]
+            get_spec("fr")  # type: ignore[arg-type]
 
