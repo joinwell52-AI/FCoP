@@ -24,7 +24,6 @@ import pytest
 
 from fcop.errors import FcopError
 from fcop.rules import (
-    get_install_prompt,
     get_letter,
     get_letter_intro,
     get_protocol_commentary,
