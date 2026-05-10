@@ -224,6 +224,8 @@ class TestPackagedData:
             "fcop-protocol.mdc",
             "letter-to-admin.zh.md",
             "letter-to-admin.en.md",
+            "fcop-spec-v1.0.zh.md",
+            "fcop-spec-v1.0.en.md",
         ],
     )
     def test_data_file_is_traversable(self, name: str) -> None:
@@ -248,3 +250,30 @@ class TestPackagedData:
         )
         with pytest.raises(FcopError, match="fcop_rules_version"):
             rules_mod.get_rules_version()
+
+
+class TestGetSpec:
+    """Tests for the get_spec() accessor added in v1.0.1."""
+
+    def test_get_spec_zh_returns_string(self) -> None:
+        text = fcop.rules.get_spec("zh")
+        assert isinstance(text, str)
+        assert len(text) > 100
+
+    def test_get_spec_en_returns_string(self) -> None:
+        text = fcop.rules.get_spec("en")
+        assert isinstance(text, str)
+        assert len(text) > 100
+
+    def test_get_spec_zh_contains_core_concepts(self) -> None:
+        text = fcop.rules.get_spec("zh")
+        assert "七大核心概念" in text or "Agent" in text
+
+    def test_get_spec_en_contains_core_concepts(self) -> None:
+        text = fcop.rules.get_spec("en")
+        assert "seven core concepts" in text.lower() or "Agent" in text
+
+    def test_get_spec_invalid_lang_raises(self) -> None:
+        with pytest.raises(ValueError, match="unsupported spec language"):
+            fcop.rules.get_spec("fr")  # type: ignore[arg-type]
+

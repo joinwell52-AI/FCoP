@@ -26,10 +26,16 @@ def _read_rule_data(filename: str) -> str:
 class TestRulesVersion:
     def test_rules_version_is_180_or_later(self) -> None:
         text = _read_rule_data("fcop-rules.mdc")
-        assert "fcop_rules_version: 1.8.0" in text or any(
+        # Accept any 1.8.0+ or 2.x.x+ version (rules hit v2.x in v1.0.1)
+        has_v1_match = any(
             f"fcop_rules_version: 1.{minor}.0" in text
             for minor in range(8, 100)
-        ), (
+        )
+        has_v2_match = any(
+            f"fcop_rules_version: 2.{minor}.0" in text
+            for minor in range(0, 100)
+        )
+        assert has_v1_match or has_v2_match, (
             "fcop-rules.mdc must declare fcop_rules_version >= 1.8.0 "
             "since 0.7.1"
         )

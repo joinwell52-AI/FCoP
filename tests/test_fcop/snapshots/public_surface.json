@@ -1530,6 +1530,17 @@
       "get_rules_version": {
         "params": [],
         "return": "str"
+      },
+      "get_spec": {
+        "params": [
+          {
+            "annotation": "Literal['zh', 'en']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "lang"
+          }
+        ],
+        "return": "str"
       }
     },
     "exports": [
@@ -1539,7 +1550,8 @@
       "get_protocol_commentary",
       "get_protocol_version",
       "get_rules",
-      "get_rules_version"
+      "get_rules_version",
+      "get_spec"
     ]
   },
   "teams": {
