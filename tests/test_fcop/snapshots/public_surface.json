@@ -278,6 +278,11 @@
         },
         {
           "has_default": true,
+          "name": "risk_level",
+          "type": "RiskLevel"
+        },
+        {
+          "has_default": true,
           "name": "extra",
           "type": "dict[str, object]"
         }
@@ -926,6 +931,65 @@
         ],
         "return": "list[Task]"
       },
+      "mark_human_approved": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "review_id"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "approver"
+          },
+          {
+            "annotation": "str | HumanApprovalDecision",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "decision"
+          },
+          {
+            "annotation": "str | HumanApprovalChannel",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "channel"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "comment"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "device_id"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "ip"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "auth_method"
+          }
+        ],
+        "return": "Review"
+      },
       "poll_once": {
         "params": [
           {
@@ -1351,6 +1415,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "slot"
+          },
+          {
+            "annotation": "RiskLevel | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "risk_level"
           }
         ],
         "return": "Task"
@@ -1615,6 +1685,10 @@
     "FailureReceipt",
     "FailureType",
     "FcopError",
+    "HumanApproval",
+    "HumanApprovalChannel",
+    "HumanApprovalDecision",
+    "HumanApprovalEvidence",
     "Issue",
     "Priority",
     "Project",
@@ -1632,6 +1706,7 @@
     "Review",
     "ReviewDecision",
     "ReviewSubjectType",
+    "RiskLevel",
     "RoleNotFoundError",
     "RoleOccupancy",
     "RollbackPlan",
@@ -1639,6 +1714,8 @@
     "SessionRecoveryResult",
     "SessionRoleConflict",
     "Severity",
+    "Skill",
+    "SkillTool",
     "Task",
     "TaskFrontmatter",
     "TaskNotFoundError",

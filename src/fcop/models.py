@@ -22,6 +22,11 @@ __all__ = [
     "ReviewDecision",
     "ReviewSubjectType",
     "AgentLayer",
+    "RiskLevel",
+    "HumanApprovalChannel",
+    "HumanApprovalDecision",
+    "HumanApprovalEvidence",
+    "HumanApproval",
     "FailureType",
     "RecoveryAction",
     "SessionRecoveryAction",
@@ -44,6 +49,8 @@ __all__ = [
     "RecoveryOutcome",
     "SessionRecoveryResult",
     "FailureReceipt",
+    "SkillTool",
+    "Skill",
     "TeamConfig",
     "ProjectStatus",
     "RecentActivityEntry",
@@ -94,6 +101,7 @@ class ReviewDecision(str, Enum):
     REJECTED = "rejected"
     NEEDS_CHANGES = "needs_changes"
     ABSTAINED = "abstained"
+    NEEDS_HUMAN = "needs_human"
 
 
 class AgentLayer(str, Enum):
@@ -111,6 +119,24 @@ class AgentLayer(str, Enum):
     WORKER = "worker"
     GOVERNANCE = "governance"
     ADMIN = "admin"
+
+
+class RiskLevel(str, Enum):
+    """操作风险等级枚举（v1.1，per ADR-0024）。
+
+    用于 Task.risk_level 和 Skill.tools[].risk_level 两处。
+
+    - LOW: 只读/无副作用（run tests, write docs）
+    - MEDIUM: 常规开发操作，默认值
+    - HIGH: 影响生产/权限/配置——自动触发 needs_human review gate
+    - IRREVERSIBLE: 不可撤销操作（drop DB, force-push, 超额 API）
+      ——自动触发 needs_human + 须有 dry_run 或 rollback plan
+    """
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    IRREVERSIBLE = "irreversible"
 
 
 class FailureType(str, Enum):
@@ -207,6 +233,7 @@ class TaskFrontmatter:
     thread_key: str | None = None
     subject: str | None = None
     references: tuple[str, ...] = ()
+    risk_level: RiskLevel = RiskLevel.MEDIUM
     extra: dict[str, object] = field(default_factory=dict)
 
 
@@ -289,34 +316,81 @@ class Issue:
 # ── Review ────────────────────────────────────────────────────────────
 
 
+# ── Review / Human Approval (v1.1, per ADR-0025/0026) ────────────────
+
+
+class HumanApprovalChannel(str, Enum):
+    """人工审批渠道（v1.1，per ADR-0026）。"""
+
+    MOBILE = "mobile"
+    CLI = "cli"
+    WEB = "web"
+    MANUAL_FILE_EDIT = "manual_file_edit"
+
+
+class HumanApprovalDecision(str, Enum):
+    """人工审批决策（v1.1，per ADR-0026）。"""
+
+    APPROVE = "approve"
+    REJECT = "reject"
+
+
+@dataclass(frozen=True, slots=True)
+class HumanApprovalEvidence:
+    """人工审批证据（可选，per ADR-0026）。用于防钓鱼审计链。"""
+
+    device_id: str | None = None
+    ip: str | None = None
+    auth_method: Literal["session", "biometric", "password"] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class HumanApproval:
+    """人工审批记录（v1.1，per ADR-0026）。
+
+    ``decision: needs_human`` 的 REVIEW 文件在人工审批后写入此子结构。
+    存在 = 审批已完成；缺失 = 仍处于 pending 状态。
+
+    Attributes:
+        approver: 审批者 role code，必须是 layer: admin 的 agent（ADR-0023）。
+        decision: 人工最终决策（approve | reject）。
+        approved_at: 审批时间（ISO-8601 datetime）。
+        channel: 审批渠道。
+        comment: 可选自由文本批注。
+        evidence: 可选审计证据（移动端/Web 建议填写）。
+    """
+
+    approver: str
+    decision: HumanApprovalDecision
+    approved_at: datetime
+    channel: HumanApprovalChannel
+    comment: str | None = None
+    evidence: HumanApprovalEvidence | None = None
+
+
 @dataclass(frozen=True, slots=True)
 class Review:
-    """A REVIEW envelope file on disk（v1.0 引入，per ADR-0017）。
+    """A REVIEW envelope file on disk（v1.1 引入 needs_human + human_approval，per ADR-0017/0025/0026）。
 
-    REVIEW 是 FCoP v1.0 落地的第七个核心抽象（Audit）的唯一文件载体。
-    它**不**承载人类批准语义——任何 ``human_approval`` 子对象、
-    ``mark_human_approved`` API 都被推迟到 v1.2，本 dataclass 也刻意
-    不含相关字段（schema 层 + dataclass 层双锁）。
+    REVIEW 是 FCoP 的第七个核心抽象（Audit）的唯一文件载体。
+    v1.1 新增 `human_approval` 可选字段，记录人工审批事件的完整结构。
 
     Attributes:
         path: 绝对路径。
         filename: 文件名（``REVIEW-YYYYMMDD-NNN-{reviewer}-on-{subject_short}.md``）。
-        review_id: 文件名 stem 的稳定 id；与 frontmatter ``review_id``
-            字段同值。
+        review_id: 文件名 stem 的稳定 id。
         date: ``YYYYMMDD``。
         sequence: 当日序号 1..999。
         subject_type: 评审对象类型枚举。
-        subject_ref: 对象引用——TASK/REPORT 是路径，CODE_CHANGE 是 hash。
-        reviewer_role: 评审者角色 code（必须通过 role-code 校验，允许
-            reserved 如 ADMIN）。
+        subject_ref: 对象引用。
+        reviewer_role: 评审者角色 code。
         reviewer_agent: 可选；标识具体 session / agent 实例。
-        decision: 四值决议枚举。
+        decision: 五值决议枚举（v1.1 新增 needs_human）。
         rationale: 可选自由文本理由。
-        required_changes: ``decision == NEEDS_CHANGES`` 时必须非空；
-            其他决议下应为空 tuple。
-        decided_at: 决议时间（解析为 datetime；YAML 自动 ISO parse）。
-        body: REVIEW Markdown body（rationale 与 required_changes 已在
-            frontmatter，body 是补充论证 / 上下文）。
+        required_changes: ``decision == NEEDS_CHANGES`` 时必须非空。
+        human_approval: 可选；``decision == NEEDS_HUMAN`` 时人工审批记录（per ADR-0026）。
+        decided_at: 决议时间。
+        body: REVIEW Markdown body。
         is_archived: 是否在 ``log/reviews/`` 下。
         mtime: 文件 mtime。
     """
@@ -337,6 +411,7 @@ class Review:
     body: str
     is_archived: bool
     mtime: datetime
+    human_approval: HumanApproval | None = None
 
 
 # ── Boundary / Capability ────────────────────────────────────────────
@@ -693,6 +768,50 @@ class TeamConfig:
     @property
     def is_solo(self) -> bool:
         return self.mode == "solo"
+
+
+# ── Skill (v1.1, per ADR-0027) ───────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class SkillTool:
+    """单个 MCP 工具的风险元数据（v1.1，per ADR-0027）。
+
+    Skill 在 ``fcop.json`` 里的 ``tools[]`` 数组中声明每个工具的风险属性，
+    供运行时决定是否需要 review gate 或费用阈值检查。
+
+    Attributes:
+        name: MCP 工具名，与 MCP server 中的 tool name 对应（必填）。
+        risk_level: 工具操作风险等级，默认 LOW。
+        irreversible: 操作是否不可撤销，默认 False。
+        cost_sensitive: 调用是否产生计费，默认 False。
+        description: 可选人类可读描述。
+    """
+
+    name: str
+    risk_level: RiskLevel = RiskLevel.LOW
+    irreversible: bool = False
+    cost_sensitive: bool = False
+    description: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Skill:
+    """fcop.json 中的 Skill 记录（v1.1，per ADR-0027）。
+
+    Skill 代表一个可供 agent 调用的 MCP server 或能力包。
+
+    Attributes:
+        id: 稳定的 Skill 标识符（路由键）。
+        label: 可选人类可读标签。
+        uri: MCP server URI（如 ``mcp://local/git``）。
+        tools: 可选 per-tool 风险元数据列表。
+    """
+
+    id: str
+    label: str | None = None
+    uri: str | None = None
+    tools: tuple[SkillTool, ...] = ()
 
 
 # ── Status ────────────────────────────────────────────────────────────

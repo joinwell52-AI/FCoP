@@ -82,6 +82,7 @@ from fcop.core.schema import (
     PROTOCOL_VERSION,
     is_valid_role_code,
     normalize_priority,
+    normalize_risk_level,
     normalize_severity,
     validate_role_code,
 )
@@ -104,6 +105,10 @@ from fcop.models import (
     EventType,
     Failure,
     FailureReceipt,
+    HumanApproval,
+    HumanApprovalChannel,
+    HumanApprovalDecision,
+    HumanApprovalEvidence,
     Issue,
     Priority,
     ProjectStatus,
@@ -115,6 +120,7 @@ from fcop.models import (
     Review,
     ReviewDecision,
     ReviewSubjectType,
+    RiskLevel,
     RoleOccupancy,
     SessionRecoveryAction,
     SessionRecoveryResult,
@@ -1318,6 +1324,7 @@ class Project:
         references: Sequence[str] = (),
         thread_key: str | None = None,
         slot: str | None = None,
+        risk_level: RiskLevel | str | None = None,
     ) -> Task:
         """Create a new task file.
 
@@ -1345,6 +1352,11 @@ class Project:
             slot: Optional recipient qualifier (``.BACKEND`` → recipient
                 becomes ``DEV.BACKEND`` in the filename). Role grammar
                 applies to the slot too.
+            risk_level: Optional risk level of this task operation
+                (``low``, ``medium``, ``high``, ``irreversible``).
+                Defaults to ``medium`` when omitted. ``high`` and
+                ``irreversible`` automatically require a ``needs_human``
+                review gate (ADR-0024/0025).
 
         Raises:
             ValueError: filename components don't match the grammar
@@ -1360,6 +1372,7 @@ class Project:
 
         priority_enum = normalize_priority(priority)
         date = today_iso()
+        risk_level_enum = normalize_risk_level(risk_level)
 
         fm = TaskFrontmatter(
             protocol=PROTOCOL_NAME,
@@ -1370,6 +1383,7 @@ class Project:
             thread_key=thread_key,
             subject=subject or None,
             references=tuple(references),
+            risk_level=risk_level_enum,
         )
         text = assemble_task_file(fm, body)
         payload = text.encode("utf-8")
@@ -2218,8 +2232,8 @@ class Project:
     # - decision 与 subject_type 都用闭枚举，需要绕开必须改 ADR + 升 MINOR。
     # - decision == NEEDS_CHANGES 必配非空 required_changes（schema if/then
     #   也守门，本层先拒以给更友好的错误）。
-    # - 刻意**不**实现 needs_human / human_approval / mark_human_approved
-    #   ——v1.2 工作；本层 enum 限制 + schema 双锁拒绝任何偷塞。
+    # - decision == NEEDS_HUMAN → Review 处于 pending 状态，须配合
+    #   mark_human_approved() 完成闭环（per ADR-0025/0026）。
 
     def write_review(
         self,
@@ -2235,27 +2249,25 @@ class Project:
         date: str | None = None,
         subject_short: str | None = None,
     ) -> Review:
-        """Write a REVIEW envelope to ``reviews_dir``（v1.0，per ADR-0017）。
+        """Write a REVIEW envelope to ``reviews_dir``（v1.1，per ADR-0017/0025）。
 
         Args:
             reviewer_role: 评审者角色 code（允许 reserved 如 ADMIN）。
             subject_type: ``ReviewSubjectType`` 枚举或同名字符串
                 （``"task"`` / ``"report"`` / ``"role_switch"`` / ``"code_change"``）。
-            subject_ref: 被评对象引用——TASK/REPORT 是文件路径，
-                CODE_CHANGE 是 commit hash 或 patch identifier。
+            subject_ref: 被评对象引用。
             decision: ``ReviewDecision`` 枚举或字符串
-                （``"approved"`` / ``"rejected"`` / ``"needs_changes"`` / ``"abstained"``）。
-                **``"needs_human"`` 永远会被拒** —— 它是 v1.2 推迟值。
+                （``"approved"`` / ``"rejected"`` / ``"needs_changes"`` /
+                ``"abstained"`` / ``"needs_human"``）。
+                ``"needs_human"`` 表示主动升级人工审批（ADR-0025）；
+                返回的 Review 处于 pending 状态，须调用
+                ``mark_human_approved()`` 完成闭环。
             rationale: 可选自由文本理由。
-            required_changes: 当 ``decision == NEEDS_CHANGES`` 时必须非空；
-                其他决议下应为空（本层不强制为空，但 schema 层检查
-                if/then 子句）。
+            required_changes: 当 ``decision == NEEDS_CHANGES`` 时必须非空。
             reviewer_agent: 可选；标识具体 session / agent 实例。
-            body: REVIEW Markdown body。frontmatter 已含 rationale 与
-                required_changes，body 是补充论证 / 上下文。
+            body: REVIEW Markdown body。
             date: 强制日期覆盖（``YYYYMMDD``）；默认 = 今天。便于测试。
             subject_short: 可选；显式覆盖文件名 ``-on-{slug}`` 段。
-                未提供时自动从 subject_ref 派生（取 basename / 截断）。
 
         Returns:
             新写入的 :class:`Review` 实例。
@@ -2428,6 +2440,203 @@ class Project:
         raise RuntimeError(
             f"failed to reserve a review sequence after "
             f"{_MAX_WRITE_RETRIES} retries"
+        )
+
+    def mark_human_approved(
+        self,
+        review_id: str,
+        *,
+        approver: str,
+        decision: str | HumanApprovalDecision,
+        channel: str | HumanApprovalChannel,
+        comment: str | None = None,
+        device_id: str | None = None,
+        ip: str | None = None,
+        auth_method: str | None = None,
+    ) -> Review:
+        """Record a human approval decision on a ``needs_human`` REVIEW file.
+
+        Reads the existing REVIEW file, appends ``human_approval`` to its
+        frontmatter, writes it back in-place, and returns the updated
+        :class:`Review` object.
+
+        Args:
+            review_id: The stable review id (filename stem without ``.md``).
+            approver: Agent code of the human approver; MUST be layer=admin.
+            decision: ``HumanApprovalDecision`` or string ``"approve"`` / ``"reject"``.
+            channel: Channel of the approval (``"mobile"`` / ``"cli"`` / ``"web"`` /
+                ``"manual_file_edit"``).
+            comment: Optional free-text comment.
+            device_id: Optional device identifier for audit evidence.
+            ip: Optional IP address for audit evidence.
+            auth_method: Optional auth method (``"session"`` / ``"biometric"`` /
+                ``"password"``).
+
+        Raises:
+            TaskNotFoundError: The REVIEW file does not exist.
+            ValidationError: The existing REVIEW's decision is not ``needs_human``,
+                or approver grammar is invalid.
+        """
+        if isinstance(decision, str):
+            try:
+                decision_enum = HumanApprovalDecision(decision.strip().lower())
+            except ValueError:
+                raise ValidationError(
+                    f"unknown human_approval decision {decision!r}",
+                    issues=[
+                        ValidationIssue(
+                            severity="error",
+                            field="human_approval.decision",
+                            message=f"must be 'approve' or 'reject'; got {decision!r}",
+                        )
+                    ],
+                ) from None
+        else:
+            decision_enum = decision
+
+        if isinstance(channel, str):
+            try:
+                channel_enum = HumanApprovalChannel(channel.strip().lower())
+            except ValueError:
+                raise ValidationError(
+                    f"unknown channel {channel!r}",
+                    issues=[
+                        ValidationIssue(
+                            severity="error",
+                            field="human_approval.channel",
+                            message=(
+                                f"must be one of {[c.value for c in HumanApprovalChannel]}; "
+                                f"got {channel!r}"
+                            ),
+                        )
+                    ],
+                ) from None
+        else:
+            channel_enum = channel
+
+        role_issues = validate_role_code(approver, field="approver", allow_reserved=True)
+        role_errors = [i for i in role_issues if i.severity == "error"]
+        if role_errors:
+            raise ValidationError(
+                f"invalid approver role code {approver!r}",
+                issues=role_errors,
+            )
+
+        # Find the review file (active or archived)
+        review_path: pathlib.Path | None = None
+        for candidate_dir in (self.reviews_dir, self.log_dir / "reviews"):
+            candidate = candidate_dir / f"{review_id}.md"
+            if candidate.exists():
+                review_path = candidate
+                break
+        if review_path is None:
+            raise TaskNotFoundError(review_id)
+
+        raw_text = review_path.read_text(encoding="utf-8")
+        fm_text, body = split_frontmatter(raw_text)
+        fm_dict = parse_frontmatter_raw(raw_text)
+
+        existing_decision = fm_dict.get("decision", "")
+        if existing_decision != ReviewDecision.NEEDS_HUMAN.value:
+            raise ValidationError(
+                f"review {review_id!r} has decision={existing_decision!r}; "
+                f"mark_human_approved only applies to needs_human reviews",
+                issues=[
+                    ValidationIssue(
+                        severity="error",
+                        field="decision",
+                        message=(
+                            "mark_human_approved requires decision='needs_human'; "
+                            f"got {existing_decision!r}"
+                        ),
+                    )
+                ],
+            )
+
+        approved_at_iso = _now_iso()
+        ha_dict: dict[str, object] = {
+            "approver": approver,
+            "decision": decision_enum.value,
+            "approved_at": approved_at_iso,
+            "channel": channel_enum.value,
+        }
+        if comment:
+            ha_dict["comment"] = comment
+        evidence: dict[str, object] = {}
+        if device_id:
+            evidence["device_id"] = device_id
+        if ip:
+            evidence["ip"] = ip
+        if auth_method:
+            evidence["auth_method"] = auth_method
+        if evidence:
+            ha_dict["evidence"] = evidence
+
+        fm_dict["human_approval"] = ha_dict
+
+        import yaml as _yaml
+        new_fm_text = _yaml.dump(
+            fm_dict,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False,
+        ).rstrip()
+        new_text = (
+            FRONTMATTER_DELIMITER
+            + "\n"
+            + new_fm_text
+            + "\n"
+            + FRONTMATTER_DELIMITER
+            + "\n"
+            + body
+        )
+        review_path.write_text(new_text, encoding="utf-8")
+
+        evidence_obj = (
+            HumanApprovalEvidence(
+                device_id=str(evidence.get("device_id")) if "device_id" in evidence else None,
+                ip=str(evidence.get("ip")) if "ip" in evidence else None,
+                auth_method=str(evidence.get("auth_method")) if "auth_method" in evidence else None,  # type: ignore[arg-type]
+            )
+            if evidence
+            else None
+        )
+        human_approval_obj = HumanApproval(
+            approver=approver,
+            decision=decision_enum,
+            approved_at=_dt.datetime.fromisoformat(approved_at_iso),
+            channel=channel_enum,
+            comment=comment or None,
+            evidence=evidence_obj,
+        )
+
+        # Re-hydrate the review from the updated file
+        new_text = review_path.read_text(encoding="utf-8")
+        new_fm = parse_frontmatter_raw(new_text)
+        _, new_body = split_frontmatter(new_text)
+        new_parsed = parse_review_filename(review_path.name)
+        assert new_parsed is not None
+        is_archived = (review_path.parent == (self.log_dir / "reviews"))
+        review_obj = _hydrate_review(review_path, new_fm, new_body, new_parsed, is_archived=is_archived)
+        # review_obj is now a full Review; patch in the parsed HumanApproval object
+        return Review(
+            path=review_obj.path,
+            filename=review_obj.filename,
+            review_id=review_obj.review_id,
+            date=review_obj.date,
+            sequence=review_obj.sequence,
+            subject_type=review_obj.subject_type,
+            subject_ref=review_obj.subject_ref,
+            reviewer_role=review_obj.reviewer_role,
+            reviewer_agent=review_obj.reviewer_agent,
+            decision=review_obj.decision,
+            rationale=review_obj.rationale,
+            required_changes=review_obj.required_changes,
+            decided_at=review_obj.decided_at,
+            body=review_obj.body,
+            is_archived=review_obj.is_archived,
+            mtime=review_obj.mtime,
+            human_approval=human_approval_obj,
         )
 
     def list_reviews(
@@ -3204,7 +3413,7 @@ class Project:
 
     @staticmethod
     def _coerce_review_decision(value: str | ReviewDecision) -> ReviewDecision:
-        """Strict coerce —— 拒绝 v1.2 推迟值（needs_human）以及任何未知值。"""
+        """Strict coerce —— 拒绝任何未知值（v1.1 已包含 needs_human）。"""
         if isinstance(value, ReviewDecision):
             return value
         if isinstance(value, str):
@@ -3220,8 +3429,7 @@ class Project:
                             message=(
                                 f"decision must be one of "
                                 f"{[d.value for d in ReviewDecision]}; "
-                                f"got {value!r}. Note: 'needs_human' is "
-                                f"deferred to v1.2 per ADR-0017."
+                                f"got {value!r}."
                             ),
                         )
                     ],

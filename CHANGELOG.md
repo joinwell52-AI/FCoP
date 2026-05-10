@@ -12,6 +12,43 @@ versioning strategy.
 
 ---
 
+## [1.1.0] — 2026-05-10
+
+### feat — Agent Governance Layer, Task Risk Level, Human Approval, Skill Tools Risk Metadata
+
+FCoP v1.1.0 是第一个 MINOR 版本，完全向后兼容 v1.0.x。5 个新字段对应 5 份 ADR：
+
+**ADR-0023 — `Agent.layer` 形式化为协议字段**
+- `agent.schema.json` 中 `layer: worker | governance | admin` 升格为有运行时合约的协议字段
+- 运行时必须拒绝编程式创建 `layer: admin` agent
+- `governance` agent 不得出现在 TASK/REPORT `recipient` 字段
+
+**ADR-0024 — `Task.risk_level`**
+- `ipc-envelope.schema.json` TASK 定义新增 `risk_level: low | medium | high | irreversible`（默认 `medium`）
+- `models.py` 新增 `RiskLevel` 枚举
+- `TaskFrontmatter.risk_level` 字段，默认 `RiskLevel.MEDIUM`
+- `Project.write_task(risk_level=...)` 新增可选参数
+- `fcop.core.schema.normalize_risk_level()` 公开 API
+
+**ADR-0025 — `Review.decision = needs_human`**
+- `review.schema.json` `decisionEnum` 从 4 值扩展至 5 值，新增 `needs_human`
+- `ReviewDecision.NEEDS_HUMAN` 枚举值
+- `write_review(decision="needs_human")` 不再被拒绝
+- 移除 `test_review_no_v12_features.py`（ADR-0017 deferral 解除），新增 `test_review_v11_features.py`
+
+**ADR-0026 — `Review.human_approval`**
+- `review.schema.json` 新增 `human_approval` 属性（含 `humanApproval`、`humanApprovalEvidence` $defs）
+- `models.py` 新增 `HumanApprovalChannel`、`HumanApprovalDecision`、`HumanApprovalEvidence`、`HumanApproval` dataclass
+- `Review.human_approval: HumanApproval | None` 字段
+- `Project.mark_human_approved(review_id, approver, decision, channel, ...)` 新增 API
+
+**ADR-0027 — `Skill.tools[]` 风险元数据**
+- 新增 `skill.schema.json`（`fcop://schemas/skill/v1.1.json`）
+- `models.py` 新增 `SkillTool`、`Skill` dataclass
+- `fcop.SCHEMA_NAMES` 从 7 个扩展到 8 个
+
+---
+
 ## [1.0.1] — 2026-05-10
 
 ### feat(mcp) — 新增 `fcop://spec` / `fcop://spec/en` 资源（2026-05-10）

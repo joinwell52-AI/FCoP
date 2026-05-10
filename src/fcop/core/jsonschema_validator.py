@@ -79,8 +79,9 @@ SCHEMA_NAMES: tuple[str, ...] = (
     "failure.schema.json",
     "ipc-envelope.schema.json",
     "review.schema.json",
+    "skill.schema.json",
 )
-"""v1.0 7 份 schema 文件名（按字母序）。新增 schema 必须 bump MINOR。"""
+"""v1.1 8 份 schema 文件名（按字母序）。新增 schema 必须 bump MINOR（ADR-0027 adds skill.schema.json）。"""
 
 ENVELOPE_TYPES: frozenset[str] = frozenset({"TASK", "REPORT", "ISSUE", "REVIEW"})
 """IPC envelope 4 类型。来自 ADR-0021 §IPC Surface，frozen for v1.x。"""

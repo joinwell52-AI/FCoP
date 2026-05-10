@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fcop.dev/schemas/skill/v1.1.json",
+  "title": "FCoP Skill",
+  "description": "Per ADR-0027. A Skill is an MCP server (or capability bundle) that agents can invoke. Skill records live in fcop.json under `skills[]`. v1.1 adds `tools[]` sub-array for per-tool risk metadata, enabling runtimes to auto-apply review gates and cost guards without hardcoding tool names.",
+  "version": "1.1.0",
+  "type": "object",
+  "required": ["id"],
+  "additionalProperties": true,
+  "$defs": {
+    "riskLevel": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "irreversible"],
+      "description": "Per ADR-0024/0027. Shared risk level enum for both Task and Skill.tools."
+    },
+    "skillTool": {
+      "type": "object",
+      "description": "Per ADR-0027. Risk metadata for a single MCP tool within a Skill.",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MCP tool name. MUST match the tool name as declared in the MCP server manifest."
+        },
+        "risk_level": {
+          "$ref": "#/$defs/riskLevel",
+          "default": "low",
+          "description": "Risk level of this tool. Default: low (most read-only tools). high/irreversible triggers review gate (ADR-0025)."
+        },
+        "irreversible": {
+          "type": "boolean",
+          "default": false,
+          "description": "True if this tool's effects cannot be undone (e.g. DROP TABLE, force-push). Runtime MUST wrap irreversible=true calls as review-required tasks."
+        },
+        "cost_sensitive": {
+          "type": "boolean",
+          "default": false,
+          "description": "True if calling this tool incurs billing or paid API charges. Runtime MAY enforce cost thresholds and trigger needs_human on threshold breach."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional human-readable description of what this tool does."
+        }
+      }
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable skill identifier. Used as the routing key in capability references."
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label for this skill. Free text."
+    },
+    "uri": {
+      "type": "string",
+      "description": "MCP server URI (e.g. mcp://local/git, mcp://remote/openai). Used by runtimes to locate and connect to the skill."
+    },
+    "tools": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/skillTool"},
+      "description": "Per ADR-0027. Optional per-tool risk metadata. Absence = all tools assumed low/false/false (most permissive default). Runtimes MAY choose a more conservative default."
+    }
+  }
+}

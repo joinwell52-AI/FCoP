@@ -125,10 +125,11 @@ class TestWriteReviewValidation:
                 required_changes=("   ", "", "\t"),
             )
 
-    def test_needs_human_rejected(self, project):
-        """**关键防御**：v1.2 推迟值 needs_human 必须被拒。"""
-        with pytest.raises(ValidationError, match="decision"):
-            _write_minimal(project, decision="needs_human")
+    def test_needs_human_accepted(self, project):
+        """v1.1 新增：needs_human 现在是合法的 decision 值（per ADR-0025）。"""
+        r = _write_minimal(project, decision="needs_human")
+        from fcop import ReviewDecision
+        assert r.decision == ReviewDecision.NEEDS_HUMAN
 
     def test_unknown_decision_rejected(self, project):
         with pytest.raises(ValidationError, match="decision"):

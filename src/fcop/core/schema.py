@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 
-from fcop.models import Priority, Severity, ValidationIssue
+from fcop.models import Priority, RiskLevel, Severity, ValidationIssue
 
 __all__ = [
     # Protocol identity
@@ -30,7 +30,7 @@ __all__ = [
     # Frontmatter
     "REQUIRED_TASK_FRONTMATTER_KEYS",
     "OPTIONAL_TASK_FRONTMATTER_KEYS",
-    # Priority / Severity aliases
+    # Priority / Severity / RiskLevel aliases
     "PRIORITY_ALIASES",
     "SEVERITY_ALIASES",
     # Validators
@@ -40,6 +40,7 @@ __all__ = [
     "normalize_protocol_name",
     "normalize_priority",
     "normalize_severity",
+    "normalize_risk_level",
 ]
 
 
@@ -353,3 +354,25 @@ def normalize_severity(raw: str | Severity) -> Severity:
         f"{sorted(s.value for s in Severity)} "
         f"(or aliases {sorted(SEVERITY_ALIASES)})"
     )
+
+
+def normalize_risk_level(raw: str | RiskLevel | None) -> RiskLevel:
+    """Coerce a user-supplied risk level to :class:`RiskLevel`.
+
+    ``None`` maps to the default ``RiskLevel.MEDIUM``.
+
+    Raises:
+        ValueError: ``raw`` is not a recognized risk level.
+    """
+    if raw is None:
+        return RiskLevel.MEDIUM
+    if isinstance(raw, RiskLevel):
+        return raw
+    key = str(raw).strip().lower()
+    try:
+        return RiskLevel(key)
+    except ValueError:
+        raise ValueError(
+            f"unknown risk_level {raw!r}; expected one of "
+            f"{[r.value for r in RiskLevel]}"
+        ) from None
