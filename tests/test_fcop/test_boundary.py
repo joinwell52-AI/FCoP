@@ -28,7 +28,6 @@ from fcop.core.boundary import (
 )
 from fcop.core.jsonschema_validator import load_bundled_schema
 
-
 # ── 词表 / 默认 ─────────────────────────────────────────────────────
 
 
@@ -36,7 +35,7 @@ def test_capability_vocab_aligns_with_schema():
     """A2：CAPABILITY_VOCAB 必须与 boundary.schema.json 词表完全相符。"""
     schema = load_bundled_schema("boundary.schema.json")
     schema_enum = set(schema["$defs"]["capabilityToken"]["enum"])
-    assert CAPABILITY_VOCAB == schema_enum, (
+    assert schema_enum == CAPABILITY_VOCAB, (
         f"vocab drifted: {CAPABILITY_VOCAB ^ schema_enum}"
     )
 

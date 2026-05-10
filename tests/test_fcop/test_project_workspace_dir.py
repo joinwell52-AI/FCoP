@@ -30,7 +30,6 @@ import pytest
 from fcop import Project
 from fcop.errors import ConfigError
 
-
 # ── Auto-detect: 4 canonical scenarios ────────────────────────────────
 
 

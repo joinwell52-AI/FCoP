@@ -37,7 +37,6 @@ from fcop.core.recovery import (
     parse_session_id,
 )
 
-
 # ── helpers ──────────────────────────────────────────────────────────
 
 
@@ -305,7 +304,7 @@ class TestMakeEscalateArtifact:
         assert captured["sender"] == "ME"
         assert captured["recipient"] == "LEADER"
         assert captured["severity"] == "high"
-        assert "Escalation: DEADLOCK on ME" == captured["title"]
+        assert captured["title"] == "Escalation: DEADLOCK on ME"
         assert "DEADLOCK" in captured["body"]
         assert "Evidence" in captured["body"]
 

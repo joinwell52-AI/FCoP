@@ -15,7 +15,6 @@ from fcop.core.frontmatter import (
 )
 from fcop.errors import ProtocolViolation
 
-
 _LEGAL = """---
 protocol: fcop
 version: 1

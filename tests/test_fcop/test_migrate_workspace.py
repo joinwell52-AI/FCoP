@@ -33,7 +33,6 @@ import pytest
 from fcop.cli import migrate_workspace as mw
 from fcop.cli._main import main as cli_main
 
-
 # ── helpers ───────────────────────────────────────────────────────────
 
 

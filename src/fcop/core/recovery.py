@@ -26,10 +26,11 @@ DRIFT 自动检测、git revert 实际执行、infinite-retry 防护这三件事
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Protocol
+from typing import Protocol
 
 from fcop.models import (
     Failure,

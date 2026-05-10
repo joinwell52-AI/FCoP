@@ -8,23 +8,16 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
-
-import pytest
 
 from fcop import Event, EventSource, EventSourceKind, EventType
 from fcop.core.events import (
-    WATCHER_ID,
-    FileSnapshot,
-    WatcherState,
     compute_diff,
     make_event,
     make_event_id,
     scan_workspace,
 )
 from fcop.core.jsonschema_validator import load_bundled_schema
-
 
 # ── EventType / Event 词表对齐 ──────────────────────────────────────
 

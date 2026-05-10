@@ -6,7 +6,6 @@ roles 的 layer / can / cannot 字段 round-trip 单测。
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest

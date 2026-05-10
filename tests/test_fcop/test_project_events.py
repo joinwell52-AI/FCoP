@@ -22,7 +22,6 @@ from fcop import (
 )
 from fcop.errors import BoundaryViolationError
 
-
 # ── helpers ──────────────────────────────────────────────────────────
 
 
