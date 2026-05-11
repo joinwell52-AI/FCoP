@@ -42,10 +42,15 @@ class TestRulesVersion:
 
     def test_protocol_version_is_160_or_later(self) -> None:
         text = _read_rule_data("fcop-protocol.mdc")
-        assert "fcop_protocol_version: 1.6.0" in text or any(
+        has_v1_match = any(
             f"fcop_protocol_version: 1.{minor}.0" in text
             for minor in range(6, 100)
-        ), (
+        )
+        has_v2_match = any(
+            f"fcop_protocol_version: 2.{minor}.0" in text
+            for minor in range(0, 100)
+        )
+        assert has_v1_match or has_v2_match, (
             "fcop-protocol.mdc must declare fcop_protocol_version >= 1.6.0 "
             "since 0.7.1"
         )

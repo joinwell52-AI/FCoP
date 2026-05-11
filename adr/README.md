@@ -115,6 +115,11 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0020](./ADR-0020-agent-boundary-and-capability.md) | Agent Boundary & Capability（取代 ADR-0010） | Accepted | 2026-05-09 |
 | [ADR-0021](./ADR-0021-encoding-abstraction.md) | Encoding Abstraction — Markdown as Reference Encoding（v1.0 新增） | Accepted | 2026-05-09 |
 | **[ADR-0022](./ADR-0022-workspace-directory-convention.md)** | **Workspace Directory Convention — `docs/agents/` → `fcop/`**（v1.0 breaking change，配自动迁移工具） | **Accepted** | 2026-05-09 |
+| [ADR-0023](./ADR-0023-agent-layer-governance-field.md) | \Agent.layer\ — Governance Hierarchy Field（v1.1 新增） | Accepted | 2026-05-10 |
+| [ADR-0024](./ADR-0024-task-risk-level.md) | \Task.risk_level\ — Operation Risk Classification（v1.1 新增） | Accepted | 2026-05-10 |
+| [ADR-0025](./ADR-0025-review-needs-human.md) | \Review.decision = needs_human\ 枚举扩展（v1.1 新增） | Accepted | 2026-05-10 |
+| [ADR-0026](./ADR-0026-review-human-approval.md) | \Review.human_approval\ — 人工审批子结构（v1.1 新增） | Accepted | 2026-05-10 |
+| [ADR-0027](./ADR-0027-skill-tools-risk-metadata.md) | \Skill.tools[]\ — MCP 工具风险元数据（v1.1 新增） | Accepted | 2026-05-10 |
 
 ## 工作流
 

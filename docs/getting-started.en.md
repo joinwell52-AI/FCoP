@@ -185,6 +185,63 @@ Each abstraction is closed by its own ADR; protocol-level schemas live in [`spec
 
 ---
 
+## v1.1 additions: human-in-the-loop risk gates
+
+v1.1 adds three opt-in features on top of the v1.0 base. Nothing breaks;
+use them when your workflow needs human sign-off before high-risk actions.
+
+### Task.risk_level
+
+```python
+from fcop import Project
+
+project = Project(".")
+project.write_task(
+    recipient="OPS",
+    subject="Delete old production backups",
+    body="...",
+    risk_level="irreversible",   # new in v1.1
+)
+# ↑ automatically creates a companion REVIEW (decision=needs_human)
+# The OPS agent must not proceed until ADMIN approves.
+```
+
+Four levels: `low` (default) / `medium` / `high` / `irreversible`.
+`high` and `irreversible` auto-create a `needs_human` review gate.
+
+### needs_human review + mark_human_approved
+
+```python
+# ADMIN checks pending approvals:
+reviews = project.list_reviews(decision="needs_human")
+
+# ADMIN approves:
+project.mark_human_approved(
+    review_id=reviews[0].review_id,
+    approved_by="alice@example.com",
+    note="Confirmed with infra team.",
+)
+# Now the OPS agent may proceed.
+```
+
+### Skill.tools[] risk metadata
+
+```yaml
+# In a skill file — machine-readable risk declaration
+tools:
+  - name: deploy_to_prod
+    risk_level: high
+    requires_human_approval: true
+    side_effects: "Modifies live traffic routing"
+```
+
+Orchestration frameworks read `requires_human_approval: true` and
+automatically gate through the `write_task(risk_level=high)` flow.
+
+Full reference: [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md).
+
+---
+
 ## What FCoP doesn't solve
 
 Honestly:
@@ -203,12 +260,13 @@ Honestly:
 | Layer | File | Role |
 |---|---|---|
 | L0 + L1 entry | [`docs/getting-started.md`](./getting-started.md) (this page) | 30-second + 5-minute |
-| L2 long-form spec | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/) (ships with v1.0) | Full spec |
+| L2 long-form spec | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/) (v1.0 base) | Full v1.0 spec |
+| L2 long-form spec | [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md) (v1.1 additions) | risk_level / needs_human / human_approval |
 | L2 agent-readable rules (Cursor) | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor host — `alwaysApply: true` |
 | L2 agent-readable rules (others) | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / generic SDK |
-| L2 machine-readable | [`spec/schemas/*.schema.json`](../spec/schemas/) (ships with v1.0) | JSON Schema × 7 abstractions |
+| L2 machine-readable | [`spec/schemas/*.schema.json`](../spec/schemas/) (8 schemas in v1.1) | JSON Schema × 7+1 abstractions |
 | L3 stories | [`essays/`](../essays/) | Field reports & notes |
-| Decision history | [`adr/`](../adr/) (ADR-0001..0022) | Why we did things |
+| Decision history | [`adr/`](../adr/) (ADR-0001..0027) | Why we did things |
 
 > **`src/fcop/rules/_data/` is the canonical source.** `deploy_protocol_rules()` (or MCP `redeploy_rules()`) syncs it to `.cursor/rules/*.mdc` (Cursor) and `AGENTS.md` / `CLAUDE.md` (other hosts). See [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md).
 

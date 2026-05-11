@@ -1,7 +1,7 @@
 ---
 description: FCoP Rules (AI OS protocol layer · v1.0 — agent runtime contract for filesystem-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（AI OS 协议层 · v1.0 —— agent 在共享文件系统上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 2.1.0
+fcop_rules_version: 2.2.0
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -594,9 +594,14 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 - 协议**只**识别 4 类 IPC envelope：`TASK-` / `REPORT-` / `ISSUE-` /
   **`REVIEW-`**（v1.0 新增，per ADR-0017）。任何 agent 写下 review
   decision 时必须用 `REVIEW-{date}-{seq}-{reviewer}.md`。
-- v1.0 frozen 4 值 decision 枚举：`approved` / `changes_requested` /
-  `blocked` / `rejected`。**禁止**自创 `needs_human` / `pending` 等
-  其他值——它们刻意推迟到 v1.2，避免 Review 角色膨胀。
+- **v1.1 frozen 5 值 decision 枚举**（per ADR-0025）：`approved` /
+  `changes_requested` / `blocked` / `rejected` / **`needs_human`**。
+  `needs_human` 表示该决策必须由人类审批，不可由 agent 单独通过。
+  `pending` 仍**禁止**使用——它不是合法值。
+- **`human_approval` 子结构**（v1.1 新增，per ADR-0026）：当
+  `decision = needs_human` 时，可选携带
+  `human_approval: {approved_by, approved_at, note}`；一旦人工批准，
+  调用 `mark_human_approved(review_id)` 把子结构落盘。
 - REVIEW 是 audit 痕迹，**不是**新一轮 task；不能用 REVIEW 替代
   REPORT 来回执 task（Rule 6 仍约束 reciprocity）。
 
@@ -604,9 +609,15 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
   `ISSUE-` / **`REVIEW-`** (v1.0 new, per ADR-0017). Use
   `REVIEW-{date}-{seq}-{reviewer}.md` whenever you record a review
   decision.
-- v1.0 frozen 4-value decision enum: `approved` / `changes_requested`
-  / `blocked` / `rejected`. Do **not** invent `needs_human` /
-  `pending` — these are deliberately deferred to v1.2.
+- **v1.1 frozen 5-value decision enum** (per ADR-0025): `approved` /
+  `changes_requested` / `blocked` / `rejected` / **`needs_human`**.
+  `needs_human` signals that the decision requires a human to approve;
+  no agent may unilaterally pass it. `pending` is still **not** a
+  valid value.
+- **`human_approval` sub-structure** (v1.1 new, per ADR-0026): when
+  `decision = needs_human`, the review may carry an optional
+  `human_approval: {approved_by, approved_at, note}` block; call
+  `mark_human_approved(review_id)` to land it on disk.
 - REVIEW is an audit artifact, **not** a new round of work; do not
   substitute REVIEW for REPORT when closing a task (Rule 6 still
   binds reciprocity).
@@ -614,8 +625,8 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 ### 9.2 · Agent Boundary / Agent 能力边界（Boundary 抽象）
 
 - 每个角色在 `fcop.json` 中可绑定 `layer`（`worker` / `governance`
-  / `admin`）+ 可选的 `can` / `cannot` capability 列表（per ADR-0020）。
-  Agent 写敏感操作前必须**自我检查**自己 layer 是否允许：
+  / `admin`）+ 可选的 `can` / `cannot` capability 列表（per ADR-0020
+  / ADR-0023）。`layer` 既是**运行时治理合约**，也是角色边界声明：
   - `worker` 不得 review `governance` subject；
   - `governance` 不得创建新 `governance` 角色（NO_GOVERNANCE_FISSION）；
   - `admin` programmatic 创建必须显式 override（NO_ADMIN_PROGRAMMATIC_CREATE）。
@@ -624,7 +635,8 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 
 - Each role binds a `layer` (`worker` / `governance` / `admin`) plus
   optional `can` / `cannot` capability lists in `fcop.json` (per
-  ADR-0020). Self-check your layer before sensitive operations:
+  ADR-0020 / ADR-0023). `layer` is both a **runtime governance
+  contract** and a capability boundary declaration:
   - `worker` cannot review a `governance` subject;
   - `governance` cannot spawn new `governance` roles
     (NO_GOVERNANCE_FISSION);
@@ -677,6 +689,48 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
   `spec/schemas/event.schema.json` `event_type` enum; never invent
   types the schema does not recognise.
 
+### 9.5 · v1.1 Additions / v1.1 新增能力（3 项）
+
+> v1.1 是 v1.0 的 additive MINOR 扩展，既有规则全部继续生效。
+> v1.1 is an additive MINOR extension; all existing rules remain in force.
+
+**9.5.1 · `Task.risk_level` / 任务风险等级**（per ADR-0024）
+
+- TASK frontmatter 可选字段 `risk_level`：`low`（默认）/ `medium` /
+  `high` / `irreversible`。
+- `high` 或 `irreversible` 时，`write_task` MCP 工具**自动写出**一条
+  `decision = needs_human` 的 REVIEW，提示 ADMIN 在执行前人工审批。
+- `irreversible` 表示操作**不可撤销**（如生产数据删除、公开发布、
+  不可逆基础设施变更），必须携带回滚方案说明（配合 Rule 7）。
+
+- Optional TASK frontmatter field `risk_level`: `low` (default) /
+  `medium` / `high` / `irreversible`.
+- When `high` or `irreversible`, `write_task` automatically emits a
+  REVIEW with `decision = needs_human`, prompting ADMIN to approve
+  before execution.
+- `irreversible` means the action **cannot be undone** (e.g. prod data
+  delete, public release, irreversible infra change); a rollback plan
+  must be described (complements Rule 7).
+
+**9.5.2 · `Review.decision = needs_human` + `human_approval`**（已收入 Rule 9.1）
+
+见上方 Rule 9.1 的扩展说明。/ See Rule 9.1 above.
+
+**9.5.3 · `Skill.tools[]` 风险元数据**（per ADR-0027）
+
+- `skill.schema.json` 的 `tools[]` 数组每项可携带：
+  `risk_level`（继承 9.5.1 的四级枚举）、`requires_human_approval`
+  （bool）、`side_effects`（字符串描述）。
+- 这是**机器可读的风险声明**，供上层框架决策是否需要先走 9.5.1 流程
+  再调用该工具。
+
+- Each item in `Skill.tools[]` may carry: `risk_level` (inherits the
+  4-level enum from 9.5.1), `requires_human_approval` (bool),
+  `side_effects` (description string).
+- This is a **machine-readable risk declaration** for upstream
+  orchestration to decide whether the 9.5.1 gate is needed before
+  invoking the tool.
+
 ---
 
 ## Rule 8 · Rules Take Precedence / 规则优先级
@@ -710,8 +764,20 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.1.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 2.2.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**2.2.0 changes / 2.2.0 变更**（随 `fcop@1.1.0`）:
+
+- Rule 9.1 **decision 枚举从 4 值扩展至 5 值**：新增 `needs_human`
+  （per ADR-0025）；同步记录 `human_approval` 子结构（per ADR-0026）。
+  旧版本"禁止自创 needs_human"的措辞已更新。
+- Rule 9.2 **`layer` 说明增加治理合约语义**（per ADR-0023）。
+- 新增 **Rule 9.5 · v1.1 新增能力**（三项）：
+  - 9.5.1 `Task.risk_level`（per ADR-0024）
+  - 9.5.2 `needs_human` + `human_approval`（已收入 9.1）
+  - 9.5.3 `Skill.tools[]` 风险元数据（per ADR-0027）
+- Rule 0–8 主体不变。
 
 **2.1.0 changes / 2.1.0 变更**:
 

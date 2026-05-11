@@ -1,17 +1,18 @@
 # FCoP Protocol Rules · agent-host-neutral copy
 
-> This file is deployed by \cop\ for agent hosts that read
-> \AGENTS.md\ / \CLAUDE.md\ as their system-prompt source
+> This file is deployed by `fcop` for agent hosts that read
+> `AGENTS.md` / `CLAUDE.md` as their system-prompt source
 > (Codex, Claude Code, Devin, Cursor, etc.). Cursor IDE users get
-> the same content via \.cursor/rules/fcop-rules.mdc\ and
-> \.cursor/rules/fcop-protocol.mdc\.
+> the same content via `.cursor/rules/fcop-rules.mdc` and
+> `.cursor/rules/fcop-protocol.mdc`.
 >
-> The source of truth is the \cop\ Python package. To upgrade
-> this file after \pip install -U fcop[-mcp]\, ADMIN runs the MCP
-> tool edeploy_rules()\ (or calls
-> \Project.deploy_protocol_rules(force=True)\ directly).
+> The source of truth is the `fcop` Python package. To upgrade
+> this file after `pip install -U fcop[-mcp]`, ADMIN runs the MCP
+> tool `redeploy_rules()` (or calls
+> `Project.deploy_protocol_rules(force=True)` directly).
 
-> Rules version: \2.1.0\ · Protocol commentary version: \1.9.0\n
+> Rules version: `2.2.0` · Protocol commentary version: `2.0.0`
+
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -604,9 +605,14 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 - 协议**只**识别 4 类 IPC envelope：`TASK-` / `REPORT-` / `ISSUE-` /
   **`REVIEW-`**（v1.0 新增，per ADR-0017）。任何 agent 写下 review
   decision 时必须用 `REVIEW-{date}-{seq}-{reviewer}.md`。
-- v1.0 frozen 4 值 decision 枚举：`approved` / `changes_requested` /
-  `blocked` / `rejected`。**禁止**自创 `needs_human` / `pending` 等
-  其他值——它们刻意推迟到 v1.2，避免 Review 角色膨胀。
+- **v1.1 frozen 5 值 decision 枚举**（per ADR-0025）：`approved` /
+  `changes_requested` / `blocked` / `rejected` / **`needs_human`**。
+  `needs_human` 表示该决策必须由人类审批，不可由 agent 单独通过。
+  `pending` 仍**禁止**使用——它不是合法值。
+- **`human_approval` 子结构**（v1.1 新增，per ADR-0026）：当
+  `decision = needs_human` 时，可选携带
+  `human_approval: {approved_by, approved_at, note}`；一旦人工批准，
+  调用 `mark_human_approved(review_id)` 把子结构落盘。
 - REVIEW 是 audit 痕迹，**不是**新一轮 task；不能用 REVIEW 替代
   REPORT 来回执 task（Rule 6 仍约束 reciprocity）。
 
@@ -614,9 +620,15 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
   `ISSUE-` / **`REVIEW-`** (v1.0 new, per ADR-0017). Use
   `REVIEW-{date}-{seq}-{reviewer}.md` whenever you record a review
   decision.
-- v1.0 frozen 4-value decision enum: `approved` / `changes_requested`
-  / `blocked` / `rejected`. Do **not** invent `needs_human` /
-  `pending` — these are deliberately deferred to v1.2.
+- **v1.1 frozen 5-value decision enum** (per ADR-0025): `approved` /
+  `changes_requested` / `blocked` / `rejected` / **`needs_human`**.
+  `needs_human` signals that the decision requires a human to approve;
+  no agent may unilaterally pass it. `pending` is still **not** a
+  valid value.
+- **`human_approval` sub-structure** (v1.1 new, per ADR-0026): when
+  `decision = needs_human`, the review may carry an optional
+  `human_approval: {approved_by, approved_at, note}` block; call
+  `mark_human_approved(review_id)` to land it on disk.
 - REVIEW is an audit artifact, **not** a new round of work; do not
   substitute REVIEW for REPORT when closing a task (Rule 6 still
   binds reciprocity).
@@ -624,8 +636,8 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 ### 9.2 · Agent Boundary / Agent 能力边界（Boundary 抽象）
 
 - 每个角色在 `fcop.json` 中可绑定 `layer`（`worker` / `governance`
-  / `admin`）+ 可选的 `can` / `cannot` capability 列表（per ADR-0020）。
-  Agent 写敏感操作前必须**自我检查**自己 layer 是否允许：
+  / `admin`）+ 可选的 `can` / `cannot` capability 列表（per ADR-0020
+  / ADR-0023）。`layer` 既是**运行时治理合约**，也是角色边界声明：
   - `worker` 不得 review `governance` subject；
   - `governance` 不得创建新 `governance` 角色（NO_GOVERNANCE_FISSION）；
   - `admin` programmatic 创建必须显式 override（NO_ADMIN_PROGRAMMATIC_CREATE）。
@@ -634,7 +646,8 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 
 - Each role binds a `layer` (`worker` / `governance` / `admin`) plus
   optional `can` / `cannot` capability lists in `fcop.json` (per
-  ADR-0020). Self-check your layer before sensitive operations:
+  ADR-0020 / ADR-0023). `layer` is both a **runtime governance
+  contract** and a capability boundary declaration:
   - `worker` cannot review a `governance` subject;
   - `governance` cannot spawn new `governance` roles
     (NO_GOVERNANCE_FISSION);
@@ -687,6 +700,48 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
   `spec/schemas/event.schema.json` `event_type` enum; never invent
   types the schema does not recognise.
 
+### 9.5 · v1.1 Additions / v1.1 新增能力（3 项）
+
+> v1.1 是 v1.0 的 additive MINOR 扩展，既有规则全部继续生效。
+> v1.1 is an additive MINOR extension; all existing rules remain in force.
+
+**9.5.1 · `Task.risk_level` / 任务风险等级**（per ADR-0024）
+
+- TASK frontmatter 可选字段 `risk_level`：`low`（默认）/ `medium` /
+  `high` / `irreversible`。
+- `high` 或 `irreversible` 时，`write_task` MCP 工具**自动写出**一条
+  `decision = needs_human` 的 REVIEW，提示 ADMIN 在执行前人工审批。
+- `irreversible` 表示操作**不可撤销**（如生产数据删除、公开发布、
+  不可逆基础设施变更），必须携带回滚方案说明（配合 Rule 7）。
+
+- Optional TASK frontmatter field `risk_level`: `low` (default) /
+  `medium` / `high` / `irreversible`.
+- When `high` or `irreversible`, `write_task` automatically emits a
+  REVIEW with `decision = needs_human`, prompting ADMIN to approve
+  before execution.
+- `irreversible` means the action **cannot be undone** (e.g. prod data
+  delete, public release, irreversible infra change); a rollback plan
+  must be described (complements Rule 7).
+
+**9.5.2 · `Review.decision = needs_human` + `human_approval`**（已收入 Rule 9.1）
+
+见上方 Rule 9.1 的扩展说明。/ See Rule 9.1 above.
+
+**9.5.3 · `Skill.tools[]` 风险元数据**（per ADR-0027）
+
+- `skill.schema.json` 的 `tools[]` 数组每项可携带：
+  `risk_level`（继承 9.5.1 的四级枚举）、`requires_human_approval`
+  （bool）、`side_effects`（字符串描述）。
+- 这是**机器可读的风险声明**，供上层框架决策是否需要先走 9.5.1 流程
+  再调用该工具。
+
+- Each item in `Skill.tools[]` may carry: `risk_level` (inherits the
+  4-level enum from 9.5.1), `requires_human_approval` (bool),
+  `side_effects` (description string).
+- This is a **machine-readable risk declaration** for upstream
+  orchestration to decide whether the 9.5.1 gate is needed before
+  invoking the tool.
+
 ---
 
 ## Rule 8 · Rules Take Precedence / 规则优先级
@@ -720,8 +775,20 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.1.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 2.2.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**2.2.0 changes / 2.2.0 变更**（随 `fcop@1.1.0`）:
+
+- Rule 9.1 **decision 枚举从 4 值扩展至 5 值**：新增 `needs_human`
+  （per ADR-0025）；同步记录 `human_approval` 子结构（per ADR-0026）。
+  旧版本"禁止自创 needs_human"的措辞已更新。
+- Rule 9.2 **`layer` 说明增加治理合约语义**（per ADR-0023）。
+- 新增 **Rule 9.5 · v1.1 新增能力**（三项）：
+  - 9.5.1 `Task.risk_level`（per ADR-0024）
+  - 9.5.2 `needs_human` + `human_approval`（已收入 9.1）
+  - 9.5.3 `Skill.tools[]` 风险元数据（per ADR-0027）
+- Rule 0–8 主体不变。
 
 **2.1.0 changes / 2.1.0 变更**:
 
@@ -1734,6 +1801,27 @@ Three things the protocol explicitly grants you:
 
 ## Protocol Version Log / 协议版本记录
 
+- **v2.0** (2026-05-11) — **v1.1 capabilities commentary**，随 `fcop@1.1.0`：
+  1. Rule 9.1 Commentary 扩展：`decision` 枚举增至 5 值（`needs_human`），
+     新增 `human_approval` 子结构说明与 `mark_human_approved()` 流程。
+  2. 新增 **Rule 9.5 Commentary**（三小节）：
+     - 9.5.1 `Task.risk_level` 四级枚举与工具层行为对照表
+     - 9.5.2 `needs_human` → `mark_human_approved` 完整审批流程图
+     - 9.5.3 `Skill.tools[]` 风险元数据示例与调用约定
+  3. 版本号从 1.9.0 升为 2.0.0（此次新增节数显著；v1.9 是 v1.0 final
+     commentary；v2.0 是 v1.1 commentary 的起点）。
+
+  v2.0 changes:
+  1. Rule 9.1 commentary expanded: `decision` enum grows to 5 values
+     (`needs_human`); added `human_approval` sub-structure and
+     `mark_human_approved()` flow description.
+  2. Added **Rule 9.5 Commentary** (three sub-sections):
+     - 9.5.1 `Task.risk_level` four-tier table with tooling behavior
+     - 9.5.2 `needs_human` → `mark_human_approved` full approval flow
+     - 9.5.3 `Skill.tools[]` risk metadata example and calling convention
+  3. Version bumped from 1.9.0 to 2.0.0 (significant section additions;
+     v1.9 was v1.0-final commentary; v2.0 is v1.1 commentary baseline).
+
 - **v1.9** (2026-05-10) — **v1.0 final · Rule 9 complete commentary + 七大核心概念**,
   shipped with `fcop@1.0.0`:
   1. **Rule 9 Commentary** 节（9.1–9.4）补完——REVIEW 命名、Boundary 层级检查清单、
@@ -1970,21 +2058,46 @@ REVIEW-20260510-001-LEAD-QA.md
 
 ```yaml
 subject_id: TASK-20260510-002-ADMIN-to-ME   # 被审核的文件 ID
-decision: approved                           # approved | changes_requested | blocked | rejected
+decision: approved                           # approved | changes_requested | blocked | rejected | needs_human
 reviewer: LEAD-QA
 reviewed_at: "2026-05-10T01:30:00+08:00"
 ```
 
+**v1.1 新增：`needs_human` + `human_approval` 流程**
+
+```yaml
+# 写 REVIEW 时 decision = needs_human
+decision: needs_human
+# 人工审批后，调用 mark_human_approved() 追加：
+human_approval:
+  approved_by: "alice@example.com"
+  approved_at: "2026-05-11T09:00:00+08:00"
+  note: "已与安全团队确认，可以执行"
+```
+
+- 当 `decision = needs_human` 时，task 执行**必须暂停**，等待
+  ADMIN 调用 `mark_human_approved(review_id)` 后再继续。
+- `mark_human_approved` 将 `human_approval` 子结构落盘，并把
+  REVIEW 的 decision 更新为 `approved`（由人工代理）。
+- Agent **不得**自行把 `needs_human` 改为其他值。
+
+When `decision = needs_human`, task execution **MUST pause** until
+ADMIN calls `mark_human_approved(review_id)`. The tool writes the
+`human_approval` block and transitions the decision to `approved`
+(human-delegated). Agents must never overwrite `needs_human` directly.
+
 **写 REVIEW 的时机 / When to write a REVIEW**
 
 - agent 被要求对某 TASK/REPORT/ISSUE 给出判断时。
+- `write_task` 传入 `risk_level=high` 或 `irreversible` 时**自动触发**。
 - 不要用 REVIEW 替代 REPORT 关闭任务（Rule 6 互惠）。
 - REVIEW 是 **audit 痕迹**，不启动新工作轮次。
 
-When an agent is asked to render a judgment on a TASK / REPORT / ISSUE.
-Do not substitute REVIEW for REPORT when closing a task (Rule 6
-reciprocity still applies). REVIEW is an **audit artefact**, not a
-new work round.
+When an agent is asked to render a judgment on a TASK / REPORT / ISSUE,
+or when `write_task` is called with `risk_level=high/irreversible`
+(auto-triggered). Do not substitute REVIEW for REPORT when closing a
+task (Rule 6 reciprocity still applies). REVIEW is an **audit artefact**,
+not a new work round.
 
 ### 9.2 Commentary · Boundary 层级与能力检查清单
 
@@ -2091,6 +2204,73 @@ Events are **not persisted** — they don't replay after restart. All
 audit-relevant activity must be landed as files. Never invent event
 types not in the schema. `poll_once()` is synchronous; wrap it in
 your own loop for high-frequency scenarios.
+
+---
+
+### 9.5 Commentary · v1.1 新增能力操作指南
+
+#### 9.5.1 · `Task.risk_level` 使用场景
+
+| risk_level | 含义 | 工具层行为 |
+|---|---|---|
+| `low`（默认） | 标准操作，无额外约束 | 无 |
+| `medium` | 需注意，建议说明回滚方案 | 写任务时提示 |
+| `high` | 高风险，须人工审批后执行 | 自动写出 `decision=needs_human` REVIEW |
+| `irreversible` | 不可逆，须人工审批 + 回滚说明 | 自动写出 REVIEW，正文强调不可逆 |
+
+**操作示例（MCP）**
+
+```python
+# 通过 fcop-mcp 的 write_task 工具
+write_task(
+    recipient="OPS",
+    subject="删除 production DB 旧备份",
+    body="...",
+    risk_level="irreversible"   # ← v1.1 新增参数
+)
+# 工具自动：
+# 1. 写 TASK-*.md（含 risk_level 字段）
+# 2. 写 REVIEW-*.md（decision=needs_human）
+# 3. 返回提示："已创建高风险任务，等待 ADMIN 调用 mark_human_approved 后再执行"
+```
+
+#### 9.5.2 · `needs_human` + `mark_human_approved` 完整流程
+
+```
+write_task(risk_level="high")
+  └─ 自动写 REVIEW-*.md (decision=needs_human)
+        │
+        ▼ ADMIN 审阅
+mark_human_approved(review_id="REVIEW-20260511-001-SYSTEM")
+  └─ 在 REVIEW frontmatter 追加 human_approval 块
+  └─ decision 更新为 approved
+        │
+        ▼ 执行角色继续
+write_report(task_id, status="done", ...)
+```
+
+通过 `read_review(review_id)` 查看当前审批状态；
+通过 `list_reviews(decision="needs_human")` 筛选待审批列表。
+
+#### 9.5.3 · `Skill.tools[]` 风险元数据示例
+
+```yaml
+# skill.yaml / skill.schema.json 兼容的 skill 文件示例
+tools:
+  - name: delete_production_data
+    risk_level: irreversible
+    requires_human_approval: true
+    side_effects: "永久删除，无法从 FCoP 层回滚"
+  - name: read_logs
+    risk_level: low
+    requires_human_approval: false
+```
+
+上层框架读到 `requires_human_approval: true` 时，应在调用前先走
+9.5.1 的 `write_task(risk_level=irreversible)` 流程。
+
+Upstream orchestration should trigger the 9.5.1 gate when it sees
+`requires_human_approval: true` in the tool metadata.
 
 ---
 
