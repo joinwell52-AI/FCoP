@@ -45,21 +45,21 @@
 
 ## Where FCoP sits in the stack
 
-FCoP is the **protocol layer** for AI agent collaboration — the same position as **POSIX** in Unix, **OCI** in container ecosystems, **CRD** in Kubernetes:
+FCoP is the **behavior governance protocol layer** for multi-agent collaboration — standardizing how agents report actions, review outcomes, and operate within governed capability boundaries.
 
 ```
-Application Layer    CodeFlow / Cursor / Claude Desktop      ← business-facing agent apps
-Host Adapter Layer   fcop-mcp / fcop-cli / @fcop/claude      ← host integration & protocol bridge
-★ FCoP Protocol ★   Agent collaboration semantics /          ← FCoP's core responsibility
-                     Behavior reports / Review mechanism /
-                     Capability Governance / Event semantics /
-                     Audit boundary
-Reference Impl       fcop (Python Library)                   ← protocol reference implementation
-Execution Env        LLM API / MCP Tools / Filesystem /      ← agent's actual execution environment
-                     Process Mgr / OS
+Application Layer      CodeFlow / Cursor / Claude Desktop      ← business products / agent applications
+Host Adapter Layer     fcop-mcp / fcop-cli / @fcop/claude      ← integration adapters / host bridges
+★ FCoP Protocol ★      Agent collaboration / reporting /        ← this is FCoP
+                       review / capability governance /
+                       event semantics / failure boundaries /
+                       auditability
+Reference Impl         fcop (Python library)                   ← protocol reference implementation
+Execution Substrate    LLM APIs / MCP tools / filesystem /     ← execution environment
+                       process manager / operating system
 ```
 
-> **FCoP doesn't organize work — it governs behavior.** — [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
+> **FCoP governs agent behavior, not execution runtime.** — [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
 
 v1.0 stabilises the minimum semantic contract for the **seven core concepts** above. Spec is stable; encodings are open: the *IPC Surface* (TASK / REPORT / ISSUE / REVIEW) is strongly typed, while the *Open Knowledge Surface* (`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`) leaves vocabulary open for agents to invent — see [ADR-0021](adr/ADR-0021-encoding-abstraction.md).
 

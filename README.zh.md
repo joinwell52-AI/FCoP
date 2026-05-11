@@ -5,7 +5,7 @@
 <h1 align="center">FCoP — 文件驱动的 Agent 协作协议</h1>
 
 <p align="center">
-  <em><strong>AI Agent 行为协作协议</strong>——agent 在共享文件系统上协作的运行时契约。</em><br/>
+  <em>多 Agent 协作中的<strong>行为治理协议层</strong>——规范 Agent 如何报告行为、审阅结果并在受治理的能力边界内运作。</em><br/>
   <strong>核心不变量：<code>Filename as Protocol</code>（文件名即协议）·文件夹就是消息总线</strong>
 </p>
 
@@ -45,20 +45,20 @@
 
 ## FCoP 在技术栈中的位置
 
-FCoP 是 **AI Agent 协作的协议层**——位置等同于 Unix 的 **POSIX**、容器生态的 **OCI**、Kubernetes 的 **CRD**：
+FCoP 是多 Agent 协作中的**行为治理协议层**——规范 Agent 如何报告行为、审阅结果并在受治理的能力边界内运作。
 
 ```
-应用层          CodeFlow / Cursor / Claude Desktop       ← 面向业务的 Agent 应用与开发产品
-宿主适配层      fcop-mcp / fcop-cli / @fcop/claude       ← 宿主集成适配器与协议桥接层
-★ FCoP 协议层 ★ Agent 协作语义 / 行为报告 /              ← FCoP 的核心职责
-                Review 机制 / Capability Governance /
-                事件语义 / 审计边界
+应用层          CodeFlow / Cursor / Claude Desktop       ← 业务产品 / Agent 应用
+宿主适配层      fcop-mcp / fcop-cli / @fcop/claude       ← 集成适配器 / 宿主桥接层
+★ FCoP 协议层 ★ Agent 协作 / 行为报告 / Review /         ← FCoP 的核心职责
+                Capability Governance / 事件语义 /
+                失败边界 / 审计能力
 参考实现层      fcop（Python Library）                   ← FCoP 协议的参考实现
-执行环境层      LLM API / MCP Tools / 文件系统 /         ← Agent 的实际执行环境
+执行基底层      LLM APIs / MCP 工具 / 文件系统 /         ← 执行环境（FCoP 不拥有）
                 进程管理 / 操作系统
 ```
 
-> **FCoP 不组织工作，而是治理行为。** —— [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
+> **FCoP 治理 Agent 行为，而非执行运行时。** —— [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
 
 v1.0 将七大核心概念——**Agent、Encoding、IPC、Event、Failure、Boundary、Audit**——的最小语义契约正式固化为稳定标准。spec 固化、encoding 留白：*IPC Surface*（TASK / REPORT / ISSUE / REVIEW）强类型；*Open Knowledge Surface*（`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`）词表完全开放，让 agent 自由发明——见 [ADR-0021](adr/ADR-0021-encoding-abstraction.md)。
 
