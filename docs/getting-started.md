@@ -185,6 +185,62 @@ fcop/shared/GUIDE-dark-mode-implementation-notes.md
 
 ---
 
+## v1.1 新增：人工审批风险门控
+
+v1.1 在 v1.0 基础上添加了三个**可选的** opt-in 特性，用于需要人工介入审批的高风险操作。所有 v1.0 规则和文件全部继续有效，没有任何破坏性变更。
+
+### Task.risk_level — 任务风险等级
+
+```python
+from fcop import Project
+
+project = Project(".")
+project.write_task(
+    recipient="OPS",
+    subject="删除生产库旧备份",
+    body="...",
+    risk_level="irreversible",   # ← v1.1 新增参数
+)
+# ↑ 自动创建配套 REVIEW（decision=needs_human）
+# OPS 角色 agent 在 ADMIN 批准前不得执行
+```
+
+四个等级：`low`（默认）/ `medium` / `high` / `irreversible`。
+`high` 和 `irreversible` 自动创建 `needs_human` 审批门。
+
+### needs_human 审批门 + mark_human_approved
+
+```python
+# ADMIN 查看待审批列表：
+reviews = project.list_reviews(decision="needs_human")
+
+# ADMIN 批准：
+project.mark_human_approved(
+    review_id=reviews[0].review_id,
+    approved_by="alice@example.com",
+    note="已与基础设施团队确认，可以执行",
+)
+# 现在 OPS agent 可以继续执行
+```
+
+### Skill.tools[] 风险元数据
+
+```yaml
+# skill 文件里——机器可读的风险声明
+tools:
+  - name: deploy_to_prod
+    risk_level: high
+    requires_human_approval: true
+    side_effects: "修改生产流量路由"
+```
+
+上层框架读到 `requires_human_approval: true` 时，自动走
+`write_task(risk_level=high)` → 审批 → 执行的流程。
+
+完整文档：[`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md) / 中文：[`spec/fcop-runtime-protocol-v1.1.zh.md`](../spec/fcop-runtime-protocol-v1.1.zh.md)。
+
+---
+
 ## FCoP 不解决什么
 
 诚实交底：
@@ -203,12 +259,13 @@ fcop/shared/GUIDE-dark-mode-implementation-notes.md
 | 层 | 文件 | 角色 |
 |---|---|---|
 | L0 + L1 入口 | [`docs/getting-started.md`](./getting-started.md)（本文）| 30 秒 + 5 分钟 |
-| L2 长文规范 | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/)（v1.0 ship 时上线）| 完整 spec |
+| L2 长文规范 | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/)（v1.0 基础规范）| 完整 v1.0 spec |
+| L2 长文规范 | [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md)（v1.1 增量，[中文](../spec/fcop-runtime-protocol-v1.1.zh.md)）| risk_level / needs_human / human_approval |
 | L2 给 agent 读的规则（Cursor） | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor 宿主，`alwaysApply: true` |
 | L2 给 agent 读的规则（其他宿主） | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / 通用 SDK |
-| L2 机器可读 schema | [`spec/schemas/*.schema.json`](../spec/schemas/)（v1.0 ship 时上线）| JSON Schema × 7 抽象 |
+| L2 机器可读 schema | [`spec/schemas/*.schema.json`](../spec/schemas/)（v1.1：8 个 schema）| JSON Schema × 7+1 抽象 |
 | L3 故事 | [`essays/`](../essays/) | 现场报告与随笔 |
-| 决策史 | [`adr/`](../adr/)（含 ADR-0001..0022） | 为什么这么做 |
+| 决策史 | [`adr/`](../adr/)（ADR-0001..0027）| 为什么这么做 |
 
 > **`src/fcop/rules/_data/` 是规则的唯一来源（canonical source）。** `deploy_protocol_rules()`（或 MCP `redeploy_rules()`）将其同步到：`.cursor/rules/*.mdc`（Cursor 宿主）以及 `AGENTS.md` / `CLAUDE.md`（其他宿主）。详见 [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)。
 

@@ -98,7 +98,29 @@ grep -rn "unbound_report" docs/ .cursor/ AGENTS.md CLAUDE.md
 - 维护者发版流程、tag 与 CI 见 [release-process.md](./release-process.md)。  
 - 各版本变更摘要见 [CHANGELOG.md](../CHANGELOG.md) 与 `docs/releases/*.md`。
 
+## 从 1.0.x 升到 v1.1（无破坏性变更）
+
+v1.1 是**纯 additive** 升级，不需要迁移，现有项目直接升级即可：
+
+```bash
+pip install -U "fcop" "fcop-mcp"
+```
+
+升级后重开 IDE，然后让 ADMIN 调一次 `redeploy_rules()` 更新项目里的规则文件（可选，但推荐——新的 `fcop-rules.mdc` v2.2.0 包含 `risk_level` / `needs_human` 的完整说明）。
+
+**v1.1 新增的特性（opt-in，不影响现有流程）：**
+
+| 特性 | 用法入口 | 说明 |
+|---|---|---|
+| `Task.risk_level` | `write_task(risk_level="high")` | 高风险任务自动创建 `needs_human` 审批门 |
+| `Review.decision = needs_human` | `write_review(decision="needs_human")` | 要求人工审批后才能继续 |
+| `Review.human_approval` | `mark_human_approved(review_id)` | ADMIN 批准后落盘审批记录 |
+| 新 MCP 工具 | `write_review` / `list_reviews` / `read_review` / `mark_human_approved` | 审核流工具（共 30 个工具） |
+
+详细说明：[`docs/releases/1.1.0.md`](./releases/1.1.0.md) · [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md)（[中文](../spec/fcop-runtime-protocol-v1.1.zh.md)）。
+
 ## English (short)
 
 - Bump **both** `fcop` and `fcop-mcp` in the same venv: `pip install -U "fcop" "fcop-mcp"`.  
 - Full install paths and `mcp.json` templates: [mcp/README.md](../mcp/README.md).
+- v1.1 → v1.1 is additive-only; no migration required. See [`docs/releases/1.1.0.md`](./releases/1.1.0.md).

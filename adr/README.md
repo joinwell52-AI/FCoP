@@ -120,6 +120,7 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0025](./ADR-0025-review-needs-human.md) | \Review.decision = needs_human\ 枚举扩展（v1.1 新增） | Accepted | 2026-05-10 |
 | [ADR-0026](./ADR-0026-review-human-approval.md) | \Review.human_approval\ — 人工审批子结构（v1.1 新增） | Accepted | 2026-05-10 |
 | [ADR-0027](./ADR-0027-skill-tools-risk-metadata.md) | \Skill.tools[]\ — MCP 工具风险元数据（v1.1 新增） | Accepted | 2026-05-10 |
+| [ADR-0028](./ADR-0028-auto-risk-assessment.md) | 自动风险评估 — write_task() 风险推断与传导机制（v1.2 规划） | **Proposed** | 2026-05-11 |
 
 ## 工作流
 
