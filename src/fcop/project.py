@@ -2530,7 +2530,7 @@ class Project:
                 review_path = candidate
                 break
         if review_path is None:
-            raise TaskNotFoundError(review_id)
+            raise TaskNotFoundError(f"review {review_id!r} not found", query=review_id)
 
         raw_text = review_path.read_text(encoding="utf-8")
         fm_text, body = split_frontmatter(raw_text)
