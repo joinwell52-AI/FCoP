@@ -37,6 +37,8 @@ from typing import Literal
 import fcop
 from fastmcp import FastMCP
 from fcop import Issue, Project, Report, Task, ValidationIssue
+from fcop_mcp.governance import FCoPGovernanceMiddleware
+from fcop_mcp.governance._tools import impl_get_governance_summary, impl_list_governance_events
 
 # ─── Project path resolution ─────────────────────────────────────────
 
@@ -183,6 +185,12 @@ def _get_project() -> tuple[Project, str]:
 # ─── FastMCP instance ────────────────────────────────────────────────
 
 mcp = FastMCP("fcop")
+
+# Layer 1 governance middleware (ADR-0030-bis).
+# Intercepts every tools/call, resolves risk level from Skill registry,
+# applies deterministic policy, and emits an append-only audit event
+# before returning any execution decision.
+mcp.add_middleware(FCoPGovernanceMiddleware())
 
 
 # ─── Tools ───────────────────────────────────────────────────────────
@@ -2441,7 +2449,87 @@ def fcop_check(lang: str = "zh") -> str:
             "请 ADMIN 按 Rule 1 三选一裁决：交班 / 协审 / 改派。"
         )
 
+    # ── Layer 3: Governance Event Log Audit (ADR-0030-bis) ────────────
+    lines.append("")
+    _append_governance_audit(lines, is_en)
+
     return "\n".join(lines)
+
+
+def _append_governance_audit(lines: list[str], is_en: bool) -> None:
+    """Append governance event log summary to fcop_check output (Layer 3)."""
+    from fcop_mcp.governance.events import _resolve_log_path
+
+    log_path = _resolve_log_path()
+
+    if is_en:
+        lines.append("--- Governance Event Log (ADR-0030-bis Layer 3) ---")
+    else:
+        lines.append("--- 治理事件日志（ADR-0030-bis Layer 3）---")
+
+    if not log_path.exists():
+        msg = (
+            "(governance log not found — no tool calls processed yet)"
+            if is_en
+            else "（治理日志不存在 —— 尚未有工具调用）"
+        )
+        lines.append(msg)
+        return
+
+    try:
+        raw_lines = log_path.read_text(encoding="utf-8").strip().splitlines()
+    except OSError as exc:
+        lines.append(f"(cannot read governance log: {exc})")
+        return
+
+    events: list[dict] = []
+    for line in raw_lines:
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+
+    critical_events = [ev for ev in events if ev.get("tag") == "CRITICAL_TAG"]
+    sensitive_events = [ev for ev in events if ev.get("tag") == "REVIEW_TAG"]
+
+    if is_en:
+        lines.append(
+            f"Total logged: {len(events)}  "
+            f"(Safe: {len(events) - len(critical_events) - len(sensitive_events)}, "
+            f"Sensitive: {len(sensitive_events)}, "
+            f"Critical: {len(critical_events)})"
+        )
+    else:
+        lines.append(
+            f"总事件数: {len(events)}  "
+            f"（Safe: {len(events) - len(critical_events) - len(sensitive_events)}, "
+            f"Sensitive: {len(sensitive_events)}, "
+            f"Critical: {len(critical_events)}）"
+        )
+
+    if critical_events:
+        import datetime
+        if is_en:
+            lines.append(f"CRITICAL_TAG events ({len(critical_events)}) — verify Task + Review coverage:")
+        else:
+            lines.append(f"CRITICAL_TAG 事件 ({len(critical_events)}) —— 请核查 Task + Review 覆盖情况：")
+        for ev in critical_events[-5:]:
+            ts = ev.get("ts") or ev.get("emitted_at", 0.0)
+            dt = datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc).strftime("%m-%d %H:%M UTC")
+            lines.append(
+                f"  [{dt}] {ev.get('tool', '?')}  "
+                f"args={ev.get('args_hash', '')[:12]}  "
+                f"session={ev.get('session_id') or '-'}"
+            )
+    else:
+        msg = (
+            "(no CRITICAL_TAG events — governance coverage OK)"
+            if is_en
+            else "（无 CRITICAL_TAG 事件 —— 治理覆盖正常）"
+        )
+        lines.append(msg)
+
+    lines.append(f"Log: {log_path}")
 
 
 @mcp.tool
@@ -2803,3 +2891,46 @@ def resource_team_role_en(team: str, role: str) -> str:
             f"Known roles: {known}"
         )
     return text
+
+
+# ── Governance Event Tools (ADR-0030-bis Layer 1) ─────────────────────
+
+
+@mcp.tool
+def list_governance_events(
+    last_n: int = 50,
+    risk: str = "",
+    tag: str = "",
+) -> str:
+    """**FCoP governance audit.** Read the append-only governance event log.
+
+    Returns recent tool-call intercept events recorded by the
+    FCoPGovernanceMiddleware (ADR-0030-bis Layer 1). Use this to understand
+    what actions agents have taken and their risk classification.
+
+    Each event contains:
+      - tool: MCP tool name called
+      - risk: Safe | Sensitive | Critical
+      - tag:  ALLOW | REVIEW_TAG | CRITICAL_TAG
+      - args_hash: sha256 fingerprint of arguments (first 12 chars shown)
+      - session_id: caller session (if available)
+      - ts: unix timestamp
+
+    Args:
+        last_n: Maximum number of recent events to return (default 50).
+        risk:   Filter by risk level: "Safe", "Sensitive", "Critical", or "" (all).
+        tag:    Filter by tag: "ALLOW", "REVIEW_TAG", "CRITICAL_TAG", or "" (all).
+    """
+    return impl_list_governance_events(last_n=last_n, risk=risk, tag=tag)
+
+
+@mcp.tool
+def get_governance_summary() -> str:
+    """**FCoP governance summary.** Return aggregate statistics from the
+    governance event log: total calls by risk level, most active tools,
+    and any CRITICAL_TAG events that should be reconciled with Tasks and Reviews.
+
+    Use as a quick health check: CRITICAL_TAG events without corresponding
+    Task + Review coverage are governance gaps that require ADMIN attention.
+    """
+    return impl_get_governance_summary()
