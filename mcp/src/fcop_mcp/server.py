@@ -39,6 +39,8 @@ from fastmcp import FastMCP
 from fcop import Issue, Project, Report, Task, ValidationIssue
 from fcop_mcp.governance import FCoPGovernanceMiddleware
 from fcop_mcp.governance._tools import impl_get_governance_summary, impl_list_governance_events
+from fcop_mcp.gal import create_alert, list_alerts
+from fcop_mcp.gal._drift import run_drift_scan
 
 # ─── Project path resolution ─────────────────────────────────────────
 
@@ -2531,6 +2533,17 @@ def _append_governance_audit(lines: list[str], is_en: bool) -> None:
 
     lines.append(f"Log: {log_path}")
 
+    # ── GAL: Governance drift scan (ADR-0031 Layer 3) ─────────────────────────
+    lines.append("")
+    lines.append("--- 治理告警扫描（GAL — ADR-0031）---" if not is_en else "--- Governance Alert Scan (GAL — ADR-0031) ---")
+    try:
+        gal_count, gal_summary = run_drift_scan()
+        lines.append(gal_summary)
+    except Exception as exc:  # noqa: BLE001
+        lines.append(f"GAL scan error: {exc}")
+
+    return "\n".join(lines)
+
 
 @mcp.tool
 def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -> str:
@@ -2934,3 +2947,69 @@ def get_governance_summary() -> str:
     Task + Review coverage are governance gaps that require ADMIN attention.
     """
     return impl_get_governance_summary()
+
+
+# ── Governance Alert Layer Tools (ADR-0031) ────────────────────────────────────
+
+
+@mcp.tool
+def fcop_list_alerts(
+    status: str = "",
+    severity: str = "",
+    last_n: int = 20,
+) -> str:
+    """**ADMIN Governance Alert Inbox.** List governance alerts from fcop/alerts/.
+
+    Alerts are written automatically by `fcop_check()` when governance drift
+    signals are detected (ADR-0031). Each alert is a structured ALERT-*.md file
+    with severity (high/medium/low), type, and a summary of the governance gap.
+
+    This is the ADMIN's "red dot" — run this to see what governance gaps
+    the system has surfaced, without needing to manually patrol logs.
+
+    Args:
+        status:   Filter by status: ``open``, ``acknowledged``, ``resolved``.
+                  Empty string returns all statuses.
+        severity: Filter by severity: ``high``, ``medium``, ``low``.
+                  Empty string returns all severities.
+        last_n:   Maximum number of alerts to return (most recent first).
+    """
+    return list_alerts(status=status, severity=severity, last_n=last_n)
+
+
+@mcp.tool
+def fcop_create_alert(
+    severity: str,
+    alert_type: str,
+    summary: str,
+    suggestion: str = "ADMIN review recommended",
+) -> str:
+    """**ADMIN / Governance Observer only.** Manually file a governance alert.
+
+    Use when you (as ADMIN or an authorized governance observer) detect a
+    governance gap that automated scanning has not yet captured. Creates a
+    new ALERT-*.md file in fcop/alerts/.
+
+    Args:
+        severity:   ``high``, ``medium``, or ``low``.
+        alert_type: One of: ``missing_independent_verdict``,
+                    ``commit_flood_without_governance``,
+                    ``critical_tool_unreviewed``,
+                    ``long_running_without_reconciliation``.
+        summary:    Plain-text description of the governance gap (1-3 sentences).
+        suggestion: Recommended action for ADMIN. Default: "ADMIN review recommended".
+    """
+    summary_lines = [line.strip() for line in summary.splitlines() if line.strip()]
+    if not summary_lines:
+        summary_lines = [summary]
+    alert_id = create_alert(
+        severity=severity,
+        alert_type=alert_type,
+        summary_lines=summary_lines,
+        suggestion=suggestion,
+    )
+    return (
+        f"治理告警已创建：{alert_id}\n"
+        f"文件：fcop/alerts/{alert_id}.md\n\n"
+        f"运行 `fcop_list_alerts` 查看所有待处理告警。"
+    )
