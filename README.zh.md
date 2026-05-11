@@ -117,7 +117,7 @@ FCoP/
 │   ├── fcop-runtime-protocol-v1.0.zh.md # 中文平行版（informative）
 │   ├── fcop-spec.md             # 规范入口索引
 │   ├── fcop-spec-v1.0.3.md      # 0.7.x 遗留规范（向后兼容保留）
-│   └── schemas/                 # 7 个 JSON Schema（机器可读）
+│   └── schemas/                 # 8 个 JSON Schema（机器可读，v1.1）
 ├── docs/                        # 入门、迁移、发版记录、MCP 工具说明
 │   └── getting-started.md      # ← 新用户从这里开始
 ├── adr/                         # 架构决策（ADR-0001..0022）

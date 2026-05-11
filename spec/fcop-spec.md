@@ -34,7 +34,7 @@
 - **协议层定位**：AI OS Protocol Layer（POSIX 之于 Unix，CRD 之于 Kubernetes）
 - **七大核心概念**：Agent · IPC · Encoding · Event · Failure · Boundary · Audit
 - **协调基础**：共享文件系统——无数据库、无消息队列、无专用服务器
-- **机器可读契约**：[`spec/schemas/`](./schemas/)（7 个 JSON Schema）
+- **机器可读契约**：[`spec/schemas/`](./schemas/)（8 个 JSON Schema，v1.1 起；v1.0 为 7 个）
 
 ## 配套文档
 

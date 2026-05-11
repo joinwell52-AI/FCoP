@@ -121,7 +121,7 @@ FCoP/
 │   ├── fcop-runtime-protocol-v1.0.zh.md # Chinese parallel (informative)
 │   ├── fcop-spec.md             # Spec index / entry point
 │   ├── fcop-spec-v1.0.3.md      # Legacy 0.7.x spec (kept for backward compat)
-│   └── schemas/                 # 7 JSON Schemas (machine-readable)
+│   └── schemas/                 # 8 JSON Schemas (machine-readable, v1.1)
 ├── docs/                        # Getting-started, migrations, releases, MCP tools
 │   └── getting-started.en.md   # ← start here if new to FCoP
 ├── adr/                         # Architecture decision records (ADR-0001..0022)
