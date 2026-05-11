@@ -9,9 +9,17 @@
 
 ## TL;DR
 
-**中文**：FCoP 是 AI 行为治理协议（Behavior Governance Protocol），不是工单系统、工作流引擎或编排框架。核心三要素：`report`（可观测）、`review`（可审计）、`capability governance`（可约束）。`write_task()` 降级为可选的协调原语，不再是协议核心抽象。
+**中文**：FCoP 是一个约束 Agent 行为的"可观测 + 可审计 + 可治理协议层"，它不调度任务，只规定行为如何被记录与评估。
 
-**English**: FCoP is a Behavior Governance Protocol, not a ticket system, workflow engine, or orchestration framework. Its three pillars are: `report` (observability), `review` (governance), and `capability governance` (control boundary). `write_task()` is demoted to an optional coordination primitive, no longer a core protocol abstraction.
+FCoP = Multi-Agent Behavioral Governance Protocol Layer。它定义：Agent 如何"说清楚自己在做什么"，以及"别人如何验证它做过什么"。
+
+核心三要素：`report`（语义行为声明）、`review`（Code as Law 判例库）、`capability governance`（物理护栏）。`write_task()` 降级为可选的协调原语，不再是协议核心抽象。
+
+**English**: FCoP is the observability + auditability + governance protocol layer for multi-agent systems. It does not schedule tasks; it defines how behavior is recorded and evaluated.
+
+FCoP = Multi-Agent Behavioral Governance Protocol Layer — defining how agents declare what they are doing, and how others verify what they have done.
+
+Three pillars: `report` (semantic behavior declaration), `review` (Code-as-Law precedent chain), `capability governance` (physical guardrail). `write_task()` is demoted to an optional coordination primitive.
 
 ---
 
@@ -56,50 +64,61 @@
 
 ### 二、三核心支柱
 
-#### 支柱一：report — 可观测性（Observability）
+#### 支柱一：report — 语义行为声明（Semantic Behavior Declaration）
 
 ```
 fcop_report()
 
-解决：Agent 到底干了什么？
+本质：让行为成为事实，而不是黑箱。
 
-行为：Agent 将自身行为以结构化方式落盘
-价值：让协作方、审阅者、ADMIN 能看见 Agent 的行动轨迹
+Agent 不是丢出一段模糊日志，而是必须提供语义化报告，
+回答三个核心问题：
+  · 做了什么（具体操作动作）
+  · 为什么做（意图与因果）
+  · 输入输出（行为的物理边界）
+
+价值：将 Agent 的灵活性限制在事实透明的框架内
 ```
 
-#### 支柱二：review — 可审计性（Auditability）
+#### 支柱二：review — Code as Law 判例库（Audit Chain）
 
 ```
 fcop_review()
 
-解决：别人怎么看这个行为？
+本质：建立一套"Code as Law"的判例库。
 
-行为：另一个 Agent 或人类对 report 内容发表意见、批准或否决
-价值：形成多方视角的协作记录，建立决策追溯链
+所有行为报告必须接受审阅。
+通过 mark_human_approved 等机制，
+将人类或高级 Agent 的意志织入行为流。
+每一条 Review 都是一个可追溯的因果声明。
+
+价值：形成多方背书的协作记录，建立决策追溯链
 ```
 
-#### 支柱三：capability governance — 可约束性（Control Boundary）
+#### 支柱三：capability governance — 物理护栏（Physical Guardrail）
 
 ```
 capability governance
 
-解决：哪些行为被允许？
+本质：为 Agent 打造一个不可逾越的物理护栏。
 
-行为：在工具调用层面设置权限边界，高风险操作需审批
-价值：让 Agent 的能力边界可定义、可执行、可审计
+基于工具调用的后果严重性设定边界（非身份等级）。
+Safe → 直接执行
+Sensitive → 需要 review
+Critical → 需要 human approval，物理拦截直到批准
+
+价值：从"建议遵守"到"强制执行"——高风险行为在获得
+      Review 批准前，物理上无法发生
 ```
 
 **三支柱形成完整闭环：**
 
 ```
 Agent 行为
-    ↓ report（记录）
-    ↓ review（审计）
-    ↓ governance（约束）
-    ↓ capability restriction（执行边界）
+    ↓ report（语义声明，拒绝黑箱）
+    ↓ review（集体意志，Code as Law）
+    ↓ governance（物理护栏，不可逾越）
 ```
-
-这个闭环足以支撑：多 Agent 协作、中小企业治理、MCP 工具控制、风险审计。
 
 ### 三、write_task() 的定位调整
 
@@ -144,11 +163,20 @@ FCoP **明确不**追求成为：
 ### 六、FCoP 与 Codeflow 的边界
 
 ```
+CodeFlow 负责："让事情发生"
+FCoP 负责：  "让事情合法地发生"
+```
+
+CodeFlow 丢弃臃肿的任务状态机，直接调用 FCoP 治理原语。
+
+**涌现优先原则**：CodeFlow 中涌现出的任何复杂协作模式，只要它最终能产出 FCoP 认可的 Report 并通过 Review，它就是安全的。FCoP 不限制协作方式，只约束行为合法性。
+
+```
 Codeflow 负责：          FCoP 负责：
-  多 Agent 开发协作         行为可观测
-  上下文共享               审计可追溯
-  代码生成                 能力可约束
-  开发体验                 风险可治理
+  多 Agent 开发协作         语义行为声明（report）
+  上下文共享               Code as Law 判例链（review）
+  代码生成                 物理护栏执行（capability）
+  开发体验
 ```
 
 FCoP 是 Codeflow 的**治理层**，不是 Codeflow 的**流程引擎**。
@@ -174,4 +202,4 @@ FCoP 是 Codeflow 的**治理层**，不是 Codeflow 的**流程引擎**。
 
 ### 一句话
 
-> **FCoP 不组织工作，而是治理行为。**
+> **FCoP 是一个约束 Agent 行为的"可观测 + 可审计 + 可治理协议层"，它不调度任务，只规定行为如何被记录与评估。**
