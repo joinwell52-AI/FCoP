@@ -115,24 +115,63 @@ Skill.tools[].irreversible = true  →  强制 Critical，无论 risk_level
 Skill.tools[].cost_sensitive = true →  Sensitive（最低），可配置升为 Critical
 ```
 
-### 四、MCP 拦截行为
+### 四、Authority Rule（权责归宿原则）
 
-v1.x 阶段（库模式，无 sidecar）：
+**Capability classification MUST NOT be resolved within the Agent execution layer.**
+
+这是 ADR-0030 最核心的约束，防止 governance 退化为 lint system：
 
 ```
-拦截点：在调用 MCP 工具前，Agent 查询 fcop.json Skill.tools[]
+❌ 危险模型（Agent 自主判断）：
+  Agent → 读 Skill.tools[] → 自行判断 risk → 自行决定执行
+  问题：等于"自己给自己放行"，governance 形同虚设
+
+✔ 正确模型（MCP Interceptor 裁定）：
+  Agent → 提交工具调用意图
+          ↓
+  MCP Interceptor（受信任的运行时边界）
+          ↓
+  Skill Resolver（查询 Skill.tools[]）
+          ↓
+  决策：allow / review_tag / critical_tag
+```
+
+**Agent 可以做：**
+- 提出工具调用（propose tool calls）
+- 提供上下文（provide context for risk evaluation）
+
+**Agent 不可以做：**
+- 最终确定 capability tier 分类
+- 覆盖 Skill.tools[] 派生的 risk resolution
+- 对 Critical 操作自我授权
+
+**权威决策边界：**
+- v1.x：MCP Interceptor 层（`FCoPGovernanceMiddleware`）
+- v2.x：等效的受信任运行时边界（独立进程 / sidecar）
+
+> 三层分类（Safe / Sensitive / Critical）是分类结构，不是决策结构。
+> 决策权在 MCP Interceptor，不在 Agent。
+
+### 五、MCP 拦截行为
+
+v1.x 阶段（库模式，`FCoPGovernanceMiddleware`）：
+
+```
+拦截点：on_call_tool hook（Agent 提交意图后，工具实际执行前）
+决策者：MCP Interceptor（受信任边界），不是 Agent
+
 行为：
-  - Critical 工具 → 先 write_review(needs_human) → 等批准 → 再调用
-  - Sensitive 工具 → 先 write_review() → 审阅通过 → 再调用
-  - Safe 工具 → 直接调用，write_report() 留存记录
+  - Safe 工具     → 写入审计事件（ALLOW tag）→ 执行
+  - Sensitive 工具 → 写入审计事件（REVIEW_TAG）→ 执行（行为可见）
+  - Critical 工具  → 写入审计事件（CRITICAL_TAG）→ 执行（强制留痕）
 
-遵从原则：Agent 自觉遵守（协议约束，非系统强制）
-违规处理：通过 review / audit 事后发现，不做实时强制拦截
+v1.x 定位：审计优先（audit-first），记录是强制的，阻断是可选的
+违规追责：通过 fcop_events.jsonl + fcop_check() 事后发现
 ```
 
-v2.x 阶段（独立 runtime 进程）可实现真正的系统强制拦截，超出当前规范范围。
+v2.x 阶段（独立 runtime 进程）可在此基础上加入系统级强制阻断，超出当前规范范围。
 
-### 五、approval trigger 条件总结
+### 六、approval trigger 条件总结
 
 | 触发条件 | Governance Action |
 |----------|------------------|
@@ -159,12 +198,14 @@ v2.x 阶段（独立 runtime 进程）可实现真正的系统强制拦截，超
 
 - **够用**：三层分类覆盖 SME 99% 的风险治理需求
 - **轻量**：不引入 IAM / RBAC 复杂度
-- **可执行**：Agent 自查 `fcop.json Skill.tools[]` 即可判断层级，无需外部服务
-- **可审计**：所有 Sensitive / Critical 操作都有 review 记录，满足基本合规要求
-- **可扩展**：v2.x 可在此分类体系上加 sidecar 强制执行，无需重新设计分类
+- **可执行**：MCP Interceptor 查询 `Skill.tools[]` 做权威裁定，Agent 仅提交意图
+- **可审计**：所有工具调用都留有结构化事件，Sensitive / Critical 强制可见
+- **可扩展**：v2.x 可在此分类体系上加 sidecar 强制阻断，无需重新设计分类
+- **权责清晰**：Authority Rule 确保决策权在受信任边界，而非 Agent 执行层
 
 ---
 
 ## 一句话
 
 > **FCoP capability governance = 工具调用风险边界。三层，够了。**
+> **决策权在 MCP Interceptor，不在 Agent——这是治理系统与建议系统的分水岭。**
