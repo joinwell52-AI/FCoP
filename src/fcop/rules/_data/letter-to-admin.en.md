@@ -483,7 +483,7 @@ Output shows each slug's title and creation time.
 
 ## How you actually use FCoP: just talk
 
-**First, the important part**: FCoP ships 30 tools — **all of them are
+**First, the important part**: FCoP ships 32 tools — **all of them are
 for the agent, not for you**. You talk in plain language from start to
 finish; the agent translates your intent into the right tool call.
 
@@ -597,7 +597,7 @@ correction takes one line.
 
 ### ⚠️ Cursor's "click-to-grey-out" switches: 2 you must never grey
 
-Cursor's MCP panel shows these 30 tools as buttons. Click → greyed =
+Cursor's MCP panel shows these 32 tools as buttons. Click → greyed =
 disabled. **Greying these two will hurt you**:
 
 - `fcop_report` — greyed out, Rule 0 breaks; agents can't take

@@ -193,7 +193,7 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 | Install `fcop-mcp` into Cursor / Claude Desktop step-by-step | [`mcp/README.md`](mcp/README.md) |
 | Have an agent do the install for you (zero JSON editing) | [`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md) · [中文](src/fcop/rules/_data/agent-install-prompt.zh.md) (also live as MCP resource `fcop://prompt/install`) |
 | Upgrade an existing `0.6.x` install (both packages in lockstep + protocol-rule refresh) | [`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md) |
-| Browse all 30 MCP tools and 14 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| Browse all 32 MCP tools and 14 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
 | Read the per-release record (what changed when, why) | [`CHANGELOG.md`](CHANGELOG.md) and [`docs/releases/`](docs/releases/) |
 
 **Recent releases** (full notes in [`docs/releases/`](docs/releases/)):

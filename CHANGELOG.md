@@ -12,6 +12,40 @@ versioning strategy.
 
 ---
 
+## [1.2.0] — 2026-05-11
+
+### feat(mcp) — fcop-mcp 1.2.0：治理事件审计层（ADR-0030-bis Layer 1）
+
+**新增 2 个 MCP 工具**（总数 30 → 32）：
+
+- **`list_governance_events`** — 读取 `fcop_events.jsonl` append-only 治理日志；支持按 `risk`（Safe / Sensitive / Critical）和 `tag`（ALLOW / REVIEW_TAG / CRITICAL_TAG）过滤；每条显示 tool、risk、tag、args_hash、session_id、时间戳
+- **`get_governance_summary`** — 汇总统计：总调用量 / 各风险层分布 / Top 10 工具 / CRITICAL_TAG 事件清单；快速健康检查入口
+
+**新增 `governance/` 子包**（`fcop_mcp.governance`）：
+
+- `FCoPGovernanceMiddleware` — FastMCP `on_call_tool` hook，每次工具调用自动执行：① Skill Resolver（tool_name → risk_level）→ ② Risk Tag（3 行静态映射）→ ③ Event Log（append-only `fcop_events.jsonl`）→ ④ call_next（不阻断）
+- `skill_registry.yaml` — 产品化配置资产，定义全部 32 个内置工具的 risk 分类，用户可在项目级覆盖
+- `resolve_skill` / `emit_event` — 可单独使用的工具函数
+
+**`fcop_check()` 整合 Layer 3 审计**：输出末段新增「治理事件日志」摘要，显示 CRITICAL_TAG 操作清单（无对应 Task + Review 即为治理缺口）
+
+**设计定位**（ADR-0030-bis SMB 原则）：
+
+- 行为账本，不是防火墙；记录是强制的，阻断是可选的（v2.x 再加）
+- stateless logging only，无 approval_token、无 policy engine、无状态机
+- Authority Rule：风险分类决策在 MCP Interceptor，不在 Agent 执行层（ADR-0030 §四）
+
+**测试**：新增 23 个 governance 单元测试（`mcp/tests/test_governance.py`），覆盖 Skill Resolver、Event Logger（线程安全）、Middleware on_call_tool 合约
+
+**升级方式**：
+```bash
+pip install -U fcop-mcp
+# 或
+uvx --refresh fcop-mcp
+```
+
+---
+
 ## [1.1.1] — 2026-05-11
 
 ### fix(mcp) — 补发 fcop-mcp 1.1.1：Review 工具层（4 个工具）

@@ -1,4 +1,4 @@
-# FCoP MCP 工具与资源清单（fcop-mcp 1.x）
+# FCoP MCP 工具与资源清单（fcop-mcp 1.x）<!-- 32 tools, 14 resources — v1.2.0 -->
 
 > 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具与资源**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组、给出何时调用、参数要点。
 >
@@ -8,7 +8,7 @@
 
 ## 总览
 
-- **工具（tools）30 个**（v1.1.0 新增 4 个 Review 工具）：调用方主动触发，写盘或返回报告。
+- **工具（tools）32 个**（v1.1 新增 4 个 Review 工具；v1.2.0 新增 2 个治理审计工具）：调用方主动触发，写盘或返回报告。
 - **资源（resources）14 个**（11 个静态 URI + `fcop://teams/{team}` / `.../{role}` / `.../{role}/en` 三套模板）：只读 URI，常用于把规则/状态/职责模板以引用方式塞进上下文。
 
 > **v1.1.0 新增**：4 个 Review 工具（`write_review` / `list_reviews` / `read_review` / `mark_human_approved`）；`write_task` 新增 `risk_level` 参数；`fcop://spec` / `fcop://spec/en` 升级到 v1.1 spec。
@@ -129,7 +129,20 @@ REVIEW 文件是治理层对某个制品的决策记录（[ADR-0017](../adr/ADR-
 
 ---
 
-## 10. 资源（read-only URI）
+## 10. 治理事件审计（v1.2.0 新增）
+
+> 基于 ADR-0030-bis Layer 1 MCP Middleware 的行为账本。每个工具调用都会被自动打上 `risk` 标签并写入 `fcop_events.jsonl`。
+
+| 工具 | 用途 | 关键参数 |
+|---|---|---|
+| `list_governance_events` | 读取 `fcop_events.jsonl`，列出最近 N 条治理事件。每条包含：tool、risk（Safe / Sensitive / Critical）、tag（ALLOW / REVIEW_TAG / CRITICAL_TAG）、args_hash、session_id、时间戳。 | `last_n`（默认 50）、`risk`（过滤，空=全部）、`tag`（过滤） |
+| `get_governance_summary` | 汇总统计：总调用量 / 各风险层分布 / Top 10 工具 / CRITICAL_TAG 事件清单。快速健康检查：CRITICAL_TAG 无对应 Task + Review 即为治理缺口。 | 无 |
+
+> `fcop_check()` 已整合 Layer 3 审计：输出末段自动附上治理事件日志摘要，含 CRITICAL_TAG 操作清单。
+
+---
+
+## 11. 资源（read-only URI）
 
 资源是**只读上下文**——客户端可以把它们附到对话里。
 
@@ -152,7 +165,7 @@ REVIEW 文件是治理层对某个制品的决策记录（[ADR-0017](../adr/ADR-
 
 ---
 
-## 11. 常见问题
+## 12. 常见问题
 
 **项目根是怎么找到的？**  
 `set_project_dir` → `FCOP_PROJECT_DIR` → 向上找 `fcop/fcop.json` / `fcop-rules.mdc` / `fcop/tasks/` → 当前 cwd。  
