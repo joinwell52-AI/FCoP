@@ -13,11 +13,11 @@
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
   <a href="README.zh.md">简体中文</a> ·
   <a href="docs/getting-started.en.md">Getting started</a> ·
+  <a href="docs/mcp-tools.md"><strong>MCP Tools (30)</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
   <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
-  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 Charter</a> ·
-  <a href="docs/releases/1.0.0-rc.1.md">v1.0.0-rc.1 release notes</a>
+  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 Charter</a>
 </p>
 
 <p align="center">
@@ -190,7 +190,7 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 | Install `fcop-mcp` into Cursor / Claude Desktop step-by-step | [`mcp/README.md`](mcp/README.md) |
 | Have an agent do the install for you (zero JSON editing) | [`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md) · [中文](src/fcop/rules/_data/agent-install-prompt.zh.md) (also live as MCP resource `fcop://prompt/install`) |
 | Upgrade an existing `0.6.x` install (both packages in lockstep + protocol-rule refresh) | [`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md) |
-| Browse all 26 MCP tools and 12 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| Browse all 30 MCP tools and 14 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
 | Read the per-release record (what changed when, why) | [`CHANGELOG.md`](CHANGELOG.md) and [`docs/releases/`](docs/releases/) |
 
 **Recent releases** (full notes in [`docs/releases/`](docs/releases/)):

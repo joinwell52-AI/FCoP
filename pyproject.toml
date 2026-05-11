@@ -79,6 +79,7 @@ Repository = "https://github.com/joinwell52-AI/FCoP"
 Issues = "https://github.com/joinwell52-AI/FCoP/issues"
 Changelog = "https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md"
 Documentation = "https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md"
+"MCP Tools Reference" = "https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md"
 
 # ── Hatchling build configuration ─────────────────────────────────────
 

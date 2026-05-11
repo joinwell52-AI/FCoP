@@ -91,6 +91,7 @@ Issues = "https://github.com/joinwell52-AI/FCoP/issues"
 Changelog = "https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md"
 # Install & MCP config; protocol-only narrative lives under "FCoP (protocol)".
 Documentation = "https://github.com/joinwell52-AI/FCoP/blob/main/mcp/README.md"
+"MCP Tools Reference" = "https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md"
 "FCoP (protocol)" = "https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-standalone.en.md"
 
 # ── Hatchling build configuration ─────────────────────────────────────

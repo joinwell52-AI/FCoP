@@ -13,12 +13,11 @@
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 项目主页</a></strong> ·
   <a href="README.md">English</a> ·
   <a href="docs/getting-started.md">上手 FCoP</a> ·
+  <a href="docs/mcp-tools.md"><strong>MCP 工具清单（30 个）</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
   <a href="essays/fcop-natural-protocol.md">自然协议</a> ·
   <a href="spec/fcop-runtime-protocol-v1.0.zh.md">v1.0 规范（中文）</a> ·
-  <a href="spec/fcop-runtime-protocol-v1.0.md">v1.0 Spec (EN)</a> ·
-  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 章程</a> ·
-  <a href="docs/releases/1.0.0-rc.1.md">v1.0.0-rc.1 发布</a>
+  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 章程</a>
 </p>
 
 <p align="center">
@@ -177,7 +176,7 @@ mkdir -p docs/agents/{tasks,reports,issues,shared,log}
 | 在 Cursor / Claude Desktop 装 `fcop-mcp`（分步、多平台、自检） | [`mcp/README.md`](mcp/README.md) |
 | 不想自己改 JSON，让 agent 全程跑命令装 | [`agent-install-prompt.zh.md`](src/fcop/rules/_data/agent-install-prompt.zh.md) · [English](src/fcop/rules/_data/agent-install-prompt.en.md)（装好以后也是 MCP 资源 `fcop://prompt/install`） |
 | 已在用 0.6.x，要升级（两包同环境一起升 + 协议规则文件刷新） | [`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md) |
-| 浏览全部 26 个工具和 12 个资源（分类、何时调、参数要点） | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| 浏览全部 30 个工具和 14 个资源（分类、何时调、参数要点） | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
 | 看每版到底改了什么、为什么改 | [`CHANGELOG.md`](CHANGELOG.md) 与 [`docs/releases/`](docs/releases/) |
 
 **近期发版**（完整说明在 [`docs/releases/`](docs/releases/)）：
