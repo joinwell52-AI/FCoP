@@ -246,6 +246,120 @@ Python SDK  = 不独立作为 enforcement boundary
 
 ---
 
+## Implementation Spec（Layer 1 MVP）
+
+### 核心定性
+
+> **FastMCP Layer 1 is not a firewall.**
+> **It is a decision trace generator for execution governance.**
+
+它不是安全系统、权限系统、AI 判断系统。它是：
+
+```
+Execution Trace Generator + Deterministic Policy Gate
+```
+
+### 成功标志（重要）
+
+Layer 1 成功的判断标准**不是**"能拦截 Critical"，而是：
+
+> **任何 Critical 操作都必须留下结构化痕迹。**
+> 记录优先于阻断（Audit-first over enforcement-first）。
+
+### SAL（语义层）归位结论
+
+讨论过程中出现的"语义层（SAL）"不应成为独立 runtime layer。结论：
+
+```
+SAL 已内化为 Skill schema 的语义字段。
+不需要独立 SAL → PAL → RAL 的运行时分层。
+```
+
+最终架构：
+
+```
+[ Skill Schema ]        ← 语义定义（SAL 内化于此）
+       ↓
+[ MCP Interceptor ]     ← Layer 1 唯一入口
+       ↓
+[ Execution Domain ]    ← 不可信现实层
+       ↓
+[ Audit Layer ]         ← Layer 3 fcop_check
+```
+
+### 四个 MVP 组件
+
+**实现顺序（严格按此）：**
+
+```
+Step 1: Skill Resolver    — tool_name → risk_level（最小函数，先跑通）
+Step 2: Policy Engine     — ADR-0030 pure mapping（纯表驱动，无逻辑）
+Step 3: Interceptor stub  — before_tool_call（先 log 不拦截，验证管道）
+Step 4: Block / Review    — 加入阻断和 Review 注入
+Step 5: Approval token    — Critical 解锁机制
+```
+
+**组件 1：Skill Resolver**
+
+```
+input:  tool_name
+output: risk_level + metadata
+policy: Missing Skill → Safe（fail-open，治理不因配置缺失而阻断）
+```
+
+**组件 2：Policy Engine（纯 deterministic，禁止 AI 判断）**
+
+```python
+# ✔ 正确（deterministic lookup）
+risk = SkillRegistry.lookup(tool_name)
+apply_policy(risk)
+
+# ❌ 错误（禁止）
+if model.thinks_risky():
+    block()
+```
+
+```
+Safe     → ALLOW
+Sensitive → REVIEW（注入 Review，可配置是否延迟执行）
+Critical  → BLOCK + 生成 approval_token
+```
+
+**组件 3：Interceptor Hook（`before_tool_call`）**
+
+三件事，顺序不可变：
+1. Resolve（解析 Skill → risk_level）
+2. Decide（policy mapping → ALLOW / REVIEW / BLOCK）
+3. Emit（**必须先于执行决策写入审计事件流**）
+
+**组件 4：Event Logger（append-only，审计链核心）**
+
+```json
+{
+  "type": "tool_call_intercept",
+  "tool": "<tool_name>",
+  "risk": "Critical",
+  "decision": "BLOCK",
+  "args_hash": "<sha256>",
+  "approval_token": "<token_id>",
+  "session_id": "<session>",
+  "timestamp": 1234567890.0
+}
+```
+
+> 事件必须 append-only 写入。没有此事件，Layer 3 Audit 无从核查。
+
+### Approval Token 规格
+
+```yaml
+tool_name: <exact tool>
+args_hash: sha256(canonical_json(args))   # 参数精确绑定，防止复用
+session_id: <current session>              # 会话绑定
+issued_at: <unix timestamp>
+expires_at: issued_at + 1800              # 默认 30 分钟
+used: false                               # 单次使用，验证后立即标记
+```
+
 ## Consequences
 
 ### 对实现的影响
