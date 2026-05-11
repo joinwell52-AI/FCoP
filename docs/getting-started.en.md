@@ -1,6 +1,6 @@
 # Getting Started with FCoP
 
-> **FCoP** = **F**ile-based **Co**ordination **P**rotocol — the **AI OS protocol layer**.
+> **FCoP** = **F**ile-based **Co**ordination **P**rotocol — the **behavior governance protocol layer**.
 >
 > "FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too."
 > — [ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)
@@ -11,26 +11,31 @@ This is the **L0 + L1 single entry point** — get FCoP in 30 seconds, run it on
 
 ## 30 seconds: what FCoP is
 
-**FCoP is the protocol layer in the AI OS stack** — the same position as POSIX in Unix, OCI in container ecosystems, CRD in Kubernetes. It defines the contract by which agents collaborate over a **shared filesystem**:
+**FCoP is the behavior governance protocol layer** for agent collaboration — governing agent behavior, not scheduling tasks. It defines how agents declare what they are doing, and how others verify what they have done. Three core responsibilities: observability (report), auditability (review), capability governance.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Application       CodeFlow / Cursor / Claude Desktop   │  ← business products
 ├─────────────────────────────────────────────────────────┤
-│  Host Adapter      fcop-mcp / fcop-cli / @fcop/claude   │  ← libc position
+│  Host Adapter      fcop-mcp / fcop-cli / @fcop/claude   │  ← protocol bridge adapters
 ├─────────────────────────────────────────────────────────┤
-│ ★ FCoP Protocol ★  Agent / IPC / Encoding / Event /     │  ← POSIX position
-│                    Failure / Boundary / Audit           │     this is FCoP
+│ ★ FCoP Protocol ★  Agent collaboration / behavior       │  ← this is FCoP
+│                    report / Review /                    │
+│                    Capability Governance / Audit        │
 ├─────────────────────────────────────────────────────────┤
-│  Reference Impl    fcop (Python lib)                    │  ← reference impl
+│  Reference Impl    fcop (Python lib)                    │  ← reference implementation
 ├─────────────────────────────────────────────────────────┤
-│  Kernel Primitives LLM API / Filesystem / Process Mgr   │  ← AI OS kernel
+│  Execution         LLM APIs / MCP Tools / Filesystem /  │  ← agent execution env
+│  Substrate         OS (FCoP governs behavior,           │
+│                       does not own this layer)          │
 └─────────────────────────────────────────────────────────┘
 ```
 
-The starred line is FCoP. **Not application, not kernel, not any host's SDK** — it's the convention agents *naturally develop* when collaborating, formalized into a machine-readable spec.
+The starred line is FCoP. **Not application, not execution substrate, not any host's SDK** — it's the convention agents *naturally develop* when collaborating, formalized into a machine-readable spec.
 
 Human readability is a **side effect**: the substrate happens to be filesystem + Markdown, so you can open VSCode and watch what agents are doing. But FCoP is not designed *for* humans — it's designed for agents; humans get to watch for free.
+
+> CodeFlow makes things happen. FCoP makes things happen *lawfully*.
 
 ---
 
@@ -249,7 +254,7 @@ Honestly:
 - **Sub-millisecond latency** — filesystem-based protocols have second-scale latency, **not for** HFT or real-time control
 - **Strong-consistency transactions** — no multi-file transactions; handle transactional semantics at the content layer
 - **Million-file single repos** — large-scale single-project scans get slow; partition by date/batch
-- **Complete AI OS** — FCoP is the protocol layer only; **does not** include the Kernel (Task Scheduler / Event Loop / State Machine — those are reference impl) or Application (CodeFlow etc.)
+- **Orchestration / Task Scheduling** — FCoP governs behavior, it does not schedule tasks; Task Scheduler / State Machine / Event Loop belong to the reference impl or application layer
 
 **FCoP's sweet spot**: 10–100 agents, second-to-minute coordination cycles, scenarios where humans need to step in to review/audit at any time.
 
@@ -290,7 +295,7 @@ A: Orthogonal. MCP is the agent ↔ tool call protocol; FCoP is the agent ↔ ag
 A: Yes. Simplest: use git / Syncthing / Dropbox to sync the `fcop/` directory. Serious: put the whole project in git; `git pull/push` is your sync.
 
 **Q: Will the protocol change?**
-A: From v1.0, FCoP enters AI OS Protocol Layer stability — MAJOR (1.x→2.x) only allows breaks with ≥6-month coexistence + an official migration tool; MINOR is additive only; PATCH is zero behavioral change. See [ADR-0003](../adr/ADR-0003-stability-charter.md) + [ADR-0015 §Freeze #4](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md).
+A: From v1.0, FCoP enters behavior governance protocol layer stability — MAJOR (1.x→2.x) only allows breaks with ≥6-month coexistence + an official migration tool; MINOR is additive only; PATCH is zero behavioral change. See [ADR-0003](../adr/ADR-0003-stability-charter.md) + [ADR-0015 §Freeze #4](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md).
 
 **Q: Why not JSON-RPC / gRPC / MQ?**
 A: They're **agent-only** protocols — humans can't see or modify them. FCoP's substrate is filesystem + Markdown — humans and agents see the same world. This is the "human-machine isomorphism" essays talk about.

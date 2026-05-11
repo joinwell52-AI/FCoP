@@ -1,5 +1,5 @@
 ---
-description: FCoP Protocol commentary (AI OS protocol layer · v1.0) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（AI OS 协议层 · v1.0）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
+description: FCoP Protocol commentary (behavior governance protocol layer · v1.0) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（行为治理协议层 · v1.0）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
 fcop_protocol_version: 2.0.0
 ---

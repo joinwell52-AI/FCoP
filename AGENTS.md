@@ -53,25 +53,34 @@ must be truthful (Rule 0.c).
 
 ### 协议层定位 / Protocol Layer
 
-FCoP 工作在 **AI OS 协议层**——位于 LLM 推理层之上、业务应用层之下，
-类似 POSIX 对操作系统的作用：它定义 agent 之间通过**共享文件系统**
-进行协调的标准接口，与底层 LLM、宿主 IDE 和业务代码无关。
+FCoP 是**多 Agent 协作中的行为治理协议层**——约束 Agent 行为，而非调度任务。
+它定义 Agent 如何"说清楚自己在做什么"，以及"别人如何验证它做过什么"。
+三件核心事：让行为可见（report）、让行为可审计（review）、让行为可约束（capability governance）。
 
-FCoP operates at the **AI OS protocol layer** — above LLM inference,
-below application code. Analogous to POSIX: it defines the standard
-interface by which agents coordinate through a **shared file system**,
-independent of the underlying LLM, host IDE, or business logic.
+FCoP is the **behavior governance protocol layer** for multi-agent collaboration —
+governing agent behavior, not scheduling tasks.
+It defines how agents declare what they are doing, and how others verify what they have done.
+Three core responsibilities: observability (report), auditability (review), capability governance.
 
 ```
-┌─────────────────────────────────────────────────┐
-│            Business / Application Layer          │
-├─────────────────────────────────────────────────┤
-│   FCoP · AI OS Protocol Layer  ← 本协议所在层   │
-│   (Agent · IPC · Encoding · Event ·             │
-│    Failure · Boundary · Audit)                  │
-├─────────────────────────────────────────────────┤
-│         Host IDE / LLM Inference Layer          │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│         应用层 / Application Layer                   │
+│   CodeFlow / Cursor / Claude Desktop                │
+├─────────────────────────────────────────────────────┤
+│         宿主适配层 / Host Adapter Layer              │
+│   fcop-mcp / fcop-cli / @fcop/claude                │
+├─────────────────────────────────────────────────────┤
+│   ★ FCoP 协议层 ★  ← 本协议所在层                   │
+│   Agent 协作 / 行为报告 / Review /                   │
+│   Capability Governance / 事件语义 / 审计边界         │
+├─────────────────────────────────────────────────────┤
+│         参考实现层 / Reference Implementation        │
+│   fcop（Python Library）                            │
+├─────────────────────────────────────────────────────┤
+│         执行基底 / Execution Substrate               │
+│   LLM APIs / MCP Tools / 文件系统 / OS              │
+│   （FCoP 治理行为，不拥有执行层）                     │
+└─────────────────────────────────────────────────────┘
 ```
 
 ### 七大核心概念 / Seven Core Concepts
@@ -591,12 +600,12 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
 
 ## Rule 9 · v1.0 Capabilities / v1.0 新增能力（4 抽象）
 
-> v1.0 把 FCoP 升级为 **AI OS Protocol Layer**，新增 4 项 agent
+> v1.0 在行为治理协议基础上新增 4 项 agent
 > runtime 能力。本节是对应规则；详细 schema 见 `spec/schemas/`，
 > 详细决策见 `adr/ADR-0015..0022`。
 >
-> v1.0 promotes FCoP to an **AI OS Protocol Layer** with 4 new agent
-> runtime capabilities. This section is the rules surface; see
+> v1.0 adds 4 new agent runtime capabilities to the behavior governance
+> protocol. This section is the rules surface; see
 > `spec/schemas/` for the schemas and `adr/ADR-0015..0022` for
 > rationale.
 

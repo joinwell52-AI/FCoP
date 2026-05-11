@@ -1,6 +1,6 @@
 # Getting Started · 上手 FCoP
 
-> **FCoP** = **F**ile-based **Co**ordination **P**rotocol —— the **AI OS protocol layer**.
+> **FCoP** = **F**ile-based **Co**ordination **P**rotocol —— the **behavior governance protocol layer**.
 >
 > 「FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。」
 > — [ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)
@@ -11,26 +11,29 @@
 
 ## 30 秒：FCoP 是什么
 
-**FCoP 是 AI OS 栈中的协议层** —— 与 Linux 的 POSIX、容器生态的 OCI、Kubernetes 的 CRD 同一位置。它定义 agent 之间通过**共享文件系统**协作的契约：
+**FCoP 是 Agent 行为治理协议层** —— 约束 Agent 行为，而非调度任务。它定义 agent 如何"说清楚自己在做什么"以及"别人如何验证它做过什么"。三件核心事：让行为可见（report）、让行为可审计（review）、让行为可约束（capability governance）。
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Application       CodeFlow / Cursor / Claude Desktop   │  ← 业务产品
+│  应用层          CodeFlow / Cursor / Claude Desktop      │  ← 业务产品
 ├─────────────────────────────────────────────────────────┤
-│  Host Adapter      fcop-mcp / fcop-cli / @fcop/claude   │  ← libc 的位置
+│  宿主适配层      fcop-mcp / fcop-cli / @fcop/claude      │  ← 协议桥接适配器
 ├─────────────────────────────────────────────────────────┤
-│ ★ FCoP Protocol ★  Agent / IPC / Encoding / Event /     │  ← POSIX 的位置
-│                    Failure / Boundary / Audit           │     这就是 FCoP
+│ ★ FCoP 协议层 ★  Agent 协作 / 行为报告 / Review /        │  ← 这就是 FCoP
+│                  Capability Governance / Audit           │
 ├─────────────────────────────────────────────────────────┤
-│  Reference Impl    fcop (Python lib)                    │  ← 协议参考实现
+│  参考实现层      fcop (Python lib)                       │  ← 协议参考实现
 ├─────────────────────────────────────────────────────────┤
-│  Kernel Primitives LLM API / Filesystem / Process Mgr   │  ← AI OS 内核
+│  执行基底        LLM API / MCP Tools / 文件系统 / OS      │  ← Agent 的执行环境
+│                  （FCoP 治理行为，不拥有执行层）           │
 └─────────────────────────────────────────────────────────┘
 ```
 
-带 ★ 那一条线就是 FCoP。**不是 application、不是 kernel、不是某个 host 的 SDK** —— 是 agent 协作时**自然涌现**的协议规约，被我们形式化为机器可读的 spec。
+带 ★ 那一条线就是 FCoP。**不是 application、不是执行环境、不是某个 host 的 SDK** —— 是 agent 协作时**自然涌现**的协议规约，被我们形式化为机器可读的 spec。
 
 人能读懂是**副作用**：substrate 恰好是 filesystem + Markdown，所以你打开 VSCode 就能直接看到 agent 在干啥。但 FCoP 不是为人设计的——是为 agent 设计的，人**白看**。
+
+> CodeFlow 负责"让事情发生"，FCoP 负责"让事情合法地发生"。
 
 ---
 
@@ -248,7 +251,7 @@ tools:
 - **毫秒级低延迟** — 文件系统协议有秒级延迟，**不适合**高频交易、实时控制
 - **强一致事务** — 没有多文件事务；需要事务语义请在内容层处理
 - **百万级文件单仓** — 单项目超大规模时扫描会慢，建议按日期 / 批次分子目录
-- **完整 AI OS** — FCoP 只是协议层，**不**包含 Kernel（Task Scheduler / Event Loop / State Machine 是 reference impl 的事）、**不**包含 Application（CodeFlow 等）
+- **Orchestration / Task Scheduling** — FCoP 治理行为，不调度任务；Task Scheduler / State Machine / Event Loop 属于 reference impl 或上层应用的职责
 
 **FCoP 专长**：10–100 个 agent、秒级到分钟级协作周期、需要人类随时插手 review / audit 的场景。
 
@@ -289,7 +292,7 @@ A：正交。MCP 是 agent ↔ 工具的调用协议；FCoP 是 agent ↔ agent 
 A：可以。最简单是用 git / Syncthing / Dropbox 同步 `fcop/` 目录；严肃一点直接让整个项目用 git，`git pull/push` 就是同步机制。
 
 **Q：协议会变吗？**
-A：v1.0 起进入"AI OS Protocol Layer"稳定承诺——MAJOR (1.x→2.x) 才允许 breaking + 至少 6 个月共存 + 官方迁移脚本；MINOR 只允许 additive；PATCH 绝对零行为变化。详见 [ADR-0003](../adr/ADR-0003-stability-charter.md) + [ADR-0015 §冻结 #4](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)。
+A：v1.0 起进入"行为治理协议层"稳定承诺——MAJOR (1.x→2.x) 才允许 breaking + 至少 6 个月共存 + 官方迁移脚本；MINOR 只允许 additive；PATCH 绝对零行为变化。详见 [ADR-0003](../adr/ADR-0003-stability-charter.md) + [ADR-0015 §冻结 #4](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)。
 
 **Q：为什么不用 JSON-RPC / gRPC / MQ？**
 A：它们是**纯 agent 导向**的协议，人类看不见也改不动。FCoP 的 substrate 是 filesystem + Markdown —— 人和 agent 看到同一个世界。这是 essay 里说的「人机同构」。
