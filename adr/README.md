@@ -122,6 +122,7 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0027](./ADR-0027-skill-tools-risk-metadata.md) | \Skill.tools[]\ — MCP 工具风险元数据（v1.1 新增） | Accepted | 2026-05-10 |
 | [ADR-0028](./ADR-0028-auto-risk-assessment.md) | 自动风险评估 — write_task() 风险推断与传导机制（v1.2 规划） | **Proposed** | 2026-05-11 |
 | **[ADR-0029](./ADR-0029-fcop-behavior-governance-charter.md)** | **FCoP 核心哲学宪章 v2.0 — 行为治理协议（去任务化 + 三支柱）** | **Accepted** | 2026-05-11 |
+| [ADR-0030](./ADR-0030-capability-governance-boundary.md) | Capability Governance Boundary — 工具调用风险边界（三层分类） | **Accepted** | 2026-05-11 |
 
 ## 工作流
 

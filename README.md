@@ -5,7 +5,7 @@
 <h1 align="center">FCoP — File-based Coordination Protocol</h1>
 
 <p align="center">
-  <em>The <strong>AI OS protocol layer</strong> — the agent runtime contract for filesystem-based collaboration.</em><br/>
+  <em>The <strong>AI Agent behavior governance protocol</strong> — the runtime contract for agent collaboration on a shared filesystem.</em><br/>
   <strong>Core invariant: <code>Filename as Protocol</code>. Folders are the message bus.</strong>
 </p>
 
@@ -45,18 +45,21 @@
 
 ## Where FCoP sits in the stack
 
-FCoP is the **protocol layer** in the AI OS stack — the same position as **POSIX** in Unix, **OCI** in container ecosystems, **CRD** in Kubernetes:
+FCoP is the **protocol layer** for AI agent collaboration — the same position as **POSIX** in Unix, **OCI** in container ecosystems, **CRD** in Kubernetes:
 
 ```
-Application       CodeFlow / Cursor / Claude Desktop          ← business products
-Host Adapter      fcop-mcp / fcop-cli / @fcop/claude          ← libc position
-★ FCoP Protocol ★ Agent / IPC / Encoding / Event /            ← POSIX position
-                  Failure / Boundary / Audit                     this is FCoP
-Reference Impl    fcop (Python lib)                           ← protocol reference impl
-Kernel Primitives LLM API / Filesystem / Process Mgr          ← AI OS kernel
+Application Layer    CodeFlow / Cursor / Claude Desktop      ← business-facing agent apps
+Host Adapter Layer   fcop-mcp / fcop-cli / @fcop/claude      ← host integration & protocol bridge
+★ FCoP Protocol ★   Agent collaboration semantics /          ← FCoP's core responsibility
+                     Behavior reports / Review mechanism /
+                     Capability Governance / Event semantics /
+                     Audit boundary
+Reference Impl       fcop (Python Library)                   ← protocol reference implementation
+Execution Env        LLM API / MCP Tools / Filesystem /      ← agent's actual execution environment
+                     Process Mgr / OS
 ```
 
-> **FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too.** — [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
+> **FCoP doesn't organize work — it governs behavior.** — [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
 
 v1.0 stabilises the minimum semantic contract for the **seven core concepts** above. Spec is stable; encodings are open: the *IPC Surface* (TASK / REPORT / ISSUE / REVIEW) is strongly typed, while the *Open Knowledge Surface* (`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`) leaves vocabulary open for agents to invent — see [ADR-0021](adr/ADR-0021-encoding-abstraction.md).
 

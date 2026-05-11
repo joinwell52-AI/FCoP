@@ -5,7 +5,7 @@
 <h1 align="center">FCoP — 文件驱动的 Agent 协作协议</h1>
 
 <p align="center">
-  <em><strong>AI OS 协议层</strong>——agent 在共享文件系统上协作的运行时契约。</em><br/>
+  <em><strong>AI Agent 行为协作协议</strong>——agent 在共享文件系统上协作的运行时契约。</em><br/>
   <strong>核心不变量：<code>Filename as Protocol</code>（文件名即协议）·文件夹就是消息总线</strong>
 </p>
 
@@ -43,20 +43,22 @@
 
 ---
 
-## FCoP 在协议栈里的位置
+## FCoP 在技术栈中的位置
 
-FCoP 是 **AI OS 栈中的协议层**——位置等同于 Unix 的 **POSIX**、容器生态的 **OCI**、Kubernetes 的 **CRD**：
+FCoP 是 **AI Agent 协作的协议层**——位置等同于 Unix 的 **POSIX**、容器生态的 **OCI**、Kubernetes 的 **CRD**：
 
 ```
-Application       CodeFlow / Cursor / Claude Desktop          ← 业务产品
-Host Adapter      fcop-mcp / fcop-cli / @fcop/claude          ← libc 的位置
-★ FCoP Protocol ★ Agent / IPC / Encoding / Event /            ← POSIX 的位置
-                  Failure / Boundary / Audit                     这就是 FCoP
-Reference Impl    fcop (Python lib)                           ← 协议参考实现
-Kernel Primitives LLM API / Filesystem / Process Mgr          ← AI OS 内核
+应用层          CodeFlow / Cursor / Claude Desktop       ← 面向业务的 Agent 应用与开发产品
+宿主适配层      fcop-mcp / fcop-cli / @fcop/claude       ← 宿主集成适配器与协议桥接层
+★ FCoP 协议层 ★ Agent 协作语义 / 行为报告 /              ← FCoP 的核心职责
+                Review 机制 / Capability Governance /
+                事件语义 / 审计边界
+参考实现层      fcop（Python Library）                   ← FCoP 协议的参考实现
+执行环境层      LLM API / MCP Tools / 文件系统 /         ← Agent 的实际执行环境
+                进程管理 / 操作系统
 ```
 
-> **FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。** —— [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)
+> **FCoP 不组织工作，而是治理行为。** —— [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
 
 v1.0 将七大核心概念——**Agent、Encoding、IPC、Event、Failure、Boundary、Audit**——的最小语义契约正式固化为稳定标准。spec 固化、encoding 留白：*IPC Surface*（TASK / REPORT / ISSUE / REVIEW）强类型；*Open Knowledge Surface*（`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`）词表完全开放，让 agent 自由发明——见 [ADR-0021](adr/ADR-0021-encoding-abstraction.md)。
 
