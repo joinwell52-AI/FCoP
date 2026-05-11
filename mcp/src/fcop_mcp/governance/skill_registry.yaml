@@ -1,0 +1,113 @@
+# FCoP Skill Registry — fcop-mcp built-in tools
+# ADR-0030: Capability Governance Boundary
+#
+# Risk levels:
+#   Safe      — read-only, no side effects
+#   Sensitive — mutates business state (task graph, reviews, config)
+#   Critical  — destructive / irreversible operations
+#
+# This file is the source of truth for risk tagging.
+# Override or extend entries in your project's fcop/skill_registry.yaml.
+
+# ── Destructive operations ────────────────────────────────────────────
+delete_task:
+  risk: Critical
+  category: destructive_mutation
+
+delete_review:
+  risk: Critical
+  category: destructive_mutation
+
+# ── State-mutating operations ─────────────────────────────────────────
+write_task:
+  risk: Sensitive
+  category: task_mutation
+
+write_review:
+  risk: Sensitive
+  category: review_mutation
+
+mark_human_approved:
+  risk: Sensitive
+  category: approval_mutation
+
+set_project_dir:
+  risk: Sensitive
+  category: config_mutation
+
+write_agent:
+  risk: Sensitive
+  category: agent_mutation
+
+write_skill:
+  risk: Sensitive
+  category: skill_mutation
+
+write_report:
+  risk: Sensitive
+  category: report_mutation
+
+# ── Read-only operations ──────────────────────────────────────────────
+list_tasks:
+  risk: Safe
+  category: task_read
+
+read_task:
+  risk: Safe
+  category: task_read
+
+list_reviews:
+  risk: Safe
+  category: review_read
+
+read_review:
+  risk: Safe
+  category: review_read
+
+get_project_dir:
+  risk: Safe
+  category: config_read
+
+read_agent:
+  risk: Safe
+  category: agent_read
+
+list_agents:
+  risk: Safe
+  category: agent_read
+
+read_skill:
+  risk: Safe
+  category: skill_read
+
+list_skills:
+  risk: Safe
+  category: skill_read
+
+list_reports:
+  risk: Safe
+  category: report_read
+
+read_report:
+  risk: Safe
+  category: report_read
+
+fcop_check:
+  risk: Safe
+  category: audit_read
+
+list_teams:
+  risk: Safe
+  category: team_read
+
+read_team:
+  risk: Safe
+  category: team_read
+
+list_events:
+  risk: Safe
+  category: event_read
+
+read_event:
+  risk: Safe
+  category: event_read

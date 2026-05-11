@@ -246,119 +246,98 @@ Python SDK  = 不独立作为 enforcement boundary
 
 ---
 
-## Implementation Spec（Layer 1 MVP）
+## Implementation Spec（Layer 1 — SMB Audit-first）
 
-### 核心定性
+### 定性结论（最终版）
 
 > **FastMCP Layer 1 is not a firewall.**
-> **It is a decision trace generator for execution governance.**
+> **It is a behavior ledger — an audit-first decision trace generator.**
 
-它不是安全系统、权限系统、AI 判断系统。它是：
+SMB 定位：
 
 ```
-Execution Trace Generator + Deterministic Policy Gate
+FCoP Layer 1 = 行为账本能力，而非治理拦截能力。
 ```
 
-### 成功标志（重要）
-
-Layer 1 成功的判断标准**不是**"能拦截 Critical"，而是：
+### 成功标志
 
 > **任何 Critical 操作都必须留下结构化痕迹。**
-> 记录优先于阻断（Audit-first over enforcement-first）。
+> 记录是强制的。阻断是可选的，SMB 阶段不启用。
 
-### SAL（语义层）归位结论
+### SAL 归位结论
 
-讨论过程中出现的"语义层（SAL）"不应成为独立 runtime layer。结论：
-
-```
-SAL 已内化为 Skill schema 的语义字段。
-不需要独立 SAL → PAL → RAL 的运行时分层。
-```
-
-最终架构：
+语义层（SAL）不是独立 runtime layer。
 
 ```
-[ Skill Schema ]        ← 语义定义（SAL 内化于此）
-       ↓
-[ MCP Interceptor ]     ← Layer 1 唯一入口
-       ↓
-[ Execution Domain ]    ← 不可信现实层
-       ↓
-[ Audit Layer ]         ← Layer 3 fcop_check
+SAL 内化为 Skill schema 的语义字段（risk + category）。
+不需要 SAL → PAL → RAL 的运行时分层。
 ```
 
-### 四个 MVP 组件
-
-**实现顺序（严格按此）：**
+### 最终架构
 
 ```
-Step 1: Skill Resolver    — tool_name → risk_level（最小函数，先跑通）
-Step 2: Policy Engine     — ADR-0030 pure mapping（纯表驱动，无逻辑）
-Step 3: Interceptor stub  — before_tool_call（先 log 不拦截，验证管道）
-Step 4: Block / Review    — 加入阻断和 Review 注入
-Step 5: Approval token    — Critical 解锁机制
+[ skill_registry.yaml ]  ← 产品化配置资产，用户可覆盖
+         ↓
+[ MCP Middleware ]        ← on_call_tool hook（唯一入口）
+         ↓
+[ Event Log ]             ← fcop_events.jsonl（append-only）
+         ↓
+[ Always call_next ]      ← 不拦截，日志即治理
 ```
 
-**组件 1：Skill Resolver**
+### 三个组件（仅此三个）
+
+**组件 1：Skill Resolver**（`governance/skill_resolver.py`）
 
 ```
 input:  tool_name
-output: risk_level + metadata
-policy: Missing Skill → Safe（fail-open，治理不因配置缺失而阻断）
+output: risk_level（Safe / Sensitive / Critical）
+policy: Missing entry → Safe（fail-open）
+source: skill_registry.yaml（运行时可覆盖）
 ```
 
-**组件 2：Policy Engine（纯 deterministic，禁止 AI 判断）**
+**组件 2：Risk Tag Mapping**（3 行表，内化在 interceptor 里）
 
 ```python
-# ✔ 正确（deterministic lookup）
-risk = SkillRegistry.lookup(tool_name)
-apply_policy(risk)
-
-# ❌ 错误（禁止）
-if model.thinks_risky():
-    block()
-```
-
-```
-Safe     → ALLOW
-Sensitive → REVIEW（注入 Review，可配置是否延迟执行）
-Critical  → BLOCK + 生成 approval_token
-```
-
-**组件 3：Interceptor Hook（`before_tool_call`）**
-
-三件事，顺序不可变：
-1. Resolve（解析 Skill → risk_level）
-2. Decide（policy mapping → ALLOW / REVIEW / BLOCK）
-3. Emit（**必须先于执行决策写入审计事件流**）
-
-**组件 4：Event Logger（append-only，审计链核心）**
-
-```json
-{
-  "type": "tool_call_intercept",
-  "tool": "<tool_name>",
-  "risk": "Critical",
-  "decision": "BLOCK",
-  "args_hash": "<sha256>",
-  "approval_token": "<token_id>",
-  "session_id": "<session>",
-  "timestamp": 1234567890.0
+_RISK_TAG = {
+    "Safe":      "ALLOW",
+    "Sensitive": "REVIEW_TAG",
+    "Critical":  "CRITICAL_TAG",
 }
 ```
 
-> 事件必须 append-only 写入。没有此事件，Layer 3 Audit 无从核查。
+无 policy engine，无决策系统，纯静态映射，禁止 AI 判断。
 
-### Approval Token 规格
+**组件 3：Event Logger**（`governance/events.py`，append-only）
 
-```yaml
-tool_name: <exact tool>
-args_hash: sha256(canonical_json(args))   # 参数精确绑定，防止复用
-session_id: <current session>              # 会话绑定
-issued_at: <unix timestamp>
-expires_at: issued_at + 1800              # 默认 30 分钟
-used: false                               # 单次使用，验证后立即标记
+```json
+{
+  "type":       "tool_call",
+  "tool":       "write_task",
+  "risk":       "Sensitive",
+  "tag":        "REVIEW_TAG",
+  "args_hash":  "<sha256>",
+  "session_id": "<session>",
+  "ts":         1234567890.0,
+  "emitted_at": 1234567890.1
+}
 ```
+
+> 路径由 `FCOP_EVENT_LOG` 环境变量控制，默认 `<cwd>/fcop_events.jsonl`。
+
+### 明确不做（SMB 原则）
+
+| 排除项 | 理由 |
+|--------|------|
+| ❌ approval_token 系统 | SMB 不需要强制治理，行为可见就够 |
+| ❌ MCP 强阻断 | 复杂度 ×3，SMB 收益近 0 |
+| ❌ Policy engine 组件 | 3 行静态表已足够 |
+| ❌ 状态机 | stateless logging only |
+
+### 产品化路线图
+
+1. `skill_registry.yaml` — 产品化核心资产，用户可按项目覆盖
+2. `fcop_events.jsonl` → 可视化 dashboard — 商业价值点
 
 ## Consequences
 
@@ -366,11 +345,10 @@ used: false                               # 单次使用，验证后立即标记
 
 | 模块 | 新增工作 |
 |------|---------|
-| `fcop-mcp` | 实现 FastMCP `before_tool_call` 中间件 + Critical 阻断逻辑 |
-| `fcop` Python 库 | `approval_token` 生成、存储、校验、单次使用标记 |
-| `fcop_check()` | 新增 Task graph reconciliation + Critical 痕迹检测 |
-| `mark_human_approved` | 扩展：支持 `approval_token` 绑定校验 |
-| `Skill.tools[]` | 已有（ADR-0027），作为 risk resolution 的 source of truth |
+| `fcop-mcp` | `governance/` 子包：`FCoPGovernanceMiddleware` + `skill_resolver` + `events` |
+| `skill_registry.yaml` | 产品化配置资产（随 fcop-mcp 发布，用户可覆盖） |
+| `fcop_events.jsonl` | append-only 审计日志，Layer 3 `fcop_check()` 的数据源 |
+| `Skill.tools[]` | 已有（ADR-0027），risk resolution 的 source of truth |
 
 ### 对 ADR-0028 的影响
 
