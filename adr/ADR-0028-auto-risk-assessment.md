@@ -1,6 +1,6 @@
 # ADR-0028: 自动风险评估 — write_task() 风险推断与传导机制
 
-- **Status**: Proposed
+- **Status**: Proposed — Pending Revision（见 ADR-0029：治理逻辑须迁出 write_task()）
 - **Date**: 2026-05-11
 - **Deciders**: ADMIN
 - **Related**: [ADR-0024](./ADR-0024-task-risk-level.md), [ADR-0025](./ADR-0025-review-needs-human.md), [ADR-0026](./ADR-0026-review-human-approval.md), [ADR-0027](./ADR-0027-skill-tools-risk-metadata.md)
