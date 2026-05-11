@@ -88,6 +88,11 @@ def test_legacy_envelope_validates(path: Path):
         fm["sender"] = fm["from"]
     if "recipient" not in fm and "to" in fm:
         fm["recipient"] = fm["to"]
+    # 0.7.x / rc-era files use fcop_version instead of protocol+version
+    if "protocol" not in fm and "fcop_version" in fm:
+        fm["protocol"] = "fcop"
+    if "version" not in fm and "fcop_version" in fm:
+        fm["version"] = "1.0.0"
 
     issues = validate_envelope_frontmatter(fm, envelope_type)
     assert issues == [], (

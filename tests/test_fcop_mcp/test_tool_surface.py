@@ -187,7 +187,10 @@ def test_required_params_are_not_tightened() -> None:
     }
     regressions: dict[str, set[str]] = {}
     for name, req in observed_req.items():
-        added_required = req - expected_req.get(name, set())
+        if name not in expected_req:
+            # New tool — adding required params to a brand-new tool is fine
+            continue
+        added_required = req - expected_req[name]
         if added_required:
             regressions[name] = added_required
     assert not regressions, (

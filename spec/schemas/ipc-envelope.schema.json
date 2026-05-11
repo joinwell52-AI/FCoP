@@ -3,7 +3,7 @@
   "$id": "https://fcop.dev/schemas/ipc-envelope/v1.0.json",
   "title": "FCoP IPC Envelope",
   "description": "Abstraction 3 of 7 — IPC. Per ADR-0015 §abstractions and ADR-0021 §IPC-Surface, this schema covers the four envelope types that share a common frontmatter base: TASK, REPORT, ISSUE, REVIEW. The shared base is intentionally small (protocol/version/sender/type); per-envelope discriminator branches add the type-specific required fields. Root uses `additionalProperties: true` so 0.7.x files with extra unknown frontmatter keys remain valid (per ADR-0003 backward-compat).",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "object",
   "$defs": {
     "roleCode": {
@@ -47,7 +47,13 @@
         "ref_task":  {"type": "string", "description": "Optional reference to a parent TASK file path."},
         "task_id":   {"type": "string", "description": "Per existing 0.7.x. Stable id matching the filename stem; v1.0 keeps it optional in frontmatter (filename is the canonical id)."},
         "session_id": {"type": "string", "description": "Per existing 0.7.x. Producing-session identifier for role-occupancy tracking. Optional."},
-        "timeout_at": {"$ref": "#/$defs/isoDate", "description": "Per ADR-0019 §TIMEOUT failure mode trigger."}
+        "timeout_at": {"$ref": "#/$defs/isoDate", "description": "Per ADR-0019 §TIMEOUT failure mode trigger."},
+        "risk_level": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "irreversible"],
+          "default": "medium",
+          "description": "Per ADR-0024. Operation risk level. low=read-only/no side-effects; medium=normal development (default); high=production/permission changes; irreversible=cannot be undone (drop DB, force-push, over-quota API call). high/irreversible automatically trigger a needs_human review gate (ADR-0025)."
+        }
       }
     },
     "report": {
@@ -84,8 +90,8 @@
       }
     },
     "review": {
-      "title": "REVIEW envelope (v1.0 minimal surface)",
-      "description": "Per ADR-0017. New envelope type added in v1.0. Filename: REVIEW-{date}-{seq}-{reviewer}-on-{subject_ref_short}.md. v1.0 deliberately does NOT include needs_human / human_approval — those are deferred to v1.2+ per ADR-0015 §non-goals. Detailed REVIEW schema is in review.schema.json; this stub covers the envelope-level requirements only.",
+      "title": "REVIEW envelope (v1.1 surface)",
+      "description": "Per ADR-0017 + ADR-0025 + ADR-0026. v1.1 adds needs_human decision value and human_approval sub-structure. Detailed REVIEW schema is in review.schema.json; this stub covers the envelope-level requirements only.",
       "allOf": [{"$ref": "#/$defs/envelopeBase"}],
       "required": ["subject_type", "subject_ref", "decision"],
       "properties": {

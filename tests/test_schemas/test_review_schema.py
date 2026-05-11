@@ -24,11 +24,11 @@ def _legal_review():
     }
 
 
-def test_decision_enum_is_exactly_four(schemas):
-    """4 值 enum FROZEN for v1.0；新增 needs_human 等只能在 v1.2+ 走 ADR。"""
+def test_decision_enum_is_exactly_five(schemas):
+    """v1.1 per ADR-0025: decision enum extended to 5 values (needs_human added)."""
     s = schemas["review.schema.json"]
     enum = set(s["$defs"]["decisionEnum"]["enum"])
-    assert enum == {"approved", "rejected", "needs_changes", "abstained"}
+    assert enum == {"approved", "rejected", "needs_changes", "abstained", "needs_human"}
 
 
 def test_subject_type_enum_is_exactly_four(schemas):
@@ -71,22 +71,22 @@ def test_needs_changes_without_required_changes_rejected(validator_for):
     assert errs
 
 
-def test_needs_human_rejected_at_schema_level(validator_for):
-    """**最关键的防御测试**：v1.2 推迟的 'needs_human' 在 v1.0
-    schema 层面就拒——防止下游 PR 偷塞它。"""
+def test_needs_human_accepted_at_schema_level(validator_for):
+    """v1.1 per ADR-0025: decision='needs_human' MUST now be accepted by the schema."""
     v = validator_for("review.schema.json")
     rec = _legal_review()
     rec["decision"] = "needs_human"
     errs = list(v.iter_errors(rec))
-    assert errs, "decision='needs_human' MUST be rejected by v1.0 schema"
+    assert not errs, f"decision='needs_human' must be valid in v1.1 schema, got: {errs}"
 
 
-def test_human_approval_subobject_is_not_required(schemas):
-    """human_approval 子对象在 v1.0 不是 required；schema 层面不强制
-    存在（v1.2 加进来时 properties 里加 + 不进 required 列表 = additive）。"""
+def test_human_approval_subobject_is_optional_in_schema(schemas):
+    """v1.1 per ADR-0026: human_approval is present in schema properties but NOT required."""
     s = schemas["review.schema.json"]
-    assert "human_approval" not in s.get("required", [])
-    assert "human_approval" not in s.get("properties", {})
+    assert "human_approval" not in s.get("required", []), \
+        "human_approval must remain optional (not in required)"
+    assert "human_approval" in s.get("properties", {}), \
+        "human_approval must be declared in properties (v1.1 additive)"
 
 
 def test_review_id_must_match_filename_pattern(validator_for):

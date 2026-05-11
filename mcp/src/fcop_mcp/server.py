@@ -810,6 +810,7 @@ def write_task(
     priority: str = "P2",
     thread_key: str = "",
     references: str = "",
+    risk_level: str = "",
 ) -> str:
     """Create a new task file under ``docs/agents/tasks/``.
 
@@ -833,6 +834,11 @@ def write_task(
             to an ongoing conversation.
         references: Comma-separated task filenames this task refers
             back to (for ``references:`` frontmatter field).
+        risk_level: Operation risk level (per ADR-0024). One of
+            ``low`` / ``medium`` / ``high`` / ``irreversible``.
+            Default: ``medium``. ``high`` and ``irreversible`` will
+            automatically require a ``needs_human`` review gate.
+            Leave empty to accept the default (``medium``).
 
     Returns:
         The filename of the created task on success; error string
@@ -848,6 +854,7 @@ def write_task(
             body=body,
             references=_parse_refs_list(references),
             thread_key=thread_key or None,
+            risk_level=risk_level or None,
         )
     except fcop.FcopError as exc:
         return _format_error(exc)
@@ -1124,6 +1131,226 @@ def write_issue(
 
     warning = _check_role_lock(project, reporter, "write_issue")
     return f"Issue created: {issue.filename}\nPath: {issue.path}{warning}"
+
+
+# ─── Review tools (v1.1) ─────────────────────────────────────────────
+
+
+@mcp.tool
+def write_review(
+    reviewer_role: str,
+    subject_type: str,
+    subject_ref: str,
+    decision: str,
+    rationale: str = "",
+    required_changes: str = "",
+    reviewer_agent: str = "",
+    body: str = "",
+    subject_short: str = "",
+) -> str:
+    """Write a REVIEW file (governance-layer decision, per ADR-0017/0025).
+
+    Args:
+        reviewer_role: Role code of the reviewer (must have
+            ``review_decision`` capability; typically ``layer: governance``
+            or ``layer: admin``).
+        subject_type: What is being reviewed. One of
+            ``task`` / ``report`` / ``role_switch`` / ``code_change``.
+        subject_ref: Reference to the artefact under review —
+            file path for task/report/code_change; fcop.json diff range
+            for role_switch.
+        decision: Review decision. One of:
+            ``approved`` — artefact is accepted;
+            ``rejected`` — artefact is rejected (cannot proceed);
+            ``needs_changes`` — must be revised (requires ``required_changes``);
+            ``abstained`` — reviewer recuses;
+            ``needs_human`` — reviewer escalates to human (ADR-0025,
+            v1.1). The review stays pending until ``mark_human_approved``
+            is called to close the loop.
+        rationale: Free-text rationale for the decision. Recommended
+            for all non-``approved`` decisions.
+        required_changes: Newline- or comma-separated list of required
+            changes. Mandatory when ``decision=needs_changes``.
+        reviewer_agent: Optional agent/session identifier on top of
+            the role code.
+        body: Additional Markdown body after the frontmatter.
+        subject_short: Override the ``-on-{slug}`` segment of the
+            filename. Auto-derived from ``subject_ref`` when omitted.
+
+    Returns:
+        The filename of the created REVIEW on success; error string on
+        failure.
+    """
+    changes = [c.strip() for c in required_changes.replace("\n", ",").split(",") if c.strip()]
+    try:
+        project, _source = _get_project()
+        review = project.write_review(
+            reviewer_role=reviewer_role,
+            subject_type=subject_type,
+            subject_ref=subject_ref,
+            decision=decision,
+            rationale=rationale or None,
+            required_changes=changes,
+            reviewer_agent=reviewer_agent or None,
+            body=body,
+            subject_short=subject_short or None,
+        )
+    except fcop.ValidationError as exc:
+        return _format_error(exc)
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+    except ValueError as exc:
+        return _format_error(exc)
+
+    extra = ""
+    if decision == "needs_human":
+        extra = "\n⚠ decision=needs_human: review is pending human approval. Call mark_human_approved to close the loop."
+    return f"Review created: {review.filename}\nPath: {review.path}{extra}"
+
+
+@mcp.tool
+def list_reviews(
+    reviewer_role: str = "",
+    decision: str = "",
+    subject_type: str = "",
+    status: str = "open",
+    limit: int = 0,
+    offset: int = 0,
+) -> str:
+    """List REVIEW files, optionally filtered.
+
+    Args:
+        reviewer_role: Filter by reviewer role code.
+        decision: Filter by decision value (``approved`` / ``rejected``
+            / ``needs_changes`` / ``abstained`` / ``needs_human``).
+        subject_type: Filter by subject type (``task`` / ``report`` /
+            ``role_switch`` / ``code_change``).
+        status: ``open`` (default) / ``archived`` / ``all``.
+        limit: Maximum number of rows (0 = no limit).
+        offset: Skip this many rows.
+
+    Returns:
+        Formatted list of reviews, newest first.
+    """
+    try:
+        project, _source = _get_project()
+        reviews = project.list_reviews(
+            reviewer_role=reviewer_role or None,
+            decision=decision or None,
+            subject_type=subject_type or None,
+            status=status,  # type: ignore[arg-type]
+            limit=limit or None,
+            offset=offset,
+        )
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not reviews:
+        return "No reviews found."
+    lines = []
+    for r in reviews:
+        ha = " [human_approval pending]" if r.decision.value == "needs_human" and r.human_approval is None else ""
+        ha_done = " [human_approved]" if r.human_approval is not None else ""
+        lines.append(f"{r.filename}  decision={r.decision.value}{ha}{ha_done}")
+    return "\n".join(lines)
+
+
+@mcp.tool
+def read_review(filename: str) -> str:
+    """Read the full content of a REVIEW file.
+
+    Args:
+        filename: Review filename or review ID
+            (``REVIEW-YYYYMMDD-NNN-{reviewer}-on-{slug}[.md]``).
+    """
+    try:
+        project, _source = _get_project()
+        review = project.read_review(filename)
+    except fcop.TaskNotFoundError as exc:
+        return f"Review not found: {filename} ({exc})"
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    parts = [
+        f"File: {review.filename}",
+        f"Reviewer: {review.reviewer_role}",
+        f"Decision: {review.decision.value}",
+        f"Subject: {review.subject_type.value} → {review.subject_ref}",
+    ]
+    if review.rationale:
+        parts.append(f"Rationale: {review.rationale}")
+    if review.required_changes:
+        parts.append("Required changes:\n" + "\n".join(f"  - {c}" for c in review.required_changes))
+    if review.human_approval:
+        ha = review.human_approval
+        parts.append(
+            f"Human approval: {ha.approver} → {ha.decision.value}"
+            f" via {ha.channel.value} at {ha.approved_at.isoformat()}"
+        )
+        if ha.comment:
+            parts.append(f"  Comment: {ha.comment}")
+    elif review.decision.value == "needs_human":
+        parts.append("⚠ Pending human approval (call mark_human_approved to close).")
+    if review.body.strip():
+        parts.append(f"\n---\n{review.body.strip()}")
+    return "\n".join(parts)
+
+
+@mcp.tool
+def mark_human_approved(
+    review_id: str,
+    approver: str,
+    decision: str,
+    channel: str = "cli",
+    comment: str = "",
+) -> str:
+    """Record a human approval decision on a ``needs_human`` REVIEW file.
+
+    Closes the escalation loop opened by ``write_review(decision='needs_human')``.
+    Writes ``human_approval`` sub-structure into the REVIEW frontmatter
+    and returns the updated review summary (per ADR-0026).
+
+    Args:
+        review_id: The stable review ID — filename stem without ``.md``
+            (e.g. ``REVIEW-20260510-001-ADMIN-on-some-task``).
+        approver: Role code of the human approver. MUST be an agent
+            with ``layer: admin`` (e.g. ``ADMIN``).
+        decision: Human's binary decision: ``approve`` or ``reject``.
+        channel: Channel through which the approval was submitted.
+            One of ``mobile`` / ``cli`` / ``web`` / ``manual_file_edit``.
+            Default: ``cli``.
+        comment: Optional free-text comment from the approver.
+
+    Returns:
+        Summary of the updated review on success; error string on failure.
+    """
+    try:
+        project, _source = _get_project()
+        review = project.mark_human_approved(
+            review_id,
+            approver=approver,
+            decision=decision,
+            channel=channel,
+            comment=comment or None,
+        )
+    except fcop.ValidationError as exc:
+        return _format_error(exc)
+    except fcop.TaskNotFoundError as exc:
+        return f"Review not found: {review_id} ({exc})"
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+    except ValueError as exc:
+        return _format_error(exc)
+
+    ha = review.human_approval
+    if ha is None:
+        return f"Review updated: {review.review_id}"
+    return (
+        f"Human approval recorded: {review.review_id}\n"
+        f"Approver: {ha.approver}  Decision: {ha.decision.value}\n"
+        f"Channel: {ha.channel.value}  At: {ha.approved_at.isoformat()}"
+        + (f"\nComment: {ha.comment}" if ha.comment else "")
+    )
 
 
 @mcp.tool

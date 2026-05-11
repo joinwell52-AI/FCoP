@@ -1,10 +1,13 @@
 ---
+protocol: fcop
+version: 1
 fcop_version: "1.0.0rc1"
 session_id: "main-2026-05-09"
 report_id: "REPORT-20260509-013"
-task_id: "TASK-20260509-013"
-reporter: "ME"
+type: REPORT
+sender: "ME"
 recipient: "ADMIN"
+ref_task: "docs/agents/log/tasks/TASK-20260509-013-ADMIN-to-ME.md"
 date: "2026-05-09"
 status: "done"
 ---

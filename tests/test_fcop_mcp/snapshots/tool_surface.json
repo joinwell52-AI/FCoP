@@ -308,6 +308,41 @@
       ]
     },
     {
+      "name": "list_reviews",
+      "params": [
+        {
+          "name": "decision",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "offset",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "reviewer_role",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "subject_type",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "list_tasks",
       "params": [
         {
@@ -353,6 +388,36 @@
       ]
     },
     {
+      "name": "mark_human_approved",
+      "params": [
+        {
+          "name": "approver",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "channel",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "comment",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "decision",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "review_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "new_workspace",
       "params": [
         {
@@ -374,6 +439,16 @@
     },
     {
       "name": "read_report",
+      "params": [
+        {
+          "name": "filename",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "read_review",
       "params": [
         {
           "name": "filename",
@@ -508,6 +583,56 @@
       ]
     },
     {
+      "name": "write_review",
+      "params": [
+        {
+          "name": "body",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "decision",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "rationale",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "required_changes",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "reviewer_agent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "reviewer_role",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject_ref",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject_short",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "subject_type",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "write_task",
       "params": [
         {
@@ -527,6 +652,11 @@
         },
         {
           "name": "references",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "risk_level",
           "required": false,
           "type": "string"
         },

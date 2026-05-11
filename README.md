@@ -31,10 +31,10 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
   <a href="spec/fcop-runtime-protocol-v1.0.md">
-    <img src="https://img.shields.io/badge/spec-v1.0%20RC-green?style=flat-square" alt="Spec v1.0 RC" />
+    <img src="https://img.shields.io/badge/spec-v1.1-green?style=flat-square" alt="Spec v1.1" />
   </a>
-  <a href="docs/releases/1.0.0-rc.1.md">
-    <img src="https://img.shields.io/badge/release-1.0.0--rc.1-orange?style=flat-square" alt="1.0.0-rc.1 release notes" />
+  <a href="CHANGELOG.md">
+    <img src="https://img.shields.io/badge/release-1.1.0-brightgreen?style=flat-square" alt="1.1.0" />
   </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
@@ -180,8 +180,8 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 
 | Package | Install | Purpose | Depends on |
 |---|---|---|---|
-| [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues programmatically. Zero MCP dependency. | `pyyaml` |
-| [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=0.6,<0.7`, `fastmcp`, `websockets` |
+| [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues, reviews programmatically. Zero MCP dependency. | `pyyaml` |
+| [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=1.1`, `fastmcp`, `websockets` |
 
 **Pointers** (one row each, no version baked in):
 
@@ -197,12 +197,10 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 
 | Version | One-line |
 |---|---|
-| **0.7.2** ([notes](docs/releases/0.7.2.md)) | Metadata patch: fixes `fcop-rules.mdc` frontmatter stale at `1.7.0` (body was already `1.8.0`); adds frontmatter↔body consistency tests + minor-lockstep test so the *class* of "multi-line edit, one edit dropped" bug (ISSUE-006 / ISSUE-007) becomes unshippable. **No protocol or API change.** |
-| **0.7.1** ([notes](docs/releases/0.7.1.md)) | Hotfix for `fcop-mcp 0.7.0` dependency-pin bug (`fcop>=0.6,<0.7` → `<0.8`) plus three protocol clarifications: Rule 1 sub-agent identity (`session_id ↔ role` audit), Rule 0.a.1 applies to *every* write path (not just MCP tools), Rule 5 drops `AMEND-*` / `-v2` (use sequential reports + `amends:`). New: `Project.audit_drift()` + `fcop_check()` MCP tool + soft per-process role lock. **Protocol bump**: rules `1.7.0` → `1.8.0`, protocol `1.5.0` → `1.6.0`. |
-| **0.7.0** ([notes](docs/releases/0.7.0.md)) | **Role uniqueness** is now a first-class protocol invariant: `Project.role_occupancy()` + `RoleOccupancy` data model, `fcop_report()` emits a `[Role occupancy]` block, `unbound_report` removed (was deprecated since 0.6.3). Rule 1 hardened: a role is OCCUPIED iff at least one on-disk file has it as `sender`. **Protocol bump**: rules `1.6.0` → `1.7.0`, protocol `1.4.0` → `1.5.0`. **Note**: 0.7.0's `fcop-mcp` shipped with a stale `fcop` pin — install 0.7.1+ instead. |
-| **0.6.5** ([notes](docs/releases/0.6.5.md)) | Rule 0.a.1 (`task → do → report → archive`) wired into the **tool layer**: `new_workspace` warns when no open `TASK-*.md` mentions the slug, `fcop_report` (initialised) ends with the four-step template. Bilingual, additive. |
-| **0.6.4** ([notes](docs/releases/0.6.4.md)) | Init-deposit gap closed: every `init_*` lands its full promised set (letter, three-layer team docs, rules quartet) in one transaction. New `fcop://prompt/install` zh+en resources. `force` parameter on every `init_*`. |
-| **0.6.3** ([notes](docs/releases/0.6.3.md)) | Canonical `fcop_report` (with `[Versions]` drift block); host-neutral `redeploy_rules` writing `.cursor/rules/*.mdc` + `AGENTS.md` + `CLAUDE.md` ([ADR-0006](adr/ADR-0006-host-neutral-rule-distribution.md)); `unbound_report` deprecated (removed in 0.7.0). |
+| **1.1.0** ([CHANGELOG](CHANGELOG.md)) | **v1.1 — Agent.layer governance contracts + Task.risk_level + Review.needs_human + HumanApproval + Skill.tools[] risk metadata.** 5 new ADRs (0023–0027), 4 new MCP tools (`write_review`, `list_reviews`, `read_review`, `mark_human_approved`), `write_task` gains `risk_level` param, new `skill.schema.json`. Fully backward-compatible. |
+| **1.0.1** | Spec files bundled in wheel (`get_spec()`); `fcop://spec` MCP resource; workspace paths migrated `docs/agents/` → `fcop/`; CI green. |
+| **1.0.0** | Seven core concepts stabilised: Agent, Encoding, IPC, Event, Failure, Boundary, Audit. JSON Schema for all 7. See [release notes](docs/releases/1.0.0.md). |
+| **0.7.2** ([notes](docs/releases/0.7.2.md)) | Metadata patch: fixes `fcop-rules.mdc` frontmatter stale at `1.7.0` (body was already `1.8.0`); adds frontmatter↔body consistency tests. **No protocol or API change.** |
 
 > **Watch out — wrong `fcop` on PyPI shadows the library.** Both packages here are published from **this** repository. If `from fcop import Project, Issue` fails after `pip install fcop`, you most likely installed an unrelated `fcop` distribution or another local project shadows the library. Fix: clean venv + reinstall both packages from PyPI in lockstep. The verify commands are in [`mcp/README.md`](mcp/README.md).
 
@@ -214,8 +212,16 @@ from fcop import Project
 proj = Project(".")                              # project root; no fcop.json until init
 proj.init()                                      # dirs + shared/ + log/ + writes fcop.json
 task = proj.write_task(sender="PM", recipient="DEV", priority="P1",
-                       title="Add auth middleware", body="...")
+                       subject="Add auth middleware", body="...",
+                       risk_level="high")        # v1.1: triggers needs_human review gate
 print(proj.list_tasks(recipient="DEV"))
+
+# v1.1 review + human approval flow
+review = proj.write_review(reviewer_role="ADMIN", subject_type="task",
+                           subject_ref=task.filename, decision="needs_human",
+                           rationale="Irreversible infra change — escalate.")
+proj.mark_human_approved(review.review_id, approver="ADMIN",
+                         decision="approve", channel="cli")
 ```
 
 **MCP server** — add to `mcp.json` (Cursor) or `claude_desktop_config.json`:
@@ -254,9 +260,10 @@ Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`a
 |---|---|
 | **New to FCoP** — hands-on 45-min setup | [`docs/getting-started.en.md`](docs/getting-started.en.md) |
 | **Upgrading from 0.7.x** — workspace migration + new abstractions | [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md) |
-| **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) |
+| **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec also in `fcop.rules.get_spec()`) |
+| **v1.1 new fields** — risk_level, needs_human, human_approval, skill tools | [CHANGELOG](CHANGELOG.md) · ADR-0023..0027 |
 | **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md) |
-| **Release notes** — what changed in v1.0.0 | [`docs/releases/1.0.0.md`](docs/releases/1.0.0.md) |
+| **Release notes** — what changed in v1.1.0 | [`CHANGELOG.md`](CHANGELOG.md) |
 | **Full document map** — every file and its role | [spec Appendix B](spec/fcop-runtime-protocol-v1.0.md#appendix-b--authoritative-document-map) |
 
 ---
@@ -278,8 +285,8 @@ Two official reference implementations, both MIT-licensed:
 
 ## Status & versioning
 
-- **Current release**: `v1.0.0` (2026-05-09) — seven core concepts stabilised for the v1.x series. See [release notes](docs/releases/1.0.0.md).
-- **Normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) · machine-readable contracts in [`spec/schemas/`](spec/schemas/)
+- **Current release**: `v1.1.0` (2026-05-10) — v1.1 adds Agent.layer governance contracts, Task.risk_level, Review.needs_human, HumanApproval, and Skill.tools[] risk metadata. Fully backward-compatible. See [CHANGELOG](CHANGELOG.md).
+- **Normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec bundled in wheel via `fcop.rules.get_spec()`) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - **Change log**: [`CHANGELOG.md`](CHANGELOG.md)
 - **Research snapshot**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) archived on Zenodo with a citable DOI (see *How to cite* below).

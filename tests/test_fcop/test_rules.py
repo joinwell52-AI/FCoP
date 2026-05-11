@@ -227,6 +227,8 @@ class TestPackagedData:
             "letter-to-admin.en.md",
             "fcop-spec-v1.0.zh.md",
             "fcop-spec-v1.0.en.md",
+            "fcop-spec-v1.1.zh.md",
+            "fcop-spec-v1.1.en.md",
         ],
     )
     def test_data_file_is_traversable(self, name: str) -> None:
@@ -254,7 +256,7 @@ class TestPackagedData:
 
 
 class TestGetSpec:
-    """Tests for the get_spec() accessor added in v1.0.1."""
+    """Tests for the get_spec() accessor (v1.1 returns fcop-spec-v1.1.*.md)."""
 
     def test_get_spec_zh_returns_string(self) -> None:
         text = get_spec("zh")
@@ -273,6 +275,14 @@ class TestGetSpec:
     def test_get_spec_en_contains_core_concepts(self) -> None:
         text = get_spec("en")
         assert "seven core concepts" in text.lower() or "Agent" in text
+
+    def test_get_spec_zh_contains_v11_fields(self) -> None:
+        text = get_spec("zh")
+        assert "risk_level" in text or "needs_human" in text
+
+    def test_get_spec_en_contains_v11_fields(self) -> None:
+        text = get_spec("en")
+        assert "risk_level" in text or "needs_human" in text
 
     def test_get_spec_invalid_lang_raises(self) -> None:
         with pytest.raises(ValueError, match="unsupported spec language"):

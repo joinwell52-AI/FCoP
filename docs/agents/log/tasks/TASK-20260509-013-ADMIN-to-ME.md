@@ -1,12 +1,16 @@
 ---
+protocol: fcop
+version: 1
 fcop_version: "1.0.0rc1"
 session_id: "main-2026-05-09"
 task_id: "TASK-20260509-013"
+type: TASK
 sender: "ADMIN"
 recipient: "ME"
+subject: "MIGRATION-1.0.md 用户向迁移指南"
 date: "2026-05-09"
 status: "done"
-priority: "high"
+priority: "P1"
 references:
   - "adr/ADR-0022-workspace-directory-convention.md"
   - "docs/MIGRATION-0.6.md"

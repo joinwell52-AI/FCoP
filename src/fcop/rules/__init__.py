@@ -48,6 +48,10 @@ _INSTALL_PROMPT_FILENAMES: dict[str, str] = {
     "en": "agent-install-prompt.en.md",
 }
 _SPEC_FILENAMES: dict[str, str] = {
+    "zh": "fcop-spec-v1.1.zh.md",
+    "en": "fcop-spec-v1.1.en.md",
+}
+_SPEC_V10_FILENAMES: dict[str, str] = {
     "zh": "fcop-spec-v1.0.zh.md",
     "en": "fcop-spec-v1.0.en.md",
 }
@@ -218,20 +222,20 @@ def get_protocol_version() -> str:
 
 
 def get_spec(lang: Literal["zh", "en"] = "zh") -> str:
-    """Return the full FCoP v1.0 protocol spec in the requested language.
+    """Return the full FCoP v1.1 protocol spec in the requested language.
 
     * ``"zh"`` — Simplified Chinese version (informative reference
       translation of the normative English spec).
     * ``"en"`` — English version (authoritative; takes precedence when
       the two versions conflict).
 
-    The spec is bundled as ``fcop-spec-v1.0.{lang}.md`` under
+    The spec is bundled as ``fcop-spec-v1.1.{lang}.md`` under
     ``fcop/rules/_data/`` so it is available offline and version-locked
     to the installed wheel. Agents that need to look up the exact
-    contract for one of the seven core abstractions (Agent, IPC,
-    Encoding, Event, Failure, Boundary, Audit) should fetch this
-    resource rather than relying on the condensed summary in
-    ``fcop://rules``.
+    contract for the seven core abstractions (Agent, IPC, Encoding,
+    Event, Failure, Boundary, Audit) and v1.1 new fields (Agent.layer,
+    Task.risk_level, Review.needs_human, HumanApproval, Skill.tools[])
+    should fetch this resource.
 
     Raises:
         ValueError: ``lang`` is not a supported language code.

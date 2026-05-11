@@ -1,12 +1,16 @@
 ---
+protocol: fcop
+version: 1
 fcop_version: "1.0.0rc1"
 session_id: "main-2026-05-09"
 task_id: "TASK-20260509-012"
+type: TASK
 sender: "ADMIN"
 recipient: "ME"
+subject: "ADR-0022 Phase 2: Project() workspace_dir 改造"
 date: "2026-05-09"
 status: "done"
-priority: "high"
+priority: "P1"
 references:
   - "adr/ADR-0022-workspace-directory-convention.md"
   - "src/fcop/project.py"
