@@ -12,6 +12,32 @@ versioning strategy.
 
 ---
 
+## [1.1.1] — 2026-05-11
+
+### fix(mcp) — 补发 fcop-mcp 1.1.1：Review 工具层（4 个工具）
+
+**问题**：`fcop-mcp 1.1.0` PyPI wheel 发布时遗漏了 v1.1 新增的 4 个 Review MCP 工具，
+导致 PyPI 版本（26 工具）与 GitHub main 源码（30 工具）不一致。
+
+**本次修复**：`fcop-mcp` 版本从 `1.1.0` 升至 `1.1.1`，补入以下 4 个工具：
+
+- **`write_review`** — 写入 REVIEW 文件（治理层决策，per ADR-0017/0025）
+- **`list_reviews`** — 列出 REVIEW 文件，支持按 reviewer / subject / decision 过滤
+- **`read_review`** — 读取单条 REVIEW 文件全文
+- **`mark_human_approved`** — 为 `decision=needs_human` 的 REVIEW 落人工批准记录（per ADR-0026）
+
+**变更范围**：仅 `fcop-mcp` 版本号 bump（`1.1.0` → `1.1.1`）；`fcop` 库版本不变（`1.1.0`）。
+工具代码在 `1.1.0` 发布前已完整合入 `mcp/src/fcop_mcp/server.py`，本次为发布补丁。
+
+**升级方式**：
+```bash
+pip install -U fcop-mcp
+# 或
+uvx --refresh fcop-mcp
+```
+
+---
+
 ## [1.1.0] — 2026-05-10
 
 ### feat — Agent Governance Layer, Task Risk Level, Human Approval, Skill Tools Risk Metadata
