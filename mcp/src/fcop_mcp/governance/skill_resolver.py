@@ -29,6 +29,7 @@ class SkillMeta:
     tool: str
     risk_level: str          # "Safe" | "Sensitive" | "Critical"
     category: str = "general"
+    domain: str = "neutral"  # "execution" | "governance" | "neutral" (ADR-0031 §9.1)
     capabilities: list[str] = field(default_factory=list)
 
 
@@ -60,9 +61,31 @@ _BUILTIN: dict[str, dict[str, Any]] = {
 # User-overridable registry (loaded from skill_registry.yaml or env config).
 _user_registry: dict[str, dict[str, Any]] = {}
 
+# Auto-load the bundled skill_registry.yaml at import time so domain
+# fields are always available without requiring an explicit call.
+_BUNDLED_YAML = Path(__file__).parent / "skill_registry.yaml"
+
+
+def _load_bundled() -> None:
+    if not _YAML_OK or not _BUNDLED_YAML.exists():
+        return
+    try:
+        import yaml as _yaml
+        with _BUNDLED_YAML.open(encoding="utf-8") as fh:
+            data = _yaml.safe_load(fh) or {}
+        _user_registry.update(data)
+    except Exception:  # noqa: BLE001
+        pass  # gracefully degrade — missing YAML is non-fatal
+
+
+_load_bundled()
+
 
 def load_registry_yaml(path: str | Path) -> None:
-    """Load skill registry from a YAML file (requires PyYAML)."""
+    """Load (or override) skill registry from a YAML file (requires PyYAML).
+
+    Entries in *path* take precedence over the bundled skill_registry.yaml.
+    """
     if not _YAML_OK:
         raise RuntimeError("PyYAML is not installed; run: pip install pyyaml")
     with open(path, encoding="utf-8") as fh:
@@ -79,5 +102,6 @@ def resolve_skill(tool_name: str) -> SkillMeta:
         tool=tool_name,
         risk_level=raw.get("risk", "Safe"),
         category=raw.get("category", "general"),
+        domain=raw.get("domain", "neutral"),
         capabilities=list(raw.get("capabilities", [])),
     )

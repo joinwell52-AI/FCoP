@@ -1,113 +1,211 @@
 # FCoP Skill Registry — fcop-mcp built-in tools
 # ADR-0030: Capability Governance Boundary
+# ADR-0031: Governance Alert Layer (domain field)
 #
 # Risk levels:
 #   Safe      — read-only, no side effects
 #   Sensitive — mutates business state (task graph, reviews, config)
 #   Critical  — destructive / irreversible operations
 #
-# This file is the source of truth for risk tagging.
+# Domain (ADR-0031 §9.1, FCoP-Rule-G1):
+#   execution   — self-generated trace, non-verifying; does NOT reset governance state
+#   governance  — independent/enforcing mechanism; resets Solo Blindspot window
+#   neutral     — read-only; no domain effect on governance state
+#
+# Self-reported information ≠ governance signal (FCoP-Rule-G1).
+# write_report / fcop_report ∈ execution domain, cannot satisfy governance requirements.
+#
 # Override or extend entries in your project's fcop/skill_registry.yaml.
 
-# ── Destructive operations ────────────────────────────────────────────
+# ── Destructive operations (Execution Domain) ─────────────────────────────────
 delete_task:
   risk: Critical
   category: destructive_mutation
+  domain: execution
 
 delete_review:
   risk: Critical
   category: destructive_mutation
+  domain: execution
 
-# ── State-mutating operations ─────────────────────────────────────────
+# ── State-mutating operations ─────────────────────────────────────────────────
+
+# Execution Domain — self-generated artifacts, no independent verification
 write_task:
   risk: Sensitive
   category: task_mutation
-
-write_review:
-  risk: Sensitive
-  category: review_mutation
-
-mark_human_approved:
-  risk: Sensitive
-  category: approval_mutation
-
-set_project_dir:
-  risk: Sensitive
-  category: config_mutation
-
-write_agent:
-  risk: Sensitive
-  category: agent_mutation
-
-write_skill:
-  risk: Sensitive
-  category: skill_mutation
+  domain: execution
 
 write_report:
   risk: Sensitive
   category: report_mutation
+  domain: execution        # FCoP-Rule-G1: self-report ≠ governance signal
 
-# ── Read-only operations ──────────────────────────────────────────────
-list_tasks:
-  risk: Safe
-  category: task_read
+write_agent:
+  risk: Sensitive
+  category: agent_mutation
+  domain: execution
 
-read_task:
-  risk: Safe
-  category: task_read
+write_skill:
+  risk: Sensitive
+  category: skill_mutation
+  domain: execution
 
-list_reviews:
-  risk: Safe
-  category: review_read
+write_issue:
+  risk: Sensitive
+  category: issue_mutation
+  domain: execution
 
-read_review:
-  risk: Safe
-  category: review_read
+archive_task:
+  risk: Sensitive
+  category: task_mutation
+  domain: execution
 
-get_project_dir:
-  risk: Safe
-  category: config_read
+set_project_dir:
+  risk: Sensitive
+  category: config_mutation
+  domain: execution
 
-read_agent:
-  risk: Safe
-  category: agent_read
+redeploy_rules:
+  risk: Critical
+  category: config_mutation
+  domain: execution
 
-list_agents:
-  risk: Safe
-  category: agent_read
+# Governance Domain — independent/enforcing; resets Solo Blindspot window
+write_review:
+  risk: Sensitive
+  category: review_mutation
+  domain: governance       # introduces external verification
 
-read_skill:
-  risk: Safe
-  category: skill_read
-
-list_skills:
-  risk: Safe
-  category: skill_read
-
-list_reports:
-  risk: Safe
-  category: report_read
-
-read_report:
-  risk: Safe
-  category: report_read
+mark_human_approved:
+  risk: Sensitive
+  category: approval_mutation
+  domain: governance       # introduces human approval boundary
 
 fcop_check:
   risk: Safe
   category: audit_read
+  domain: governance       # independent post-hoc audit path
+
+# GAL tools — governance visibility layer
+fcop_list_alerts:
+  risk: Safe
+  category: alert_read
+  domain: governance
+
+fcop_create_alert:
+  risk: Sensitive
+  category: alert_mutation
+  domain: governance
+
+# Governance Event Log (ADR-0030-bis)
+list_governance_events:
+  risk: Safe
+  category: audit_read
+  domain: governance
+
+get_governance_summary:
+  risk: Safe
+  category: audit_read
+  domain: governance
+
+# ── Read-only operations (Neutral Domain) ────────────────────────────────────
+list_tasks:
+  risk: Safe
+  category: task_read
+  domain: neutral
+
+read_task:
+  risk: Safe
+  category: task_read
+  domain: neutral
+
+list_reviews:
+  risk: Safe
+  category: review_read
+  domain: neutral
+
+read_review:
+  risk: Safe
+  category: review_read
+  domain: neutral
+
+get_project_dir:
+  risk: Safe
+  category: config_read
+  domain: neutral
+
+read_agent:
+  risk: Safe
+  category: agent_read
+  domain: neutral
+
+list_agents:
+  risk: Safe
+  category: agent_read
+  domain: neutral
+
+read_skill:
+  risk: Safe
+  category: skill_read
+  domain: neutral
+
+list_skills:
+  risk: Safe
+  category: skill_read
+  domain: neutral
+
+list_reports:
+  risk: Safe
+  category: report_read
+  domain: neutral
+
+read_report:
+  risk: Safe
+  category: report_read
+  domain: neutral
 
 list_teams:
   risk: Safe
   category: team_read
+  domain: neutral
 
 read_team:
   risk: Safe
   category: team_read
+  domain: neutral
 
 list_events:
   risk: Safe
   category: event_read
+  domain: neutral
 
 read_event:
   risk: Safe
   category: event_read
+  domain: neutral
+
+fcop_report:
+  risk: Safe
+  category: report_read
+  domain: execution        # FCoP-Rule-G1: self-report ≠ governance signal
+
+init_project:
+  risk: Sensitive
+  category: config_mutation
+  domain: execution
+
+init_solo:
+  risk: Sensitive
+  category: config_mutation
+  domain: execution
+
+new_workspace:
+  risk: Sensitive
+  category: workspace_mutation
+  domain: execution
+
+drop_suggestion:
+  risk: Sensitive
+  category: issue_mutation
+  domain: execution
