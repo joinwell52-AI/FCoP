@@ -122,6 +122,17 @@ FCoP 是一个约束 Agent 行为的
 
 ---
 
+## fcop-mcp 1.1.1 补丁发布（2026-05-11）
+
+| 项目 | 状态 |
+|------|------|
+| PyPI `fcop-mcp 1.1.1` 发布 | ✅ 已发布 |
+| 4 个 Review 工具补入（write_review / list_reviews / read_review / mark_human_approved） | ✅ 已验证 |
+| Cursor MCP 面板显示 30 工具（截图确认） | ✅ |
+| letter-to-admin 工具数量 26 → 30 | ✅ 已修正 |
+
+---
+
 ## 后续待办（P2）
 
 | 编号 | 内容 | 状态 |
