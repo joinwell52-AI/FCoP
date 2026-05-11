@@ -34,7 +34,7 @@
     <img src="https://img.shields.io/badge/spec-v1.1-green?style=flat-square" alt="Spec v1.1" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/release-1.1.0-brightgreen?style=flat-square" alt="1.1.0" />
+    <img src="https://img.shields.io/badge/release-1.2.1-brightgreen?style=flat-square" alt="1.2.1" />
   </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
@@ -200,6 +200,7 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 
 | Version | One-line |
 |---|---|
+| **1.2.1** ([CHANGELOG](CHANGELOG.md)) | **v1.2 — Capability Governance pillar.** `FCoPGovernanceMiddleware` wraps every MCP tool call: Skill Resolver → Risk Tagging (Safe / Sensitive / Critical) → append-only `fcop_events.jsonl` audit log. 2 new MCP tools (`list_governance_events`, `get_governance_summary`). `fcop_check()` gains governance event summary. Both `fcop` and `fcop-mcp` align to `1.2.1` (lockstep). ADR-0030-bis. |
 | **1.1.0** ([CHANGELOG](CHANGELOG.md)) | **v1.1 — Agent.layer governance contracts + Task.risk_level + Review.needs_human + HumanApproval + Skill.tools[] risk metadata.** 5 new ADRs (0023–0027), 4 new MCP tools (`write_review`, `list_reviews`, `read_review`, `mark_human_approved`), `write_task` gains `risk_level` param, new `skill.schema.json`. Fully backward-compatible. |
 | **1.0.1** | Spec files bundled in wheel (`get_spec()`); `fcop://spec` MCP resource; workspace paths migrated `docs/agents/` → `fcop/`; CI green. |
 | **1.0.0** | Seven core concepts stabilised: Agent, Encoding, IPC, Event, Failure, Boundary, Audit. JSON Schema for all 7. See [release notes](docs/releases/1.0.0.md). |
@@ -288,7 +289,7 @@ Two official reference implementations, both MIT-licensed:
 
 ## Status & versioning
 
-- **Current release**: `v1.1.0` (2026-05-10) — v1.1 adds Agent.layer governance contracts, Task.risk_level, Review.needs_human, HumanApproval, and Skill.tools[] risk metadata. Fully backward-compatible. See [CHANGELOG](CHANGELOG.md).
+- **Current release**: `v1.2.1` (2026-05-11) — v1.2 adds Capability Governance: `FCoPGovernanceMiddleware`, Skill Resolver, Risk Tagging, append-only audit log, and 2 new governance query tools. Both `fcop` and `fcop-mcp` align to `1.2.1` (lockstep). See [CHANGELOG](CHANGELOG.md).
 - **Normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec bundled in wheel via `fcop.rules.get_spec()`) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - **Change log**: [`CHANGELOG.md`](CHANGELOG.md)

@@ -13,4 +13,4 @@ The ``dev0`` / ``rc1`` / ``a1`` / ``b1`` suffixes are allowed during
 development per PEP 440.
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.1"

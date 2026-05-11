@@ -14,9 +14,14 @@ versioning strategy.
 
 ## [1.2.1] — 2026-05-11
 
-### fix(mcp) — PyPI README 修正：工具数 30 → 32，补入 v1.2.0 治理工具说明
+### chore — fcop 与 fcop-mcp 锁步对齐至 1.2.1（lockstep 恢复）
 
-`mcp/README.md`（PyPI 页面描述）在 `1.2.0` wheel 打包后才更新，导致 PyPI 展示的仍是旧内容（"30 MCP tools"、"v1.1.0 adds 4 new tools"）。本 patch 仅修正 README，无功能变更。
+`fcop` 库从 `1.1.0` 空 patch 升至 `1.2.1`，与 `fcop-mcp 1.2.1` 严格对齐。此前 `fcop-mcp` 在 `1.1.1` / `1.2.0` / `1.2.0` 阶段手动发布，跳过了 CI `release.yml` 的 lockstep 检查；本 patch 恢复两包同版，后续所有发版均须通过 CI 一条龙（tag push → workflow → PyPI + GitHub Release）。
+
+`fcop` 包本身无代码改动；`fcop-mcp` 功能与 `1.2.0` 完全相同，仅修正：
+
+- `mcp/README.md`（PyPI 页面描述）工具数 30 → 32，补入 v1.2.0 治理工具说明
+- `src/fcop/_version.py` 版本号对齐至 `1.2.1`
 
 ---
 
