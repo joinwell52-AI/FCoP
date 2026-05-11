@@ -12,6 +12,14 @@ versioning strategy.
 
 ---
 
+## [1.2.1] — 2026-05-11
+
+### fix(mcp) — PyPI README 修正：工具数 30 → 32，补入 v1.2.0 治理工具说明
+
+`mcp/README.md`（PyPI 页面描述）在 `1.2.0` wheel 打包后才更新，导致 PyPI 展示的仍是旧内容（"30 MCP tools"、"v1.1.0 adds 4 new tools"）。本 patch 仅修正 README，无功能变更。
+
+---
+
 ## [1.2.0] — 2026-05-11
 
 ### feat(mcp) — fcop-mcp 1.2.0：治理事件审计层（ADR-0030-bis Layer 1）
