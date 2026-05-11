@@ -9,10 +9,9 @@ from __future__ import annotations
 import pytest
 
 from fcop import Project, RiskLevel, Skill, SkillTool
-from fcop.models import TaskFrontmatter
-from fcop.core.schema import normalize_risk_level
 from fcop.core.jsonschema_validator import load_bundled_schema
-
+from fcop.core.schema import normalize_risk_level
+from fcop.models import TaskFrontmatter
 
 # ── RiskLevel enum ──────────────────────────────────────────────────
 
@@ -168,7 +167,7 @@ def test_skill_schema_exists():
 def test_skill_schema_tool_risk_level_enum():
     schema = load_bundled_schema("skill.schema.json")
     tool_def = schema["$defs"]["skillTool"]
-    enum = set(tool_def["properties"]["risk_level"]["$ref"].split("/"))
-    # risk_level 是 $ref → riskLevel，验证 riskLevel def 存在
+    # risk_level is a $ref → riskLevel; verify the riskLevel def exists
+    assert "$ref" in tool_def["properties"]["risk_level"]
     assert "riskLevel" in schema["$defs"]
     assert set(schema["$defs"]["riskLevel"]["enum"]) == {"low", "medium", "high", "irreversible"}

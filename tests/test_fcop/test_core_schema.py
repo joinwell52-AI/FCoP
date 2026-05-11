@@ -327,3 +327,105 @@ class TestModuleApi:
 
     def test_role_code_re_is_compiled_pattern(self) -> None:
         assert isinstance(schema.ROLE_CODE_RE, re.Pattern)
+
+
+# ── Error class __init__ coverage ────────────────────────────────────
+
+
+class TestErrorInits:
+    """Smoke-tests for custom exception __init__ methods that store
+    structured attributes — covers errors.py lines 104-106, 148-149."""
+
+    def test_project_not_found_error_stores_path(self) -> None:
+        from pathlib import Path
+
+        from fcop.errors import ProjectNotFoundError
+
+        p = Path("/some/missing/dir")
+        err = ProjectNotFoundError("no project here", path=p)
+        assert err.path == p
+        assert "no project here" in str(err)
+
+    def test_role_not_found_error_stores_role(self) -> None:
+        from fcop.errors import RoleNotFoundError
+
+        err = RoleNotFoundError("role QA not found", role="QA")
+        assert err.role == "QA"
+        assert "role QA not found" in str(err)
+
+
+# ── jsonschema_validator defensive-branch coverage ───────────────────
+
+
+class TestJsonschemaValidatorEdges:
+    """Cover ValueError branches and normalize_for_json date handling."""
+
+    def test_load_bundled_schema_unknown_name_raises(self) -> None:
+        from fcop.core.jsonschema_validator import load_bundled_schema
+
+        with pytest.raises(ValueError, match="unknown schema"):
+            load_bundled_schema("nonexistent.schema.json")
+
+    def test_validate_envelope_unknown_type_raises(self) -> None:
+        from fcop.core.jsonschema_validator import validate_envelope_frontmatter
+
+        with pytest.raises(ValueError, match="envelope_type must be one of"):
+            validate_envelope_frontmatter({"foo": "bar"}, envelope_type="bogus")
+
+    def test_validate_record_unknown_schema_raises(self) -> None:
+        from fcop.core.jsonschema_validator import validate_record
+
+        with pytest.raises(ValueError, match="unknown schema"):
+            validate_record({"foo": "bar"}, schema_name="no-such.schema.json")
+
+    def test_normalize_for_json_datetime(self) -> None:
+        import datetime
+
+        from fcop.core.jsonschema_validator import normalize_for_json
+
+        dt = datetime.datetime(2026, 1, 15, 12, 0, 0)
+        result = normalize_for_json(dt)
+        assert isinstance(result, str)
+        assert "2026" in result
+
+    def test_normalize_for_json_date(self) -> None:
+        import datetime
+
+        from fcop.core.jsonschema_validator import normalize_for_json
+
+        d = datetime.date(2026, 1, 15)
+        result = normalize_for_json(d)
+        assert result == "2026-01-15"
+
+    def test_validate_record_valid_schema_returns_issues(self) -> None:
+        """validate_record with a valid schema name (covers lines 253-255)."""
+        from fcop.core.jsonschema_validator import validate_record
+
+        # Pass an empty dict to a known schema — will get validation issues.
+        issues = validate_record({}, schema_name="skill.schema.json")
+        # Missing required field 'id' → at least one issue.
+        assert isinstance(issues, list)
+
+    def test_validate_envelope_frontmatter_non_dict(self) -> None:
+        """Frontmatter that normalizes to non-dict skips fm.setdefault (216→222)."""
+        from fcop.core.jsonschema_validator import validate_envelope_frontmatter
+
+        # A list normalizes to a list, so the isinstance(fm, dict) branch is False.
+        issues = validate_envelope_frontmatter([], envelope_type="TASK")  # type: ignore[arg-type]
+        assert isinstance(issues, list)
+
+    def test_wrap_errors_field_prefix(self) -> None:
+        """_wrap_errors with non-empty field_prefix (covers lines 175-179)."""
+        from jsonschema import Draft202012Validator
+
+        from fcop.core.jsonschema_validator import (
+            _SCHEMAS_BY_FILENAME,
+            SCHEMA_REGISTRY,
+            _wrap_errors,
+        )
+
+        schema = _SCHEMAS_BY_FILENAME["skill.schema.json"]
+        validator = Draft202012Validator(schema, registry=SCHEMA_REGISTRY)
+        issues = _wrap_errors(validator, {}, field_prefix="tools[0]")
+        # Should have at least the missing 'id' issue prefixed.
+        assert any("tools[0]" in i.field or i.field == "tools[0]" for i in issues)

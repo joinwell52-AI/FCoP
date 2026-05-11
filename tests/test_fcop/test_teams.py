@@ -143,3 +143,41 @@ class TestPackagedTeamData:
         )
         # Smoke: every team ships at least its Chinese README.
         assert team_dir.joinpath("README.md").is_file()
+
+
+# ── Defensive-branch coverage ─────────────────────────────────────────
+
+
+class TestTeamIndexDefensivePaths:
+    """Covers error branches in _team_info_from_entry / _required_str
+    that guard against a malformed bundled index.json.
+    These are tested by calling the private helpers with bad data."""
+
+    def test_non_dict_entry_raises(self) -> None:
+        from fcop.errors import FcopError
+        from fcop.teams import _team_info_from_entry  # type: ignore[attr-defined]
+
+        with pytest.raises(FcopError, match="JSON object"):
+            _team_info_from_entry(["not", "a", "dict"])
+
+    def test_entry_missing_roles_list_raises(self) -> None:
+        from fcop.errors import FcopError
+        from fcop.teams import _team_info_from_entry  # type: ignore[attr-defined]
+
+        entry = {
+            "id": "test-team",
+            "name_zh": "测试团队",
+            "leader": "PM",
+            "roles": [],          # empty list triggers the guard
+            "description_zh": "desc",
+            "description_en": "desc",
+        }
+        with pytest.raises(FcopError, match="no roles list"):
+            _team_info_from_entry(entry)
+
+    def test_required_str_missing_key_raises(self) -> None:
+        from fcop.errors import FcopError
+        from fcop.teams import _required_str  # type: ignore[attr-defined]
+
+        with pytest.raises(FcopError, match="missing required string field"):
+            _required_str({}, "id")
