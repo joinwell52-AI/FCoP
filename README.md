@@ -157,7 +157,7 @@ is **[`fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc)** (charter) plus
 old links do not 404 — it is *not* the full protocol text for 0.6+.
 
 **Path A — `fcop` library (recommended).** One shot creates
-`docs/agents/` and `fcop.json`:
+`fcop/` and `fcop.json`:
 
 ```python
 from fcop import Project
@@ -169,7 +169,7 @@ into `.cursor/rules/`. If the tree is empty, at least create the five
 buckets the library uses:
 
 ```bash
-mkdir -p docs/agents/{tasks,reports,issues,shared,log}
+mkdir -p fcop/{tasks,reports,issues,shared,log}
 ```
 
 With the rules in place, agents know how to claim work, name reports, raise

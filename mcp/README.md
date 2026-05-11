@@ -201,7 +201,7 @@ To pin a folder in config:
 
 Tool and resource **shapes** are **additive-only** within a single MINOR release line ([stability charter, ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)). Configs that work on `fcop-mcp` `1.0.0+` will keep working on later `1.x` patch and minor releases. Breaking changes are allowed only at MAJOR boundaries; patch releases never break existing tool calls.
 
-For projects still on `fcop-mcp 0.7.x`, see [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and [`docs/releases/1.0.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/1.0.0.md) for the 0.7 → 1.0 migration narrative. For v1.0 → v1.1 (additive, no breaking changes), see [`docs/releases/1.1.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/1.1.0.md).
+For projects still on `fcop-mcp 0.7.x`, see [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and [`docs/releases/1.0.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/1.0.0.md) for the 0.7 → 1.0 migration narrative. For v1.0 → v1.1 (additive, no breaking changes), see [`docs/MIGRATION-1.1.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/MIGRATION-1.1.md) and [`docs/releases/1.1.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/1.1.0.md).
 
 ---
 

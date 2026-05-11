@@ -147,7 +147,7 @@ FCoP/
 
 FCoP 是「采纳」协议，不是装一个独立守护进程。当前版本的**规范侧**是成对的 **[总则 `fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc)** 与 **[解释 `fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc)**（部署到 **`.cursor/rules/`**）。`spec/codeflow-core.mdc` 仅为**防旧链接失效**的弃用占位，**勿**当正文规范使用。
 
-**方式 A：用 `fcop` 库初始化（推荐）** — 一次写好 `docs/agents/` 目录与 `fcop.json`（库约定的协作根）：
+**方式 A：用 `fcop` 库初始化（推荐）** — 一次写好 `fcop/` 目录与 `fcop.json`（库约定的协作根）：
 
 ```python
 from fcop import Project
@@ -157,7 +157,7 @@ Project(".").init()  # 默认 dev-team；单人可改用 .init_solo()
 **方式 B：不跑 Python、只让 Cursor 读规则** — 把上列两个 `.mdc` 从本仓拷进项目的 `.cursor/rules/`。目录若尚未存在，至少要有与库一致的五类桶：
 
 ```bash
-mkdir -p docs/agents/{tasks,reports,issues,shared,log}
+mkdir -p fcop/{tasks,reports,issues,shared,log}
 ```
 
 配好规则后，Agent 按总则/解释可知：认领发给自己的任务、按文件名写回报告、上报问题、不越权动他人文件。更完整的落盘与团队模板，见下节包与 [`examples/workspace-example/`](examples/workspace-example/)。
