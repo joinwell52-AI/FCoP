@@ -64,6 +64,5 @@ def emit_event(event: dict[str, Any]) -> None:
     log_path = _resolve_log_path()
     line = json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
 
-    with _lock:
-        with log_path.open("a", encoding="utf-8") as fh:
-            fh.write(line)
+    with _lock, log_path.open("a", encoding="utf-8") as fh:
+        fh.write(line)
