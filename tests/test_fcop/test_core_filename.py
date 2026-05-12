@@ -428,3 +428,303 @@ class TestModuleApi:
     def test_validate_sequence_returns_validation_issues(self) -> None:
         issues = fn.validate_sequence(0)
         assert all(isinstance(i, ValidationIssue) for i in issues)
+
+
+# ── Trailing slug (ADR-0033) ─────────────────────────────────────────
+#
+# Field-observed pattern formalised in fcop_protocol_version 2.1.0:
+# an optional lowercase ``-{slug}`` segment may follow the routing
+# fields of TASK / REPORT / ISSUE filenames, e.g.
+# ``TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md``. The slug is a
+# human-readable label that does NOT participate in routing.
+
+
+class TestTaskTrailingSlug:
+    """Trailing-slug grammar for TASK filenames (ADR-0033)."""
+
+    @pytest.mark.parametrize(
+        "name,sender,recipient,slot,slug",
+        [
+            # Codeflow field-observed samples (the original motivation).
+            (
+                "TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md",
+                "PM",
+                "OPS",
+                None,
+                "phase-a-fix-naming",
+            ),
+            (
+                "TASK-20260512-022-PM-to-OPS-fcop-mcp-1-5-1-housekeeping-commit.md",
+                "PM",
+                "OPS",
+                None,
+                "fcop-mcp-1-5-1-housekeeping-commit",
+            ),
+            (
+                "TASK-20260512-009-PM-to-OPS-codeflow-json-rm.md",
+                "PM",
+                "OPS",
+                None,
+                "codeflow-json-rm",
+            ),
+            # slot + slug combination.
+            (
+                "TASK-20260423-100-PM-to-DEV.BACKEND-fix-naming.md",
+                "PM",
+                "DEV",
+                "BACKEND",
+                "fix-naming",
+            ),
+            # Hyphenated role + slug.
+            (
+                "TASK-20260423-042-LEAD-QA-to-AUTO-TESTER-rerun-suite.md",
+                "LEAD-QA",
+                "AUTO-TESTER",
+                None,
+                "rerun-suite",
+            ),
+            # Slug with digits.
+            (
+                "TASK-20260512-001-PM-to-OPS-release-1-5-1.md",
+                "PM",
+                "OPS",
+                None,
+                "release-1-5-1",
+            ),
+        ],
+    )
+    def test_parse_with_slug(
+        self,
+        name: str,
+        sender: str,
+        recipient: str,
+        slot: str | None,
+        slug: str,
+    ) -> None:
+        result = fn.parse_task_filename(name)
+        assert result is not None
+        assert result.sender == sender
+        assert result.recipient == recipient
+        assert result.slot == slot
+        assert result.slug == slug
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md",
+            "TASK-20260423-100-PM-to-DEV.BACKEND-fix-naming.md",
+            "TASK-20260423-042-LEAD-QA-to-AUTO-TESTER-rerun-suite.md",
+        ],
+    )
+    def test_round_trip_with_slug(self, name: str) -> None:
+        parsed = fn.parse_task_filename(name)
+        assert parsed is not None
+        assert parsed.render() == name
+
+    def test_legacy_no_slug_stays_compatible(self) -> None:
+        """Legacy short filenames must keep parsing with ``slug=None``."""
+        result = fn.parse_task_filename("TASK-20260423-017-ADMIN-to-PM.md")
+        assert result is not None
+        assert result.slug is None
+        assert result.render() == "TASK-20260423-017-ADMIN-to-PM.md"
+
+    @pytest.mark.parametrize(
+        "bad",
+        [
+            # Slug must start with a lowercase letter.
+            "TASK-20260512-007-PM-to-OPS-1foo.md",  # digit start
+            "TASK-20260512-007-PM-to-OPS--foo.md",  # empty segment
+            "TASK-20260512-007-PM-to-OPS-foo_bar.md",  # underscore in slug
+            "TASK-20260512-007-PM-to-OPS-foo.bar.md",  # dot in slug
+            "TASK-20260512-007-PM-to-OPS-foo bar.md",  # space in slug
+            "TASK-20260512-007-PM-to-OPS-foo-.md",  # trailing hyphen
+        ],
+    )
+    def test_invalid_slug_rejected(self, bad: str) -> None:
+        assert fn.parse_task_filename(bad) is None
+
+    def test_uppercase_tail_absorbed_by_role(self) -> None:
+        """Disambiguation: an uppercase segment after ``-`` is parsed as
+        part of the role code, not as a slug. ``OPS-FOO`` is a legal
+        compound role per :data:`ROLE_CODE_RE`, so ``OPS-FOO.md`` parses
+        with ``recipient='OPS-FOO'`` and ``slug=None``.
+
+        This is the by-design boundary that makes slug grammar
+        unambiguous: lowercase-start forces the slug to never collide
+        with role-code segments.
+        """
+        result = fn.parse_task_filename("TASK-20260512-007-PM-to-OPS-FOO.md")
+        assert result is not None
+        assert result.recipient == "OPS-FOO"
+        assert result.slug is None
+
+
+class TestBuildTaskFilenameWithSlug:
+    def test_build_with_slug(self) -> None:
+        assert (
+            fn.build_task_filename(
+                date="20260512",
+                sequence=25,
+                sender="PM",
+                recipient="OPS",
+                slug="phase-a-fix-naming",
+            )
+            == "TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md"
+        )
+
+    def test_build_with_slot_and_slug(self) -> None:
+        assert (
+            fn.build_task_filename(
+                date="20260423",
+                sequence=100,
+                sender="PM",
+                recipient="DEV",
+                slot="BACKEND",
+                slug="fix-naming",
+            )
+            == "TASK-20260423-100-PM-to-DEV.BACKEND-fix-naming.md"
+        )
+
+    def test_slug_none_omits_segment(self) -> None:
+        assert (
+            fn.build_task_filename(
+                date="20260423",
+                sequence=17,
+                sender="PM",
+                recipient="DEV",
+                slug=None,
+            )
+            == "TASK-20260423-017-PM-to-DEV.md"
+        )
+
+    @pytest.mark.parametrize(
+        "bad_slug",
+        [
+            "Foo",  # uppercase
+            "foo_bar",  # underscore
+            "1foo",  # digit start
+            "foo bar",  # space
+            "-foo",  # leading hyphen
+            "foo-",  # trailing hyphen
+            "",  # empty (None means "omit"; "" is explicit illegal)
+        ],
+    )
+    def test_malformed_slug_rejected(self, bad_slug: str) -> None:
+        with pytest.raises(ValueError, match="slug"):
+            fn.build_task_filename(
+                date="20260423",
+                sequence=1,
+                sender="PM",
+                recipient="DEV",
+                slug=bad_slug,
+            )
+
+
+class TestReportTrailingSlug:
+    def test_parse_with_slug(self) -> None:
+        result = fn.parse_report_filename(
+            "REPORT-20260512-009-OPS-to-PM-codeflow-json-rm.md"
+        )
+        assert result is not None
+        assert result.reporter == "OPS"
+        assert result.recipient == "PM"
+        assert result.slug == "codeflow-json-rm"
+
+    def test_round_trip_with_slug(self) -> None:
+        name = "REPORT-20260512-009-OPS-to-PM-codeflow-json-rm.md"
+        parsed = fn.parse_report_filename(name)
+        assert parsed is not None
+        assert parsed.render() == name
+
+    def test_legacy_no_slug(self) -> None:
+        result = fn.parse_report_filename("REPORT-20260423-003-DEV-to-PM.md")
+        assert result is not None
+        assert result.slug is None
+
+    def test_build_with_slug(self) -> None:
+        assert (
+            fn.build_report_filename(
+                date="20260512",
+                sequence=9,
+                reporter="OPS",
+                recipient="PM",
+                slug="codeflow-json-rm",
+            )
+            == "REPORT-20260512-009-OPS-to-PM-codeflow-json-rm.md"
+        )
+
+    def test_malformed_slug_rejected(self) -> None:
+        with pytest.raises(ValueError, match="slug"):
+            fn.build_report_filename(
+                date="20260423",
+                sequence=3,
+                reporter="DEV",
+                recipient="PM",
+                slug="Foo",
+            )
+
+
+class TestIssueTrailingSlug:
+    def test_parse_with_slug(self) -> None:
+        result = fn.parse_issue_filename(
+            "ISSUE-20260512-001-PM-pm50-userhome-pollution.md"
+        )
+        assert result is not None
+        assert result.reporter == "PM"
+        assert result.slug == "pm50-userhome-pollution"
+
+    def test_round_trip_with_slug(self) -> None:
+        name = "ISSUE-20260512-001-PM-pm50-userhome-pollution.md"
+        parsed = fn.parse_issue_filename(name)
+        assert parsed is not None
+        assert parsed.render() == name
+
+    def test_legacy_no_slug(self) -> None:
+        result = fn.parse_issue_filename("ISSUE-20260423-007-QA.md")
+        assert result is not None
+        assert result.slug is None
+
+    def test_build_with_slug(self) -> None:
+        assert (
+            fn.build_issue_filename(
+                date="20260512",
+                sequence=1,
+                reporter="PM",
+                slug="pm50-userhome-pollution",
+            )
+            == "ISSUE-20260512-001-PM-pm50-userhome-pollution.md"
+        )
+
+    def test_malformed_slug_rejected(self) -> None:
+        with pytest.raises(ValueError, match="slug"):
+            fn.build_issue_filename(
+                date="20260423",
+                sequence=7,
+                reporter="QA",
+                slug="Foo",
+            )
+
+
+class TestSlugRegexExport:
+    """``SLUG_RE`` should be exported and shape-pinned."""
+
+    def test_slug_re_in_all(self) -> None:
+        assert "SLUG_RE" in fn.__all__
+
+    def test_slug_re_anchored(self) -> None:
+        assert fn.SLUG_RE.pattern.startswith("^")
+        assert fn.SLUG_RE.pattern.endswith("$")
+
+    @pytest.mark.parametrize(
+        "legal",
+        ["foo", "foo-bar", "phase-a-fix-naming", "release-1-5-1", "x", "abc123"],
+    )
+    def test_slug_re_accepts(self, legal: str) -> None:
+        assert fn.SLUG_RE.fullmatch(legal) is not None
+
+    @pytest.mark.parametrize(
+        "illegal",
+        ["", "Foo", "1foo", "-foo", "foo-", "foo_bar", "foo bar", "foo.bar"],
+    )
+    def test_slug_re_rejects(self, illegal: str) -> None:
+        assert fn.SLUG_RE.fullmatch(illegal) is None

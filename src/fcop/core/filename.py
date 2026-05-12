@@ -46,6 +46,7 @@ __all__ = [
     "ISSUE_FILENAME_RE",
     "REVIEW_FILENAME_RE",
     "REVIEW_SUBJECT_SHORT_RE",
+    "SLUG_RE",
     "DATE_RE",
     "MAX_SEQUENCE",
     # Structural types
@@ -89,6 +90,27 @@ FilenameKind = Literal["task", "report", "issue", "review"]
 # self-contained; a unit test pins them to the same shape.
 _ROLE = r"[A-Z][A-Z0-9_]*(?:-[A-Z0-9_]+)*"
 
+# Optional trailing-slug subpattern (ADR-0033, fcop_protocol_version 2.1.0+).
+# Used for human-readable task labels appended after the routing fields,
+# e.g. ``TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md`` where
+# ``phase-a-fix-naming`` is the slug. The slug is **not** part of routing —
+# tools dispatch by sender / recipient / slot only and ignore the slug.
+#
+# Slug grammar: starts with a lowercase letter, may contain lowercase
+# letters / digits / hyphens in the middle, must end with a lowercase
+# letter or digit. The single-char form ``[a-z]`` is also valid.
+#
+# The **letter-first** rule is intentional: ``_ROLE`` segments allow
+# pure-digit interior parts (e.g. ``DEV_01``, ``OPS-001``), so a
+# digit-leading slug would be greedily absorbed into the role code and
+# create ambiguity (``OPS-001-fix`` could parse as ``recipient=OPS-001,
+# slug=fix`` or ``recipient=OPS, slug=001-fix``). Forcing slugs to start
+# with a lowercase letter makes the boundary unambiguous in every case.
+#
+# The **letter-or-digit-end** rule rejects trailing hyphens (``foo-``)
+# which would create visually ugly filenames and serve no purpose.
+_SLUG = r"[a-z](?:[a-z0-9-]*[a-z0-9])?"
+
 DATE_RE: re.Pattern[str] = re.compile(r"^\d{8}$")
 """Lexical shape of the ``YYYYMMDD`` date field.
 
@@ -96,16 +118,27 @@ Calendar validity (e.g. no February 30th) is checked separately in
 :func:`validate_date`.
 """
 
+SLUG_RE: re.Pattern[str] = re.compile(r"^" + _SLUG + r"$")
+"""Lexical shape of the optional trailing slug on task / report / issue
+filenames (ADR-0033). Must start with a lowercase letter."""
+
 TASK_FILENAME_RE: re.Pattern[str] = re.compile(
-    r"^TASK-(\d{8})-(\d{3})-(" + _ROLE + r")-to-(" + _ROLE + r")(?:\.(" + _ROLE + r"))?\.md$"
+    r"^TASK-(\d{8})-(\d{3})-(" + _ROLE + r")-to-(" + _ROLE + r")"
+    r"(?:\.(" + _ROLE + r"))?"
+    r"(?:-(" + _SLUG + r"))?"
+    r"\.md$"
 )
 
 REPORT_FILENAME_RE: re.Pattern[str] = re.compile(
-    r"^REPORT-(\d{8})-(\d{3})-(" + _ROLE + r")-to-(" + _ROLE + r")\.md$"
+    r"^REPORT-(\d{8})-(\d{3})-(" + _ROLE + r")-to-(" + _ROLE + r")"
+    r"(?:-(" + _SLUG + r"))?"
+    r"\.md$"
 )
 
 ISSUE_FILENAME_RE: re.Pattern[str] = re.compile(
-    r"^ISSUE-(\d{8})-(\d{3})-(" + _ROLE + r")\.md$"
+    r"^ISSUE-(\d{8})-(\d{3})-(" + _ROLE + r")"
+    r"(?:-(" + _SLUG + r"))?"
+    r"\.md$"
 )
 
 REVIEW_SUBJECT_SHORT_RE: re.Pattern[str] = re.compile(r"^[a-z0-9][a-z0-9-]*$")
@@ -135,6 +168,11 @@ class TaskFilename:
     Internal to :mod:`fcop.core`. Public callers receive the richer
     :class:`fcop.models.Task` instead. The two are deliberately distinct:
     this one carries only on-disk-derivable fields.
+
+    ``slug`` (ADR-0033) is an optional human-readable label appended after
+    the routing fields. It is **not** part of routing — tools dispatch by
+    ``sender`` / ``recipient`` / ``slot`` only. The slug exists purely to
+    make filenames self-describing on disk (``-phase-a-fix-naming.md``).
     """
 
     date: str
@@ -142,6 +180,7 @@ class TaskFilename:
     sender: str
     recipient: str
     slot: str | None = None
+    slug: str | None = None
 
     @property
     def task_id(self) -> str:
@@ -151,17 +190,23 @@ class TaskFilename:
     def render(self) -> str:
         """Render back to the on-disk filename."""
         recipient = f"{self.recipient}.{self.slot}" if self.slot else self.recipient
-        return f"{self.task_id}-{self.sender}-to-{recipient}.md"
+        tail = f"-{self.slug}" if self.slug else ""
+        return f"{self.task_id}-{self.sender}-to-{recipient}{tail}.md"
 
 
 @dataclass(frozen=True, slots=True)
 class ReportFilename:
-    """Parsed components of a report filename."""
+    """Parsed components of a report filename.
+
+    ``slug`` (ADR-0033) is an optional trailing human-readable label.
+    See :class:`TaskFilename` for the design rationale.
+    """
 
     date: str
     sequence: int
     reporter: str
     recipient: str
+    slug: str | None = None
 
     @property
     def report_id(self) -> str:
@@ -169,7 +214,8 @@ class ReportFilename:
         return f"{REPORT_FILENAME_PREFIX}-{self.date}-{self.sequence:03d}"
 
     def render(self) -> str:
-        return f"{self.report_id}-{self.reporter}-to-{self.recipient}.md"
+        tail = f"-{self.slug}" if self.slug else ""
+        return f"{self.report_id}-{self.reporter}-to-{self.recipient}{tail}.md"
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,11 +260,15 @@ class IssueFilename:
 
     Issues are broadcasts with no recipient — the shape differs from
     tasks and reports by that single field.
+
+    ``slug`` (ADR-0033) is an optional trailing human-readable label.
+    See :class:`TaskFilename` for the design rationale.
     """
 
     date: str
     sequence: int
     reporter: str
+    slug: str | None = None
 
     @property
     def issue_id(self) -> str:
@@ -226,7 +276,8 @@ class IssueFilename:
         return f"{ISSUE_FILENAME_PREFIX}-{self.date}-{self.sequence:03d}"
 
     def render(self) -> str:
-        return f"{self.issue_id}-{self.reporter}.md"
+        tail = f"-{self.slug}" if self.slug else ""
+        return f"{self.issue_id}-{self.reporter}{tail}.md"
 
 
 # ── Parsers ──────────────────────────────────────────────────────────
@@ -238,41 +289,55 @@ def parse_task_filename(name: str) -> TaskFilename | None:
     Accepts only the basename (no directory prefix). Sequence is returned
     as :class:`int` (``"017" → 17``), losing the zero-padding; use
     :meth:`TaskFilename.render` to recover the canonical spelling.
+
+    Since ADR-0033 (fcop_protocol_version 2.1.0+), an optional trailing
+    slug after the routing fields is parsed into
+    :attr:`TaskFilename.slug` — ``None`` if absent.
     """
     m = TASK_FILENAME_RE.fullmatch(name)
     if not m:
         return None
-    date, seq, sender, recipient, slot = m.groups()
+    date, seq, sender, recipient, slot, slug = m.groups()
     return TaskFilename(
         date=date,
         sequence=int(seq),
         sender=sender,
         recipient=recipient,
         slot=slot,
+        slug=slug,
     )
 
 
 def parse_report_filename(name: str) -> ReportFilename | None:
-    """Parse a report filename into its components, or ``None`` if it doesn't match."""
+    """Parse a report filename into its components, or ``None`` if it doesn't match.
+
+    Since ADR-0033, an optional trailing slug is parsed into
+    :attr:`ReportFilename.slug`.
+    """
     m = REPORT_FILENAME_RE.fullmatch(name)
     if not m:
         return None
-    date, seq, reporter, recipient = m.groups()
+    date, seq, reporter, recipient, slug = m.groups()
     return ReportFilename(
         date=date,
         sequence=int(seq),
         reporter=reporter,
         recipient=recipient,
+        slug=slug,
     )
 
 
 def parse_issue_filename(name: str) -> IssueFilename | None:
-    """Parse an issue filename into its components, or ``None`` if it doesn't match."""
+    """Parse an issue filename into its components, or ``None`` if it doesn't match.
+
+    Since ADR-0033, an optional trailing slug is parsed into
+    :attr:`IssueFilename.slug`.
+    """
     m = ISSUE_FILENAME_RE.fullmatch(name)
     if not m:
         return None
-    date, seq, reporter = m.groups()
-    return IssueFilename(date=date, sequence=int(seq), reporter=reporter)
+    date, seq, reporter, slug = m.groups()
+    return IssueFilename(date=date, sequence=int(seq), reporter=reporter, slug=slug)
 
 
 def parse_review_filename(name: str) -> ReviewFilename | None:
@@ -299,17 +364,22 @@ def build_task_filename(
     sender: str,
     recipient: str,
     slot: str | None = None,
+    slug: str | None = None,
 ) -> str:
     """Build a canonical task filename from components.
 
     Validates each argument and raises :class:`ValueError` on anything
     the grammar forbids. Use :func:`parse_task_filename` to round-trip.
+
+    ``slug`` (ADR-0033) is an optional human-readable trailing label;
+    must match :data:`SLUG_RE` when provided.
     """
     _check_components(
         date=date,
         sequence=sequence,
         role_fields={"sender": sender, "recipient": recipient}
         | ({"slot": slot} if slot is not None else {}),
+        slug=slug,
     )
     return TaskFilename(
         date=date,
@@ -317,6 +387,7 @@ def build_task_filename(
         sender=sender,
         recipient=recipient,
         slot=slot,
+        slug=slug,
     ).render()
 
 
@@ -326,18 +397,24 @@ def build_report_filename(
     sequence: int,
     reporter: str,
     recipient: str,
+    slug: str | None = None,
 ) -> str:
-    """Build a canonical report filename from components."""
+    """Build a canonical report filename from components.
+
+    ``slug`` (ADR-0033) is optional; must match :data:`SLUG_RE` when provided.
+    """
     _check_components(
         date=date,
         sequence=sequence,
         role_fields={"reporter": reporter, "recipient": recipient},
+        slug=slug,
     )
     return ReportFilename(
         date=date,
         sequence=sequence,
         reporter=reporter,
         recipient=recipient,
+        slug=slug,
     ).render()
 
 
@@ -346,14 +423,21 @@ def build_issue_filename(
     date: str,
     sequence: int,
     reporter: str,
+    slug: str | None = None,
 ) -> str:
-    """Build a canonical issue filename from components."""
+    """Build a canonical issue filename from components.
+
+    ``slug`` (ADR-0033) is optional; must match :data:`SLUG_RE` when provided.
+    """
     _check_components(
         date=date,
         sequence=sequence,
         role_fields={"reporter": reporter},
+        slug=slug,
     )
-    return IssueFilename(date=date, sequence=sequence, reporter=reporter).render()
+    return IssueFilename(
+        date=date, sequence=sequence, reporter=reporter, slug=slug,
+    ).render()
 
 
 def build_review_filename(
@@ -517,11 +601,16 @@ def _check_components(
     date: str,
     sequence: int,
     role_fields: dict[str, str],
+    slug: str | None = None,
 ) -> None:
     """Raise :class:`ValueError` if any component is grammar-illegal.
 
     Internal to the builders — consolidates the shared preconditions so
     each public ``build_*_filename`` stays declarative.
+
+    ``slug`` (ADR-0033) is optional. When provided, it must match
+    :data:`SLUG_RE` (lowercase letter followed by lowercase letters /
+    digits / hyphens).
     """
     issues: list[ValidationIssue] = []
     issues.extend(validate_date(date))
@@ -550,6 +639,28 @@ def _check_components(
                     message=(
                         f"{field_name} {value!r} is not a legal filename "
                         f"segment (must match role-code grammar)"
+                    ),
+                )
+            )
+
+    if slug is not None:
+        if not slug:
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="slug",
+                    message="slug must not be empty when provided",
+                )
+            )
+        elif not SLUG_RE.fullmatch(slug):
+            issues.append(
+                ValidationIssue(
+                    severity="error",
+                    field="slug",
+                    message=(
+                        f"slug {slug!r} is not a legal trailing-slug "
+                        f"(must match {SLUG_RE.pattern}: lowercase letter "
+                        f"followed by lowercase letters / digits / hyphens)"
                     ),
                 )
             )

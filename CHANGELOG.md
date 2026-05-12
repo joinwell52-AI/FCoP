@@ -8,6 +8,98 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [1.6.0] — 2026-05-12
+
+### feat(filename/protocol) — Trailing-slug filename adoption（ADR-0033）
+
+**核心变化**:把 codeflow 项目 22+ 例**自发涌现**的"长文件名"模式
+正式收编入 FCoP 文件名文法。`TASK` / `REPORT` / `ISSUE` 三种 envelope
+现在允许在路由字段尾部追加一个**可选**的 `-{slug}` 段:
+
+```
+TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md    ← 现在合法
+REPORT-20260512-009-OPS-to-PM-codeflow-json-rm.md   ← 现在合法
+ISSUE-20260512-001-PM-userhome-pollution.md         ← 现在合法
+```
+
+**文法**:`_SLUG = [a-z](?:[a-z0-9-]*[a-z0-9])?`
+
+- 起手:**小写字母**(强制,与 `_ROLE` 段消歧)
+- 中段:小写字母 / 数字 / 连字符
+- 收尾:**小写字母或数字**(禁止尾部 hyphen)
+
+**slug 不参与路由**:工具仍按 `sender` / `recipient` / `slot` 调度;slug
+只是人类可读标签,不创造新索引维度。`list_tasks(recipient="OPS")` 同时
+匹配 `...-PM-to-OPS.md` 与 `...-PM-to-OPS-anything.md`。
+
+### 完全向后兼容
+
+- 每一份 pre-1.6 的合法文件名继续合法
+- `parse_*_filename` 在旧文件名上返回 `slug=None`
+- `build_*_filename(slug=None)` 是缺省,行为与 1.5.x 等价
+- 既有 1057 个单测全部通过(0 回归)
+
+### 变更内容
+
+- `src/fcop/core/filename.py`:
+  - 新增 `_SLUG` 子模式 + `SLUG_RE` 导出常量
+  - `TASK_FILENAME_RE` / `REPORT_FILENAME_RE` / `ISSUE_FILENAME_RE`
+    末尾追加 `(?:-(_SLUG))?` 段
+  - `TaskFilename` / `ReportFilename` / `IssueFilename` dataclass
+    增加 `slug: str | None = None` 字段
+  - `parse_*_filename` / `build_*_filename` 全面支持 slug
+  - `_check_components` 校验 slug 合规
+- `tests/test_fcop/test_core_filename.py`:新增 31 个测试覆盖 trailing-slug
+  三种 envelope 的 parse / build / roundtrip / 拒绝非法 / 向后兼容 /
+  大写后缀消歧
+- `src/fcop/rules/_data/fcop-protocol.mdc`:
+  - `fcop_protocol_version` 2.3.0 → **2.4.0**
+  - "## File Naming" 节后新增 "### Trailing slug (optional)" 子节
+  - 末尾 changelog 加 v2.4 条目
+- `src/fcop/_version.py` + `mcp/src/fcop_mcp/_version.py`:
+  1.5.1 → **1.6.0**
+
+### 不在本次发布范围内
+
+- `fcop-rules.mdc`:**未改**。规则本体未变,trailing slug 是 commentary
+  层面 additive convention,不需要新规则。
+- `fcop_audit()`:**未改**。该工具不查文件名词法,新增 slug 自然被
+  `parse_*` 原生支持,无需 audit 介入。
+- `.cursor/rules/fcop-protocol.mdc`(项目根部署副本):由 ADMIN 安装
+  1.6.0 后通过 `redeploy_rules()` 同步(per Rule 8 + ADR-0006)。
+
+### 动机与设计哲学
+
+> 长文件名是不是已经属于合规了?像这样的?
+> — ADMIN, 2026-05-12
+
+经过 regex 实测 + `fcop_audit` 全面盘点,发现这些长文件名落在**协议
+规则、解析器、审计工具三者交集的空白处**:
+
+| 维度 | 状态 |
+|---|---|
+| `parse_task_filename(...)` | 返回 `None`(regex 不匹配) |
+| `fcop_audit()` | 不报告(scan 没覆盖) |
+| 协议规则原文 | 未规定 |
+| 实际落盘文件 | 22+ 例已在 codeflow,Rule 5 禁止改名 |
+
+三种选项,ADMIN 选定 **A · 协议收编**:
+
+> A,协议收编,因为 agent 之间看得懂; — ADMIN, 2026-05-12
+
+这一句点中要害 —— 当 agent 在硬盘上彼此识别这套模式时,**协议本来
+就应该把它说清**。本次发布是 FCoP "从涌现学习,沉淀为协议" 设计
+哲学的一次自我应用:**MINOR additive,零破坏成本,完全向后兼容**。
+
+### 参考
+
+- ADR-0033: Trailing Slug Filename Adoption
+- ADR-0002: FCoP Filename Grammar(原文法定义)
+- ADR-0003: Pre-1.0 Stability Charter §MINOR additive
+- 同期 task: `fcop/tasks/TASK-20260512-006-ADMIN-to-ME.md`
+
+---
+
 ## [1.5.1] — 2026-04-25
 
 ### fix(docs) — 版本字符串对齐补丁
