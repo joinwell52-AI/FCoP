@@ -43,8 +43,15 @@ node_modules/
 
 # Local experiments
 /_scratch/
+/.scratch/
 /_local/
 /_ignore/
 
 # FCoP local state (rule deployment migrations etc.)
 /.fcop/
+
+# FCoP runtime event-bus log (root + mcp/ subdir)
+fcop_events.jsonl
+
+# Per-release transient commit-msg drafts under scripts/
+scripts/_*.txt
