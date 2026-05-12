@@ -6,23 +6,30 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
-> **v1.3.0 摘要**（当前版本，2026-05-12）：
+> **v1.5.1 摘要**（当前版本，2026-04-25）：
 > - **三种起手方式**：`init_solo`（Solo 单 Agent）/ `init_project`（预设团队）/
 >   `init_custom`（自定义）。必须由 ADMIN 明确选，Agent 不允许替你默认。
-> - **协议体检**（新）：装上 fcop 后，先跑
+> - **协议体检**：装上 fcop 后，先跑
 >   `fcop_audit(scope="takeover")`（老项目）或 `fcop_audit(scope="new")`
->   （新项目）——它会帮你生成一份 INSPECTION 报告，列出协议合规缺口和建议
->   整改步骤。接手陌生项目时，这是**第一动作**。
-> - **治理告警（GAL）**（新）：`fcop_list_alerts()` 查看治理告警收件箱；
+>   （新项目）——生成 INSPECTION 报告，列出协议合规缺口和建议整改步骤。
+>   接手陌生项目时，这是**第一动作**。升级后跑 `fcop_audit(scope="upgrade")`
+>   检测角色文档版本滞后（RULE_DOC_DRIFT）。
+> - **治理告警（GAL）**：`fcop_list_alerts()` 查看治理告警收件箱；
 >   `fcop_create_alert()` 手动归档缺口。告警不阻塞操作，只通知你。
 > - **风险管理**（v1.1 起）：高风险任务用
 >   `write_task(..., risk_level="high")` 自动触发人工审批 REVIEW；
 >   你用 `mark_human_approved(review_id=...)` 批准。
-> - **MCP 工具总数**：35 个（v1.3.0）。完整清单见 `docs/mcp-tools.md`。
-> - **规则版本**：`fcop-rules.mdc 2.3.0` / `fcop-protocol.mdc 2.1.0`。
+> - **write-side 工具必须显式绑定**（v1.4 起）：MCP 配置里设置
+>   `FCOP_PROJECT_DIR`，或会话开始时调 `set_project_dir()`。未绑定时
+>   调用写入工具会抛出 `WriteRefused` 错误，防止意外写入 HOME 目录。
+> - **文件级修正**（v1.4 起）：TASK/REPORT 文件可用可选字段
+>   `supersedes: TASK-XXXXXXXX-NNN` 标注本文件替代的历史文件；
+>   `list_tasks` / `list_reports` 自动双向标注。
+> - **MCP 工具总数**：35 个（v1.5.0）。完整清单见 `docs/mcp-tools.md`。
+> - **规则版本**：`fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.3.0`。
 >   升级后跑 `redeploy_rules()` 刷新本地四件套规则文件。
 >
-> _(历史摘要：0.6.4 / 0.6.5 / v1.0 / v1.1 的变更见 `CHANGELOG.md`)_
+> _(历史摘要：v1.3 / v1.4 / v1.5.0 及更早版本的变更见 `CHANGELOG.md`)_
 
 ---
 

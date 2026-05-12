@@ -8,6 +8,28 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [1.5.1] — 2026-04-25
+
+### fix(docs) — 版本字符串对齐补丁
+
+**核心问题**：`v1.5.0` 发布后发现 `letter-to-admin.{zh,en}.md` 的摘要块停留在
+`v1.5.0 摘要` 标注正确，但 `fcop-protocol.mdc` 版本引用写成了 `2.2.0`（实际
+已升至 `2.3.0`），违反了发版前版本对齐必检项。同时 `test_server.py` 里的
+断言也未随上一批文档修复同步。
+
+**变更内容**（纯文档 / 测试修复，无功能变更）：
+
+- `src/fcop/rules/_data/letter-to-admin.{zh,en}.md`：摘要块升至 `v1.5.1`；
+  修正 `fcop-protocol.mdc 2.2.0` → `2.3.0`
+- `src/fcop/_version.py`：1.5.0 → 1.5.1
+- `src/fcop/rules/_data/fcop-rules.mdc`：2.4.0 changelog 条目注明 1.5.1 为 no-rule-change patch
+- `src/fcop/rules/_data/fcop-protocol.mdc`：Protocol Version Log v2.3 条目注明 1.5.1 no commentary change
+- `tests/test_fcop/test_rules.py` + `tests/test_fcop_mcp/test_server.py`：断言更新至 `v1.5.1 摘要`
+
+**根因分析**：发版流程中 Phase 3-V（版本字符串全文对齐）检查项执行不到位，
+`fcop-protocol.mdc` 版本在 v1.5.0 升至 2.3.0 但 letter 里的引用未同步。
+已在 `RELEASE-CHECKLIST.md` 强化了该检查项，要求发版前逐项人工过一遍。
+
 ## [1.5.0] — 2026-05-12
 
 ### docs(P1) — 84 份角色/团队文档同步至 v1.4 协议

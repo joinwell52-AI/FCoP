@@ -6,27 +6,37 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **v1.3.0 summary** (current, 2026-05-12):
+> **v1.5.1 summary** (current, 2026-04-25):
 > - **Three onboarding modes** — `init_solo` (Solo) / `init_project`
 >   (preset team) / `init_custom` (custom). ADMIN must choose explicitly;
 >   agents may not default.
-> - **Protocol inspection** (new): after setup, run
+> - **Protocol inspection**: after setup, run
 >   `fcop_audit(scope="takeover")` (existing project) or
 >   `fcop_audit(scope="new")` (fresh project). The tool generates an
 >   INSPECTION report listing compliance gaps and suggested remediation
->   steps. For unfamiliar projects, **this is your first move**.
-> - **Governance alerts — GAL** (new): `fcop_list_alerts()` checks the
->   alert inbox; `fcop_create_alert()` archives a gap manually.
+>   steps. For unfamiliar projects, **this is your first move**. After
+>   upgrading, run `fcop_audit(scope="upgrade")` to detect role documents
+>   lagging the installed version (RULE_DOC_DRIFT).
+> - **Governance alerts — GAL**: `fcop_list_alerts()` checks the alert
+>   inbox; `fcop_create_alert()` archives a gap manually.
 >   Alerts notify, they do not block.
 > - **Risk management** (since v1.1): `write_task(..., risk_level="high")`
 >   auto-creates a `needs_human` REVIEW; you approve with
 >   `mark_human_approved(review_id=...)`.
-> - **MCP tool count**: 35 (v1.3.0). Full list: `docs/mcp-tools.md`.
-> - **Rule versions**: `fcop-rules.mdc 2.3.0` / `fcop-protocol.mdc 2.1.0`.
+> - **Write-side tools require explicit binding** (since v1.4): set
+>   `FCOP_PROJECT_DIR` in your MCP config, or call `set_project_dir()`
+>   at session start. Unbound write calls raise `WriteRefused` to prevent
+>   accidental writes to your HOME directory.
+> - **File-level correction** (since v1.4): TASK/REPORT files support an
+>   optional `supersedes: TASK-XXXXXXXX-NNN` field marking which historical
+>   file this one replaces. `list_tasks` / `list_reports` annotate both
+>   directions automatically.
+> - **MCP tool count**: 35 (v1.5.0). Full list: `docs/mcp-tools.md`.
+> - **Rule versions**: `fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.3.0`.
 >   Run `redeploy_rules()` after upgrading to refresh the four local rule
 >   files.
 >
-> _(Earlier summaries: 0.6.4 / 0.6.5 / v1.0 / v1.1 — see `CHANGELOG.md`)_
+> _(Earlier summaries: v1.3 / v1.4 / v1.5.0 and older — see `CHANGELOG.md`)_
 
 ---
 

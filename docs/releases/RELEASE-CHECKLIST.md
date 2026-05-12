@@ -64,6 +64,34 @@ released independently, but the `fcop` dependency pin in
       where they reference the latest version explicitly (don't leave
       stale "Latest: 0.6.5" anywhere)
 
+### Phase 3-V — Version String Alignment (版本字符串全文对齐)
+
+**这是一条龙发版中最容易漏的一环。发版前必须逐项人工过一遍。**
+
+- [ ] `src/fcop/rules/_data/letter-to-admin.zh.md` **摘要块**：
+      - `**vX.Y.Z 摘要**（当前版本）` → 更新到新版本号
+      - `**MCP 工具总数**：N 个（vOLD）` → 运行 `uv run python -c "import asyncio; from fcop_mcp.server import mcp; tools=asyncio.run(mcp.list_tools()); print(len(tools))"` 确认数量
+      - `**规则版本**：fcop-rules.mdc A.B.C / fcop-protocol.mdc D.E.F` → 与 frontmatter 一致
+      - _(历史摘要) 中加入前一版本的简要说明_
+- [ ] `src/fcop/rules/_data/letter-to-admin.en.md` **summary block**：
+      - 与 zh 版本同步更新，两者必须在同一 commit 里改（不能分批）
+- [ ] `src/fcop/rules/_data/fcop-rules.mdc`：
+      - frontmatter `fcop_rules_version` 与 body `**Version**` 行一致
+      - body 底部加了新版 changelog 条目（格式：`**X.Y.Z changes**（随 `fcop@A.B.C`）：`）
+- [ ] `src/fcop/rules/_data/fcop-protocol.mdc`：
+      - frontmatter `fcop_protocol_version` 与 `Protocol Version Log` 最新条目一致
+      - 若本次发版修改了协议注释内容，需新增 `- **vX.Y** (date) — ...` 条目
+      - 若本次发版**未**修改协议注释，在 Protocol Version Log 加一行 "no change" 标注
+- [ ] `docs/mcp-tools.md` 顶部注释 `<!-- N tools, M resources – vX.Y.Z -->` 已更新
+- [ ] `src/fcop/rules/_data/agent-install-prompt.{zh,en}.md`：
+      若提示文字引用了工具数量或版本号，需同步更新
+- [ ] `.cursor/rules/fcop-rules.mdc`、`.cursor/rules/fcop-protocol.mdc` 已用
+      `Copy-Item src/fcop/rules/_data/fcop-rules.mdc .cursor/rules/ -Force` 同步
+- [ ] `AGENTS.md` 和 `CLAUDE.md` 已通过 `fcop.deploy_protocol_rules()` 或手动同步
+      重新生成（含新版本号）
+- [ ] 运行 `grep -r "X.OLD.Z\|vOLD" docs/ src/ --include="*.md" | grep -v CHANGELOG`
+      确认没有遗漏的旧版本号硬编码
+
 ## Phase 4 — Project ledger
 
 - [ ] All TASK-* this release closes have matching REPORT-* in

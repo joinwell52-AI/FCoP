@@ -160,7 +160,7 @@ class TestInit:
         assert "📨 给 ADMIN 的一封信" in out
         assert "原样" in out
         assert "FCoP 致 ADMIN 的一封信" in out
-        assert "v1.3.0 摘要" in out
+        assert "v1.5.1 摘要" in out
         assert "LETTER-TO-ADMIN.md" in out  # path shown in reply (layout-agnostic)
 
     def test_init_project_reply_letter_handover_en(

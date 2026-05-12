@@ -1,7 +1,7 @@
 ---
 description: FCoP Protocol commentary (behavior governance protocol layer · v1.0) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, directory layout, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（行为治理协议层 · v1.0）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、目录结构、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 2.2.0
+fcop_protocol_version: 2.3.0
 ---
 
 <!--
@@ -1019,6 +1019,30 @@ Three things the protocol explicitly grants you:
    自我审查烧 token，本身就是反模式。
 
 ## Protocol Version Log / 协议版本记录
+
+- **v2.3** (2026-05-12, no commentary change in fcop@1.5.1 patch) — **v1.5 capabilities commentary**，随 `fcop@1.5.0`：
+  1. 新增 **RULE_DOC_DRIFT 违规类型** 注释（per ADR-0032 §4.7）：
+     - `fcop_audit(scope=upgrade/takeover)` 扫描已部署角色文档版本滞后；
+     - 整改：`deploy_role_templates(force=True)` 重新部署最新角色模板；
+     - `fcop-rules.mdc` 同步升至 2.4.0。
+  2. **P1 文档层对齐**（无协议新功能，纯文档补写）：
+     - 84 份角色/团队文档补写 v1.0~v1.4 协议更新速查节；
+     - `docs/getting-started.md` + `agent-install-prompt` 补写 `fcop_audit` 三场景。
+  3. **letter-to-admin 摘要块**升级至 v1.5.0（涵盖 write-side 绑定 + `supersedes:` + RULE_DOC_DRIFT）。
+  4. 版本号从 2.2.0 升至 2.3.0。
+
+  v2.3 changes:
+  1. Added **RULE_DOC_DRIFT** violation type commentary (ADR-0032 §4.7):
+     `fcop_audit(scope=upgrade/takeover)` detects deployed role docs lagging
+     the installed version; remediation: `deploy_role_templates(force=True)`;
+     `fcop-rules.mdc` bumped to 2.4.0.
+  2. **P1 doc sync** (no new protocol features, documentation only):
+     84 role/team docs updated with v1.0–v1.4 protocol summary sections;
+     `getting-started` and `agent-install-prompt` updated with 3-scenario
+     `fcop_audit` guidance.
+  3. **letter-to-admin** summary block updated to v1.5.0 (covers write-side
+     binding guard, `supersedes:` field, RULE_DOC_DRIFT scan).
+  4. Version bumped 2.2.0 → 2.3.0.
 
 - **v2.2** (2026-05-12) — **v1.4 capabilities commentary**，随 `fcop@1.4.0`：
   1. 新增 **`supersedes:` frontmatter 字段**（TASK-004）：
