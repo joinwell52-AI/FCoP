@@ -1772,7 +1772,7 @@ class Project:
 
         # Installed package minor version
         try:
-            from fcop._version import __version__ as pkg_ver  # type: ignore[attr-defined]
+            from fcop._version import __version__ as pkg_ver
 
             parts = pkg_ver.split(".")
             pkg_major, pkg_minor = int(parts[0]), int(parts[1])
