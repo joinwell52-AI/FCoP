@@ -8,6 +8,24 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [1.3.1] — 2026-05-12
+
+### fix(docs) — 协议文档同步至 v1.3.0（P0 整改批次）
+
+**核心问题**：fcop v1.3.0 发布后，面向 Agent 的协议规则文件停留在 v1.1，导致 Agent 不知道 `fcop_audit()` / GAL / INSPECTION 的存在。
+
+**变更内容**：
+
+- **`fcop-rules.mdc` → 2.3.0**：新增 Rule 9.6（协议体检 / fcop_audit & INSPECTION）+ Rule 9.7（治理告警层 / GAL）
+- **`fcop-protocol.mdc` → 2.1.0**：新增 9.6/9.7 Commentary 操作指南；`fcop/shared/` 目录表加入 `INSPECTION-` 行；新增批量整改授权模式规范
+- **`letter-to-admin.{zh,en}.md`**：摘要段从 "0.6.4/0.6.5" 全面重写为 "v1.3.0 摘要"，涵盖 fcop_audit / GAL / risk_level / 工具总数
+- **Leader 角色文档 × 10 份（中英各 5）**：PM / ME / LEAD-QA / MARKETER / PUBLISHER 均新增 "v1.3.0 工具速查" 段，包含 fcop_audit / fcop_list_alerts / write_task(risk_level) 等关键工具示例
+- **`.cursor/rules/` + `AGENTS.md` + `CLAUDE.md`**：随源文件更新同步部署
+
+**本次不包含**：P1（84 份团队模板深度）/ P2（`_scan_outdated_role_docs` 新增 scan）——推 1.4.0。
+
+---
+
 ## [1.3.0] — 2026-05-12
 
 ### feat(audit) — ADR-0032 fcop_audit()：协议状态编译器（三场景体检工具）

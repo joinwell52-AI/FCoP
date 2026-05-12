@@ -1,20 +1,3 @@
-# FCoP Protocol Rules · agent-host-neutral copy
-
-> This file is deployed by `fcop` for agent hosts that read
-> `AGENTS.md` / `CLAUDE.md` as their system-prompt source
-> (Codex, Claude Code, Devin, Cursor, etc.). Cursor IDE users get
-> the same content via `.cursor/rules/fcop-rules.mdc` and
-> `.cursor/rules/fcop-protocol.mdc`.
->
-> The source of truth is the `fcop` Python package. To upgrade
-> this file after `pip install -U fcop[-mcp]`, ADMIN runs the MCP
-> tool `redeploy_rules()` (or calls
-> `Project.deploy_protocol_rules(force=True)` directly).
-
-> Rules version: `2.2.0` · Protocol commentary version: `2.0.0`
-
----
-
 # FCoP Rules · FCoP 协议规则
 
 > 本文件定义 FCoP 协议的**规则**，由 `fcop` MCP 自动部署。
@@ -751,6 +734,87 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
   orchestration to decide whether the 9.5.1 gate is needed before
   invoking the tool.
 
+### 9.6 · Protocol Inspection / 协议体检（fcop_audit & INSPECTION）
+
+> v1.3.0 新增，per ADR-0032。
+> Added in v1.3.0, per ADR-0032.
+
+- **`fcop_audit()` 是协议状态编译器**，不是执行引擎。它把"项目的协议合规
+  状态"翻译成结构化的 **INSPECTION 报告**（findings + 建议整改方案），
+  不会自动修任何文件。
+- **INSPECTION** 是第 5 类 IPC envelope，文件名格式：
+  `fcop/shared/INSPECTION-YYYYMMDD-NNN-{scope}.md`。
+  `scope` 取值：`new`（新项目）/ `upgrade`（版本升级后验收）/
+  `takeover`（老项目首次引入 FCoP，最完整扫描）/ `auto`（自动推断）。
+- **使用场景**：接手陌生项目时 `fcop_audit(scope="takeover")` 应为**第一
+  动作**；版本升级后跑 `fcop_audit(scope="upgrade")` 验收；新项目初始化
+  完成后跑 `fcop_audit(scope="new")` 自检。
+- **产物语义**：INSPECTION = Structured Findings + Suggested Remediation
+  Plan。报告里的 "Execution Block" 是**建议命令**，不是协议指令；由
+  ADMIN / Agent 自行决定是否执行。
+- **violation 分级**：P0（阻塞）/ P1（规范）/ P2（整洁）。P0 violation
+  未清零时，项目应视为"协议不合规"。
+- **Agent 调用权限**：任何角色均可发起 `fcop_audit()`（读操作，不修改
+  任何文件）；写出 INSPECTION 文件需要 ADMIN 明确授权的 session。
+
+- **`fcop_audit()` is a protocol-state compiler**, not an execution engine.
+  It translates a project's compliance state into a structured **INSPECTION
+  report** (findings + suggested remediation plan) without modifying any
+  files automatically.
+- **INSPECTION** is the 5th IPC envelope type. File name:
+  `fcop/shared/INSPECTION-YYYYMMDD-NNN-{scope}.md`.
+  `scope`: `new` / `upgrade` / `takeover` / `auto`.
+- **When to use**: `fcop_audit(scope="takeover")` should be the **first
+  action** when onboarding an unfamiliar project; `scope="upgrade"` after a
+  version bump; `scope="new"` as a self-check after `init_*`.
+- **Report semantics**: INSPECTION = Structured Findings + Suggested
+  Remediation Plan. The Execution Block contains **suggested commands**, not
+  protocol directives; ADMIN / Agent decides whether to execute them.
+- **Violation severity**: P0 (blocking) / P1 (normative) / P2 (hygiene).
+  A project with unresolved P0 violations should be treated as
+  **non-compliant**.
+- **Agent access**: any role may call `fcop_audit()` (read-only; does not
+  modify any file). Writing the INSPECTION file requires an ADMIN-authorised
+  session.
+
+### 9.7 · Governance Alert Layer / 治理告警层（GAL）
+
+> v1.3.0 新增，per ADR-0031。
+> Added in v1.3.0, per ADR-0031.
+
+- **GAL** 是 FCoP 的治理漂移检测机制——监测治理断层并产生 ALERT 信号，
+  由 ADMIN 收件、人工处置，不自动阻断任何操作。
+- **ALERT envelope**：文件名 `fcop/alerts/ALERT-YYYYMMDD-NNN-{signal}.md`；
+  `signal` 取值：`critical_tool_unreviewed` / `missing_independent_verdict`
+  / `long_running_without_reconciliation`（及未来扩展）。
+- **三类漂移信号**（v1.3.0 内置）：
+  - **S1 `critical_tool_unreviewed`**：24 h 内存在 CRITICAL_TAG 工具调用
+    但无对应 REVIEW → severity: high
+  - **S3 `missing_independent_verdict`**：执行窗口 > 6 h 无独立治理事件
+    （Solo Blindspot）→ severity: high
+  - **S4 `long_running_without_reconciliation`**：open Task 超 24 h 未归档
+    → severity: low
+- **FCoP-Rule-G1**（协议公理）：`write_report` / `fcop_report` 属于执行域
+  自述，**不构成独立治理信号**。只有 `write_review` / `mark_human_approved`
+  / `fcop_check` 才构成独立治理视角。
+- **MCP 工具**：`fcop_list_alerts`（查看告警收件箱）/ `fcop_create_alert`
+  （手动归档治理缺口）。
+
+- **GAL** is FCoP's governance-drift detection mechanism. It monitors for
+  governance gaps and surfaces ALERT signals for ADMIN to review and act on.
+  GAL does **not** block any operation automatically.
+- **ALERT envelope**: `fcop/alerts/ALERT-YYYYMMDD-NNN-{signal}.md`.
+- **Three built-in drift signals (v1.3.0)**:
+  - **S1**: CRITICAL_TAG tool call in 24 h with no corresponding REVIEW.
+  - **S3**: Execution window > 6 h with no independent governance event (Solo
+    Blindspot).
+  - **S4**: Open Task older than 24 h without archival.
+- **FCoP-Rule-G1** (protocol axiom): `write_report` / `fcop_report` are
+  self-reports in the execution domain and **do not constitute independent
+  governance signals**. Only `write_review` / `mark_human_approved` /
+  `fcop_check` qualify as independent governance perspectives.
+- **MCP tools**: `fcop_list_alerts` / `fcop_create_alert`.
+
 ---
 
 ## Rule 8 · Rules Take Precedence / 规则优先级
@@ -784,8 +848,21 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.2.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 2.3.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**2.3.0 changes / 2.3.0 变更**（随 `fcop@1.3.1`）:
+
+- 新增 **Rule 9.6 · Protocol Inspection / 协议体检**（per ADR-0032）：
+  - `fcop_audit()` 协议状态编译器；INSPECTION 作为第 5 类 IPC envelope
+  - 三场景：`new` / `upgrade` / `takeover` / `auto`
+  - violation 分级：P0（阻塞）/ P1（规范）/ P2（整洁）
+  - FCoP-Rule-G1 语义边界（建议语义 vs 执行语义）
+- 新增 **Rule 9.7 · Governance Alert Layer / 治理告警层**（per ADR-0031）：
+  - GAL 三类漂移信号：S1 / S3 / S4
+  - FCoP-Rule-G1：`write_report` ≠ 独立治理信号
+  - MCP 工具：`fcop_list_alerts` / `fcop_create_alert`
+- Rule 0–9.5 主体不变。
 
 **2.2.0 changes / 2.2.0 变更**（随 `fcop@1.1.0`）:
 
@@ -861,18 +938,6 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 
 ---
-
-<!--
-Host-neutral reminder / 宿主中立提示:
-The conventions below describe FCoP itself (a file-based coordination
-protocol), not anything specific to Cursor. The `.mdc` wrapper and
-`alwaysApply` frontmatter are a Cursor-specific container; when porting
-to another host (Claude Desktop / CLI / raw LLM API / Doubao etc.),
-paste the body into whatever system prompt that host uses — the protocol
-works the same.
-下面内容描述的是 FCoP 协议本身，不依赖 Cursor。`.mdc` 壳与 `alwaysApply`
-是 Cursor 特有的容器；换到别的宿主时，把正文贴进系统提示即可。
--->
 
 # FCoP Protocol · 协议解释 / Protocol Commentary
 
@@ -1369,6 +1434,7 @@ role) should **proactively** create two files under
 | Layer 1 · 角色边界 / role boundaries | `TEAM-ROLES.md` | 每个角色各自负责什么、向谁汇报、哪些事不越界 / What each role owns, who reports to whom, which lines are off-limits |
 | Layer 2 · 运作规则 / operating rules | `TEAM-OPERATING-RULES.md` | 任务怎么派、怎么回、什么时候升级、怎么复盘 / How tasks are dispatched, replied to, escalated, retrospected |
 | Layer 3 · 单岗深度 / single-role depth | `roles/{ROLE}.md` | 单一岗位的职责清单、输出物、验收标准、跨岗接口 / One role's responsibilities, deliverables, acceptance criteria, interfaces |
+|| 审计产物 / audit artifact | \INSPECTION-YYYYMMDD-NNN-{scope}.md\ | 协议体检报告（per Rule 9.6）；由 \cop_audit()\ 写出 / Protocol inspection report (Rule 9.6); written by \cop_audit()\ |
 
 四层分工：Layer 1（`TEAM-ROLES.md`）规定"谁负责什么"，Layer 2
 （`TEAM-OPERATING-RULES.md`）规定"什么时候派、怎么回、什么时候
@@ -1809,6 +1875,35 @@ Three things the protocol explicitly grants you:
    自我审查烧 token，本身就是反模式。
 
 ## Protocol Version Log / 协议版本记录
+
+- **v2.1** (2026-05-12) — **v1.3 capabilities commentary**，随 `fcop@1.3.1`：
+  1. 新增 **Rule 9.6 Commentary**（协议体检 `fcop_audit()` 操作指南）：
+     - 三场景决策树（new / upgrade / takeover / auto）
+     - INSPECTION envelope 文件命名与归档规范
+     - `fcop/shared/` 目录表新增 `INSPECTION-` 行
+     - Execution Block 建议语义声明（非协议指令）
+     - P0 violation 处置原则
+  2. 新增 **Rule 9.7 Commentary**（GAL 治理告警操作指南）：
+     - 三类漂移信号触发条件与处置建议表
+     - FCoP-Rule-G1 协议公理解释与实践含义
+     - `fcop_list_alerts` / `fcop_create_alert` 调用示例
+  3. 新增 **批量整改授权模式**（Batch Remediation Authorization）：
+     - proposal frontmatter `scope: batch-remediation` + `files: [...]` 语义
+     - 批量 TASK + 批量 REPORT 规则
+     - 约束：同质改动、不超范围、diff 摘要必须
+  4. 版本号从 2.0.0 升至 2.1.0。
+
+  v2.1 changes:
+  1. Added **Rule 9.6 Commentary** (`fcop_audit()` Protocol Inspection guide):
+     three-scenario decision tree; INSPECTION envelope naming; `fcop/shared/`
+     table extended with `INSPECTION-` row; Execution Block suggestion semantics;
+     P0 violation handling principle.
+  2. Added **Rule 9.7 Commentary** (GAL Governance Alert Layer guide):
+     three drift signal table; FCoP-Rule-G1 axiom explanation; tool examples.
+  3. Added **Batch Remediation Authorization** mechanism:
+     `scope: batch-remediation` in proposal frontmatter; batch TASK+REPORT rules;
+     constraints (homogeneous changes, no scope creep, diff summary required).
+  4. Version bumped 2.0.0 → 2.1.0.
 
 - **v2.0** (2026-05-11) — **v1.1 capabilities commentary**，随 `fcop@1.1.0`：
   1. Rule 9.1 Commentary 扩展：`decision` 枚举增至 5 值（`needs_human`），
@@ -2280,6 +2375,150 @@ tools:
 
 Upstream orchestration should trigger the 9.5.1 gate when it sees
 `requires_human_approval: true` in the tool metadata.
+
+### 9.6 Commentary · 协议体检与 INSPECTION 报告操作指南
+
+> per ADR-0032 · fcop_audit() Protocol Inspection Compiler
+
+#### 9.6.1 · 三场景使用决策树
+
+```
+项目状态                              推荐 scope
+────────────────────────────────────────────────
+init_* 完成后，首次自检              → new
+pip install -U fcop 后验收           → upgrade
+接手没有 fcop 的陌生老项目           → takeover
+不确定                               → auto（工具自动推断）
+```
+
+#### 9.6.2 · MCP 调用示例
+
+```python
+# 接手老项目（最完整扫描）
+fcop_audit(scope="takeover", output="file")
+# → 生成 fcop/shared/INSPECTION-YYYYMMDD-001-takeover.md
+
+# 版本升级后验收
+fcop_audit(scope="upgrade", output="stdout")
+
+# 查看 Python API
+from fcop import Project, InspectionReport
+proj = Project("./myproject")
+report: InspectionReport = proj.audit(scope="auto", output="file")
+print(report.overall_status)   # green / needs_remediation / blocked
+print(report.p0_count)         # P0 阻塞性违规数
+```
+
+#### 9.6.3 · INSPECTION 报告文件命名与归档
+
+| 段 | 格式 | 示例 |
+|---|---|---|
+| 路径 | `fcop/shared/` | — |
+| 文件名 | `INSPECTION-YYYYMMDD-NNN-{scope}.md` | `INSPECTION-20260512-001-takeover.md` |
+| frontmatter | `kind: inspection` | — |
+
+INSPECTION 文件不需要对应 TASK；`fcop_audit()` 直接写出，归档到
+`fcop/shared/` 而非 `fcop/tasks/`（它不是可派发工作单，而是项目诊断书）。
+
+#### 9.6.4 · Execution Block 语义声明
+
+INSPECTION 报告里的 "Execution Block" 包含**按 Tier 1/2/3 分组的整改命令
+建议**。语义是"建议"，不是"协议指令"。ADMIN / Agent 看完后自主决定是否
+执行、以何种顺序执行。绝不可解读为"fcop 要求你运行这些命令"。
+
+#### 9.6.5 · P0 violation 处置原则
+
+项目存在**未清零的 P0 violation** 时：
+- `fcop_audit()` 返回 `overall_status: blocked`
+- 建议暂停新功能开发，先处置阻塞项
+- P0 全清后重跑 `fcop_audit()`，产出一份 `green` 状态报告，归档为
+  "P0 清零证明"
+
+---
+
+### 9.7 Commentary · GAL 治理告警操作指南
+
+> per ADR-0031 · Governance Alert Layer
+
+#### 9.7.1 · 告警查看流程
+
+```python
+# MCP 工具
+fcop_list_alerts()                    # 查看全部告警收件箱
+fcop_list_alerts(status="open")       # 只看未处置告警
+fcop_list_alerts(severity="high")     # 只看高严重度
+```
+
+#### 9.7.2 · 三类漂移信号触发条件
+
+| 信号 | 触发条件 | Severity | 处置建议 |
+|---|---|---|---|
+| S1 `critical_tool_unreviewed` | 24 h 内 CRITICAL_TAG 工具调用但无对应 REVIEW | high | 补写 `write_review` 并 `mark_human_approved` |
+| S3 `missing_independent_verdict` | 执行窗口 > 6 h 无独立治理事件（Solo Blindspot） | high | 提交 `fcop_check()` 或 `write_review(decision="done")` |
+| S4 `long_running_without_reconciliation` | open Task 超 24 h 未归档 | low | `archive_task` 或拆子 task |
+
+#### 9.7.3 · FCoP-Rule-G1（协议公理）
+
+> `write_report` / `fcop_report` ∈ 执行域自述。自我叙述 ≠ 治理信号。
+> 只有 `write_review` / `mark_human_approved` / `fcop_check` 才构成
+> 独立治理视角。
+
+**实践含义**：Agent 写了 10 份 REPORT，也不能视为"有独立审计"。S3 告警
+依然会在 6 h 后触发，直到出现第一份 REVIEW 为止。
+
+#### 9.7.4 · 手动归档治理缺口
+
+```python
+# 发现协议缺口，手动写 ALERT
+fcop_create_alert(
+    signal="critical_tool_unreviewed",
+    severity="high",
+    summary="fcop_audit 产出但 2h 内无 REVIEW",
+    evidence="INSPECTION-20260512-001-takeover.md"
+)
+```
+
+---
+
+### 批量整改授权模式 · Batch Remediation Authorization
+
+> 本机制自 `fcop_protocol_version: 2.1.0` 引入，per §4.2 of
+> `protocol-docs-sync-20260512.md`。
+
+#### 背景
+
+Rule 0.a.1 要求"每个工作单一份 TASK + 一份 REPORT"。这对**单文件改动**
+没问题，但当 `fcop_audit()` 或 ADMIN 发现**大批量文档脱节**时（例如 50 份
+团队模板需要同步更新），传统模式下需要 50 轮 TASK/REPORT，效率极低。
+
+#### 机制
+
+ADMIN 在 `.fcop/proposals/{name}.md` frontmatter 中加可选字段：
+
+```yaml
+scope: batch-remediation
+files:
+  - src/fcop/teams/_data/dev-team/roles/PM.md
+  - src/fcop/teams/_data/dev-team/roles/PM.en.md
+  # ...（完整清单）
+batch_id: docs-sync-20260512
+```
+
+当 ADMIN 把该 proposal 的 `status` 改为 `approved`，即表示**一次性批准
+所有 `files` 清单内的文件改动**，Agent 可以：
+
+1. 只写**一份汇总 TASK**（`TASK-YYYYMMDD-NNN-ADMIN-to-{role}.md`，正文
+   引用 `batch_id`）
+2. 按清单批量改文件
+3. 只写**一份汇总 REPORT**（引用同一 `batch_id`，列出实际改动差异）
+
+#### 约束
+
+- `scope: batch-remediation` 仅对**同质改动**有效（例如"所有 leader 角色
+  文档加同一段速查"），不允许混入不同性质的改动。
+- Agent 在改动中发现任何超出清单范围的必要改动，须**停止批量模式**，退回
+  标准 drop_suggestion 流程。
+- 汇总 REPORT 必须包含 diff 摘要（实际改了哪些文件、改了什么）。
 
 ---
 

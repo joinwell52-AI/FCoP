@@ -6,26 +6,23 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
-> **0.6.4 摘要**：
-> - **三种起手方式必须由 ADMIN 选**——Solo / 预设团队 / 自定义。
->   Agent **不允许**替你默认选 `dev-team`（0.6.3 这个坑实战中踩过）。
-> - **`init_solo` / `init_project` / `init_custom` 一次性落齐**所有
->   承诺的文件：`fcop.json` + 这封信 + `workspace/README.md` +
->   三层职责文档（`shared/TEAM-README.md` / `TEAM-ROLES.md` /
->   `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`，zh+en）+
->   协议规则四件套（`.cursor/rules/*.mdc` + `AGENTS.md` +
->   `CLAUDE.md`）。0.6.3 漏过其中几项，0.6.4 全部到位。
-> - **Solo 模式自带三层职责模板**（`teams/_data/solo/`）。
-> - **`init_*` 工具新增 `force=True` 参数**——切团队不用再去手改
->   配置（旧文件自动归档到 `.fcop/migrations/<时间戳>/`）。
-> - **新增 MCP 资源 `fcop://prompt/install`**——agent 帮你装 fcop-mcp
->   的标准提示词。
-> - **0.6.5 微调**：`new_workspace` / `fcop_report` 在工具层落地
->   **Rule 0.a.1 四步循环**（`write_task → 做 → write_report →
->   archive_task`）。agent 若直接动手（典型：你说"做个俄罗斯方块"
->   它没写 `TASK-*.md` 就开干），`new_workspace` 会**预置一段提醒**
->   让它先回头写任务单——**不阻塞**，工作区照常建。`fcop_report` 报告
->   末尾也固定挂这段四步模板，agent 每次自检都看得到。
+> **v1.3.0 摘要**（当前版本，2026-05-12）：
+> - **三种起手方式**：`init_solo`（Solo 单 Agent）/ `init_project`（预设团队）/
+>   `init_custom`（自定义）。必须由 ADMIN 明确选，Agent 不允许替你默认。
+> - **协议体检**（新）：装上 fcop 后，先跑
+>   `fcop_audit(scope="takeover")`（老项目）或 `fcop_audit(scope="new")`
+>   （新项目）——它会帮你生成一份 INSPECTION 报告，列出协议合规缺口和建议
+>   整改步骤。接手陌生项目时，这是**第一动作**。
+> - **治理告警（GAL）**（新）：`fcop_list_alerts()` 查看治理告警收件箱；
+>   `fcop_create_alert()` 手动归档缺口。告警不阻塞操作，只通知你。
+> - **风险管理**（v1.1 起）：高风险任务用
+>   `write_task(..., risk_level="high")` 自动触发人工审批 REVIEW；
+>   你用 `mark_human_approved(review_id=...)` 批准。
+> - **MCP 工具总数**：35 个（v1.3.0）。完整清单见 `docs/mcp-tools.md`。
+> - **规则版本**：`fcop-rules.mdc 2.3.0` / `fcop-protocol.mdc 2.1.0`。
+>   升级后跑 `redeploy_rules()` 刷新本地四件套规则文件。
+>
+> _(历史摘要：0.6.4 / 0.6.5 / v1.0 / v1.1 的变更见 `CHANGELOG.md`)_
 
 ---
 

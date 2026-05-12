@@ -6,34 +6,27 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **0.6.4 in one block:**
-> - **The three ways to start are YOURS to pick** — Solo / preset team
->   / custom. Agents are **forbidden** from defaulting to `dev-team`
->   (this 0.6.3 footgun was real, hit in the field).
-> - **`init_solo` / `init_project` / `init_custom` deposit everything
->   they promise** in a single call: `fcop.json` + this letter +
->   `workspace/README.md` + the three-layer team docs
->   (`shared/TEAM-README.md` / `TEAM-ROLES.md` /
->   `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`, both zh and en) +
->   the protocol-rule quartet (`.cursor/rules/*.mdc` + `AGENTS.md` +
->   `CLAUDE.md`). 0.6.3 missed several of these; 0.6.4 lands the lot.
-> - **Solo mode now ships its own three-layer templates**
->   (`teams/_data/solo/`).
-> - **`init_*` tools gain a `force=True` parameter** — switch teams
->   without hand-editing config (existing files archive to
->   `.fcop/migrations/<timestamp>/`).
-> - **New MCP resource `fcop://prompt/install`** — canonical
->   "have an agent install fcop-mcp for you" prompt.
-> - **0.6.5 polish**: `new_workspace` / `fcop_report` wire the
->   **Rule 0.a.1 four-step cycle** (`write_task → do →
->   write_report → archive_task`) into the tool layer. If an
->   agent skips Step 1 and dives into code (typical: you say
->   "build me a Tetris" and it goes straight to `new_workspace`
->   without a `TASK-*.md`), the tool **prepends a soft Rule 0.a.1
->   reminder** asking it to land the task first — non-blocking,
->   the workspace still gets created. `fcop_report` (initialised
->   branch) also ends with the four-step template so every
->   self-check re-surfaces it.
+> **v1.3.0 summary** (current, 2026-05-12):
+> - **Three onboarding modes** — `init_solo` (Solo) / `init_project`
+>   (preset team) / `init_custom` (custom). ADMIN must choose explicitly;
+>   agents may not default.
+> - **Protocol inspection** (new): after setup, run
+>   `fcop_audit(scope="takeover")` (existing project) or
+>   `fcop_audit(scope="new")` (fresh project). The tool generates an
+>   INSPECTION report listing compliance gaps and suggested remediation
+>   steps. For unfamiliar projects, **this is your first move**.
+> - **Governance alerts — GAL** (new): `fcop_list_alerts()` checks the
+>   alert inbox; `fcop_create_alert()` archives a gap manually.
+>   Alerts notify, they do not block.
+> - **Risk management** (since v1.1): `write_task(..., risk_level="high")`
+>   auto-creates a `needs_human` REVIEW; you approve with
+>   `mark_human_approved(review_id=...)`.
+> - **MCP tool count**: 35 (v1.3.0). Full list: `docs/mcp-tools.md`.
+> - **Rule versions**: `fcop-rules.mdc 2.3.0` / `fcop-protocol.mdc 2.1.0`.
+>   Run `redeploy_rules()` after upgrading to refresh the four local rule
+>   files.
+>
+> _(Earlier summaries: 0.6.4 / 0.6.5 / v1.0 / v1.1 — see `CHANGELOG.md`)_
 
 ---
 

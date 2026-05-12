@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -7,7 +7,7 @@ recipient: TEAM
 team: mvp-team
 role: MARKETER
 doc_id: ROLE-MARKETER
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # MARKETER — Role Charter
@@ -146,3 +146,24 @@ A well-formed `MARKETER` report states:
 3. Declaring "MVP success" without validation
 4. Sunk-cost reluctance to pivot
 5. Confusing "built" with "validated"
+
+---
+
+## v1.3.0 Tool Quick Reference
+
+> Key MCP tools added or promoted in v1.3.0. Leader roles should know these first.
+
+| Tool | When to use | Example |
+|---|---|---|
+| cop_audit(scope="takeover") | **First move** when onboarding an unfamiliar project; generates INSPECTION report listing compliance gaps | cop_audit(scope="takeover", output="file") |
+| cop_audit(scope="upgrade") | Post-upgrade acceptance check after pip install -U fcop | cop_audit(scope="upgrade") |
+| cop_audit(scope="new") | Self-check after init_* on a fresh project | cop_audit(scope="new") |
+| cop_list_alerts() | View governance alert inbox (GAL) | cop_list_alerts(status="open") |
+| cop_create_alert() | Manually archive a governance gap | cop_create_alert(signal="critical_tool_unreviewed", severity="high", summary="...") |
+| write_task(..., risk_level="high") | High-risk tasks auto-trigger a 
+eeds_human REVIEW | — |
+| mark_human_approved(review_id=...) | ADMIN approves a 
+eeds_human REVIEW | — |
+| write_review(...) | Write an independent governance decision (counts as independent governance signal) | — |
+
+**Note**: cop_audit() is read-only — it never modifies files. The INSPECTION report contains suggestions, not directives.

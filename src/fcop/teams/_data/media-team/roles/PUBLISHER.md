@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -7,7 +7,7 @@ recipient: TEAM
 team: media-team
 role: PUBLISHER
 doc_id: ROLE-PUBLISHER
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # PUBLISHER 岗位职责
@@ -132,3 +132,23 @@ report 搬到 `log/`。**默认不主动 archive**——除非派单里明确授
 2. 让 `COLLECTOR` 把素材直接交给 `WRITER`
 3. 未终审就发布
 4. 对已发布内容静默修改,没有留下修订说明
+
+---
+
+## v1.3.0 工具速查 / v1.3.0 Tool Quick Reference
+
+> 以下为 v1.3.0 新增或重要的 MCP 工具，leader 角色优先掌握。
+
+| 工具 | 场景 | 示例 |
+|---|---|---|
+| cop_audit(scope="takeover") | 接手陌生老项目时的**第一动作**；生成 INSPECTION 报告列出协议合规缺口 | cop_audit(scope="takeover", output="file") |
+| cop_audit(scope="upgrade") | pip install -U fcop 后的版本升级验收 | cop_audit(scope="upgrade") |
+| cop_audit(scope="new") | init_* 完成后新项目自检 | cop_audit(scope="new") |
+| cop_list_alerts() | 查看治理告警收件箱（GAL）| cop_list_alerts(status="open") |
+| cop_create_alert() | 手动归档治理缺口 | cop_create_alert(signal="critical_tool_unreviewed", severity="high", summary="...") |
+| write_task(..., risk_level="high") | 高风险任务自动触发人工审批 REVIEW | — |
+| mark_human_approved(review_id=...) | ADMIN 批准 
+eeds_human 的 REVIEW | — |
+| write_review(...) | 写独立治理审批意见（构成独立治理信号） | — |
+
+**注意**：cop_audit() 只读，不修改任何文件；INSPECTION 报告是建议，不是指令。

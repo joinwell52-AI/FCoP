@@ -99,11 +99,11 @@ class TestGetLetterIntro:
             "the agent uses when forwarding the block to ADMIN"
         )
 
-    def test_zh_includes_064_summary_block(self) -> None:
+    def test_zh_includes_current_summary_block(self) -> None:
         intro = get_letter_intro("zh")
-        assert "0.6.4 摘要" in intro, (
-            "0.6.4 introduced the workflow hard-constraint and the "
-            "init-deposit fix; the intro must surface that summary"
+        assert "v1.3.0 摘要" in intro, (
+            "v1.3.0 updated the intro summary to cover fcop_audit / GAL / "
+            "risk_level; the intro must surface the current version summary"
         )
 
     def test_zh_is_strict_prefix_of_full_letter(self) -> None:

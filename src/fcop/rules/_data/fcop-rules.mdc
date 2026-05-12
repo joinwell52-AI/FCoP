@@ -1,7 +1,7 @@
 ---
 description: FCoP Rules (behavior governance protocol layer · v1.0 — agent runtime contract for filesystem-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（行为治理协议层 · v1.0 —— agent 在共享文件系统上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 2.2.0
+fcop_rules_version: 2.3.0
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -740,6 +740,87 @@ into the root. Ignoring this convention = guaranteed chaos on day two.
   orchestration to decide whether the 9.5.1 gate is needed before
   invoking the tool.
 
+### 9.6 · Protocol Inspection / 协议体检（fcop_audit & INSPECTION）
+
+> v1.3.0 新增，per ADR-0032。
+> Added in v1.3.0, per ADR-0032.
+
+- **`fcop_audit()` 是协议状态编译器**，不是执行引擎。它把"项目的协议合规
+  状态"翻译成结构化的 **INSPECTION 报告**（findings + 建议整改方案），
+  不会自动修任何文件。
+- **INSPECTION** 是第 5 类 IPC envelope，文件名格式：
+  `fcop/shared/INSPECTION-YYYYMMDD-NNN-{scope}.md`。
+  `scope` 取值：`new`（新项目）/ `upgrade`（版本升级后验收）/
+  `takeover`（老项目首次引入 FCoP，最完整扫描）/ `auto`（自动推断）。
+- **使用场景**：接手陌生项目时 `fcop_audit(scope="takeover")` 应为**第一
+  动作**；版本升级后跑 `fcop_audit(scope="upgrade")` 验收；新项目初始化
+  完成后跑 `fcop_audit(scope="new")` 自检。
+- **产物语义**：INSPECTION = Structured Findings + Suggested Remediation
+  Plan。报告里的 "Execution Block" 是**建议命令**，不是协议指令；由
+  ADMIN / Agent 自行决定是否执行。
+- **violation 分级**：P0（阻塞）/ P1（规范）/ P2（整洁）。P0 violation
+  未清零时，项目应视为"协议不合规"。
+- **Agent 调用权限**：任何角色均可发起 `fcop_audit()`（读操作，不修改
+  任何文件）；写出 INSPECTION 文件需要 ADMIN 明确授权的 session。
+
+- **`fcop_audit()` is a protocol-state compiler**, not an execution engine.
+  It translates a project's compliance state into a structured **INSPECTION
+  report** (findings + suggested remediation plan) without modifying any
+  files automatically.
+- **INSPECTION** is the 5th IPC envelope type. File name:
+  `fcop/shared/INSPECTION-YYYYMMDD-NNN-{scope}.md`.
+  `scope`: `new` / `upgrade` / `takeover` / `auto`.
+- **When to use**: `fcop_audit(scope="takeover")` should be the **first
+  action** when onboarding an unfamiliar project; `scope="upgrade"` after a
+  version bump; `scope="new"` as a self-check after `init_*`.
+- **Report semantics**: INSPECTION = Structured Findings + Suggested
+  Remediation Plan. The Execution Block contains **suggested commands**, not
+  protocol directives; ADMIN / Agent decides whether to execute them.
+- **Violation severity**: P0 (blocking) / P1 (normative) / P2 (hygiene).
+  A project with unresolved P0 violations should be treated as
+  **non-compliant**.
+- **Agent access**: any role may call `fcop_audit()` (read-only; does not
+  modify any file). Writing the INSPECTION file requires an ADMIN-authorised
+  session.
+
+### 9.7 · Governance Alert Layer / 治理告警层（GAL）
+
+> v1.3.0 新增，per ADR-0031。
+> Added in v1.3.0, per ADR-0031.
+
+- **GAL** 是 FCoP 的治理漂移检测机制——监测治理断层并产生 ALERT 信号，
+  由 ADMIN 收件、人工处置，不自动阻断任何操作。
+- **ALERT envelope**：文件名 `fcop/alerts/ALERT-YYYYMMDD-NNN-{signal}.md`；
+  `signal` 取值：`critical_tool_unreviewed` / `missing_independent_verdict`
+  / `long_running_without_reconciliation`（及未来扩展）。
+- **三类漂移信号**（v1.3.0 内置）：
+  - **S1 `critical_tool_unreviewed`**：24 h 内存在 CRITICAL_TAG 工具调用
+    但无对应 REVIEW → severity: high
+  - **S3 `missing_independent_verdict`**：执行窗口 > 6 h 无独立治理事件
+    （Solo Blindspot）→ severity: high
+  - **S4 `long_running_without_reconciliation`**：open Task 超 24 h 未归档
+    → severity: low
+- **FCoP-Rule-G1**（协议公理）：`write_report` / `fcop_report` 属于执行域
+  自述，**不构成独立治理信号**。只有 `write_review` / `mark_human_approved`
+  / `fcop_check` 才构成独立治理视角。
+- **MCP 工具**：`fcop_list_alerts`（查看告警收件箱）/ `fcop_create_alert`
+  （手动归档治理缺口）。
+
+- **GAL** is FCoP's governance-drift detection mechanism. It monitors for
+  governance gaps and surfaces ALERT signals for ADMIN to review and act on.
+  GAL does **not** block any operation automatically.
+- **ALERT envelope**: `fcop/alerts/ALERT-YYYYMMDD-NNN-{signal}.md`.
+- **Three built-in drift signals (v1.3.0)**:
+  - **S1**: CRITICAL_TAG tool call in 24 h with no corresponding REVIEW.
+  - **S3**: Execution window > 6 h with no independent governance event (Solo
+    Blindspot).
+  - **S4**: Open Task older than 24 h without archival.
+- **FCoP-Rule-G1** (protocol axiom): `write_report` / `fcop_report` are
+  self-reports in the execution domain and **do not constitute independent
+  governance signals**. Only `write_review` / `mark_human_approved` /
+  `fcop_check` qualify as independent governance perspectives.
+- **MCP tools**: `fcop_list_alerts` / `fcop_create_alert`.
+
 ---
 
 ## Rule 8 · Rules Take Precedence / 规则优先级
@@ -773,8 +854,21 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.2.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 2.3.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**2.3.0 changes / 2.3.0 变更**（随 `fcop@1.3.1`）:
+
+- 新增 **Rule 9.6 · Protocol Inspection / 协议体检**（per ADR-0032）：
+  - `fcop_audit()` 协议状态编译器；INSPECTION 作为第 5 类 IPC envelope
+  - 三场景：`new` / `upgrade` / `takeover` / `auto`
+  - violation 分级：P0（阻塞）/ P1（规范）/ P2（整洁）
+  - FCoP-Rule-G1 语义边界（建议语义 vs 执行语义）
+- 新增 **Rule 9.7 · Governance Alert Layer / 治理告警层**（per ADR-0031）：
+  - GAL 三类漂移信号：S1 / S3 / S4
+  - FCoP-Rule-G1：`write_report` ≠ 独立治理信号
+  - MCP 工具：`fcop_list_alerts` / `fcop_create_alert`
+- Rule 0–9.5 主体不变。
 
 **2.2.0 changes / 2.2.0 变更**（随 `fcop@1.1.0`）:
 
