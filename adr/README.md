@@ -135,6 +135,13 @@ ADR-NNNN-kebab-case-title.md
 |---|---|
 | **[FCoP 三层语义执行链模型](./FCoP-semantic-execution-chain.md)** | ADR-0030/0031/0032 合成的完整协议语义链——Schema Layer · Signal Layer · Compiler Layer |
 
+### FCoP 三层语义执行链模型图
+
+[![FCoP 三层语义执行链模型 v1.0](./FCoP-semantic-execution-chain-v1.0.png)](./FCoP-semantic-execution-chain.md)
+
+> Schema Layer（ADR-0030）→ Signal Layer（ADR-0031）→ Compiler Layer（ADR-0032）
+> 三层共同构成 FCoP 的完整协议语义执行闭环。点击图片查看完整文字描述。
+
 ---
 
 ## 工作流
