@@ -166,6 +166,18 @@ files = ["src/fcop"]
 module = "tests.*"
 disallow_untyped_defs = false
 
+[tool.coverage.run]
+source_pkgs = ["fcop"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@overload",
+]
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = [
