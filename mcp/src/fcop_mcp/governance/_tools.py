@@ -13,14 +13,14 @@ from collections import Counter
 from .events import _resolve_log_path
 
 
-def _load_events(risk_filter: str = "", tag_filter: str = "") -> tuple[list[dict], int]:
+def _load_events(risk_filter: str = "", tag_filter: str = "") -> tuple[list[dict[str, object]], int]:
     """Load events from the log, apply optional filters. Returns (filtered, total)."""
     log_path = _resolve_log_path()
     if not log_path.exists():
         return [], 0
 
     raw_lines = log_path.read_text(encoding="utf-8").strip().splitlines()
-    all_events: list[dict] = []
+    all_events: list[dict[str, object]] = []
     for line in raw_lines:
         try:
             all_events.append(json.loads(line))
@@ -96,8 +96,8 @@ def impl_get_governance_summary() -> str:
     if not events:
         return "Governance log is empty."
 
-    risk_counts: Counter = Counter(ev.get("risk", "unknown") for ev in events)
-    tool_counts: Counter = Counter(ev.get("tool", "unknown") for ev in events)
+    risk_counts: Counter[str] = Counter(ev.get("risk", "unknown") for ev in events)
+    tool_counts: Counter[str] = Counter(ev.get("tool", "unknown") for ev in events)
     critical_events = [ev for ev in events if ev.get("tag") == "CRITICAL_TAG"]
 
     lines = [
