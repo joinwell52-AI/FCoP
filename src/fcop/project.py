@@ -1780,7 +1780,7 @@ class Project:
             return []
 
         # Matches version tags like "v1.3", "v1.4.0", "v1.0 ~ v1.4" etc.
-        _VER_RE = re.compile(r"v(\d+)\.(\d+)")
+        ver_re = re.compile(r"v(\d+)\.(\d+)")
 
         outdated: list[str] = []
         for md in sorted(shared_roles.glob("*.md")):
@@ -1789,7 +1789,7 @@ class Project:
             except Exception:
                 continue
 
-            found = _VER_RE.findall(text)
+            found = ver_re.findall(text)
             if not found:
                 # No version reference at all → definitely outdated
                 outdated.append(str(md.relative_to(self._path)))
