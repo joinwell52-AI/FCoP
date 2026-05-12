@@ -6,7 +6,7 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
-> **v1.5.1 摘要**（当前版本，2026-04-25）：
+> **v1.6.0 摘要**（当前版本，2026-05-12）：
 > - **三种起手方式**：`init_solo`（Solo 单 Agent）/ `init_project`（预设团队）/
 >   `init_custom`（自定义）。必须由 ADMIN 明确选，Agent 不允许替你默认。
 > - **协议体检**：装上 fcop 后，先跑
@@ -25,11 +25,15 @@
 > - **文件级修正**（v1.4 起）：TASK/REPORT 文件可用可选字段
 >   `supersedes: TASK-XXXXXXXX-NNN` 标注本文件替代的历史文件；
 >   `list_tasks` / `list_reports` 自动双向标注。
-> - **MCP 工具总数**：35 个（v1.5.0）。完整清单见 `docs/mcp-tools.md`。
-> - **规则版本**：`fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.3.0`。
+> - **文件名 trailing slug**（v1.6 起，ADR-0033）：`TASK` / `REPORT` /
+>   `ISSUE` 三种 envelope 在路由字段尾部可追加一个**可选**的
+>   `-{slug}` 段（如 `TASK-20260512-025-PM-to-OPS-phase-a-fix.md`）。
+>   slug 不参与路由，只是人类可读标签；旧文件名继续合法。
+> - **MCP 工具总数**：35 个（v1.5.0 起未变）。完整清单见 `docs/mcp-tools.md`。
+> - **规则版本**：`fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.4.0`。
 >   升级后跑 `redeploy_rules()` 刷新本地四件套规则文件。
 >
-> _(历史摘要：v1.3 / v1.4 / v1.5.0 及更早版本的变更见 `CHANGELOG.md`)_
+> _(历史摘要：v1.3 / v1.4 / v1.5 及更早版本的变更见 `CHANGELOG.md`)_
 
 ---
 

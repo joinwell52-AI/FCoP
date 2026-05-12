@@ -1,3 +1,20 @@
+# FCoP Protocol Rules · agent-host-neutral copy
+
+> This file is deployed by `fcop` for agent hosts that read
+> `AGENTS.md` / `CLAUDE.md` as their system-prompt source
+> (Codex, Claude Code, Devin, Cursor, etc.). Cursor IDE users get
+> the same content via `.cursor/rules/fcop-rules.mdc` and
+> `.cursor/rules/fcop-protocol.mdc`.
+>
+> The source of truth is the `fcop` Python package. To upgrade
+> this file after `pip install -U fcop[-mcp]`, ADMIN runs the MCP
+> tool `redeploy_rules()` (or calls
+> `Project.deploy_protocol_rules(force=True)` directly).
+
+> Rules version: `2.4.0` · Protocol commentary version: `2.4.0`
+
+---
+
 # FCoP Rules · FCoP 协议规则
 
 > 本文件定义 FCoP 协议的**规则**，由 `fcop` MCP 自动部署。
@@ -851,14 +868,7 @@ other application). Products USE FCoP; they do not MODIFY it.
 **Version**: `fcop_rules_version: 2.4.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
 
-**2.4.0 changes / 2.4.0 变更**（随 `fcop@1.5.0`）:
-
-- 新增 **RULE_DOC_DRIFT 违规类型**：已部署角色文档内容落后于已安装 `fcop` 版本
-  超过 1 个 minor 版本，由 `fcop_audit(scope=upgrade/takeover)` 扫描检出。
-  整改动作：`deploy_role_templates(force=True)`（per ADR-0032 §4.7）
-- Rule 0–9.7 主体不变。
-
-**2.4.0 changes / 2.4.0 变更**（随 `fcop@1.5.0`）:
+**2.4.0 changes / 2.4.0 变更**（随 `fcop@1.5.0`，`1.5.1` no-rule-change patch）:
 
 - 新增 **RULE_DOC_DRIFT 违规类型**：已部署角色文档内容落后于已安装 `fcop` 版本
   超过 1 个 minor 版本，由 `fcop_audit(scope=upgrade/takeover)` 扫描检出。
@@ -950,7 +960,20 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 **See also**: `fcop-protocol.mdc` —— 本规则的协议解释，同目录。
 
+
 ---
+
+<!--
+Host-neutral reminder / 宿主中立提示:
+The conventions below describe FCoP itself (a file-based coordination
+protocol), not anything specific to Cursor. The `.mdc` wrapper and
+`alwaysApply` frontmatter are a Cursor-specific container; when porting
+to another host (Claude Desktop / CLI / raw LLM API / Doubao etc.),
+paste the body into whatever system prompt that host uses — the protocol
+works the same.
+下面内容描述的是 FCoP 协议本身，不依赖 Cursor。`.mdc` 壳与 `alwaysApply`
+是 Cursor 特有的容器；换到别的宿主时，把正文贴进系统提示即可。
+-->
 
 # FCoP Protocol · 协议解释 / Protocol Commentary
 
@@ -1656,6 +1679,79 @@ treat it as addressed to you (and also to every other role).
 
 `TEAM` 是保留关键字，代表"全体成员"。`to-TEAM` 每个角色都要处理。
 
+### Trailing slug (optional) / 可选的尾部 slug（ADR-0033）
+
+Since `fcop_protocol_version: 2.4.0` / `fcop 1.6.0`, the **routing-complete**
+filename can be followed by an optional `-{slug}` segment to make filenames
+self-describing on disk:
+
+自 `fcop_protocol_version: 2.4.0` / `fcop 1.6.0` 起，路由字段（sender / recipient
+/ slot）写完后，可以**可选**地再接一段 `-{slug}` 让文件名在硬盘上自带摘要：
+
+| Without slug / 不带 slug | With slug / 带 slug |
+|---|---|
+| `TASK-20260512-025-PM-to-OPS.md` | `TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md` |
+| `REPORT-20260512-009-OPS-to-PM.md` | `REPORT-20260512-009-OPS-to-PM-codeflow-json-rm.md` |
+| `ISSUE-20260512-001-PM.md` | `ISSUE-20260512-001-PM-userhome-pollution.md` |
+
+**Grammar / 文法**:
+
+- `slug = [a-z][a-z0-9-]*[a-z0-9]` (also accepts the single-char form `[a-z]`)
+- starts with a **lowercase letter** (mandatory — see disambiguation below)
+- contains lowercase letters / digits / hyphens
+- ends with a **lowercase letter or digit** (no trailing hyphen)
+- 起手必须是**小写字母**（强制 — 见下方消歧说明）
+- 中间可含小写字母 / 数字 / 连字符
+- 末尾必须是**小写字母或数字**（不允许尾部连字符）
+
+**Critical: slug is NOT part of routing / 关键: slug 不参与路由**
+
+Tools dispatch on `sender` / `recipient` / `slot` only. The slug is a label,
+not an address. `list_tasks(recipient="OPS")` matches both
+`TASK-...-PM-to-OPS.md` and `TASK-...-PM-to-OPS-anything-here.md`.
+
+工具按 `sender` / `recipient` / `slot` 路由。slug 只是标签，不是地址。
+`list_tasks(recipient="OPS")` 同时匹配 `TASK-...-PM-to-OPS.md` 和
+`TASK-...-PM-to-OPS-anything-here.md`。
+
+**Why lowercase-only? / 为什么强制小写起手?**
+
+Role codes (`ROLE_CODE_RE`) allow pure-digit interior segments, e.g.
+`DEV_01`, `OPS-001`. Without the lowercase-start rule, a filename like
+`TASK-...-PM-to-OPS-001-fix.md` would have two valid parses
+(`recipient=OPS-001, slug=fix` vs `recipient=OPS, slug=001-fix`).
+Forcing the slug to start with `[a-z]` makes the boundary
+unambiguous in every case — uppercase tails are always parsed as
+role-code extensions, lowercase tails are always slugs.
+
+角色码（`ROLE_CODE_RE`）允许纯数字内部段，例如 `DEV_01`、`OPS-001`。
+如果不强制 slug 小写起手，`TASK-...-PM-to-OPS-001-fix.md` 会有两种合法解析
+（`recipient=OPS-001, slug=fix` 或 `recipient=OPS, slug=001-fix`）。
+强制 `[a-z]` 起手让边界永远清晰 —— 大写后缀始终归角色码，小写后缀始终是 slug。
+
+**When to use a slug / 何时该用 slug**
+
+- **DO**: 长任务批次、多人协作时给同事一眼能认出主题
+- **DO**: 跨日复盘时方便 `ls log/` 快速扫描
+- **DON'T**: 把 frontmatter 里 `subject` / `parent` / `thread_key` 能表达的信息
+  塞进 slug —— frontmatter 是机器可读的索引，slug 只是人肉可读的标签
+
+- **DO**: long-running task batches, multi-agent teams where peers need
+  to recognise topics at a glance
+- **DO**: cross-day retrospectives where `ls log/` should be human-scannable
+- **DON'T**: duplicate frontmatter info (`subject` / `parent` / `thread_key`)
+  in the slug — frontmatter is the machine-readable index; slug is a
+  human-readable label
+
+**Backward compatibility / 向后兼容**
+
+Every legal pre-2.4.0 filename remains legal. The slug is optional;
+omitting it produces the original short form. Parsers (since 1.6.0)
+populate `slug=None` on legacy filenames.
+
+所有 2.4.0 之前的合法文件名仍然合法。slug 可选；不加 slug 时回到原短形式。
+新版解析器（1.6.0 起）在旧文件名上返回 `slug=None`。
+
 ## Task Format / 任务单格式
 
 ```markdown
@@ -1955,6 +2051,76 @@ Three things the protocol explicitly grants you:
    自我审查烧 token，本身就是反模式。
 
 ## Protocol Version Log / 协议版本记录
+
+- **v2.4** (2026-05-12) — **Trailing-slug filename adoption**，随 `fcop@1.6.0`（ADR-0033）：
+  1. 新增 **可选 trailing slug** 段(`TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md`)：
+     - slug 文法 `[a-z](?:[a-z0-9-]*[a-z0-9])?`，强制小写起手、字母数字收尾；
+     - **不参与路由** —— 工具仍按 sender / recipient / slot 调度，slug 仅是
+       人类可读的文件名标签；
+     - 强制小写起手是消歧设计：`_ROLE` 段允许纯数字内段(`OPS-001`)，
+       小写起手让 `_ROLE` 和 slug 永远不会撞车。
+  2. **三种 envelope 全部支持**：TASK / REPORT / ISSUE 的 filename grammar
+     同步加 `(?:-{slug})?` 段；REVIEW 的 `subject_short` 早就有类似设计，
+     此次未变。
+  3. **完全向后兼容**：每一份 pre-2.4 合法文件名仍然合法；
+     `parse_*_filename` 在旧文件名上返回 `slug=None`；
+     `build_*_filename` 的 `slug=` 关键字参数缺省为 `None`。
+  4. 动机：codeflow 22+ 现场样本(`TASK-...-OPS-phase-a-fix-naming.md`)显示
+     agent 自发用 trailing slug 改善 `ls log/` 可读性；`fcop_audit` 当时
+     未识别该模式但也不报错(因为不在它的 lexical 扫描表里) —— **协议收编**
+     比"禁止"或"继续灰色"更符合"agent 之间看得懂 = 协议本来应该说清"的原则。
+  5. 版本号从 2.3.0 升至 2.4.0(MINOR additive，per ADR-0003)。
+
+  v2.4 changes:
+  1. Added optional **trailing slug** segment to
+     `TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md`:
+     - slug grammar `[a-z](?:[a-z0-9-]*[a-z0-9])?`, lowercase letter
+       leading, alphanumeric trailing;
+     - **does NOT participate in routing** — tools still dispatch by
+       sender / recipient / slot; the slug is a human-readable label
+       only;
+     - lowercase leading is a disambiguation requirement: `_ROLE`
+       segments allow pure-digit interiors (`OPS-001`), and lowercase
+       leading guarantees `_ROLE` and slug never collide.
+  2. **All three envelopes**: TASK / REPORT / ISSUE filename grammars
+     all gain a `(?:-{slug})?` tail. REVIEW already had a `subject_short`
+     of similar shape and is unchanged.
+  3. **Fully backward compatible**: every pre-2.4 legal filename remains
+     legal; `parse_*_filename` returns `slug=None` for legacy filenames;
+     `build_*_filename(slug=None)` is the default.
+  4. Motivation: codeflow's 22+ field-observed samples
+     (`TASK-...-OPS-phase-a-fix-naming.md`) showed agents spontaneously
+     using trailing slugs to improve `ls log/` readability;
+     `fcop_audit` neither recognised nor rejected the pattern. **Protocol
+     consolidation** (`协议收编`) is more honest than either banning the
+     pattern or letting it stay in a grey zone — when "agents understand
+     each other on disk", that's exactly what the protocol should make
+     explicit.
+  5. Version bumped 2.3.0 → 2.4.0 (MINOR additive per ADR-0003).
+
+- **v2.3** (2026-05-12, no commentary change in fcop@1.5.1 patch) — **v1.5 capabilities commentary**，随 `fcop@1.5.0`：
+  1. 新增 **RULE_DOC_DRIFT 违规类型** 注释（per ADR-0032 §4.7）：
+     - `fcop_audit(scope=upgrade/takeover)` 扫描已部署角色文档版本滞后；
+     - 整改：`deploy_role_templates(force=True)` 重新部署最新角色模板；
+     - `fcop-rules.mdc` 同步升至 2.4.0。
+  2. **P1 文档层对齐**（无协议新功能，纯文档补写）：
+     - 84 份角色/团队文档补写 v1.0~v1.4 协议更新速查节；
+     - `docs/getting-started.md` + `agent-install-prompt` 补写 `fcop_audit` 三场景。
+  3. **letter-to-admin 摘要块**升级至 v1.5.0（涵盖 write-side 绑定 + `supersedes:` + RULE_DOC_DRIFT）。
+  4. 版本号从 2.2.0 升至 2.3.0。
+
+  v2.3 changes:
+  1. Added **RULE_DOC_DRIFT** violation type commentary (ADR-0032 §4.7):
+     `fcop_audit(scope=upgrade/takeover)` detects deployed role docs lagging
+     the installed version; remediation: `deploy_role_templates(force=True)`;
+     `fcop-rules.mdc` bumped to 2.4.0.
+  2. **P1 doc sync** (no new protocol features, documentation only):
+     84 role/team docs updated with v1.0–v1.4 protocol summary sections;
+     `getting-started` and `agent-install-prompt` updated with 3-scenario
+     `fcop_audit` guidance.
+  3. **letter-to-admin** summary block updated to v1.5.0 (covers write-side
+     binding guard, `supersedes:` field, RULE_DOC_DRIFT scan).
+  4. Version bumped 2.2.0 → 2.3.0.
 
 - **v2.2** (2026-05-12) — **v1.4 capabilities commentary**，随 `fcop@1.4.0`：
   1. 新增 **`supersedes:` frontmatter 字段**（TASK-004）：

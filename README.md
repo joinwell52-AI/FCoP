@@ -298,7 +298,7 @@ Two official reference implementations, both MIT-licensed:
 
 ## Status & versioning
 
-- **Current release**: `v1.3.0` (2026-05-12) — v1.3 adds Governance Alert Layer (GAL, ADR-0031) + `fcop_audit()` Protocol Inspection Compiler (ADR-0032). 35 MCP tools total. See [CHANGELOG](CHANGELOG.md).
+- **Current release**: `v1.6.0` (2026-05-12) — v1.6 adopts the trailing-slug filename grammar (ADR-0033), allowing `TASK` / `REPORT` / `ISSUE` envelopes to carry an optional `-{slug}` segment. Fully backward-compatible. Earlier releases: v1.5 (84-doc protocol-awareness sync), v1.4 (write-side bind + `supersedes:` correction), v1.3 (GAL + `fcop_audit()` inspection compiler). 35 MCP tools total. See [CHANGELOG](CHANGELOG.md).
 - **Normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec bundled in wheel via `fcop.rules.get_spec()`) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - **Change log**: [`CHANGELOG.md`](CHANGELOG.md)

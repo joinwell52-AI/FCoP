@@ -111,7 +111,7 @@ def get_letter_intro(lang: Literal["zh", "en"] = "zh") -> str:
     The full letter is ~500 lines; pasting it verbatim into every
     ``init_*`` tool reply would pollute the chat context. This getter
     extracts just the leading section — title + greeting + the
-    "0.6.4 摘要" block + the ADMIN/AI-team identity diagram — so the
+    "current version summary" block + the ADMIN/AI-team identity diagram — so the
     MCP layer can splice it into the post-init handover, hand the
     important bits to the agent, and let the agent forward them to
     ADMIN immediately. The full letter remains available on disk

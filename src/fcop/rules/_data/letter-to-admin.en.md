@@ -6,7 +6,7 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **v1.5.1 summary** (current, 2026-04-25):
+> **v1.6.0 summary** (current, 2026-05-12):
 > - **Three onboarding modes** — `init_solo` (Solo) / `init_project`
 >   (preset team) / `init_custom` (custom). ADMIN must choose explicitly;
 >   agents may not default.
@@ -31,12 +31,19 @@ you and an AI team collaborate through **files**. Your one job:
 >   optional `supersedes: TASK-XXXXXXXX-NNN` field marking which historical
 >   file this one replaces. `list_tasks` / `list_reports` annotate both
 >   directions automatically.
-> - **MCP tool count**: 35 (v1.5.0). Full list: `docs/mcp-tools.md`.
-> - **Rule versions**: `fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.3.0`.
+> - **Trailing-slug filenames** (since v1.6, ADR-0033): `TASK` / `REPORT`
+>   / `ISSUE` envelopes accept an **optional** `-{slug}` segment after
+>   the routing fields (e.g.
+>   `TASK-20260512-025-PM-to-OPS-phase-a-fix.md`). The slug is not part
+>   of routing — it's a human-readable label. Pre-1.6 filenames remain
+>   valid.
+> - **MCP tool count**: 35 (unchanged since v1.5.0). Full list:
+>   `docs/mcp-tools.md`.
+> - **Rule versions**: `fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.4.0`.
 >   Run `redeploy_rules()` after upgrading to refresh the four local rule
 >   files.
 >
-> _(Earlier summaries: v1.3 / v1.4 / v1.5.0 and older — see `CHANGELOG.md`)_
+> _(Earlier summaries: v1.3 / v1.4 / v1.5 and older — see `CHANGELOG.md`)_
 
 ---
 

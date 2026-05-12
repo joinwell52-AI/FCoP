@@ -101,9 +101,9 @@ class TestGetLetterIntro:
 
     def test_zh_includes_current_summary_block(self) -> None:
         intro = get_letter_intro("zh")
-        assert "v1.5.1 摘要" in intro, (
-            "v1.5.1 patched the intro summary to correct protocol version strings "
-            "(fcop-protocol.mdc 2.2.0 → 2.3.0); the intro must surface the current version summary"
+        assert "v1.6.0 摘要" in intro, (
+            "v1.6.0 added trailing-slug filename grammar (ADR-0033) and bumped "
+            "fcop-protocol.mdc to 2.4.0; the intro must surface the current version summary"
         )
 
     def test_zh_is_strict_prefix_of_full_letter(self) -> None:
