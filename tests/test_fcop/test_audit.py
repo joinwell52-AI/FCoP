@@ -215,6 +215,68 @@ def test_scan_ghost_prefixes(takeover_project: Project) -> None:
     assert any("DRAFT" in e for e in violations[0].evidence)
 
 
+# ── _scan_outdated_role_docs ───────────────────────────────────────────────
+
+
+def test_scan_outdated_role_docs_no_roles_dir(empty_project: Project) -> None:
+    """No shared/roles/ dir → no violations (nothing to inspect)."""
+    violations = empty_project._scan_outdated_role_docs()
+    assert violations == []
+
+
+def test_scan_outdated_role_docs_no_version_reference(tmp_path: Path) -> None:
+    """Role docs with no version tag at all → P1 RULE_DOC_DRIFT."""
+    roles_dir = tmp_path / "fcop" / "shared" / "roles"
+    roles_dir.mkdir(parents=True)
+    (roles_dir / "PM.md").write_text(
+        "# PM 角色\n\n没有任何版本引用的旧文档。\n",
+        encoding="utf-8",
+    )
+    proj = Project(tmp_path)
+    violations = proj._scan_outdated_role_docs()
+    assert violations, "Role doc with no version reference should trigger RULE_DOC_DRIFT"
+    assert violations[0].scan_source == "_scan_outdated_role_docs"
+    assert "RULE_DOC_DRIFT" in violations[0].rule_violated
+
+
+def test_scan_outdated_role_docs_far_behind(tmp_path: Path) -> None:
+    """Role doc referencing v1.0 only while installed fcop is ≥ 1.2 → P1."""
+    from fcop._version import __version__ as pkg_ver  # type: ignore[attr-defined]
+
+    pkg_minor = int(pkg_ver.split(".")[1])
+    if pkg_minor < 2:  # can only test gap > 1 if package is >= 1.2
+        pytest.skip("Installed fcop minor version < 2; gap cannot be > 1")
+
+    roles_dir = tmp_path / "fcop" / "shared" / "roles"
+    roles_dir.mkdir(parents=True)
+    (roles_dir / "DEV.md").write_text(
+        "# DEV 角色\n\n## v1.0 工具速查\n只有 v1.0 内容。\n",
+        encoding="utf-8",
+    )
+    proj = Project(tmp_path)
+    violations = proj._scan_outdated_role_docs()
+    assert violations, "Role doc only referencing v1.0 should trigger RULE_DOC_DRIFT"
+
+
+def test_scan_outdated_role_docs_current(tmp_path: Path) -> None:
+    """Role doc referencing current or near-current version → no violation."""
+    from fcop._version import __version__ as pkg_ver  # type: ignore[attr-defined]
+
+    parts = pkg_ver.split(".")
+    pkg_major, pkg_minor = int(parts[0]), int(parts[1])
+
+    roles_dir = tmp_path / "fcop" / "shared" / "roles"
+    roles_dir.mkdir(parents=True)
+    # Reference the current version explicitly
+    (roles_dir / "PM.md").write_text(
+        f"# PM 角色\n\n## v{pkg_major}.{pkg_minor} 工具速查\n\n最新版本内容。\n",
+        encoding="utf-8",
+    )
+    proj = Project(tmp_path)
+    violations = proj._scan_outdated_role_docs()
+    assert violations == [], "Role doc referencing current version should not trigger"
+
+
 # ── Project.audit() integration tests ─────────────────────────────────────
 
 

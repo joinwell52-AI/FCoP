@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: media-team
 doc_id: TEAM-README
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # media-team — Content Media Team
@@ -83,3 +83,18 @@ Read in order: `README.md` → `TEAM-ROLES.md` → `TEAM-OPERATING-RULES.md` →
 - `media-team` = content creation (this team)
 - `mvp-team` = startup MVP (leader: `MARKETER`)
 - `qa-team` = dedicated testing (leader: `LEAD-QA`)
+
+---
+
+## Tool Quick Reference
+
+| Tool | Scenario |
+|---|---|
+| `fcop_audit(scope="new")` | Self-check after `init_*` on a new project |
+| `fcop_audit(scope="upgrade")` | Verify after `pip install -U fcop` upgrade |
+| `fcop_audit(scope="takeover")` | First step when inheriting an unfamiliar project |
+| `fcop_report()` | View project binding, version, and alert summary |
+| `fcop_list_alerts(status="open")` | View governance alert inbox |
+
+> For detailed leader tool quick reference, see the "Tool Quick Reference" section
+> at the end of `roles/<leader>.md`.

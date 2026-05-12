@@ -7,7 +7,7 @@ recipient: TEAM
 team: mvp-team
 role: DESIGNER
 doc_id: ROLE-DESIGNER
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # DESIGNER 岗位职责
@@ -144,3 +144,49 @@ shared/prd/PRD-<thread_key>.md
 2. MUST/SHOULD/COULD 分级虚高,逼 `BUILDER` 超时
 3. 不写成功判据,导致 `BUILDER` 交付后没法判断是否跑通
 4. 把 PRD 直接发给 `BUILDER`
+
+---
+
+## v1.0 ~ v1.4 协议更新速查
+
+> 本节汇总 v1.0 起协议层面引入的重要变化，执行角色需了解的关键点。
+> 详细说明见 `.cursor/rules/fcop-protocol.mdc` 和 `docs/releases/`。
+
+### REVIEW envelope（v1.0）
+
+高风险任务由 leader（`PM` / `LEAD-QA` 等）标注 `risk_level: high` 时，
+会自动生成 `REVIEW-*.md` 待审批文件。执行角色须知：
+
+- 任务带有 `needs_human: true` 时，**必须等待 ADMIN 批准**后再执行
+- 批准动作：ADMIN 调 `mark_human_approved(review_id=...)`
+- 未获批准**不得越权执行**，等 leader 通知继续
+
+### risk_level 字段（v1.1）
+
+TASK 文件中可含 `risk_level: low / medium / high`（由 leader 在派单时标注）：
+
+- `high` → 自动生成 REVIEW，需 ADMIN 批准方可执行
+- 执行角色**以 leader 标注为准**，不自行升降级
+- 收到 `needs_human: true` 的 TASK → 停手，等 ADMIN / leader 通知
+
+### fcop_audit 与 INSPECTION（v1.3）
+
+`fcop_audit()` 由 **leader 或 ADMIN** 运行，你无需主动调用。但需了解：
+
+- `INSPECTION-*.md` 体检报告出现在 `fcop/shared/` 后，可能派发整改 TASK 给你
+- 在回执里引用 INSPECTION 报告 ID（`references=["INSPECTION-..."]`）
+- 如收到来自 INSPECTION 的整改任务，正常走"四步流程"即可
+
+### supersedes 字段（v1.4）
+
+如果你的 TASK / REPORT 文件**修正**了某份历史文件，可加可选字段：
+
+```yaml
+supersedes: TASK-20260418-010   # 本文件替代该历史文件
+# 或多个：
+supersedes:
+  - TASK-20260418-010
+  - REPORT-20260418-005
+```
+
+`list_tasks` / `list_reports` 工具会自动双向标注 `[supersedes X]` / `[superseded by X]`。

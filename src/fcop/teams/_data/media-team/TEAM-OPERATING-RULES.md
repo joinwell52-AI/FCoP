@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: media-team
 doc_id: TEAM-OPERATING-RULES
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # media-team 运行规则
@@ -106,3 +106,27 @@ updated_at: 2026-04-17
 - `EDITOR` 负责品质与合规
 
 每一步都可追溯,稿件才可靠;稿件可靠,品牌才可信。
+
+---
+
+## 协议演进补记（v1.0 ~ v1.4）
+
+本节补记协议演进带来的运行规则变化：
+
+### 高风险任务审批（v1.0 引入）
+
+- `PM`（leader）派单时标注 `risk_level: high`，系统自动生成 `REVIEW-*.md`
+- 带 `needs_human: true` 的任务：执行角色**停手**，等 ADMIN 调 `mark_human_approved()`
+- 未批准不得执行 → 此约束优先级高于任何"进度压力"
+
+### fcop_audit 整改任务处理（v1.3 引入）
+
+- ADMIN 或 leader 运行 `fcop_audit()` 后，`INSPECTION-*.md` 报告会记录协议缺口
+- 对应整改任务（`TASK-*-ADMIN-to-PM.md`）可批量授权（`scope: batch-remediation`）
+- 处理整改任务时同样走"四步流程"，并在回执中引用 INSPECTION ID
+
+### 发布绑定规则（v1.4 引入）
+
+- MCP Server 层：write-side 工具必须显式绑定项目路径
+- 配置方式：在 MCP config 中设置 `FCOP_PROJECT_DIR`，或会话开始时调 `set_project_dir()`
+- 未绑定时调用任何写入工具，将抛出 `WriteRefused` 错误

@@ -156,10 +156,11 @@ ADMIN 的洞察：
 | `.cursor/rules/` 协议规则缺失 / 草根规则混入 | `_scan_cursor_rules()` | P0 |
 | `fcop/shared/` 三层团队文档部署度 | `_scan_shared_deployment()` | P1 |
 | 幽灵前缀文件（`DRAFT-` / `HANDOFF-` / `AMEND-` / `*-v2.md`） | `_scan_ghost_prefixes()` | P2 |
+| 已部署角色文档版本滞后（`fcop/shared/roles/*.md` 内容落后 > 1 个 minor 版本） | `_scan_outdated_role_docs()` | P1 |
 
 ---
 
-## 4. 六类扫描方法规格 / _scan_* Specifications
+## 4. 七类扫描方法规格 / _scan_* Specifications
 
 > **实现说明**：以下六个方法均以 `_` 开头（`_scan_*`），是 `Project.audit()` 的**私有子程序**，不属于 `fcop` 的公开 API。
 > 外部代码应调用 `project.audit()` 而非直接调用 `_scan_*` 方法。
@@ -292,6 +293,39 @@ def scan_ghost_prefixes(self) -> list[Violation]:
       *-v2.md  → 确认为同一 id 的重复版本后删除旧版
     """
 ```
+
+---
+
+### 4.7 `_scan_outdated_role_docs()`
+
+**目的**：检测已部署角色文档内容滞后于已安装 `fcop` 版本（RULE_DOC_DRIFT）
+
+**背景**：角色文档通过 `deploy_role_templates()` 一次性部署到 `fcop/shared/roles/`，
+此后不会自动随 `fcop` 包升级而更新。若已安装的 `fcop` 新增了 REVIEW envelope /
+`risk_level` / `supersedes:` 等能力，但角色文档仍停在旧版本，Agent 读取时不会感知
+新协议功能，导致**协议能力认知漂移**（RULE_DOC_DRIFT）。
+
+**适用范围**：`scope=upgrade` / `scope=takeover`
+
+```python
+def _scan_outdated_role_docs(self) -> list[Violation]:
+    """
+    逻辑：
+    1. 读取已安装 fcop 包版本（major.minor）
+    2. Glob fcop/shared/roles/*.md
+    3. 对每个文件：用正则 r"v(\d+)\.(\d+)" 提取最高版本号
+       - 无版本引用 → 记入 outdated 列表
+       - 最高版本与已安装版本 gap > 1 minor → 记入 outdated 列表
+    4. outdated 非空 → Violation(severity=P1, rule="RULE_DOC_DRIFT")
+
+    违规类型：RULE_DOC_DRIFT（角色文档协议漂移）
+    整改：deploy_role_templates(force=True)
+    """
+```
+
+**违规类型字段**：`rule_violated = "RULE_DOC_DRIFT (角色文档协议漂移)"`
+
+**整改建议**：调用 `deploy_role_templates(force=True)` 重新部署最新角色模板
 
 ---
 

@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: mvp-team
 doc_id: TEAM-OPERATING-RULES
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # mvp-team — Operating Rules
@@ -106,3 +106,31 @@ not "build the most complete thing":
 - `BUILDER` turns plans into something usable
 
 Clear hypothesis → reliable validation → grounded decision → next round worth starting.
+
+---
+
+## Protocol Evolution Addendum (v1.0 ~ v1.4)
+
+Key operating rule changes introduced in recent protocol versions:
+
+### High-risk task approval (introduced v1.0)
+
+- Leader marks dispatch with `risk_level: high`; system generates `REVIEW-*.md`
+- Tasks with `needs_human: true`: execution roles **stop and wait** for ADMIN
+  to call `mark_human_approved()`
+- No approval → no execution; this overrides any schedule pressure
+
+### Handling fcop_audit remediation tasks (introduced v1.3)
+
+- After ADMIN / leader runs `fcop_audit()`, `INSPECTION-*.md` records compliance gaps
+- Remediation tasks (`TASK-*-ADMIN-to-PM.md`) may be batch-authorized
+  (`scope: batch-remediation` in proposal frontmatter)
+- Handle remediation tasks with the standard four-step workflow; reference the
+  INSPECTION ID in your report
+
+### Write-side binding requirement (introduced v1.4)
+
+- Write-side MCP tools now require an explicit project path binding
+- Configure via `FCOP_PROJECT_DIR` env var in MCP config, or call
+  `set_project_dir()` at session start
+- Calling any write tool without binding raises `WriteRefused`

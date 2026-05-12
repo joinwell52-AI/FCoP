@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: qa-team
 doc_id: TEAM-ROLES
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # qa-team — Role Boundaries
@@ -90,3 +90,18 @@ updated_at: 2026-04-17
 4. Every formal task and verdict must be filed.
 5. Boundary issues (e.g. an automation failure needing manual reproduction)
    return to `LEAD-QA` for re-splitting.
+
+---
+
+## Protocol Evolution (v1.0 ~ v1.4)
+
+| Version | Change | Affected roles |
+|---|---|---|
+| v1.0 | REVIEW envelope: high-risk tasks generate `REVIEW-*.md`, require ADMIN approval | leader / all |
+| v1.1 | `risk_level` field: `low / medium / high`; `needs_human` triggers human approval | leader (on dispatch) |
+| v1.3 | `fcop_audit()`: protocol health-check tool, produces `INSPECTION-*.md` | leader / ADMIN |
+| v1.3 | GAL (Governance Alert Layer): `fcop_create_alert` / `fcop_list_alerts` | leader |
+| v1.4 | `supersedes:` field: file-level correction link (distinct from `parent:` derivation) | all |
+| v1.4 | Write-side tools require explicit project binding (`set_project_dir()`) | MCP Server layer |
+
+> See the corresponding `roles/` file for each leader's detailed tool quick reference.

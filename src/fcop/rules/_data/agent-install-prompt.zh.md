@@ -44,6 +44,23 @@
 
 ---
 
+## 装完之后：先跑 fcop_audit() 做一份体检
+
+`fcop-mcp` 装好、项目初始化完成后，推荐让 agent 立刻运行一次体检：
+
+```
+运行 fcop_audit(scope="new") 给我一份项目体检报告。
+```
+
+体检报告（`INSPECTION-*.md`）会告诉你：
+- 协议文件是否齐全
+- 角色文档是否有缺口
+- 是否有需要整改的 P0 / P1 / P2 问题
+
+> 如果是接手老项目，用 `scope="takeover"` 代替 `scope="new"`。
+
+---
+
 ## 装完之后：初始化是 ADMIN 的选择题
 
 `fcop-mcp` 装好以后，agent **不应该**自己 `init_project(team="dev-team")` —

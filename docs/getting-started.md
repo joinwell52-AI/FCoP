@@ -274,6 +274,50 @@ tools:
 
 ---
 
+## fcop_audit 三场景体检（v1.3+）
+
+`fcop_audit()` 是 FCoP 内置的协议体检工具，让 agent 自己发现合规缺口。
+
+### 场景一：新项目自检（`scope="new"`）
+
+```python
+# init_project / init_solo 完成后，立即跑
+fcop_audit(scope="new")
+# 或写入报告文件：
+fcop_audit(scope="new", output="file")
+```
+
+检查点：角色文档是否齐全、`fcop.json` 是否正确、基础 envelope 格式是否合规。
+
+### 场景二：升级验收（`scope="upgrade"`）
+
+```python
+# pip install -U fcop 之后：
+fcop_audit(scope="upgrade")
+```
+
+检查点：本地协议规则版本是否与包内版本一致、旧格式是否需要迁移。
+
+### 场景三：接手老项目（`scope="takeover"`）
+
+```python
+# 接手陌生项目的第一动作：
+fcop_audit(scope="takeover", output="file")
+```
+
+检查点：全量协议合规扫描（misplaced envelopes / legacy roles / cursor rules 等），
+产出 `INSPECTION-*.md` 报告文件，含 P0/P1/P2 分档整改建议。
+
+### 输出格式
+
+- 默认输出到 stdout（控制台摘要）
+- `output="file"` 时写入 `fcop/shared/INSPECTION-{date}-{NNN}-{scope}.md`
+- 报告含 `Execution Block`，可直接复制命令执行整改
+
+> **注意**：`fcop_audit()` 是**只读**工具，不修改任何文件；INSPECTION 报告是建议，不是指令。
+
+---
+
 ## 进一步阅读
 
 - **协议哲学**：[ADR-0015 §FCoP is discovered, not invented](../adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md#fcop-is-discovered-not-invented)

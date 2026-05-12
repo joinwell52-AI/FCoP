@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: mvp-team
 doc_id: TEAM-ROLES
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # mvp-team 角色分工
@@ -88,3 +88,18 @@ updated_at: 2026-04-17
 3. 跨岗流转(调研 → 设计 → 构建 → 推广)**都经过 `MARKETER` 中转**。
 4. 任何正式任务和结论都必须落文件。
 5. 发现跨边界问题时,不越权处理,先回到 `MARKETER` 重新拆分。
+
+---
+
+## 协议演进说明（v1.0 ~ v1.4）
+
+| 版本 | 变更 | 影响角色 |
+|---|---|---|
+| v1.0 | REVIEW envelope：高风险任务生成 `REVIEW-*.md`，需 ADMIN 批准 | leader / 全部 |
+| v1.1 | `risk_level` 字段：`low / medium / high`；`needs_human` 自动触发人工审批 | leader 派单时设置 |
+| v1.3 | `fcop_audit()`：协议体检工具，生成 `INSPECTION-*.md` 报告 | leader / ADMIN |
+| v1.3 | GAL（治理告警层）：`fcop_create_alert` / `fcop_list_alerts` | leader |
+| v1.4 | `supersedes:` 字段：文件级修正链（区别于 `parent:` 派生）| 全部 |
+| v1.4 | write-side 工具须显式绑定项目路径（`set_project_dir()`）| MCP Server 层 |
+
+> leader 角色的详细工具速查见对应 `roles/` 文件。

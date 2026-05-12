@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: dev-team
 doc_id: TEAM-README
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # dev-team — 软件开发团队
@@ -90,3 +90,17 @@ Agent 会调 `init_project(team="dev-team", lang="zh")`,把本目录的三层文
 - `qa-team` = 专项测试(leader: `LEAD-QA`)
 
 四套预设是**并列的样本**,不是继承关系。切换团队请重新 `init_project`,不要在同一项目混用多套角色命名。
+
+---
+
+## 工具速查链接
+
+| 工具 | 场景 |
+|---|---|
+| `fcop_audit(scope="new")` | 新项目 `init_*` 完成后自检 |
+| `fcop_audit(scope="upgrade")` | `pip install -U fcop` 升级后验收 |
+| `fcop_audit(scope="takeover")` | 接手陌生老项目时第一步 |
+| `fcop_report()` | 查看项目绑定、版本、告警摘要 |
+| `fcop_list_alerts(status="open")` | 查看治理告警收件箱 |
+
+> leader 角色详细工具速查见 `roles/<leader>.md` 末尾的"工具速查"节。

@@ -1357,6 +1357,7 @@ class Project:
             all_violations.extend(self._scan_shared_deployment())
         if resolved_scope in ("upgrade", "takeover"):
             all_violations.extend(self._scan_ghost_prefixes())
+            all_violations.extend(self._scan_outdated_role_docs())
         if resolved_scope == "takeover":
             all_violations.extend(self._scan_misplaced_envelopes())
             all_violations.extend(self._scan_legacy_role_docs())
@@ -1747,6 +1748,96 @@ class Project:
                 rollback="git revert HEAD",
             )],
         )]
+
+    def _scan_outdated_role_docs(self) -> list[Violation]:
+        """Detect deployed role docs whose content lags the installed fcop version.
+
+        Inspects every ``*.md`` in ``fcop/shared/roles/`` and checks whether
+        the highest protocol version referenced (e.g. "v1.4") is more than one
+        minor version behind the installed ``fcop`` package.  A gap of > 1 minor
+        version is reported as a P1 violation (RULE_DOC_DRIFT).
+
+        Background: role docs are authored once and deployed via
+        ``deploy_role_templates()``.  Without an explicit re-deployment they do
+        not automatically pick up new protocol sections (REVIEW, risk_level,
+        supersedes: etc.), leaving agents unaware of current FCoP capabilities.
+        """
+        import re
+
+        from fcop.inspection import RemediationStep, Violation
+
+        shared_roles = self._path / "fcop" / "shared" / "roles"
+        if not shared_roles.exists() or not any(shared_roles.glob("*.md")):
+            return []
+
+        # Installed package minor version
+        try:
+            from fcop._version import __version__ as pkg_ver  # type: ignore[attr-defined]
+
+            parts = pkg_ver.split(".")
+            pkg_major, pkg_minor = int(parts[0]), int(parts[1])
+        except Exception:
+            return []
+
+        # Matches version tags like "v1.3", "v1.4.0", "v1.0 ~ v1.4" etc.
+        _VER_RE = re.compile(r"v(\d+)\.(\d+)")
+
+        outdated: list[str] = []
+        for md in sorted(shared_roles.glob("*.md")):
+            try:
+                text = md.read_text(encoding="utf-8", errors="ignore")
+            except Exception:
+                continue
+
+            found = _VER_RE.findall(text)
+            if not found:
+                # No version reference at all → definitely outdated
+                outdated.append(str(md.relative_to(self._path)))
+                continue
+
+            # Highest (major, minor) mentioned in the file
+            max_major = max(int(m) for m, _ in found)
+            max_minor = max(
+                int(n) for m, n in found if int(m) == max_major
+            )
+
+            # Report if gap > 1 minor version (proposal: "差距 > 1 个 minor 版本")
+            minor_gap = (pkg_major - max_major) * 100 + (pkg_minor - max_minor)
+            if minor_gap > 1:
+                outdated.append(str(md.relative_to(self._path)))
+
+        if not outdated:
+            return []
+
+        return [
+            Violation(
+                violation_id="P1-000",
+                severity="P1",
+                rule_violated="RULE_DOC_DRIFT (角色文档协议漂移)",
+                summary=(
+                    f"{len(outdated)} 份已部署角色文档内容"
+                    f"滞后已安装的 fcop {pkg_major}.{pkg_minor}.x 超过 1 个 minor 版本"
+                ),
+                evidence=outdated[:20],
+                impact=(
+                    "Agent 读取的角色说明书缺少协议新功能描述"
+                    "（REVIEW envelope / risk_level / supersedes: 等），"
+                    "可能导致 Agent 不了解当前 FCoP 能力边界"
+                ),
+                scan_source="_scan_outdated_role_docs",
+                remediation=[
+                    RemediationStep(
+                        action="重新部署角色模板，将本地角色文档同步到最新协议版本",
+                        command="deploy_role_templates(force=True)",
+                        command_unix="deploy_role_templates(force=True)",
+                        executor="PM",
+                        estimated_minutes=5,
+                        tier=2,
+                        rollback="git revert HEAD  # 如部署结果有问题",
+                    )
+                ],
+            )
+        ]
 
     # ── Tasks ─────────────────────────────────────────────────────────
 

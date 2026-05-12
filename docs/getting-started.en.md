@@ -288,6 +288,53 @@ Honestly:
 
 ## FAQ
 
+## fcop_audit Three-Scenario Health Check (v1.3+)
+
+`fcop_audit()` is FCoP's built-in protocol health check tool — it lets an agent
+discover compliance gaps on its own.
+
+### Scenario 1: New project self-check (`scope="new"`)
+
+```python
+# Immediately after init_project / init_solo:
+fcop_audit(scope="new")
+# or write to file:
+fcop_audit(scope="new", output="file")
+```
+
+Checks: role documents present, `fcop.json` correct, basic envelope format valid.
+
+### Scenario 2: Upgrade verification (`scope="upgrade"`)
+
+```python
+# After pip install -U fcop:
+fcop_audit(scope="upgrade")
+```
+
+Checks: local protocol rule version consistent with package version; old formats
+requiring migration.
+
+### Scenario 3: Project takeover (`scope="takeover"`)
+
+```python
+# First action when inheriting an unfamiliar project:
+fcop_audit(scope="takeover", output="file")
+```
+
+Checks: full compliance scan (misplaced envelopes / legacy roles / cursor rules
+etc.), produces `INSPECTION-*.md` with P0/P1/P2-tiered remediation suggestions.
+
+### Output format
+
+- Default: stdout (console summary)
+- `output="file"`: writes to `fcop/shared/INSPECTION-{date}-{NNN}-{scope}.md`
+- Report includes an `Execution Block` with copy-paste commands for remediation
+
+> **Note**: `fcop_audit()` is **read-only** — it does not modify any files.
+> The INSPECTION report is advisory, not an instruction.
+
+---
+
 **Q: How is FCoP related to MCP?**
 A: Orthogonal. MCP is the agent ↔ tool call protocol; FCoP is the agent ↔ agent communication protocol. They stack (fcop-mcp uses MCP to expose FCoP tools to Cursor).
 

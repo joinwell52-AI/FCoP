@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: qa-team
 doc_id: TEAM-README
-updated_at: 2026-04-17
+updated_at: 2026-05-12
 ---
 
 # qa-team — 专项测试团队
@@ -86,3 +86,17 @@ Agent 会调 `init_project(team="qa-team", lang="zh")`,部署三层文档并建 
 
 `dev-team` 的 `QA` 适合小型项目、测试专业分工需求低的场景;
 `qa-team` 适合需要独立质量团队、覆盖功能/自动化/性能三条战线的场景。
+
+---
+
+## 工具速查链接
+
+| 工具 | 场景 |
+|---|---|
+| `fcop_audit(scope="new")` | 新项目 `init_*` 完成后自检 |
+| `fcop_audit(scope="upgrade")` | `pip install -U fcop` 升级后验收 |
+| `fcop_audit(scope="takeover")` | 接手陌生老项目时第一步 |
+| `fcop_report()` | 查看项目绑定、版本、告警摘要 |
+| `fcop_list_alerts(status="open")` | 查看治理告警收件箱 |
+
+> leader 角色详细工具速查见 `roles/<leader>.md` 末尾的"工具速查"节。

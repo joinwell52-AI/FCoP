@@ -51,6 +51,24 @@ will pick solo / dev-team / custom myself.
 
 ---
 
+## After install: run fcop_audit() for a health check
+
+Once `fcop-mcp` is installed and the project is initialized, have the agent
+run a health check immediately:
+
+```
+Run fcop_audit(scope="new") and give me a project health check report.
+```
+
+The health check report (`INSPECTION-*.md`) will tell you:
+- Whether all protocol files are in place
+- Whether any role document gaps exist
+- Any P0 / P1 / P2 items needing remediation
+
+> If you're taking over an existing project, use `scope="takeover"` instead of `scope="new"`.
+
+---
+
 ## After install: initialization is ADMIN's pick
 
 Once `fcop-mcp` is installed, the agent **must not** default to
