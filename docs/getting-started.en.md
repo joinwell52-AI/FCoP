@@ -264,7 +264,7 @@ Honestly:
 
 | Layer | File | Role |
 |---|---|---|
-| L0 + L1 entry | [`docs/getting-started.md`](./getting-started.md) (this page) | 30-second + 5-minute |
+| L0 + L1 entry | [`docs/getting-started.en.md`](./getting-started.en.md) (this page) | 30-second + 5-minute |
 | L2 long-form spec | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/) (v1.0 base) | Full v1.0 spec |
 | L2 long-form spec | [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md) (v1.1 additions) | risk_level / needs_human / human_approval |
 | L2 agent-readable rules (Cursor) | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor host — `alwaysApply: true` |

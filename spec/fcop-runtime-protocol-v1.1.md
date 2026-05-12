@@ -9,7 +9,7 @@
 | **Predecessor** | [`spec/fcop-runtime-protocol-v1.0.md`](./fcop-runtime-protocol-v1.0.md) |
 | **Machine-readable contract** | [`spec/schemas/`](./schemas/) (8 JSON Schemas) |
 | **Bundled rules** | `fcop-rules.mdc` v2.2.0 · `fcop-protocol.mdc` v2.0.0 |
-| **Reference impl** | `fcop==1.1.0` · `fcop-mcp==1.1.0` |
+| **Reference impl** | `fcop>=1.1.0` · `fcop-mcp>=1.1.0` (current: `1.2.1`, lockstep) |
 
 ---
 

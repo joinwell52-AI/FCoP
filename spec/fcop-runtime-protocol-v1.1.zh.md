@@ -9,7 +9,7 @@
 | **前版本** | [`spec/fcop-runtime-protocol-v1.0.zh.md`](./fcop-runtime-protocol-v1.0.zh.md) |
 | **机器可读 schema** | [`spec/schemas/`](./schemas/)（8 个 JSON Schema） |
 | **捆绑规则** | `fcop-rules.mdc` v2.2.0 · `fcop-protocol.mdc` v2.0.0 |
-| **参考实现** | `fcop==1.1.0` · `fcop-mcp==1.1.0` |
+| **参考实现** | `fcop>=1.1.0` · `fcop-mcp>=1.1.0`（当前版本：`1.2.1`，锁步） |
 | **英文版** | [`spec/fcop-runtime-protocol-v1.1.md`](./fcop-runtime-protocol-v1.1.md) |
 
 ---

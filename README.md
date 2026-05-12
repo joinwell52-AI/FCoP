@@ -13,7 +13,7 @@
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
   <a href="README.zh.md">简体中文</a> ·
   <a href="docs/getting-started.en.md">Getting started</a> ·
-  <a href="docs/mcp-tools.md"><strong>MCP Tools (30)</strong></a> ·
+  <a href="docs/mcp-tools.md"><strong>MCP Tools (32)</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
   <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
@@ -264,10 +264,13 @@ Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`a
 |---|---|
 | **New to FCoP** — hands-on 45-min setup | [`docs/getting-started.en.md`](docs/getting-started.en.md) |
 | **Upgrading from 0.7.x** — workspace migration + new abstractions | [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md) |
+| **Upgrading from 1.0/1.1 → 1.2** — Capability Governance + lockstep versioning | [`docs/MIGRATION-1.1.md`](docs/MIGRATION-1.1.md) · [CHANGELOG](CHANGELOG.md) |
 | **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec also in `fcop.rules.get_spec()`) |
+| **v1.2 Capability Governance** — FCoPGovernanceMiddleware, risk tagging, audit log | [CHANGELOG](CHANGELOG.md) · ADR-0030-bis |
 | **v1.1 new fields** — risk_level, needs_human, human_approval, skill tools | [CHANGELOG](CHANGELOG.md) · ADR-0023..0027 |
-| **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0015](adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md) |
-| **Release notes** — what changed in v1.1.0 | [`CHANGELOG.md`](CHANGELOG.md) |
+| **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md) |
+| **All 32 MCP tools & 14 resources** | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| **Release notes** — full changelog | [`CHANGELOG.md`](CHANGELOG.md) |
 | **Full document map** — every file and its role | [spec Appendix B](spec/fcop-runtime-protocol-v1.0.md#appendix-b--authoritative-document-map) |
 
 ---

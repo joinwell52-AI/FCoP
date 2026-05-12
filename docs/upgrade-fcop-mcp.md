@@ -115,12 +115,38 @@ pip install -U "fcop" "fcop-mcp"
 | `Task.risk_level` | `write_task(risk_level="high")` | 高风险任务自动创建 `needs_human` 审批门 |
 | `Review.decision = needs_human` | `write_review(decision="needs_human")` | 要求人工审批后才能继续 |
 | `Review.human_approval` | `mark_human_approved(review_id)` | ADMIN 批准后落盘审批记录 |
-| 新 MCP 工具 | `write_review` / `list_reviews` / `read_review` / `mark_human_approved` | 审核流工具（共 30 个工具） |
+| 新 MCP 工具 | `write_review` / `list_reviews` / `read_review` / `mark_human_approved` | 审核流工具（v1.1 后共 **30** 个工具 → v1.2.1 共 **32** 个） |
 
 详细说明：[`docs/releases/1.1.0.md`](./releases/1.1.0.md) · [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md)（[中文](../spec/fcop-runtime-protocol-v1.1.zh.md)）。
+
+## 从 1.1.x 升到 v1.2（Capability Governance，无破坏性变更）
+
+v1.2 是**纯 additive** 升级，不需要迁移：
+
+```bash
+pip install -U "fcop" "fcop-mcp"
+```
+
+升级后重开 IDE（`FCoPGovernanceMiddleware` 自动激活，无需手动配置）。
+
+**v1.2 新增特性：**
+
+| 特性 | 说明 |
+|---|---|
+| `FCoPGovernanceMiddleware` | 每次 MCP 工具调用自动打 risk 标签（Safe / Sensitive / Critical）并写入 `fcop_events.jsonl` |
+| `list_governance_events` | 查询 append-only 治理事件日志 |
+| `get_governance_summary` | 汇总统计 + CRITICAL_TAG 事件清单 |
+| `fcop_check()` 增强 | 输出末段新增治理事件摘要（Layer 3 审计） |
+| `skill_registry.yaml` | 可用于覆盖内置工具的风险分类（支持项目级自定义） |
+
+lockstep 发版规则（ADR-0002）：`fcop` 与 `fcop-mcp` 必须始终保持相同版本号，通过 CI `release.yml` 一条龙发布。
+
+详细说明：[CHANGELOG](../CHANGELOG.md) · ADR-0030-bis。
 
 ## English (short)
 
 - Bump **both** `fcop` and `fcop-mcp` in the same venv: `pip install -U "fcop" "fcop-mcp"`.  
 - Full install paths and `mcp.json` templates: [mcp/README.md](../mcp/README.md).
-- v1.1 → v1.1 is additive-only; no migration required. See [`docs/releases/1.1.0.md`](./releases/1.1.0.md).
+- v1.1 → v1.2: additive-only; no migration required. `FCoPGovernanceMiddleware` activates automatically.
+- v1.0 → v1.1: additive-only; no migration required. See [`docs/releases/1.1.0.md`](./releases/1.1.0.md).
+- Lockstep rule: `fcop` and `fcop-mcp` must share the same version; released together via CI `release.yml`.
