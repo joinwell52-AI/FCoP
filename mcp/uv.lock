@@ -643,15 +643,15 @@ wheels = [
 
 [[package]]
 name = "fcop"
-version = "1.1.0"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2a/9b/a802d223651b10c6a48fa36dbc42dd6cfb6f4c011d6e9ad8b635de06572c/fcop-1.1.0.tar.gz", hash = "sha256:40cf6420fbb850513b41e73e65ee27a0459b34011d4002a33e136286fab6c132", size = 358618, upload-time = "2026-05-10T15:53:18.983Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2a/ca/c11dea66fa4fca3754c48e704538c89429dbb620450b2b4e7a753929b533/fcop-1.3.0.tar.gz", hash = "sha256:1128d06bbde4e855e5d305394600a39c1319264e8aa58eb5b74f8b085348bab4", size = 400038, upload-time = "2026-05-12T04:29:15.284Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/01/f5/2605026b22dd4a0f513f615646ecb2391b46b7c33f7b20770d7f97bf497d/fcop-1.1.0-py3-none-any.whl", hash = "sha256:4259237b781646ad8c13a7a4ea7430e0f309af4c7c7cf3b482f7f553b7ef443a", size = 408586, upload-time = "2026-05-10T15:53:17.572Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/99/1527ae80776568f13a7d247b23ca4d2e2a5789a00438226e7d7e55679775/fcop-1.3.0-py3-none-any.whl", hash = "sha256:6ab3e27ff5e78036f797032ede61e12a609226b6115df765a79b8447361a0a49", size = 447763, upload-time = "2026-05-12T04:29:13.863Z" },
 ]
 
 [[package]]

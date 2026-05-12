@@ -2580,11 +2580,13 @@ def fcop_audit(
     if scope not in ("new", "upgrade", "takeover", "auto"):
         return f"错误：scope 参数无效（{scope!r}），须为 new / upgrade / takeover / auto"
 
+    from typing import Literal, cast
+
     project, _source = _get_project()
     try:
-        report = project.audit(  # type: ignore[attr-defined]
-            scope=scope,
-            output=output,
+        report = project.audit(
+            scope=cast(Literal["new", "upgrade", "takeover", "auto"], scope),
+            output=cast(Literal["file", "stdout", "both"], output),
         )
     except Exception as exc:
         return f"fcop_audit 执行失败：{exc}"
