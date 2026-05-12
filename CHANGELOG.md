@@ -8,7 +8,47 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
-## [Unreleased] — v1.3.0 (planned)
+## [1.3.0] — 2026-05-12
+
+### feat(audit) — ADR-0032 fcop_audit()：协议状态编译器（三场景体检工具）
+
+**FCoP 第五支柱**：让协议合规缺口"成为可执行文档"。
+
+**核心定位**：`fcop_audit()` is a protocol-to-inspection compiler — translates FCoP compliance state into structured findings and suggested remediation plans.
+
+**新增 1 个 MCP 工具**（总数 34 → 35）：
+
+- **`fcop_audit`** — 三场景协议体检工具；支持 `scope=new/upgrade/takeover/auto`；产出 `INSPECTION-{date}-{NNN}-{scope}.md`（含 P0/P1/P2 分档 + Execution Block 建议命令）
+
+**新增 `fcop.inspection` 模块**：
+
+- `RemediationStep` — 单条可复制整改命令（tier / executor / rollback / 双平台命令）
+- `Violation` — 协议违规发现（evidence / impact / remediation 列表）
+- `InspectionReport` — 完整体检报告，`to_markdown()`（L3 格式）+ `to_dict()`（机读 JSON）
+
+**新增 `Project.audit()` Python API**（6 个 `scan_*` 扫描方法）：
+
+| 扫描方法 | 检测范围 | 对应违规 |
+|---|---|---|
+| `_scan_cursor_rules()` | 协议规则缺失 / 草根规则混入 | Rule 0 P0/P2 |
+| `_scan_shared_deployment()` | 三层团队文档部署完整度 | Rule 4.5 P0/P1 |
+| `_scan_misplaced_envelopes()` | envelope 桶错位 | Rule 2 P1 |
+| `_scan_legacy_role_docs()` | 草根角色书（无 kind: 字段） | Rule 1 P1 |
+| `_scan_legacy_manifests()` | 非标准 JSON 双 manifest | Rule 0 P1 |
+| `_scan_ghost_prefixes()` | 幽灵前缀文件（DRAFT/HANDOFF/AMEND） | Rule 5 P2 |
+
+**L3 报告格式**（INSPECTION = Structured Findings + Suggested Remediation Plan）：
+
+- YAML frontmatter（机读：inspection_id / overall_status / p0-p2 计数）
+- P0 阻塞性 / P1 规范性 / P2 整洁性 分档展示
+- **Execution Block**（核心创新）：按 Tier 1/2/3 分组的可复制整改命令建议，含回滚、执行人、时长估算
+- append-only：同日同 scope 第二次跑产出 NNN+1，不覆盖
+
+**新增核心规范文档**：`adr/FCoP-semantic-execution-chain.md`（三层语义执行链模型：Schema Layer / Signal Layer / Compiler Layer）
+
+**测试**：新增 16 个 audit 单元测试，覆盖所有 scan_* 方法 + 三场景集成
+
+---
 
 ### feat(gal) — ADR-0031 Governance Alert Layer：治理漂移检测与 ADMIN 告警
 
@@ -53,10 +93,6 @@ GAL 不治理、不审批、不阻断——只做异常升级（Escalation）。
 > GAL S3（Solo Blindspot）信号会在 6h 时自动触发告警，无需 ADMIN 手动巡检。
 
 **`fcop_check()` 整合 GAL Layer 3**：输出末段新增「治理告警扫描」摘要，命中漂移信号即实时写入 ALERT 文件。
-
----
-
-## [Unreleased]
 
 ---
 

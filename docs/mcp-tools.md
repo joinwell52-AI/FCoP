@@ -1,4 +1,4 @@
-# FCoP MCP 工具与资源清单（fcop-mcp 1.x）<!-- 34 tools, 14 resources — v1.3.0 dev -->
+# FCoP MCP 工具与资源清单（fcop-mcp 1.x）<!-- 35 tools, 14 resources — v1.3.0 -->
 
 > 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具与资源**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组、给出何时调用、参数要点。
 >
@@ -8,7 +8,7 @@
 
 ## 总览
 
-- **工具（tools）34 个**（v1.1 新增 4 个 Review 工具；v1.2.1 新增 2 个治理审计工具；v1.3.0 新增 2 个 GAL 告警工具）：调用方主动触发，写盘或返回报告。
+- **工具（tools）35 个**（v1.1 新增 4 个 Review 工具；v1.2.1 新增 2 个治理审计工具；v1.3.0 新增 3 个：2 个 GAL 告警工具 + 1 个协议体检工具）：调用方主动触发，写盘或返回报告。
 - **资源（resources）14 个**（11 个静态 URI + `fcop://teams/{team}` / `.../{role}` / `.../{role}/en` 三套模板）：只读 URI，常用于把规则/状态/职责模板以引用方式塞进上下文。
 
 > **v1.1.0 新增**：4 个 Review 工具（`write_review` / `list_reviews` / `read_review` / `mark_human_approved`）；`write_task` 新增 `risk_level` 参数；`fcop://spec` / `fcop://spec/en` 升级到 v1.1 spec。
@@ -168,7 +168,39 @@ REVIEW 文件是治理层对某个制品的决策记录（[ADR-0017](../adr/ADR-
 
 ---
 
-## 12. 资源（read-only URI）
+## 12. 协议体检（fcop_audit）
+
+> 一次性深度体检；`fcop_check` 是日常轻量自检，二者互补。
+
+| 工具 | 用途 | 关键参数 |
+|---|---|---|
+| `fcop_audit` | 三场景协议体检，发现 6 类合规盲区，产出 INSPECTION 报告（含 Execution Block 整改建议） | `scope`（`new`/`upgrade`/`takeover`/`auto`，默认 `auto`）、`output`（`file`/`stdout`/`both`）、`project_path` |
+
+**三场景**：
+
+| 场景 | 触发条件 | 扫描内容 |
+|---|---|---|
+| `new` | 新项目验收 | 协议文件是否完整部署 |
+| `upgrade` | 版本升级后验收 | 规则/文档版本是否同步 |
+| `takeover` | 老 non-fcop 项目首次引入 | 全量扫描（6 类盲区） |
+
+**INSPECTION 报告**（`fcop/shared/INSPECTION-{date}-{NNN}-{scope}.md`）：
+
+- YAML frontmatter：inspection_id / overall_status / p0-p2 违规数 / 预估整改时长
+- P0 阻塞性 / P1 规范性 / P2 整洁性 违规详情（含证据 + 影响）
+- **Execution Block**：按 Tier 1/2/3 分组的可复制整改命令建议（含回滚、执行人）
+- append-only：同日同 scope 第二次跑产出 NNN+1，不覆盖原报告
+
+**语义定位**：INSPECTION ≠ 整改指令。命令是建议（suggestion），执行决策由 ADMIN/PM 做出。
+
+**ADMIN 工作流**：
+1. 首次引入 fcop 到已有项目：`fcop_audit(scope="takeover")`
+2. 阅读 INSPECTION 报告，逐项执行 Execution Block
+3. 整改后复检：`fcop_audit(scope="auto")` → 验证违规是否清零
+
+---
+
+## 13. 资源（read-only URI）
 
 资源是**只读上下文**——客户端可以把它们附到对话里。
 

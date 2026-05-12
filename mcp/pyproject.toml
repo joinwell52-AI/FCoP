@@ -7,7 +7,7 @@ name = "fcop-mcp"
 dynamic = ["version"]
 # Not the same as the `fcop` wheel: that package is the library + PyYAML only.
 # This package is the optional IDE bridge. Protocol definition: same repo, see project_urls.
-description = "stdio MCP server for the FCoP Python library: exposes the fcop package's Project, task, report, and issue APIs to MCP clients (Cursor, Claude Desktop, …). Optional bridge, not a second protocol; depends on fcop 1.x, FastMCP, websockets."
+description = "stdio MCP server for the FCoP Python library: exposes the fcop package's Project, task, report, issue, GAL alert, and audit APIs to MCP clients (Cursor, Claude Desktop, …). Optional bridge, not a second protocol; depends on fcop 1.x, FastMCP, websockets."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
