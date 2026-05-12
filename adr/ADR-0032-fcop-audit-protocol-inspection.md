@@ -1,13 +1,29 @@
-# ADR-0032: fcop_audit() — 三场景协议体检工具
+# ADR-0032: fcop_audit() — 协议状态编译器（三场景体检工具）
 
 | 字段 | 值 |
 |---|---|
 | **Status** | Accepted |
 | **Date** | 2026-05-12 |
 | **Depends on** | ADR-0029（行为治理协议）, ADR-0030（Capability Governance Boundary）, ADR-0031（GAL） |
-| **Type** | Protocol Extension — Auditability & Remediation Planning |
+| **Type** | Protocol Extension — Protocol Compiler / Remediation Documentation Generator |
 | **Milestone** | fcop v1.3.0 |
 | **Proposal** | `.fcop/proposals/legacy-project-onboarding-20260512.md` (v1.2, approved) |
+
+> **一句话定位（TL;DR）**
+>
+> `fcop_audit()` is a **protocol-to-action-plan compiler**: it translates FCoP compliance state into human- or agent-executable remediation documents.
+>
+> FCoP audit does not act. It translates protocol state into structured remediation documentation.
+
+### ADR 分工关系（三层不可混淆）
+
+| ADR | 职责 | 产出 |
+|---|---|---|
+| **ADR-0030** | 定义能力边界（能不能做） | Capability schema / risk_level |
+| **ADR-0031** | 产生治理信号（发生了什么） | Alert / drift signal |
+| **ADR-0032** | 生成修复说明书（该怎么修） | INSPECTION.md（可执行文档） |
+
+> ❗ `fcop_audit()` 是"文档生成器"，不是"执行引擎"。INSPECTION 报告是说明书，命令的执行由人或外部 agent 决定。
 
 ---
 
@@ -45,27 +61,43 @@ ADMIN 的洞察：
 
 ## 2. 决策
 
-引入 `fcop_audit()` 工具，作为**三场景通用的协议合规体检 + 整改方案生成器**。
+引入 `fcop_audit()` 工具，作为**三场景通用的协议合规体检 + 整改文档生成器**。
 
 ### 核心原则
 
 > **Inspection = Remediation Plan.**  
-> `fcop_audit()` 产出的 INSPECTION 报告本身就是整改方案——  
-> 每条违规都附带可直接执行的命令、执行人、时长估算、回滚方式和 Tier 优先级。
+> `fcop_audit()` 产出的 INSPECTION 报告本身就是整改说明书——  
+> 每条违规都附带**建议执行的命令**、执行人、时长估算、回滚方式和 Tier 优先级。
+
+**关键语义**：Execution Block 里的命令是**建议语义（suggestion）**，不是**执行语义（execution）**。系统生成说明书，执行决策由人或外部 agent 做出。
+
+### 三层内部架构
+
+`fcop_audit()` 内部分三层，职责严格分离：
+
+| 层 | 名称 | 输入 | 输出 | 实现 |
+|---|---|---|---|---|
+| **L1** | Detection（检测层） | 项目文件系统 | `Violation` 列表 | 6 个 `scan_*()` 方法 |
+| **L2** | Interpretation（解释层） | `Violation` | `severity` / `rule_violated` / `impact` | `_renumber_violations()` + schema |
+| **L3** | Documentation Generation（文档生成层） | 结构化 `Violation` | INSPECTION.md（含 Execution Block） | `InspectionReport.to_markdown()` |
+
+> L3 的输出是**文档**，不是**执行指令**。`command` 字段是"可复制的建议命令"，`fcop_audit()` 本身不运行它。
 
 ### 职责边界
 
 `fcop_audit()` **做**：
 
-- ✅ 扫描项目，发现协议违规（6 类盲区 + 基础合规项）
-- ✅ 为每条违规生成结构化整改步骤（含具体命令、executor、tier）
+- ✅ L1：扫描项目，发现协议违规（6 类盲区 + 基础合规项）
+- ✅ L2：结构化事实建模（severity / rule / evidence / impact）
+- ✅ L3：生成可执行说明书（含 Execution Block 建议命令）
 - ✅ 产出 `INSPECTION-{date}-{seq}-{scope}.md`（落 `fcop/shared/`）
 - ✅ 支持三场景（`new` / `upgrade` / `takeover` / `auto`）
 - ✅ 零写盘（除 INSPECTION 文件本身），不影响项目工作树
 
 `fcop_audit()` **不做**：
 
-- ❌ 执行整改命令（执行由 ADMIN/PM 手动触发）
+- ❌ **执行**整改命令（执行决策由 ADMIN/PM 做出，`fcop_audit` 只生成建议）
+- ❌ 自动修改任何项目文件（纯读 + 写 INSPECTION）
 - ❌ 修改 `fcop_check()` 现有行为
 - ❌ 修改 frozen 4 类 envelope（task / report / issue / review）
 - ❌ 强制项目跑 audit（推荐工具，非协议硬约束）
@@ -383,13 +415,17 @@ frontmatter (YAML)
 
 ### 6.2 Execution Block 设计原则
 
-Execution Block 是本 ADR 相对于传统体检报告的**核心创新**：
+Execution Block 是本 ADR 相对于传统体检报告的**核心创新**。
 
-1. **命令可直接复制**：每个步骤的 `command` 块可以直接粘贴到 shell 或 MCP 客户端执行，无需再查文档
+**语义声明**：Execution Block 是**建议性文档（suggestion document）**，不是系统指令。`fcop_audit()` 生成"可复制的命令建议"，执行决策由 ADMIN/PM 在阅读报告后做出。
+
+1. **命令可直接复制（建议语义）**：每个步骤的 `command` 块是"建议执行的命令"，可粘贴到 shell 或 MCP 客户端，但**执行前须人工确认**
 2. **双平台**：PowerShell 主命令块 + `# unix:` 注释行
 3. **按 Tier 分组**：Tier 1 全部归在一起，方便 ADMIN 一次性跑完，再看 Tier 2
-4. **回滚内嵌**：每个步骤下方直接给出回滚命令，不需要翻找
+4. **回滚内嵌**：每个步骤下方直接给出回滚建议，不需要翻找
 5. **状态感知**：`overall_status: blocked` 时，Execution Block 置顶警告
+
+> 设计约束：Execution Block ≠ 执行引擎。未来若需"自动按报告执行"，应另立 `fcop_remediate()` ADR（见 §9.3）。
 
 ---
 
@@ -502,12 +538,16 @@ def fcop_audit(
 
 ## 11. 非目标 / Non-Goals
 
-FCoP 协议体检明确**不是**：
+`fcop_audit()` 明确**不是**：
 
+- ❌ **执行引擎**：工具生成命令建议，不执行命令（执行由人或 `fcop_remediate()` 决定）
+- ❌ **Orchestration Layer**：`fcop_audit()` 不调度任何 agent 行为
+- ❌ **自动治理系统**：不会因为发现违规而自动修复或阻塞流程
 - ❌ 安全扫描工具（漏洞 / 密钥泄露不在范围）
 - ❌ 代码质量检查（linting / coverage 不在范围）
 - ❌ 项目管理工具（进度 / 里程碑不在范围）
-- ❌ 自动化整改引擎（执行由人决策，不由工具执行）
+
+> 防漂移声明：若未来出现"让 `fcop_audit` 自动执行整改"的需求，必须单独立 ADR，不得悄然扩展本工具的职责边界。这是 FCoP 避免"从治理协议滑向 orchestration layer"的硬约束。
 
 ---
 
