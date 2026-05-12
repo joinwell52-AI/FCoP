@@ -148,22 +148,25 @@ ADMIN 的洞察：
 
 **包含 new + upgrade 全部检查项，额外增加：**
 
-| 检查项 | 扫描方法 | Severity |
+| 检查项 | 扫描方法（内部） | Severity |
 |---|---|---|
-| `REPORT-*.md` 物理位置（Rule 2 桶错位） | `scan_misplaced_envelopes()` | P1 |
-| 草根角色书（`fcop/*.md` 非协议文件） | `scan_legacy_role_docs()` | P1 |
-| 双 manifest（`fcop/*.json` 非 `fcop.json`） | `scan_legacy_manifests()` | P1 |
-| `.cursor/rules/` 协议规则缺失 / 草根规则混入 | `scan_cursor_rules()` | P0 |
-| `fcop/shared/` 三层团队文档部署度 | `scan_shared_deployment()` | P1 |
-| 幽灵前缀文件（`DRAFT-` / `HANDOFF-` / `AMEND-` / `*-v2.md`） | `scan_ghost_prefixes()` | P2 |
+| `REPORT-*.md` 物理位置（Rule 2 桶错位） | `_scan_misplaced_envelopes()` | P1 |
+| 草根角色书（`fcop/*.md` 非协议文件） | `_scan_legacy_role_docs()` | P1 |
+| 双 manifest（`fcop/*.json` 非 `fcop.json`） | `_scan_legacy_manifests()` | P1 |
+| `.cursor/rules/` 协议规则缺失 / 草根规则混入 | `_scan_cursor_rules()` | P0 |
+| `fcop/shared/` 三层团队文档部署度 | `_scan_shared_deployment()` | P1 |
+| 幽灵前缀文件（`DRAFT-` / `HANDOFF-` / `AMEND-` / `*-v2.md`） | `_scan_ghost_prefixes()` | P2 |
 
 ---
 
-## 4. 六类扫描方法规格 / scan_* Specifications
+## 4. 六类扫描方法规格 / _scan_* Specifications
 
-所有 `scan_*` 方法均为 **纯读操作**，返回 `list[Violation]`。
+> **实现说明**：以下六个方法均以 `_` 开头（`_scan_*`），是 `Project.audit()` 的**私有子程序**，不属于 `fcop` 的公开 API。
+> 外部代码应调用 `project.audit()` 而非直接调用 `_scan_*` 方法。
 
-### 4.1 `scan_misplaced_envelopes()`
+所有 `_scan_*` 方法均为 **纯读操作**，返回 `list[Violation]`。
+
+### 4.1 `_scan_misplaced_envelopes()`
 
 **目的**：检测 `kind: report/task/issue/review` 文件物理路径与 frontmatter 声明不符（Rule 2）
 
@@ -184,7 +187,7 @@ def scan_misplaced_envelopes(self) -> list[Violation]:
     """
 ```
 
-### 4.2 `scan_legacy_role_docs()`
+### 4.2 `_scan_legacy_role_docs()`
 
 **目的**：检测老项目草根角色书（非协议标准文件，Rule 1 冲突风险）
 
@@ -202,7 +205,7 @@ def scan_legacy_role_docs(self) -> list[Violation]:
     """
 ```
 
-### 4.3 `scan_legacy_manifests()`
+### 4.3 `_scan_legacy_manifests()`
 
 **目的**：检测 `fcop/` 下非标准 JSON 文件（自创 manifest 会与 `fcop.json` 冲突）
 
@@ -218,7 +221,7 @@ def scan_legacy_manifests(self) -> list[Violation]:
     """
 ```
 
-### 4.4 `scan_cursor_rules()`
+### 4.4 `_scan_cursor_rules()`
 
 **目的**：审计 `.cursor/rules/` — 检测协议规则缺失 + 草根规则混入
 
@@ -244,7 +247,7 @@ def scan_cursor_rules(self) -> list[Violation]:
     """
 ```
 
-### 4.5 `scan_shared_deployment()`
+### 4.5 `_scan_shared_deployment()`
 
 **目的**：检测 `fcop/shared/` 三层团队文档部署完整度（Rule 4.5）
 
@@ -270,7 +273,7 @@ def scan_shared_deployment(self) -> list[Violation]:
     """
 ```
 
-### 4.6 `scan_ghost_prefixes()`
+### 4.6 `_scan_ghost_prefixes()`
 
 **目的**：检测滞留的幽灵前缀文件（Rule 5）
 
