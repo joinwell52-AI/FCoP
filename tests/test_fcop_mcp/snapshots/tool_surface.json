@@ -163,6 +163,51 @@
       ]
     },
     {
+      "name": "fcop_create_alert",
+      "params": [
+        {
+          "name": "alert_type",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "severity",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "suggestion",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "summary",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fcop_list_alerts",
+      "params": [
+        {
+          "name": "last_n",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "severity",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "fcop_report",
       "params": [
         {
@@ -181,6 +226,10 @@
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "get_governance_summary",
+      "params": []
     },
     {
       "name": "get_team_status",
@@ -243,6 +292,26 @@
         {
           "name": "filename",
           "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_governance_events",
+      "params": [
+        {
+          "name": "last_n",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "risk",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "tag",
+          "required": false,
           "type": "string"
         }
       ]
