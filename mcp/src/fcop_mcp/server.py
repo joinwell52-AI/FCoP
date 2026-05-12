@@ -135,7 +135,15 @@ class _ignore_errors:  # noqa: N801 — context manager, not a class users see
 
 
 # Init tools CREATE fcop.json — skip the Step-2 existence check for them.
-_INIT_TOOLS: frozenset[str] = frozenset({"init_project", "init_solo", "create_custom_team"})
+_INIT_TOOLS: frozenset[str] = frozenset({
+    "init_project",
+    "init_solo",
+    "create_custom_team",
+    # drop_suggestion writes to .fcop/proposals/ — a lightweight pre-init operation
+    # that agents use before the project is fully initialised (e.g. when suggesting
+    # that ADMIN should run init_project).  It does not touch fcop.json or team data.
+    "drop_suggestion",
+})
 
 
 def _has_fcop_json(path: Path) -> bool:

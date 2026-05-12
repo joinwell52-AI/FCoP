@@ -1942,6 +1942,28 @@ Three things the protocol explicitly grants you:
 
 ## Protocol Version Log / 协议版本记录
 
+- **v2.2** (2026-05-12) — **v1.4 capabilities commentary**，随 `fcop@1.4.0`：
+  1. 新增 **`supersedes:` frontmatter 字段**（TASK-004）：
+     - 所有 envelope 类型（TASK / REPORT / ISSUE / REVIEW）新增可选字段；
+     - 语义：文件级修正（区别于 `parent:` 工作派生 / `related:` 交叉引用）；
+     - `ipc-envelope.schema.json` 同步更新；
+     - `list_tasks` / `list_reports` 自动标注 `[supersedes X]` / `[superseded by X]`。
+  2. 新增 **GATE Design Pitfalls** 章节（TASK-003）：
+     - Pitfall 1（GATE 描述自我命中 / Self-Collision）+ 案例研究 + 自查清单；
+     - 预留 `fcop_audit` D8 scan（`_scan_gate_self_collision()`）锚点（归 v1.5）。
+  3. 版本号从 2.1.0 升至 2.2.0。
+
+  v2.2 changes:
+  1. Added **`supersedes:` frontmatter field** (TASK-004): optional field for all
+     envelope types (TASK/REPORT/ISSUE/REVIEW); file-level correction semantics
+     distinct from `parent:` (derivation) and `related:` (cross-reference);
+     `ipc-envelope.schema.json` updated; `list_tasks`/`list_reports` annotate
+     `[supersedes X]` / `[superseded by X]`.
+  2. Added **GATE Design Pitfalls** section (TASK-003): Pitfall 1 (self-collision
+     case study with Bridgeflow OPS I-14); semantic verification guidance;
+     GATE design self-check list; placeholder for D8 scan (v1.5).
+  3. Version bumped 2.1.0 → 2.2.0.
+
 - **v2.1** (2026-05-12) — **v1.3 capabilities commentary**，随 `fcop@1.3.1`：
   1. 新增 **Rule 9.6 Commentary**（协议体检 `fcop_audit()` 操作指南）：
      - 三场景决策树（new / upgrade / takeover / auto）
