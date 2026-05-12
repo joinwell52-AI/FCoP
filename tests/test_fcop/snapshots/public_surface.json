@@ -483,6 +483,29 @@
         ],
         "return": "None"
       },
+      "audit": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Literal['new', 'upgrade', 'takeover', 'auto']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "scope"
+          },
+          {
+            "annotation": "Literal['file', 'stdout', 'both']",
+            "has_default": true,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "output"
+          }
+        ],
+        "return": "InspectionReport"
+      },
       "audit_drift": {
         "params": [
           {
@@ -1689,6 +1712,7 @@
     "HumanApprovalChannel",
     "HumanApprovalDecision",
     "HumanApprovalEvidence",
+    "InspectionReport",
     "Issue",
     "Priority",
     "Project",
@@ -1700,6 +1724,7 @@
     "Recovery",
     "RecoveryAction",
     "RecoveryOutcome",
+    "RemediationStep",
     "Report",
     "ResumePayload",
     "RetryPlan",
@@ -1723,6 +1748,7 @@
     "TeamNotFoundError",
     "ValidationError",
     "ValidationIssue",
+    "Violation",
     "__version__",
     "rules",
     "teams"

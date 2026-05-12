@@ -55,6 +55,7 @@ from fcop.errors import (
     TeamNotFoundError,
     ValidationError,
 )
+from fcop.inspection import InspectionReport, RemediationStep, Violation
 from fcop.models import (
     AgentLayer,
     BoundaryViolation,
@@ -152,6 +153,10 @@ __all__ = [
     "DeploymentReport",
     "Priority",
     "Severity",
+    # Inspection (ADR-0032)
+    "InspectionReport",
+    "Violation",
+    "RemediationStep",
     # Exceptions
     "FcopError",
     "ProtocolViolation",

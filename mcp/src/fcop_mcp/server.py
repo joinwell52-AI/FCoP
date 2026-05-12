@@ -2545,6 +2545,75 @@ def _append_governance_audit(lines: list[str], is_en: bool) -> None:
 
 
 @mcp.tool
+def fcop_audit(
+    scope: str = "auto",
+    output: str = "file",
+    project_path: str = ".",
+) -> str:
+    """**协议体检工具（ADR-0032）**。扫描项目，发现协议合规缺口，产出"体检即整改方案"报告。
+
+    与 ``fcop_check`` 的区别：
+
+    - ``fcop_check`` — 日常轻量自检（working-tree drift + session/role 冲突）
+    - ``fcop_audit`` — 一次性深度体检（协议合规度全量扫描 + 整改方案）
+
+    三个 scope：
+
+    - ``new``      : 新项目验收 — 协议文件是否完整部署
+    - ``upgrade``  : 版本升级后验收 — 规则版本 / 文档是否同步
+    - ``takeover`` : 老 non-fcop 项目首次引入 fcop — 全量合规扫描（含 6 类盲区）
+    - ``auto``     : 自动推断（推荐）
+
+    产出物：``fcop/shared/INSPECTION-{date}-{NNN}-{scope}.md``
+
+    报告含 **Execution Block**：每条违规附带可直接复制的整改命令、执行人、
+    Tier 优先级和回滚方式。
+
+    Args:
+        scope:        ``"new"`` | ``"upgrade"`` | ``"takeover"`` | ``"auto"``
+        output:       ``"file"`` 写报告文件（默认） | ``"stdout"`` 仅返回 Markdown |
+                      ``"both"`` 写文件并返回
+        project_path: 项目根目录（默认 ``.``，即当前 fcop 工作目录）
+    """
+    if output not in ("file", "stdout", "both"):
+        return f"错误：output 参数无效（{output!r}），须为 file / stdout / both"
+    if scope not in ("new", "upgrade", "takeover", "auto"):
+        return f"错误：scope 参数无效（{scope!r}），须为 new / upgrade / takeover / auto"
+
+    proj = _get_project(project_path)
+    try:
+        report = proj.audit(
+            scope=scope,  # type: ignore[arg-type]
+            output=output,  # type: ignore[arg-type]
+        )
+    except Exception as exc:
+        return f"fcop_audit 执行失败：{exc}"
+
+    md = report.to_markdown()
+    status_line = (
+        f"**{report.inspection_id}** · scope={report.scope} · "
+        f"overall={report.overall_status} · "
+        f"P0={report.p0_count} P1={report.p1_count} P2={report.p2_count}"
+    )
+    if output == "stdout":
+        return md
+    # file or both: prepend a short status banner, full report in file
+    file_path = (
+        proj.shared_dir / f"{report.inspection_id}-{report.scope}.md"
+    )
+    banner = (
+        f"✅ 体检完成\n\n{status_line}\n\n"
+        f"报告已写入：`{file_path}`\n\n"
+    )
+    if output == "both":
+        return banner + md
+    return banner + "---\n\n" + md[:3000] + (
+        "\n\n_（报告过长，已截断。完整内容见文件。）_"
+        if len(md) > 3000 else ""
+    )
+
+
+@mcp.tool
 def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -> str:
     """**ADMIN-only.** Re-deploy bundled FCoP protocol rules to the project.
 

@@ -153,6 +153,26 @@
       ]
     },
     {
+      "name": "fcop_audit",
+      "params": [
+        {
+          "name": "output",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "project_path",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "scope",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "fcop_check",
       "params": [
         {

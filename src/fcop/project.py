@@ -22,7 +22,10 @@ import pathlib
 import warnings
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
+
+if TYPE_CHECKING:
+    from fcop.inspection import InspectionReport, Violation
 
 import yaml
 
@@ -1310,6 +1313,440 @@ class Project:
             session_role_conflicts=conflicts,
             git_available=git_available,
         )
+
+    # ── Protocol audit (ADR-0032) ─────────────────────────────────────
+
+    def audit(
+        self,
+        scope: Literal["new", "upgrade", "takeover", "auto"] = "auto",
+        output: Literal["file", "stdout", "both"] = "file",
+    ) -> InspectionReport:
+        """Three-scenario protocol compliance audit (ADR-0032).
+
+        Scans the project for protocol violations and generates an
+        **INSPECTION report** that is both a compliance finding *and* a
+        remediation plan (L3 format with Execution Block).
+
+        Args:
+            scope:  ``"new"`` — new project validation;
+                    ``"upgrade"`` — post-version-upgrade validation;
+                    ``"takeover"`` — legacy non-fcop project onboarding;
+                    ``"auto"`` — infer from project state (recommended).
+            output: ``"file"`` writes ``fcop/shared/INSPECTION-*.md``;
+                    ``"stdout"`` returns Markdown only;
+                    ``"both"`` writes file *and* returns Markdown.
+
+        Returns:
+            :class:`~fcop.inspection.InspectionReport` — call
+            ``.to_markdown()`` or ``.to_dict()`` for the rendered output.
+
+        Note:
+            ``audit()`` is a **read-only deep scan**; the only side-effect
+            is writing the INSPECTION file when ``output`` includes ``"file"``.
+            It does *not* execute any remediation — that is for the human
+            ADMIN/PM to do after reviewing the report.
+        """
+        from fcop.inspection import InspectionReport, OverallStatus
+
+        resolved_scope = self._infer_audit_scope() if scope == "auto" else scope
+
+        # Run all relevant scan_* methods, collect violations
+        all_violations = []
+        if resolved_scope in ("new", "upgrade", "takeover"):
+            all_violations.extend(self._scan_cursor_rules())
+            all_violations.extend(self._scan_shared_deployment())
+        if resolved_scope in ("upgrade", "takeover"):
+            all_violations.extend(self._scan_ghost_prefixes())
+        if resolved_scope == "takeover":
+            all_violations.extend(self._scan_misplaced_envelopes())
+            all_violations.extend(self._scan_legacy_role_docs())
+            all_violations.extend(self._scan_legacy_manifests())
+
+        # Re-number violation IDs sequentially per severity
+        all_violations = _renumber_violations(all_violations)
+
+        # Determine overall status
+        has_p0 = any(v.severity == "P0" for v in all_violations)
+        has_any = bool(all_violations)
+        overall: OverallStatus
+        if has_p0:
+            overall = "blocked"
+        elif has_any:
+            overall = "needs_remediation"
+        else:
+            overall = "green"
+
+        import fcop as _fcop
+        from fcop.rules import get_rules_version
+
+        try:
+            local_rules_version: str | None = _read_local_rules_version(self._path)
+        except Exception:
+            local_rules_version = None
+
+        try:
+            pkg_rules_version = get_rules_version()
+        except Exception:
+            pkg_rules_version = "unknown"
+
+        inspection_id = self._allocate_inspection_id(resolved_scope)
+
+        report = InspectionReport(
+            inspection_id=inspection_id,
+            scope=resolved_scope,  # type: ignore[arg-type]
+            project_path=self._path,
+            inspected_at=_dt.datetime.now(tz=_dt.timezone.utc),
+            fcop_version=_fcop.__version__,
+            fcop_rules_version_local=local_rules_version,
+            fcop_rules_version_package=pkg_rules_version,
+            overall_status=overall,
+            violations=all_violations,
+        )
+
+        if output in ("file", "both"):
+            shared = self.shared_dir
+            shared.mkdir(parents=True, exist_ok=True)
+            fname = f"{inspection_id}-{resolved_scope}.md"
+            (shared / fname).write_text(
+                report.to_markdown(), encoding="utf-8"
+            )
+
+        return report
+
+    def _infer_audit_scope(self) -> str:
+        """Infer scope from project state (conservative: prefer takeover)."""
+        cfg_path = self.config_path
+        if not cfg_path.exists():
+            # If fcop/ directory already exists → legacy project → takeover
+            if (self._path / "fcop").is_dir():
+                return "takeover"
+            # Truly empty or minimal dir → new
+            file_count = sum(1 for _ in self._path.rglob("*") if _.is_file())
+            return "new" if file_count < 5 else "takeover"
+        # fcop.json exists — check for version lag
+        try:
+            import json as _json
+            data = _json.loads(cfg_path.read_text(encoding="utf-8"))
+            proto_ver = data.get("protocol_version", "")
+            import fcop as _fcop
+            if proto_ver and proto_ver < _fcop.__version__:
+                return "upgrade"
+        except Exception:
+            pass
+        return "takeover"
+
+    def _allocate_inspection_id(self, scope: str) -> str:
+        """Return next INSPECTION-YYYYMMDD-NNN id (sequential, no collision)."""
+        shared = self.shared_dir
+        today = _dt.date.today().strftime("%Y%m%d")
+        prefix = f"INSPECTION-{today}-"
+        existing = sorted(
+            p.stem for p in shared.glob(f"{prefix}*.md")
+            if p.stem.startswith(prefix)
+        ) if shared.exists() else []
+        if existing:
+            try:
+                last_n = int(existing[-1].split("-")[2])
+            except (IndexError, ValueError):
+                last_n = 0
+        else:
+            last_n = 0
+        return f"{prefix}{last_n + 1:03d}"
+
+    # ── scan_* methods ────────────────────────────────────────────────
+
+    def _scan_cursor_rules(self) -> list[Violation]:
+        """Detect missing protocol rules + stray non-protocol rules in .cursor/rules/."""
+        from fcop.inspection import RemediationStep, Violation
+
+        violations: list[Violation] = []
+        rules_dir = self._path / ".cursor" / "rules"
+
+        # SubCheck A: required protocol files
+        required = {
+            ".cursor/rules/fcop-rules.mdc",
+            ".cursor/rules/fcop-protocol.mdc",
+            "AGENTS.md",
+            "CLAUDE.md",
+        }
+        missing = [
+            r for r in sorted(required)
+            if not (self._path / r).exists()
+        ]
+        if missing:
+            violations.append(Violation(
+                violation_id="P0-000",
+                severity="P0",
+                rule_violated="Rule 0 (协议规则缺失)",
+                summary=f"{len(missing)} 件协议规则文件未部署",
+                evidence=missing,
+                impact="Agent 无法读取 fcop 协议规则，所有写盘行为均不受协议约束",
+                scan_source="_scan_cursor_rules",
+                remediation=[RemediationStep(
+                    action="部署协议规则文件",
+                    command="redeploy_rules()",
+                    executor="ADMIN",
+                    estimated_minutes=1,
+                    tier=1,
+                    rollback="旧规则已归档到 .fcop/migrations/<ts>/rules/，可手工恢复",
+                )],
+            ))
+
+        # SubCheck B: stray non-protocol .mdc files
+        if rules_dir.exists():
+            protocol_mdc = {"fcop-rules.mdc", "fcop-protocol.mdc"}
+            stray = [
+                f.name for f in rules_dir.glob("*.mdc")
+                if f.name not in protocol_mdc
+            ]
+            if stray:
+                violations.append(Violation(
+                    violation_id="P2-000",
+                    severity="P2",
+                    rule_violated="Rule 0 (草根规则混入)",
+                    summary=f".cursor/rules/ 下有 {len(stray)} 件非协议 .mdc 文件",
+                    evidence=[f".cursor/rules/{f}" for f in sorted(stray)],
+                    impact="草根规则可能与 fcop 协议规则冲突，建议清理",
+                    scan_source="_scan_cursor_rules",
+                    remediation=[RemediationStep(
+                        action="审查并归档草根 mdc 规则",
+                        command="# 手工审查后移动到项目文档区或删除",
+                        executor="ADMIN",
+                        estimated_minutes=15,
+                        tier=3,
+                        rollback="git checkout -- .cursor/rules/",
+                    )],
+                ))
+
+        return violations
+
+    def _scan_shared_deployment(self) -> list[Violation]:
+        """Check fcop/shared/ three-layer team document deployment completeness."""
+        from fcop.inspection import RemediationStep, Violation
+
+        shared = self.shared_dir
+        # Standard dev-team documents (6 base + 4 role files)
+        expected_base = [
+            "TEAM-README.md", "TEAM-README.en.md",
+            "TEAM-ROLES.md", "TEAM-ROLES.en.md",
+            "TEAM-OPERATING-RULES.md", "TEAM-OPERATING-RULES.en.md",
+        ]
+        # Role files: support both naming conventions (PM-01.md and PM.md)
+        expected_roles = []
+        for role in ("PM", "DEV", "QA", "OPS"):
+            # Check either naming convention
+            if not (shared / f"roles/{role}-01.md").exists() and not (shared / f"roles/{role}.md").exists():
+                expected_roles.append(f"roles/{role}.md")
+        all_expected_count = len(expected_base) + 4  # 4 roles
+        missing_base = [f for f in expected_base if not (shared / f).exists()]
+        missing = missing_base + expected_roles  # expected_roles already contains only missing ones
+        if not missing:
+            return []
+
+        ratio = len(missing) / all_expected_count
+        from fcop.inspection import ViolationSeverity
+        severity: ViolationSeverity = "P0" if ratio >= 0.5 else "P1"
+        return [Violation(
+            violation_id="P0-000" if severity == "P0" else "P1-000",
+            severity=severity,
+            rule_violated="Rule 4.5 (三层团队文档缺失)",
+            summary=f"fcop/shared/ 缺少 {len(missing)}/{all_expected_count} 件团队文档",
+            evidence=[f"fcop/shared/{f}" for f in missing],
+            impact="团队职责边界、协作流程、升级路径缺失，agent 无法查阅角色定义",
+            scan_source="_scan_shared_deployment",
+            remediation=[RemediationStep(
+                action="部署团队宪法文件",
+                command='deploy_role_templates(team="dev-team", force=True)',
+                executor="ADMIN",
+                estimated_minutes=1,
+                tier=1,
+                rollback="shared/ 原文件已备份（若 force=True 覆盖则需从包重新提取）",
+            )],
+        )]
+
+    def _scan_misplaced_envelopes(self) -> list[Violation]:
+        """Detect envelope files whose physical path contradicts their kind: frontmatter."""
+        from fcop.inspection import RemediationStep, Violation
+
+        bucket_map = {
+            "task": self.tasks_dir,
+            "report": self.reports_dir,
+            "issue": self.issues_dir,
+            "review": self.reviews_dir,
+        }
+        fcop_root = self._path / "fcop"
+        if not fcop_root.exists():
+            return []
+
+        misplaced: list[str] = []
+        for md in fcop_root.rglob("*.md"):
+            try:
+                text = md.read_text(encoding="utf-8", errors="ignore")
+                fm = _extract_frontmatter_kind(text)
+                if fm not in bucket_map:
+                    continue
+                expected_dir = bucket_map[fm]
+                if md.parent.resolve() != expected_dir.resolve():
+                    misplaced.append(str(md.relative_to(self._path)))
+            except Exception:
+                continue
+
+        if not misplaced:
+            return []
+
+        # Group by kind for a cleaner remediation command
+        ps_lines = "\n".join(
+            f"git mv '{f}' 'fcop/reports/{pathlib.Path(f).name}'"
+            for f in misplaced[:5]
+        ) + ("\n# ... 更多文件" if len(misplaced) > 5 else "")
+
+        return [Violation(
+            violation_id="P1-000",
+            severity="P1",
+            rule_violated="Rule 2 (桶错位)",
+            summary=f"{len(misplaced)} 个 envelope 文件物理路径与 kind: 不符",
+            evidence=misplaced[:20],
+            impact=(
+                "list_tasks/list_reports 输出错误；leader 无法归档线程；"
+                "fcop_check 计数失真"
+            ),
+            scan_source="_scan_misplaced_envelopes",
+            remediation=[RemediationStep(
+                action="将错位文件移到正确桶目录",
+                command=ps_lines,
+                command_unix=ps_lines.replace("'", '"'),
+                executor="PM",
+                estimated_minutes=max(5, len(misplaced) // 10 + 5),
+                tier=1,
+                rollback="git revert HEAD",
+                precondition="git status 确认无未提交变更",
+            )],
+        )]
+
+    def _scan_legacy_role_docs(self) -> list[Violation]:
+        """Detect grass-roots role files in fcop/ root (not protocol-standard)."""
+        from fcop.inspection import RemediationStep, Violation
+
+        fcop_root = self._path / "fcop"
+        if not fcop_root.exists():
+            return []
+
+        # Only scan the top level (not recursive) for *.md files without kind:
+        legacy: list[str] = []
+        skip_prefixes = (
+            "INSPECTION-", "SOP-", "TEAM-", "TASK-",
+            "REPORT-", "ISSUE-", "REVIEW-",
+        )
+        for md in fcop_root.glob("*.md"):
+            if any(md.name.startswith(p) for p in skip_prefixes):
+                continue
+            try:
+                text = md.read_text(encoding="utf-8", errors="ignore")
+                fm = _extract_frontmatter_kind(text)
+                if fm is None:
+                    legacy.append(str(md.relative_to(self._path)))
+            except Exception:
+                continue
+
+        if not legacy:
+            return []
+
+        return [Violation(
+            violation_id="P1-000",
+            severity="P1",
+            rule_violated="Rule 1 (草根角色书)",
+            summary=f"fcop/ 根目录有 {len(legacy)} 份非协议 Markdown 文件",
+            evidence=legacy,
+            impact="可能导致角色混淆；不在 fcop 任何审计路径；积累技术债",
+            scan_source="_scan_legacy_role_docs",
+            remediation=[RemediationStep(
+                action="将草根角色书归档到 fcop/shared/roles/ 或 fcop/log/",
+                command="# 逐文件确认内容后手工归档：\n"
+                        "# git mv fcop/<file>.md fcop/shared/roles/<file>.md",
+                executor="PM",
+                estimated_minutes=30,
+                tier=2,
+                rollback="git revert HEAD",
+            )],
+        )]
+
+    def _scan_legacy_manifests(self) -> list[Violation]:
+        """Detect non-standard JSON files in fcop/ (e.g. custom manifests)."""
+        from fcop.inspection import RemediationStep, Violation
+
+        fcop_root = self._path / "fcop"
+        if not fcop_root.exists():
+            return []
+
+        stray = [
+            str(f.relative_to(self._path))
+            for f in fcop_root.glob("*.json")
+            if f.name != "fcop.json"
+        ]
+        if not stray:
+            return []
+
+        return [Violation(
+            violation_id="P1-000",
+            severity="P1",
+            rule_violated="Rule 0 (双 manifest)",
+            summary=f"fcop/ 下有 {len(stray)} 个非标准 JSON 文件（双 manifest 风险）",
+            evidence=stray,
+            impact="自创 manifest 与 fcop.json 并存会导致工具行为不一致",
+            scan_source="_scan_legacy_manifests",
+            remediation=[RemediationStep(
+                action="确认内容后删除或迁移非标准 JSON",
+                command="# 逐文件确认后：\n# git rm fcop/<file>.json",
+                executor="ADMIN",
+                estimated_minutes=10,
+                tier=2,
+                rollback="git revert HEAD",
+            )],
+        )]
+
+    def _scan_ghost_prefixes(self) -> list[Violation]:
+        """Detect stale ghost-prefix files (DRAFT-/HANDOFF-/AMEND-/*-v2.md)."""
+        from fcop.inspection import RemediationStep, Violation
+
+        fcop_root = self._path / "fcop"
+        if not fcop_root.exists():
+            return []
+
+        ghost_patterns = ["DRAFT-*.md", "HANDOFF-*.md", "AMEND-*.md"]
+        version_pattern = "*-v[0-9]*.md"
+        found: list[str] = []
+        for pat in ghost_patterns:
+            found.extend(
+                str(f.relative_to(self._path))
+                for f in fcop_root.rglob(pat)
+            )
+        found.extend(
+            str(f.relative_to(self._path))
+            for f in fcop_root.rglob(version_pattern)
+        )
+        found = sorted(set(found))
+        if not found:
+            return []
+
+        return [Violation(
+            violation_id="P2-000",
+            severity="P2",
+            rule_violated="Rule 5 (幽灵前缀文件)",
+            summary=f"发现 {len(found)} 个幽灵前缀文件",
+            evidence=found[:20],
+            impact="草稿/交接/修订文件未清理，积累协议外文件，干扰审计",
+            scan_source="_scan_ghost_prefixes",
+            remediation=[RemediationStep(
+                action="确认内容后重命名或删除幽灵文件",
+                command="# DRAFT- → 确认后 git mv 为 TASK- 或删除\n"
+                        "# HANDOFF- → 确认交接完成后 git mv 到 fcop/log/archive/\n"
+                        "# *-v2.md → 确认合并后 git rm 旧版",
+                executor="PM",
+                estimated_minutes=15,
+                tier=3,
+                rollback="git revert HEAD",
+            )],
+        )]
 
     # ── Tasks ─────────────────────────────────────────────────────────
 
@@ -4780,3 +5217,58 @@ def _plan_protocol_rules_deployment() -> list[tuple[str, str]]:
         ("AGENTS.md", combined),
         ("CLAUDE.md", combined),
     ]
+
+
+# ── Inspection helpers ─────────────────────────────────────────────────────
+
+
+def _extract_frontmatter_kind(text: str) -> str | None:
+    """Parse the ``kind:`` field from YAML frontmatter, return None if absent."""
+    if not text.startswith("---"):
+        return None
+    end = text.find("\n---", 3)
+    if end == -1:
+        return None
+    fm_block = text[3:end]
+    for line in fm_block.splitlines():
+        if line.startswith("kind:"):
+            return line.split(":", 1)[1].strip().strip('"').strip("'")
+    return None
+
+
+def _read_local_rules_version(project_root: pathlib.Path) -> str | None:
+    """Read the rules version from the deployed .cursor/rules/fcop-rules.mdc."""
+    rules_path = project_root / ".cursor" / "rules" / "fcop-rules.mdc"
+    if not rules_path.exists():
+        return None
+    for line in rules_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        if "Rules version:" in line:
+            # e.g. "> Rules version: `2.2.0` · ..."
+            import re
+            m = re.search(r"`([^`]+)`", line)
+            if m:
+                return m.group(1)
+    return None
+
+
+def _renumber_violations(violations: list[Violation]) -> list[Violation]:
+    """Assign sequential violation_ids like P0-001, P1-001, P2-001."""
+    from fcop.inspection import Violation
+
+    counters: dict[str, int] = {"P0": 0, "P1": 0, "P2": 0}
+    renumbered: list[Violation] = []
+    for v in violations:
+        counters[v.severity] += 1
+        new_id = f"{v.severity}-{counters[v.severity]:03d}"
+        # Update remediation violation references if needed (violation_id unchanged in steps)
+        renumbered.append(Violation(
+            violation_id=new_id,
+            severity=v.severity,
+            rule_violated=v.rule_violated,
+            summary=v.summary,
+            evidence=v.evidence,
+            impact=v.impact,
+            remediation=v.remediation,
+            scan_source=v.scan_source,
+        ))
+    return renumbered
