@@ -125,7 +125,17 @@ ADR-NNNN-kebab-case-title.md
 | [ADR-0030-bis](./ADR-0030-bis-capability-enforcement-accountability-model.md) | Capability Enforcement — Accountability Model（双层执行 + 审计补偿） | Accepted | 2026-05-11 |
 | [ADR-0030](./ADR-0030-capability-governance-boundary.md) | Capability Governance Boundary — 工具调用风险边界（三层分类） | **Accepted** | 2026-05-11 |
 | **[ADR-0031](./ADR-0031-governance-alert-layer.md)** | **Governance Alert Layer（GAL）— 治理漂移检测与 ADMIN 告警（FCoP-Rule-G1 + 三域模型）** | **Accepted** | 2026-05-11 |
-| **[ADR-0032](./ADR-0032-fcop-audit-protocol-inspection.md)** | **fcop_audit() — 三场景协议体检工具（体检即整改方案 / L3 Execution Block）** | **Accepted** | 2026-05-12 |
+| **[ADR-0032](./ADR-0032-fcop-audit-protocol-inspection.md)** | **fcop_audit() — 协议状态编译器（三场景体检 / Structured Findings + Suggested Plan）** | **Accepted** | 2026-05-12 |
+
+---
+
+## 核心规范参考
+
+| 文档 | 说明 |
+|---|---|
+| **[FCoP 三层语义执行链模型](./FCoP-semantic-execution-chain.md)** | ADR-0030/0031/0032 合成的完整协议语义链——Schema Layer · Signal Layer · Compiler Layer |
+
+---
 
 ## 工作流
 

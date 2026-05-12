@@ -11,9 +11,9 @@
 
 > **一句话定位（TL;DR）**
 >
-> `fcop_audit()` is a **protocol-to-action-plan compiler**: it translates FCoP compliance state into human- or agent-executable remediation documents.
+> `fcop_audit()` is a **protocol-to-inspection compiler**: it translates FCoP compliance state into structured findings and suggested remediation plans.
 >
-> FCoP audit does not act. It translates protocol state into structured remediation documentation.
+> FCoP audit does not act. It does not execute. It only translates protocol state into structured remediation documentation.
 
 ### ADR 分工关系（三层不可混淆）
 
@@ -21,7 +21,7 @@
 |---|---|---|
 | **ADR-0030** | 定义能力边界（能不能做） | Capability schema / risk_level |
 | **ADR-0031** | 产生治理信号（发生了什么） | Alert / drift signal |
-| **ADR-0032** | 生成修复说明书（该怎么修） | INSPECTION.md（可执行文档） |
+| **ADR-0032** | 编译协议状态为检查报告（该怎么修的建议） | INSPECTION.md（结构化发现 + 整改建议） |
 
 > ❗ `fcop_audit()` 是"文档生成器"，不是"执行引擎"。INSPECTION 报告是说明书，命令的执行由人或外部 agent 决定。
 
@@ -79,7 +79,7 @@ ADMIN 的洞察：
 |---|---|---|---|---|
 | **L1** | Detection（检测层） | 项目文件系统 | `Violation` 列表 | 6 个 `scan_*()` 方法 |
 | **L2** | Interpretation（解释层） | `Violation` | `severity` / `rule_violated` / `impact` | `_renumber_violations()` + schema |
-| **L3** | Documentation Generation（文档生成层） | 结构化 `Violation` | INSPECTION.md（含 Execution Block） | `InspectionReport.to_markdown()` |
+| **L3** | Documentation Generation（文档生成层） | 结构化 `Violation` | INSPECTION.md（structured findings + suggested remediation plan） | `InspectionReport.to_markdown()` |
 
 > L3 的输出是**文档**，不是**执行指令**。`command` 字段是"可复制的建议命令"，`fcop_audit()` 本身不运行它。
 
@@ -369,6 +369,15 @@ class InspectionReport:
 ---
 
 ## 6. INSPECTION 报告格式 / L3 Output Format
+
+**协议级语义声明**：
+
+> `INSPECTION` ≠ Remediation Plan  
+> `INSPECTION` = Structured Findings + Suggested Remediation Plan
+
+INSPECTION 是"结构化发现 + 整改建议"的复合体，不是"整改指令"。其中：
+- **Structured Findings**：L1/L2 产出的客观事实（违规 ID / 规则 / 证据 / 影响）
+- **Suggested Remediation Plan**：L3 基于发现生成的*建议*行动（Execution Block 里的命令是建议，不是指令）
 
 INSPECTION 报告落点：`fcop/shared/INSPECTION-{YYYYMMDD}-{NNN}-{scope}.md`
 
