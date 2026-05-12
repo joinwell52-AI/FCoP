@@ -2573,44 +2573,39 @@ def fcop_audit(
         scope:        ``"new"`` | ``"upgrade"`` | ``"takeover"`` | ``"auto"``
         output:       ``"file"`` 写报告文件（默认） | ``"stdout"`` 仅返回 Markdown |
                       ``"both"`` 写文件并返回
-        project_path: 项目根目录（默认 ``.``，即当前 fcop 工作目录）
+        project_path: 保留参数（暂未使用），实际路径由 FCOP_DIR 环境变量或当前目录决定
     """
     if output not in ("file", "stdout", "both"):
         return f"错误：output 参数无效（{output!r}），须为 file / stdout / both"
     if scope not in ("new", "upgrade", "takeover", "auto"):
         return f"错误：scope 参数无效（{scope!r}），须为 new / upgrade / takeover / auto"
 
-    proj = _get_project(project_path)
+    project, _source = _get_project()
     try:
-        report = proj.audit(
-            scope=scope,  # type: ignore[arg-type]
-            output=output,  # type: ignore[arg-type]
+        report = project.audit(  # type: ignore[attr-defined]
+            scope=scope,
+            output=output,
         )
     except Exception as exc:
         return f"fcop_audit 执行失败：{exc}"
 
-    md = report.to_markdown()
-    status_line = (
+    md: str = report.to_markdown()
+    status_line: str = (
         f"**{report.inspection_id}** · scope={report.scope} · "
         f"overall={report.overall_status} · "
         f"P0={report.p0_count} P1={report.p1_count} P2={report.p2_count}"
     )
     if output == "stdout":
         return md
-    # file or both: prepend a short status banner, full report in file
-    file_path = (
-        proj.shared_dir / f"{report.inspection_id}-{report.scope}.md"
-    )
-    banner = (
+    file_path = project.shared_dir / f"{report.inspection_id}-{report.scope}.md"
+    banner: str = (
         f"✅ 体检完成\n\n{status_line}\n\n"
         f"报告已写入：`{file_path}`\n\n"
     )
     if output == "both":
         return banner + md
-    return banner + "---\n\n" + md[:3000] + (
-        "\n\n_（报告过长，已截断。完整内容见文件。）_"
-        if len(md) > 3000 else ""
-    )
+    suffix = "\n\n_（报告过长，已截断。完整内容见文件。）_" if len(md) > 3000 else ""
+    return banner + "---\n\n" + md[:3000] + suffix
 
 
 @mcp.tool
