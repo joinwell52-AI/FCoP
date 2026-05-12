@@ -24,6 +24,7 @@
 | 08 | **协议为什么短，历史为什么长** | [中文](why-the-protocol-stays-short.md) | 一份给协议维护者的设计哲学答案："这样的涌现会不会没有止境？"——四类涌现的处理路径、三条结构力学、协议骨架冻结的代价与价值。 |
 | 09 | **当 validator 撞向自己的镜像** | [中文](gate-design-pitfalls-case-studies.md) | 从 codeflow OPS I-14 看 validator-validates-itself 反模式：GATE 在检查 staged diff 时命中了 GATE 描述本身——系统性解剖与"语义化实证"根治姿势，以及它如何成为 `fcop-protocol.mdc §GATE Design Pitfalls` 的源头案例。 |
 | 10 | **一行 frontmatter 的旅程** | [中文](the-supersedes-field-story.md) | `supersedes:` 字段从一次协议两难（三条规则同时成立）到 `ipc-envelope.schema.json` 正式字段的两小时旅程——展示 FCoP 涌现落地的最低成本路径。 |
+| 11 | **看,但不动手** | [中文](looking-without-touching.md) | FCoP 三层语义执行链科普：`fcop_audit()` 为什么"只看不改"——L1 检测 / L2 解释 / L3 文档三层把"看见"和"动手"切开，产出 `INSPECTION.md`（建议非命令），执行权留给人。`adr/FCoP-semantic-execution-chain.md` 的科普版。 |
 
 ---
 
@@ -34,6 +35,8 @@
 **关心 agent 是否真的"理解"协议**：essay 02 / 04 / 06 构成一个渐进的证据链（无关任务自发 → 冲突触发 → 直接问）。
 
 **关心协议如何演化**：essay 07 / 08 / 09 / 10 记录了协议从压力测试到字段级收编的完整过程（2026-05-12 这一天）。
+
+**关心协议工具如何设计**：essay 11（科普）配合 ADR 目录的 `ADR-0030 / 0031 / 0032` 一起读，理解 `fcop_audit()` 为什么是三层架构、为什么"只看不改"。
 
 **协议维护者 / 贡献者**：essay 08（为什么协议要短）和 ADR 目录里的 `ADR-0029`（FCoP 哲学宪章）是最重要的背景读物。
 
