@@ -39,10 +39,7 @@ def _next_alert_id(alerts_dir: Path, date_str: str) -> str:
     existing = sorted(
         p.stem for p in alerts_dir.glob(f"{prefix}*.md")
     )
-    if existing:
-        last_num = int(existing[-1].split("-")[-1])
-    else:
-        last_num = 0
+    last_num = int(existing[-1].split("-")[-1]) if existing else 0
     return f"{prefix}{last_num + 1:03d}"
 
 
@@ -156,33 +153,33 @@ def list_alerts(
         filter_str = f" (过滤条件: {', '.join(filters)})" if filters else ""
         return f"fcop/alerts/ 目录下无匹配告警{filter_str}。\n\n治理告警由 fcop_check() 自动检测并写入，ADMIN 请运行 fcop_check() 触发扫描。"
 
-    _SEVERITY_ICON = {"high": "🔴", "medium": "🟡", "low": "🔵"}
-    _STATUS_LABEL = {"open": "待处理", "acknowledged": "已知晓", "resolved": "已解决"}
+    severity_icon = {"high": "🔴", "medium": "🟡", "low": "🔵"}
+    status_label = {"open": "待处理", "acknowledged": "已知晓", "resolved": "已解决"}
 
     open_count = sum(1 for p in parsed if p.get("status") == "open")
     lines = [
-        f"# 治理告警（Governance Alerts）",
-        f"",
+        "# 治理告警（Governance Alerts）",
+        "",
         f"共 {len(parsed)} 条" + (f"，其中 **{open_count} 条待处理**" if open_count else "，全部已处理"),
         "",
     ]
 
     for p in parsed:
         sev = p.get("severity", "medium")
-        icon = _SEVERITY_ICON.get(sev, "⚪")
+        icon = severity_icon.get(sev, "⚪")
         st = p.get("status", "open")
-        st_label = _STATUS_LABEL.get(st, st)
+        st_label = status_label.get(st, st)
         lines += [
-            f"---",
+            "---",
             f"### {icon} {p.get('alert_id', p['_file'])}",
-            f"",
+            "",
             f"- **类型**: `{p.get('type', '?')}`",
             f"- **严重度**: {sev}",
             f"- **状态**: {st_label}",
             f"- **时间**: {p.get('created_at', '?')}",
-            f"",
+            "",
             f"{p['_body_preview']}",
-            f"",
+            "",
         ]
 
     lines += [

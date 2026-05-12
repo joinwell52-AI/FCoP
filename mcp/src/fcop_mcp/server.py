@@ -37,10 +37,11 @@ from typing import Literal
 import fcop
 from fastmcp import FastMCP
 from fcop import Issue, Project, Report, Task, ValidationIssue
-from fcop_mcp.governance import FCoPGovernanceMiddleware
-from fcop_mcp.governance._tools import impl_get_governance_summary, impl_list_governance_events
+
 from fcop_mcp.gal import create_alert, list_alerts
 from fcop_mcp.gal._drift import run_drift_scan
+from fcop_mcp.governance import FCoPGovernanceMiddleware
+from fcop_mcp.governance._tools import impl_get_governance_summary, impl_list_governance_events
 
 # ─── Project path resolution ─────────────────────────────────────────
 
