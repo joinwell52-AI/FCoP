@@ -848,8 +848,15 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.3.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 2.4.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**2.4.0 changes / 2.4.0 变更**（随 `fcop@1.5.0`）:
+
+- 新增 **RULE_DOC_DRIFT 违规类型**：已部署角色文档内容落后于已安装 `fcop` 版本
+  超过 1 个 minor 版本，由 `fcop_audit(scope=upgrade/takeover)` 扫描检出。
+  整改动作：`deploy_role_templates(force=True)`（per ADR-0032 §4.7）
+- Rule 0–9.7 主体不变。
 
 **2.3.0 changes / 2.3.0 变更**（随 `fcop@1.3.1`）:
 

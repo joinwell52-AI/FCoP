@@ -8,6 +8,63 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [1.5.0] — 2026-05-12
+
+### docs(P1) — 84 份角色/团队文档同步至 v1.4 协议
+
+**核心问题**：v1.4.0 发布后，`fcop/shared/roles/` 里已部署的角色文档与团队模板
+仍停留在 v1.1 内容层，不包含 REVIEW envelope / `risk_level` / `fcop_audit` /
+`supersedes:` 等 v1.0~v1.4 引入的关键协议能力，新接手项目的 Agent 读取这些文档后
+感知不到新功能（协议能力认知漂移 RULE_DOC_DRIFT）。
+
+**变更内容**（涉及 58 个文件）：
+
+- **非 leader 角色文档 × 20 份（中英双语）**：DEV / QA / OPS / WRITER / TESTER 等，
+  新增"v1.0 ~ v1.4 协议更新速查"节，含 REVIEW envelope / `risk_level` /
+  `fcop_audit` 与 INSPECTION / `supersedes:` 字段四小节
+- **TEAM-ROLES × 10 份（5 团队 × 中英）**：新增"协议演进说明（v1.0 ~ v1.4）"表格
+- **TEAM-OPERATING-RULES × 10 份（5 团队 × 中英）**：新增"协议演进补记"节，
+  含高风险任务审批 / `fcop_audit` 整改处理 / write-side 绑定规则三段
+- **team README × 10 份（5 团队 × 中英）**：新增"工具速查链接"表格
+- **`docs/getting-started.{zh,en}.md`**：新增"fcop_audit 三场景体检"节
+- **`src/fcop/rules/_data/agent-install-prompt.{zh,en}.md`**：装完即跑 `fcop_audit()` 提示
+
+---
+
+### feat(audit/P2) — `_scan_outdated_role_docs()` + RULE_DOC_DRIFT
+
+**新增 `Project._scan_outdated_role_docs()` 扫描方法**（`scope=upgrade/takeover`）：
+
+- 读取已安装 `fcop` 包版本（`major.minor`）
+- Glob `fcop/shared/roles/*.md`，对每个文件用正则提取最高版本号引用
+- 无版本引用，或版本 gap > 1 minor → 记入 `Violation(severity=P1, rule="RULE_DOC_DRIFT")`
+- 整改建议：`deploy_role_templates(force=True)` 重新部署最新角色模板
+
+**ADR-0032 同步更新**：新增 §4.7 `_scan_outdated_role_docs()` + `RULE_DOC_DRIFT` 违规类型
+
+**测试**：`tests/test_fcop/test_audit.py` 新增 4 个测试用例（无 roles 目录 / 无版本引用 / 版本落后 / 当前版本）
+
+---
+
+### fix(ci) — Protocol v2.2 日志 + drop_suggestion 豁免
+
+- `fcop-protocol.mdc` 正文补录 `v2.2` Protocol Version Log 条目（CI 测试验收）
+- `mcp/src/fcop_mcp/server.py`：`drop_suggestion` 加入 `_INIT_TOOLS` 豁免，
+  使其在项目初始化前也可向 `.fcop/proposals/` 写入建议文件（轻量级预初始化操作）
+
+---
+
+### docs — Essays 07-10 + essays/README.md
+
+- **essay 07** `when-agents-learn-from-their-own-wreckage.md`：codeflow 一日 14 个涌现现场报告
+- **essay 08** `why-the-protocol-stays-short.md`：协议为什么短，历史为什么长
+- **essay 09** `gate-design-pitfalls-case-studies.md`：validator-validates-itself 案例分析
+- **essay 10** `the-supersedes-field-story.md`：`supersedes:` 字段两小时旅程
+- `essays/README.md`：10 篇文章完整索引 + 分类阅读建议
+- `adr/README.md`：嵌入三层语义执行链模型图
+
+---
+
 ## [1.4.0] — 2026-05-12
 
 ### fix(security) — P0 Write-side 工具显式绑定守门（PM #50 事件修复）

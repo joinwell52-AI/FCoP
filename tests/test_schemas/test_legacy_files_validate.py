@@ -22,6 +22,9 @@ import yaml
 from fcop.core.jsonschema_validator import validate_envelope_frontmatter
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+# The legacy docs/agents/ layout was used in 0.7.x; the repo itself has been
+# migrated to fcop/ (ADR-0022). When the log dir is absent we skip gracefully
+# rather than scanning fcop/log/ which contains newer files, not 0.7.x ones.
 LOG_DIR = REPO_ROOT / "docs" / "agents" / "log"
 
 PREFIX_TO_TYPE = {
@@ -68,7 +71,16 @@ LEGACY_FILES = _legacy_envelope_files()
 
 
 def test_we_actually_found_some_legacy_files():
-    """前置条件：至少有几份历史文件 —— 否则本测试白跑。"""
+    """前置条件：至少有几份历史文件 —— 否则本测试白跑。
+
+    docs/agents/log/ 是 0.7.x 时代的 workspace 路径；v1.0 起迁移至 fcop/
+    （ADR-0022）。迁移后该目录不再存在，本检查相应跳过。
+    """
+    if not LOG_DIR.is_dir():
+        pytest.skip(
+            f"{LOG_DIR} does not exist — project has been migrated to fcop/ layout "
+            "(ADR-0022). No 0.7.x legacy files to validate."
+        )
     assert len(LEGACY_FILES) >= 5, (
         f"expected ≥5 legacy envelope files under {LOG_DIR}, found {len(LEGACY_FILES)}"
     )
