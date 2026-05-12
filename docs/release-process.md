@@ -260,9 +260,21 @@ $env:PYTHONPATH = ""
 - [ ] 把准备好的 `REPORT-*.md` 填实(发版主刀 / 实际 commit hash / 5 个 job
       结果 / 已知非阻塞项 / CDN 传播时间)落到 `fcop/reports/`
 - [ ] `Move-Item` 把 `TASK-*.md` 移到 `fcop/log/tasks/`、`REPORT-*.md` 移到
-      `fcop/log/reports/`(`archive_task(task_id)` MCP 工具也可,但 v1.6.0
-      实战是手动 `Move-Item` + `git add -A`,因为 git 会自动识别 rename)
-- [ ] `git add -A && git commit -F .scratch\_release_*_closure_msg.txt`
+      `fcop/log/reports/`(`archive_task(task_id)` MCP 工具也可)
+- [ ] **`git add` 用显式路径,严禁 `-A`** —— 协议级硬约束,详见"常见故障
+      问题 7"。把本意要入库的所有文件**逐个**列出来,显式路径下 git 同样
+      能识别 rename(`R ` 行)、不会丢功能:
+
+      ```powershell
+      git add docs/release-process.md `
+              fcop/log/tasks/TASK-<date>-<seq>-*.md `
+              fcop/log/reports/REPORT-<date>-<seq>-*.md
+      ```
+
+- [ ] **commit 前必跑** `git status --short` 二次确认:staging 区(以
+      `M` / `A` / `R` 开头的行)**只**包含本意文件;`??` untracked 行随它
+      去,不该入库的就让它继续 untracked
+- [ ] `git commit -F .scratch\_release_*_closure_msg.txt`
 - [ ] `git push origin main`
 - [ ] 至此 Rule 0.a.1 四步全闭环
 
@@ -338,6 +350,57 @@ CDN 传播延迟,通常 1–5 分钟。期间 PyPI JSON API
 的索引可能还是旧缓存。等几分钟再试,或加 `--no-cache-dir`。
 **不是发版失败**,无需任何操作。
 
+### 问题 7:commit 意外携带 untracked 残留(`git add -A` 后悔药)
+
+**协议级硬约束;有依据,不要再犯**。
+
+**现象**:本来只想 commit 3 份本意文件(`docs/release-process.md` + 一份
+`TASK-*.md` + 一份 `REPORT-*.md`),实际 push 上去之后发现 commit 携带了
+开发过程中工作树里**所有**的 untracked 残留——临时 commit msg 草稿、运
+行时事件日志、维护脚本、未定稿的 essays 等等。
+
+**根因**:`git add -A` 会把工作树里**所有**未被 `.gitignore` 覆盖的
+untracked 文件一起 stage。`.gitignore` 永远是不完整的——总会有新的
+artifact 类型出现、新的子目录冒出来、`/.scratch/` 这种点开头的目录被
+`/_scratch/` 这种下划线开头的规则漏掉。在 working tree 里塞着 untracked
+文件的情况下,**`git add -A` 不是便利,是地雷**。
+
+**事故依据**:2026-05-12 SOP v2 沉淀那次,我自己就踩了这颗雷:
+
+```text
+d2ed13c  docs(release): ... SOP v2  (mis-bundled with 19 extra files)  ← 失误
+cc60186  Revert "docs(release): ... SOP v2"                             ← revert
+979bcd2  docs(release): ... SOP v2  (clean redo, only 3 files)          ← 干净版
+dfe68e3  chore: archive sprint artifacts + tighten .gitignore           ← .gitignore 补洞
+```
+
+这条 4-commit 修复链在 `main` 上是永久 audit trail——下次任何人想偷懒
+`git add -A`,先去看一眼这串 hash。
+
+**立即修复**(已发生时):
+
+1. ADMIN 决策(Rule 7 二次确认必走,不许擅自重写历史):
+   - **A. revert + redo**(推荐):`git revert <bad-commit>` → 用本 SOP 阶段
+     4 闭环段教的显式路径重做干净 commit。`main` 历史多一个 revert + 一个
+     干净 commit,但每个 commit 意图都清楚
+   - **B. follow-up cleanup**:`git rm` 不该入库的文件 + 升级 `.gitignore`,
+     作为新 commit 落下来。**不重写历史**但 SOP commit 长期不干净
+   - **C. accept-as-is**:只升级 `.gitignore`,旧 commit 留着混杂状态。
+     **不推荐**
+
+2. **不要 force push** —— Rule 7 高危,且会抹掉别人已经 fetch 的历史
+
+**长期防范**:
+
+- 阶段 4 闭环段已经规定:**显式路径 `git add`** + `git status --short`
+  二次确认
+- `.gitignore` 至少要覆盖:`/.scratch/`(项目根 drawer)、`fcop_events.jsonl`
+  (FCoP 运行时事件日志,根目录和子目录都可能出现)、`scripts/_*.txt`
+  (per-release 临时 commit msg 草稿)。这些都是 v1.6.0 后置入的,新洞出现
+  时同步补
+- 见 [Rule 7.5 / agent drawer](../.cursor/rules/fcop-rules.mdc) 的精神:
+  开发过程中的临时产物属于 drawer,不进版本库
+
 ---
 
 ## 一次完整发版的命令序列 / End-to-End Command Sequence
@@ -363,7 +426,9 @@ $env:PYTHONPATH = ""
 
 # Phase 2: P=E sync (最后一刻)
 py -3.10 -c "from pathlib import Path; from fcop.project import Project; print(Project(Path(r'D:\FCoP')).deploy_protocol_rules(force=True, archive=True))"
-git add -A
+# !! 显式路径,不要 -A —— 详见"常见故障 问题 7"
+git add .cursor/rules/fcop-rules.mdc .cursor/rules/fcop-protocol.mdc AGENTS.md CLAUDE.md
+git status --short  # 二次确认 staging 只有上述四份
 git commit -F .scratch\_release_1_7_0_predeploy_msg.txt
 
 # Phase 3: ADMIN 二次确认(Rule 7) + tag push + release.yml automation
