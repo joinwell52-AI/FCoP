@@ -53,6 +53,13 @@
           "enum": ["low", "medium", "high", "irreversible"],
           "default": "medium",
           "description": "Per ADR-0024. Operation risk level. low=read-only/no side-effects; medium=normal development (default); high=production/permission changes; irreversible=cannot be undone (drop DB, force-push, over-quota API call). high/irreversible automatically trigger a needs_human review gate (ADR-0025)."
+        },
+        "supersedes": {
+          "oneOf": [
+            {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"},
+            {"type": "array", "items": {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"}, "minItems": 1}
+          ],
+          "description": "File-level supersede link (Rule 5 append-only correction). Marks this file as replacing the referenced file(s). Superseded files remain on disk; tools annotate them with '[superseded by X]'. Distinct from `parent:` (work derivation) and `related:` (cross-reference). Optional. Introduced in fcop_protocol_version 2.2.0."
         }
       }
     },
@@ -75,7 +82,14 @@
         "report_id":  {"type": "string", "description": "0.7.x stable id matching the filename stem. Optional in v1.0 (filename is canonical)."},
         "status":    {"type": "string", "enum": ["accepted", "in_progress", "blocked", "done", "aborted"], "description": "Worker self-status. SHOULD be present. `aborted` per ADR-0019 §recovery."},
         "priority":  {"$ref": "#/$defs/priority"},
-        "session_id": {"type": "string", "description": "Per existing 0.7.x. Identifies the producing session for role-occupancy tracking. Optional."}
+        "session_id": {"type": "string", "description": "Per existing 0.7.x. Identifies the producing session for role-occupancy tracking. Optional."},
+        "supersedes": {
+          "oneOf": [
+            {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"},
+            {"type": "array", "items": {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"}, "minItems": 1}
+          ],
+          "description": "File-level supersede link (Rule 5 append-only correction). Optional. See TASK envelope definition for full semantics."
+        }
       }
     },
     "issue": {
@@ -86,7 +100,14 @@
       "properties": {
         "type": {"const": "ISSUE"},
         "priority": {"$ref": "#/$defs/priority"},
-        "ref_task": {"type": "string", "description": "Optional reference to a TASK that triggered the issue."}
+        "ref_task": {"type": "string", "description": "Optional reference to a TASK that triggered the issue."},
+        "supersedes": {
+          "oneOf": [
+            {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"},
+            {"type": "array", "items": {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"}, "minItems": 1}
+          ],
+          "description": "File-level supersede link (Rule 5 append-only correction). Optional. See TASK envelope definition for full semantics."
+        }
       }
     },
     "review": {
@@ -100,7 +121,14 @@
         "subject_ref":  {"type": "string", "description": "Reference to the artefact under review (file path for task/report/code_change, fcop.json roles diff for role_switch). Per ADR-0017."},
         "decision":     {"$ref": "https://fcop.dev/schemas/review/v1.0.json#/$defs/decisionEnum"},
         "rationale":    {"type": "string", "description": "Body-text rationale for the decision. SHOULD be present for non-`abstained` decisions."},
-        "required_changes": {"type": "array", "items": {"type": "string"}, "description": "Per ADR-0017. Required only when decision = `needs_changes`; SHOULD be empty otherwise."}
+        "required_changes": {"type": "array", "items": {"type": "string"}, "description": "Per ADR-0017. Required only when decision = `needs_changes`; SHOULD be empty otherwise."},
+        "supersedes": {
+          "oneOf": [
+            {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"},
+            {"type": "array", "items": {"type": "string", "pattern": "^(TASK|REPORT|ISSUE|REVIEW)-"}, "minItems": 1}
+          ],
+          "description": "File-level supersede link (Rule 5 append-only correction). Optional. See TASK envelope definition for full semantics."
+        }
       }
     }
   },

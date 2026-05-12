@@ -116,6 +116,163 @@ class _ignore_errors:  # noqa: N801 — context manager, not a class users see
         return True  # suppress
 
 
+# ─── Write-side binding guard (D1 + D2 + S1–S3, fcop-mcp v1.4) ──────────────
+#
+# Root cause: fcop-mcp v1.3 allowed write-side tools to fall back to the MCP
+# process cwd when no explicit binding was active. If that cwd happened to be
+# the user's home directory (C:\Users\<name>), protocol files were written at
+# the home scope, polluting every Cursor project on the machine.
+#
+# Three-step guard (_assert_writable_project):
+#   Step 1 (D1)  — explicit bind required; cwd fallbacks refused.
+#   Step 2 (S1)  — fcop.json must exist (skip for init tools that create it).
+#   Step 3 (D2/S2) — path must not be in the deny-list of protected paths.
+#                    Only the EXACT home dir is refused; subdirs are allowed.
+#
+# S2 refinement: use Path.home() + Path.resolve() for cross-platform home
+# detection. Only the home directory itself is denied; project subdirectories
+# inside ~ (e.g. ~/my-project) are legitimate and pass the guard.
+
+
+# Init tools CREATE fcop.json — skip the Step-2 existence check for them.
+_INIT_TOOLS: frozenset[str] = frozenset({"init_project", "init_solo", "create_custom_team"})
+
+
+def _has_fcop_json(path: Path) -> bool:
+    """Return True if *path* contains a valid FCoP workspace marker.
+
+    Checks both v1.0 layout (``fcop/fcop.json``) and legacy 0.7.x layout
+    (``docs/agents/fcop.json``) so the guard works on unmigrated projects.
+    """
+    return (path / "fcop" / "fcop.json").is_file() or (
+        path / "docs" / "agents" / "fcop.json"
+    ).is_file()
+
+
+def _is_protected_path(path: Path) -> bool:
+    """Return True if *path* is a protected system or home path.
+
+    Protected set (D2 + S2 deny-list):
+      - Exactly the user home directory (Path.home()); subdirectories are OK.
+      - APPDATA / LOCALAPPDATA and their immediate parent.
+      - PROGRAMDATA (Windows).
+      - Drive letter roots on Windows (C:\\, D:\\, …).
+      - Unix filesystem root / and common system dirs (/etc, /usr, …).
+
+    S2 precision: only the EXACT home dir is refused.
+    ``C:\\Users\\<name>\\my-project`` is allowed.
+    """
+    # Cross-platform home via Path.home(); compare after resolve() on both sides.
+    with _ignore_errors():
+        home = Path.home().resolve()
+        if sys.platform == "win32":
+            if path.as_posix().casefold() == home.as_posix().casefold():
+                return True
+        elif path == home:
+            return True
+
+    # _home_dirs() also adds APPDATA, LOCALAPPDATA and their parents —
+    # those are system directories even if they live under home.
+    home_set = _home_dirs()
+    if path in home_set:
+        return True
+
+    # PROGRAMDATA
+    programdata = os.environ.get("PROGRAMDATA")
+    if programdata:
+        with _ignore_errors():
+            if path == Path(programdata).resolve():
+                return True
+
+    # Drive letter roots on Windows: path.parent == path ⟺ root of a drive
+    if sys.platform == "win32" and path == path.parent:
+        return True
+
+    # Unix root and system directories
+    unix_protected = {
+        Path("/"),
+        Path("/etc"),
+        Path("/usr"),
+        Path("/opt"),
+        Path("/bin"),
+        Path("/sbin"),
+        Path("/lib"),
+        Path("/lib64"),
+    }
+    return path in unix_protected
+
+
+def _is_cwd_fallback(source: str) -> bool:
+    """Return True when the resolver fell back to cwd (no explicit bind, no marker)."""
+    return source.startswith("cwd fallback")
+
+
+def _assert_writable_project(tool_name: str) -> tuple[Path, str]:
+    """Three-step write guard: explicit bind → fcop.json exists → safe path.
+
+    Returns ``(resolved_path, source)`` on success.
+    Raises ``ValueError`` with a ``WriteRefused:`` prefix on any violation.
+
+    Step 1 (D1)    — refuse cwd fallbacks (no explicit bind).
+    Step 2 (S1)    — refuse if fcop.json is absent (skipped for init tools).
+    Step 3 (D2/S2) — refuse if path is in the protected-path deny-list.
+
+    ``binding_required: true`` — see D4 / TASK-002 S3 schema convention.
+    """
+    path, source = _resolve_project_dir()
+
+    # Step 1 — D1: explicit bind required
+    if _is_cwd_fallback(source):
+        raise ValueError(
+            f"WriteRefused: {tool_name} requires an explicitly bound project "
+            f"root, but no binding is active (resolved via '{source}'). "
+            f"Call set_project_dir(path=...) first, or restart the MCP server "
+            f"with cwd set to the project root. "
+            f"This guard exists to prevent USER HOME pollution "
+            f"(see fcop-mcp v1.4 release notes)."
+        )
+
+    # Step 2 — S1: fcop.json existence check (skip for init tools)
+    if tool_name not in _INIT_TOOLS and not _has_fcop_json(path):
+        raise ValueError(
+            f"WriteRefused: {tool_name} requires a valid FCoP project root, "
+            f"but no fcop.json was found at {path} "
+            f"(checked: {path / 'fcop' / 'fcop.json'} and "
+            f"{path / 'docs' / 'agents' / 'fcop.json'}). "
+            f"Run init_solo() / init_project() / create_custom_team() first "
+            f"if this is a new project, or call "
+            f"set_project_dir(path=<correct_root>) to point to an existing one."
+        )
+
+    # Step 3 — D2/S2: deny-list check
+    if _is_protected_path(path):
+        raise ValueError(
+            f"WriteRefused: {tool_name}: project_dir resolved to a protected "
+            f"system path ({path}). FCoP write-side tools refuse to operate "
+            f"at this scope to prevent global pollution. "
+            f"Bind to a project subdirectory instead via set_project_dir(path=...)."
+        )
+
+    return path, source
+
+
+# Backward-compatible alias (used internally and in tests).
+_assert_write_allowed = _assert_writable_project
+
+
+def _get_project_write(tool_name: str) -> tuple[Project, str]:
+    """Like ``_get_project()`` but enforces the three-step write guard.
+
+    Use this in every MCP tool that writes to the filesystem.
+    ``binding_required: true`` — see D4 schema convention.
+    """
+    path, source = _assert_writable_project(tool_name)
+    return Project(path), source
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+
 def _resolve_project_dir() -> tuple[Path, str]:
     """Return ``(project_dir, source)`` using 0.5.4's resolution cascade.
 
@@ -283,15 +440,63 @@ def _format_error(exc: Exception) -> str:
     return f"错误 / error ({name}): {exc}"
 
 
-def _format_task_line(task: Task) -> str:
+def _supersedes_tag(extra: dict[str, object]) -> str:
+    """Return ' [supersedes X]' annotation if the frontmatter carries a supersedes field."""
+    val = extra.get("supersedes")
+    if not val:
+        return ""
+    targets = ", ".join(str(v) for v in val) if isinstance(val, list) else str(val)
+    return f" [supersedes {targets}]"
+
+
+def _build_superseded_by_index(
+    items: list[Task] | list[Report],
+) -> dict[str, list[str]]:
+    """Build a reverse supersede map: superseded_id → list of files that supersede it.
+
+    Scans frontmatter.extra (Task) or raw frontmatter (Report) for ``supersedes:`` keys.
+    Used to annotate list output with ``[superseded by X]`` marks.
+    """
+    index: dict[str, list[str]] = {}
+    for item in items:
+        if isinstance(item, Task):
+            val = item.frontmatter.extra.get("supersedes")
+            source = item.filename
+        else:
+            # Report objects don't expose extra; read raw frontmatter from disk.
+            try:
+                from fcop.core.frontmatter import parse_frontmatter_raw
+
+                raw = parse_frontmatter_raw(item.path.read_text(encoding="utf-8"))
+                val = raw.get("supersedes")
+                source = item.filename
+            except Exception:
+                continue
+        if not val:
+            continue
+        targets = val if isinstance(val, list) else [val]
+        for t in targets:
+            index.setdefault(str(t), []).append(source)
+    return index
+
+
+def _format_task_line(
+    task: Task,
+    superseded_by: list[str] | None = None,
+) -> str:
     """One-line summary of a Task, matching 0.5.4's list_tasks format."""
     priority = task.frontmatter.priority.value
     recipient = task.frontmatter.recipient
     sender = task.frontmatter.sender
     subject = task.frontmatter.subject or "(no subject)"
     status = " [archived]" if task.is_archived else ""
+    sup_fwd = _supersedes_tag(task.frontmatter.extra)
+    sup_rev = (
+        f" [superseded by {', '.join(superseded_by)}]" if superseded_by else ""
+    )
     return (
-        f"  - {task.filename}  [{priority}]  {sender}→{recipient}{status}\n"
+        f"  - {task.filename}  [{priority}]  {sender}→{recipient}{status}"
+        f"{sup_fwd}{sup_rev}\n"
         f"      {subject}"
     )
 
@@ -319,13 +524,28 @@ def _format_task_full(task: Task) -> str:
     return "\n".join(lines)
 
 
-def _format_report_line(report: Report) -> str:
+def _format_report_line(
+    report: Report,
+    superseded_by: list[str] | None = None,
+) -> str:
     """One-line summary of a Report, matching 0.5.4's list_reports format."""
     archived = " [archived]" if report.is_archived else ""
+    # Read raw frontmatter for supersedes (Report has no .extra attribute)
+    sup_fwd = ""
+    try:
+        from fcop.core.frontmatter import parse_frontmatter_raw
+
+        raw = parse_frontmatter_raw(report.path.read_text(encoding="utf-8"))
+        sup_fwd = _supersedes_tag({k: raw[k] for k in raw if k == "supersedes"})
+    except Exception:
+        pass
+    sup_rev = (
+        f" [superseded by {', '.join(superseded_by)}]" if superseded_by else ""
+    )
     return (
         f"  - {report.filename}  "
         f"task={report.task_id}  {report.reporter}→{report.recipient}  "
-        f"status={report.status}{archived}"
+        f"status={report.status}{archived}{sup_fwd}{sup_rev}"
     )
 
 
@@ -570,7 +790,7 @@ def _letter_handover_block(
 # ─── init_* tools ────────────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def init_project(
     team: str = "dev-team",
     lang: str = "zh",
@@ -609,7 +829,7 @@ def init_project(
         Post-init summary with roster, leader, and directory layout.
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("init_project")
         status = project.init(
             team=team, lang=lang, deploy_rules=True, force=force
         )
@@ -642,7 +862,7 @@ def init_project(
     return "\n".join(lines)
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def init_solo(
     role_code: str = "ME",
     role_label: str = "",
@@ -682,7 +902,7 @@ def init_solo(
             ``role_code``. Default: ``False``.
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("init_solo")
         status = project.init_solo(
             role_code=role_code, lang=lang, deploy_rules=True, force=force
         )
@@ -712,7 +932,7 @@ def init_solo(
     )
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def create_custom_team(
     team_name: str,
     roles: str,
@@ -752,7 +972,7 @@ def create_custom_team(
     """
     role_list = _parse_roles_list(roles)
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("create_custom_team")
         status = project.init_custom(
             team_name=team_name,
             roles=role_list,
@@ -812,7 +1032,7 @@ def validate_team_config(roles: str, leader: str) -> str:
 # ─── Task CRUD tools ─────────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def write_task(
     sender: str,
     recipient: str,
@@ -856,7 +1076,7 @@ def write_task(
         on failure.
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("write_task")
         task = project.write_task(
             sender=sender,
             recipient=recipient,
@@ -944,8 +1164,12 @@ def list_tasks(
         suffix = f" ({', '.join(detail)})" if detail else ""
         return f"No tasks found{suffix}."
 
+    sup_index = _build_superseded_by_index(tasks)
     header = f"Total: {len(tasks)} task(s)"
-    return header + "\n" + "\n".join(_format_task_line(task) for task in tasks)
+    return header + "\n" + "\n".join(
+        _format_task_line(task, superseded_by=sup_index.get(task.task_id))
+        for task in tasks
+    )
 
 
 @mcp.tool
@@ -976,7 +1200,7 @@ def inspect_task(filename: str) -> str:
     return f"{filename}\n{result}"
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def archive_task(task_id: str, lang: str = "") -> str:
     """Archive a completed task (move under ``docs/agents/log/``).
 
@@ -990,7 +1214,7 @@ def archive_task(task_id: str, lang: str = "") -> str:
     """
     del lang  # accepted for 0.5.x API compatibility, not used here
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("archive_task")
         task = project.archive_task(task_id)
     except fcop.TaskNotFoundError as exc:
         return f"File not found: {task_id} ({exc})"
@@ -1003,7 +1227,7 @@ def archive_task(task_id: str, lang: str = "") -> str:
 # ─── Report CRUD tools ───────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def write_report(
     task_id: str,
     reporter: str,
@@ -1031,7 +1255,7 @@ def write_report(
         return f"错误：status 必须为 done/in_progress/blocked，收到 '{status}'"
 
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("write_report")
         report = project.write_report(
             task_id=task_id,
             reporter=reporter,
@@ -1084,8 +1308,9 @@ def list_reports(
 
     if not reports:
         return "No reports found."
+    sup_index = _build_superseded_by_index(reports)
     return f"Total: {len(reports)} report(s)\n" + "\n".join(
-        _format_report_line(r) for r in reports
+        _format_report_line(r, superseded_by=sup_index.get(r.task_id)) for r in reports
     )
 
 
@@ -1109,7 +1334,7 @@ def read_report(filename: str) -> str:
 # ─── Issue tools ─────────────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def write_issue(
     reporter: str,
     summary: str,
@@ -1128,7 +1353,7 @@ def write_issue(
             medium, ``P3`` → low.
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("write_issue")
         issue = project.write_issue(
             reporter=reporter,
             summary=summary,
@@ -1147,7 +1372,7 @@ def write_issue(
 # ─── Review tools (v1.1) ─────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def write_review(
     reviewer_role: str,
     subject_type: str,
@@ -1194,7 +1419,7 @@ def write_review(
     """
     changes = [c.strip() for c in required_changes.replace("\n", ",").split(",") if c.strip()]
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("write_review")
         review = project.write_review(
             reviewer_role=reviewer_role,
             subject_type=subject_type,
@@ -1307,7 +1532,7 @@ def read_review(filename: str) -> str:
     return "\n".join(parts)
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def mark_human_approved(
     review_id: str,
     approver: str,
@@ -1336,7 +1561,7 @@ def mark_human_approved(
         Summary of the updated review on success; error string on failure.
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("mark_human_approved")
         review = project.mark_human_approved(
             review_id,
             approver=approver,
@@ -1492,7 +1717,7 @@ def get_team_status(lang: str = "") -> str:
     return "\n".join(lines)
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def deploy_role_templates(
     team: str = "",
     lang: str = "",
@@ -1521,7 +1746,7 @@ def deploy_role_templates(
         the migration directory (when ``force=True`` archived anything).
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("deploy_role_templates")
         report = project.deploy_role_templates(
             team=team or None,
             lang=(lang or None),  # type: ignore[arg-type]
@@ -1638,7 +1863,7 @@ _RULE_0A1_TRIPWIRE_BLOCK = (
 )
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def new_workspace(slug: str, title: str = "", description: str = "") -> str:
     """Create a workspace subdirectory under ``workspace/<slug>/``.
 
@@ -1664,7 +1889,7 @@ def new_workspace(slug: str, title: str = "", description: str = "") -> str:
     if err:
         return err
 
-    project, _source = _get_project()
+    project, _source = _get_project_write("new_workspace")
     workspace_dir = project.path / "workspace"
     workspace_dir.mkdir(parents=True, exist_ok=True)
     workspace_readme = workspace_dir / "README.md"
@@ -1824,7 +2049,7 @@ def list_workspaces(lang: str = "") -> str:
 # ─── Safety-fuse tools ───────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def drop_suggestion(content: str, context: str = "") -> str:
     """Pressure valve for agents who disagree with the current FCoP protocol.
 
@@ -1849,7 +2074,7 @@ def drop_suggestion(content: str, context: str = "") -> str:
         file so ADMIN can open it directly.
     """
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("drop_suggestion")
         proposal_path = project.drop_suggestion(content=content, context=context)
     except ValueError as exc:
         return f"错误：内容不能为空 / error: {exc}"
@@ -2039,6 +2264,39 @@ def _compose_session_report(lang: str) -> str:
         return _format_error(exc)
 
     project_path = str(status.path)
+
+    # D3 — display project_path prominently; warn when it resolves to a
+    # protected system path so ADMIN knows write-side tools will refuse.
+    _protected_warning = ""
+    if _is_protected_path(status.path):
+        if is_en:
+            _protected_warning = (
+                "\n⚠️  WARNING: project_path resolves to a PROTECTED SYSTEM PATH.\n"
+                "   Write-side tools (redeploy_rules, write_task, …) will refuse\n"
+                "   to operate here to prevent global pollution.\n"
+                "   → Call set_project_dir(path=<your-project>) to bind correctly.\n"
+            )
+        else:
+            _protected_warning = (
+                "\n⚠️  警告：project_path 解析到受保护的系统路径。\n"
+                "   write-side 工具（redeploy_rules / write_task 等）将拒绝在此操作，\n"
+                "   以防止系统级污染。\n"
+                "   → 请调用 set_project_dir(path=<你的项目路径>) 重新绑定。\n"
+            )
+    elif _is_cwd_fallback(source):
+        if is_en:
+            _protected_warning = (
+                "\n⚠️  WARNING: project_path resolved via cwd fallback (no explicit bind).\n"
+                "   Write-side tools will refuse to operate in this mode.\n"
+                "   → Call set_project_dir(path=<your-project>) to bind correctly.\n"
+            )
+        else:
+            _protected_warning = (
+                "\n⚠️  警告：project_path 通过 cwd 回退解析（无显式绑定）。\n"
+                "   write-side 工具将拒绝在此模式下操作。\n"
+                "   → 请调用 set_project_dir(path=<你的项目路径>) 绑定。\n"
+            )
+
     versions_block = _format_versions_block(status.path, is_en=is_en)
 
     if not status.is_initialized:
@@ -2052,6 +2310,7 @@ def _compose_session_report(lang: str) -> str:
                 "=== FCoP Initialization Report ===\n"
                 f"Project path: {project_path}\n"
                 f"Source: {source}\n"
+                f"{_protected_warning}"
                 "Status: NOT initialized (docs/agents/fcop.json missing)\n\n"
                 f"{versions_block}\n\n"
                 "Available init modes:\n"
@@ -2074,6 +2333,7 @@ def _compose_session_report(lang: str) -> str:
             "=== FCoP 初始化汇报 ===\n"
             f"项目路径 / path: {project_path}\n"
             f"来源 / source: {source}\n"
+            f"{_protected_warning}"
             "状态 / status: 未初始化（docs/agents/fcop.json 不存在）\n\n"
             f"{versions_block}\n\n"
             "可选初始化方式：\n"
@@ -2105,6 +2365,7 @@ def _compose_session_report(lang: str) -> str:
         return (
             "=== FCoP UNBOUND Report ===\n"
             f"Project: {project_path}  (source: {source})\n"
+            f"{_protected_warning}"
             f"Team: {cfg.team}  Leader: {cfg.leader}  Lang: {cfg.lang}\n"
             f"Roles: {', '.join(cfg.roles)}\n\n"
             f"{versions_block}\n\n"
@@ -2144,6 +2405,7 @@ def _compose_session_report(lang: str) -> str:
     return (
         "=== FCoP UNBOUND 报告 ===\n"
         f"项目 / project: {project_path}  (来源: {source})\n"
+        f"{_protected_warning}"
         f"团队 / team: {cfg.team}  负责人 / leader: {cfg.leader}  lang: {cfg.lang}\n"
         f"角色 / roles: {', '.join(cfg.roles)}\n\n"
         f"{versions_block}\n\n"
@@ -2544,7 +2806,7 @@ def _append_governance_audit(lines: list[str], is_en: bool) -> None:
         lines.append(f"GAL scan error: {exc}")
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def fcop_audit(
     scope: str = "auto",
     output: str = "file",
@@ -2582,7 +2844,7 @@ def fcop_audit(
 
     from typing import Literal, cast
 
-    project, _source = _get_project()
+    project, _source = _get_project_write("fcop_audit")
     try:
         report = project.audit(
             scope=cast(Literal["new", "upgrade", "takeover", "auto"], scope),
@@ -2610,7 +2872,7 @@ def fcop_audit(
     return banner + "---\n\n" + md[:3000] + suffix
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -> str:
     """**ADMIN-only.** Re-deploy bundled FCoP protocol rules to the project.
 
@@ -2647,7 +2909,7 @@ def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -
     """
     is_en = lang.lower().startswith("en")
     try:
-        project, _source = _get_project()
+        project, _source = _get_project_write("redeploy_rules")
         report = project.deploy_protocol_rules(force=force, archive=archive)
     except fcop.FcopError as exc:
         return _format_error(exc)
@@ -3042,7 +3304,7 @@ def fcop_list_alerts(
     return list_alerts(status=status, severity=severity, last_n=last_n)
 
 
-@mcp.tool
+@mcp.tool(tags={"binding_required"})
 def fcop_create_alert(
     severity: str,
     alert_type: str,
@@ -3064,6 +3326,7 @@ def fcop_create_alert(
         summary:    Plain-text description of the governance gap (1-3 sentences).
         suggestion: Recommended action for ADMIN. Default: "ADMIN review recommended".
     """
+    _assert_write_allowed("fcop_create_alert")
     summary_lines = [line.strip() for line in summary.splitlines() if line.strip()]
     if not summary_lines:
         summary_lines = [summary]

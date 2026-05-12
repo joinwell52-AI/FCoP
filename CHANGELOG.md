@@ -8,6 +8,44 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [1.4.0] — 2026-05-12
+
+### fix(security) — P0 Write-side 工具显式绑定守门（PM #50 事件修复）
+
+**核心问题**：`fcop-mcp 1.3.x` 的 write-side 工具在未显式绑定项目路径时，允许退化到
+MCP Server 的 `cwd`（即 USER HOME），造成 `fcop-rules.mdc` 等文件污染系统目录。
+
+**变更内容**（参见 `docs/releases/1.4.0.md`）：
+
+- **D1 — 显式绑定守门**：15 个 write-side 工具在 cwd fallback 情况下直接抛出 `WriteRefused`
+- **D2 — Protected Path 拒绝列表**：HOME / APPDATA / 驱动器根 / Unix 系统目录 全部硬拦截
+- **D3 — `fcop_report()` 顶部告警**：检测到 protected path 或 cwd fallback 时显示 ⚠️ 警告
+- **D4 — MCP Schema `binding_required` 标签**：`tools/list` 携带 `tags: ["binding_required"]`
+- **D5 — 测试覆盖**：新增 `mcp/tests/test_write_guard.py`，11 通过 / 2 跳过（Unix 平台）
+- **D6 — Release Notes**：`docs/releases/1.4.0.md` + 三种升级场景说明
+
+**Breaking-ish**：原来依赖 cwd fallback 调用 write-side 工具的配置需要显式设置
+`FCOP_PROJECT_DIR` 或调用 `set_project_dir()`，详见升级指南。
+
+---
+
+### feat(protocol) — `fcop_protocol_version 2.2.0`：`supersedes:` 字段 + GATE Design Pitfalls
+
+**`fcop-protocol.mdc` 变更（2.1.0 → 2.2.0）**：
+
+- **新增 `supersedes:` frontmatter 字段**（TASK-004）：  
+  所有 envelope 类型（TASK / REPORT / ISSUE / REVIEW）新增可选字段，
+  语义：本文件顶替 / 废止指定历史文件（Rule 5 append-only 修正模式）。  
+  与 `parent:`（工作派生）/ `related:`（交叉引用）语义正交。  
+  `ipc-envelope.schema.json` 同步加入 optional `supersedes` 字段。  
+  `list_tasks` / `list_reports` 自动标注 `[supersedes X]` / `[superseded by X]`。
+
+- **新增 `## GATE Design Pitfalls` 节**（TASK-003）：  
+  Pitfall 1（GATE 描述自我命中）+ 语义化实证推荐姿势 + GATE 设计自查清单。  
+  预留 `fcop_audit` D8 scan（`_scan_gate_self_collision()`）锚点，归 v1.5 认领。
+
+---
+
 ## [1.3.1] — 2026-05-12
 
 ### fix(docs) — 协议文档同步至 v1.3.0（P0 整改批次）

@@ -936,7 +936,6 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 **See also**: `fcop-protocol.mdc` —— 本规则的协议解释，同目录。
 
-
 ---
 
 # FCoP Protocol · 协议解释 / Protocol Commentary
@@ -1656,6 +1655,7 @@ recipient: assignee.D1
 priority: P1
 parent: TASK-20260418-015       # optional: upstream task this derives from
 related: [TASK-20260418-006]    # optional: associated task IDs
+supersedes: TASK-20260418-010   # optional: file-level correction (Rule 5 append-only)
 batch: individual-delivery       # optional: grouping tag (usually = subdir name)
 thread_key: launch-campaign-q2   # optional: long-lived thread anchor
 session_id: sess-20260421-pm-01  # optional: session that wrote this file
@@ -1672,13 +1672,31 @@ session_id: sess-20260421-pm-01  # optional: session that wrote this file
 
 Required frontmatter: `protocol`, `version`, `kind`, `sender`, `recipient`.
 Everything else is optional but encouraged. Use `parent:` to trace derived work,
-`related:` to cross-reference, `batch:` to tag grouped sub-tasks,
+`related:` to cross-reference, `supersedes:` for file-level corrections,
+`batch:` to tag grouped sub-tasks,
 `thread_key:` to anchor long-lived multi-file threads,
 `session_id:` to attribute which session authored the file (useful when the
 same role is played by multiple sessions over a long thread).
 
 必填：`protocol`、`version`、`kind`、`sender`、`recipient`。其余可选。
 `session_id` 在同一角色被多个会话接力时用来追责，格式建议 `sess-{日期}-{角色}-{序号}`。
+
+**可选字段语义区分**（三者语义正交，不可混用）：
+
+| 字段 | 语义 | 典型场景 |
+|---|---|---|
+| `parent:` | **工作派生链路** — 本文件由上游任务派生 | PM 把大 TASK 拆成子任务，子任务指向父任务 |
+| `related:` | **交叉引用** — 相关但非派生 | 跨 thread 引用、参考其他 PR / Issue |
+| `supersedes:` | **修正链路** — 本文件顶替 / 废止指定历史文件 | Rule 5 append-only 修正：旧文件过时，新文件 supersede 旧文件 |
+
+**`supersedes:`** — optional. 标明本文件**顶替 / 废止**指定的同前缀历史文件
+（对应 `fcop-rules.mdc` Rule 5 append-only 修正姿势）。
+被 supersede 的旧文件**仍保留在磁盘上**（append-only 历史不删），只是
+在工具视图里标 `[superseded by X]`。
+取值：被顶替文件的完整 ID（含 `-{sender}-to-{recipient}` 尾巴），
+或多份时用列表 `supersedes: [A, B]`。
+
+> 收回来源：Bridgeflow OPS 现场发明（2026-05-12），见 `essays/the-supersedes-field-story.md`。
 
 ### About `protocol:` and `version:` / 关于 `protocol:` 和 `version:`
 
@@ -1827,6 +1845,54 @@ scope boundary (team or project).
    会话抓起同一 `thread_key` 时，要么**共审**（只读 + 评论，不写），要么通过
    `TASK-*-{旧}-to-{新}.md` 明确交接。同一线程出现两个并行 driver 永远是违规，
    不论那个"第二人"觉得自己多有帮助。
+
+## GATE Design Pitfalls / GATE 设计陷阱
+
+GATE 是 FCoP 团队在 commit / tag / milestone 前做的**协议级验证**。
+设计 GATE 时常见两类陷阱，以下给出案例 + 推荐姿势。
+
+### Pitfall 1 · GATE 描述自我命中 / Self-collision
+
+**症状**：GATE 描述里写出"检测什么"的正则 / 字符串模式，但该 GATE
+描述文档本身在被检测范围内，导致描述文本被 GATE 自己命中（假阳性 FAIL）。
+
+**案例**（Bridgeflow 2026-05-12 OPS I-14）：
+
+- PM 在 TASK 文档里写 G6 描述："cached diff 对 `\.env|\.aws/credentials` 0 命中"
+- TASK 文档 stage 进 commit
+- OPS 用 naive grep 查 cached diff 全文 → TASK 文档正文里的正则字面被自己命中
+  → GATE 误判 FAIL
+
+**根因**：metadata（描述秘密的文本）和 content（实际秘密）在 grep 眼里不可区分。
+
+**推荐姿势**：**语义化实证** —— 把"是否真的有秘密"拆成多个**实证维度**，分别核：
+
+| 维度 | 查什么 | 实现 |
+|---|---|---|
+| 文件名 | 实际秘密文件路径 | `git diff --cached --name-only \| rg '\.env$\|/credentials$'` |
+| 内容字面 | 实际 PEM 文件中的 header | `git diff --cached \| rg 'BEGIN [A-Z]+ PRIVATE KEY'`（只命中真 PEM 文件） |
+
+**反模式**：用单条 `git diff --cached | rg '<完整正则模式>'` 一把梭 ——
+这把模式表达式自己也丢进了搜索空间。
+
+> 配套深度阅读：`essays/gate-design-pitfalls-case-studies.md`（Pitfall 1 完整实录）
+
+### Pitfall 2 · TBD（留位）
+
+（后续涌现案例补这里）
+
+### GATE 设计自查清单 / GATE Design Self-check
+
+设计任何 GATE 前过一遍：
+
+1. **GATE 描述文本会不会被 GATE 自己检测到？**（Pitfall 1）
+2. **检测的是 metadata 还是 content？**（分清层次）
+3. **是否能拆成多个独立维度分别实证？**（语义化）
+4. **失败时的报错能否帮 agent 立即定位是真阳性还是假阳性？**
+
+> **fcop_audit 配套**：后续版本将新增 `_scan_gate_self_collision()` 扫描（D8 scan，
+> 归 ADR-0033 / ADR-0034 实施时认领），对文档正文中出现 secret 检测正则字面的文件
+> 产生 INFO 级 violation 提醒。
 
 ## Listing / Reading Tasks / 查询任务
 
@@ -2602,3 +2668,26 @@ unilaterally.
   alongside through 0.6.3 ~ 0.6.5 and **was removed in 0.7.0**. Any
   remaining script or system prompt that still calls `unbound_report()`
   must switch to `fcop_report()`.
+
+---
+
+## 版本历史补记 / Version History Addendum
+
+### 2.2.0 变更（2026-05-12）
+
+**新增 / Added**:
+
+1. **`supersedes:` frontmatter 字段**（TASK-004，TASK-20260512-004）  
+   向 Task / Report / Issue / Review 四类 envelope 新增可选字段 `supersedes:`，
+   语义：本文件顶替 / 废止指定历史文件（Rule 5 append-only 修正模式）。  
+   与 `parent:`（工作派生）、`related:`（交叉引用）语义正交，不可混用。  
+   收回来源：Bridgeflow OPS 现场发明（2026-05-12），`REPORT-20260512-013`。  
+   `ipc-envelope.schema.json` 同步加 `supersedes` optional 字段。  
+   `list_tasks` / `list_reports` 输出自动标注 `[supersedes X]` / `[superseded by X]`。
+
+2. **GATE Design Pitfalls 节**（TASK-003，TASK-20260512-003）  
+   在 `## Collaboration Rules` 之后新增 `## GATE Design Pitfalls / GATE 设计陷阱`，
+   包含 Pitfall 1（GATE 描述自我命中，Bridgeflow OPS I-14 案例）、自查清单、
+   以及 `fcop_audit D8 scan`（`_scan_gate_self_collision()`）待实现预留锚点。  
+   `fcop_protocol_version` 本节不要求 bump（commentary 增补），与 `supersedes:` 字段
+   变更合并到本次 2.2.0。
