@@ -20,6 +20,7 @@ import json
 import os
 import time
 from pathlib import Path
+from typing import Any
 
 from fcop_mcp.gal._alerts import create_alert
 from fcop_mcp.governance.skill_resolver import resolve_skill
@@ -40,7 +41,7 @@ def _scan_critical_unreviewed(root: Path) -> list[str]:
 
     # Collect CRITICAL_TAG events in last 24h
     cutoff = time.time() - 86_400
-    critical_tools: list[dict] = []
+    critical_tools: list[dict[str, Any]] = []
     try:
         with events_path.open(encoding="utf-8") as fh:
             for line in fh:
@@ -154,7 +155,7 @@ def _scan_solo_blindspot(root: Path) -> list[str]:
     threshold_s = threshold_h * 3600
     cutoff = time.time() - 86_400   # only look at last 24h
 
-    events: list[dict] = []
+    events: list[dict[str, Any]] = []
     try:
         with events_path.open(encoding="utf-8") as fh:
             for line in fh:

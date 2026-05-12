@@ -32,7 +32,7 @@ import threading
 from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import fcop
 from fastmcp import FastMCP
@@ -2485,7 +2485,7 @@ def _append_governance_audit(lines: list[str], is_en: bool) -> None:
         lines.append(f"(cannot read governance log: {exc})")
         return
 
-    events: list[dict] = []
+    events: list[dict[str, Any]] = []
     for line in raw_lines:
         try:
             events.append(json.loads(line))
@@ -2542,8 +2542,6 @@ def _append_governance_audit(lines: list[str], is_en: bool) -> None:
         lines.append(gal_summary)
     except Exception as exc:  # noqa: BLE001
         lines.append(f"GAL scan error: {exc}")
-
-    return "\n".join(lines)
 
 
 @mcp.tool
