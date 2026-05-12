@@ -1,0 +1,21 @@
+docs(p1+p2): sync team/role docs to v1.4 + add _scan_outdated_role_docs
+
+P1 — 58 team/role document updates (v1.0~v1.4 protocol sync):
+- P1-1: 24 non-leader role docs (DEV/QA/OPS/WRITER/TESTER etc.) x zh+en:
+  added "v1.0~v1.4 protocol update" section covering REVIEW envelope,
+  risk_level field, fcop_audit reference, supersedes field
+- P1-2: 20 TEAM-ROLES + TEAM-OPERATING-RULES x 5 teams x zh+en:
+  added protocol evolution addendum (v1.0 to v1.4)
+- P1-3: 10 team README x 5 x zh+en: added tool quick reference table
+- P1-4: docs/getting-started.md + .en.md: added fcop_audit three-scenario chapter
+- P1-5: agent-install-prompt.zh.md + .en.md: added run-fcop-audit-after-install note
+
+P2 — _scan_outdated_role_docs implementation (ADR-0032):
+- project.py: new _scan_outdated_role_docs() scan — detects deployed role docs
+  whose highest version reference is more than 1 minor version behind the
+  installed fcop package; reports P1 RULE_DOC_DRIFT with deploy_role_templates(force=True)
+  as remediation; added to scope=upgrade and scope=takeover audit runs
+- ADR-0032: document new scan in Section 4.7 + RULE_DOC_DRIFT violation type
+- test_audit.py: 4 new tests for _scan_outdated_role_docs
+
+All 854 fcop tests pass.

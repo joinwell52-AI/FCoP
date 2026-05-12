@@ -1,0 +1,12 @@
+﻿docs(essays): add essays 07-10 + cover images + essays/README.md index
+
+essays 07: when-agents-learn-from-their-own-wreckage (codeflow 14 emergences field report)
+essays 08: why-the-protocol-stays-short (protocol design philosophy)
+essays 09: gate-design-pitfalls-case-studies (validator-validates-itself case study)
+essays 10: the-supersedes-field-story (supersedes: field emergence story)
+
+Also:
+- essays/README.md: full essay index with reading guide
+- README.md: essays table updated with entries 07-10
+- adr/README.md: embed three-layer model PNG with caption
+- assets/: 4 cover images for new essays

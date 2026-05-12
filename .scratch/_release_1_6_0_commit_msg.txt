@@ -1,0 +1,38 @@
+chore(release): pre-1.6.0 docs alignment + redeploy host-neutral rules
+
+Pre-release pass for v1.6.0 surfaced 2 documentation drifts and 1 P=E
+gap that a669ea3 / a8ff07c did not cover. Fixed here so the 1.6.0 tag
+points at a fully consistent head.
+
+Documentation drifts fixed:
+- README.md "Status & versioning": Current release v1.3.0 -> v1.6.0
+  (entry rewritten to highlight ADR-0033 trailing-slug grammar and
+  list intermediate releases v1.4/v1.5)
+- src/fcop/rules/_data/letter-to-admin.{zh,en}.md: summary block
+  v1.5.1 -> v1.6.0 (date 2026-05-12), added trailing-slug bullet,
+  rule version line "fcop-protocol.mdc 2.3.0" -> "fcop-protocol.mdc 2.4.0"
+- mcp/src/fcop_mcp/server.py: init_* reply hint "0.6.4 summary"
+  -> "v1.6.0 summary" so it stays accurate against the letter
+- src/fcop/rules/__init__.py: docstring slice label updated
+- tests/test_fcop/test_rules.py + tests/test_fcop_mcp/test_server.py:
+  pinning assertions updated to match (v1.5.1/0.6.4 -> v1.6.0)
+
+P=E sync (host-neutral rules redeploy):
+- .cursor/rules/fcop-protocol.mdc was still at commentary 2.3.0; the
+  source mdc had been bumped to 2.4.0 in a669ea3 but the project-root
+  deploy copy was not refreshed.
+- AGENTS.md / CLAUDE.md likewise stale (v2.3 commentary).
+- Ran Project.deploy_protocol_rules(force=True, archive=True) via the
+  in-tree 1.6.0 source (not the MCP-side 1.5.1 wheel which would have
+  reverted things) to refresh all four host-neutral targets. Previous
+  copies archived to .fcop/migrations/20260513T001716/rules/.
+
+Rule 0.a.1 carrier task:
+- fcop/tasks/TASK-20260512-009-ADMIN-to-ME-release-1-6-0-full-pipeline.md
+  records ADMIN's "B (release v1.6.0 end-to-end)" decision and the
+  agreed checklist for this sprint.
+
+Refs:
+- ADR-0033 (trailing-slug filename adoption)
+- ADR-0006 (host-neutral rule distribution)
+- docs/release-process.md Phase 2 pre-release alignment

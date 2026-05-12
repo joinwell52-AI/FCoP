@@ -1,0 +1,28 @@
+chore(fcop): rule 0.a.1 closure for v1.6.0 release sprint
+
+REPORT-20260512-009 lands the end-to-end narrative of the v1.6.0
+release pipeline that the v1.6.0 tag itself already shipped:
+
+- 5/5 GitHub Actions release.yml jobs `success`
+- fcop@1.6.0 + fcop-mcp@1.6.0 on PyPI (JSON API verified)
+- GitHub Release v1.6.0 created with 4 assets
+- 1061 pytest passed, ruff/mypy/pip_audit all clean
+- README + letter zh/en + .cursor/rules + AGENTS/CLAUDE.md all
+  aligned to 1.6.0 / commentary 2.4.0
+
+Archives:
+- fcop/tasks/TASK-20260512-009-* -> fcop/log/tasks/ (git rename)
+- fcop/reports/REPORT-20260512-009-* lands at fcop/log/reports/
+
+Outstanding (recorded in REPORT-009 §"未完待续" / §"已记账"):
+- PyPI Simple-index CDN propagation delay (5-15min typical)
+- 6 non-blocking accounting items for future patches / tasks
+
+This commit closes the four-step cycle for TASK-009; no new tag —
+v1.6.0 already shipped against ffb41e4.
+
+Refs:
+- TASK-20260512-009 (archived this commit)
+- REPORT-20260512-009 (archived this commit)
+- v1.6.0 release tag @ ffb41e4
+- ADR-0033, ADR-0006, docs/release-process.md

@@ -1,0 +1,70 @@
+feat(filename): adopt trailing-slug grammar (ADR-0033 · fcop 1.6.0)
+
+Formally consolidate the trailing-slug filename pattern that emerged
+22+ times in the codeflow project (e.g. TASK-*-PM-to-OPS-phase-a.md)
+into FCoP's filename grammar. MINOR additive extension, fully backward
+compatible: every pre-1.6 filename continues to parse with slug=None.
+
+Protocol layer:
+- fcop_protocol_version: 2.3.0 -> 2.4.0
+- fcop / fcop-mcp packages:   1.5.1 -> 1.6.0
+- fcop_rules_version: unchanged (slug is commentary-layer additive)
+
+Grammar:
+  _SLUG = [a-z](?:[a-z0-9-]*[a-z0-9])?
+  TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md
+  REPORT-{date}-{seq}-{reporter}-to-{recipient}[-{slug}].md
+  ISSUE-{date}-{seq}-{reporter}[-{slug}].md
+
+Lowercase-start enforced for disambiguation with _ROLE (which allows
+e.g. OPS-001); trailing hyphen forbidden for aesthetic. slug does NOT
+participate in routing -- list_tasks(recipient="OPS") matches both
+plain and slug-suffixed task filenames.
+
+Code (src/fcop/core/filename.py):
+- Add _SLUG regex + exported SLUG_RE
+- Append (?:-(_SLUG))? to TASK/REPORT/ISSUE filename patterns
+- Extend TaskFilename / ReportFilename / IssueFilename dataclasses
+  with optional slug: str | None = None
+- parse_*_filename returns slug; build_*_filename accepts slug kwarg
+- _check_components validates slug against SLUG_RE
+
+Tests (tests/test_fcop/test_core_filename.py):
+- 31 new tests across TestTaskTrailingSlug / TestBuildTaskFilenameWithSlug
+  / TestReportTrailingSlug / TestIssueTrailingSlug / TestSlugRegexExport
+- Backward compatibility: legacy filenames parse with slug=None
+- Reject invalid slugs (uppercase start, digit start, underscore, dot,
+  trailing hyphen, space, etc.)
+- _ROLE vs slug disambiguation pinned
+- Full suite: 1057/1057 passing (zero regression)
+
+Docs:
+- src/fcop/rules/_data/fcop-protocol.mdc: add 'Trailing slug (optional)'
+  subsection under File Naming + v2.4 changelog entry
+- adr/ADR-0033-trailing-slug-filename-adoption.md: full ADR
+- adr/README.md: index entry
+- CHANGELOG.md: [1.6.0] release notes
+
+Companion FCoP envelopes (Rule 0.a.1 four-step cycle):
+- fcop/log/tasks/TASK-20260512-006-ADMIN-to-ME.md (the ADR task, archived)
+- fcop/reports/REPORT-20260512-007-ME-to-ADMIN-adr-0033-trailing-slug.md
+  (the ADR closure report, itself authored under the new 1.6.0 grammar
+  as a live proof of trailing-slug parsing)
+- fcop/tasks/TASK-20260512-008-ADMIN-to-ME-adr-0033-sprint-commit.md
+  (the carrier task for this very commit; its archival + REPORT-008
+  follow in commit #2)
+
+Not included (deliberate, deferred):
+- redeploy_rules() to sync .cursor/rules/fcop-protocol.mdc + AGENTS.md
+  + CLAUDE.md to 2.4.0 -- ADMIN-triggered, per Rule 8 + ADR-0006
+- tag v1.6.0 + push origin + PyPI publish -- Rule 7 destructive ops,
+  requires explicit ADMIN second-confirmation
+- Pre-existing test_tool_surface fcop_audit snapshot drift -- unrelated
+  to ADR-0033, deferred per ADMIN until codeflow Mode 1 closure
+  (drawer memo: .fcop/drawer/ME/pending-snapshot-drift.md)
+
+Refs:
+- ADR-0002 (FCoP Filename Grammar)
+- ADR-0003 (Pre-1.0 SemVer charter, MINOR additive)
+- codeflow PM emergence sample: TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md
+- ADMIN decision 2026-05-12 22:51: 'A, protocol consolidation, agents read it'

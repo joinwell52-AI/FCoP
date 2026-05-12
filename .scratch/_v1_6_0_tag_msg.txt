@@ -1,0 +1,14 @@
+v1.6.0 - Trailing-slug filename adoption (ADR-0033)
+
+TASK / REPORT / ISSUE envelopes now accept an optional `-{slug}`
+segment after the routing fields. Fully backward-compatible:
+pre-1.6 filenames remain valid, slug is human-readable label only
+(not part of routing). Grammar: _SLUG = [a-z](?:[a-z0-9-]*[a-z0-9])?
+
+Bumps:
+- fcop                1.5.1 -> 1.6.0
+- fcop-mcp            1.5.1 -> 1.6.0
+- fcop_protocol_version  2.3.0 -> 2.4.0 (commentary update)
+- fcop_rules_version  2.4.0 (unchanged; trailing-slug is commentary-layer)
+
+See CHANGELOG.md and adr/ADR-0033-trailing-slug-filename-adoption.md.
