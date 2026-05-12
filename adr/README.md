@@ -124,6 +124,7 @@ ADR-NNNN-kebab-case-title.md
 | **[ADR-0029](./ADR-0029-fcop-behavior-governance-charter.md)** | **FCoP 核心哲学宪章 v2.0 — 行为治理协议（去任务化 + 三支柱）** | **Accepted** | 2026-05-11 |
 | [ADR-0030-bis](./ADR-0030-bis-capability-enforcement-accountability-model.md) | Capability Enforcement — Accountability Model（双层执行 + 审计补偿） | Accepted | 2026-05-11 |
 | [ADR-0030](./ADR-0030-capability-governance-boundary.md) | Capability Governance Boundary — 工具调用风险边界（三层分类） | **Accepted** | 2026-05-11 |
+| **[ADR-0031](./ADR-0031-governance-alert-layer.md)** | **Governance Alert Layer（GAL）— 治理漂移检测与 ADMIN 告警（FCoP-Rule-G1 + 三域模型）** | **Accepted** | 2026-05-11 |
 
 ## 工作流
 

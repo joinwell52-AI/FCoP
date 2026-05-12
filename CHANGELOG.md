@@ -8,6 +8,54 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [Unreleased] — v1.3.0 (planned)
+
+### feat(gal) — ADR-0031 Governance Alert Layer：治理漂移检测与 ADMIN 告警
+
+**FCoP 第四支柱**：让治理断层"自发光"（Governance Gaps Are Escalatable）。
+
+**核心原则**：`Potential governance gaps must become ADMIN-visible within SLA.`  
+GAL 不治理、不审批、不阻断——只做异常升级（Escalation）。
+
+**新增 2 个 MCP 工具**（总数 32 → 34）：
+
+- **`fcop_list_alerts`** — ADMIN 治理告警收件箱；读取 `fcop/alerts/ALERT-*.md`；支持按 `status` / `severity` 过滤；无需巡检，系统把异常送到 ADMIN 面前
+- **`fcop_create_alert`** — 手动归档治理缺口；写入新 ALERT-*.md 文件
+
+**新增 `gal/` 子包**（`fcop_mcp.gal`）：
+
+- `create_alert` / `list_alerts` — ALERT-*.md append-only 文件操作
+- `run_drift_scan` — 三类漂移信号扫描器（S1 / S3 / S4）
+
+**三类漂移信号**：
+
+- **S1 `critical_tool_unreviewed`**：24h 内有 CRITICAL_TAG 调用但无对应 Review → `severity: high`
+- **S3 `missing_independent_verdict`（Solo Blindspot）**：执行窗口 > 6h 无任何治理事件 → `severity: high`
+- **S4 `long_running_without_reconciliation`**：open Task 超 24h 未归档 → `severity: low`
+
+**FCoP-Rule-G1（协议公理）**：
+
+> `write_report / fcop_report` ∈ 执行域。自我叙述 ≠ 治理信号。不能重置 Solo Blindspot 窗口。  
+> 只有 `write_review` / `mark_human_approved` / `fcop_check` 才构成独立治理视角。
+
+**三域模型**（`skill_registry.yaml` 全量标注 `domain` 字段）：
+
+| 域 | 工具示例 | 治理意义 |
+|---|---|---|
+| `execution` | write_task, write_report, fcop_report, delete_task | 自述，不重置治理窗口 |
+| `governance` | write_review, mark_human_approved, fcop_check | 独立视角，重置 Solo Blindspot |
+| `neutral` | list_tasks, read_task, list_reviews | 只读，无域效果 |
+
+**实战案例 #24（2026-05-11）**：
+
+> v0.3.0-alpha 含 8 commits，持续开发 ~8h，无独立 Review，无治理确认。  
+> 若无 ADMIN 第二次介入，将以「无 QA sign-off」状态进入发版。  
+> GAL S3（Solo Blindspot）信号会在 6h 时自动触发告警，无需 ADMIN 手动巡检。
+
+**`fcop_check()` 整合 GAL Layer 3**：输出末段新增「治理告警扫描」摘要，命中漂移信号即实时写入 ALERT 文件。
+
+---
+
 ## [Unreleased]
 
 ---

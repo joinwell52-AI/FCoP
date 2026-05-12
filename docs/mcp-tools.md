@@ -1,4 +1,4 @@
-# FCoP MCP 工具与资源清单（fcop-mcp 1.x）<!-- 32 tools, 14 resources — v1.2.1 -->
+# FCoP MCP 工具与资源清单（fcop-mcp 1.x）<!-- 34 tools, 14 resources — v1.3.0 dev -->
 
 > 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具与资源**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组、给出何时调用、参数要点。
 >
@@ -8,7 +8,7 @@
 
 ## 总览
 
-- **工具（tools）32 个**（v1.1 新增 4 个 Review 工具；v1.2.1 新增 2 个治理审计工具）：调用方主动触发，写盘或返回报告。
+- **工具（tools）34 个**（v1.1 新增 4 个 Review 工具；v1.2.1 新增 2 个治理审计工具；v1.3.0 新增 2 个 GAL 告警工具）：调用方主动触发，写盘或返回报告。
 - **资源（resources）14 个**（11 个静态 URI + `fcop://teams/{team}` / `.../{role}` / `.../{role}/en` 三套模板）：只读 URI，常用于把规则/状态/职责模板以引用方式塞进上下文。
 
 > **v1.1.0 新增**：4 个 Review 工具（`write_review` / `list_reviews` / `read_review` / `mark_human_approved`）；`write_task` 新增 `risk_level` 参数；`fcop://spec` / `fcop://spec/en` 升级到 v1.1 spec。
@@ -142,7 +142,33 @@ REVIEW 文件是治理层对某个制品的决策记录（[ADR-0017](../adr/ADR-
 
 ---
 
-## 11. 资源（read-only URI）
+## 11. 治理告警（GAL — ADR-0031，v1.3.0 新增）
+
+> 基于 ADR-0031 Governance Alert Layer。`fcop_check()` 自动扫描治理漂移信号，命中则写入 `fcop/alerts/ALERT-*.md`。ADMIN 无需巡检，系统把异常送到 ADMIN 面前。
+
+| 工具 | 用途 | 关键参数 |
+|---|---|---|
+| `fcop_list_alerts` | 读取 `fcop/alerts/` 下所有 ALERT 文件，输出 ADMIN 告警收件箱。支持按 `status` / `severity` 过滤。 | `status`（`open` / `acknowledged` / `resolved`，空=全部）、`severity`（`high` / `medium` / `low`）、`last_n`（默认 20） |
+| `fcop_create_alert` | ADMIN / 治理观察者手动归档治理缺口，写入新 ALERT-*.md 文件。 | `severity`、`alert_type`、`summary`、`suggestion` |
+
+**告警类型（`alert_type`）**：
+
+| 类型 | 触发条件 | 严重度 |
+|---|---|---|
+| `critical_tool_unreviewed` | 24h 内有 CRITICAL_TAG 工具调用，但无对应 Review 文件 | high |
+| `missing_independent_verdict` | 执行窗口 > 6h 无任何治理事件（Solo Blindspot，FCoP-Rule-G1） | high |
+| `long_running_without_reconciliation` | open Task 超 24h 未归档 | low |
+
+**FCoP-Rule-G1**：`write_report` / `fcop_report` ∈ 执行域，不构成治理信号，不能重置 Solo Blindspot 窗口。只有 `write_review` / `mark_human_approved` / `fcop_check` 才算独立治理视角。
+
+**ADMIN 工作流**：
+1. 运行 `fcop_check()` → 自动触发漂移扫描 → 输出新 ALERT 列表
+2. 运行 `fcop_list_alerts(status="open")` → 查看待处理告警
+3. 处理后直接编辑 ALERT-*.md 中的 `status` 字段（`open` → `acknowledged` → `resolved`）
+
+---
+
+## 12. 资源（read-only URI）
 
 资源是**只读上下文**——客户端可以把它们附到对话里。
 
