@@ -17,7 +17,6 @@ import pytest
 
 from fcop import InspectionReport, Project
 
-
 # ── Fixtures ──────────────────────────────────────────────────────────────
 
 
