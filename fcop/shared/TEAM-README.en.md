@@ -6,7 +6,7 @@ sender: TEMPLATE
 recipient: TEAM
 team: solo
 doc_id: TEAM-README
-updated_at: 2026-04-26
+updated_at: 2026-05-12
 ---
 
 # solo — Single-AI Collaboration Mode
@@ -76,7 +76,7 @@ Tell the agent in plain English:
 > Initialize this project in solo mode, role code `ME`.
 
 The agent will call `init_solo(role_code="ME", lang="en")`, deploying the
-three-layer documents into `docs/agents/shared/`, plus
+three-layer documents into `fcop/shared/`, plus
 `fcop.json` / `LETTER-TO-ADMIN.md` / `workspace/`.
 
 ### Case B: An agent has been assigned the `ME` role
@@ -103,3 +103,18 @@ Solo and the four multi-role teams are **parallel samples**, not an
 inheritance hierarchy. Switching from solo to a team requires a fresh
 `init_project`; FCoP archives the old `shared/` to
 `.fcop/migrations/<timestamp>/` automatically.
+
+---
+
+## Tool Quick Reference
+
+| Tool | Scenario |
+|---|---|
+| `fcop_audit(scope="new")` | Self-check after `init_*` on a new project |
+| `fcop_audit(scope="upgrade")` | Verify after `pip install -U fcop` upgrade |
+| `fcop_audit(scope="takeover")` | First step when inheriting an unfamiliar project |
+| `fcop_report()` | View project binding, version, and alert summary |
+| `fcop_list_alerts(status="open")` | View governance alert inbox |
+
+> For detailed leader tool quick reference, see the "Tool Quick Reference" section
+> at the end of `roles/<leader>.md`.

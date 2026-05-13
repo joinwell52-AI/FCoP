@@ -8,6 +8,157 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [2.0.0] — 2026-05-13
+
+### 概述 / Overview
+
+**Philosophical major release（"两图对偶"纪元）。**
+
+`2.0.0` 不是 API 破坏性变更——所有 `1.x` 的公开 API 全部继续工作
+（per ADR-0003 附加性扩展），主版本号跨越的原因是**协议哲学层面**的
+固化：
+
+1. **执行哲学的五层垂直栈**（v1.x 已稳定）—— 协议层 / 文件 / 角色 /
+   IPC / 审计；
+2. **演化哲学的七节点闭环**（v2.0 新固化）—— *FCoP Semantic
+   Evolution Loop*（涌现 → 观察 → 提案 → 评审 → 合并 → 部署 →
+   反射），见 `fcop-rules.mdc` 七大核心概念末尾的新增插图与
+   `fcop-protocol.mdc` `## Two-Diagram Duality` 节。
+
+这两张图共同定义 FCoP 协议；缺任何一张都讲不全。**`2.0.0` = 协议
+首次同时承认这两张图**。
+
+### feat(rules) — Rule 4.6 · 内 / 外档案体系 soft convention
+
+**新增 `fcop-rules.mdc` Rule 4.6**：项目档案分两个体系，**互不混用**：
+
+- `fcop/internal/`（**新增桶**，opt-in）—— 团队内部归档（决策草稿、
+  日志、内部复盘）；只对项目内角色可见。
+- `docs/` 与 `essays/`（已有惯例）—— 面向外部受众的发布物（产品文档、
+  公开博文、规范）。
+
+**`internal-only` 声明语法 v1**：内部文档顶部必须带一段
+Markdown block 显式声明可见性边界（被 `fcop_audit` 的新增 **P3
+suggestion** 巡查检测；P3 不阻塞构建，仅建议）。完整语法见
+`internal-readme.{zh,en}.md` 模板。
+
+### feat(rules + commentary) — fcop_rules_version 2.4.0 → **3.0.0** / fcop_protocol_version 2.4.0 → **3.0.0**
+
+- `src/fcop/rules/_data/fcop-rules.mdc`：新增 **Rule 4.6**；
+  "七大核心概念"末尾追加 *FCoP Semantic Evolution Loop* 七节点闭环
+  图与说明。
+- `src/fcop/rules/_data/fcop-protocol.mdc`：新增
+  `## Two-Diagram Duality / 双图对偶（执行 vs 演化）` 与
+  `## How Rule 4.6 Applies: Internal vs External Document Convention`
+  两节。
+- 同步部署到项目根 `.cursor/rules/*.mdc`、`AGENTS.md`、`CLAUDE.md`
+  四件套（per ADR-0006）。
+
+### feat(api) — `Project.init(deploy_internal_template=...)` opt-in
+
+`src/fcop/project.py`：
+
+- `Project.init()` / `init_solo()` / `init_custom()` 三个入口都
+  新增 `deploy_internal_template: bool = False` 参数（默认 *不*
+  部署，向后兼容）。开启后会在 `fcop/internal/README.md` 落一份
+  对应语言（zh / en）的模板。
+- 新增内部方法 `_deposit_internal_template(lang, *, force)`。
+
+新公开符号：
+
+- `fcop.rules.get_internal_readme(lang)` —— 取 zh / en 模板字符串。
+- `Project.init*` 系列新增 `deploy_internal_template` 关键字参数。
+
+（per ADR-0003：附加性扩展；`tests/test_fcop/snapshots/public_surface.json`
+已通过 `pytest --snapshot-update` 一次性收录）
+
+### feat(audit) — P3 严重度档 + `internal-only` 声明 P3 巡查
+
+`src/fcop/inspection.py` + `src/fcop/project.py`：
+
+- `ViolationSeverity` 加 `P3`（建议级，*不阻塞*）。
+- `InspectionReport` 加 `p3_count` 与
+  `violation_file_count`（distinct file count）字段；`overall_status`
+  逻辑保证 P3-only 状态不会触发 `needs_remediation`。
+- 新增 `_scan_internal_only_declarations()`：扫 `fcop/internal/*.md`
+  的 `internal-only` 声明合规性，缺失时记 P3 建议。
+
+### feat(team-templates) — 8 个 `TEAM-OPERATING-RULES.md` 追加 §internal-only 节
+
+`src/fcop/teams/_data/{dev,media,mvp,qa}-team/TEAM-OPERATING-RULES.{md,en.md}`
+（共 8 份）末尾追加 *§internal-only 声明语法（v3.0+，per Rule 4.6）*
+小节，给团队 leader 提供"团队级内 / 外文档怎么分"的可操作蓝本。
+
+### Fixed — codeflow 跨项目巡检上报的 3 个 fcop 上游 bug
+
+随 codeflow 项目 `TASK-20260513-003 / -004` 上报、本次 `2.0.0` sprint
+一并并入（不开 `2.0.1` patch）：
+
+- **ISSUE-20260513-008** · `fcop_audit` 不豁免 `_archive/` 与
+  `log/`，导致合规归档文件被误报 `P1-002 misplaced_envelope`。
+  修复：`src/fcop/project.py` 新增 `_AUDIT_EXEMPT_DIR_NAMES`
+  豁免清单（`log` / `_archive` / `legacy-non-protocol` / `.git` /
+  `.tmp`）与帮手 `_is_audit_exempt_path()`；
+  `_scan_misplaced_envelopes()` 与 `_scan_ghost_prefixes()` 都先过
+  豁免再判定。`InspectionReport` 同步加 `violation_file_count`
+  字段。
+- **ISSUE-20260513-009** · `_read_local_rules_version` 永远返回
+  `null`——函数搜的字面量是 `"Rules version:"`，但 2.0.0 起规范
+  字段是 frontmatter 的 `fcop_rules_version:`。修复：重写解析
+  顺序为 **frontmatter 优先 + 旧哨兵 fallback**，向后兼容老 1.x
+  项目。
+- **ISSUE-20260513-010** · 4 个团队的 `PM.md` 角色模板停留在
+  v1.3.0，缺 `supersedes` / `risk_level` / *REVIEW envelope* 三段。
+  修复：彻底重写 `dev-team/roles/PM.{md,en.md}` 为 leader 视角的
+  v1.0 ~ v1.5 协议更新速查；同步把"v1.0 ~ v1.4 协议更新"段追加到
+  其他 leader 模板（PUBLISHER / MARKETER / LEAD-QA / ME，共 10
+  份）；并给全部 24 份角色模板补一段 "Rule 4.6 and the Evolution
+  Loop (v2.0)"，让 `_scan_outdated_role_docs` 的版本字面量检查
+  不再误报。
+
+三份 ISSUE 已标 `status: resolved`，证据链见
+`fcop/log/reports/REPORT-20260513-009-ME-to-ADMIN.md`。
+
+### Tests / 回归证据
+
+- `python -m pytest tests/ -q`
+  → **1060 passed**, 3 skipped, 1 warning, **0 failed**（129.01s）
+- `python -m pytest mcp/tests/ -q`
+  → **70 passed**, 2 skipped, 2 warnings, **0 failed**（2.50s）
+- `python -m ruff check src/ tests/ mcp/src/`
+  → **All checks passed!**
+
+`tests/test_fcop/test_rules_text_regression.py` 把
+`fcop_rules_version` / `fcop_protocol_version` 的可接受范围从
+`1.X.0 | 2.X.0` 扩到 `1.X.0 | 2+.X.0`，吸收 3.0.0 升版。
+
+### Version bumps（两包 lockstep）
+
+- `src/fcop/_version.py` —— **1.6.0 → 2.0.0**
+- `mcp/src/fcop_mcp/_version.py` —— **1.6.0 → 2.0.0**
+- `mcp/pyproject.toml` —— `fcop` 依赖约束 `>=1.0,<2.0` → `>=2.0,<3.0`
+
+### 不在本次发布范围内 / Out of scope
+
+- **任何 1.x API 移除** —— `2.0.0` 是 *philosophical* major，不是
+  *API-breaking* major。任何已弃用 API 仍按 ADR-0003 的弃用周期
+  滚动。
+- **背景线程 / scheduler** —— v1.0 frozen event model 仍要求
+  `Project.poll_once()` 显式驱动；`2.0.0` 不改这一约束。
+
+### 升级路径 / Upgrade Path
+
+1. `pip install -U fcop[-mcp]==2.0.0`
+2. ADMIN 在每个项目里调一次 `redeploy_rules()`（agent 不得自调，
+   per Rule 8 + ADR-0006），把 `.cursor/rules/*.mdc` + `AGENTS.md`
+   + `CLAUDE.md` 四件套同步到 rules 3.0.0 / protocol 3.0.0。
+3. 想用 `fcop/internal/` 桶的项目，在新建项目时传
+   `Project.init(deploy_internal_template=True)`；老项目用
+   `redeploy_rules()` 后手动 `mkdir fcop/internal/` 加一份
+   `README.md`（模板内容来自 `fcop.rules.get_internal_readme("zh")`）。
+
+---
+
 ## [1.6.0] — 2026-05-12
 
 ### feat(filename/protocol) — Trailing-slug filename adoption（ADR-0033）

@@ -169,3 +169,74 @@ eeds_human REVIEW | — |
 | write_review(...) | Write an independent governance decision (counts as independent governance signal) | — |
 
 **Note**: cop_audit() is read-only — it never modifies files. The INSPECTION report contains suggestions, not directives.
+---
+
+## Protocol Updates v1.0 ~ v1.4
+
+> Quick reference for key protocol changes introduced since v1.0.
+> Full details in `.cursor/rules/fcop-protocol.mdc` and `docs/releases/`.
+
+### REVIEW envelope (v1.0)
+
+When a leader (`PM`, `LEAD-QA`, etc.) marks a task with `risk_level: high`,
+a `REVIEW-*.md` approval file is automatically generated. What you need to know:
+
+- If a task has `needs_human: true`, **wait for ADMIN approval** before acting
+- Approval action: ADMIN calls `mark_human_approved(review_id=...)`
+- Do **not** proceed without approval — wait for the leader to notify you
+
+### risk_level field (v1.1)
+
+TASK files may contain `risk_level: low / medium / high` (set by the leader):
+
+- `high` → automatically generates a REVIEW; requires ADMIN approval to proceed
+- Execution roles **follow the leader's rating**; do not change it yourself
+- If you see `needs_human: true` → stop and wait for ADMIN / leader
+
+### fcop_audit and INSPECTION (v1.3)
+
+`fcop_audit()` is run by the **leader or ADMIN** — you don't need to call it.
+But you should know:
+
+- `INSPECTION-*.md` reports appear in `fcop/shared/`; they may produce remediation
+  tasks assigned to you
+- Reference the INSPECTION ID in your report (`references=["INSPECTION-..."]`)
+- If you receive a task that originates from an INSPECTION finding, follow the
+  standard four-step workflow
+
+### supersedes field (v1.4)
+
+If your TASK / REPORT **replaces** a historical file, add the optional field:
+
+```yaml
+supersedes: TASK-20260418-010   # this file replaces the referenced file
+# or multiple:
+supersedes:
+  - TASK-20260418-010
+  - REPORT-20260418-005
+```
+
+`list_tasks` / `list_reports` will automatically annotate both directions:
+`[supersedes X]` and `[superseded by X]`.
+
+### Rule 4.6 and the Evolution Loop (v2.0)
+
+fcop 2.0.0 is a **philosophical major** — existing envelope shapes and
+frontmatter fields are unchanged; 1.x projects keep working. Two new
+ideas:
+
+- **Rule 4.6 · Internal vs External Documents**: the `fcop/internal/`
+  bucket holds team-internal records (unreleased design drafts, private
+  data, etc.); external docs live under `docs/` and `essays/`. Internal
+  `.md` files **should** declare `internal_only: true` in frontmatter
+  *or* carry an "INTERNAL ONLY" warning block — `fcop_audit` reports a
+  missing declaration as **P3 suggestion** (never blocks, never moves
+  status off green).
+- **Seven Core Concepts + Evolution Loop**: FCoP now describes its own
+  evolution as a 7-node closed loop (emergence → escalation → consensus
+  → protocol → tooling → cross-project reuse → next emergence). Leaders
+  can use this loop as a retrospective checklist.
+
+Full spec: `.cursor/rules/fcop-rules.mdc` Rule 4.6 + "Seven Core
+Concepts" section, `fcop-protocol.mdc` "Two-Diagram Duality" + "Rule 4.6
+commentary".

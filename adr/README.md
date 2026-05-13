@@ -127,6 +127,7 @@ ADR-NNNN-kebab-case-title.md
 | **[ADR-0031](./ADR-0031-governance-alert-layer.md)** | **Governance Alert Layer（GAL）— 治理漂移检测与 ADMIN 告警（FCoP-Rule-G1 + 三域模型）** | **Accepted** | 2026-05-11 |
 | **[ADR-0032](./ADR-0032-fcop-audit-protocol-inspection.md)** | **fcop_audit() — 协议状态编译器（三场景体检 / Structured Findings + Suggested Plan）** | **Accepted** | 2026-05-12 |
 | **[ADR-0033](./ADR-0033-trailing-slug-filename-adoption.md)** | **Trailing slug filename adoption — TASK·REPORT·ISSUE 文件名 trailing-slug 收编（MINOR additive · codeflow 现场涌现协议化）** | **Accepted** | 2026-05-12 |
+| **[ADR-0034](./ADR-0034-fcop-internal-external-document-convention.md)** | **FCoP internal / external document convention — `fcop/internal/` vs `docs/` + `essays/` soft convention（Rule 4.6 · `internal-only` 声明 v1 · v2.0 "两图对偶"纪元）** | **Accepted** | 2026-05-13 |
 
 ---
 

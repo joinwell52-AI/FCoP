@@ -29,6 +29,7 @@ __all__ = [
     "get_letter",
     "get_letter_intro",
     "get_install_prompt",
+    "get_internal_readme",
     "get_rules_version",
     "get_protocol_version",
     "get_spec",
@@ -54,6 +55,10 @@ _SPEC_FILENAMES: dict[str, str] = {
 _SPEC_V10_FILENAMES: dict[str, str] = {
     "zh": "fcop-spec-v1.0.zh.md",
     "en": "fcop-spec-v1.0.en.md",
+}
+_INTERNAL_README_FILENAMES: dict[str, str] = {
+    "zh": "internal-readme.zh.md",
+    "en": "internal-readme.en.md",
 }
 
 # Frontmatter key that pins the semver of the rules document. Kept in
@@ -219,6 +224,27 @@ def get_protocol_version() -> str:
             f"{_PROTOCOL_VERSION_KEY!r} frontmatter field"
         )
     return version
+
+
+def get_internal_readme(lang: Literal["zh", "en"] = "zh") -> str:
+    """Return the bundled ``fcop/internal/README.md`` template (Rule 4.6).
+
+    Returned as plain text — the template carries placeholder fields
+    (``{fcop_version}`` / ``{deployed_at}``) that the caller is
+    expected to render via ``str.format(...)`` before writing.
+
+    Used by :meth:`fcop.Project.init` family with
+    ``deploy_internal_template=True`` (per ADR-0034 §4.3, fcop@2.0.0).
+
+    Raises:
+        ValueError: ``lang`` is not a supported language code.
+    """
+    if lang not in _INTERNAL_README_FILENAMES:
+        raise ValueError(
+            f"unsupported internal-readme language {lang!r}; "
+            f"expected one of {sorted(_INTERNAL_README_FILENAMES)}"
+        )
+    return _load_text(_INTERNAL_README_FILENAMES[lang])
 
 
 def get_spec(lang: Literal["zh", "en"] = "zh") -> str:

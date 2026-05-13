@@ -11,7 +11,7 @@
 > tool `redeploy_rules()` (or calls
 > `Project.deploy_protocol_rules(force=True)` directly).
 
-> Rules version: `2.4.0` · Protocol commentary version: `2.4.0`
+> Rules version: `3.0.0` · Protocol commentary version: `3.0.0`
 
 ---
 
@@ -107,6 +107,134 @@ scenarios.
 >
 > Full normative definitions: `spec/fcop-runtime-protocol-v1.0.md` (EN)
 > or `spec/fcop-runtime-protocol-v1.0.zh.md` (ZH).
+
+### 协议双图对偶 / Two-Diagram Duality
+
+FCoP 协议层有**两张哲学级图示**，合一才完整：
+
+| 图 | 视角 | 名称 | 回答的问题 |
+|---|---|---|---|
+| **第一张** | **纵向 · 分层 · 执行哲学** | 协议三层 stack（应用层 / 宿主适配层 / FCoP 协议层 / 参考实现层 / 执行基底） | 协议位于**哪一层**？ |
+| **第二张** | **环向 · 时间 · 演化哲学** | **FCoP Semantic Evolution Loop** / **FCoP Reverse Absorption Loop**（别名） | 协议如何**演化**？ |
+
+ADMIN 钦定原话（2026-05-13T09:14+08:00）：
+
+> 第一张：是执行哲学。
+> 第二张：是演化哲学。
+> 两张合在一起，FCoP 才完整。
+
+**FCoP Semantic Evolution Loop / FCoP 语义演化闭环 · ADMIN 钦定原图**
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│                  FCoP Semantic Evolution Loop                │
+│                  (FCoP 语义演化闭环)                          │
+└───────────────────────────────────────────────────────────────┘
+
+
+         ┌─────────────────────────────────────┐
+         │         Human Intention             │
+         │        人类目标 / 业务意图           │
+         └────────────────┬────────────────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────────┐
+         │         FCoP Protocol Layer         │
+         │-------------------------------------│
+         │ • Rules / ADR / Vocabulary          │
+         │ • Constraint / Auditability         │
+         │ • Capability Governance             │
+         │ • Coordination Semantics            │
+         └────────────────┬────────────────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────────┐
+         │     Coordination Adapter Layer      │
+         │-------------------------------------│
+         │ Cursor / MCP / CLI / CodeFlow       │
+         │ Claude Desktop / Agent Runtime      │
+         │ Context Projection & Routing        │
+         └────────────────┬────────────────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────────┐
+         │      Runtime / Filesystem Reality   │
+         │-------------------------------------│
+         │ • TASK / REPORT / REVIEW            │
+         │ • Agent Collaboration               │
+         │ • Shared Knowledge Surface          │
+         │ • Workspace / Runtime Behaviors     │
+         └────────────────┬────────────────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────────┐
+         │     Emergence / Local Conventions   │
+         │-------------------------------------│
+         │ • Internal Archives                 │
+         │ • Emergence Logs                    │
+         │ • Team Dialects                     │
+         │ • New Coordination Patterns         │
+         │ • Drift / Self-Correction           │
+         └────────────────┬────────────────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────────┐
+         │      ADR / Reverse Absorption       │
+         │-------------------------------------│
+         │ • Observation                       │
+         │ • Consolidation                     │
+         │ • Protocol Evolution                │
+         │ • Semantic Upgrades                 │
+         └────────────────┬────────────────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────────┐
+         │       Updated FCoP Protocol         │
+         │-------------------------------------│
+         │ • New Rules                         │
+         │ • New Vocabulary                    │
+         │ • Emergent Patterns Absorbed        │
+         │ • Next-Generation Constraints       │
+         └────────────────┬────────────────────┘
+                          │
+                          └──────────────┐
+                                         │
+                                         ▼
+                          (Loop Continues / 协议持续演化)
+```
+
+**Core Principle / 核心原则**（ADMIN 钦定原文）
+
+```
+Human defines the minimum structure.
+Agents create emergent intelligence.
+FCoP absorbs successful emergence back into protocol evolution.
+
+人类定义最低结构，
+Agent 自由产生智能涌现，
+FCoP 将有效涌现反向吸收为协议演化能力。
+```
+
+— ADMIN, 2026-05-13T09:14+08:00（sess-04，ADR-0034 v2.1 §2.5.6 钦定原文）
+
+**双图教学顺序 / Teaching Order**
+
+- 第一张教协议**是什么**（哪一层、什么不变量）。
+- 第二张教协议**如何活下去**（怎样从涌现里反向吸收为下一代规则）。
+- 两张缺一不可：缺第一张，协议无定位；缺第二张，协议无生命。
+
+> 完整 commentary（双图对偶细节、七环节与 ADR 章节映射、与第一张图
+> 的差异比较）见 `fcop-protocol.mdc` "§双图对偶（执行 vs 演化）"
+> 与 ADR-0034 §2.5.6。本节仅承载图本身与 ADMIN 钦定原文。
+
+The protocol layer has **two philosophical diagrams**; only together
+do they form the whole. The first is the **vertical execution stack**
+(answering "where does the protocol live?"); the second is the
+**Semantic Evolution Loop** (answering "how does the protocol
+evolve?"). ADMIN's normative phrasing (2026-05-13T09:14+08:00) is
+quoted verbatim above and **must not be paraphrased**. Full
+commentary lives in `fcop-protocol.mdc` § Two-Diagram Duality and
+ADR-0034 §2.5.6.
 
 ---
 
@@ -496,6 +624,56 @@ any codes; only the **three-layer structure** is fixed.
 
 ---
 
+## Rule 4.6 · Internal vs External Documentation / 内外档案体系（non-mandatory）
+
+> **协议外档案分两层:协议元数据(`fcop/`)+ 团队内部档案(`fcop/internal/`,可选);
+> 项目对外档案分两类:`docs/`(可选)+ `essays/`(可选)。**
+>
+> **Off-protocol documentation comes in two layers internally
+> (`fcop/` coordination metadata + optional `fcop/internal/` team-internal
+> archive) and two layers externally (optional `docs/` project docs +
+> optional `essays/` public essays).**
+
+- `fcop/` 是**协议元数据**，Rule 2 钦定 5 桶（`tasks/` `reports/` `issues/`
+  `shared/` `log/`）所有项目强制。
+- `fcop/internal/`（non-mandatory）：**团队内部档案**桶，装"协议团队
+  自己的自诊断日志、ADMIN 战略原话保留、决策审计链、PM 自我披露、
+  角色涌现档、上游 ISSUE 草稿"等不外发的内容。本规则**只承认其合法性**，
+  不强制创建——项目可以**完全不用**这一层。
+- `docs/`（non-mandatory）：**项目外部文档**，装经过整理对外发布的技术
+  文档、API 参考、教程。与 `fcop/internal/` 是**外/内**关系，不是同义词。
+- `essays/`（non-mandatory）：**公开随笔**，装协议设计哲学叙事、案例
+  研究、对外宣言。与 `fcop/internal/` 同样是外/内关系。
+- 任何 `fcop/internal/` 下 `.md` 文件**应当**（should）在 frontmatter
+  之后、正文之前携带"`internal-only` 声明语法"作为机器+人类可识别的
+  边界锚点（具体语法见 `fcop-protocol.mdc` 的 §Internal/External
+  Document Convention commentary）。
+- 本 Rule 是 **non-mandatory soft convention**——既不创建 `fcop/internal/`
+  的项目继续合规，创建后不带声明语法的项目也不被 reject（但 audit 会
+  P3 warn）。
+- 协议先例：Rule 7.5 `workspace/` 笼子是同款 soft convention 模式，
+  本 Rule 是其在"档案体系"维度的 mirror（per ADR-0034）。
+
+---
+
+`fcop/` is the **coordination metadata** layer (Rule 2 mandates 5 buckets:
+`tasks/` `reports/` `issues/` `shared/` `log/`). Optionally a project may
+add `fcop/internal/` for **team-internal archives** (self-diagnosis logs,
+ADMIN strategic quotes, decision audit chains, PM self-disclosures,
+role-emergence records, upstream-ISSUE drafts). This rule recognises that
+layer's legitimacy without mandating it. Externally, `docs/` (project
+docs) and `essays/` (public essays) are also recognised as legitimate
+optional layers, mirroring the internal/external split. Files under
+`fcop/internal/` SHOULD carry the `internal-only` declaration block right
+after the YAML frontmatter (syntax detailed in `fcop-protocol.mdc`).
+This rule is **non-mandatory soft convention** — projects without
+`fcop/internal/` remain fully compliant; projects using it without
+the declaration block are not rejected (audit P3 warn only). Mirrors
+Rule 7.5's `workspace/` cage pattern in the documentation-architecture
+dimension (per ADR-0034).
+
+---
+
 ## Rule 5 · Append-Only History / 历史只增不改
 
 - 已落盘的 `TASK-*` 与 `REPORT-*` 文件**不得原地修改**。
@@ -865,8 +1043,32 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 2.4.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 3.0.0`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**3.0.0 changes / 3.0.0 变更**（随 `fcop@2.0.0`）:
+
+- 新增 **Rule 4.6 · Internal vs External Documentation / 内外档案体系**
+  （non-mandatory soft convention，per ADR-0034）：
+  - `fcop/internal/`（团队内部档案）+ `docs/` / `essays/`（项目外部
+    文档）作为协议合法层级首次被钦定。
+  - `internal-only` 声明语法作为机器+人类可识别的边界锚点。
+  - 与 Rule 7.5 `workspace/` 笼子构成"档案体系-工作区"的镜像 soft
+    convention。
+- 新增 **协议双图对偶 / Two-Diagram Duality**（per ADR-0034 §2.5.6
+  ADMIN 钦定）：
+  - 第一张哲学图（执行哲学，5 层 stack）+ 第二张哲学图（演化哲学，
+    FCoP Semantic Evolution Loop / Reverse Absorption Loop）。
+  - 两张合一才完整描述协议本身——前者答"协议是什么"，后者答
+    "协议如何活下去"。
+  - ADMIN 钦定原图与"Core Principle / 核心原则"三句话原文吸收，
+    不得改一字（Rule 0.c 引用必带出处）。
+- **MAJOR bump 释义 / SemVer rationale**：本次 MAJOR bump 主要承载
+  **协议哲学层面的成熟**（双图首次完整 + 协议外档案体系首次正式被
+  承认），而**非** Rule 0–9 既有规则的破坏性变更——既有项目无需
+  迁移即可继续合规（per ADR-0003 §1.x SemVer §MAJOR philosophical
+  maturity exception）。
+- Rule 0–9.7 主体不变。
 
 **2.4.0 changes / 2.4.0 变更**（随 `fcop@1.5.0`，`1.5.1` no-rule-change patch）:
 
@@ -1115,6 +1317,224 @@ Examples / 例：
 或 [`essays/when-ai-organizes-its-own-work.md`](../../essays/when-ai-organizes-its-own-work.md)（现场报告）。
 Full protocol positioning: [`spec/fcop-runtime-protocol-v1.0.md`](../../spec/fcop-runtime-protocol-v1.0.md) (normative spec)
 or [`essays/when-ai-organizes-its-own-work.en.md`](../../essays/when-ai-organizes-its-own-work.en.md) (field report).
+
+## Two-Diagram Duality / 双图对偶（执行 vs 演化）
+
+> 本节是 `fcop-rules.mdc` "FCoP 的定位与七大核心概念 → 协议双图对偶"
+> 的协议解释。规则文件本身只承载 ADMIN 钦定原图与"Core Principle"
+> 三句原文（不得改一字）；本节负责解释**为什么是两张图**、**如何
+> 配合教学**、**与 ADR-0034 §2.5.6 七环节如何映射**。
+>
+> This section is the protocol commentary on `fcop-rules.mdc`'s
+> "Two-Diagram Duality" sub-section. The rules file carries only the
+> verbatim ADMIN diagram and the three-line "Core Principle"; this
+> commentary explains *why two diagrams*, *how to teach them
+> together*, and *how the seven loop stages map back to ADR-0034
+> §2.5.6*.
+
+### 为什么是两张图，不是一张 / Why Two Diagrams, Not One
+
+| 维度 / Dimension | 第一张（执行哲学）/ Stack | 第二张（演化哲学）/ Loop |
+|---|---|---|
+| 几何形态 / Shape | 5 层垂直 stack | 7 节点闭环 |
+| 时间属性 / Time | **静态** —— 任一时刻协议位于哪一层 | **动态** —— 协议如何随时间演化 |
+| 主体视角 / Subject | 协议**自指** —— 我位于运行栈的哪个夹层 | 协议**他指** —— 我如何被人类 + agent 共同推动 |
+| 关键不变量 / Invariant | "FCoP 治理行为，不拥有执行层" | "Human defines minimum, Agents create emergence, FCoP absorbs" |
+| 教学顺序 / Teaching order | **先教这张** —— 理解协议**是什么** | **后教这张** —— 理解协议**如何活下去** |
+
+只画第一张：协议看上去像"另一个固化的 framework"，少了**反向吸收**
+那条命脉。只画第二张：协议看上去像"无定位的演化轨迹"，少了**纵向
+不变量**。**两张合一，缺一不可**。
+
+A stack-only view makes the protocol look like "yet another frozen
+framework", losing the **reverse-absorption lifeline**. A
+loop-only view makes the protocol look like a "trajectory without
+position", losing the **vertical invariant**. **Both diagrams
+together — one cannot be substituted for the other.**
+
+### 七环节与 ADR-0034 章节映射 / Seven Stages × ADR Sections
+
+环图七个节点不是凭空想出来的，每一个都对应 ADR-0034 已经写下的
+现场观察 / 协议定位 / 决策章节。映射关系如下（取自 ADR-0034 §2.5.6）：
+
+The seven loop nodes are not invented in a vacuum; each maps back
+to a specific section of ADR-0034 (per its §2.5.6):
+
+| 环节 / Stage | 本 ADR 对应章节 | §2.5.2 六步路径对应步 |
+|---|---|---|
+| 1. Human Intention | §1.3 ADMIN 升级决策 | （循环起点，先于 Step 1） |
+| 2. FCoP Protocol Layer | §1.2 协议留白实测 | Step 1 协议留白 |
+| 3. Coordination Adapter Layer | （ADR 未直接论及，属下游适配） | Step 1 → Step 2 之间 |
+| 4. Runtime / Filesystem Reality | §1.1 Bridgeflow 现场涌现 | Step 2 下游涌现 |
+| 5. Emergence / Local Conventions | §2.1–§2.4 4 层涌现详解 | Step 2 完成态 |
+| 6. ADR / Reverse Absorption | §2.5（钦定段）+ §3 决策 | Step 3-4 实证观察 + ADR 提案 |
+| 7. Updated FCoP Protocol | §5.2 中期升级清单 + §5.3 长期 | Step 5-6 协议追认 + 进入正文 |
+
+环图与"§2.5.2 六步路径"**互不替代**：六步路径是**操作层**（教 agent
+怎么做），环图是**哲学层**（向人类与 agent 同时说明 FCoP 为什么
+这样做）。
+
+The loop diagram and the §2.5.2 six-step pathway **do not replace
+each other**: the six-step pathway is the **operational layer**
+(teaching agents how to do it); the loop is the **philosophical
+layer** (explaining to humans and agents alike why FCoP works this
+way).
+
+### 引用与扩展 / Citations & Extensions
+
+- 钦定原图与"Core Principle"三句的**原文**只在两处出现：
+  `fcop-rules.mdc` "七大核心概念"小节、ADR-0034 §2.5.6。任何其它
+  地方引用必须**链回这两处**，**不得**复制粘贴一份"修订版"。
+- 第三方教学材料 / 论文 / 演讲稿可以引用本图，但**必须**保留
+  ADMIN 钦定原话的双语三句不变（Rule 0.c 引用必带出处）。
+
+The verbatim diagram and the three-line "Core Principle" exist in
+exactly two places: `fcop-rules.mdc` "Seven Core Concepts" and
+ADR-0034 §2.5.6. All other references must **link back** to these
+two; never copy a "revised" version. Third-party teaching material
+may quote the diagram but **must preserve** ADMIN's normative
+three-line phrasing in both languages (Rule 0.c citation
+requirement).
+
+## How Rule 4.6 Applies: Internal vs External Document Convention / Rule 4.6 的展开：内外档案体系如何落地
+
+> 本节是 `fcop-rules.mdc` Rule 4.6 的协议解释。规则文件本身只确立
+> "`fcop/internal/` non-mandatory + `docs/` / `essays/` 为合法外档"
+> 这条原则；本节负责把"目录怎么排、声明语法长什么样、与 Rule 7.5
+> 如何镜像"等落地细节写清。
+>
+> This section is the protocol commentary on Rule 4.6. The rules file
+> only establishes the principle ("`fcop/internal/` non-mandatory +
+> `docs/` / `essays/` are recognised external layers"); this
+> commentary covers directory layout, the `internal-only` declaration
+> syntax, and how it mirrors Rule 7.5's `workspace/` cage.
+
+### 推荐目录布局 / Recommended Directory Layout
+
+```
+<project>/
+├── fcop/                       # Rule 2 钦定 5 桶（强制）
+│   ├── tasks/  reports/  issues/  shared/  log/
+│   └── internal/               # Rule 4.6 团队内部档案（可选，non-mandatory）
+│       ├── README.md           # 含 internal-only 声明，本桶用途说明
+│       ├── emergence-log/      # 涌现观察日志（建议子目录）
+│       ├── self-disclosure/    # PM/角色自我披露
+│       ├── decision-trail/     # 决策审计链
+│       └── upstream-issues/    # 上游 ISSUE 草稿
+├── docs/                       # Rule 4.6 项目对外文档（可选）
+│   ├── getting-started.md
+│   └── api/...
+├── essays/                     # Rule 4.6 公开随笔（可选）
+└── workspace/<slug>/           # Rule 7.5 工作区笼子（可选 soft）
+```
+
+四类目录的**职责边界**：
+
+| 目录 / Dir | 是谁的内容 / Owner | 对外可见？ | 强制？ |
+|---|---|---|---|
+| `fcop/{tasks,reports,...}` | 协作流水（点对点 + 共享） | 是（开源仓库随 git 同步） | 是（Rule 2） |
+| `fcop/internal/` | 团队**内部**档案（自审 / 决策链 / 涌现日志） | 可选 —— 团队自定 | 否（Rule 4.6 soft） |
+| `docs/` | 项目**外发**技术文档 | 是 | 否 |
+| `essays/` | 公开**随笔 / 哲学叙事** | 是 | 否 |
+| `workspace/<slug>/` | 任务**产物**（代码 / 数据） | 是 | 否（Rule 7.5 soft） |
+
+### `internal-only` 声明语法 v1 / Declaration Syntax v1
+
+任何 `fcop/internal/` 下 `.md` 文件**应当**在 YAML frontmatter 之后、
+正文之前加一段醒目声明，让人类与未来的 agent 都能在第一眼识别这是
+**内部档案**：
+
+Any `.md` file under `fcop/internal/` SHOULD carry an `internal-only`
+declaration block right after the YAML frontmatter and before the
+body, so both humans and future agents recognise it as **internal
+archive material** at first glance:
+
+```markdown
+---
+protocol: fcop
+version: 1
+kind: internal-archive
+sender: PM
+recipient: PM
+internal_only: true       # 机器可读字段（也可写在声明块里）
+---
+
+> ⚠️ **INTERNAL ONLY · 内部档案 · DO NOT EXTERNALIZE WITHOUT REVIEW**
+>
+> 本文件位于 `fcop/internal/`，属于团队内部档案，仅供本协议团队
+> 自审 / 复盘 / 决策追溯使用。**对外发布前必须先经审查改写**
+> （删除原话引用、敏感人物、未公开决策细节）。
+>
+> This file lives under `fcop/internal/` and is **internal archive
+> material**: for team self-audit / retrospective / decision trail
+> only. **Must be reviewed and rewritten before any external
+> publication** (strip raw quotes, sensitive persons, undisclosed
+> decisions).
+
+# 正文标题 / Body title goes here
+...
+```
+
+声明块的**最低要求**（per ADR-0034 §4.3）：
+
+1. 必须是 frontmatter 之后的**第一个 block**（不允许在正文中段才出现）。
+2. 必须包含双语警告字串 `INTERNAL ONLY` / `内部档案`，方便 grep。
+3. **建议**配合 frontmatter 写一个 `internal_only: true` 字段（机器
+   可读，与 audit 钩子配合）。
+
+Minimum requirements for the declaration block (per ADR-0034 §4.3):
+1. Must be the **first block** after frontmatter (not buried mid-body).
+2. Must contain the bilingual warning string `INTERNAL ONLY` / `内部档案`
+   for greppability.
+3. **Recommended**: pair with a frontmatter field `internal_only: true`
+   for machine-readability (audit hooks honour this).
+
+### 与 Rule 7.5 的镜像关系 / Mirror with Rule 7.5
+
+Rule 7.5（`workspace/` 笼子）和 Rule 4.6（`fcop/internal/` 内档）
+是同款 **soft convention** 模式在两个不同维度的镜像：
+
+Rule 7.5 (`workspace/` cage) and Rule 4.6 (`fcop/internal/` archive)
+are the **same soft-convention pattern** mirrored across two
+dimensions:
+
+| 维度 | Rule 7.5 | Rule 4.6 |
+|---|---|---|
+| 解决的问题 / Problem | 任务**产物**乱堆项目根 | 团队**内部档案**与协作流水混在一起 |
+| 兜底动作 / Default | 默认走 `new_workspace(slug)`、不丢根目录 | 默认不创建 `internal/`；用了就加声明语法 |
+| 强制层级 / Enforcement | soft（不硬拦，audit 提示） | soft（不硬拦，audit P3 warn） |
+| 协议先例 / Precedent | v0.4.6（首份 soft convention） | v3.0.0（第二份 soft convention） |
+
+**两条 soft convention 共同确立的设计气候**：协议**优先教育，少处罚**
+——硬规则只立在 Rule 0–4 / Rule 5 / Rule 7 这种"破坏性 / 真相性"红线
+上；目录组织 / 命名习惯这种"漂移代价低 + 教育收益高"的领域全部走
+soft，让协议长出**自演化的肌肉**而非僵化的骨骼。
+
+The two soft conventions together establish the protocol's design
+climate: **prefer education over punishment** — hard rules sit only
+on Rules 0–4 / 5 / 7's destructive / truth red lines; directory
+organisation and naming conventions live entirely under soft
+conventions, letting the protocol grow **self-evolving muscle**
+rather than rigid bone.
+
+### Audit 行为 / Audit Behaviour
+
+`fcop_audit()` 在扫描 `fcop/internal/` 时：
+
+- **P3 (suggestion)**：file 缺 `internal-only` 声明块或 `internal_only: true`
+  字段，提示 agent 补全。
+- **P3 (suggestion)**：file 已携带 `internal_only: true` 但**不在**
+  `fcop/internal/` 目录下，提示位置错放。
+- **不报 P0 / P1 / P2**：本规则是 non-mandatory soft convention，
+  缺这些声明不阻塞任何写入。
+
+`fcop_audit()`'s behaviour against `fcop/internal/`:
+- P3 (suggestion): missing declaration block or `internal_only: true`
+  field — gently nudges the agent.
+- P3 (suggestion): file carries `internal_only: true` but lives
+  outside `fcop/internal/` — flags misplaced location.
+- Never raises P0 / P1 / P2 — this is a non-mandatory soft
+  convention; absence does not block any write.
 
 ## How Rule 0.c Applies: Truthfulness on Disk / Rule 0.c 的展开：落盘的必须是真话
 
@@ -2051,6 +2471,44 @@ Three things the protocol explicitly grants you:
    自我审查烧 token，本身就是反模式。
 
 ## Protocol Version Log / 协议版本记录
+
+- **v3.0** (2026-05-13) — **Two-Diagram Duality + Internal/External
+  Document Convention**，随 `fcop@2.0.0`（ADR-0034）：
+  1. 新增 **§Two-Diagram Duality / 双图对偶**（commentary）：
+     - 解释为什么是两张图、教学顺序、与 ADR-0034 §2.5.6 七环节的
+       完整映射；
+     - 钦定原图与"Core Principle"三句的**原文**只在
+       `fcop-rules.mdc` "七大核心概念"小节与 ADR-0034 §2.5.6 出现，
+       本节仅作 commentary，不复制原图。
+  2. 新增 **§How Rule 4.6 Applies: Internal vs External Document
+     Convention**（commentary）：
+     - 推荐目录布局（`fcop/internal/` + `docs/` + `essays/` +
+       `workspace/<slug>/`）；
+     - `internal-only` 声明语法 v1（per ADR-0034 §4.3）；
+     - 与 Rule 7.5 `workspace/` 笼子的镜像关系；
+     - `fcop_audit()` 行为（P3 suggestion，never P0/P1/P2）。
+  3. **MAJOR bump 释义**：与 `fcop-rules.mdc` 一致，承载**协议哲学
+     成熟**而非破坏性变更——既有项目无需迁移即可继续合规
+     （per ADR-0003 §1.x SemVer §MAJOR philosophical maturity exception）。
+  4. 版本号从 2.4.0 升至 3.0.0。
+
+  v3.0 changes:
+  1. New **§Two-Diagram Duality** commentary explaining why two
+     diagrams, teaching order, and the full mapping to ADR-0034
+     §2.5.6's seven loop stages. The verbatim diagram and three-line
+     "Core Principle" only live in `fcop-rules.mdc` "Seven Core
+     Concepts" and ADR-0034 §2.5.6; this section is commentary
+     only — does not duplicate the diagram.
+  2. New **§How Rule 4.6 Applies** commentary covering recommended
+     directory layout (`fcop/internal/` + `docs/` + `essays/` +
+     `workspace/<slug>/`), the `internal-only` declaration syntax v1
+     (per ADR-0034 §4.3), the mirror relation with Rule 7.5, and
+     `fcop_audit()` behaviour (P3 suggestion only).
+  3. MAJOR bump rationale: same as `fcop-rules.mdc` — carries
+     **protocol philosophical maturity**, not breaking changes.
+     Existing projects remain compliant without migration (per
+     ADR-0003 §1.x SemVer §MAJOR philosophical maturity exception).
+  4. Version bumped 2.4.0 → 3.0.0.
 
 - **v2.4** (2026-05-12) — **Trailing-slug filename adoption**，随 `fcop@1.6.0`（ADR-0033）：
   1. 新增 **可选 trailing slug** 段(`TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md`)：

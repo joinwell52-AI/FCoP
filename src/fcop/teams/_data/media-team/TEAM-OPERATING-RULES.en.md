@@ -139,3 +139,40 @@ Key operating rule changes introduced in recent protocol versions:
 - Configure via `FCOP_PROJECT_DIR` env var in MCP config, or call
   `set_project_dir()` at session start
 - Calling any write tool without binding raises `WriteRefused`
+
+
+---
+
+## §internal-only Declaration Syntax (v3.0+, per Rule 4.6)
+
+> Since fcop@2.0.0 / `fcop_rules_version: 3.0.0`, teams may opt in to
+> the "team-internal archive bucket" by having ADMIN call
+> `Project.init(deploy_internal_template=True)`, which deploys the
+> `fcop/internal/` sub-layer (Rule 4.6 non-mandatory soft convention).
+
+- Any `.md` file under `fcop/internal/` SHOULD carry a bilingual
+  declaration block right after the YAML frontmatter:
+
+```markdown
+---
+protocol: fcop
+version: 1
+kind: internal-archive
+sender: PM
+recipient: PM
+internal_only: true
+---
+
+> ⚠️ **INTERNAL ONLY · DO NOT EXTERNALIZE WITHOUT REVIEW**
+>
+> (file purpose description)
+
+# Body title
+...
+```
+
+- Full template and rationale: `fcop/internal/README.md` (deployed
+  automatically), `fcop-rules.mdc` Rule 4.6, `fcop-protocol.mdc`
+  §How Rule 4.6 Applies.
+- `fcop_audit()` only emits P3 (suggestion) hints against this bucket
+  and never blocks any write.

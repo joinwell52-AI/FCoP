@@ -170,21 +170,109 @@ Escalate proactively when:
 
 ---
 
-## v1.3.0 Tool Quick Reference
+## v1.0 ~ v1.5 Protocol Update Cheatsheet (leader view)
 
-> Key MCP tools added or promoted in v1.3.0. Leader roles should know these first.
+> Important protocol additions since v1.0 from a **leader-centric** angle —
+> you are both consumer and gatekeeper. Full text:
+> `.cursor/rules/fcop-protocol.mdc` and `docs/releases/`.
 
-| Tool | When to use | Example |
+### REVIEW envelope (v1.0)
+
+`REVIEW-*.md` is fcop's fourth IPC envelope, peer to TASK / REPORT /
+ISSUE; it carries **approval / governance opinions**. As PM you meet it
+in two scenarios:
+
+- **When dispatching**: setting `risk_level: high` on a
+  `TASK-*-PM-to-{DEV/QA/OPS}.md` makes `write_task` **auto-emit** a
+  `REVIEW-*.md` in `needs_human` state — the downstream role then knows
+  to wait for ADMIN.
+- **When reviewing**: when a downstream REPORT needs a formally traceable
+  judgment (accept / reject / rework), use `write_review` to land a
+  `REVIEW-*.md` — more auditable than stamping the REPORT.
+
+REVIEW is an **audit artefact**, **not** a new work round (Rule 6
+reciprocity still closes through TASK ↔ REPORT).
+
+### risk_level field (v1.1)
+
+TASK frontmatter may carry `risk_level: low / medium / high`:
+
+- `low` (default) / `medium` — normal in-team flow.
+- `high` — `write_task` auto-writes a `REVIEW-*.md`
+  (`decision=needs_human`); the downstream MUST wait for ADMIN to call
+  `mark_human_approved(review_id=...)` before acting.
+- As PM **your job is to label correctly**: production change, public
+  release, data deletion → always `high`. If uncertain, bounce the
+  question to `ADMIN`; don't decide alone.
+
+### fcop_audit and INSPECTION (v1.3)
+
+`fcop_audit()` is the leader's **routine health check** — read-only,
+never modifies files:
+
+- `scope="takeover"` — first move when inheriting an unfamiliar project;
+  INSPECTION report enumerates compliance gaps.
+- `scope="upgrade"` — run after `pip install -U fcop` to verify rules
+  alignment.
+- `scope="new"` — sanity check after `init_project`.
+
+INSPECTION reports land at `fcop/shared/INSPECTION-*.md`: **advice, not
+order**. PM **splits remediation TASKs** to the right roles and cites
+the INSPECTION id (`references=["INSPECTION-..."]`).
+
+### supersedes field (v1.4)
+
+Companion to Rule 5 (append-only history): to correct a landed TASK /
+REPORT, **append a new file** and add to frontmatter:
+
+```yaml
+supersedes: TASK-20260418-010
+# or multiple:
+supersedes:
+  - TASK-20260418-010
+  - REPORT-20260418-005
+```
+
+`list_tasks` / `list_reports` auto-annotates `[supersedes X]` /
+`[superseded by X]` both ways. As PM, **you decide when to use it**:
+downstream REPORT drifted out of scope → write a new TASK with
+`supersedes`; your own PM-to-ADMIN summary needs a patch → new REPORT
+with `supersedes`.
+
+### Leader tool cheatsheet (v1.3 ~ v1.5)
+
+| Tool | When | Example |
 |---|---|---|
-| cop_audit(scope="takeover") | **First move** when onboarding an unfamiliar project; generates INSPECTION report listing compliance gaps | cop_audit(scope="takeover", output="file") |
-| cop_audit(scope="upgrade") | Post-upgrade acceptance check after pip install -U fcop | cop_audit(scope="upgrade") |
-| cop_audit(scope="new") | Self-check after init_* on a fresh project | cop_audit(scope="new") |
-| cop_list_alerts() | View governance alert inbox (GAL) | cop_list_alerts(status="open") |
-| cop_create_alert() | Manually archive a governance gap | cop_create_alert(signal="critical_tool_unreviewed", severity="high", summary="...") |
-| write_task(..., risk_level="high") | High-risk tasks auto-trigger a 
-eeds_human REVIEW | — |
-| mark_human_approved(review_id=...) | ADMIN approves a 
-eeds_human REVIEW | — |
-| write_review(...) | Write an independent governance decision (counts as independent governance signal) | — |
+| `fcop_audit(scope="takeover")` | First move on an inherited project | `fcop_audit(scope="takeover", output="file")` |
+| `fcop_audit(scope="upgrade")` | After `pip install -U fcop` | `fcop_audit(scope="upgrade")` |
+| `fcop_audit(scope="new")` | After `init_*` | `fcop_audit(scope="new")` |
+| `write_task(..., risk_level="high")` | High-risk dispatch, auto REVIEW | — |
+| `mark_human_approved(review_id=...)` | ADMIN approves a `needs_human` REVIEW | — |
+| `write_review(...)` | Standalone governance opinion | — |
+| `list_alerts()` / `create_alert(...)` | Governance alert inbox (GAL) | `list_alerts(status="open")` |
 
-**Note**: cop_audit() is read-only — it never modifies files. The INSPECTION report contains suggestions, not directives.
+**Note**: `fcop_audit()` is read-only; INSPECTION reports are **advice,
+not directives** — when / whether to remediate is PM's call via fresh
+TASK dispatch.
+
+### Rule 4.6 and the Evolution Loop (v2.0)
+
+fcop 2.0.0 is a **philosophical major** — existing envelope shapes and
+frontmatter fields are unchanged; 1.x projects keep working. Two new
+ideas:
+
+- **Rule 4.6 · Internal vs External Documents**: the `fcop/internal/`
+  bucket holds team-internal records (unreleased design drafts, private
+  data, etc.); external docs live under `docs/` and `essays/`. Internal
+  `.md` files **should** declare `internal_only: true` in frontmatter
+  *or* carry an "INTERNAL ONLY" warning block — `fcop_audit` reports a
+  missing declaration as **P3 suggestion** (never blocks, never moves
+  status off green).
+- **Seven Core Concepts + Evolution Loop**: FCoP now describes its own
+  evolution as a 7-node closed loop (emergence → escalation → consensus
+  → protocol → tooling → cross-project reuse → next emergence). Leaders
+  can use this loop as a retrospective checklist.
+
+Full spec: `.cursor/rules/fcop-rules.mdc` Rule 4.6 + "Seven Core
+Concepts" section, `fcop-protocol.mdc` "Two-Diagram Duality" + "Rule 4.6
+commentary".

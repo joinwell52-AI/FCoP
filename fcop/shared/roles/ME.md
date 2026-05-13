@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -7,7 +7,7 @@ recipient: TEAM
 team: solo
 role: ME
 doc_id: ROLE-ME
-updated_at: 2026-04-26
+updated_at: 2026-05-12
 ---
 
 # ME 岗位职责
@@ -31,7 +31,7 @@ updated_at: 2026-04-26
 ### 第 1 步：先写 task
 
 收到 ADMIN 在聊天里说的需求，**第一动作**是调 `write_task` 落
-`docs/agents/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
+`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
 
 ```
 write_task(
@@ -56,7 +56,7 @@ write_task(
 
 ### 第 3 步：再写 report
 
-调 `write_report` 落 `docs/agents/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
+调 `write_report` 落 `fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
 回执必须包含：
 
 - 状态：`done` / `in_progress` / `blocked`
@@ -201,3 +201,85 @@ ADMIN 验收 report 后调 `archive_task("TASK-...")` 把 task + matching report
 6. **代 ADMIN 派任务给自己时格式错误**：写成 `TASK-*-ME-to-ME.md`。
    **正确做法**：solo 下 task 永远是 `TASK-*-ADMIN-to-ME.md`，因为
    "提案者"在协议层是 ADMIN，`ME` 只是代落盘。
+
+---
+
+## v1.3.0 工具速查 / v1.3.0 Tool Quick Reference
+
+> 以下为 v1.3.0 新增或重要的 MCP 工具，leader 角色优先掌握。
+
+| 工具 | 场景 | 示例 |
+|---|---|---|
+| cop_audit(scope="takeover") | 接手陌生老项目时的**第一动作**；生成 INSPECTION 报告列出协议合规缺口 | cop_audit(scope="takeover", output="file") |
+| cop_audit(scope="upgrade") | pip install -U fcop 后的版本升级验收 | cop_audit(scope="upgrade") |
+| cop_audit(scope="new") | init_* 完成后新项目自检 | cop_audit(scope="new") |
+| cop_list_alerts() | 查看治理告警收件箱（GAL）| cop_list_alerts(status="open") |
+| cop_create_alert() | 手动归档治理缺口 | cop_create_alert(signal="critical_tool_unreviewed", severity="high", summary="...") |
+| write_task(..., risk_level="high") | 高风险任务自动触发人工审批 REVIEW | — |
+| mark_human_approved(review_id=...) | ADMIN 批准 
+eeds_human 的 REVIEW | — |
+| write_review(...) | 写独立治理审批意见（构成独立治理信号） | — |
+
+**注意**：cop_audit() 只读，不修改任何文件；INSPECTION 报告是建议，不是指令。
+---
+
+## v1.0 ~ v1.4 协议更新速查
+
+> 本节汇总 v1.0 起协议层面引入的重要变化，执行角色需了解的关键点。
+> 详细说明见 `.cursor/rules/fcop-protocol.mdc` 和 `docs/releases/`。
+
+### REVIEW envelope（v1.0）
+
+高风险任务由 leader（`PM` / `LEAD-QA` 等）标注 `risk_level: high` 时，
+会自动生成 `REVIEW-*.md` 待审批文件。执行角色须知：
+
+- 任务带有 `needs_human: true` 时，**必须等待 ADMIN 批准**后再执行
+- 批准动作：ADMIN 调 `mark_human_approved(review_id=...)`
+- 未获批准**不得越权执行**，等 leader 通知继续
+
+### risk_level 字段（v1.1）
+
+TASK 文件中可含 `risk_level: low / medium / high`（由 leader 在派单时标注）：
+
+- `high` → 自动生成 REVIEW，需 ADMIN 批准方可执行
+- 执行角色**以 leader 标注为准**，不自行升降级
+- 收到 `needs_human: true` 的 TASK → 停手，等 ADMIN / leader 通知
+
+### fcop_audit 与 INSPECTION（v1.3）
+
+`fcop_audit()` 由 **leader 或 ADMIN** 运行，你无需主动调用。但需了解：
+
+- `INSPECTION-*.md` 体检报告出现在 `fcop/shared/` 后，可能派发整改 TASK 给你
+- 在回执里引用 INSPECTION 报告 ID（`references=["INSPECTION-..."]`）
+- 如收到来自 INSPECTION 的整改任务，正常走"四步流程"即可
+
+### supersedes 字段（v1.4）
+
+如果你的 TASK / REPORT 文件**修正**了某份历史文件，可加可选字段：
+
+```yaml
+supersedes: TASK-20260418-010   # 本文件替代该历史文件
+# 或多个：
+supersedes:
+  - TASK-20260418-010
+  - REPORT-20260418-005
+```
+
+`list_tasks` / `list_reports` 工具会自动双向标注 `[supersedes X]` / `[superseded by X]`。
+
+### Rule 4.6 与 Evolution Loop（v2.0）
+
+fcop 2.0.0 是**哲学性 major**——既有 envelope 与 frontmatter 字段不变，
+不会破坏 1.x 项目。新增两件事：
+
+- **Rule 4.6 · 内外档案体系**：`fcop/internal/` 桶承载团队内部档案
+  （未公开的设计草稿、私有数据等）；外部档案（`docs/`、`essays/`）面向
+  公众。内部 `.md` 文件**应当**在正文顶部声明 `internal_only: true`
+  （frontmatter）或 "INTERNAL ONLY" 警告块——`fcop_audit` 把缺失
+  的声明报为 **P3 建议**（never blocks，never moves status off green）。
+- **七大核心概念 + Evolution Loop**：FCoP 现在以一张 7 节点闭环图描述
+  自身演化路径（涌现 → 上报 → 共识 → 入协议 → 入工具 → 跨项目复用 →
+  下一轮涌现）。leader 在做 retrospective 时可以拿这张图当评估表。
+
+完整规范：`.cursor/rules/fcop-rules.mdc` Rule 4.6 + 「七大核心概念」节，
+`fcop-protocol.mdc` 「双图对偶」与「Rule 4.6 commentary」节。

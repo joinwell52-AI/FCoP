@@ -187,3 +187,20 @@ supersedes:
 ```
 
 `list_tasks` / `list_reports` 工具会自动双向标注 `[supersedes X]` / `[superseded by X]`。
+
+### Rule 4.6 与 Evolution Loop（v2.0）
+
+fcop 2.0.0 是**哲学性 major**——既有 envelope 与 frontmatter 字段不变，
+不会破坏 1.x 项目。新增两件事：
+
+- **Rule 4.6 · 内外档案体系**：`fcop/internal/` 桶承载团队内部档案
+  （未公开的设计草稿、私有数据等）；外部档案（`docs/`、`essays/`）面向
+  公众。内部 `.md` 文件**应当**在正文顶部声明 `internal_only: true`
+  （frontmatter）或 "INTERNAL ONLY" 警告块——`fcop_audit` 把缺失
+  的声明报为 **P3 建议**（never blocks，never moves status off green）。
+- **七大核心概念 + Evolution Loop**：FCoP 现在以一张 7 节点闭环图描述
+  自身演化路径（涌现 → 上报 → 共识 → 入协议 → 入工具 → 跨项目复用 →
+  下一轮涌现）。leader 在做 retrospective 时可以拿这张图当评估表。
+
+完整规范：`.cursor/rules/fcop-rules.mdc` Rule 4.6 + 「七大核心概念」节，
+`fcop-protocol.mdc` 「双图对偶」与「Rule 4.6 commentary」节。

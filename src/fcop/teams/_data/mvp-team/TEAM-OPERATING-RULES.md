@@ -130,3 +130,37 @@ MVP 阶段的目标不是"做出最完整的东西",而是"用最小代价验证
 - MCP Server 层：write-side 工具必须显式绑定项目路径
 - 配置方式：在 MCP config 中设置 `FCOP_PROJECT_DIR`，或会话开始时调 `set_project_dir()`
 - 未绑定时调用任何写入工具，将抛出 `WriteRefused` 错误
+
+
+---
+
+## §internal-only 声明语法（v3.0+，per Rule 4.6）
+
+> 自 fcop@2.0.0 / `fcop_rules_version: 3.0.0` 起，团队若需要"内部档案
+> 桶"，可由 ADMIN 调 `Project.init(deploy_internal_template=True)`
+> 部署 `fcop/internal/` 子层（Rule 4.6 non-mandatory soft convention）。
+
+- 任何 `fcop/internal/` 下 `.md` 文件**应当**在 frontmatter 之后立即
+  携带双语声明块：
+
+```markdown
+---
+protocol: fcop
+version: 1
+kind: internal-archive
+sender: PM
+recipient: PM
+internal_only: true
+---
+
+> ⚠️ **INTERNAL ONLY · 内部档案 · DO NOT EXTERNALIZE WITHOUT REVIEW**
+>
+> （本文件用途说明）
+
+# 正文标题
+...
+```
+
+- 完整模板与背景见 `fcop/internal/README.md`（部署后自动落盘）、
+  `fcop-rules.mdc` Rule 4.6、`fcop-protocol.mdc` §How Rule 4.6 Applies。
+- `fcop_audit()` 对本桶只做 P3 (suggestion) 提示，不阻塞任何写入。

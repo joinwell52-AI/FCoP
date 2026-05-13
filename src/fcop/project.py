@@ -135,6 +135,7 @@ from fcop.models import (
     ValidationIssue,
 )
 from fcop.rules import (
+    get_internal_readme,
     get_letter,
     get_protocol_commentary,
     get_protocol_version,
@@ -396,6 +397,7 @@ class Project:
         force: bool = False,
         deploy_rules: bool = False,
         deploy_role_templates: bool = True,
+        deploy_internal_template: bool = False,
     ) -> ProjectStatus:
         """Initialize this directory as an FCoP project with a preset team.
 
@@ -438,6 +440,17 @@ class Project:
                 read. Solo and the four bundled multi-role teams all
                 have templates; ``init_custom`` users with no
                 bundled templates pass ``False``.
+            deploy_internal_template: If ``True``, also create the
+                ``fcop/internal/`` bucket (Rule 4.6 / ADR-0034 §4.3,
+                introduced in fcop@2.0.0) with a ``README.md`` carrying
+                the ``internal-only`` declaration block v1. **Defaults
+                to ``False``** because Rule 4.6 is a non-mandatory
+                soft convention — projects that don't need a
+                team-internal archive bucket stay clean. Existing
+                projects on fcop ≥2.0.0 can opt in retroactively by
+                running ``Project.init(force=True,
+                deploy_internal_template=True)`` or invoking the new
+                ``deploy_internal_template()`` MCP tool (when shipped).
 
         Returns:
             A :class:`ProjectStatus` snapshot of the freshly initialized
@@ -492,6 +505,8 @@ class Project:
                 self.deploy_role_templates(
                     team=info.name, lang=None, force=True
                 )
+        if deploy_internal_template:
+            self._deposit_internal_template(cfg.lang, force=force)
         return self.status()
 
     def init_solo(
@@ -502,6 +517,7 @@ class Project:
         force: bool = False,
         deploy_rules: bool = False,
         deploy_role_templates: bool = True,
+        deploy_internal_template: bool = False,
     ) -> ProjectStatus:
         """Initialize in Solo mode (single role interfacing with ADMIN).
 
@@ -534,6 +550,11 @@ class Project:
                 runtime role code is different. (A future release
                 may rename on deploy; for 0.6.4 we keep the simpler
                 "exact bundled filename" path.)
+            deploy_internal_template: Same semantics as :meth:`init` —
+                defaults to ``False``. Rule 4.6's ``fcop/internal/``
+                bucket is non-mandatory soft convention; opt in only
+                if your solo workflow needs a team-internal archive
+                (per ADR-0034 §4.3, fcop@2.0.0+).
 
         Raises:
             ValidationError: ``role_code`` fails
@@ -572,6 +593,8 @@ class Project:
                 self.deploy_role_templates(
                     team="solo", lang=None, force=True
                 )
+        if deploy_internal_template:
+            self._deposit_internal_template(cfg.lang, force=force)
         return self.status()
 
     def init_custom(
@@ -584,6 +607,7 @@ class Project:
         force: bool = False,
         deploy_rules: bool = False,
         deploy_role_templates: bool = False,
+        deploy_internal_template: bool = False,
     ) -> ProjectStatus:
         """Initialize with a user-defined role set.
 
@@ -616,6 +640,10 @@ class Project:
                 this to ``True`` would raise
                 :class:`TeamNotFoundError` since ``team_name`` is
                 user-defined — kept as an option for symmetry only.
+            deploy_internal_template: Same semantics as :meth:`init` —
+                defaults to ``False``. Custom teams may opt in if
+                they want Rule 4.6's ``fcop/internal/`` bucket
+                (per ADR-0034 §4.3, fcop@2.0.0+).
 
         Raises:
             ValidationError: the team config is invalid. The raised
@@ -653,6 +681,8 @@ class Project:
         self._apply_init(cfg, force=force)
         if deploy_rules:
             self.deploy_protocol_rules(force=force, archive=True)
+        if deploy_internal_template:
+            self._deposit_internal_template(cfg.lang, force=force)
         return self.status()
 
     @staticmethod
@@ -825,6 +855,48 @@ class Project:
         if readme.exists() and force:
             self._archive_one_file(readme, sub="workspace")
         readme.write_text(_WORKSPACE_README_TEXT, encoding="utf-8", newline="\n")
+
+    def _deposit_internal_template(self, lang: str, *, force: bool) -> None:
+        """Create ``fcop/internal/`` + ``README.md`` per Rule 4.6 (opt-in).
+
+        Rule 4.6 (per ADR-0034 §4.3, fcop@2.0.0+) introduces the
+        ``fcop/internal/`` bucket as a **non-mandatory soft convention**
+        for team-internal archive material (emergence-log,
+        self-disclosure, decision-trail, upstream-issue drafts).
+
+        Only deposited when the caller explicitly opts in via
+        ``deploy_internal_template=True`` on any of the ``init_*``
+        methods — the default is ``False`` so existing projects remain
+        untouched.
+
+        The README template carries the ``internal-only`` declaration
+        block v1 (per ADR-0034 §4.3) and substitutes ``{fcop_version}``
+        / ``{deployed_at}`` placeholders so the deposit is dated and
+        tied to a fcop version.
+
+        Falls back to ``zh`` if the configured ``lang`` isn't a
+        bundled language — mirrors :meth:`_deposit_letter`.
+        """
+        try:
+            template = get_internal_readme(lang)  # type: ignore[arg-type]
+        except ValueError:
+            template = get_internal_readme("zh")
+
+        from fcop import __version__ as _fcop_version
+
+        content = template.format(
+            fcop_version=_fcop_version,
+            deployed_at=_now_iso(),
+        )
+
+        internal_dir = self._workspace_root / "internal"
+        internal_dir.mkdir(parents=True, exist_ok=True)
+        readme = internal_dir / "README.md"
+        if readme.exists() and not force:
+            return
+        if readme.exists() and force:
+            self._archive_one_file(readme, sub="internal")
+        readme.write_text(content, encoding="utf-8", newline="\n")
 
     def _archive_one_file(
         self, path: pathlib.Path, *, sub: str
@@ -1362,17 +1434,26 @@ class Project:
             all_violations.extend(self._scan_misplaced_envelopes())
             all_violations.extend(self._scan_legacy_role_docs())
             all_violations.extend(self._scan_legacy_manifests())
+        # Rule 4.6 (ADR-0034) — opt-in internal-only declaration audit.
+        # Runs in every scope: the scan returns [] when the bucket is absent,
+        # so it's effectively no-op for projects that haven't opted in.
+        # P3 only, never blocks (see overall_status logic below).
+        all_violations.extend(self._scan_internal_only_declarations())
 
         # Re-number violation IDs sequentially per severity
         all_violations = _renumber_violations(all_violations)
 
-        # Determine overall status
+        # Determine overall status.
+        # P3 (suggestion) violations *never* move the status off ``green`` —
+        # they are non-blocking soft-convention nudges (Rule 4.6 + ADR-0034).
         has_p0 = any(v.severity == "P0" for v in all_violations)
-        has_any = bool(all_violations)
+        has_p1_or_p2 = any(
+            v.severity in ("P1", "P2") for v in all_violations
+        )
         overall: OverallStatus
         if has_p0:
             overall = "blocked"
-        elif has_any:
+        elif has_p1_or_p2:
             overall = "needs_remediation"
         else:
             overall = "green"
@@ -1566,7 +1647,19 @@ class Project:
         )]
 
     def _scan_misplaced_envelopes(self) -> list[Violation]:
-        """Detect envelope files whose physical path contradicts their kind: frontmatter."""
+        """Detect envelope files whose physical path contradicts their kind: frontmatter.
+
+        **Exempt paths** (per ISSUE-20260513-008, fcop 2.0.0):
+
+        - ``fcop/log/**``                    — archived envelopes (legitimate)
+        - ``fcop/**/_archive/**``            — team-local archives (Rule 2 soft layout)
+        - ``fcop/**/legacy-non-protocol/**`` — pre-FCoP imports (kept for forensics)
+        - ``fcop/.git/**`` / ``fcop/.tmp/**`` — VCS / scratch (always skipped)
+
+        Files under these paths are skipped because their kind: frontmatter
+        is a *historical* claim, not a *current* routing key — they shouldn't
+        be physically in tasks/reports/issues/reviews dirs.
+        """
         from fcop.inspection import RemediationStep, Violation
 
         bucket_map = {
@@ -1581,6 +1674,8 @@ class Project:
 
         misplaced: list[str] = []
         for md in fcop_root.rglob("*.md"):
+            if _is_audit_exempt_path(md, fcop_root):
+                continue
             try:
                 text = md.read_text(encoding="utf-8", errors="ignore")
                 fm = _extract_frontmatter_kind(text)
@@ -1706,7 +1801,13 @@ class Project:
         )]
 
     def _scan_ghost_prefixes(self) -> list[Violation]:
-        """Detect stale ghost-prefix files (DRAFT-/HANDOFF-/AMEND-/*-v2.md)."""
+        """Detect stale ghost-prefix files (DRAFT-/HANDOFF-/AMEND-/*-v2.md).
+
+        Honours the same exempt-path list as :meth:`_scan_misplaced_envelopes`
+        (per ISSUE-20260513-008): an ``AMEND-*.md`` that lives under
+        ``fcop/log/`` or ``_archive/`` was already legitimately archived
+        and shouldn't re-trigger as a ghost.
+        """
         from fcop.inspection import RemediationStep, Violation
 
         fcop_root = self._path / "fcop"
@@ -1715,17 +1816,15 @@ class Project:
 
         ghost_patterns = ["DRAFT-*.md", "HANDOFF-*.md", "AMEND-*.md"]
         version_pattern = "*-v[0-9]*.md"
-        found: list[str] = []
+        found_paths: list[pathlib.Path] = []
         for pat in ghost_patterns:
-            found.extend(
-                str(f.relative_to(self._path))
-                for f in fcop_root.rglob(pat)
-            )
-        found.extend(
-            str(f.relative_to(self._path))
-            for f in fcop_root.rglob(version_pattern)
-        )
-        found = sorted(set(found))
+            found_paths.extend(fcop_root.rglob(pat))
+        found_paths.extend(fcop_root.rglob(version_pattern))
+        found = sorted({
+            str(p.relative_to(self._path))
+            for p in found_paths
+            if not _is_audit_exempt_path(p, fcop_root)
+        })
         if not found:
             return []
 
@@ -1834,6 +1933,98 @@ class Project:
                         estimated_minutes=5,
                         tier=2,
                         rollback="git revert HEAD  # 如部署结果有问题",
+                    )
+                ],
+            )
+        ]
+
+    def _scan_internal_only_declarations(self) -> list[Violation]:
+        """Detect ``fcop/internal/*.md`` files missing the ``internal-only`` declaration.
+
+        Per Rule 4.6 (FCoP rules 3.0.0+) every ``.md`` file under the
+        opt-in internal-archive bucket ``fcop/internal/`` *should* carry
+        a bilingual declaration block right after the YAML frontmatter,
+        plus an ``internal_only: true`` flag in the frontmatter itself.
+
+        This is a **soft convention** (Rule 4.6 is non-mandatory): any
+        finding here is reported as :pyattr:`Violation.severity == "P3"`
+        and never moves :pyattr:`InspectionReport.overall_status` off
+        ``green``. The remediation is a manual edit suggestion only.
+
+        Detection rule (per ADR-0034 §4.3):
+
+        - File MUST contain ``internal_only: true`` in the YAML
+          frontmatter, *or* the literal string ``INTERNAL ONLY`` in the
+          first 30 non-blank lines after the frontmatter (case-sensitive
+          banner).
+        - Files matching neither are flagged P3.
+
+        Returns an empty list when the bucket does not exist (the
+        bucket is opt-in, deployed only via
+        ``Project.init(deploy_internal_template=True)``).
+        """
+        from fcop.inspection import RemediationStep, Violation
+
+        internal_dir = self._path / "fcop" / "internal"
+        if not internal_dir.exists() or not internal_dir.is_dir():
+            return []
+
+        offenders: list[str] = []
+        for md in sorted(internal_dir.rglob("*.md")):
+            try:
+                text = md.read_text(encoding="utf-8", errors="ignore")
+            except Exception:
+                continue
+            # Quick frontmatter check: look for `internal_only: true` (any case-insensitive variant)
+            head = text[:4096]
+            has_flag = (
+                "internal_only: true" in head
+                or "internal_only: True" in head
+                or "internal_only: TRUE" in head
+            )
+            has_banner = "INTERNAL ONLY" in head
+            if has_flag or has_banner:
+                continue
+            offenders.append(str(md.relative_to(self._path)).replace("\\", "/"))
+
+        if not offenders:
+            return []
+
+        return [
+            Violation(
+                violation_id="P3-000",
+                severity="P3",
+                rule_violated="Rule 4.6 (internal-only 声明缺失，soft convention)",
+                summary=(
+                    f"{len(offenders)} 份 fcop/internal/ 下的 .md 文件未携带 "
+                    "internal-only 声明（frontmatter `internal_only: true` "
+                    "或正文 `INTERNAL ONLY` 警告块）"
+                ),
+                evidence=offenders[:20],
+                impact=(
+                    "建议而非强制：缺失声明不会阻塞写入，但人工读盘 / "
+                    "外发审阅时容易把内部档案当外发文档误传。"
+                    "推荐补齐以让 Rule 4.6 内外档案体系生效。"
+                ),
+                scan_source="_scan_internal_only_declarations",
+                remediation=[
+                    RemediationStep(
+                        action=(
+                            "为每份 fcop/internal/ 下的 .md 文件补齐双语 "
+                            "internal-only 声明（参考 fcop/internal/README.md）"
+                        ),
+                        command=(
+                            "# 在每份文件的 frontmatter 末尾加 internal_only: true，"
+                            "并在 frontmatter 之后插入 INTERNAL ONLY 警告块"
+                        ),
+                        command_unix=(
+                            "# 模板见 fcop/internal/README.md（"
+                            "Project.init(deploy_internal_template=True) 自动落盘）"
+                        ),
+                        executor="PM",
+                        estimated_minutes=2,
+                        tier=3,
+                        rollback="git revert HEAD",
                     )
                 ],
             )
@@ -5327,15 +5518,74 @@ def _extract_frontmatter_kind(text: str) -> str | None:
     return None
 
 
+_AUDIT_EXEMPT_DIR_NAMES: frozenset[str] = frozenset({
+    "log",
+    "_archive",
+    "legacy-non-protocol",
+    ".git",
+    ".tmp",
+})
+"""Directory names that, anywhere under ``fcop/``, exempt their contents
+from envelope/ghost-prefix scans.
+
+Rationale (ISSUE-20260513-008, fcop 2.0.0): files under these directories
+are archived / VCS metadata / pre-FCoP imports; their physical location
+shouldn't be judged by their historical ``kind:`` frontmatter.
+"""
+
+
+def _is_audit_exempt_path(p: pathlib.Path, fcop_root: pathlib.Path) -> bool:
+    """Return True if *p* lies under any audit-exempt directory inside ``fcop/``.
+
+    Walks the relative path components from ``fcop/`` downward. A single match
+    of any name in :data:`_AUDIT_EXEMPT_DIR_NAMES` exempts the file (e.g.
+    ``fcop/log/tasks/TASK-old.md`` and ``fcop/dev-team/_archive/REPORT-1.md``
+    both match).
+    """
+    try:
+        rel = p.relative_to(fcop_root)
+    except ValueError:
+        return False
+    return any(part in _AUDIT_EXEMPT_DIR_NAMES for part in rel.parts)
+
+
 def _read_local_rules_version(project_root: pathlib.Path) -> str | None:
-    """Read the rules version from the deployed .cursor/rules/fcop-rules.mdc."""
+    """Read the rules version from the deployed ``.cursor/rules/fcop-rules.mdc``.
+
+    Resolution order (per ISSUE-20260513-009 / fcop 2.0.0):
+
+    1. **Primary** — YAML frontmatter field ``fcop_rules_version:`` at the
+       top of the file. This is the canonical machine-readable channel
+       deployed by ``deploy_protocol_rules()`` since fcop 2.0.0.
+    2. **Fallback** — legacy in-body sentinel ``> Rules version: `X.Y.Z```
+       used in pre-2.0.0 deployments. Retained for backward compatibility
+       with projects that have not yet redeployed rules.
+
+    Returns ``None`` only when both channels are missing (rare; would mean
+    a hand-edited or truncated rules file).
+    """
+    import re
+
     rules_path = project_root / ".cursor" / "rules" / "fcop-rules.mdc"
     if not rules_path.exists():
         return None
-    for line in rules_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+    text = rules_path.read_text(encoding="utf-8", errors="ignore")
+
+    # Primary: frontmatter field (canonical since fcop 2.0.0).
+    if text.startswith("---"):
+        end = text.find("\n---", 3)
+        if end != -1:
+            fm_block = text[3:end]
+            for raw in fm_block.splitlines():
+                line = raw.strip()
+                if line.startswith("fcop_rules_version:"):
+                    value = line.split(":", 1)[1].strip().strip('"').strip("'")
+                    if value:
+                        return value
+
+    # Fallback: legacy in-body sentinel.
+    for line in text.splitlines():
         if "Rules version:" in line:
-            # e.g. "> Rules version: `2.2.0` · ..."
-            import re
             m = re.search(r"`([^`]+)`", line)
             if m:
                 return m.group(1)
@@ -5343,10 +5593,10 @@ def _read_local_rules_version(project_root: pathlib.Path) -> str | None:
 
 
 def _renumber_violations(violations: list[Violation]) -> list[Violation]:
-    """Assign sequential violation_ids like P0-001, P1-001, P2-001."""
+    """Assign sequential violation_ids like P0-001, P1-001, P2-001, P3-001."""
     from fcop.inspection import Violation
 
-    counters: dict[str, int] = {"P0": 0, "P1": 0, "P2": 0}
+    counters: dict[str, int] = {"P0": 0, "P1": 0, "P2": 0, "P3": 0}
     renumbered: list[Violation] = []
     for v in violations:
         counters[v.severity] += 1

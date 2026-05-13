@@ -197,3 +197,25 @@ supersedes:
 
 `list_tasks` / `list_reports` will automatically annotate both directions:
 `[supersedes X]` and `[superseded by X]`.
+
+### Rule 4.6 and the Evolution Loop (v2.0)
+
+fcop 2.0.0 is a **philosophical major** — existing envelope shapes and
+frontmatter fields are unchanged; 1.x projects keep working. Two new
+ideas:
+
+- **Rule 4.6 · Internal vs External Documents**: the `fcop/internal/`
+  bucket holds team-internal records (unreleased design drafts, private
+  data, etc.); external docs live under `docs/` and `essays/`. Internal
+  `.md` files **should** declare `internal_only: true` in frontmatter
+  *or* carry an "INTERNAL ONLY" warning block — `fcop_audit` reports a
+  missing declaration as **P3 suggestion** (never blocks, never moves
+  status off green).
+- **Seven Core Concepts + Evolution Loop**: FCoP now describes its own
+  evolution as a 7-node closed loop (emergence → escalation → consensus
+  → protocol → tooling → cross-project reuse → next emergence). Leaders
+  can use this loop as a retrospective checklist.
+
+Full spec: `.cursor/rules/fcop-rules.mdc` Rule 4.6 + "Seven Core
+Concepts" section, `fcop-protocol.mdc` "Two-Diagram Duality" + "Rule 4.6
+commentary".

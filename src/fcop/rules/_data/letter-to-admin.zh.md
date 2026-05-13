@@ -6,7 +6,22 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
-> **v1.6.0 摘要**（当前版本，2026-05-12）：
+> **v2.0.0 摘要**（当前版本，2026-05-13）：
+> - **"两图对偶"纪元**：`2.0.0` 是 *philosophical* major release。1.x
+>   的全部 API 继续工作（per ADR-0003 附加性扩展），主版本号跨越的
+>   原因是协议哲学的固化——FCoP 现在同时承认**两张图**：
+>   *执行哲学的五层栈*（v1.x 已稳定）与 *FCoP Semantic Evolution
+>   Loop*（v2.0 新固化的 7 节点演化闭环）。完整阐释见
+>   `fcop-rules.mdc` 七大核心概念末尾 / `fcop-protocol.mdc`
+>   `## Two-Diagram Duality` 节。
+> - **Rule 4.6 · 内 / 外档案体系**：新增 `fcop/internal/`（opt-in 桶，
+>   团队内部决策草稿 / 日志 / 复盘）和 `docs/` + `essays/`（已有惯例，
+>   面向外部受众的发布物）的 soft convention。内部文档顶部带一段
+>   `internal-only` 声明（v1 语法，由 `fcop_audit` P3 建议级巡查），
+>   `fcop_audit` 用 P3（建议、*不阻塞*）报告缺失。
+> - **`Project.init(deploy_internal_template=...)` opt-in**：新建项目
+>   想用 `fcop/internal/` 桶就开这个参数，默认 *不* 部署，向后兼容。
+>   新公开符号 `fcop.rules.get_internal_readme(lang)`。
 > - **三种起手方式**：`init_solo`（Solo 单 Agent）/ `init_project`（预设团队）/
 >   `init_custom`（自定义）。必须由 ADMIN 明确选，Agent 不允许替你默认。
 > - **协议体检**：装上 fcop 后，先跑
@@ -14,6 +29,10 @@
 >   （新项目）——生成 INSPECTION 报告，列出协议合规缺口和建议整改步骤。
 >   接手陌生项目时，这是**第一动作**。升级后跑 `fcop_audit(scope="upgrade")`
 >   检测角色文档版本滞后（RULE_DOC_DRIFT）。
+> - **`fcop_audit` 桶豁免（v2.0 修复）**：扫描自动跳过 `fcop/log/`、
+>   `fcop/**/_archive/`、`**/legacy-non-protocol/` —— 归档桶不再被
+>   误报 `P1-002 misplaced_envelope`。报告新增 `violation_file_count`
+>   字段（distinct file count）。
 > - **治理告警（GAL）**：`fcop_list_alerts()` 查看治理告警收件箱；
 >   `fcop_create_alert()` 手动归档缺口。告警不阻塞操作，只通知你。
 > - **风险管理**（v1.1 起）：高风险任务用
@@ -30,7 +49,7 @@
 >   `-{slug}` 段（如 `TASK-20260512-025-PM-to-OPS-phase-a-fix.md`）。
 >   slug 不参与路由，只是人类可读标签；旧文件名继续合法。
 > - **MCP 工具总数**：35 个（v1.5.0 起未变）。完整清单见 `docs/mcp-tools.md`。
-> - **规则版本**：`fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.4.0`。
+> - **规则版本**：`fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`。
 >   升级后跑 `redeploy_rules()` 刷新本地四件套规则文件。
 >
 > _(历史摘要：v1.3 / v1.4 / v1.5 及更早版本的变更见 `CHANGELOG.md`)_

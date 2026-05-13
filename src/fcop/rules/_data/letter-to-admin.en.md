@@ -6,7 +6,26 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **v1.6.0 summary** (current, 2026-05-12):
+> **v2.0.0 summary** (current, 2026-05-13):
+> - **"Two-diagram era"**: `2.0.0` is a *philosophical* major release.
+>   All v1.x public APIs keep working (per ADR-0003 additive expansion);
+>   the major bump records that FCoP now formally acknowledges **two**
+>   defining diagrams: the *execution stack* (5-layer vertical, stable
+>   since v1.x) and the *FCoP Semantic Evolution Loop* (7-node closed
+>   loop, newly canonicalised in v2.0). Full explainer:
+>   `fcop-rules.mdc` end of the "Seven Core Concepts" section /
+>   `fcop-protocol.mdc` `## Two-Diagram Duality` section.
+> - **Rule 4.6 · Internal vs external archives**: new soft convention
+>   for `fcop/internal/` (opt-in bucket for team-internal decision
+>   drafts / logs / retros) versus `docs/` + `essays/` (existing
+>   convention for external-facing publications). Internal docs carry
+>   an `internal-only` declaration block at the top (v1 syntax); the
+>   missing-declaration check runs as a P3 (suggestion) audit
+>   violation — **non-blocking**, advisory only.
+> - **`Project.init(deploy_internal_template=...)` opt-in**: new
+>   parameter to seed the `fcop/internal/` bucket; defaults to *off*
+>   (backward-compatible). New public symbol
+>   `fcop.rules.get_internal_readme(lang)`.
 > - **Three onboarding modes** — `init_solo` (Solo) / `init_project`
 >   (preset team) / `init_custom` (custom). ADMIN must choose explicitly;
 >   agents may not default.
@@ -17,6 +36,11 @@ you and an AI team collaborate through **files**. Your one job:
 >   steps. For unfamiliar projects, **this is your first move**. After
 >   upgrading, run `fcop_audit(scope="upgrade")` to detect role documents
 >   lagging the installed version (RULE_DOC_DRIFT).
+> - **`fcop_audit` bucket exemption (v2.0 fix)**: scans now skip
+>   `fcop/log/`, `fcop/**/_archive/`, and `**/legacy-non-protocol/` —
+>   archive buckets no longer trigger spurious `P1-002
+>   misplaced_envelope` violations. Reports also carry a new
+>   `violation_file_count` (distinct file count) field.
 > - **Governance alerts — GAL**: `fcop_list_alerts()` checks the alert
 >   inbox; `fcop_create_alert()` archives a gap manually.
 >   Alerts notify, they do not block.
@@ -39,7 +63,7 @@ you and an AI team collaborate through **files**. Your one job:
 >   valid.
 > - **MCP tool count**: 35 (unchanged since v1.5.0). Full list:
 >   `docs/mcp-tools.md`.
-> - **Rule versions**: `fcop-rules.mdc 2.4.0` / `fcop-protocol.mdc 2.4.0`.
+> - **Rule versions**: `fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`.
 >   Run `redeploy_rules()` after upgrading to refresh the four local rule
 >   files.
 >

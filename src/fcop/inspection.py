@@ -1,4 +1,4 @@
-"""Inspection data classes for fcop_audit() — ADR-0032.
+"""Inspection data classes for fcop_audit() — ADR-0032 (extended by ADR-0034).
 
 Three core types:
 
@@ -7,7 +7,16 @@ Three core types:
 - :class:`InspectionReport` — the full audit output (= inspection + plan).
 
 The rendered Markdown follows the L3 format defined in ADR-0032 §6:
-  frontmatter → summary → P0/P1/P2 violations → Execution Block → re-check tip.
+  frontmatter → summary → P0/P1/P2/P3 violations → Execution Block → re-check tip.
+
+Severity scale (ADR-0032 + ADR-0034 §audit):
+
+- ``P0`` — *blocking*; must be fixed before any further protocol writes.
+- ``P1`` — *normative*; should be fixed within the current sprint.
+- ``P2`` — *cosmetic*; future cleanup, no operational impact.
+- ``P3`` — *suggestion*; never blocks, never moves ``overall_status``
+  off ``green``. Used for non-mandatory soft conventions (e.g.
+  Rule 4.6 ``internal-only`` declaration).
 """
 
 from __future__ import annotations
@@ -27,7 +36,7 @@ __all__ = [
     "OverallStatus",
 ]
 
-ViolationSeverity = Literal["P0", "P1", "P2"]
+ViolationSeverity = Literal["P0", "P1", "P2", "P3"]
 InspectionScope = Literal["new", "upgrade", "takeover"]
 OverallStatus = Literal["green", "needs_remediation", "blocked"]
 
@@ -62,8 +71,10 @@ class Violation:
     """One protocol compliance finding.
 
     Attributes:
-        violation_id:   Sequential ID like "P0-001", "P1-003".
-        severity:       P0 = blocking / P1 = normative / P2 = cosmetic.
+        violation_id:   Sequential ID like "P0-001", "P1-003", "P3-001".
+        severity:       P0 = blocking / P1 = normative / P2 = cosmetic /
+                        P3 = suggestion (never blocks, never moves
+                        ``overall_status`` off ``green``).
         rule_violated:  Short rule reference, e.g. "Rule 2 (桶错位)".
         summary:        One sentence description.
         evidence:       List of file paths / counts that prove the violation.
@@ -104,12 +115,25 @@ class InspectionReport:
     p0_count: int = field(init=False, default=0)
     p1_count: int = field(init=False, default=0)
     p2_count: int = field(init=False, default=0)
+    p3_count: int = field(init=False, default=0)
+    violation_file_count: int = field(init=False, default=0)
     estimated_total_minutes: int = field(init=False, default=0)
 
     def __post_init__(self) -> None:
         self.p0_count = sum(1 for v in self.violations if v.severity == "P0")
         self.p1_count = sum(1 for v in self.violations if v.severity == "P1")
         self.p2_count = sum(1 for v in self.violations if v.severity == "P2")
+        self.p3_count = sum(1 for v in self.violations if v.severity == "P3")
+        # Distinct file path count across all violations' evidence (fcop 2.0.0,
+        # ISSUE-20260513-008 §sub-case-4). Lets dashboards distinguish "one
+        # violation pointing at 1 file" from "one violation pointing at 47
+        # files" without parsing the evidence list themselves.
+        seen_files: set[str] = set()
+        for v in self.violations:
+            for ev in v.evidence:
+                if isinstance(ev, str) and ev:
+                    seen_files.add(ev)
+        self.violation_file_count = len(seen_files)
         self.estimated_total_minutes = sum(
             s.estimated_minutes
             for v in self.violations
@@ -145,6 +169,8 @@ class InspectionReport:
         parts.append(f"p0_violations: {self.p0_count}")
         parts.append(f"p1_violations: {self.p1_count}")
         parts.append(f"p2_violations: {self.p2_count}")
+        parts.append(f"p3_violations: {self.p3_count}")
+        parts.append(f"violation_file_count: {self.violation_file_count}")
         parts.append(f"estimated_total_minutes: {self.estimated_total_minutes}")
         parts.append("---")
         parts.append("")
@@ -163,6 +189,7 @@ class InspectionReport:
             f"- **违规分档**: P0 阻塞性 {self.p0_count} 项"
             f" / P1 规范性 {self.p1_count} 项"
             f" / P2 整洁性 {self.p2_count} 项"
+            f" / P3 建议 {self.p3_count} 项"
         )
         if self.estimated_total_minutes:
             parts.append(
@@ -187,6 +214,7 @@ class InspectionReport:
                 ("P0", "P0 · 阻塞性违规（必须先修）"),
                 ("P1", "P1 · 规范性违规（本 sprint 内修）"),
                 ("P2", "P2 · 整洁性违规（后续清理）"),
+                ("P3", "P3 · 建议（soft convention，never blocks）"),
             ]:
                 group = [v for v in self.violations if v.severity == severity]
                 if not group:
@@ -229,6 +257,8 @@ class InspectionReport:
             "p0_violations": self.p0_count,
             "p1_violations": self.p1_count,
             "p2_violations": self.p2_count,
+            "p3_violations": self.p3_count,
+            "violation_file_count": self.violation_file_count,
             "estimated_total_minutes": self.estimated_total_minutes,
             "violations": [
                 {
