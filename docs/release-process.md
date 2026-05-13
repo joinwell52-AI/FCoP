@@ -94,6 +94,12 @@ MAJOR.MINOR.PATCH[rcN|devN]
 > "**FCoP 短期内会有很多发版,各处文档一定要同步;发版前不要遗漏,
 > 因为 PyPI 不能补发**。"
 
+> **完整文件分类清单见 [`fcop/shared/RULES-release-file-inventory.md`](../fcop/shared/RULES-release-file-inventory.md)**
+> (12 类别 A–L,每类 6 字段:文件枚举 / 改动义务 / 锁版风险 / SOP 对应行)。
+> 本节(§C)是 SOP 的执行 checklist,inventory 是文件分类的权威源,两份
+> 在"SOP 对应行"字段双向锚定,避免漂移。发版的 agent 建议**先读 inventory
+> 第 3 节速查矩阵**,定位本次发版要动哪几类,再回头跑本节 checklist。
+
 下面分 3 段:**C.1 公网可见类**(读者最多,且 PyPI 锁版的 `mcp/README.md`
 在这段)、**C.2 agent 部署后会读到类**、**C.3 hardcoded 断言 + ADR 状态**。
 
@@ -133,11 +139,18 @@ MAJOR.MINOR.PATCH[rcN|devN]
 
 #### C.3 · Hardcoded 断言 + ADR 状态(测试和 server 写死的字符串)
 
-- [ ] **3 处 hardcoded 字符串测试断言**(若改版本号必同步):
-   - `tests/test_fcop/test_rules.py` 里 `assert "vX.Y.Z 摘要" in intro` 一行
-   - `tests/test_fcop_mcp/test_server.py` 里若有 `"vX.Y.Z 摘要"` 断言
-   - `mcp/src/fcop_mcp/server.py` 里若 `init_*` 工具回执的 prompt 里写死
-     了 "尤其是 vX.Y.Z 摘要那一段)"
+> 精确位置见 Inventory §F(2026-05-13 现场核对版本,改行号请同步两份)。
+> 历版 SOP 写"若有"含糊,本节按精确行号列出——发版改版本号时**5 处全
+> 改**,任何一处漏 = 测试红 / init_* 工具 prompt 指错段落。
+
+- [ ] **5 处 hardcoded 字符串**(若改版本号必同步,精确到行号):
+   - `tests/test_fcop/test_rules.py:104` — `assert "vX.Y.Z 摘要" in intro`(1 处)
+   - `tests/test_fcop_mcp/test_server.py:163` — `assert "vX.Y.Z 摘要" in out`
+   - `tests/test_fcop_mcp/test_server.py:182` — `assert "vX.Y.Z 摘要" in out`
+   - `tests/test_fcop_mcp/test_server.py:196` — `assert "vX.Y.Z 摘要" in out`
+   - `mcp/src/fcop_mcp/server.py:779` — `init_*` 工具回执 prompt:
+     `"尤其是 vX.Y.Z 摘要那一段)"`(全文件唯一一处版本号硬编码,其他
+     版本字段都从 `_version.py` 动态读)
 - [ ] `docs/MIGRATION-*.md` 若本版本影响某段迁移指引,在"版本差异"加一行
 - [ ] 每份 ADR `Status: Accepted`(不能带着 `Proposed` 的 ADR 发版)
 
@@ -224,15 +237,32 @@ rg -e '^## \[1\.7\.0\] - 20\d\d-\d\d-\d\d' CHANGELOG.md
 # 5) ADR 状态扫描(不能带着 Proposed ADR 发版)
 rg -e '^Status: Proposed' adr/
 # 命中 = 立即修;0 命中 = 通过
+
+# 6) backup remote 仍配置(自 v2.0.0 起,"一条龙发版+备份"硬约束)
+git remote -v | Select-String '^backup\s'
+# 命中 2 行 (fetch/push) = OK
+# 0 命中 = 立即修:git remote add backup https://github.com/joinwell52-AI/FCoP-backup.git
 ```
 
-**5 条全 0 hit(除 #4 必须 1 hit、#1 在 CHANGELOG 命中可忽略)= 文档同步
-通过**,进 §Release Steps。任何命中按 §C 对应小段回头修,然后**重新跑一遍
-§G**——这条 loop 是发版前的最后一道闸门,不允许跳过。
+**6 条全部通过的判定**:
+- #1 / #2 / #5 = 0 hit(除 CHANGELOG 历史段命中可忽略)
+- #3 = 打印 `versions aligned: X.Y.Z`
+- #4 = 1 hit(本版块)
+- #6 = 2 hit(`fetch` + `push` 各一行)
 
-> ADMIN 红线:**FCoP 短期内会有很多发版,各处文档一定要同步;发版前不要
-> 遗漏,因为 PyPI 不能补发**(REPORT-20260513-011 反思 + 2026-05-13 21:55
-> ADMIN 直话)。本节就是这条红线的可执行入口。
+全部通过 = 文档同步 + 备份链路就位,进 §Release Steps。任何不通过按
+§C 对应小段回头修,然后**重新跑一遍 §G**——这条 loop 是发版前的最后
+一道闸门,不允许跳过。
+
+> ADMIN 红线 1:**FCoP 短期内会有很多发版,各处文档一定要同步;发版前
+> 不要遗漏,因为 PyPI 不能补发**(REPORT-20260513-011 反思 + 2026-05-13
+> 21:55 ADMIN 直话)。
+>
+> ADMIN 红线 2:**一条龙发版+备份**(REPORT-20260513-013 + 2026-05-13
+> 22:28 ADMIN 直话)。
+>
+> 本节(§G)管"发版前文档完整性 + 备份链路存在性",§阶段 4.5 管"发版后
+> backup remote 实际同步",两节一前一后把红线钉住。
 
 ---
 
@@ -357,7 +387,61 @@ $env:PYTHONPATH = ""
       去,不该入库的就让它继续 untracked
 - [ ] `git commit -F .scratch\_release_*_closure_msg.txt`
 - [ ] `git push origin main`
+- [ ] **进 §阶段 4.5 同步 backup remote** ↓(发版"一条龙"未完,不允许跳过)
 - [ ] 至此 Rule 0.a.1 四步全闭环
+
+### 阶段 4.5:备份镜像同步 / Backup Mirror Sync — 一条龙最后一里
+
+> 自 v2.0.0(2026-05-13)起,本仓有二级镜像 `joinwell52-AI/FCoP-backup`
+> (private,Git remote name `backup`)。**发版"一条龙"的最后一步必须是
+> 把 origin 的 `main` + 新 tag 推到 backup**——任何漏了本段的发版都算
+> 未完成。源自 ADMIN 红线"**一条龙发版+备份**"(2026-05-13 22:28 +08:00,
+> 见 `fcop/log/reports/REPORT-20260513-013-*.md`)。
+
+```powershell
+# 0. 验证 backup remote 仍配置(零成本前置检查)
+git remote -v | Select-String '^backup\s'
+# 期望两行:backup<TAB>https://github.com/joinwell52-AI/FCoP-backup.git (fetch/push)
+
+# 1. append-only 同步 main(刻意不用 --mirror,见下方"为什么不 --mirror")
+git push backup main
+# 期望:Everything up-to-date  或  X commits pushed
+
+# 2. 同步 tags(只推新增,已存在的 tag 跳过)
+git push backup --tags
+# 期望:* [new tag]   vX.Y.Z -> vX.Y.Z
+
+# 3. 验证 backup 上新 tag 已就位(与 origin 字节一致)
+$tag = 'v1.7.0'    # ← 替换成本次发版号
+$originSha = gh api "repos/joinwell52-AI/FCoP/git/refs/tags/$tag" | ConvertFrom-Json | ForEach-Object { $_.object.sha }
+$backupSha = gh api "repos/joinwell52-AI/FCoP-backup/git/refs/tags/$tag" | ConvertFrom-Json | ForEach-Object { $_.object.sha }
+if ($originSha -eq $backupSha) { Write-Host "✅ backup tag $tag aligned: $originSha" }
+else { Write-Host "❌ DRIFT: origin=$originSha backup=$backupSha"; exit 1 }
+```
+
+**为什么不用 `git push backup --mirror`(防"反备份")**:
+
+| 命令 | 行为 | 风险 |
+|---|---|---|
+| `git push backup --mirror` | 字节同步(含强制覆盖) | origin 被恶意 force push → backup 把破坏同步过去 = **反备份** |
+| `git push backup main` + `--tags` | append-only,非 force | origin 被 force push → backup push **失败** = 警报触发,备份保住 ✅ |
+
+备份层的核心价值是**抗 force push**,值得为它放弃 mirror 的极简。首次
+mirror 已经完成(2026-05-13 全部 21 tags + 2 branches 字节级一致),之
+后**只 append-only 推**。
+
+**Rule 7 联动**:若某次发版后发现需要 `git push --force` 修 origin
+(如误推敏感数据需要重写历史)—— backup 端**必须先单独评估**是否一同
+force(可能等同放弃备份保护),按 Rule 7 走"高危 + 不可回滚"流程,
+不允许"顺手把 backup 也 force 一下"。
+
+### 阶段 4.5 checklist
+
+- [ ] `git remote -v` 含 `^backup\s` 行
+- [ ] `git push backup main` 成功(非 force)
+- [ ] `git push backup --tags` 成功
+- [ ] origin tag SHA 与 backup tag SHA byte-for-byte 一致
+- [ ] 至此"一条龙发版+备份"真正闭环
 
 ---
 
