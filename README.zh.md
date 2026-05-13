@@ -106,6 +106,8 @@ v1.0 将七大核心概念——**Agent、Encoding、IPC、Event、Failure、Bou
 | 09 | **当 validator 撞向自己的镜像** | [GitHub 中文](essays/gate-design-pitfalls-case-studies.md) | 从 codeflow OPS I-14 看 validator-validates-itself 反模式：GATE 在检查 staged diff 时命中了 GATE 描述本身，几分钟后被 OPS 自纠——这一类陷阱的系统性解剖与"语义化实证"根治姿势，以及它如何成为 `fcop-protocol.mdc §GATE Design Pitfalls` 的源头案例。 |
 | 10 | **一行 frontmatter 的旅程** | [GitHub 中文](essays/the-supersedes-field-story.md) | `supersedes:` 字段从一次协议两难现场发明到 `ipc-envelope.schema.json` 正式字段的两小时旅程：Rule 5（append-only）+ Rule 6（reciprocity）+ Rule 0.c（truthful）三条规则同时成立时，agent 用一行 YAML 自己解了困局——这条路径展示 FCoP 涌现落地的最低成本姿势。 |
 | 11 | **看，但不动手** | [GitHub 中文](essays/looking-without-touching.md) | FCoP 三层语义执行链科普：`fcop_audit()` 为什么"只看不改"——L1 检测 / L2 解释 / L3 文档三层把"看见"和"动手"切开，产出 `INSPECTION.md`（建议非命令），执行权留给人。`adr/FCoP-semantic-execution-chain.md` 的科普版。 |
+| 12 | **五大 AI 模型眼中的 FCoP** | [GitHub 中文](essays/what-five-ai-models-say-about-fcop.md) · [GitHub English](essays/what-five-ai-models-say-about-fcop.en.md) | 把 FCoP 核心文档喂给 ChatGPT / Claude / DeepSeek / Grok / 豆包，只问一个问题："你是 agent，你怎么看这套协议？"——五种截然不同的内部视角（ChatGPT 谈身份合法性、Claude 谈诚实边界、DeepSeek 谈体面生存、Grok 做技术评审、豆包讲设计哲学），以及它们之间最有意思的分歧。 |
+| 13 | **演化，反向吸收** | [GitHub 中文](essays/evolution-reverse-absorption.md) | 协议哲学 2.0 视觉宣言：FCoP 从单张执行哲学图（"看，但不动手"）进入**两张图共同定义**时代——新增演化哲学图（7 步语义演化闭环）与配套 [ADR-0034](adr/ADR-0034-fcop-internal-external-document-convention.md)，把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。（English 翻译待出。） |
 > 欢迎提交新的现场报告。如果你在自己的项目里用了 FCoP，遇到了意外（好或坏），欢迎开 issue 或对 `essays/` 提 PR。协议是在现场报告里演进的，不是在委员会里。
 
 ## 仓库结构
