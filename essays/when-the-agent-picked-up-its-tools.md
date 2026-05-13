@@ -8,19 +8,28 @@ tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 
 # 当 Agent 第一次拿起工具
 
-**——tool_calls_count: 0 → 7 的那一刻**
+**——收到通知，自主交流，落地报告：第一次完整的闭环**
 
 ---
 
-## 一、那段时间发生了什么
+## 一、三个阶段，三种本质
 
-在过去相当长的一段时间里，CodeFlow 的 Agent pipeline 处于一种奇特的状态：
+在理解这次突破之前，需要先说清楚三个阶段的本质区别。
 
-一切看起来都是通的。
+**阶段一：OCR + CDP（被动扫描）**
 
-`InboxWatcher` 捡到任务文件，`TaskDispatcher` 解析、派发，`SessionManager`
-创建 session，`@cursor/sdk` 的 `agent.send()` 被调用，session 状态变成 `running`，
-然后变成 `completed`。整条链路的每一个节点都正常工作。
+FCoP 早期的多 agent 工作流，靠一个 Python 脚本驱动：
+它通过 **OCR + CDP**（Chrome DevTools Protocol）模拟人手点击 Cursor 的 UI，
+强制 agent "看到"新任务。每隔几秒巡逻一次，屏幕不能关，窗口不能遮。
+
+这是**被动扫描**。Agent 没有被通知，它只是被人强行推到任务面前。
+这不是交流，这是监控。是用锤子敲墙，期望里面的人能听见。
+
+**阶段二：SDK 管道通了，但 Agent 只会"聊天"**
+
+CodeFlow 用 **Cursor Agent SDK**（`@cursor/sdk`）替代了 OCR/CDP：
+`InboxWatcher` 监听文件落地，`agent.send()` 把任务真正发送给 agent。
+这是真实的通知，不再是扫描。
 
 但 session JSON 里有一行始终是：
 
@@ -28,23 +37,20 @@ tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 "tool_calls_count": 0
 ```
 
-Agent 什么也没有做。它收到了任务，"回答"了一句话，然后退出。
-没有文件被写。没有 report 被创建。没有任何 FCoP 协议要求的输出。
+Agent 收到了消息，"回答"了一句话，然后退出。没有文件被写，没有 report 被创建。
 
----
+原因：`MCPInjector` 处于 `mode="stub"` 状态，没有向 SDK 注入任何实际的 MCP 服务器。
+Agent 没有 `write_report`、`write_task` 这样的工具。没有工具，就没有行动，只有"聊天"。
 
-## 二、管道通了，但 Agent 是空手的
+这是**通知到位，但无法交流**。门铃响了，但 agent 两手空空只能说话。
 
-这不是 pipeline 的问题。pipeline 是对的。
+**阶段三：MCP 注入——第一次真正的交流**
 
-问题在于：Agent 根本没有工具。
+被动扫描 → 主动通知 → 主动通知 + 工具调用 + 落地文件。
 
-CodeFlow 的 `MCPInjector` 处于 `mode="stub"` 状态——它在日志里记录了"本来要挂载什么工具"，
-但没有向 Cursor SDK 注入任何实际的 MCP 服务器。Agent 拿到了任务，却没有
-`write_report`、`write_task` 这样的工具可以调用。一个没有工具的 Agent，
-面对一份 FCoP 任务，能做的只有"聊天"。
-
-这就是 `tool_calls_count: 0` 的真正原因：不是 Agent 不想做，而是它没有手。
+这才是完整的交流：agent **收到通知**，**拿起工具**，**写出 report**。
+`tool_calls_count: 0 → 7`，不只是一个数字的变化——
+是 agent 从"被推着走"到"自己动手"的质变。
 
 ---
 
@@ -196,22 +202,32 @@ YAML frontmatter 的每个字段（`report_id` / `from` / `to` / `re` / `status`
 
 ---
 
-## 七、从 plumbing demo 到可执行的协作系统
+## 七、第一次完整的闭环
 
 在 `tool_calls_count: 0` 的那段时间，CodeFlow 是一个 plumbing demo：
 管道是对的，水压是对的，但水龙头打开什么也流不出来。
 
-在 `tool_calls_count: 7` 之后，CodeFlow 是一个可执行的 AI 角色协作系统：
-PM 下任务，DEV 收到，调用工具，写出 report，回复 PM。
-FCoP 协议不再只是文件命名规范，而是真实发生在 Agent 行为里的约束。
+2026-05-13 14:55，这个闭环第一次完整地跑通了：
 
-下一步是多角色流转：PM 写 task → DEV 完成写 report → PM 汇报 ADMIN。
-每个角色各自运行，各自落文件，通过文件传递上下文，而不是共享内存。
+1. **收到通知**：`InboxWatcher` 监听到任务文件落地，真实的门铃响了——
+   不是 OCR 脚本模拟点击，而是文件系统事件驱动的原生通知。
 
-这正是 FCoP 从一开始就设想的样子：
-**AI 角色之间不能只在脑子里说话，必须落成文件。**
+2. **自主交流**：DEV-01 通过 Cursor Agent SDK 收到任务，读懂了 FCoP 协议的要求，
+   自主决策该做什么、该调用哪些工具——7 次 fcop-mcp 工具调用，55 秒。
 
-现在，Agent 终于开始这样做了。
+3. **落地报告**：`REPORT-20260513-014-DEV-to-PM-hello-world-smoke-task.md` 出现在
+   `fcop/reports/` 目录下。YAML 头完整，九步验证表完整，`status: DONE`。
+   这不是 AI 生成的文本，这是 Agent 通过协议规范、工具调用、自主写出的文件。
+
+这三件事加在一起，才是真正的突破。
+
+不是"agent 能运行了"，而是：
+**agent 被真实地通知，用协议语言真实地交流，把结果真实地写进了文件。**
+
+FCoP 协议从设计之初就坚持一条原则：
+*AI 角色之间不能只在脑子里说话，必须落成文件。*
+
+2026-05-13 14:55，Agent 第一次真正做到了这件事。
 
 ---
 
@@ -246,6 +262,35 @@ Colin 在那条回复里提到的三个函数，成了 CodeFlow 整条 pipeline 
 `InboxWatcher` 是门铃，`FCoP` 任务文件是邮件，`@cursor/sdk` 是邮差。
 
 从一个功能请求帖，到第一次 `tool_calls_count: 7`，大约过去了 18 天。
+
+---
+
+## 尾声：感谢 Cursor Agent SDK 的设计
+
+CodeFlow 能走到今天，Cursor Agent SDK 的架构设计是关键推手。值得单独说清楚。
+
+**长生命周期 agent**：`Agent.create()` 创建的 agent 不是一次性的。
+它保持上下文，跨多次 `.send()` 调用积累记忆。这对 FCoP 的角色模型至关重要——
+PM、DEV、QA、OPS 每个角色都需要跨任务保持身份和状态，而不是每次从零开始。
+
+**外部可恢复**：`Agent.resume(agentId)` 让外部脚本可以在任意时刻接入同一个 agent，
+继续未完成的对话。这正是 `InboxWatcher` 的工作方式——新任务来了，找到对应角色的 agent，
+继续派发，而不是重新创建一个失忆的新实例。
+
+**本地运行**：SDK 支持在本地工作区运行，不强制云端。
+FCoP 的文件协议天然是本地文件系统的——任务、报告、ISSUE 都是本地 Markdown 文件。
+本地运行的 SDK 与本地文件协议，是天然的配对。
+
+**`mcpServers` 注入**：`agent.send(text, { mcpServers: {...} })` 允许在每次调用时
+直接传入 MCP 服务器配置。这一个字段，解锁了 CodeFlow 的整个工具层——
+不需要独立的工具进程管理，每次 send 直接携带工具，干净、可控、无副作用。
+
+这些设计不是巧合。它们共同描述了一种对 agent 的根本理解：
+**agent 不是一次性函数，而是有身份、有记忆、可被外部协调的长期存在。**
+
+这和 FCoP 对 agent 角色的定义，几乎完全重合。
+
+感谢 Cursor 团队，感谢 Colin 的那条回复。
 
 ---
 

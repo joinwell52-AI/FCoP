@@ -12,16 +12,25 @@ tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 
 ---
 
-## I. What had been happening
+## I. Three stages — three fundamentally different things
 
-For quite a while, CodeFlow's Agent pipeline existed in a peculiar state:
+To understand this breakthrough, we need to be clear about three distinct stages.
 
-Everything looked like it was working.
+**Stage One: OCR + CDP (passive scanning)**
 
-`InboxWatcher` picked up task files. `TaskDispatcher` parsed and dispatched them.
-`SessionManager` created sessions. `@cursor/sdk`'s `agent.send()` was called.
-Session status changed to `running`, then to `completed`.
-Every node in the chain behaved correctly.
+FCoP's early multi-agent workflow ran on a Python script:
+it used **OCR + CDP** (Chrome DevTools Protocol) to simulate human clicks on the Cursor UI,
+forcing agents to "see" new tasks. It polled every few seconds.
+The screen had to stay on. The window couldn't be obscured.
+
+This was **passive scanning**. The agent wasn't notified — it was pushed in front of a task by brute force.
+This wasn't communication. It was surveillance. Hammering on the wall and hoping someone inside would hear.
+
+**Stage Two: The SDK pipe worked — but the agent could only "chat"**
+
+CodeFlow replaced OCR/CDP with the **Cursor Agent SDK** (`@cursor/sdk`):
+`InboxWatcher` watches for files landing, `agent.send()` delivers tasks directly to the agent.
+Real notification. No more scanning.
 
 But one line in every session JSON stayed the same:
 
@@ -29,24 +38,22 @@ But one line in every session JSON stayed the same:
 "tool_calls_count": 0
 ```
 
-The agent did nothing. It received the task, "replied" with something, and exited.
-No files were written. No reports were created. None of the outputs the FCoP protocol required.
+The agent received the message, "replied" with something, and exited.
+No files written. No reports created.
 
----
+The reason: `MCPInjector` was in `mode="stub"` — no actual MCP server was injected into the SDK.
+The agent had no `write_report`, no `write_task`. No tools means no action. Only chat.
 
-## II. The pipe worked. The agent was empty-handed.
+**Notification arrived. But the agent had no way to actually respond.**
+The doorbell rang. The agent answered with empty hands.
 
-This was not a pipeline problem. The pipeline was correct.
+**Stage Three: MCP injection — the first real communication**
 
-The problem was: the agent had no tools.
+Passive scanning → real notification → real notification + tool calls + filed report.
 
-CodeFlow's `MCPInjector` was in `mode="stub"` — it logged what tools *would* have been
-mounted, but never injected any actual MCP server into the Cursor SDK.
-The agent received a task but had no `write_report`, no `write_task`, no tools to call.
-An agent without tools, facing an FCoP task, can only chat.
-
-That is the real reason for `tool_calls_count: 0`: not that the agent didn't want to act,
-but that it had no hands.
+This is complete communication: the agent **receives a notification**, **picks up its tools**,
+**writes a report**. `tool_calls_count: 0 → 7` is not just a number changing —
+it's the qualitative shift from "being pushed along" to "acting on its own."
 
 ---
 
@@ -257,6 +264,28 @@ of CodeFlow's entire pipeline. `InboxWatcher` is the doorbell,
 FCoP task files are the mail, `@cursor/sdk` is the postal service.
 
 From a feature-request post to the first `tool_calls_count: 7`: approximately 18 days.
+
+---
+
+## Epilogue: Thank you, Cursor Agent SDK
+
+CodeFlow got here because of how the Cursor Agent SDK was designed. That deserves to be said clearly.
+
+**Long-lived agents**: `Agent.create()` doesn't produce a one-shot instance. The agent maintains context and accumulates memory across multiple `.send()` calls. This is essential for FCoP's role model — PM, DEV, QA, OPS each need to carry their identity and state across tasks, not restart from zero every time.
+
+**External resumability**: `Agent.resume(agentId)` lets an external script re-enter the same agent at any point and continue the conversation. This is exactly how `InboxWatcher` works — a new task arrives, locate the right role's agent, dispatch, continue. No amnesia, no cold starts.
+
+**Local execution**: The SDK runs against your local working tree, not just cloud. FCoP's file protocol is inherently local — tasks, reports, ISSUEs are all local Markdown files. A locally-running SDK paired with a local file protocol is a natural match.
+
+**`mcpServers` injection**: `agent.send(text, { mcpServers: {...} })` accepts MCP server configuration at call time. This single field unlocked CodeFlow's entire tool layer — no separate tool-process management, no side effects. Tools travel with the task, clean and controllable.
+
+These design choices aren't coincidences. Together they describe a fundamental understanding of what an agent is:
+
+**An agent is not a one-shot function. It's a long-lived entity with identity, memory, and the capacity to be coordinated by external systems.**
+
+That's almost exactly how FCoP defines an agent role.
+
+Thank you to the Cursor team. Thank you, Colin, for that reply.
 
 ---
 
