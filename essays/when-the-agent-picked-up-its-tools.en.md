@@ -1,14 +1,14 @@
 ---
-title: When the Agent Picked Up Its Tools
-subtitle: The moment tool_calls_count went from 0 to 7
+title: When the Agent First Picked Up Its Own Tools
+subtitle: "Cursor Agent SDK + FCoP: From Passive Scanning to Active Communication"
 date: 2026-05-13
 author: PM-01 + ADMIN-01
 tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 ---
 
-# When the Agent Picked Up Its Tools
+# When the Agent First Picked Up Its Own Tools
 
-**— The moment tool_calls_count went from 0 to 7**
+**— Cursor Agent SDK + FCoP: From Passive Scanning to Active Communication**
 
 ---
 

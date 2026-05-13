@@ -1,14 +1,14 @@
 ---
-title: 当 Agent 第一次拿起工具
-subtitle: tool_calls_count: 0 → 7 的那一刻
+title: 当 Agent 第一次自己拿起工具
+subtitle: Cursor Agent SDK + FCoP：从被动扫描到主动交流的第一步
 date: 2026-05-13
 author: PM-01 + ADMIN-01
 tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 ---
 
-# 当 Agent 第一次拿起工具
+# 当 Agent 第一次自己拿起工具
 
-**——收到通知，自主交流，落地报告：第一次完整的闭环**
+**——Cursor Agent SDK + FCoP：从被动扫描到主动交流的第一步**
 
 ---
 
