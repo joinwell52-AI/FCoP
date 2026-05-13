@@ -160,7 +160,7 @@ class TestInit:
         assert "📨 给 ADMIN 的一封信" in out
         assert "原样" in out
         assert "FCoP 致 ADMIN 的一封信" in out
-        assert "v1.6.0 摘要" in out
+        assert "v2.0.0 摘要" in out
         assert "LETTER-TO-ADMIN.md" in out  # path shown in reply (layout-agnostic)
 
     def test_init_project_reply_letter_handover_en(
@@ -179,7 +179,7 @@ class TestInit:
         out = _call("init_solo", role_code="ME", role_label="", lang="zh")
         assert "📨 给 ADMIN 的一封信" in out
         assert "FCoP 致 ADMIN 的一封信" in out
-        assert "v1.6.0 摘要" in out
+        assert "v2.0.0 摘要" in out
 
     def test_create_custom_team_reply_includes_letter_handover(
         self, project_dir: Path
@@ -193,7 +193,7 @@ class TestInit:
             team_name="my-team",
         )
         assert "📨 给 ADMIN 的一封信" in out
-        assert "v1.6.0 摘要" in out
+        assert "v2.0.0 摘要" in out
 
     def test_validate_team_config_ok(self, project_dir: Path) -> None:
         _call("set_project_dir", path=str(project_dir))
