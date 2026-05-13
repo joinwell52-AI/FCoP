@@ -26,7 +26,7 @@
 | 10 | **一行 frontmatter 的旅程** | [中文](the-supersedes-field-story.md) · [English](the-supersedes-field-story.en.md) | `supersedes:` 字段从一次协议两难（三条规则同时成立）到 `ipc-envelope.schema.json` 正式字段的两小时旅程——展示 FCoP 涌现落地的最低成本路径。 |
 | 11 | **看，但不动手** | [中文](looking-without-touching.md) · [English](looking-without-touching.en.md) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/161028161) | FCoP 三层语义执行链科普：`fcop_audit()` 为什么"只看不改"——L1 检测 / L2 解释 / L3 文档三层把"看见"和"动手"切开，产出 `INSPECTION.md`（建议非命令），执行权留给人。`adr/FCoP-semantic-execution-chain.md` 的科普版。 |
 | 12 | **五大 AI 模型眼中的 FCoP** | [中文](what-five-ai-models-say-about-fcop.md) · [English](what-five-ai-models-say-about-fcop.en.md) | 把 FCoP 核心文档喂给 ChatGPT / Claude / DeepSeek / Grok / 豆包，只问一个问题："你是 agent，你怎么看这套协议？"——五种截然不同的内部视角，以及它们之间最有意思的分歧。 |
-| 13 | **演化，反向吸收** | [中文](evolution-reverse-absorption.md) | 协议哲学 2.0 视觉宣言：FCoP 从单张执行哲学图（"看，但不动手"）进入**两张图共同定义**时代——新增演化哲学图（7 步语义演化闭环）与配套 [ADR-0034](../adr/ADR-0034-fcop-internal-external-document-convention.md)，把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。 |
+| 13 | **演化，反向吸收 / Evolution, Reverse Absorption** | [中文](evolution-reverse-absorption.md) · [English](evolution-reverse-absorption.en.md) | 协议哲学 2.0 视觉宣言：FCoP 从单张执行哲学图（"看，但不动手"）进入**两张图共同定义**时代——新增演化哲学图（7 步语义演化闭环）与配套 [ADR-0034](../adr/ADR-0034-fcop-internal-external-document-convention.md)，把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。 |
 
 ---
 
