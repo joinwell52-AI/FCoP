@@ -8,6 +8,116 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [2.0.2] — 2026-05-13
+
+### 概述 / Overview
+
+**Milestone release: `fcop-mcp` officially registered to the [MCP registry](https://registry.modelcontextprotocol.io/).**
+
+`fcop-mcp` 正式入驻由 Anthropic + GitHub + Microsoft 联合背书的官方
+MCP 注册表,服务标识 `io.github.joinwell52-AI/fcop`。从此 Claude Desktop /
+Cursor / PulseMCP 及任何 MCP 兼容客户端都可通过注册表发现并通过 `uvx fcop-mcp`
+一键安装,无需手工编辑 `mcp.json`。
+
+`fcop-mcp` is now in the official MCP registry maintained by Anthropic +
+GitHub + Microsoft (`io.github.joinwell52-AI/fcop`). Claude Desktop,
+Cursor, PulseMCP, and every MCP-compatible client can discover and
+install it out of the box via `uvx fcop-mcp`.
+
+### 版本号策略 / Versioning
+
+v2.0.2 是 **双包 lockstep 行政性 bump**(per ADR-0002):
+
+| 包 | v2.0.0 | v2.0.1 | **v2.0.2** | 代码变更 |
+|---|---|---|---|---|
+| `fcop` | 2.0.0 | (skipped) | **2.0.2** | **零行代码变更**(版本号对齐) |
+| `fcop-mcp` | 2.0.0 | 2.0.1 (MCP-元数据 patch,PyPI 已发) | **2.0.2** | MCP registry 元数据 + 版本号对齐 |
+
+> **关于 v2.0.1**:fcop-mcp@2.0.1 是 2026-05-13 同日发布到 PyPI 的子集 patch,
+> 仅包含 MCP registry 入驻所需的三件套(`mcp/README.md` 加 `mcp-name` 验证
+> 标记、`mcp/server.json` 新建、`mcp/src/fcop_mcp/_version.py` bump)。本
+> CHANGELOG 不为 2.0.1 单列条目;它在 PyPI 上永久存在(`fcop-mcp 2.0.1`),
+> 但 FCoP 仓库账本上的 release 是 **v2.0.2**——一个包含它的真超集。
+
+### feat(mcp-registry) — MCP registry 入驻 / Official MCP registry listing
+
+- **`mcp/README.md`**:顶部加 `mcp-name: io.github.joinwell52-AI/fcop`
+  所有权验证标记(MCP registry 的命名空间认领要求);新增 v2.0.2 章节
+  作为 PyPI 长描述首段,显著标注"Now in the official MCP registry"。
+- **`mcp/server.json`**(新文件):MCP registry 注册元数据,符合
+  `https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json`,
+  包含 server name、PyPI 包标识、stdio transport、`FCOP_PROJECT_DIR`
+  环境变量声明。
+- 注册命令:`.\mcp-publisher.exe publish`(ADMIN 凭 GitHub OAuth token
+  执行,详见新文件 `fcop/shared/RULES-mcp-registry-release.md`)。
+
+### docs(rules) — 新增"发版+备份一条龙"完整 SOP
+
+本次随发版同步落地 TASK-013 / TASK-014 两条线程的所有 SOP 交付物:
+
+- **`fcop/shared/RULES-release-file-inventory.md`**(新文件):12 类发版相关
+  文件清单,每类配 6 字段(类码 / 类名 / 描述 / 文件枚举 / 修改义务 /
+  锁定风险 / SOP 引用)。其中 H/M/N 类专门覆盖 MCP registry 路径。
+- **`fcop/shared/RULES-release-sync-checklist.md`**(已存在,升级):
+  从"三条不会变的硬约束"升级到**四条**,新增 4 · 一条龙发版+备份;
+  顶部新增 Section 0 · 元红线("如果未来 FCoP 成为标准,我们现在必须
+  非常认真")。
+- **`fcop/shared/RULES-mcp-registry-release.md`**(新文件,本版本):
+  ADMIN 的"未来三步升级路径"落文件——`_version.py` + `server.json`
+  改版本号 → `python -m build` + `twine upload` → `mcp-publisher publish`。
+- **`docs/release-process.md`**(已存在,升级):新增 §阶段 4.5 · 备份
+  镜像同步,把 `git push backup main` + `git push backup --tags` 提升
+  为发版"一条龙"必经的最后一里;§C 加文件清单指针;§C.3 hardcoded
+  断言精确到 5 处行号;§G 加第 6 条扫描("backup remote 是否配置")。
+- 第二处镜像 `joinwell52-AI/FCoP-backup`(append-only 备份),把
+  FCoP 总部从单点失效保护起来。
+
+### docs(public) — 三处对外门面同步
+
+- `README.md` / `README.zh.md`:badge 从 `release-2.0.0` 升 `release-2.0.2`,
+  新增 MCP registry purple badge;recent releases 表格首行加 `2.0.2` 行;
+  "Status & versioning · Current release" 段整段重写,首句强调 MCP
+  registry 入驻。
+- `docs/index.html`(GitHub Pages):顶部 latest 链接 + 中英双语 v2.0
+  段落整体重写,把 MCP registry 入驻放在最显著位置。
+
+### docs(citation) — Zenodo 学术快照刷新(**第二段 commit 写入**)
+
+> **Rule 0.c 时序声明**:本节内容**在第一段 commit 时尚未发生**,
+> 待 ADMIN 通过 Zenodo `releases` integration 触发新快照、拿到新 DOI
+> 后由 agent 在 v2.0.2 的**第二段 release commit** 中追加,所以本节
+> 在第一段 commit 的 CHANGELOG 里只占位预告,真实内容随第二段 commit 落实。
+
+- **`CITATION.cff`**:`research-snapshot-2026-04-29`(DOI `10.5281/zenodo.19886036`)
+  → **v2.0.2 学术快照**(DOI `10.5281/zenodo.XXXXXXXX`,待 ADMIN 提供)。
+  `version` / `date-released` / `preferred-citation.{doi,url,version}`
+  / `identifiers[0].{value,description}` 同步刷新。
+- `README.md` / `README.zh.md` 的 "How to cite" 节、BibTeX 模板的
+  `version` / `doi` / `url` 同步指向新 DOI。
+
+### 验收 / Acceptance
+
+**第一段 commit 已实证(2026-05-13 release prep)**:
+
+- [x] `src/fcop/_version.py` = `mcp/src/fcop_mcp/_version.py` = `2.0.2`
+- [x] `mcp/server.json` 两处 version = `2.0.2`
+- [x] README.md / README.zh.md / docs/index.html / mcp/README.md 四份对外
+  门面同步 v2.0.2 + MCP registry 入驻段就位
+- [x] FCoP 账本 TASK-014 落档,REPORT-014 第一段写完;
+  `fcop/shared/RULES-mcp-registry-release.md` 落档
+- [x] 第一段 commit 三方 push(origin + backup main + backup tags)
+  SHA 字节级一致(无新 tag,只 push main)
+
+**第二段 commit 待实证(ADMIN 介入 + agent 收尾)**:
+
+- [ ] PyPI 双包均可见:`pip install fcop==2.0.2` + `pip install fcop-mcp==2.0.2` 成功(ADMIN twine upload)
+- [ ] modelcontextprotocol.io 显示 `io.github.joinwell52-AI/fcop` version 2.0.2(ADMIN mcp-publisher publish)
+- [ ] Zenodo 新 DOI 可访问;`CITATION.cff` + `README.{md,zh.md}` `How to cite` 段已用新 DOI 更新
+- [ ] git tag `v2.0.2` 存在(指向第二段 commit),三方 SHA(local / origin / backup)字节级一致
+- [ ] REPORT-014 第二段补完 + archive TASK-014 + REPORT-014
+
+---
+
 ## [2.0.0] — 2026-05-13
 
 ### 概述 / Overview
