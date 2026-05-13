@@ -364,11 +364,11 @@ FCoP 的 2.0 不是这种 bump。FCoP 的 2.0 是——**它把"规则怎么变"
 
 **执行哲学 v1.0**:
 
-![FCoP Semantic Execution Chain](file:///D:/FCoP/adr/FCoP-semantic-execution-chain-v1.0.png)
+![FCoP Semantic Execution Chain](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/adr/FCoP-semantic-execution-chain-v1.0.png)
 
 **演化哲学 2.0**:
 
-![FCoP Semantic Evolution Loop](file:///D:/FCoP/adr/FCOP-2.0.png)
+![FCoP Semantic Evolution Loop](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/adr/FCOP-2.0.png)
 
 ---
 
