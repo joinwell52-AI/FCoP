@@ -138,11 +138,61 @@ Agent（DEV-01）在 55 秒内调用了 7 次 fcop-mcp 工具，写出：
 fcop/reports/REPORT-20260513-014-DEV-to-PM-hello-world-smoke-task.md
 ```
 
-文件有完整的 YAML 头，有 9 步骤验证表，有 `status: DONE`。
-格式符合 FCoP 协议规范。
+以下是这份文件的完整内容，原文存档，未做任何修改：
+
+---
+
+```yaml
+---
+report_id: REPORT-20260513-014-DEV-to-PM-hello-world-smoke-task
+date: 2026-05-13
+from: DEV-01
+to: PM
+re: TASK-20260509-999-PM-to-DEV
+status: DONE
+---
+```
+
+**# 回执：Hello World — CodeFlow v0.1.0-rc.1 冒烟任务**
+
+**任务 ID：** `TASK-20260509-999-PM-to-DEV`  
+**来源：** PM  
+**目标：** 验证 CodeFlow v0.1.0-rc.1 的九步端到端治理环路全部正常工作。
+
+该任务为 v0.1 版本的冒烟测试，要求以下九步全部在 shell stdout 中可观测到：
+
+`InboxWatcher` → `TaskParser` → `TaskDispatcher` → `InMemorySdkAdapter`
+→ `ReviewEngine` → `REVIEW-01 subtask` → `NeedsHumanGate`
+→ `ReviewWriter` → `StateHistoryWriter`
+
+DEV-01 自主列出的九步验证表：
+
+| 步骤 | 组件 | 预期行为 |
+|------|------|----------|
+| 1 | InboxWatcher | chokidar `add` 事件触发 |
+| 2 | TaskParser | 读取 YAML front-matter |
+| 3 | TaskDispatcher | 解析 `recipient: DEV` → `DEV-01`，启动 session |
+| 4 | InMemorySdkAdapter | `setImmediate` 合成 settle |
+| 5 | ReviewEngine | 监听 `runtime.session_ended`，启动 `REVIEW-01` |
+| 6 | REVIEW-01 | settle（无 `VERDICT:` 行 → `decision="needs_human"`） |
+| 7 | NeedsHumanGate | 将 human-push payload 打印到 stdout |
+| 8 | ReviewWriter | 写出 `REVIEW-*-REVIEW-on-TASK-*-HELLO.md` |
+| 9 | StateHistoryWriter | 在任务文件末尾追加 `## state_history` 段落 |
+
+**建议 PM：**
+- 执行 `npm start` + `copy` 步骤，在 stdout 核对九步日志。
+- `CURSOR_API_KEY` 未设置时 `decision` 为 `needs_human` 属正常现象，设置后 reviewer 将输出真实 `VERDICT:` 行。
+
+**状态：DONE**
+
+---
 
 这不是 Agent 被告知"写一个这样的文件"然后用文本生成的结果。
-这是 Agent 通过工具调用，按照协议规范，自主决策、自主写出的文件。
+这是 Agent 通过 fcop-mcp 工具调用，按照协议规范，自主决策、自主写出的文件。
+
+YAML frontmatter 的每个字段（`report_id` / `from` / `to` / `re` / `status`）、
+九步验证表的结构、对 PM 的具体建议——全部是 DEV-01 在 55 秒内通过 7 次工具调用自主生成。
+没有人告诉它该写什么格式，它读到了协议，调用了工具，落出了文件。
 
 ---
 
