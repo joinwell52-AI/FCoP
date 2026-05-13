@@ -719,6 +719,10 @@
       <span class="en-only">Open Source · MIT · Cite via Zenodo</span>
       <span class="zh-only">开源 · MIT · 可引用 Zenodo</span>
     </div>
+    <div class="pill" style="margin-top:8px; background: rgba(77, 208, 225, 0.18); border-color: rgba(77, 208, 225, 0.45);">
+      <span class="en-only">Latest: <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v2.0.0" target="_blank" rel="noopener" style="color:inherit;">v2.0.0</a> (2026-05-13) · the two-diagram era</span>
+      <span class="zh-only">最新版本：<a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v2.0.0" target="_blank" rel="noopener" style="color:inherit;">v2.0.0</a>（2026-05-13）· 两图对偶纪元</span>
+    </div>
     <h1>FCoP</h1>
     <p class="tagline en-only">The <strong>AI OS protocol layer</strong>. The agent runtime contract for filesystem-based collaboration — the POSIX of the AI OS, written by agents, readable by humans.</p>
     <p class="tagline zh-only"><strong>AI OS 协议层</strong>。agent 在共享文件系统上协作的运行时契约——AI OS 里的 POSIX，由 agent 写、人正好看得懂。</p>
@@ -773,11 +777,13 @@
       <div>
         <p class="en-only"><strong>FCoP sits at the protocol layer of the AI OS stack</strong> — the same position as <strong>POSIX</strong> in Unix, <strong>OCI</strong> in container ecosystems, <strong>CRD</strong> in Kubernetes. It freezes the minimum semantic contract for seven core abstractions: <em>Agent, IPC, Encoding, Event, Failure, Boundary, Audit</em>.</p>
         <p class="en-only">The encoding has <strong>two surfaces</strong>: an <em>IPC Surface</em> (TASK / REPORT / ISSUE / REVIEW — strongly typed) and an <em>Open Knowledge Surface</em> (<code>shared/</code> + <code>{ALL-CAPS-PREFIX}-{slug}.md</code> — vocabulary stays open so agents can invent their own sub-languages). Both happen to live as ordinary markdown in ordinary folders, so humans get to watch for free.</p>
-        <p class="en-only">The protocol came from <strong>field observation</strong>: across three independent dogfoods — unprompted off-task, conflict-forced, directly asked — agents kept inventing the same coordination pattern. v1.0 only writes down what they were already doing, then locks it under stability-charter rules ([ADR-0015](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)) and archives a Zenodo DOI.</p>
+        <p class="en-only">The protocol came from <strong>field observation</strong>: across three independent dogfoods — unprompted off-task, conflict-forced, directly asked — agents kept inventing the same coordination pattern. v1.0 only writes down what they were already doing, then locks it under stability-charter rules (<a href="https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md" target="_blank" rel="noopener">ADR-0015</a>) and archives a Zenodo DOI.</p>
+        <p class="en-only"><strong>v2.0.0 enters the "two-diagram era"</strong> (2026-05-13). FCoP is now defined by <em>two</em> diagrams together: the <strong>execution stack</strong> (the 5-layer vertical column, stable since v1.x) <em>and</em> the <strong>FCoP Semantic Evolution Loop</strong> (a 7-node closed loop — emerge → observe → propose → review → merge → deploy → reflect, newly canonicalised in v2.0). Same release also adds <strong>Rule 4.6</strong> (<code>fcop/internal/</code> vs <code>docs/</code> + <code>essays/</code> soft convention with <code>internal-only</code> declaration v1) and a <strong>P3 (suggestion) audit severity</strong>. All v1.x public APIs continue working (per ADR-0003 additive expansion); the major bump is philosophical, not API-breaking.</p>
 
         <p class="zh-only"><strong>FCoP 处于 AI OS 栈的协议层</strong>——位置等同于 Unix 的 <strong>POSIX</strong>、容器生态的 <strong>OCI</strong>、Kubernetes 的 <strong>CRD</strong>。它冻结 7 个核心抽象的最小语义契约：<em>Agent、IPC、Encoding、Event、Failure、Boundary、Audit</em>。</p>
         <p class="zh-only">编码层有<strong>两个面</strong>：<em>IPC Surface</em>（TASK / REPORT / ISSUE / REVIEW，强类型）和 <em>Open Knowledge Surface</em>（<code>shared/</code> + <code>{ALL-CAPS-PREFIX}-{slug}.md</code>，词表完全开放，让 agent 自由发明子语言）。两个面恰好都落在普通文件夹里的普通 markdown 上，所以人正好白看得到。</p>
-        <p class="zh-only">协议本身来自<strong>现场观察</strong>：三次互不相干的 dogfood——自发触发、冲突逼出、直接问——agent 都在发明同一种协作模式。v1.0 只是把它们已经在做的事写下来，按 stability charter 锁住（[ADR-0015](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md)），并打了 Zenodo DOI。</p>
+        <p class="zh-only">协议本身来自<strong>现场观察</strong>：三次互不相干的 dogfood——自发触发、冲突逼出、直接问——agent 都在发明同一种协作模式。v1.0 只是把它们已经在做的事写下来，按 stability charter 锁住（<a href="https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md" target="_blank" rel="noopener">ADR-0015</a>），并打了 Zenodo DOI。</p>
+        <p class="zh-only"><strong>v2.0.0 进入"两图对偶"纪元</strong>（2026-05-13）。FCoP 现在由<em>两张图</em>共同定义：<strong>执行哲学的五层垂直栈</strong>（v1.x 已稳定）<em>与</em> <strong>FCoP Semantic Evolution Loop</strong>（七节点闭环——涌现 → 观察 → 提案 → 评审 → 合并 → 部署 → 反射，v2.0 新固化）。同一版本还新增 <strong>Rule 4.6</strong>（<code>fcop/internal/</code> vs <code>docs/</code> + <code>essays/</code> 软约定，配 <code>internal-only</code> 声明语法 v1）与 <strong>P3 (suggestion) 巡检严重度</strong>。所有 v1.x 公开 API 全部继续工作（per ADR-0003 附加性扩展），主版本号跨越是协议哲学层面，不是 API 破坏性变更。</p>
       </div>
       <div>
         <img src="https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/assets/fcop-mcp-tutorial-cover-v1.png" alt="FCoP-MCP architecture: ADMIN at a podium directing agents who exchange markdown files" class="what-img" />
@@ -861,8 +867,8 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
     <div class="eyebrow en-only">Field Reports</div>
     <div class="eyebrow zh-only">现场报告</div>
     <h2>
-      <span class="en-only">Six essays. Command the agents — FCoP brings discipline to an AI team.</span>
-      <span class="zh-only">六篇 essay。指挥 agent —— FCoP 让 AI 团队有纪律。</span>
+      <span class="en-only">Fourteen essays. Command the agents — FCoP brings discipline to an AI team.</span>
+      <span class="zh-only">十四篇 essay。指挥 agent —— FCoP 让 AI 团队有纪律。</span>
     </h2>
 
     <div class="essays-grid">
@@ -943,7 +949,7 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
 
       <!-- Essay 06 -->
       <div class="essay-card">
-        <div class="num">Essay 06 · Latest</div>
+        <div class="num">Essay 06</div>
         <h3 class="en-only">What the agents say about FCoP, when you ask them</h3>
         <h3 class="zh-only">直接问 agent 它怎么看 FCoP——它说出了我们没让它说的话</h3>
         <p class="hook en-only">End-of-dogfood interviews with PLANNER and CODER. Both name the rules they self-endorse and the rules they had to <strong>fight RLHF instinct</strong> to follow. CODER admits: <em>"I had a protocol primitive I didn't use — the v1 defect was exactly in that uncovered space."</em></p>
@@ -954,6 +960,112 @@ Tetris-style game.</code><code class="zh-only">用 FCoP 把我初始化成单兵
           <a href="https://blog.csdn.net/m0_51507544/article/details/160636177" target="_blank" rel="noopener">CSDN</a>
           <a href="https://dev.to/joinwell52/what-the-agents-say-about-fcop-when-you-ask-them-3ajk" target="_blank" rel="noopener">Dev.to</a>
           <a href="https://forum.cursor.com/t/what-the-agents-say-about-fcop-when-you-ask-them-two-field-interviews-at-the-end-of-an-english-dogfood/159368" target="_blank" rel="noopener">Cursor Forum</a>
+        </div>
+      </div>
+
+      <!-- Essay 07 -->
+      <div class="essay-card">
+        <div class="num">Essay 07</div>
+        <h3 class="en-only">When agents learn from their own wreckage</h3>
+        <h3 class="zh-only">当 agent 从自己的残骸中学习</h3>
+        <p class="hook en-only">One day, 14 agents, multiple emergences — <strong>USER HOME global pollution</strong>, <strong>GATE description self-hit</strong>, <strong>field <code>supersedes:</code> invented on the spot</strong>. The protocol absorbed all of them at hourly cadence, zero crash.</p>
+        <p class="hook zh-only">codeflow 项目一日 14 个 agent 涌现现场报告(2026-05-12):<strong>USER HOME 全局污染</strong> / <strong>GATE 描述自命中</strong> / <strong>`supersedes:` 字段现场发明</strong>——协议以小时级速度零崩溃反向吸收全部涌现。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-agents-learn-from-their-own-wreckage.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-agents-learn-from-their-own-wreckage.md" target="_blank" rel="noopener">GitHub 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/161028380" target="_blank" rel="noopener">CSDN</a>
+        </div>
+      </div>
+
+      <!-- Essay 08 -->
+      <div class="essay-card">
+        <div class="num">Essay 08</div>
+        <h3 class="en-only">Why the protocol stays short, and the history stays long</h3>
+        <h3 class="zh-only">协议为什么短,历史为什么长</h3>
+        <p class="hook en-only">A maintainer's answer to "<em>won't the emergences go on forever?</em>" — <strong>four emergence classes</strong>, <strong>three structural-mechanics laws</strong>, and the cost / value of freezing the protocol skeleton.</p>
+        <p class="hook zh-only">一份给协议维护者的设计哲学答案:"<em>这样的涌现会不会没有止境?</em>"——<strong>四类涌现的处理路径</strong>、<strong>三条结构力学</strong>、协议骨架冻结的代价与价值。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/why-the-protocol-stays-short.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/why-the-protocol-stays-short.md" target="_blank" rel="noopener">GitHub 中文</a>
+        </div>
+      </div>
+
+      <!-- Essay 09 -->
+      <div class="essay-card">
+        <div class="num">Essay 09</div>
+        <h3 class="en-only">When the validator collides with its own mirror</h3>
+        <h3 class="zh-only">当 validator 撞向自己的镜像</h3>
+        <p class="hook en-only">From codeflow OPS I-14: the <strong>validator-validates-itself anti-pattern</strong>. GATE checked the staged diff and hit GATE's own description. A systematic dissection and the "semantic positive-witness" fix — now the source case for <code>fcop-protocol.mdc §GATE Design Pitfalls</code>.</p>
+        <p class="hook zh-only">从 codeflow OPS I-14 看 <strong>validator-validates-itself 反模式</strong>:GATE 在检查 staged diff 时命中了 GATE 描述本身——系统性解剖与"语义化实证"根治姿势,以及它如何成为 <code>fcop-protocol.mdc §GATE Design Pitfalls</code> 的源头案例。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/gate-design-pitfalls-case-studies.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/gate-design-pitfalls-case-studies.md" target="_blank" rel="noopener">GitHub 中文</a>
+        </div>
+      </div>
+
+      <!-- Essay 10 -->
+      <div class="essay-card">
+        <div class="num">Essay 10</div>
+        <h3 class="en-only">The journey of one frontmatter line</h3>
+        <h3 class="zh-only">一行 frontmatter 的旅程</h3>
+        <p class="hook en-only">The <code>supersedes:</code> field — from a <strong>protocol dilemma</strong> (three rules simultaneously true) to a <strong>formal entry in <code>ipc-envelope.schema.json</code></strong> in two hours. The lowest-cost path for an FCoP emergence to land.</p>
+        <p class="hook zh-only"><code>supersedes:</code> 字段从一次<strong>协议两难</strong>(三条规则同时成立)到 <code>ipc-envelope.schema.json</code> <strong>正式字段</strong>的两小时旅程——展示 FCoP 涌现落地的最低成本路径。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/the-supersedes-field-story.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/the-supersedes-field-story.md" target="_blank" rel="noopener">GitHub 中文</a>
+        </div>
+      </div>
+
+      <!-- Essay 11 -->
+      <div class="essay-card">
+        <div class="num">Essay 11</div>
+        <h3 class="en-only">Looking, without touching</h3>
+        <h3 class="zh-only">看,但不动手</h3>
+        <p class="hook en-only">An accessible walk-through of FCoP's <strong>three-layer semantic execution chain</strong>: <code>fcop_audit()</code> is L1 detection / L2 explanation / L3 documentation — <em>seeing</em> and <em>touching</em> are split. Output is an <code>INSPECTION.md</code> (advice, not a command); execution stays with the human.</p>
+        <p class="hook zh-only">FCoP 三层语义执行链科普:<code>fcop_audit()</code> 为什么"只看不改"——<strong>L1 检测 / L2 解释 / L3 文档</strong>三层把"看见"和"动手"切开,产出 <code>INSPECTION.md</code>(建议非命令),执行权留给人。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/looking-without-touching.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/looking-without-touching.md" target="_blank" rel="noopener">GitHub 中文</a>
+          <a href="https://blog.csdn.net/m0_51507544/article/details/161028161" target="_blank" rel="noopener">CSDN</a>
+        </div>
+      </div>
+
+      <!-- Essay 12 -->
+      <div class="essay-card">
+        <div class="num">Essay 12</div>
+        <h3 class="en-only">What five AI models say about FCoP</h3>
+        <h3 class="zh-only">五大 AI 模型眼中的 FCoP</h3>
+        <p class="hook en-only">FCoP's core docs fed to <strong>ChatGPT / Claude / DeepSeek / Grok / Doubao</strong>, single question: <em>"You are an agent — what do you think of this protocol?"</em> Five distinct interior views, and the most interesting disagreements between them.</p>
+        <p class="hook zh-only">把 FCoP 核心文档喂给 <strong>ChatGPT / Claude / DeepSeek / Grok / 豆包</strong>,只问一个问题:<em>"你是 agent,你怎么看这套协议?"</em>——五种截然不同的内部视角,以及它们之间最有意思的分歧。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-five-ai-models-say-about-fcop.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/what-five-ai-models-say-about-fcop.md" target="_blank" rel="noopener">GitHub 中文</a>
+        </div>
+      </div>
+
+      <!-- Essay 13 -->
+      <div class="essay-card">
+        <div class="num">Essay 13</div>
+        <h3 class="en-only">Evolution, reverse absorption</h3>
+        <h3 class="zh-only">演化,反向吸收</h3>
+        <p class="hook en-only">The visual manifesto for protocol philosophy 2.0: FCoP enters the <strong>two-diagram era</strong>. The execution-philosophy diagram ("looking, without touching") is joined by the new <strong>evolution-philosophy diagram</strong> — a 7-step semantic evolution loop. Companion piece to essay 11; backed by <a href="https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0034-fcop-internal-external-document-convention.md">ADR-0034</a>.</p>
+        <p class="hook zh-only">协议哲学 2.0 视觉宣言:FCoP 从单张执行哲学图("看,但不动手")进入<strong>两张图共同定义</strong>时代——新增<strong>演化哲学图</strong>(7 步语义演化闭环)与配套 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0034-fcop-internal-external-document-convention.md">ADR-0034</a>,把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/evolution-reverse-absorption.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/evolution-reverse-absorption.md" target="_blank" rel="noopener">GitHub 中文</a>
+        </div>
+      </div>
+
+      <!-- Essay 14 -->
+      <div class="essay-card">
+        <div class="num">Essay 14 · Latest</div>
+        <h3 class="en-only">When the agent picked up its tools</h3>
+        <h3 class="zh-only">当 Agent 第一次拿起工具</h3>
+        <p class="hook en-only">A <code>tool_calls_count: 0 → 7</code> breakthrough field report: Cursor Forum doorbell feature request → Colin recommending the Agent SDK → CodeFlow born → stub-mode diagnostics → MCP injection + role-context dual-drive → <strong>2026-05-13 14:55, first <code>tool_calls_count: 7</code></strong> — the agent autonomously lands its first FCoP report in 55 seconds.</p>
+        <p class="hook zh-only"><code>tool_calls_count: 0 → 7</code> 的突破现场报告:从 Cursor Forum 门铃功能请求 → Colin 推荐 Agent SDK → CodeFlow 诞生 → stub 模式诊断 → MCP 注入 + 角色上下文双轮驱动 → <strong>2026-05-13 14:55 首次 <code>tool_calls_count: 7</code></strong>,55 秒内 Agent 自主落出第一份 FCoP report。</p>
+        <div class="channels">
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-the-agent-picked-up-its-tools.en.md" target="_blank" rel="noopener">GitHub EN</a>
+          <a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/when-the-agent-picked-up-its-tools.md" target="_blank" rel="noopener">GitHub 中文</a>
         </div>
       </div>
     </div>
