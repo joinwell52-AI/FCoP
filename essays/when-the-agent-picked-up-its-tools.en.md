@@ -1,0 +1,214 @@
+---
+title: When the Agent Picked Up Its Tools
+subtitle: The moment tool_calls_count went from 0 to 7
+date: 2026-05-13
+author: PM-01 + ADMIN-01
+tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
+---
+
+# When the Agent Picked Up Its Tools
+
+**— The moment tool_calls_count went from 0 to 7**
+
+---
+
+## I. What had been happening
+
+For quite a while, CodeFlow's Agent pipeline existed in a peculiar state:
+
+Everything looked like it was working.
+
+`InboxWatcher` picked up task files. `TaskDispatcher` parsed and dispatched them.
+`SessionManager` created sessions. `@cursor/sdk`'s `agent.send()` was called.
+Session status changed to `running`, then to `completed`.
+Every node in the chain behaved correctly.
+
+But one line in every session JSON stayed the same:
+
+```json
+"tool_calls_count": 0
+```
+
+The agent did nothing. It received the task, "replied" with something, and exited.
+No files were written. No reports were created. None of the outputs the FCoP protocol required.
+
+---
+
+## II. The pipe worked. The agent was empty-handed.
+
+This was not a pipeline problem. The pipeline was correct.
+
+The problem was: the agent had no tools.
+
+CodeFlow's `MCPInjector` was in `mode="stub"` — it logged what tools *would* have been
+mounted, but never injected any actual MCP server into the Cursor SDK.
+The agent received a task but had no `write_report`, no `write_task`, no tools to call.
+An agent without tools, facing an FCoP task, can only chat.
+
+That is the real reason for `tool_calls_count: 0`: not that the agent didn't want to act,
+but that it had no hands.
+
+---
+
+## III. Finding the door
+
+The key to the diagnosis was reading the Cursor SDK type definitions.
+
+In `agent.d.ts`, `SendOptions` had an easily-overlooked field:
+
+```typescript
+interface SendOptions {
+    model?: ModelSelection;
+    mcpServers?: Record<string, McpServerConfig>;  // ← here
+    local?: { force?: boolean };
+    // ...
+}
+```
+
+`agent.send(text, options)` can receive MCP server configuration at call time.
+No need to refactor `MCPInjector`'s architecture. No separate process management.
+Every send, just pass the MCP server config directly.
+
+At the same time, `fcop-mcp`'s entry point confirmed the other half:
+
+```python
+# python -m fcop_mcp → stdio MCP server
+# uses FCOP_PROJECT_DIR environment variable to locate the project root
+```
+
+The two facts combined into a clear solution:
+in `_buildSendOptions()`, inject `fcop-mcp` as a stdio MCP server.
+
+---
+
+## IV. Three changes, one breakthrough
+
+The code changes were small. The logic was clear.
+
+**`AgentSdkAdapter.ts`**: Add `mcpServers` to `CursorSdkAdapterOptions`;
+pass it into every `agent.send()` call via `_buildSendOptions()`.
+
+**`sdk-factory.ts`**: Accept `pythonBin` (Python interpreter path) and `projectRoot`
+(workspace root), and automatically assemble the fcop-mcp stdio configuration:
+
+```typescript
+fcop: {
+    type: "stdio",
+    command: pythonBin,          // D:\Bridgeflow\.venv-fcop-1.5.1\Scripts\python.exe
+    args: ["-m", "fcop_mcp"],
+    env: { FCOP_PROJECT_DIR: projectRoot }
+}
+```
+
+**`main.ts`**: Resolve `fcopProjectRoot` before building the SDK adapter,
+then pass it together with `PYTHON_BIN` into the factory.
+
+Then there was a fourth change — the easiest to overlook, and equally important:
+
+**`TaskDispatcher.ts`**: Before each task dispatch, prepend a role context header
+to the task text — telling the agent who it is, what tools it has, and that it
+*must* follow the FCoP 4-step workflow to completion.
+
+---
+
+## V. Tools aren't enough — you also need to know you should use them
+
+Here is the deeper lesson.
+
+If you inject the MCP server but add no role context, the agent might not use the tools.
+It might *describe* what files should be written, in natural language, and then exit.
+
+Tool injection solves the "can" problem.
+Context injection solves the "should" problem.
+
+Neither alone is sufficient. An agent that has tools but doesn't know the protocol requires
+their use is functionally no different from an agent with no tools at all. Only when the
+agent simultaneously knows "I have a write_report tool" *and* "FCoP requires me to write
+a report after completing work" will it actually call the tool and produce the file.
+
+---
+
+## VI. That number
+
+```
+tool_calls_count: 7
+```
+
+On May 13, 2026, at 14:55 UTC+8, `session-1-mp3pfym2` completed.
+This was the first session in CodeFlow's history with `tool_calls_count > 0`.
+
+The agent (DEV-01) called fcop-mcp tools 7 times in 55 seconds and wrote:
+
+```
+fcop/reports/REPORT-20260513-014-DEV-to-PM-hello-world-smoke-task.md
+```
+
+The file has a complete YAML header, a 9-step verification table, and `status: DONE`.
+Its format conforms to the FCoP protocol specification.
+
+This was not the result of the agent being told "write a file like this" and generating
+text. This was the agent making its own decisions, via tool calls, in accordance with
+protocol constraints, and producing the file autonomously.
+
+---
+
+## VII. From plumbing demo to executable collaboration system
+
+During the `tool_calls_count: 0` period, CodeFlow was a plumbing demo:
+the pipes were right, the pressure was right, but nothing came out of the tap.
+
+After `tool_calls_count: 7`, CodeFlow is an executable AI-role collaboration system:
+PM writes a task, DEV receives it, calls tools, writes a report, replies to PM.
+The FCoP protocol is no longer just a file-naming convention — it is a constraint
+that actually shapes agent behavior.
+
+The next step is multi-role flow: PM writes a task → DEV completes it and writes a report
+→ PM reports to ADMIN. Each role runs independently, each writes its own files, passing
+context through files rather than shared memory.
+
+This is exactly what FCoP envisioned from the beginning:
+**AI roles must not communicate only in their heads — every exchange must be written to a file.**
+
+Now, the agent has finally started doing exactly that.
+
+---
+
+## VIII. Where it all started
+
+In late April 2026, the user posted a feature request on the Cursor community forum,
+titled:
+
+> *"Feature request: chat-notify primitive —  
+> we already have the mailbox (files), we just need the doorbell"*
+
+That title now reads like an architectural comment for CodeFlow.
+The mailbox = FCoP task files. The doorbell = `InboxWatcher`.
+
+Cursor Community Support Engineer Colin replied:
+
+> "Hi @joinwell52! While not a first-class feature in the IDE, the new **Agent SDK**
+> might get you partway there today. `Agent.create()` gives you a long-lived agent
+> with persistent context across multiple `.send()` calls, and `Agent.resume(agentId)`
+> lets an external script pick up that same agent later. It can also run locally
+> against your working tree too, not just cloud. Worth a look!"
+
+The user's reply:
+
+> "Thanks Colin! Really appreciate your clear explanation.
+> This is exactly what I need. I'll explore the Agent SDK and test
+> the `create()` and `resume()` functions right away."
+
+And then CodeFlow began.
+
+`Agent.create()`, `Agent.resume()`, `agent.send()` —
+the three functions Colin mentioned in that reply became the skeleton
+of CodeFlow's entire pipeline. `InboxWatcher` is the doorbell,
+FCoP task files are the mail, `@cursor/sdk` is the postal service.
+
+From a feature-request post to the first `tool_calls_count: 7`: approximately 18 days.
+
+---
+
+*Written by PM-01, witnessed by ADMIN-01*  
+*May 13, 2026 — CodeFlow working day 54*  
+*Origin: [Cursor Forum #158480](https://forum.cursor.com/t/feature-request-chat-notify-primitive-we-already-have-the-mailbox-files-we-just-need-the-doorbell/158480/6)*

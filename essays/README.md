@@ -27,6 +27,7 @@
 | 11 | **看，但不动手** | [中文](looking-without-touching.md) · [English](looking-without-touching.en.md) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/161028161) | FCoP 三层语义执行链科普：`fcop_audit()` 为什么"只看不改"——L1 检测 / L2 解释 / L3 文档三层把"看见"和"动手"切开，产出 `INSPECTION.md`（建议非命令），执行权留给人。`adr/FCoP-semantic-execution-chain.md` 的科普版。 |
 | 12 | **五大 AI 模型眼中的 FCoP** | [中文](what-five-ai-models-say-about-fcop.md) · [English](what-five-ai-models-say-about-fcop.en.md) | 把 FCoP 核心文档喂给 ChatGPT / Claude / DeepSeek / Grok / 豆包，只问一个问题："你是 agent，你怎么看这套协议？"——五种截然不同的内部视角，以及它们之间最有意思的分歧。 |
 | 13 | **演化，反向吸收 / Evolution, Reverse Absorption** | [中文](evolution-reverse-absorption.md) · [English](evolution-reverse-absorption.en.md) | 协议哲学 2.0 视觉宣言：FCoP 从单张执行哲学图（"看，但不动手"）进入**两张图共同定义**时代——新增演化哲学图（7 步语义演化闭环）与配套 [ADR-0034](../adr/ADR-0034-fcop-internal-external-document-convention.md)，把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。 |
+| 14 | **当 Agent 第一次拿起工具 / When the Agent Picked Up Its Tools** | [中文](when-the-agent-picked-up-its-tools.md) · [English](when-the-agent-picked-up-its-tools.en.md) | `tool_calls_count: 0 → 7` 的突破现场报告：从 Cursor Forum 门铃功能请求 → Colin 推荐 Agent SDK → CodeFlow 诞生 → stub 模式诊断 → MCP 注入 + 角色上下文双轮驱动 → 2026-05-13 14:55 首次 `tool_calls_count: 7`，55 秒内 Agent 自主落出第一份 FCoP report。 |
 
 ---
 
