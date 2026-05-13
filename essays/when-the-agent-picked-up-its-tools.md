@@ -10,6 +10,8 @@ tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 
 **——Cursor Agent SDK + FCoP：从被动扫描到主动交流的第一步**
 
+![题图](../assets/when-the-agent-picked-up-its-tools-cover.png)
+
 ---
 
 ## 一、三个阶段，三种本质
