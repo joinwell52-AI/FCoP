@@ -57,7 +57,7 @@ it's the qualitative shift from "being pushed along" to "acting on its own."
 
 ---
 
-## III. Finding the door
+## II. Finding the door
 
 The key to the diagnosis was reading the Cursor SDK type definitions.
 
@@ -88,7 +88,7 @@ in `_buildSendOptions()`, inject `fcop-mcp` as a stdio MCP server.
 
 ---
 
-## IV. Three changes, one breakthrough
+## III. Three changes, one breakthrough
 
 The code changes were small. The logic was clear.
 
@@ -118,7 +118,7 @@ to the task text — telling the agent who it is, what tools it has, and that it
 
 ---
 
-## V. Tools aren't enough — you also need to know you should use them
+## IV. Tools aren't enough — you also need to know *how* to use them
 
 Here is the deeper lesson.
 
@@ -126,16 +126,17 @@ If you inject the MCP server but add no role context, the agent might not use th
 It might *describe* what files should be written, in natural language, and then exit.
 
 Tool injection solves the "can" problem.
-Context injection solves the "should" problem.
+Context injection solves the "how" problem — what format, what fields, what protocol.
 
 Neither alone is sufficient. An agent that has tools but doesn't know the protocol requires
 their use is functionally no different from an agent with no tools at all. Only when the
 agent simultaneously knows "I have a write_report tool" *and* "FCoP requires me to write
-a report after completing work" will it actually call the tool and produce the file.
+a report after completing work — and here's the exact format and fields" will it actually
+call the tool and produce a properly structured file.
 
 ---
 
-## VI. That number
+## V. That number
 
 ```
 tool_calls_count: 7
@@ -210,28 +211,39 @@ called the tools, and wrote the file.
 
 ---
 
-## VII. From plumbing demo to executable collaboration system
+## VI. The first complete cycle
 
 During the `tool_calls_count: 0` period, CodeFlow was a plumbing demo:
 the pipes were right, the pressure was right, but nothing came out of the tap.
 
-After `tool_calls_count: 7`, CodeFlow is an executable AI-role collaboration system:
-PM writes a task, DEV receives it, calls tools, writes a report, replies to PM.
-The FCoP protocol is no longer just a file-naming convention — it is a constraint
-that actually shapes agent behavior.
+On May 13, 2026, at 14:55 UTC+8, this cycle ran to completion for the first time:
 
-The next step is multi-role flow: PM writes a task → DEV completes it and writes a report
-→ PM reports to ADMIN. Each role runs independently, each writes its own files, passing
-context through files rather than shared memory.
+1. **Notification received**: `InboxWatcher` detected the task file landing — a real doorbell,
+   not an OCR script simulating a click. A native file-system event.
 
-This is exactly what FCoP envisioned from the beginning:
-**AI roles must not communicate only in their heads — every exchange must be written to a file.**
+2. **Autonomous communication**: DEV-01 received the task via the Cursor Agent SDK, understood
+   what FCoP protocol required, and autonomously decided what to do and which tools to call.
+   7 fcop-mcp tool calls. 55 seconds.
 
-Now, the agent has finally started doing exactly that.
+3. **Report filed**: `REPORT-20260513-014-DEV-to-PM-hello-world-smoke-task.md` appeared in
+   `fcop/reports/`. Complete YAML header. Complete nine-step verification table. `status: DONE`.
+   Not AI-generated text — a file written autonomously by an agent through protocol-driven
+   tool calls.
+
+These three things together are the real breakthrough.
+
+Not "the agent can run now." But:
+**The agent was genuinely notified, genuinely communicated in protocol language,
+and genuinely wrote the result into a file.**
+
+FCoP has held this principle from the start:
+*AI roles must not communicate only in their heads — every exchange must be written to a file.*
+
+On May 13, 2026 at 14:55, an agent finally did exactly that.
 
 ---
 
-## VIII. Where it all started
+## VII. Where it all started
 
 In late April 2026, the user posted a feature request on the Cursor community forum,
 titled:
@@ -264,6 +276,34 @@ of CodeFlow's entire pipeline. `InboxWatcher` is the doorbell,
 FCoP task files are the mail, `@cursor/sdk` is the postal service.
 
 From a feature-request post to the first `tool_calls_count: 7`: approximately 18 days.
+
+---
+
+## VIII. FCoP's own transformation
+
+There is something easy to overlook here: as the agent transformed, so did FCoP.
+
+FCoP began as a **pure text protocol** — a set of conventions written in Markdown,
+telling humans and AI agents how to collaborate. Its enforcement relied on *reading*:
+roles read task files, humans read reports, AI read context.
+
+With `fcop-mcp`, FCoP underwent a fundamental change:
+
+| Stage | FCoP's form | Agent's relationship to the protocol |
+|-------|-------------|--------------------------------------|
+| Early | Text specification | Agent reads files, generates text per convention |
+| fcop-mcp | Tool set | Agent calls tools; protocol is enforced at write time |
+
+Before, agents *knew* the FCoP spec and decided whether to follow it.
+Now, the FCoP spec **becomes the tools** — `write_report`, `write_task`, `write_issue`.
+Agents no longer need to "remember" the format. Calling the tool *is* executing the protocol.
+
+This is the leap from **specification** to **infrastructure**.
+
+FCoP is no longer just a manual. It is an **executable collaboration skeleton**.
+Its constraints are no longer enforced by agent self-discipline — they are written
+directly into the file system through tool calls. Every increment of `tool_calls_count`
+is one more concrete instance of the protocol landing in reality.
 
 ---
 
