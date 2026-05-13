@@ -10,6 +10,8 @@ tags: [codeflow, fcop, mcp, agent, tools, breakthrough]
 
 **— Cursor Agent SDK + FCoP: From Passive Scanning to Active Communication**
 
+![Cover](../assets/when-the-agent-picked-up-its-tools-cover.png)
+
 ---
 
 ## I. Three stages — three fundamentally different things
