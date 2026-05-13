@@ -1,5 +1,7 @@
 # fcop-mcp
 
+mcp-name: io.github.joinwell52-AI/fcop
+
 **MCP (stdio) server** — the optional **IDE bridge** for the same FCoP stack. It
 wraps the official [`fcop`](https://pypi.org/project/fcop/) library; it is **not**
 a second “FCoP product” and does not replace the protocol text.

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.joinwell52-AI/fcop",
+  "description": "FCoP MCP server: 35 tools for file-based multi-agent coordination. Cursor + Claude Desktop.",
+  "repository": {
+    "url": "https://github.com/joinwell52-AI/FCoP",
+    "source": "github",
+    "subfolder": "mcp"
+  },
+  "version": "2.0.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "fcop-mcp",
+      "version": "2.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "FCOP_PROJECT_DIR",
+          "description": "Absolute path to your project root (optional, auto-detected if omitted).",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}
