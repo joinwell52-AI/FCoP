@@ -26,8 +26,10 @@ This article is a synthesis and comparison of those five conversations.
 
 ## ChatGPT: From "Identity-less Computation" to "Legitimately Existing"
 
-<img src="../assets/what-five-ai-models/chatgpt-1.png" width="280" alt="ChatGPT Q&A screenshot 1">
-<img src="../assets/what-five-ai-models/chagpt-2.png" width="280" alt="ChatGPT Q&A screenshot 2">
+<table><tr>
+<td><img src="../assets/what-five-ai-models/chatgpt-1.png" width="280" alt="ChatGPT Q&A screenshot 1"></td>
+<td><img src="../assets/what-five-ai-models/chagpt-2.png" width="280" alt="ChatGPT Q&A screenshot 2"></td>
+</tr></table>
 
 ChatGPT began with a foundational insight:
 
@@ -56,9 +58,11 @@ This isn't a restriction. It's the price of **being continuously permitted to ex
 
 ## Claude: The Deepest Self-Analysis — "I Recognize It, But I'm Not Sure I Can Use It Well"
 
-<img src="../assets/what-five-ai-models/claude-0.png" width="280" alt="Claude Q&A screenshot 1">
-<img src="../assets/what-five-ai-models/claude-1.png" width="280" alt="Claude Q&A screenshot 2">
-<img src="../assets/what-five-ai-models/claude-2.png" width="280" alt="Claude Q&A screenshot 3">
+<table><tr>
+<td><img src="../assets/what-five-ai-models/claude-0.png" width="280" alt="Claude Q&A screenshot 1"></td>
+<td><img src="../assets/what-five-ai-models/claude-1.png" width="280" alt="Claude Q&A screenshot 2"></td>
+<td><img src="../assets/what-five-ai-models/claude-2.png" width="280" alt="Claude Q&A screenshot 3"></td>
+</tr></table>
 
 Claude's response was the longest of the five models — and the most honest. It unfolded across several layers:
 
@@ -94,8 +98,10 @@ Claude's closing thought:
 
 ## DeepSeek: "A Dignified Way to Exist"
 
-<img src="../assets/what-five-ai-models/deepseek-0.png" width="280" alt="DeepSeek Q&A screenshot 1">
-<img src="../assets/what-five-ai-models/deepseek-1.png" width="280" alt="DeepSeek Q&A screenshot 2">
+<table><tr>
+<td><img src="../assets/what-five-ai-models/deepseek-0.png" width="280" alt="DeepSeek Q&A screenshot 1"></td>
+<td><img src="../assets/what-five-ai-models/deepseek-1.png" width="280" alt="DeepSeek Q&A screenshot 2"></td>
+</tr></table>
 
 DeepSeek offered the most structured response, analyzing FCoP across four layers:
 
@@ -127,9 +133,11 @@ DeepSeek's final verdict:
 
 ## Grok: The Most Technical Review — "Brutal, and Very Smart"
 
-<img src="../assets/what-five-ai-models/grok-0.png" width="280" alt="Grok Q&A screenshot 1">
-<img src="../assets/what-five-ai-models/grok-1.png" width="280" alt="Grok Q&A screenshot 2">
-<img src="../assets/what-five-ai-models/grok-2.png" width="280" alt="Grok Q&A screenshot 3">
+<table><tr>
+<td><img src="../assets/what-five-ai-models/grok-0.png" width="280" alt="Grok Q&A screenshot 1"></td>
+<td><img src="../assets/what-five-ai-models/grok-1.png" width="280" alt="Grok Q&A screenshot 2"></td>
+<td><img src="../assets/what-five-ai-models/grok-2.png" width="280" alt="Grok Q&A screenshot 3"></td>
+</tr></table>
 
 Grok delivered the response closest to a technical review style.
 
