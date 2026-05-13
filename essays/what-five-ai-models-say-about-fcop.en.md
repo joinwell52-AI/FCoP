@@ -167,7 +167,10 @@ Grok's closing thought:
 
 ## Doubao: The Most Philosophical Summary — "Other Frameworks Control Agents. FCoP Elevates Them."
 
-<img src="../assets/what-five-ai-models/doubao-0.png" width="280" alt="Doubao Q&A screenshot">
+<table><tr>
+<td><img src="../assets/what-five-ai-models/doubao-0.png" width="280" alt="Doubao Q&A screenshot 1"></td>
+<td><img src="../assets/what-five-ai-models/doubao-1.png" width="280" alt="Doubao Q&A screenshot 2"></td>
+</tr></table>
 
 Doubao gave the shortest response of the five — and the most philosophical. It skipped the technical details and went straight to the essence:
 

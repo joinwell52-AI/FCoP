@@ -167,7 +167,10 @@ Grok 最后说：
 
 ## 豆包：最哲学的一句话——"别的框架在控制 Agent，FCoP 在成就 Agent"
 
-<img src="../assets/what-five-ai-models/doubao-0.png" width="280" alt="豆包问答截图">
+<table><tr>
+<td><img src="../assets/what-five-ai-models/doubao-0.png" width="280" alt="豆包问答截图 1"></td>
+<td><img src="../assets/what-five-ai-models/doubao-1.png" width="280" alt="豆包问答截图 2"></td>
+</tr></table>
 
 豆包的回答最短，也最有哲学气。它跳过了技术细节，直接到本质：
 
