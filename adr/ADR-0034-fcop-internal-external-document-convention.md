@@ -2,7 +2,7 @@
 
 | 字段 | 值 |
 |---|---|
-| **Status** | **Accepted**(2026-05-13 ADMIN 拍板"全部完成,升级为 2.0.0",触发 fcop 包 v2.0.0 release sprint;v1 状态 Proposed,迁移记录见 §10.6) |
+| **Status** | **Implemented**(2026-05-13 fcop 2.0.0 / fcop-mcp 2.0.0 已发布 PyPI + GitHub Release v2.0.0,5/5 release jobs success;v1 状态 Proposed,v2 状态 Accepted,v3 状态 Implemented,迁移记录见 §10.6) |
 | **Date** | 2026-05-13 |
 | **Depends on** | ADR-0006(host-neutral rules deploy)、Rule 4.5(三层团队文档)、Rule 7.5(workspace 笼子)、ADR-0017(REVIEW envelope additive 先例)、ADR-0033(trailing slug 收编路径) |
 | **Type** | Protocol Extension — Documentation Architecture & Vocabulary (MINOR additive) |
