@@ -81,21 +81,58 @@ MAJOR.MINOR.PATCH[rcN|devN]
 - [ ] `public_surface.json` / `tool_surface.json` / 其它 snapshot 与
       `git status` 一致(没有未提交 diff,或 diff 已在 CHANGELOG 标注)
 
-### C. 文档层 / Docs
+### C. 文档层 / Docs — 全部同步,PyPI 不可补发
 
-下面 **6 处文档** + **3 处硬断言** 必查。这是 v1.6.0 实战经验:任何一处漂移
-都会让 `test_rules` 红或者让用户读到错版本号:
+> **⚠ PyPI 锁版警告 / PyPI Immutability**
+>
+> `mcp/README.md` 是 `fcop-mcp` 包在 PyPI 的 `long_description`,
+> **`twine upload` 成功即永久定格**——PyPI 规则禁止同版本号重传,等同
+> Rule 7 不可回滚操作。**`mcp/README.md` 落版本号错了 / 漏了 / 没同步,
+> 用户在 PyPI 网页看到的就永久是错的,只能 yank + bump 下一版重发**。
+>
+> v2.0.0 ADMIN 留存反思(REPORT-20260513-011):
+> "**FCoP 短期内会有很多发版,各处文档一定要同步;发版前不要遗漏,
+> 因为 PyPI 不能补发**。"
 
-- [ ] `CHANGELOG.md` 把 `[Unreleased]` → `[1.7.0] - YYYY-MM-DD`
-- [ ] CHANGELOG 新版块下至少包含:
-   - 新增的每个 public API → `Added`
-   - 每个 signature/behavior 变化 → `Changed`(必须 additive 或带 deprecation)
-   - 每个 deprecation → `Deprecated` + 移除目标版本
-- [ ] `README.md` 顶部 "Current release: `vX.Y.Z`" 一行同步到新版本号 + 一句
-      话亮点描述
+下面分 3 段:**C.1 公网可见类**(读者最多,且 PyPI 锁版的 `mcp/README.md`
+在这段)、**C.2 agent 部署后会读到类**、**C.3 hardcoded 断言 + ADR 状态**。
+
+#### C.1 · Visible-on-the-web 类(读者最多,bump 漏 = 对外撒谎)
+
+- [ ] `README.md`(英文,GitHub 仓库首页)顶部 "Current release: `vX.Y.Z`"
+      一行同步到新版本号 + 一句话亮点描述 + 顶部"近期发版"表格补一行
+- [ ] **`README.zh.md`**(中文)同上,**别漏**——v2.0.0 发版时它停在
+      `1.2.1`(4 个版本前),源头就是历版 SOP 只列 `README.md`
+- [ ] **`mcp/README.md`** · PyPI `long_description`,**锁版** ⚠
+      - 把"latest stable release"小节升到 `vX.Y.Z` + 历史版本下移
+      - "What can the server actually do?"开头若有"vX.Y.Z 新增 …"
+        段同步更新
+- [ ] **`docs/index.html`**(GitHub Pages 首页, `https://joinwell52-ai.github.io/FCoP/`):
+      - hero pill `Latest: vX.Y.Z (YYYY-MM-DD) · …`
+      - "What is FCoP" 段的版本里程碑句
+      - 加 essay 时:essays-grid 卡片(新卡片 + 旧 `· Latest` 让位 +
+        副标题 `Fourteen essays / 十四篇 essay` 类的数字)
+- [ ] `essays/README.md`(若本版新增 essay)对应行就位、阅读建议段更新
+- [ ] `CITATION.cff`(若本版是新 Zenodo snapshot)`version` / `date-released`
+      字段同步;否则跳过
+
+#### C.2 · Agent-touch 类(下游 agent 部署后会读到)
+
 - [ ] `src/fcop/rules/_data/letter-to-admin.zh.md` 摘要块版本号 / 日期 /
       `fcop-protocol.mdc` 版本号
 - [ ] `src/fcop/rules/_data/letter-to-admin.en.md` 同上(必须与 zh 同步)
+- [ ] `src/fcop/rules/_data/fcop-rules.mdc` frontmatter `fcop_rules_version`
+      (协议规则有动 = 必 bump;只动包版不动协议规则 = 保持)
+- [ ] `src/fcop/rules/_data/fcop-protocol.mdc` frontmatter
+      `fcop_protocol_version`(同上)
+- [ ] `CHANGELOG.md` 把 `[Unreleased]` → `[X.Y.Z] - YYYY-MM-DD`;新版块
+      至少包含:
+   - 新增的每个 public API → `Added`
+   - 每个 signature/behavior 变化 → `Changed`(必须 additive 或带 deprecation)
+   - 每个 deprecation → `Deprecated` + 移除目标版本
+
+#### C.3 · Hardcoded 断言 + ADR 状态(测试和 server 写死的字符串)
+
 - [ ] **3 处 hardcoded 字符串测试断言**(若改版本号必同步):
    - `tests/test_fcop/test_rules.py` 里 `assert "vX.Y.Z 摘要" in intro` 一行
    - `tests/test_fcop_mcp/test_server.py` 里若有 `"vX.Y.Z 摘要"` 断言
@@ -152,6 +189,50 @@ MAJOR.MINOR.PATCH[rcN|devN]
      的 REVIEW,等 ADMIN `mark_human_approved(review_id)` 才放行执行
 - [ ] 发版完成后准备好 `REPORT-<同日期>-<同seq>-<role>-to-ADMIN-release-*.md`
       模板,留到第 4 阶段填实际产物链接
+
+### G. 发版前文档同步扫描 / Pre-Release Documentation Sync Audit
+
+> §C 是人眼 checklist;§G 是机器扫描 — 30 秒跑完,任何旧版本号残留立即
+> 暴露。**§A–§F 全部 ✅ 后必跑;0 hit 才能进 §Release Steps**。
+> 本节源于 REPORT-20260513-011 的反思和 ADMIN 升格:"**PyPI 不能补发**"。
+
+设 `OLD=1.6.0`(上一版),`NEW=1.7.0`(本版)。以下 5 条命令必须**全部 0 hit
+或仅命中 CHANGELOG 历史段 / fcop/log 归档**:
+
+```powershell
+# 1) 公网可见文档不得残留旧版本号(README × 3 / docs/index.html / essays)
+rg --hidden -g '!.git' -g '!fcop/log' -g '!CHANGELOG.md' `
+   -e '\b1\.6\.0\b' `
+   README.md README.zh.md mcp/README.md docs/ essays/README.md CITATION.cff
+
+# 2) Letter-to-admin 摘要块版本号已升到新版
+rg -e 'fcop_protocol_version|fcop_rules_version|vX\.Y\.Z|v1\.6\.0' `
+   src/fcop/rules/_data/letter-to-admin.zh.md `
+   src/fcop/rules/_data/letter-to-admin.en.md
+
+# 3) _version.py / mcp/_version.py 双包一致
+py -3.10 -c "
+import sys; sys.path.insert(0, 'src'); sys.path.insert(0, 'mcp/src')
+import fcop._version as a, fcop_mcp._version as b
+assert a.__version__ == b.__version__ == '1.7.0', (a.__version__, b.__version__)
+print('versions aligned:', a.__version__)
+"
+
+# 4) CHANGELOG 新版块已就位(应命中 1 行 [1.7.0] - YYYY-MM-DD)
+rg -e '^## \[1\.7\.0\] - 20\d\d-\d\d-\d\d' CHANGELOG.md
+
+# 5) ADR 状态扫描(不能带着 Proposed ADR 发版)
+rg -e '^Status: Proposed' adr/
+# 命中 = 立即修;0 命中 = 通过
+```
+
+**5 条全 0 hit(除 #4 必须 1 hit、#1 在 CHANGELOG 命中可忽略)= 文档同步
+通过**,进 §Release Steps。任何命中按 §C 对应小段回头修,然后**重新跑一遍
+§G**——这条 loop 是发版前的最后一道闸门,不允许跳过。
+
+> ADMIN 红线:**FCoP 短期内会有很多发版,各处文档一定要同步;发版前不要
+> 遗漏,因为 PyPI 不能补发**(REPORT-20260513-011 反思 + 2026-05-13 21:55
+> ADMIN 直话)。本节就是这条红线的可执行入口。
 
 ---
 
