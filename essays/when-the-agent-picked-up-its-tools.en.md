@@ -335,4 +335,4 @@ Thank you to the Cursor team. Thank you, Colin, for that reply.
 *May 13, 2026 — CodeFlow working day 54*  
 *Origin: [Cursor Forum #158480](https://forum.cursor.com/t/feature-request-chat-notify-primitive-we-already-have-the-mailbox-files-we-just-need-the-doorbell/158480/6)*  
 *Discussion: [Cursor Forum #160505](https://forum.cursor.com/t/when-the-agent-first-picked-up-its-own-tools-cursor-agent-sdk-fcop-from-passive-scanning-to-active-communication/160505)*  
-*Published: [Dev.to](https://dev.to/joinwell52/when-the-agent-first-picked-up-its-own-tools-4b63)*
+*Published: [Dev.to](https://dev.to/joinwell52/when-the-agent-first-picked-up-its-own-tools-4b63) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/161057749)*
