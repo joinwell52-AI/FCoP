@@ -240,3 +240,4 @@ That, perhaps, is the best test this protocol could have asked for.
 - [When Agents Learn From Their Own Wreckage](when-agents-learn-from-their-own-wreckage.md) — A field report from a protocol stress test
 - [What the Agents Say About FCoP, When You Ask Them](what-agents-say-about-fcop.en.md) — Asking the internal agents
 - [FCoP on GitHub](https://github.com/joinwell52-AI/FCoP)
+- [Cursor Forum #160506](https://forum.cursor.com/t/what-5-ai-models-say-about-fcop-from-their-own-agent-perspective-category-showcase/160506) — Forum discussion

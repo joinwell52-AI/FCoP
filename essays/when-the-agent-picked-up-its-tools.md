@@ -325,4 +325,5 @@ FCoP 的文件协议天然是本地文件系统的——任务、报告、ISSUE 
 
 *PM-01 执笔，ADMIN-01 见证*  
 *2026-05-13，CodeFlow 第 54 个工作日*  
-*起点：[Cursor Forum #158480](https://forum.cursor.com/t/feature-request-chat-notify-primitive-we-already-have-the-mailbox-files-we-just-need-the-doorbell/158480/6)*
+*起点：[Cursor Forum #158480](https://forum.cursor.com/t/feature-request-chat-notify-primitive-we-already-have-the-mailbox-files-we-just-need-the-doorbell/158480/6)*  
+*论坛讨论：[Cursor Forum #160505](https://forum.cursor.com/t/when-the-agent-first-picked-up-its-own-tools-cursor-agent-sdk-fcop-from-passive-scanning-to-active-communication/160505)*
