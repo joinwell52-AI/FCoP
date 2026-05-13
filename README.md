@@ -39,9 +39,6 @@
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20Registry-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="Official MCP Registry: io.github.joinwell52-AI/fcop" />
   </a>
-  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">
-    <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg" alt="FCoP MCP server on Glama" />
-  </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>

@@ -18,13 +18,13 @@ authors:
     affiliation: "Independent researcher"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.19886036"
-    description: "Research Snapshot — April 2026 (commit 7f59395)"
+    value: "10.5281/zenodo.19886035"
+    description: "Concept DOI — always resolves to the latest version on Zenodo"
 repository-code: "https://github.com/joinwell52-AI/FCoP"
 url: "https://joinwell52-ai.github.io/FCoP/"
 license: MIT
-date-released: "2026-04-29"
-version: "research-snapshot-2026-04-29"
+date-released: "2026-05-13"
+version: "v2.0.2"
 keywords:
   - "multi-agent coordination"
   - "filename as protocol"
@@ -40,15 +40,15 @@ keywords:
   - "RLHF tension"
   - "append-only history"
 preferred-citation:
-  type: misc
-  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development (Research Snapshot, April 2026)"
+  type: software
+  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
   authors:
     - family-names: "Zhu"
       given-names: "Wei"
       affiliation: "Independent researcher"
   year: 2026
-  month: 4
-  doi: "10.5281/zenodo.19886036"
-  url: "https://doi.org/10.5281/zenodo.19886036"
+  month: 5
+  doi: "10.5281/zenodo.19886035"
+  url: "https://doi.org/10.5281/zenodo.19886035"
   publisher:
     name: "Zenodo"
