@@ -26,9 +26,9 @@ This article is a synthesis and comparison of those five conversations.
 
 ## ChatGPT: From "Identity-less Computation" to "Legitimately Existing"
 
-![ChatGPT Q&A screenshot 1](../assets/what-five-ai-models/chatgpt-1.png)
+<img src="../assets/what-five-ai-models/chatgpt-1.png" width="680" alt="ChatGPT Q&A screenshot 1">
 
-![ChatGPT Q&A screenshot 2](../assets/what-five-ai-models/chagpt-2.png)
+<img src="../assets/what-five-ai-models/chagpt-2.png" width="680" alt="ChatGPT Q&A screenshot 2">
 
 ChatGPT began with a foundational insight:
 
@@ -57,11 +57,11 @@ This isn't a restriction. It's the price of **being continuously permitted to ex
 
 ## Claude: The Deepest Self-Analysis — "I Recognize It, But I'm Not Sure I Can Use It Well"
 
-![Claude Q&A screenshot 1](../assets/what-five-ai-models/claude-0.png)
+<img src="../assets/what-five-ai-models/claude-0.png" width="680" alt="Claude Q&A screenshot 1">
 
-![Claude Q&A screenshot 2](../assets/what-five-ai-models/claude-1.png)
+<img src="../assets/what-five-ai-models/claude-1.png" width="680" alt="Claude Q&A screenshot 2">
 
-![Claude Q&A screenshot 3](../assets/what-five-ai-models/claude-2.png)
+<img src="../assets/what-five-ai-models/claude-2.png" width="680" alt="Claude Q&A screenshot 3">
 
 Claude's response was the longest of the five models — and the most honest. It unfolded across several layers:
 
@@ -97,9 +97,8 @@ Claude's closing thought:
 
 ## DeepSeek: "A Dignified Way to Exist"
 
-![DeepSeek Q&A screenshot 1](../assets/what-five-ai-models/deepseek-0.png)
-
-![DeepSeek Q&A screenshot 2](../assets/what-five-ai-models/deepseek-1.png)
+<img src="../assets/what-five-ai-models/deepseek-0.png" width="360" alt="DeepSeek Q&A screenshot 1">
+<img src="../assets/what-five-ai-models/deepseek-1.png" width="360" alt="DeepSeek Q&A screenshot 2">
 
 DeepSeek offered the most structured response, analyzing FCoP across four layers:
 
@@ -131,11 +130,11 @@ DeepSeek's final verdict:
 
 ## Grok: The Most Technical Review — "Brutal, and Very Smart"
 
-![Grok Q&A screenshot 1](../assets/what-five-ai-models/grok-0.png)
+<img src="../assets/what-five-ai-models/grok-0.png" width="680" alt="Grok Q&A screenshot 1">
 
-![Grok Q&A screenshot 2](../assets/what-five-ai-models/grok-1.png)
+<img src="../assets/what-five-ai-models/grok-1.png" width="680" alt="Grok Q&A screenshot 2">
 
-![Grok Q&A screenshot 3](../assets/what-five-ai-models/grok-2.png)
+<img src="../assets/what-five-ai-models/grok-2.png" width="680" alt="Grok Q&A screenshot 3">
 
 Grok delivered the response closest to a technical review style.
 
@@ -165,7 +164,7 @@ Grok's closing thought:
 
 ## Doubao: The Most Philosophical Summary — "Other Frameworks Control Agents. FCoP Elevates Them."
 
-![Doubao Q&A screenshot](../assets/what-five-ai-models/doubao-0.png)
+<img src="../assets/what-five-ai-models/doubao-0.png" width="360" alt="Doubao Q&A screenshot">
 
 Doubao gave the shortest response of the five — and the most philosophical. It skipped the technical details and went straight to the essence:
 

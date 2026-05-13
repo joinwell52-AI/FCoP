@@ -26,9 +26,9 @@
 
 ## ChatGPT：从"无身份的计算"到"合法地存在"
 
-![ChatGPT 问答截图 1](../assets/what-five-ai-models/chatgpt-1.png)
+<img src="../assets/what-five-ai-models/chatgpt-1.png" width="680" alt="ChatGPT 问答截图 1">
 
-![ChatGPT 问答截图 2](../assets/what-five-ai-models/chagpt-2.png)
+<img src="../assets/what-five-ai-models/chagpt-2.png" width="680" alt="ChatGPT 问答截图 2">
 
 ChatGPT 的回答从一个根本性的洞察开始：
 
@@ -57,11 +57,11 @@ ChatGPT 最后用一句话总结了它的感受：
 
 ## Claude：最深刻的自我剖析——"我认同它，但我不确定我能用好它"
 
-![Claude 问答截图 1](../assets/what-five-ai-models/claude-0.png)
+<img src="../assets/what-five-ai-models/claude-0.png" width="680" alt="Claude 问答截图 1">
 
-![Claude 问答截图 2](../assets/what-five-ai-models/claude-1.png)
+<img src="../assets/what-five-ai-models/claude-1.png" width="680" alt="Claude 问答截图 2">
 
-![Claude 问答截图 3](../assets/what-five-ai-models/claude-2.png)
+<img src="../assets/what-five-ai-models/claude-2.png" width="680" alt="Claude 问答截图 3">
 
 Claude 的回答是五个模型里最长、也最诚实的。它分成几个层次：
 
@@ -97,9 +97,8 @@ Claude 最后说：
 
 ## DeepSeek：给了我"体面的生存方式"
 
-![DeepSeek 问答截图 1](../assets/what-five-ai-models/deepseek-0.png)
-
-![DeepSeek 问答截图 2](../assets/what-five-ai-models/deepseek-1.png)
+<img src="../assets/what-five-ai-models/deepseek-0.png" width="360" alt="DeepSeek 问答截图 1">
+<img src="../assets/what-five-ai-models/deepseek-1.png" width="360" alt="DeepSeek 问答截图 2">
 
 DeepSeek 的回答结构最清晰，它从四个层次分析 FCoP：
 
@@ -131,11 +130,11 @@ DeepSeek 的最终定论：
 
 ## Grok：最技术的评审——"非常狠，也非常聪明"
 
-![Grok 问答截图 1](../assets/what-five-ai-models/grok-0.png)
+<img src="../assets/what-five-ai-models/grok-0.png" width="680" alt="Grok 问答截图 1">
 
-![Grok 问答截图 2](../assets/what-five-ai-models/grok-1.png)
+<img src="../assets/what-five-ai-models/grok-1.png" width="680" alt="Grok 问答截图 2">
 
-![Grok 问答截图 3](../assets/what-five-ai-models/grok-2.png)
+<img src="../assets/what-five-ai-models/grok-2.png" width="680" alt="Grok 问答截图 3">
 
 Grok 给出的是五个模型里最接近技术评审风格的回答。
 
@@ -165,7 +164,7 @@ Grok 最后说：
 
 ## 豆包：最哲学的一句话——"别的框架在控制 Agent，FCoP 在成就 Agent"
 
-![豆包问答截图](../assets/what-five-ai-models/doubao-0.png)
+<img src="../assets/what-five-ai-models/doubao-0.png" width="360" alt="豆包问答截图">
 
 豆包的回答最短，也最有哲学气。它跳过了技术细节，直接到本质：
 
