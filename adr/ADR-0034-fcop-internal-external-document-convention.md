@@ -2,7 +2,7 @@
 
 | 字段 | 值 |
 |---|---|
-| **Status** | **Proposed**(架构级提案,等 ADMIN 拍板 + fcop 包下次 MINOR bump 实施) |
+| **Status** | **Accepted**(2026-05-13 ADMIN 拍板"全部完成,升级为 2.0.0",触发 fcop 包 v2.0.0 release sprint;v1 状态 Proposed,迁移记录见 §10.6) |
 | **Date** | 2026-05-13 |
 | **Depends on** | ADR-0006(host-neutral rules deploy)、Rule 4.5(三层团队文档)、Rule 7.5(workspace 笼子)、ADR-0017(REVIEW envelope additive 先例)、ADR-0033(trailing slug 收编路径) |
 | **Type** | Protocol Extension — Documentation Architecture & Vocabulary (MINOR additive) |
@@ -935,6 +935,27 @@ v1 删除遵守:
     不得润色措辞或调整图形结构(Rule 0.c 引用必带出处的最严形式)
   - ADMIN 钦定来源:2026-05-13T09:14+08:00 sess-04 原话——"第一张
     是执行哲学,第二张是演化哲学,两张合在一起,FCoP 才完整"
+
+### 10.6 Status Transition Log / 状态迁移记录
+
+| 时间(本地) | 状态 | 触发事件 | 落盘载体 |
+|---|---|---|---|
+| 2026-05-13T07:00 | Drafting | TASK-005 派单"emergence-log 单文件 case study" | `fcop/log/tasks/TASK-005-...md` |
+| 2026-05-13T08:10 | Drafting v2 | TASK-006 派单"4 层涌现架构级吸收" | `fcop/log/tasks/TASK-006-...md` |
+| 2026-05-13T09:14 | Drafting v2.1.1 | ADMIN 三轮补稿落定(§2.5 + §2.5.6) | commit `523d81e` |
+| 2026-05-13T13:06 | **Accepted** | ADMIN 决策"我想全部完成,然后升级为 2.0.0" | (本次 commit) |
+| → Implemented | (待办) | fcop / fcop-mcp 2.0.0 PyPI release 完成 + ADMIN 在本仓 redeploy_rules | 待 release sprint 收尾 |
+
+ADMIN 13:06 原话被记录在两处:
+- `fcop/log/reports/REPORT-20260513-006-ME-to-ADMIN.md` §4(commit `92980c7`)
+- 本 §10.6 表(commit 待落)
+
+Accepted 之后本 ADR 进入"实施 sprint"阶段,后续动作由 fcop 包
+v2.0.0 release sprint(主任务 `TASK-20260513-008`,sprint 计划文档
+`fcop/shared/SPRINT-fcop-2.0.0-release.md`)统一管控。**本 ADR 的
+Status 从 Accepted 升至 Implemented 的触发事件**:fcop / fcop-mcp
+2.0.0 在 PyPI 上线 + GitHub Release 落定 + ADMIN 在本仓与下游
+(Bridgeflow / codeflow)调 `redeploy_rules()`。
 
 ---
 
