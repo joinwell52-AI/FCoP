@@ -13,7 +13,7 @@
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
   <a href="README.zh.md">简体中文</a> ·
   <a href="docs/getting-started.en.md">Getting started</a> ·
-  <a href="docs/mcp-tools.md"><strong>MCP Tools (32)</strong></a> ·
+  <a href="docs/mcp-tools.md"><strong>MCP Tools (35)</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
   <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
@@ -34,7 +34,7 @@
     <img src="https://img.shields.io/badge/spec-v1.1-green?style=flat-square" alt="Spec v1.1" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/release-1.3.0-brightgreen?style=flat-square" alt="1.3.0" />
+    <img src="https://img.shields.io/badge/release-2.0.0-brightgreen?style=flat-square" alt="2.0.0" />
   </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
@@ -201,13 +201,17 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 | Install `fcop-mcp` into Cursor / Claude Desktop step-by-step | [`mcp/README.md`](mcp/README.md) |
 | Have an agent do the install for you (zero JSON editing) | [`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md) · [中文](src/fcop/rules/_data/agent-install-prompt.zh.md) (also live as MCP resource `fcop://prompt/install`) |
 | Upgrade an existing `0.6.x` install (both packages in lockstep + protocol-rule refresh) | [`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md) |
-| Browse all 32 MCP tools and 14 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| Browse all 35 MCP tools and 14 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
 | Read the per-release record (what changed when, why) | [`CHANGELOG.md`](CHANGELOG.md) and [`docs/releases/`](docs/releases/) |
 
 **Recent releases** (full notes in [`docs/releases/`](docs/releases/)):
 
 | Version | One-line |
 |---|---|
+| **2.0.0** ([CHANGELOG](CHANGELOG.md)) | **v2.0 — "Two-diagram era" philosophical major release.** Same execution surface as v1.x (per ADR-0003 additive); the major bump records that FCoP is now defined by **two** diagrams together: the **execution stack** (5-layer vertical, stable since v1.x) *and* the **FCoP Semantic Evolution Loop** (7-node closed loop — emerge → observe → propose → review → merge → deploy → reflect, newly canonicalised). Adds Rule 4.6 (`fcop/internal/` vs `docs/` + `essays/` soft convention with `internal-only` declaration v1), `Project.init(deploy_internal_template=...)` opt-in, P3 (suggestion) audit severity, and a bundled `fcop_audit` exemption list (`log/`, `_archive/`, `legacy-non-protocol/`) that fixes three upstream bugs surfaced by codeflow cross-project patrol (ISSUE-008/009/010). ADR-0034. |
+| **1.6.0** ([CHANGELOG](CHANGELOG.md)) | **v1.6 — Trailing-slug filename adoption (ADR-0033).** Long filenames (`TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md`) are now first-class — codeflow's 22+ self-emerged examples absorbed into the grammar. Slug does **not** participate in routing; it's a human-readable label. 100% backward-compatible (0 regressions across 1057 tests). |
+| **1.5.0** ([CHANGELOG](CHANGELOG.md)) | **v1.5 — Protocol-awareness sync + `RULE_DOC_DRIFT`.** 84 role/team docs synced to v1.4 protocol surface (REVIEW envelope / `risk_level` / `fcop_audit` / `supersedes:`); new `Project._scan_outdated_role_docs()` with `RULE_DOC_DRIFT` (P1) violation type. |
+| **1.4.0** ([notes](docs/releases/1.4.0.md)) | **v1.4 — Write-side bind enforcement (P0 security) + `supersedes:` field.** 15 write-side MCP tools refuse cwd fallback (`WriteRefused`); Protected Path deny-list (HOME / APPDATA / drive roots / Unix system dirs); new `supersedes:` frontmatter field (all envelopes) + `## GATE Design Pitfalls` commentary (`fcop_protocol_version 2.2.0`). |
 | **1.3.0** ([notes](docs/releases/1.3.0.md)) | **v1.3 — Governance Alert Layer + Protocol Compiler.** GAL (ADR-0031): 3 drift signals (S1/S3/S4), FCoP-Rule-G1, 2 new alert tools (`fcop_list_alerts`, `fcop_create_alert`). fcop_audit (ADR-0032): three-scenario protocol inspection compiler, 6 scan methods, INSPECTION report with Execution Block. 35 MCP tools total. |
 | **1.2.1** ([notes](docs/releases/1.2.1.md)) | **v1.2 — Capability Governance pillar.** `FCoPGovernanceMiddleware` wraps every MCP tool call: Skill Resolver → Risk Tagging (Safe / Sensitive / Critical) → append-only `fcop_events.jsonl` audit log. 2 new MCP tools (`list_governance_events`, `get_governance_summary`). `fcop_check()` gains governance event summary. Both `fcop` and `fcop-mcp` align to `1.2.1` (lockstep). ADR-0030-bis. |
 | **1.1.0** ([CHANGELOG](CHANGELOG.md)) | **v1.1 — Agent.layer governance contracts + Task.risk_level + Review.needs_human + HumanApproval + Skill.tools[] risk metadata.** 5 new ADRs (0023–0027), 4 new MCP tools (`write_review`, `list_reviews`, `read_review`, `mark_human_approved`), `write_task` gains `risk_level` param, new `skill.schema.json`. Fully backward-compatible. |
@@ -278,7 +282,7 @@ Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`a
 | **v1.2 Capability Governance** — FCoPGovernanceMiddleware, risk tagging, audit log | [CHANGELOG](CHANGELOG.md) · ADR-0030-bis |
 | **v1.1 new fields** — risk_level, needs_human, human_approval, skill tools | [CHANGELOG](CHANGELOG.md) · ADR-0023..0027 |
 | **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md) |
-| **All 32 MCP tools & 14 resources** | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
+| **All 35 MCP tools & 14 resources** | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
 | **Release notes** — full changelog | [`CHANGELOG.md`](CHANGELOG.md) |
 | **Full document map** — every file and its role | [spec Appendix B](spec/fcop-runtime-protocol-v1.0.md#appendix-b--authoritative-document-map) |
 
