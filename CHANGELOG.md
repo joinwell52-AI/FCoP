@@ -8,6 +8,174 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.0.0] — 2026-05-21 (Protocol-level MAJOR · "文件夹即状态"纪元)
+
+### 概述 / Overview
+
+**FCoP 3.0 — Protocol Semantic Sealing.**
+
+FCoP 协议本体的一次完整重写：从 1.x/2.x 的"文件即协议，文件夹即组织"，演进为 **"文件位置即真相；其它一切都是踪迹"**（file location is truth; everything else is trace）。
+
+FCoP 3.0 把协议表面压缩为 **3 层 + 1 个 NOTE**：
+
+```
+META       ADR-0038 · Boundary Charter (Agent POSIX, 防 OS 化)
+NOW        ADR-0035 · State Ontology  (path = truth, frozen)
+PAST       ADR-0036 · Event Layer     (transitions = audit-only trace)
+           NOTE     · Custody-is-not-a-layer (informative)
+```
+
+FCoP 3.0 is a protocol-level rewrite. The full ontology is now expressed in one canonical statement:
+
+> **FCoP is a filesystem-native protocol where file location defines current state, and all historical and ownership semantics are derived from append-only transition traces.**
+
+### 核心变更 / Core Changes
+
+#### 1. 目录拓扑（BREAKING）/ Directory Topology (BREAKING)
+
+引入 `_lifecycle/` 五桶结构作为状态本体：
+
+```
+fcop/
+├── _lifecycle/
+│   ├── inbox/     ← created
+│   ├── active/    ← claimed
+│   ├── review/    ← pending confirmation
+│   ├── done/      ← completed
+│   └── archive/   ← closed
+├── reports/
+├── issues/
+└── shared/
+```
+
+**与 2.x 不兼容**：`tasks/`、`log/tasks/`、`log/reports/` 被迁移到 `_lifecycle/inbox/`、`_lifecycle/archive/`、`reports/`。必须运行 `fcop migrate --to-v3` 完成迁移。
+
+The 5-bucket `_lifecycle/` topology replaces the 2.x `tasks/` + `log/` model. Migration via `fcop migrate --to-v3` is mandatory.
+
+#### 2. 三层规则集 / Three Rule Sets
+
+**State Layer**（NOW truth）：
+- **Rule A** — `file path = state truth`
+- **Rule B** — L1 工具执行文件系统状态迁移
+- **Rule C** — 状态迁移仅由显式工具调用治理
+
+**Event Layer**（PAST trace）：
+- **Rule E** — 每次 `mv` 必产生一条事件
+- **Rule F** — 事件只追加
+- **Rule G** — 事件是仅供审计的 PAST 踪迹（绝不用于判定当前状态）
+
+**Boundary Charter**：
+- 三大原则（describe not execute / externalise not own / coordinate not orchestrate）
+- 五问过滤器（任何未来 ADR 必经审查）
+- §5.1 豁免条款（complexity-forced / cross-runtime breakdown / internal contradiction）
+
+#### 3. 7 条允许迁移 / 7 Allowed Transitions
+
+| From | To | Tool |
+|------|----|------|
+| — | `inbox` | `create_task` |
+| `inbox` | `active` | `claim_task` |
+| `active` | `review` | `submit_task` |
+| `active` | `done` | `finish_task(skip_review=true)` |
+| `review` | `done` | `approve_task` |
+| `review` | `active` | `reject_task` |
+| `done` | `archive` | `archive_task` |
+
+表外迁移**不被允许**。实现必须拒绝。
+
+#### 4. Atomicity: Write-Then-Rename Pattern
+
+事件写入与文件移动作为单次原子操作：先写履历进临时文件 → fsync → `os.rename(tmp, dst)`（POSIX 原子提交点）→ 删除源文件。**不存在可观察的中间状态。**
+
+> An event is not a side effect of a transition. An event is the transition itself, witnessed in writing.
+
+#### 5. Custody Rejected as Layer
+
+最初提案的 ADR-0037（Custody Layer）在 RFC 评审中**未进 Accepted 即被作废**——custody 一旦成为协议层就会变成"第三套真相系统"，违反 Rule A 与 Rule G。
+
+Custody 思想以 `adr/NOTE-custody-is-not-a-layer.md` 形式保留为衍生解释：
+
+> Custody is not a protocol layer. It is an emergent interpretation of file ownership derived from file location and event history.
+
+完整决策链见 essay `essays/the-day-we-almost-added-custody.md` / `.en.md`。
+
+### 新增规范文档 / New Specification Documents
+
+| 文件 | 用途 |
+|------|------|
+| `spec/fcop-3.0-spec.md` | Canonical single-page formal spec (English) |
+| `spec/fcop-3.0-spec.zh.md` | 中文平行版（informative）|
+| `spec/fcop-3.0-rfc.md` | IETF-style RFC projection（外部稳定面）|
+| `spec/fcop-3.0-rfc.zh.md` | RFC 中文平行版 |
+
+### 新增 ADR / New ADRs
+
+| ADR | 主题 | 状态 |
+|-----|------|------|
+| ADR-0035 | State Ontology — `_lifecycle/` 拓扑 + Rule A/B/C | **Accepted & Frozen** |
+| ADR-0036 | Event Layer — `transitions:` 履历 + Rule E/F/G + write-then-rename | **Accepted** |
+| ADR-0037 | ~~Custody & Handoff~~ | **Withdrawn**（RFC 否决）|
+| ADR-0038 | Boundary Charter — meta-charter + 五问过滤器 + §5.1 豁免 | **Accepted** |
+| NOTE-custody-is-not-a-layer | custody 衍生解释 | Informative |
+
+### 流程证据 / Process Records
+
+| 文件 | 性质 |
+|------|------|
+| `.fcop/proposals/20260521-rfc-semantic-collapse-and-custody-rejection.md` | RFC 现场归档 |
+| `.fcop/proposals/20260521-spec-editorial-patch-and-rfc-projection.md` | Editorial patch 记录 |
+| `fcop/reviews/REVIEW-20260521-001-ADMIN-on-adr-0035.md` | 0035 sign-off |
+| `fcop/reviews/REVIEW-20260521-002-ADMIN-on-fcop-3-0.md` | 3.0 canonical sign-off |
+| `fcop/reviews/REVIEW-20260521-003-ADMIN-on-fcop-3-0-sealed.md` | 3.0 final sealing |
+
+### 社区记忆 / Community Memory
+
+| 文件 | 主题 |
+|------|------|
+| `essays/the-day-we-almost-added-custody.md` | 中文 · 协议拒绝自我扩展的现场记录 |
+| `essays/the-day-we-almost-added-custody.en.md` | English · The day the protocol refused its own extension |
+
+### Breaking Changes
+
+- **协议本体重写**：`tasks/` → `_lifecycle/inbox/`，旧目录拓扑不再合法
+- **35 个 MCP 工具**：写侧工具行为改变（L1 工具必须执行 `_lifecycle/` 之间的原子迁移）
+- **frontmatter 必填新字段**：`_lifecycle/` 下的文件必须携带 `transitions:` 数组
+- **MCP registry**：`io.github.joinwell52-AI/fcop` 服务标识不变；服务版本升级到 3.0.0
+
+### Migration
+
+完整迁移指南：`docs/MIGRATION-3.0.md` / `docs/MIGRATION-3.0.zh.md`
+
+一键迁移：
+
+```bash
+pip install -U fcop fcop-mcp
+python -m fcop migrate --to-v3
+```
+
+迁移脚本会：
+1. 创建 `_lifecycle/` 五桶
+2. 将 `tasks/*.md` 移到 `_lifecycle/inbox/`
+3. 将 `log/tasks/*.md` 移到 `_lifecycle/archive/`
+4. 将 `log/reports/*.md` 移到 `reports/`（不再 archived）
+5. 为所有迁移的文件追加合成 transition 事件
+6. 删除空 `log/` 目录
+
+### Conformance
+
+完整 C1-C10（MUST）与 P1-P5（MUST NOT）合规要求见 `spec/fcop-3.0-spec.md` §6。
+
+### Acknowledgements
+
+本次 release 是 FCoP 协议自创建以来**最重要的协议级跃迁**。它由 6 轮 RFC 评审、3 份 REVIEW 签字、5 篇 PROPOSAL 归档构成；过程本身的可外化、可审计、可回放，是 FCoP 协议机制**自我证明**的现场。
+
+特别记录：FCoP 在同一天完成了一次协议级跃迁，并拒绝了一次自己的善意扩展（custody layer）。这两件事一起发生，标志着 FCoP 进入"协议自治"阶段——它知道自己是什么，也知道自己不是什么。
+
+> **协议最大的危险，不是被推翻，是被善意地扩展。**
+> **The greatest danger to a protocol is not being overthrown — it is being kindly extended.**
+
+---
+
 ## [2.0.2] — 2026-05-13
 
 ### 概述 / Overview

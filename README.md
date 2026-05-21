@@ -34,7 +34,10 @@
     <img src="https://img.shields.io/badge/spec-v1.1-green?style=flat-square" alt="Spec v1.1" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/release-2.0.2-brightgreen?style=flat-square" alt="2.0.2" />
+    <img src="https://img.shields.io/badge/release-3.0.0-brightgreen?style=flat-square" alt="3.0.0" />
+  </a>
+  <a href="spec/fcop-3.0-spec.md">
+    <img src="https://img.shields.io/badge/spec-FCoP%203.0-orange?style=flat-square" alt="FCoP 3.0 spec" />
   </a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20Registry-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="Official MCP Registry: io.github.joinwell52-AI/fcop" />
@@ -43,6 +46,28 @@
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
 </p>
+
+---
+
+## 🆕 FCoP 3.0 is here — *file location is truth; everything else is trace*
+
+<p align="center">
+  <a href="spec/fcop-3.0-spec.md">
+    <img src="assets/fcop-3.0-architecture.png" alt="FCoP 3.0 · Canonical Architecture — file location is truth; everything else is trace" width="900" />
+  </a>
+</p>
+
+> **FCoP 3.0** is the protocol's first **semantic seal**. State now lives in the filesystem itself (`_lifecycle/{inbox,active,review,done,archive}/`), events live append-only inside the file, and *custody / ownership / scheduling / runtime* are explicitly **out of scope** (Boundary Charter).
+>
+> If you're upgrading from 2.x, run `python -m fcop migrate --to-v3`.
+
+| Doc | Purpose |
+|---|---|
+| [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) · [zh](spec/fcop-3.0-spec.zh.md) | Single-page canonical spec |
+| [`spec/fcop-3.0-rfc.md`](spec/fcop-3.0-rfc.md) · [zh](spec/fcop-3.0-rfc.zh.md) | IETF-style RFC projection |
+| [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md) · [zh](docs/MIGRATION-3.0.zh.md) | 2.x → 3.0 migration guide |
+| [`CHANGELOG.md` `[3.0.0]`](CHANGELOG.md) | Full release notes |
+| [`essays/the-day-we-almost-added-custody.en.md`](essays/the-day-we-almost-added-custody.en.md) · [zh](essays/the-day-we-almost-added-custody.md) | The decision that defined 3.0 |
 
 ---
 

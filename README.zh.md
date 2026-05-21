@@ -34,7 +34,10 @@
     <img src="https://img.shields.io/badge/spec-v1.1-green?style=flat-square" alt="规范 v1.1" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-2.0.2-brightgreen?style=flat-square" alt="2.0.2" />
+    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.0.0-brightgreen?style=flat-square" alt="3.0.0" />
+  </a>
+  <a href="spec/fcop-3.0-spec.zh.md">
+    <img src="https://img.shields.io/badge/%E8%A7%84%E8%8C%83-FCoP%203.0-orange?style=flat-square" alt="FCoP 3.0 规范" />
   </a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20%E6%B3%A8%E5%86%8C%E8%A1%A8-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="官方 MCP 注册表:io.github.joinwell52-AI/fcop" />
@@ -43,6 +46,28 @@
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
 </p>
+
+---
+
+## 🆕 FCoP 3.0 已发布——*文件位置即真相；其它一切都是踪迹*
+
+<p align="center">
+  <a href="spec/fcop-3.0-spec.zh.md">
+    <img src="assets/fcop-3.0-architecture.zh.png" alt="FCoP 3.0 · 体系结构全景图——文件位置即真相，其它一切都是踪迹" width="900" />
+  </a>
+</p>
+
+> **FCoP 3.0** 是协议的第一次**语义封板**。状态住进文件系统本身（`_lifecycle/{inbox,active,review,done,archive}/`），事件以只追加方式住在文件内部，而 *custody / ownership / scheduling / runtime* 被显式划到**协议之外**（Boundary Charter）。
+>
+> 从 2.x 升级请运行 `python -m fcop migrate --to-v3`。
+
+| 文档 | 用途 |
+|---|---|
+| [`spec/fcop-3.0-spec.zh.md`](spec/fcop-3.0-spec.zh.md) · [en](spec/fcop-3.0-spec.md) | 中文单页正式规范 |
+| [`spec/fcop-3.0-rfc.zh.md`](spec/fcop-3.0-rfc.zh.md) · [en](spec/fcop-3.0-rfc.md) | RFC 中文平行版 |
+| [`docs/MIGRATION-3.0.zh.md`](docs/MIGRATION-3.0.zh.md) · [en](docs/MIGRATION-3.0.md) | 2.x → 3.0 迁移指南 |
+| [`CHANGELOG.md` `[3.0.0]`](CHANGELOG.md) | 完整 release notes |
+| [`essays/the-day-we-almost-added-custody.md`](essays/the-day-we-almost-added-custody.md) · [en](essays/the-day-we-almost-added-custody.en.md) | 定义 3.0 的那次决策 |
 
 ---
 
