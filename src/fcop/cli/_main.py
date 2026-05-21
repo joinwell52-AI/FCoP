@@ -24,6 +24,7 @@ import argparse
 import sys
 from typing import IO
 
+from fcop.cli import migrate_v3 as _migrate_v3
 from fcop.cli import migrate_workspace as _migrate_ws
 
 
@@ -32,12 +33,14 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="fcop",
         description=(
             "FCoP — Agent Runtime Protocol library CLI. "
-            "Most users only need 'fcop migrate-workspace'; everything "
-            "else lives in the Python library API."
+            "Subcommands: 'migrate-workspace' (0.7→1.0 layout), "
+            "'migrate --to-v3' (2.x→3.0 _lifecycle/ topology). "
+            "Everything else lives in the Python library API."
         ),
     )
     sub = parser.add_subparsers(dest="cmd", required=False)
     _migrate_ws.add_subparser(sub)
+    _migrate_v3.add_subparser(sub)
     return parser
 
 
