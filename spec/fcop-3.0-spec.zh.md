@@ -406,7 +406,7 @@ transitions:
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 3.0 | 2026-05-21 | 首次发布。State Ontology + Event Layer + Boundary Charter。 |
+| 3.0 | 2026-05-21 | 首次发布。State Ontology（[ADR-0035](../adr/ADR-0035-lifecycle-directory-and-tool-layers.md)）+ Event Layer（[ADR-0036](../adr/ADR-0036-lifecycle-event-layer.md)）+ Boundary Charter（[ADR-0038](../adr/ADR-0038-fcop-boundary-charter.md)）+ Freeze Discipline（[ADR-0039](../adr/ADR-0039-fcop-freeze-discipline-and-runtime-absorption-era.md)）+ Canonical 双层约定（[ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md)）。Custody 作为协议层被拒绝（[NOTE-custody-is-not-a-layer](../adr/NOTE-custody-is-not-a-layer.md)）。 |
 
 未来版本规则：
 - **MAJOR**（4.0）：变更 §1 目录拓扑、阶段定义、允许迁移、或任一规则 A/B/C

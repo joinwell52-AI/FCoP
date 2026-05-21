@@ -397,7 +397,7 @@ Reference migration script: `python -m fcop migrate --to-v3`
 
 | Version | Date | Change |
 |---------|------|--------|
-| 3.0 | 2026-05-21 | Initial publication. State Ontology + Event Layer + Boundary Charter. |
+| 3.0 | 2026-05-21 | Initial publication. State Ontology ([ADR-0035](../adr/ADR-0035-lifecycle-directory-and-tool-layers.md)) + Event Layer ([ADR-0036](../adr/ADR-0036-lifecycle-event-layer.md)) + Boundary Charter ([ADR-0038](../adr/ADR-0038-fcop-boundary-charter.md)) + Freeze Discipline ([ADR-0039](../adr/ADR-0039-fcop-freeze-discipline-and-runtime-absorption-era.md)) + Canonical Two-Layer Convention ([ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md)). Custody rejected as protocol layer ([NOTE-custody-is-not-a-layer](../adr/NOTE-custody-is-not-a-layer.md)). |
 
 Future versions follow these rules:
 - **MAJOR** (4.0): Changes §1 directory topology, stage definitions, allowed transitions, or any of Rules A/B/C.

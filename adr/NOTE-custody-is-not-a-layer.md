@@ -103,6 +103,7 @@ NOTE · Custody = interpretation             ← 仅注释，无层级
 **Layer 2 · Semantic ontology**
 
 > **Files externalize protocol semantics. Paths address state. Events are replayable evidence of state transitions.**
+> **文件是协议的外化载体；位置是状态的地址映射；事件是状态转移的可重放证据。**
 
 Custody 不在两层中的任何一层 —— 它是从位置 + 事件**派生出来的解释**，不是协议字段。这就是 ADR-0037 被拒绝的根本原因。
 

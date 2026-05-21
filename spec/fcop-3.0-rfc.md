@@ -149,16 +149,20 @@ In three lines (Layer 1 · cognitive bootstrap, per ADR-0040):
 
 > **Files carry protocol. Paths address state. Events replay
 > transitions.**
+>
+> 文件即协议；位置定义状态；事件记录历史。
 
 Compressed formal definition (Layer 2 · semantic ontology):
 
 > **Files externalize protocol semantics. Paths address state.
 > Events are replayable evidence of state transitions.**
+>
+> 文件是协议的外化载体；位置是状态的地址映射；事件是状态转移的可重放证据。
 
 (Historical / epigraph: *"file location is truth; everything else
-is trace."* — the v1 canonical, retired as definitional surface
-per ADR-0040 but retained in essays and reviews filed on or before
-2026-05-21.)
+is trace."* / *"文件位置即真相；其它一切都是踪迹。"* — the v1
+canonical, retired as definitional surface per ADR-0040 but
+retained in essays and reviews filed on or before 2026-05-21.)
 
 FCoP is NOT an agent runtime, NOT a workflow engine, and NOT an
 orchestration kernel. It defines the contract between participants;
