@@ -128,6 +128,11 @@ ADR-NNNN-kebab-case-title.md
 | **[ADR-0032](./ADR-0032-fcop-audit-protocol-inspection.md)** | **fcop_audit() — 协议状态编译器（三场景体检 / Structured Findings + Suggested Plan）** | **Accepted** | 2026-05-12 |
 | **[ADR-0033](./ADR-0033-trailing-slug-filename-adoption.md)** | **Trailing slug filename adoption — TASK·REPORT·ISSUE 文件名 trailing-slug 收编（MINOR additive · codeflow 现场涌现协议化）** | **Accepted** | 2026-05-12 |
 | **[ADR-0034](./ADR-0034-fcop-internal-external-document-convention.md)** | **FCoP internal / external document convention — `fcop/internal/` vs `docs/` + `essays/` soft convention（Rule 4.6 · `internal-only` 声明 v1 · v2.0 "两图对偶"纪元）** | **Implemented** | 2026-05-13 |
+| **[ADR-0035](./ADR-0035-lifecycle-directory-and-tool-layers.md)** | **FCoP 3.0 State Ontology — Lifecycle directory structure（path = NOW truth · semantics frozen per RFC 2026-05-21）** | **Accepted & Frozen** | 2026-05-21 |
+| **[ADR-0036](./ADR-0036-lifecycle-event-layer.md)** | **FCoP 3.0 Event Layer — `transitions:` 履历（events = PAST audit-only · write-then-rename atomic pattern · Rule E/F/G）** | **Accepted** | 2026-05-21 |
+| **[ADR-0037](./ADR-0037-custody-handoff-semantics.md)** | ~~Custody & Handoff~~ — **Rejected by RFC 2026-05-21**（custody 不能作为协议层；思想保留为 [NOTE-custody-is-not-a-layer.md](./NOTE-custody-is-not-a-layer.md)） | **Withdrawn** | 2026-05-21 |
+| **[ADR-0038](./ADR-0038-fcop-boundary-charter.md)** | **FCoP Boundary Charter — Meta-charter: Agent POSIX not Agent OS · 五问过滤器 + §5.1 豁免条款 · 所有未来 ADR 必经审查** | **Accepted** | 2026-05-21 |
+| [NOTE-custody-is-not-a-layer](./NOTE-custody-is-not-a-layer.md) | Semantic Note · Custody = interpretation of state + events，不是协议层（替代撤销的 ADR-0037 思想） | Informative | 2026-05-21 |
 
 ---
 
