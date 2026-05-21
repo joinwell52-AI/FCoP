@@ -64,6 +64,9 @@ scripts/_*.txt
 /mcp-publisher.tar
 /mcp-publisher.zip
 
+# Local token-audit probe scripts (analysis-only, not protocol artifacts)
+workspace/token-audit/
+
 # Ad-hoc analysis & PR-body drafts that live at repo root
 /analyze_*.py
 /pr-body-*.txt
