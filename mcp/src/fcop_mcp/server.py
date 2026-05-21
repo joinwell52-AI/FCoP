@@ -364,7 +364,7 @@ mcp.add_middleware(FCoPGovernanceMiddleware())
 # ─── Tools ───────────────────────────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L3"})
 def set_project_dir(path: str) -> str:
     """Pin the project root for this MCP session.
 
@@ -798,7 +798,7 @@ def _letter_handover_block(
 # ─── init_* tools ────────────────────────────────────────────────────
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def init_project(
     team: str = "dev-team",
     lang: str = "zh",
@@ -870,7 +870,7 @@ def init_project(
     return "\n".join(lines)
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def init_solo(
     role_code: str = "ME",
     role_label: str = "",
@@ -940,7 +940,7 @@ def init_solo(
     )
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def create_custom_team(
     team_name: str,
     roles: str,
@@ -1014,7 +1014,7 @@ def create_custom_team(
     )
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def validate_team_config(roles: str, leader: str) -> str:
     """Dry-run validation for a custom team config.
 
@@ -1040,7 +1040,7 @@ def validate_team_config(roles: str, leader: str) -> str:
 # ─── Task CRUD tools ─────────────────────────────────────────────────
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L1"})
 def write_task(
     sender: str,
     recipient: str,
@@ -1104,7 +1104,7 @@ def write_task(
     return f"Task created: {task.filename}\nPath: {task.path}{warning}"
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def read_task(filename: str) -> str:
     """Read the full content of a task file.
 
@@ -1124,7 +1124,7 @@ def read_task(filename: str) -> str:
     return _format_task_full(task)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def list_tasks(
     sender: str = "",
     recipient: str = "",
@@ -1180,7 +1180,7 @@ def list_tasks(
     )
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def inspect_task(filename: str) -> str:
     """Validate a task file against FCoP grammar.
 
@@ -1208,7 +1208,7 @@ def inspect_task(filename: str) -> str:
     return f"{filename}\n{result}"
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L1"})
 def archive_task(task_id: str, lang: str = "") -> str:
     """Archive a completed task (move under ``docs/agents/log/``).
 
@@ -1235,7 +1235,7 @@ def archive_task(task_id: str, lang: str = "") -> str:
 # ─── Report CRUD tools ───────────────────────────────────────────────
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def write_report(
     task_id: str,
     reporter: str,
@@ -1281,7 +1281,7 @@ def write_report(
     return f"Report created: {report.filename}\nPath: {report.path}{warning}"
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def list_reports(
     reporter: str = "",
     task_id: str = "",
@@ -1322,7 +1322,7 @@ def list_reports(
     )
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def read_report(filename: str) -> str:
     """Read the full content of a report file.
 
@@ -1342,7 +1342,7 @@ def read_report(filename: str) -> str:
 # ─── Issue tools ─────────────────────────────────────────────────────
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def write_issue(
     reporter: str,
     summary: str,
@@ -1380,7 +1380,7 @@ def write_issue(
 # ─── Review tools (v1.1) ─────────────────────────────────────────────
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def write_review(
     reviewer_role: str,
     subject_type: str,
@@ -1452,7 +1452,7 @@ def write_review(
     return f"Review created: {review.filename}\nPath: {review.path}{extra}"
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def list_reviews(
     reviewer_role: str = "",
     decision: str = "",
@@ -1499,7 +1499,7 @@ def list_reviews(
     return "\n".join(lines)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def read_review(filename: str) -> str:
     """Read the full content of a REVIEW file.
 
@@ -1540,7 +1540,7 @@ def read_review(filename: str) -> str:
     return "\n".join(parts)
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def mark_human_approved(
     review_id: str,
     approver: str,
@@ -1597,7 +1597,7 @@ def mark_human_approved(
     )
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def list_issues(
     reporter: str = "",
     severity: str = "",
@@ -1640,7 +1640,7 @@ def list_issues(
 # ─── Team / deploy / workspace tools ─────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def get_available_teams(lang: str = "zh") -> str:
     """List bundled preset teams and their role rosters.
 
@@ -1677,7 +1677,7 @@ def get_available_teams(lang: str = "zh") -> str:
     return "\n".join(lines)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def get_team_status(lang: str = "") -> str:
     """Return a concise status snapshot of the current project.
 
@@ -1725,7 +1725,7 @@ def get_team_status(lang: str = "") -> str:
     return "\n".join(lines)
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def deploy_role_templates(
     team: str = "",
     lang: str = "",
@@ -1871,7 +1871,7 @@ _RULE_0A1_TRIPWIRE_BLOCK = (
 )
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def new_workspace(slug: str, title: str = "", description: str = "") -> str:
     """Create a workspace subdirectory under ``workspace/<slug>/``.
 
@@ -1980,7 +1980,7 @@ def new_workspace(slug: str, title: str = "", description: str = "") -> str:
     return base
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def list_workspaces(lang: str = "") -> str:
     """List all ``workspace/<slug>/`` subdirectories with their metadata.
 
@@ -2057,7 +2057,7 @@ def list_workspaces(lang: str = "") -> str:
 # ─── Safety-fuse tools ───────────────────────────────────────────────
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def drop_suggestion(content: str, context: str = "") -> str:
     """Pressure valve for agents who disagree with the current FCoP protocol.
 
@@ -2554,7 +2554,7 @@ def _format_role_occupancy(project: fcop.Project, *, is_en: bool) -> str:
     return "\n".join(lines)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def fcop_report(lang: str = "zh") -> str:
     """**FCoP Rule 0 — first tool call of every new session, also the
     general project-status report.**
@@ -2594,7 +2594,7 @@ def fcop_report(lang: str = "zh") -> str:
     return _compose_session_report(lang)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def fcop_check(lang: str = "zh") -> str:
     """**FCoP audit.** Cross-reference git working tree + frontmatter
     against the FCoP ledger.
@@ -2814,7 +2814,7 @@ def _append_governance_audit(lines: list[str], is_en: bool) -> None:
         lines.append(f"GAL scan error: {exc}")
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def fcop_audit(
     scope: str = "auto",
     output: str = "file",
@@ -2880,7 +2880,7 @@ def fcop_audit(
     return banner + "---\n\n" + md[:3000] + suffix
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -> str:
     """**ADMIN-only.** Re-deploy bundled FCoP protocol rules to the project.
 
@@ -2981,7 +2981,7 @@ def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -
     return "\n".join(lines)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def check_update(lang: str = "zh") -> str:
     """Compare the installed fcop-mcp version to the latest on PyPI.
 
@@ -3031,7 +3031,7 @@ def check_update(lang: str = "zh") -> str:
     return verdict
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L3"})
 def upgrade_fcop(lang: str = "zh") -> str:
     """Return the install-method-specific command to upgrade fcop-mcp.
 
@@ -3244,7 +3244,7 @@ def resource_team_role_en(team: str, role: str) -> str:
 # ── Governance Event Tools (ADR-0030-bis Layer 1) ─────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def list_governance_events(
     last_n: int = 50,
     risk: str = "",
@@ -3272,7 +3272,7 @@ def list_governance_events(
     return impl_list_governance_events(last_n=last_n, risk=risk, tag=tag)
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def get_governance_summary() -> str:
     """**FCoP governance summary.** Return aggregate statistics from the
     governance event log: total calls by risk level, most active tools,
@@ -3287,7 +3287,7 @@ def get_governance_summary() -> str:
 # ── Governance Alert Layer Tools (ADR-0031) ────────────────────────────────────
 
 
-@mcp.tool
+@mcp.tool(tags={"tier:L2"})
 def fcop_list_alerts(
     status: str = "",
     severity: str = "",
@@ -3312,7 +3312,7 @@ def fcop_list_alerts(
     return list_alerts(status=status, severity=severity, last_n=last_n)
 
 
-@mcp.tool(tags={"binding_required"})
+@mcp.tool(tags={"binding_required", "tier:L3"})
 def fcop_create_alert(
     severity: str,
     alert_type: str,
