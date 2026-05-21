@@ -49,11 +49,11 @@
 
 ---
 
-## 🆕 FCoP 3.0 is here — *file location is truth; everything else is trace*
+## 🆕 FCoP 3.0 is here — *Files carry protocol. Paths address state. Events replay transitions.*
 
 <p align="center">
   <a href="spec/fcop-3.0-spec.md">
-    <img src="assets/fcop-3.0-architecture.png" alt="FCoP 3.0 · Canonical Architecture — file location is truth; everything else is trace" width="900" />
+    <img src="assets/fcop-3.0-architecture.png" alt="FCoP 3.0 · Canonical Architecture — Files carry protocol. Paths address state. Events replay transitions." width="900" />
   </a>
 </p>
 

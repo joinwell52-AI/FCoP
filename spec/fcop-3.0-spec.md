@@ -10,7 +10,7 @@
 | **License** | MIT |
 | **Conformance** | This document is the canonical specification. Any implementation claiming FCoP 3.0 conformance MUST satisfy every clause marked **MUST**. |
 | **Supersedes** | FCoP 2.x (additive migration path defined in §9) |
-| **Source ADRs** | ADR-0035 (State) · ADR-0036 (Event) · ADR-0038 (Boundary) · NOTE-custody-is-not-a-layer |
+| **Source ADRs** | ADR-0035 (State) · ADR-0036 (Event) · ADR-0038 (Boundary) · ADR-0039 (Freeze Discipline) · ADR-0040 (Canonical Two-Layer) · NOTE-custody-is-not-a-layer |
 
 ---
 
@@ -24,13 +24,33 @@
 
 ## §0 · Canonical Statement
 
-> **FCoP is a filesystem-native protocol where file location defines current state, and all historical and ownership semantics are derived from append-only transition traces.**
+> *file location is truth; everything else is trace.* — v1 canonical, retained as epigraph; superseded as definitional surface by §0.1 + §0.2 per [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md).
 
-In one line:
+### §0.1 · Layer 1 · Cognitive Bootstrap
 
-> **FCoP = file location is truth; everything else is trace.**
+The shortest sentence that establishes the right mental model:
 
-FCoP is **not** an agent runtime, **not** a workflow engine, **not** an orchestration kernel. It is the **POSIX-equivalent** of multi-agent filesystem coordination.
+> **Files carry protocol. Paths address state. Events replay transitions.**
+>
+> 文件即协议；位置定义状态；事件记录历史。
+
+Use this to introduce FCoP. It is teaching-grade, not compliance-grade — an implementation that satisfies §0.2 is conformant whether or not it ever quotes Layer 1.
+
+### §0.2 · Layer 2 · Semantic Ontology
+
+The compressed formal definition every implementation MUST satisfy:
+
+| | clause (en) | clause (zh) | governs |
+|---|---|---|---|
+| 1 | **Files externalize protocol semantics.** | 文件是协议的外化载体。 | protocol identity (§0) |
+| 2 | **Paths address state.** | 位置是状态的地址映射。 | State Layer (§1, Rule A) |
+| 3 | **Events are replayable evidence of state transitions.** | 事件是状态转移的可重放证据。 | Event Layer (§2, Rule E) |
+
+Each row points at exactly one normative section. Conformance to fcop@3.0 means conformance to all three.
+
+### §0.3 · Scope
+
+FCoP is **not** an agent runtime, **not** a workflow engine, **not** an orchestration kernel. It is the **POSIX-equivalent** of multi-agent filesystem coordination — it defines the interface; it does not own execution. The full scope discipline is recorded in [ADR-0038](../adr/ADR-0038-fcop-boundary-charter.md).
 
 ---
 
@@ -393,6 +413,8 @@ Section §8 (Tool Layer) and §9 (Migration) may change without version bump as 
 - ADR-0035 · State Ontology (frozen)
 - ADR-0036 · Event Layer
 - ADR-0038 · Boundary Charter
+- ADR-0039 · Freeze Discipline & Runtime Absorption Era
+- ADR-0040 · Canonical One-Liner Two-Layer Convention
 - NOTE-custody-is-not-a-layer
 - ADR-0033 · Trailing-slug filename adoption
 - ADR-0004 · `os.rename()` atomicity guarantee
@@ -400,9 +422,13 @@ Section §8 (Tool Layer) and §9 (Migration) may change without version bump as 
 
 ---
 
-## §12 · One-Sentence Specification
+## §12 · Canonical One-Liner (Layer 1)
 
-> **FCoP is a coordination protocol in which file location defines the current state of work, append-only events inside the file record the audit history, and nothing else is authoritative.**
+> **Files carry protocol. Paths address state. Events replay transitions.**
+>
+> 文件即协议；位置定义状态；事件记录历史。
+
+For the compressed formal definition (Layer 2) see §0.2. For the rationale behind keeping two layers see [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md).
 
 ---
 

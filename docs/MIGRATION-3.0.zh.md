@@ -25,7 +25,8 @@ fcop/
 
 核心声明：
 
-> **FCoP = 文件位置即真相；其它一切都是踪迹。**
+> **文件即协议；位置定义状态；事件记录历史。**
+> *（Canonical 一句话，依据 [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md)；v1 版"文件位置即真相；其它一切都是踪迹"作为历史题词保留在 2026-05-21 及之前归档的 essays/reviews 中。）*
 
 这一变化解锁：
 

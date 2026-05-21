@@ -25,7 +25,8 @@ fcop/
 
 The canonical statement:
 
-> **FCoP = file location is truth; everything else is trace.**
+> **Files carry protocol. Paths address state. Events replay transitions.**
+> *(Canonical one-liner per [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md); the v1 line "file location is truth; everything else is trace" is retained as historical epigraph in essays/reviews filed on or before 2026-05-21.)*
 
 This change unlocks:
 

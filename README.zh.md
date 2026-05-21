@@ -49,11 +49,11 @@
 
 ---
 
-## 🆕 FCoP 3.0 已发布——*文件位置即真相；其它一切都是踪迹*
+## 🆕 FCoP 3.0 已发布——*文件即协议；位置定义状态；事件记录历史。*
 
 <p align="center">
   <a href="spec/fcop-3.0-spec.zh.md">
-    <img src="assets/fcop-3.0-architecture.zh.png" alt="FCoP 3.0 · 体系结构全景图——文件位置即真相，其它一切都是踪迹" width="900" />
+    <img src="assets/fcop-3.0-architecture.zh.png" alt="FCoP 3.0 · 体系结构全景图——文件即协议；位置定义状态；事件记录历史。" width="900" />
   </a>
 </p>
 

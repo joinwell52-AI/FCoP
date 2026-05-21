@@ -133,6 +133,7 @@ ADR-NNNN-kebab-case-title.md
 | **[ADR-0037](./ADR-0037-custody-handoff-semantics.md)** | ~~Custody & Handoff~~ — **Rejected by RFC 2026-05-21**（custody 不能作为协议层；思想保留为 [NOTE-custody-is-not-a-layer.md](./NOTE-custody-is-not-a-layer.md)） | **Withdrawn** | 2026-05-21 |
 | **[ADR-0038](./ADR-0038-fcop-boundary-charter.md)** | **FCoP Boundary Charter — Meta-charter: Agent POSIX not Agent OS · 五问过滤器 + §5.1 豁免条款 · 所有未来 ADR 必经审查** | **Accepted** | 2026-05-21 |
 | **[ADR-0039](./ADR-0039-fcop-freeze-discipline-and-runtime-absorption-era.md)** | **Freeze Discipline & Runtime Absorption Era — 协议设计期结束，进入 runtime 吸收期；任何新协议机制必须由 runtime 痛点驱动（per §5.1 E1/E2/E3）；含 4 题 pre-flight checklist + 观察 backlog 机制** | **Accepted** | 2026-05-21 |
+| **[ADR-0040](./ADR-0040-canonical-one-liner-two-layer-convention.md)** | **Canonical One-Liner Two-Layer Convention — 把 canonical 拆为 Layer 1（认知引导："文件即协议；位置定义状态；事件记录历史"）+ Layer 2（语义本体）；v1 单行 canonical 退役为题词** | **Accepted (informative)** | 2026-05-21 |
 | [NOTE-custody-is-not-a-layer](./NOTE-custody-is-not-a-layer.md) | Semantic Note · Custody = interpretation of state + events，不是协议层（替代撤销的 ADR-0037 思想） | Informative | 2026-05-21 |
 
 ---

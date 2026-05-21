@@ -10,7 +10,7 @@
 | **许可证** | MIT |
 | **合规性** | 本文档是协议规范的权威版本。任何声称兼容 FCoP 3.0 的实现**必须**满足所有标注为 **MUST**（必须）的条款。 |
 | **取代** | FCoP 2.x（附加式迁移路径见 §9）|
-| **来源 ADR** | ADR-0035（State）· ADR-0036（Event）· ADR-0038（Boundary）· NOTE-custody-is-not-a-layer |
+| **来源 ADR** | ADR-0035（State）· ADR-0036（Event）· ADR-0038（Boundary）· ADR-0039（Freeze Discipline）· ADR-0040（双层 Canonical 约定）· NOTE-custody-is-not-a-layer |
 | **英文对照** | `spec/fcop-3.0-spec.md`（权威版本；本文为中文平行版）|
 
 > **关于本文性质**：本文为英文规范的中文平行版本（informative）。规范性条款的权威表达以英文版为准。两版同步发布、同版本号、内容等价。
@@ -27,14 +27,33 @@
 
 ## §0 · 核心声明
 
-> **FCoP 是一个文件系统原生协议：文件位置定义当前状态，所有历史与持有权语义都从只追加的迁移轨迹推导而来。**
+> *文件位置即真相；其它一切都是踪迹。* — v1 canonical，保留为题词；定义性表面已由 §0.1 + §0.2 取代，依据 [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md)。
 
-一句话：
+### §0.1 · Layer 1 · 认知引导层
 
-> **FCoP = 文件位置即真相；其它一切都是踪迹。**
-> **FCoP = file location is truth; everything else is trace.**
+用最短的句子帮读者建立正确的心智模型：
 
-FCoP **不是** Agent 运行时，**不是** 工作流引擎，**不是** 编排内核。它是多 Agent 文件系统协调的 **POSIX 等价物**。
+> **文件即协议；位置定义状态；事件记录历史。**
+>
+> Files carry protocol. Paths address state. Events replay transitions.
+
+用这一层向新人介绍 FCoP。它是教学级而非合规级——只要实现满足 §0.2，无论是否引用 Layer 1 都是合规的。
+
+### §0.2 · Layer 2 · 语义本体层
+
+每个实现**必须**满足的压缩形式化定义：
+
+| | 中文 | 英文 | 对应章节 |
+|---|---|---|---|
+| 1 | **文件是协议的外化载体。** | Files externalize protocol semantics. | 协议身份（§0）|
+| 2 | **位置是状态的地址映射。** | Paths address state. | 状态层（§1，Rule A）|
+| 3 | **事件是状态转移的可重放证据。** | Events are replayable evidence of state transitions. | 事件层（§2，Rule E）|
+
+每行恰好对应一条规范章节。fcop@3.0 合规 = 满足这三条。
+
+### §0.3 · 范围
+
+FCoP **不是** Agent 运行时，**不是** 工作流引擎，**不是** 编排内核。它是多 Agent 文件系统协调的 **POSIX 等价物**——它定义接口；不拥有执行。完整的范围纪律见 [ADR-0038](../adr/ADR-0038-fcop-boundary-charter.md)。
 
 ---
 
@@ -403,6 +422,8 @@ transitions:
 - ADR-0035 · State Ontology（已冻结）
 - ADR-0036 · Event Layer
 - ADR-0038 · Boundary Charter
+- ADR-0039 · Freeze Discipline & Runtime Absorption Era
+- ADR-0040 · Canonical One-Liner Two-Layer Convention
 - NOTE-custody-is-not-a-layer
 - ADR-0033 · 尾标文件名采纳
 - ADR-0004 · `os.rename()` 原子性保证
@@ -410,11 +431,13 @@ transitions:
 
 ---
 
-## §12 · 一句话规范
+## §12 · Canonical 一句话（Layer 1）
 
-> **FCoP 是一个协调协议：文件位置定义当前工作状态，文件内只追加的事件记录审计历史，其余一切都不具权威性。**
+> **文件即协议；位置定义状态；事件记录历史。**
 >
-> **FCoP is a coordination protocol in which file location defines the current state of work, append-only events inside the file record the audit history, and nothing else is authoritative.**
+> Files carry protocol. Paths address state. Events replay transitions.
+
+压缩形式化定义（Layer 2）见 §0.2。两层并存的理由见 [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md)。
 
 ---
 

@@ -14,7 +14,12 @@ versioning strategy.
 
 **FCoP 3.0 — Protocol Semantic Sealing.**
 
-FCoP 协议本体的一次完整重写：从 1.x/2.x 的"文件即协议，文件夹即组织"，演进为 **"文件位置即真相；其它一切都是踪迹"**（file location is truth; everything else is trace）。
+FCoP 协议本体的一次完整重写：从 1.x/2.x 的"文件即协议，文件夹即组织"，演进为 canonical 双层（per [ADR-0040](adr/ADR-0040-canonical-one-liner-two-layer-convention.md)）：
+
+* **Layer 1（认知引导）**：**文件即协议；位置定义状态；事件记录历史。** / *Files carry protocol. Paths address state. Events replay transitions.*
+* **Layer 2（语义本体）**：文件是协议的外化载体；位置是状态的地址映射；事件是状态转移的可重放证据。
+
+（v1 canonical "file location is truth; everything else is trace" 已退出定义性表面，仅保留在 2026-05-21 及之前归档的 essays/reviews 中。）
 
 FCoP 3.0 把协议表面压缩为 **3 层 + 1 个 NOTE**：
 

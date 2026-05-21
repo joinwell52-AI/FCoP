@@ -145,9 +145,20 @@ document are to be interpreted as described in [RFC2119].
 > current state, and all historical and ownership semantics are derived
 > from append-only transition traces.**
 
-In one line:
+In three lines (Layer 1 · cognitive bootstrap, per ADR-0040):
 
-> **FCoP = file location is truth; everything else is trace.**
+> **Files carry protocol. Paths address state. Events replay
+> transitions.**
+
+Compressed formal definition (Layer 2 · semantic ontology):
+
+> **Files externalize protocol semantics. Paths address state.
+> Events are replayable evidence of state transitions.**
+
+(Historical / epigraph: *"file location is truth; everything else
+is trace."* — the v1 canonical, retired as definitional surface
+per ADR-0040 but retained in essays and reviews filed on or before
+2026-05-21.)
 
 FCoP is NOT an agent runtime, NOT a workflow engine, and NOT an
 orchestration kernel. It defines the contract between participants;

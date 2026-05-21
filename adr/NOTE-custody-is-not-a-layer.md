@@ -93,12 +93,20 @@ NOTE · Custody = interpretation             ← 仅注释，无层级
 
 ---
 
-## Canonical One-Liner
+## Canonical One-Liner（two-layer per ADR-0040）
 
-> **FCoP is filesystem-sourced with event-based auditability.**  
-> **FCoP = file location is truth; everything else is trace.**
+**Layer 1 · Cognitive bootstrap**
 
-Custody 属于 "everything else"。
+> **Files carry protocol. Paths address state. Events replay transitions.**
+> **文件即协议；位置定义状态；事件记录历史。**
+
+**Layer 2 · Semantic ontology**
+
+> **Files externalize protocol semantics. Paths address state. Events are replayable evidence of state transitions.**
+
+Custody 不在两层中的任何一层 —— 它是从位置 + 事件**派生出来的解释**，不是协议字段。这就是 ADR-0037 被拒绝的根本原因。
+
+*(Historical / v1 epigraph: "file location is truth; everything else is trace." — see ADR-0040 for why this single line was split into two layers.)*
 
 ---
 

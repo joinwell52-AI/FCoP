@@ -241,10 +241,19 @@ log/（清空后）   → 删除
 
 ---
 
-## Canonical One-Liner（RFC 2026-05-21 collapse）
+## Canonical One-Liner（RFC 2026-05-21 collapse · two-layer per ADR-0040）
 
-> **FCoP = file location is truth; everything else is trace.**  
-> **FCoP is filesystem-sourced with event-based auditability.**
+**Layer 1 · Cognitive bootstrap**
+
+> **Files carry protocol. Paths address state. Events replay transitions.**
+> **文件即协议；位置定义状态；事件记录历史。**
+
+**Layer 2 · Semantic ontology**
+
+> **Files externalize protocol semantics. Paths address state. Events are replayable evidence of state transitions.**
+> **文件是协议的外化载体；位置是状态的地址映射；事件是状态转移的可重放证据。**
+
+*(Historical / v1 epigraph: "file location is truth; everything else is trace." — see ADR-0040.)*
 
 | 维度 | 真相载体 | 协议层 |
 |------|---------|--------|
