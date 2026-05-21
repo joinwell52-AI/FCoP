@@ -55,3 +55,19 @@ fcop_events.jsonl
 
 # Per-release transient commit-msg drafts under scripts/
 scripts/_*.txt
+
+# Release tooling binaries (mcp-publisher etc.) — install separately,
+# do not commit. The .exe is downloaded fresh on the publish host.
+/mcp-publisher.exe
+/mcp-publisher
+/mcp-publisher.tar.gz
+/mcp-publisher.tar
+/mcp-publisher.zip
+
+# Ad-hoc analysis & PR-body drafts that live at repo root
+/analyze_*.py
+/pr-body-*.txt
+/pr-body-*.md
+
+# Local chat transcripts (Cursor exports etc.)
+/chat/
