@@ -234,6 +234,18 @@ class Project:
         self._workspace_root, self._workspace_layout = (
             self._resolve_workspace_root(workspace_dir)
         )
+        # FCoP 3.0 dual-topology detection (per ADR-0035 + ADR-0039
+        # Freeze Discipline). The detector is pure inspection and
+        # never raises; the result is cached as a lightweight
+        # TopologyReport instance for the lifetime of the Project.
+        # All v3-aware properties (lifecycle_root, inbox_dir,
+        # active_dir, …) and the v3 mode toggle in core write
+        # methods read from this cache.
+        from fcop.lifecycle.detect import detect_topology as _detect
+
+        self._topology = _detect(
+            self._path, workspace_root=self._workspace_root
+        )
 
     def _resolve_workspace_root(
         self,
@@ -301,28 +313,142 @@ class Project:
 
     @property
     def tasks_dir(self) -> pathlib.Path:
-        """``<workspace>/tasks/`` (v1.0: ``<project>/fcop/tasks/``)."""
+        """Directory holding open (created-but-not-yet-claimed) tasks.
+
+        * v2 projects: ``<workspace>/tasks/``
+        * v3 projects: ``<workspace>/_lifecycle/inbox/`` (the v3
+          equivalent of "open inbox of tasks"; per FCoP 3.0 spec
+          §1.2, ``inbox`` is the canonical name for *created* tasks
+          that have not yet been claimed)
+
+        This property is the v2→v3 compatibility shim. CodeFlow and
+        any other v2-era caller continues to read ``project.tasks_dir``
+        and the right physical directory is returned. New code SHOULD
+        prefer :attr:`inbox_dir` for v3-explicit clarity; a future
+        release will mark ``tasks_dir`` as ``DeprecationWarning``
+        once that switch is mechanical.
+        """
+        if self.is_v3:
+            return self._workspace_root / "_lifecycle" / "inbox"
         return self._workspace_root / "tasks"
 
     @property
     def reports_dir(self) -> pathlib.Path:
-        """``<workspace>/reports/`` (v1.0: ``<project>/fcop/reports/``)."""
+        """``<workspace>/reports/`` (same path in v2 and v3 — per spec §1.1)."""
         return self._workspace_root / "reports"
 
     @property
     def issues_dir(self) -> pathlib.Path:
-        """``<workspace>/issues/`` (v1.0: ``<project>/fcop/issues/``)."""
+        """``<workspace>/issues/`` (same path in v2 and v3 — per spec §1.1)."""
         return self._workspace_root / "issues"
 
     @property
     def shared_dir(self) -> pathlib.Path:
-        """``<workspace>/shared/`` (v1.0: ``<project>/fcop/shared/``)."""
+        """``<workspace>/shared/`` (same path in v2 and v3)."""
         return self._workspace_root / "shared"
 
     @property
     def log_dir(self) -> pathlib.Path:
-        """``<workspace>/log/`` (archive root)."""
+        """``<workspace>/log/`` (archive root; v2 only).
+
+        In v3 projects this directory does not exist by protocol —
+        the v3 equivalent of archived tasks is :attr:`archive_dir`
+        (``_lifecycle/archive/``), and archived reports/issues live
+        directly under :attr:`reports_dir` / :attr:`issues_dir`.
+        The property still returns a path so v2-era code that
+        constructs paths under ``log_dir`` (without touching disk)
+        continues to type-check; callers that actually read from
+        the directory will get an empty / missing result on v3
+        projects, which is the correct v3 behaviour.
+        """
         return self._workspace_root / "log"
+
+    # ── FCoP 3.0 lifecycle properties ─────────────────────────────────
+    #
+    # These are present on every Project but only meaningful when
+    # is_v3 is True. They are computed lazily from the workspace
+    # root so they remain valid even before _lifecycle/ is created
+    # by ensure_lifecycle_dirs() — callers can resolve paths first
+    # and create directories second.
+
+    @property
+    def topology(self) -> str:
+        """The detected protocol topology: ``"v2"``, ``"v3"``,
+        ``"empty"``, or ``"mixed"``.
+
+        Computed once at construction time via
+        :func:`fcop.lifecycle.detect.detect_topology`. The cached
+        :class:`fcop.lifecycle.detect.TopologyReport` is available
+        as :attr:`topology_report` for callers that need the
+        structured detail (notes, v2_dirs_present, etc.).
+        """
+        return self._topology.topology.value
+
+    @property
+    def topology_report(self):  # type: ignore[no-untyped-def]
+        """The full :class:`fcop.lifecycle.detect.TopologyReport`.
+
+        Untyped here to avoid leaking the lifecycle type into the
+        public Project signature in environments that import Project
+        without fcop.lifecycle (which is permitted but unusual).
+        Real callers can ``isinstance``-check or pull the attribute
+        names they need.
+        """
+        return self._topology
+
+    @property
+    def is_v3(self) -> bool:
+        """``True`` if this project's workspace is in the v3
+        (``_lifecycle/``) topology — *and* not in the half-migrated
+        MIXED state. MIXED returns ``False`` because v3 semantics
+        cannot be safely enforced over an ambiguous tree; callers
+        get v2 behaviour and a topology-level diagnostic via
+        :attr:`topology_report`.
+        """
+        return self.topology == "v3"
+
+    @property
+    def lifecycle_root(self) -> pathlib.Path:
+        """``<workspace>/_lifecycle/`` — the FCoP 3.0 state root.
+
+        Per spec §1.1, this is the directory whose 5 immediate
+        children (``inbox``/``active``/``review``/``done``/``archive``)
+        ARE the protocol's NOW truth. Returns the path unconditionally
+        — even on v2 projects — so v3-aware tooling can compute the
+        target of a future migration without re-deriving it.
+        """
+        return self._workspace_root / "_lifecycle"
+
+    @property
+    def inbox_dir(self) -> pathlib.Path:
+        """``<workspace>/_lifecycle/inbox/`` — v3 created tasks (spec §1.2)."""
+        return self.lifecycle_root / "inbox"
+
+    @property
+    def active_dir(self) -> pathlib.Path:
+        """``<workspace>/_lifecycle/active/`` — v3 claimed tasks (spec §1.2)."""
+        return self.lifecycle_root / "active"
+
+    @property
+    def review_dir(self) -> pathlib.Path:
+        """``<workspace>/_lifecycle/review/`` — v3 pending confirmation (spec §1.2)."""
+        return self.lifecycle_root / "review"
+
+    @property
+    def done_dir(self) -> pathlib.Path:
+        """``<workspace>/_lifecycle/done/`` — v3 completed tasks (spec §1.2)."""
+        return self.lifecycle_root / "done"
+
+    @property
+    def archive_dir(self) -> pathlib.Path:
+        """``<workspace>/_lifecycle/archive/`` — v3 closed tasks (spec §1.2).
+
+        In v3 this replaces v2's ``log/tasks/`` for closed-task
+        archival. Reports and issues are *not* archived in v3 — they
+        live directly under :attr:`reports_dir` / :attr:`issues_dir`
+        (per FCoP 3.0 spec §1.1 + ADR-0039 Freeze Discipline).
+        """
+        return self.lifecycle_root / "archive"
 
     @property
     def workspace_dir(self) -> pathlib.Path:

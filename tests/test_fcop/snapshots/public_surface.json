@@ -1468,6 +1468,28 @@
       }
     },
     "properties": {
+      "active_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "archive_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
       "config": {
         "params": [
           {
@@ -1490,7 +1512,51 @@
         ],
         "return": "pathlib.Path"
       },
+      "done_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "inbox_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "is_v3": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "bool"
+      },
       "issues_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "lifecycle_root": {
         "params": [
           {
             "annotation": null,
@@ -1534,6 +1600,17 @@
         ],
         "return": "pathlib.Path"
       },
+      "review_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
       "reviews_dir": {
         "params": [
           {
@@ -1566,6 +1643,28 @@
           }
         ],
         "return": "pathlib.Path"
+      },
+      "topology": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "str"
+      },
+      "topology_report": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": null
       },
       "workspace_dir": {
         "params": [
