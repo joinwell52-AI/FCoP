@@ -8,6 +8,42 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.0.1] — 2026-05-21 (Path-consolidation patch)
+
+### Fixed / 修复
+
+* **Broken doc links after `spec/archived/` move.** The 3.0.0 release moved
+  the historical v1.0/v1.1 spec drafts into `spec/archived/` but several
+  in-source references still pointed at the old paths, leaving link
+  rot in `AGENTS.md`, `CLAUDE.md`, the bundled Cursor rules
+  (`src/fcop/rules/_data/fcop-{rules,protocol}.mdc` + their
+  `.cursor/rules/` mirrors), MCP server docstrings, and two JSON Schema
+  `description` fields. All such references now resolve correctly to
+  `spec/archived/fcop-runtime-protocol-v1.0.{md,zh.md}` (with a pointer
+  to the current canonical `spec/fcop-3.0-spec.md`).
+* **`fcop-mcp` `fcop://spec` / `fcop://spec/en` docstrings** previously
+  claimed to return `spec/fcop-runtime-protocol-v1.0.md`, but the wheel
+  actually bundles and returns `fcop-spec-v1.1.{lang}.md`. Docstrings
+  now reflect the real contents and explicitly point readers to the 3.0
+  spec for current canonical semantics.
+
+### Not changed / 未改动
+
+* No code logic changed; this is a pure documentation / metadata patch.
+* Historical artifacts (TASK / REPORT / ADR / release notes / migration
+  docs) that mention the old paths are preserved verbatim per FCoP's
+  "history is not rewritten" principle (ADR-0036).
+* The wheel-bundled `fcop-spec-v1.1.{lang}.md` still contains
+  v1.0-/v1.1-era cross-references; bundling FCoP 3.0 spec into the
+  wheel is deferred per ADR-0039 (Freeze Discipline — requires a real
+  runtime pressure signal before changing what gets bundled).
+
+### Test
+
+* All 1202 tests pass.
+
+---
+
 ## [3.0.0] — 2026-05-21 (Protocol-level MAJOR · "文件夹即状态"纪元)
 
 ### 概述 / Overview

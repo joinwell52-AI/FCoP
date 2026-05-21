@@ -30,12 +30,12 @@ works the same.
 
 > **v1.0 final（fcop_protocol_version 1.9.0）**：Rule 9 的完整
 > commentary 已补入文末"Rule 9 Commentary"节。七大核心概念的规范性定义
-> 见 `spec/fcop-runtime-protocol-v1.0.md`（英文）/ `.zh.md`（中文）。
+> 见 `spec/archived/fcop-runtime-protocol-v1.0.md`（英文）/ `.zh.md`（中文）。
 >
 > **v1.0 final (fcop_protocol_version 1.9.0)**: Full Rule 9 commentary
 > is now in the "Rule 9 Commentary" section at the end of this file.
 > Normative definitions of the seven core concepts:
-> `spec/fcop-runtime-protocol-v1.0.md` (EN) / `.zh.md` (ZH).
+> `spec/archived/fcop-runtime-protocol-v1.0.md` (EN) / `.zh.md` (ZH).
 
 ## Core Principle / 核心原则
 
@@ -152,9 +152,9 @@ Examples / 例：
 
 任何一条变成"否"，就是**协议在往运行时里掉**，应该停下来重审。
 
-完整协议定位见 [`spec/fcop-runtime-protocol-v1.0.zh.md`](../../spec/fcop-runtime-protocol-v1.0.zh.md)（中文规范）
+完整协议定位见 [`spec/archived/fcop-runtime-protocol-v1.0.zh.md`](../../spec/archived/fcop-runtime-protocol-v1.0.zh.md)（中文规范）
 或 [`essays/when-ai-organizes-its-own-work.md`](../../essays/when-ai-organizes-its-own-work.md)（现场报告）。
-Full protocol positioning: [`spec/fcop-runtime-protocol-v1.0.md`](../../spec/fcop-runtime-protocol-v1.0.md) (normative spec)
+Full protocol positioning: [`spec/archived/fcop-runtime-protocol-v1.0.md`](../../spec/archived/fcop-runtime-protocol-v1.0.md) (normative spec)
 or [`essays/when-ai-organizes-its-own-work.en.md`](../../essays/when-ai-organizes-its-own-work.en.md) (field report).
 
 ## Two-Diagram Duality / 双图对偶（执行 vs 演化）

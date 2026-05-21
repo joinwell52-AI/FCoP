@@ -3115,35 +3115,40 @@ def resource_protocol() -> str:
 
 @mcp.resource("fcop://spec", mime_type="text/markdown")
 def resource_spec_zh() -> str:
-    """FCoP v1.0 full protocol spec — Simplified Chinese (informative).
+    """FCoP v1.1 protocol spec — Simplified Chinese (informative).
 
-    Returns the complete ``spec/fcop-runtime-protocol-v1.0.zh.md``
-    bundled with this wheel. Covers all seven core abstractions
-    (Agent, IPC, Encoding, Event, Failure, Boundary, Audit) with
-    their normative contracts, POSIX analogies, and ADR cross-references.
+    Returns the wheel-bundled ``fcop-spec-v1.1.zh.md`` via
+    ``fcop.rules.get_spec("zh")``. Covers the seven core abstractions
+    (Agent, IPC, Encoding, Event, Failure, Boundary, Audit) together
+    with the v1.1 Capability Governance additions (risk_level,
+    needs_human, human_approval, Skill.tools[*].risk).
 
-    Use this when an agent needs to look up the precise contract for
-    one of the seven abstractions — e.g. which ``status`` values are
-    valid for a TASK envelope, or what constitutes a Boundary violation.
+    The canonical FCoP 3.0 specification — which introduces the
+    Lifecycle / Event / Tool-Tier ontology that supersedes the v1.1
+    flag-based model — lives at ``spec/fcop-3.0-spec.zh.md`` in the
+    source repository (not yet bundled in the wheel). Use this resource
+    for stable v1.1 contracts; consult the 3.0 spec for the current
+    canonical semantics.
 
-    The English authoritative version is available at ``fcop://spec/en``.
-    When the two versions conflict, the English version takes precedence.
+    The English version is available at ``fcop://spec/en``.
     """
     return fcop.rules.get_spec("zh")
 
 
 @mcp.resource("fcop://spec/en", mime_type="text/markdown")
 def resource_spec_en() -> str:
-    """FCoP v1.0 full protocol spec — English (authoritative).
+    """FCoP v1.1 protocol spec — English (informative).
 
-    Returns the complete ``spec/fcop-runtime-protocol-v1.0.md``
-    bundled with this wheel. This is the normative English version;
-    when it conflicts with the Chinese translation (``fcop://spec``),
-    this version takes precedence.
+    Returns the wheel-bundled ``fcop-spec-v1.1.en.md`` via
+    ``fcop.rules.get_spec("en")``. Covers the seven core abstractions
+    (Agent, IPC, Encoding, Event, Failure, Boundary, Audit) and the
+    v1.1 Capability Governance additions.
 
-    Covers all seven core abstractions (Agent, IPC, Encoding, Event,
-    Failure, Boundary, Audit) with their normative contracts, JSON
-    Schema references, and POSIX analogies.
+    The canonical FCoP 3.0 specification lives at
+    ``spec/fcop-3.0-spec.md`` in the source repository (not yet bundled
+    in the wheel; see ADR-0039 for the rules on what gets bundled). Use
+    this resource for stable v1.1 contracts; consult the 3.0 spec for
+    the current canonical semantics.
     """
     return fcop.rules.get_spec("en")
 

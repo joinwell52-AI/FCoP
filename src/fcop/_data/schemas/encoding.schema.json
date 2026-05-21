@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://fcop.dev/schemas/encoding/v1.0.json",
   "title": "FCoP Encoding Abstraction",
-  "description": "Abstraction 2 of 7 — Encoding. Per ADR-0021, FCoP separates the protocol body (this abstraction) from the concrete on-disk encoding (Markdown is the v1.0 reference encoding; alternatives like JSON / SQLite / event-stream are permitted in v1.x). Encoding has TWO surfaces: an IPC Surface (strong contract — TASK/REPORT/ISSUE/REVIEW envelopes) and an Open Knowledge Surface (weak contract — agent-invented PREFIXes under `shared/`). Both share a workspace_dir contract per ADR-0022 (default 'fcop/'). This schema defines the abstraction-level contract that any encoding MUST satisfy; the concrete Markdown reference encoding is documented in spec/fcop-runtime-protocol-v1.0.md §6.",
+  "description": "Abstraction 2 of 7 — Encoding. Per ADR-0021, FCoP separates the protocol body (this abstraction) from the concrete on-disk encoding (Markdown is the v1.0 reference encoding; alternatives like JSON / SQLite / event-stream are permitted in v1.x). Encoding has TWO surfaces: an IPC Surface (strong contract — TASK/REPORT/ISSUE/REVIEW envelopes) and an Open Knowledge Surface (weak contract — agent-invented PREFIXes under `shared/`). Both share a workspace_dir contract per ADR-0022 (default 'fcop/'). This schema defines the abstraction-level contract that any encoding MUST satisfy; the concrete Markdown reference encoding is documented in spec/archived/fcop-runtime-protocol-v1.0.md §6 (current canonical: spec/fcop-3.0-spec.md).",
   "version": "1.0.0",
   "type": "object",
   "$defs": {

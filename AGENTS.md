@@ -102,11 +102,11 @@ scenarios.
 | **Boundary** | agent 的能力许可与权限边界 | Agent capability permissions and scope boundaries |
 | **Audit** | 不可篡改的操作审计链（不得重写历史） | Immutable audit trail — history must not be rewritten |
 
-> 详细定义见 `spec/fcop-runtime-protocol-v1.0.md`（英文规范）
-> 或 `spec/fcop-runtime-protocol-v1.0.zh.md`（中文版）。
+> 详细定义见 `spec/archived/fcop-runtime-protocol-v1.0.md`（英文规范）
+> 或 `spec/archived/fcop-runtime-protocol-v1.0.zh.md`（中文版）。
 >
-> Full normative definitions: `spec/fcop-runtime-protocol-v1.0.md` (EN)
-> or `spec/fcop-runtime-protocol-v1.0.zh.md` (ZH).
+> Full normative definitions: `spec/archived/fcop-runtime-protocol-v1.0.md` (EN)
+> or `spec/archived/fcop-runtime-protocol-v1.0.zh.md` (ZH).
 
 ### 协议双图对偶 / Two-Diagram Duality
 
@@ -1107,7 +1107,7 @@ other application). Products USE FCoP; they do not MODIFY it.
 - 新增 **"FCoP 的定位与七大核心概念"** 小节（在 Purpose 之后）：
   - AI OS 协议栈三层图示（Application / FCoP / Host·LLM）
   - 七大核心概念对照表（Agent / IPC / Encoding / Event / Failure / Boundary / Audit）
-  - 指向 `spec/fcop-runtime-protocol-v1.0.md` 的规范性引用
+  - 指向 `spec/archived/fcop-runtime-protocol-v1.0.md` 的规范性引用
 - Rule 0–9 主体不变。
 
 **1.9.0 changes / 1.9.0 变更**（随 `fcop@1.0.0-rc.1`）:
@@ -1191,12 +1191,12 @@ works the same.
 
 > **v1.0 final（fcop_protocol_version 1.9.0）**：Rule 9 的完整
 > commentary 已补入文末"Rule 9 Commentary"节。七大核心概念的规范性定义
-> 见 `spec/fcop-runtime-protocol-v1.0.md`（英文）/ `.zh.md`（中文）。
+> 见 `spec/archived/fcop-runtime-protocol-v1.0.md`（英文）/ `.zh.md`（中文）。
 >
 > **v1.0 final (fcop_protocol_version 1.9.0)**: Full Rule 9 commentary
 > is now in the "Rule 9 Commentary" section at the end of this file.
 > Normative definitions of the seven core concepts:
-> `spec/fcop-runtime-protocol-v1.0.md` (EN) / `.zh.md` (ZH).
+> `spec/archived/fcop-runtime-protocol-v1.0.md` (EN) / `.zh.md` (ZH).
 
 ## Core Principle / 核心原则
 
@@ -1313,9 +1313,9 @@ Examples / 例：
 
 任何一条变成"否"，就是**协议在往运行时里掉**，应该停下来重审。
 
-完整协议定位见 [`spec/fcop-runtime-protocol-v1.0.zh.md`](../../spec/fcop-runtime-protocol-v1.0.zh.md)（中文规范）
+完整协议定位见 [`spec/archived/fcop-runtime-protocol-v1.0.zh.md`](../../spec/archived/fcop-runtime-protocol-v1.0.zh.md)（中文规范）
 或 [`essays/when-ai-organizes-its-own-work.md`](../../essays/when-ai-organizes-its-own-work.md)（现场报告）。
-Full protocol positioning: [`spec/fcop-runtime-protocol-v1.0.md`](../../spec/fcop-runtime-protocol-v1.0.md) (normative spec)
+Full protocol positioning: [`spec/archived/fcop-runtime-protocol-v1.0.md`](../../spec/archived/fcop-runtime-protocol-v1.0.md) (normative spec)
 or [`essays/when-ai-organizes-its-own-work.en.md`](../../essays/when-ai-organizes-its-own-work.en.md) (field report).
 
 ## Two-Diagram Duality / 双图对偶（执行 vs 演化）

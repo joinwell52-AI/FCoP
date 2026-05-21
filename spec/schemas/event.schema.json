@@ -26,7 +26,7 @@
     },
     "subject": {
       "type": "object",
-      "description": "Per ADR-0018. The artefact this event is about. Shape varies by event_type; see the per-type table in spec/fcop-runtime-protocol-v1.0.md §abstraction-4. Additional properties are permitted for forward compatibility.",
+      "description": "Per ADR-0018. The artefact this event is about. Shape varies by event_type; see the per-type table in spec/archived/fcop-runtime-protocol-v1.0.md §abstraction-4 (current canonical: spec/fcop-3.0-spec.md §5 Event Layer). Additional properties are permitted for forward compatibility.",
       "additionalProperties": true,
       "properties": {
         "task_id":     {"type": "string"},
