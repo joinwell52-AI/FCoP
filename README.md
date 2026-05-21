@@ -149,14 +149,13 @@ FCoP/
 │                                # bundles fcop-rules / fcop-protocol (templates for `init` deploy)
 ├── mcp/                         # `fcop-mcp` subproject (MCP server; has its own pyproject)
 ├── tests/                       # pytest for `fcop` and `fcop-mcp`
-├── spec/                        # Normative spec
+├── spec/                        # Normative spec (see spec/README.md)
 │   ├── fcop-3.0-spec.md         # ★ English normative spec (FCoP 3.0, canonical)
 │   ├── fcop-3.0-spec.zh.md      # Chinese parallel (informative)
 │   ├── fcop-3.0-rfc.md          # IETF-style RFC edition (English)
 │   ├── fcop-3.0-rfc.zh.md       # IETF-style RFC edition (Chinese)
-│   ├── fcop-runtime-protocol-v1.0.{md,zh.md}  # Historical v1.0/v1.1 spec drafts
-│   ├── fcop-runtime-protocol-v1.1.{md,zh.md}  # (superseded by 3.0; retained for history)
-│   └── schemas/                 # 8 JSON Schemas (machine-readable)
+│   ├── schemas/                 # 8 JSON Schemas (machine-readable)
+│   └── archived/                # v1.0 / v1.1 / 0.7.x spec drafts (superseded, retained for history)
 ├── docs/                        # Getting-started, migrations, releases, MCP tools
 │   └── getting-started.en.md   # ← start here if new to FCoP
 ├── adr/                         # Architecture decision records (ADR-0001..0022)

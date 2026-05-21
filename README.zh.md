@@ -144,15 +144,12 @@ FCoP/
 ├── src/fcop/                    # `fcop` 包：Project 等库 API；`rules/_data/` 内置 fcop-rules / fcop-protocol（init 时可选部署的母版）
 ├── mcp/                         # `fcop-mcp` 子项目（MCP 服务器，自有 pyproject）
 ├── tests/                       # `fcop` / `fcop-mcp` 的 pytest
-├── spec/                        # 规范文件（v1.0）
+├── spec/                        # 规范文件（参见 spec/README.md）
 │   ├── fcop-3.0-spec.md         # ★ 英文权威规范（FCoP 3.0 canonical）
 │   ├── fcop-3.0-spec.zh.md      # 中文平行版（informative）
 │   ├── fcop-3.0-rfc.md / .zh.md # IETF 风格 RFC 版本
-│   ├── fcop-runtime-protocol-v1.0.{md,zh.md}  # v1.0/v1.1 早期 spec 草稿
-│   ├── fcop-runtime-protocol-v1.1.{md,zh.md}  # （已被 3.0 取代；保留作历史）
-│   ├── fcop-spec.md             # 规范入口索引
-│   ├── fcop-spec-v1.0.3.md      # 0.7.x 遗留规范（向后兼容保留）
-│   └── schemas/                 # 8 个 JSON Schema（机器可读，v1.1）
+│   ├── schemas/                 # 8 JSON Schemas（机器可读）
+│   └── archived/                # v1.0 / v1.1 / 0.7.x 早期 spec（已被取代，保留作历史）
 ├── docs/                        # 入门、迁移、发版记录、MCP 工具说明
 │   └── getting-started.md      # ← 新用户从这里开始
 ├── adr/                         # 架构决策（ADR-0001..0022）

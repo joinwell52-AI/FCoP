@@ -240,7 +240,7 @@ tools:
 上层框架读到 `requires_human_approval: true` 时，自动走
 `write_task(risk_level=high)` → 审批 → 执行的流程。
 
-完整文档：[`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md) / 中文：[`spec/fcop-runtime-protocol-v1.1.zh.md`](../spec/fcop-runtime-protocol-v1.1.zh.md)。
+完整文档：[`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md) / 中文：[`spec/fcop-3.0-spec.zh.md`](../spec/fcop-3.0-spec.zh.md)（FCoP 3.0 canonical）。
 
 ---
 
@@ -262,8 +262,9 @@ tools:
 | 层 | 文件 | 角色 |
 |---|---|---|
 | L0 + L1 入口 | [`docs/getting-started.md`](./getting-started.md)（本文）| 30 秒 + 5 分钟 |
-| L2 长文规范 | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/)（v1.0 基础规范）| 完整 v1.0 spec |
-| L2 长文规范 | [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md)（v1.1 增量，[中文](../spec/fcop-runtime-protocol-v1.1.zh.md)）| risk_level / needs_human / human_approval |
+| L2 权威规范 | [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md)（[中文](../spec/fcop-3.0-spec.zh.md)）| ★ 单页权威规范（FCoP 3.0）|
+| L2 RFC 版本 | [`spec/fcop-3.0-rfc.md`](../spec/fcop-3.0-rfc.md)（[中文](../spec/fcop-3.0-rfc.zh.md)）| IETF 风格 RFC 版 |
+| L2 历史 | [`spec/archived/`](../spec/archived/) | v1.0 / v1.1 / 0.7.x 早期 spec（已被取代）|
 | L2 给 agent 读的规则（Cursor） | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor 宿主，`alwaysApply: true` |
 | L2 给 agent 读的规则（其他宿主） | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / 通用 SDK |
 | L2 机器可读 schema | [`spec/schemas/*.schema.json`](../spec/schemas/)（v1.1：8 个 schema）| JSON Schema × 7+1 抽象 |

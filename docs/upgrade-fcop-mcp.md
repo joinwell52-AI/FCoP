@@ -117,7 +117,7 @@ pip install -U "fcop" "fcop-mcp"
 | `Review.human_approval` | `mark_human_approved(review_id)` | ADMIN 批准后落盘审批记录 |
 | 新 MCP 工具 | `write_review` / `list_reviews` / `read_review` / `mark_human_approved` | 审核流工具（v1.1 后共 **30** 个工具 → v1.2.1 共 **32** 个） |
 
-详细说明：[`docs/releases/1.1.0.md`](./releases/1.1.0.md) · [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md)（[中文](../spec/fcop-runtime-protocol-v1.1.zh.md)）。
+详细说明：[`docs/releases/1.1.0.md`](./releases/1.1.0.md) · [`spec/archived/fcop-runtime-protocol-v1.1.md`](../spec/archived/fcop-runtime-protocol-v1.1.md)（[中文](../spec/archived/fcop-runtime-protocol-v1.1.zh.md)）。当前 canonical：[`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md)。
 
 ## 从 1.1.x 升到 v1.2（Capability Governance，无破坏性变更）
 

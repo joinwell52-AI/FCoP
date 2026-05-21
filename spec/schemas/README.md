@@ -99,6 +99,6 @@ These artefacts are **deliberately absent** in v1.0 per [ADR-0015 §non-goals](.
 
 ## Where to read next
 
-- **Long-form normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](../fcop-runtime-protocol-v1.0.md)
+- **Long-form normative spec**: [`spec/fcop-3.0-spec.md`](../fcop-3.0-spec.md) (canonical FCoP 3.0); historical drafts in [`spec/archived/`](../archived/)
 - **Decision history**: [`adr/`](../../adr/) — ADR-0015 is the v1.0 charter; ADR-0016..0022 are the per-abstraction implementation ADRs
-- **0.7.x baseline (frozen)**: [`spec/fcop-spec-v1.0.3.md`](../fcop-spec-v1.0.3.md) — kept for legacy conformance tests; not the v1.0 spec
+- **0.7.x baseline (frozen)**: [`spec/archived/fcop-spec-v1.0.3.md`](../archived/fcop-spec-v1.0.3.md) — kept for legacy conformance tests; not the v1.0 spec

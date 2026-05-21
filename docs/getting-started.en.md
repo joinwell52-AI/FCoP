@@ -243,7 +243,7 @@ tools:
 Orchestration frameworks read `requires_human_approval: true` and
 automatically gate through the `write_task(risk_level=high)` flow.
 
-Full reference: [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md).
+Full reference: [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md) (canonical FCoP 3.0).
 
 ---
 
@@ -265,8 +265,9 @@ Honestly:
 | Layer | File | Role |
 |---|---|---|
 | L0 + L1 entry | [`docs/getting-started.en.md`](./getting-started.en.md) (this page) | 30-second + 5-minute |
-| L2 long-form spec | [`spec/fcop-runtime-protocol-v1.0.md`](../spec/) (v1.0 base) | Full v1.0 spec |
-| L2 long-form spec | [`spec/fcop-runtime-protocol-v1.1.md`](../spec/fcop-runtime-protocol-v1.1.md) (v1.1 additions) | risk_level / needs_human / human_approval |
+| L2 canonical spec | [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md) | ★ Single-page canonical (FCoP 3.0) |
+| L2 RFC projection | [`spec/fcop-3.0-rfc.md`](../spec/fcop-3.0-rfc.md) | IETF-style RFC edition |
+| L2 historical | [`spec/archived/`](../spec/archived/) | v1.0 / v1.1 / 0.7.x drafts (superseded) |
 | L2 agent-readable rules (Cursor) | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor host — `alwaysApply: true` |
 | L2 agent-readable rules (others) | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / generic SDK |
 | L2 machine-readable | [`spec/schemas/*.schema.json`](../spec/schemas/) (8 schemas in v1.1) | JSON Schema × 7+1 abstractions |
