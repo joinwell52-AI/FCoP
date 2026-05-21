@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.joinwell52-AI/fcop",
-  "description": "FCoP MCP server (3.0): 35 tools for file-based multi-agent coordination, tagged with tier:L1/L2/L3 per spec/fcop-3.0-spec.md §8. Cursor + Claude Desktop.",
+  "description": "FCoP 3.0 MCP server: 35 tools (tier:L1/L2/L3) for file-based multi-agent coordination.",
   "repository": {
     "url": "https://github.com/joinwell52-AI/FCoP",
     "source": "github",
