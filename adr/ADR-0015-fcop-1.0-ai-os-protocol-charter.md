@@ -1,6 +1,12 @@
 # ADR-0015: FCoP 1.0 AI OS Protocol Charter
 
-- **Status**: Accepted
+> **🔒 Status update (2026-05-21)**: This charter is **Superseded by [FCoP 3.0 spec](../spec/fcop-3.0-spec.md)** ([中文](../spec/fcop-3.0-spec.zh.md)).
+> Its directional thesis ("FCoP is the protocol of agents — discovered, not invented") is preserved and operationalised in [ADR-0035](./ADR-0035-lifecycle-directory-and-tool-layers.md) (State Ontology), [ADR-0036](./ADR-0036-event-layer-and-traceability.md) (Event Layer) and [ADR-0039](./ADR-0039-fcop-freeze-discipline-and-runtime-absorption-era.md) (Freeze Discipline).
+> The original text below is retained verbatim as historical context. **Do not** treat any normative statement here (`MUST` / `SHOULD` / abstractions list / non-goals) as binding — the 3.0 spec is the single source of truth.
+>
+> **状态更新（2026-05-21）**：本宪章已**被 [FCoP 3.0 spec](../spec/fcop-3.0-spec.md)（[中文](../spec/fcop-3.0-spec.zh.md)）取代**。其方向性论断（"FCoP 是 agent 的协议，我们发现了他，而不是发明"）已被保留并在 [ADR-0035](./ADR-0035-lifecycle-directory-and-tool-layers.md)（状态本体）、[ADR-0036](./ADR-0036-event-layer-and-traceability.md)（事件层）、[ADR-0039](./ADR-0039-fcop-freeze-discipline-and-runtime-absorption-era.md)（冻结纪律）中算子化。下文原文逐字保留作为历史背景。**不要**将此处的任何规范性陈述（`MUST` / `SHOULD` / 抽象列表 / 非目标）视为约束——3.0 spec 才是单一真相。
+
+- **Status**: Superseded by FCoP 3.0 spec (2026-05-21); originally Accepted 2026-05-09
 - **Date**: 2026-05-09
 - **Deciders**: ADMIN
 - **Supersedes**: [ADR-0007](./ADR-0007-fcop-1.0-protocol-freeze-charter.md)（Plan B "5 字段进 1.1.0" 路线）
