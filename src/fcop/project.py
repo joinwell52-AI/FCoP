@@ -2259,7 +2259,19 @@ class Project:
 
             try:
                 with os.fdopen(fd, "wb") as handle:
-                    handle.write(payload)
+                    # FCoP 3.0 (per spec §2.4 + ADR-0036 Rule E):
+                    # every file under _lifecycle/ MUST carry a
+                    # creation transition event. We stamp it here,
+                    # inside the O_EXCL atomic reservation, so the
+                    # file appears on disk in its already-witnessed
+                    # state — no observable intermediate "v3 file
+                    # without an event" window exists.
+                    final_payload = payload
+                    if self.is_v3:
+                        final_payload = _stamp_v3_creation_event(
+                            payload, sender=sender,
+                        )
+                    handle.write(final_payload)
             except BaseException:
                 # Writer crashed after reserving — clean up the empty
                 # placeholder so we don't poison the sequence slot.
@@ -2390,21 +2402,34 @@ class Project:
             ``(path, is_archived)``. ``path`` is ``None`` when no
             match is found; ``is_archived`` is meaningless in that case.
         """
-        if TASK_FILENAME_RE.fullmatch(filename_or_id):
-            for directory, archived in (
+        # Build the search order. v2 projects scan tasks/ then
+        # log/tasks/. v3 projects scan the 5 lifecycle buckets in
+        # protocol order (inbox → active → review → done → archive)
+        # so a "live" hit beats an archived same-id duplicate, matching
+        # how ADMIN thinks about it ("the task I'm working on").
+        if self.is_v3:
+            search_order: tuple[tuple[pathlib.Path, bool], ...] = (
+                (self.inbox_dir, False),
+                (self.active_dir, False),
+                (self.review_dir, False),
+                (self.done_dir, False),
+                (self.archive_dir, True),
+            )
+        else:
+            search_order = (
                 (self.tasks_dir, False),
                 (self.log_dir / "tasks", True),
-            ):
+            )
+
+        if TASK_FILENAME_RE.fullmatch(filename_or_id):
+            for directory, archived in search_order:
                 candidate = directory / filename_or_id
                 if candidate.is_file():
                     return candidate, archived
             return None, False
 
         prefix = filename_or_id
-        for directory, archived in (
-            (self.tasks_dir, False),
-            (self.log_dir / "tasks", True),
-        ):
+        for directory, archived in search_order:
             if not directory.is_dir():
                 continue
             for entry in directory.iterdir():
@@ -2420,13 +2445,36 @@ class Project:
         return None, False
 
     def archive_task(self, filename_or_id: str) -> Task:
-        """Move a task (and any matching report) to ``log/``.
+        """Archive a task (move it to the archive bucket).
 
-        Archiving is the manual "this conversation is closed" marker.
-        The file is physically relocated from ``docs/agents/tasks/`` to
-        ``docs/agents/log/tasks/``; any report whose filename starts
-        with the same ``TASK-...-NNN`` identifier is also moved to
-        ``docs/agents/log/reports/`` so the full thread lives together.
+        On v2 projects: physically moves the task from
+        ``tasks/`` to ``log/tasks/`` and brings any matching reports
+        along to ``log/reports/``. The legacy "this conversation is
+        closed" marker.
+
+        On v3 projects: walks the file through the legal lifecycle
+        chain to ``_lifecycle/archive/``. Concretely, depending on
+        where the file currently is:
+
+          * ``inbox`` → active → done → archive   (3 transitions)
+          * ``active`` → done → archive           (2 transitions)
+          * ``review`` → done → archive           (2 transitions; uses approve_task)
+          * ``done`` → archive                    (1 transition)
+          * ``archive`` → no-op (idempotent)
+
+        Each step appends one ``transitions:`` event using the
+        canonical L1 tool for that edge (claim_task / finish_task /
+        approve_task / archive_task) so the audit trace records the
+        full path. The fast-track exists so v2-era callers
+        (CodeFlowMu) that treat archive_task as the single
+        "wrap this up" verb continue to work without modification —
+        per the Q1=a + ADR-0039 §2.5 "permitted without an ADR:
+        reference-implementation behaviour aligning to the protocol"
+        directive.
+
+        Matching report movement (v2 only). On v3 projects reports
+        live under ``reports/`` regardless of task status, so this
+        method does not touch them.
 
         Idempotent — archiving an already-archived task returns the
         same :class:`Task` without touching the filesystem. That makes
@@ -2457,6 +2505,12 @@ class Project:
 
         if archived:
             return _load_task_strict(source, is_archived=True)
+
+        if self.is_v3:
+            destination = _v3_archive_chain(self, source)
+            # Reports under reports/ are not archived in v3 (spec §1.1)
+            # — they stay where they are.
+            return _load_task_strict(destination, is_archived=True)
 
         log_tasks_dir = self.log_dir / "tasks"
         log_tasks_dir.mkdir(parents=True, exist_ok=True)
@@ -4553,6 +4607,134 @@ def _now_iso() -> str:
     include microseconds because the value is informational only.
     """
     return _dt.datetime.now().replace(microsecond=0).isoformat()
+
+
+# ── FCoP 3.0 lifecycle helpers ────────────────────────────────────────
+#
+# These are used only by v3-mode code paths in Project.write_task and
+# Project.archive_task. They live at module scope (not on Project)
+# because they have no dependency on Project state — pure functions
+# from (bytes, sender) to (bytes) and from (Project, path) to (path).
+
+
+def _stamp_v3_creation_event(payload: bytes, *, sender: str) -> bytes:
+    """Append a creation transition event to a freshly-built v3 task file.
+
+    Per FCoP 3.0 spec §2 + Rule E (every mv produces one event), a
+    file landing in _lifecycle/inbox/ MUST carry a creation event.
+    write_task constructs the file's full text first; this helper
+    decodes it, appends ``{from: null, to: inbox, by: <sender>,
+    tool: create_task}`` to the ``transitions:`` array via
+    fcop.lifecycle.events.append_event_to_frontmatter, and re-encodes.
+
+    The whole thing happens inside write_task's O_EXCL atomic
+    reservation, so the file appears on disk in its already-witnessed
+    state — no observable "v3 file without an event" window exists.
+    """
+    from fcop.lifecycle.events import (
+        TransitionEvent,
+        append_event_to_frontmatter,
+    )
+    from fcop.lifecycle.state import Stage
+
+    text = payload.decode("utf-8")
+    event = TransitionEvent(
+        at=_dt.datetime.now(_dt.timezone.utc),
+        from_stage=None,
+        to_stage=Stage.INBOX,
+        by=sender,
+        tool="create_task",
+    )
+    return append_event_to_frontmatter(text, event).encode("utf-8")
+
+
+def _v3_archive_chain(project: Project, source: pathlib.Path) -> pathlib.Path:
+    """Walk ``source`` through legal lifecycle transitions to archive/.
+
+    Returns the final archived path. The chain is computed from
+    ``source``'s current stage (per Rule A: file path is truth) and
+    walks through the protocol's allowed-transitions table — never
+    skipping a stage, always appending an event for each hop.
+
+    For the v2-era caller (CodeFlowMu) that treats ``archive_task``
+    as the single "wrap this up" verb, this preserves the simple
+    one-call ergonomics while emitting a fully-compliant v3 audit
+    trace. The `by` field on each event is the calling agent — we
+    use a synthesised "archiver" identity because the caller has
+    not declared one (archive_task takes only filename_or_id, no
+    actor argument). When a future API exposes an explicit actor,
+    this helper should accept it as a parameter.
+
+    Args:
+        project: The Project whose ``_lifecycle/`` we walk.
+        source: The current path of the task file.
+
+    Returns:
+        Absolute path to the file in ``_lifecycle/archive/``.
+
+    Raises:
+        IllegalTransitionError: source is not under any recognised
+            lifecycle bucket (Rule A cannot identify a from-stage).
+    """
+    import datetime as _dt2
+
+    from fcop.lifecycle.atomic import commit as _commit
+    from fcop.lifecycle.events import TransitionEvent
+    from fcop.lifecycle.state import Stage as _Stage
+    from fcop.lifecycle.state import stage_of_path as _stage_of_path
+    from fcop.lifecycle.transitions import (
+        IllegalTransitionError as _IllegalTransitionError,
+    )
+
+    # Stage chain from each possible source to archive. Each tuple
+    # encodes (from_stage, to_stage, canonical L1 tool).
+    chains: dict[_Stage, tuple[tuple[_Stage, _Stage, str], ...]] = {
+        _Stage.INBOX: (
+            (_Stage.INBOX, _Stage.ACTIVE, "claim_task"),
+            (_Stage.ACTIVE, _Stage.DONE, "finish_task"),
+            (_Stage.DONE, _Stage.ARCHIVE, "archive_task"),
+        ),
+        _Stage.ACTIVE: (
+            (_Stage.ACTIVE, _Stage.DONE, "finish_task"),
+            (_Stage.DONE, _Stage.ARCHIVE, "archive_task"),
+        ),
+        _Stage.REVIEW: (
+            (_Stage.REVIEW, _Stage.DONE, "approve_task"),
+            (_Stage.DONE, _Stage.ARCHIVE, "archive_task"),
+        ),
+        _Stage.DONE: (
+            (_Stage.DONE, _Stage.ARCHIVE, "archive_task"),
+        ),
+        _Stage.ARCHIVE: (),
+    }
+
+    current_path = source
+    current_stage = _stage_of_path(current_path, project_root=project.workspace_dir)
+    if current_stage is None:
+        raise _IllegalTransitionError(
+            None, _Stage.ARCHIVE, tool="archive_task",
+        )
+
+    chain = chains[current_stage]
+    actor = "archiver"  # placeholder — see helper docstring
+
+    for from_stage, to_stage, tool in chain:
+        event = TransitionEvent(
+            at=_dt2.datetime.now(_dt2.timezone.utc),
+            from_stage=from_stage,
+            to_stage=to_stage,
+            by=actor,
+            tool=tool,
+        )
+        result = _commit(
+            current_path,
+            to_stage,
+            event,
+            project_root=project.workspace_dir,
+        )
+        current_path = result.destination_path
+
+    return current_path
 
 
 _RESERVED_ROLES: frozenset[str] = frozenset({"ADMIN", "SYSTEM"})
