@@ -1,18 +1,18 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.joinwell52-AI/fcop",
-  "description": "FCoP MCP server: 35 tools for file-based multi-agent coordination. Cursor + Claude Desktop.",
+  "description": "FCoP MCP server (3.0): 35 tools for file-based multi-agent coordination, tagged with tier:L1/L2/L3 per spec/fcop-3.0-spec.md §8. Cursor + Claude Desktop.",
   "repository": {
     "url": "https://github.com/joinwell52-AI/FCoP",
     "source": "github",
     "subfolder": "mcp"
   },
-  "version": "2.0.2",
+  "version": "3.0.0",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "fcop-mcp",
-      "version": "2.0.2",
+      "version": "3.0.0",
       "transport": {
         "type": "stdio"
       },
