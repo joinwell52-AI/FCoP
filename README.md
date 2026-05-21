@@ -16,8 +16,8 @@
   <a href="docs/mcp-tools.md"><strong>MCP Tools (35)</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
-  <a href="src/fcop/rules/_data/fcop-rules.mdc">Rules (<code>.mdc</code>)</a> ·
-  <a href="adr/ADR-0015-fcop-1.0-ai-os-protocol-charter.md">v1.0 Charter</a>
+  <a href="spec/fcop-3.0-spec.md"><strong>3.0 Spec</strong></a> ·
+  <a href="adr/README.md">ADR Index</a>
 </p>
 
 <p align="center">
@@ -29,9 +29,6 @@
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
-  </a>
-  <a href="spec/fcop-runtime-protocol-v1.0.md">
-    <img src="https://img.shields.io/badge/spec-v1.1-green?style=flat-square" alt="Spec v1.1" />
   </a>
   <a href="CHANGELOG.md">
     <img src="https://img.shields.io/badge/release-3.0.0-brightgreen?style=flat-square" alt="3.0.0" />
@@ -152,12 +149,14 @@ FCoP/
 │                                # bundles fcop-rules / fcop-protocol (templates for `init` deploy)
 ├── mcp/                         # `fcop-mcp` subproject (MCP server; has its own pyproject)
 ├── tests/                       # pytest for `fcop` and `fcop-mcp`
-├── spec/                        # Normative spec (v1.0)
-│   ├── fcop-runtime-protocol-v1.0.md    # ★ English normative spec (authoritative)
-│   ├── fcop-runtime-protocol-v1.0.zh.md # Chinese parallel (informative)
-│   ├── fcop-spec.md             # Spec index / entry point
-│   ├── fcop-spec-v1.0.3.md      # Legacy 0.7.x spec (kept for backward compat)
-│   └── schemas/                 # 8 JSON Schemas (machine-readable, v1.1)
+├── spec/                        # Normative spec
+│   ├── fcop-3.0-spec.md         # ★ English normative spec (FCoP 3.0, canonical)
+│   ├── fcop-3.0-spec.zh.md      # Chinese parallel (informative)
+│   ├── fcop-3.0-rfc.md          # IETF-style RFC edition (English)
+│   ├── fcop-3.0-rfc.zh.md       # IETF-style RFC edition (Chinese)
+│   ├── fcop-runtime-protocol-v1.0.{md,zh.md}  # Historical v1.0/v1.1 spec drafts
+│   ├── fcop-runtime-protocol-v1.1.{md,zh.md}  # (superseded by 3.0; retained for history)
+│   └── schemas/                 # 8 JSON Schemas (machine-readable)
 ├── docs/                        # Getting-started, migrations, releases, MCP tools
 │   └── getting-started.en.md   # ← start here if new to FCoP
 ├── adr/                         # Architecture decision records (ADR-0001..0022)
@@ -307,13 +306,13 @@ Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`a
 | **New to FCoP** — hands-on 45-min setup | [`docs/getting-started.en.md`](docs/getting-started.en.md) |
 | **Upgrading from 0.7.x** — workspace migration + new abstractions | [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md) |
 | **Upgrading from 1.0/1.1 → 1.2** — Capability Governance + lockstep versioning | [`docs/MIGRATION-1.1.md`](docs/MIGRATION-1.1.md) · [CHANGELOG](CHANGELOG.md) |
-| **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec also in `fcop.rules.get_spec()`) |
+| **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) — single-page canonical spec (v3.0). Earlier v1.0/v1.1 spec drafts remain in `spec/` for historical reference. |
 | **v1.2 Capability Governance** — FCoPGovernanceMiddleware, risk tagging, audit log | [CHANGELOG](CHANGELOG.md) · ADR-0030-bis |
 | **v1.1 new fields** — risk_level, needs_human, human_approval, skill tools | [CHANGELOG](CHANGELOG.md) · ADR-0023..0027 |
 | **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md) |
 | **All 35 MCP tools & 14 resources** | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
 | **Release notes** — full changelog | [`CHANGELOG.md`](CHANGELOG.md) |
-| **Full document map** — every file and its role | [spec Appendix B](spec/fcop-runtime-protocol-v1.0.md#appendix-b--authoritative-document-map) |
+| **Full document map** — every file and its role | [`adr/README.md`](adr/README.md) (ADR index) + [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) §11 (Cited Material) |
 
 ---
 
@@ -335,7 +334,7 @@ Two official reference implementations, both MIT-licensed:
 ## Status & versioning
 
 - **Current release**: `v2.0.2` (2026-05-13) — **`fcop-mcp` is now in the [official MCP registry](https://registry.modelcontextprotocol.io/)** (`io.github.joinwell52-AI/fcop`), backed by Anthropic + GitHub + Microsoft's joint catalog. Claude Desktop / Cursor / PulseMCP / every MCP-compatible client can discover and install it via `uvx fcop-mcp` out of the box. v2.0.2 is a **double-pack lockstep administrative bump** (per ADR-0002): `fcop` library code is **unchanged** from v2.0.0; this release consolidates the fcop-mcp@2.0.1 MCP-metadata patch that landed the same day, plus the release+backup one-shot SOP (`RULES-release-file-inventory.md`, `RULES-mcp-registry-release.md`, append-only backup mirror). Earlier releases: v2.0.0 — *philosophical* major release ("two-diagram era"); the major bump records that the protocol now formally acknowledges **two** defining diagrams (execution stack + FCoP Semantic Evolution Loop), plus Rule 4.6 (`fcop/internal/` soft convention), `deploy_internal_template` opt-in, P3 audit severity, and bundled `fcop_audit` exemption list that fixes the three upstream bugs surfaced by codeflow cross-project patrol (ISSUE-008/009/010). v1.6 (trailing-slug filename grammar, ADR-0033), v1.5 (84-doc protocol-awareness sync), v1.4 (write-side bind + `supersedes:` correction), v1.3 (GAL + `fcop_audit()` inspection compiler). 35 MCP tools total. See [CHANGELOG](CHANGELOG.md).
-- **Normative spec**: [`spec/fcop-runtime-protocol-v1.0.md`](spec/fcop-runtime-protocol-v1.0.md) (v1.1 spec bundled in wheel via `fcop.rules.get_spec()`) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
+- **Normative spec**: [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) — single-page canonical (v3.0; supersedes v1.0/v1.1 drafts retained for history) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - **Change log**: [`CHANGELOG.md`](CHANGELOG.md)
 - **Research snapshot**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) archived on Zenodo with a citable DOI (see *How to cite* below).
