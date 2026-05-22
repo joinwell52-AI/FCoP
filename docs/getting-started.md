@@ -99,25 +99,32 @@ cd your-project
 fcop init                    # 创建 fcop/ 命名空间
 ```
 
-得到的目录结构（v1.0 默认）：
+得到的目录结构（v3.0+ 默认，自 3.0.2 起 fresh init 直接落 v3 拓扑）：
 
 ```
 your-project/
-└── fcop/                          ← v1.0 协议命名空间
+└── fcop/                          ← FCoP 协议命名空间
     ├── fcop.json                  ← 团队 / 角色配置
-    ├── tasks/                     ← TASK-* 落这里
-    ├── reports/                   ← REPORT-* 落这里
-    ├── issues/                    ← ISSUE-* 落这里
-    ├── reviews/                   ← REVIEW-* 落这里（v1.0 新加）
-    ├── shared/                    ← Open Knowledge Surface — agent 自由发明
-    └── log/                       ← 归档（已完成的 TASK / REPORT 移到这里）
+    ├── _lifecycle/                ← v3 五桶：位置即状态
+    │   ├── inbox/                 ← 新落 TASK 的入口
+    │   ├── active/                ← 正在进行
+    │   ├── review/                ← 等审查 / REVIEW-*
+    │   ├── done/                  ← 已完成
+    │   └── archive/               ← 长期归档
+    ├── reports/                   ← REPORT-* 落这里（保留）
+    ├── issues/                    ← ISSUE-* 落这里（保留）
+    └── shared/                    ← Open Knowledge Surface — agent 自由发明（保留）
 ```
 
-> **从 0.7.x 升级？** 旧项目的 `docs/agents/` 会被 detect 到，触发 warning。运行 `fcop migrate-workspace --apply` 一键迁移到 `fcop/`（git mv 保留历史）。详见 [ADR-0022](../adr/ADR-0022-workspace-directory-convention.md)。
+> **两条路径 / Two paths**:
+> - **新项目**：`fcop init` / `fcop_mcp init_solo|init_project|create_custom_team` 直接产 v3 拓扑（≥ 3.0.2）。
+> - **2.x 升级**：已有 v2 项目（`tasks/` + `log/`）跑 `python -m fcop migrate --to-v3` 一键迁移；旧文件按位置自动归位到 `_lifecycle/`，append-only 历史不删。
+>
+> 3.0.0 / 3.0.1 已落初始化的项目若磁盘上仍是 v2 拓扑（无 `_lifecycle/`），建议要么 `fcop_audit` 看告警后再 `migrate --to-v3`，要么按需 `force=True` 重新 init。
 
 ### Step 3 · 写第一个 TASK
 
-`fcop/tasks/TASK-20260601-001-PM-to-DEV.md`：
+`fcop/_lifecycle/inbox/TASK-20260601-001-PM-to-DEV.md`：
 
 ```markdown
 ---

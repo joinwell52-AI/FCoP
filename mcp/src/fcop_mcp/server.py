@@ -776,7 +776,7 @@ def _letter_handover_block(
             "─────────────────────────────────────────────────\n"
             "\n"
             "Agent：把下面这一整段**原样**贴给 ADMIN（不要省略，"
-            "尤其是 v2.0.0 摘要那一段）。念完后问 ADMIN 是否需要继续"
+            "尤其是 v3.0.2 摘要那一段）。念完后问 ADMIN 是否需要继续"
             "看完整版。\n"
             "\n"
             "完整说明书有两处可读：\n"
@@ -806,11 +806,17 @@ def init_project(
 ) -> str:
     """Initialize an FCoP project with a bundled preset team.
 
-    Creates ``docs/agents/`` (tasks / reports / issues / shared / log),
-    writes ``docs/agents/fcop.json``, deposits ``LETTER-TO-ADMIN.md``
-    under ``docs/agents/``, creates the ``workspace/`` cage with a
+    Since 3.0.2 a fresh init produces the **v3 topology** (per spec
+    §1.1): ``fcop/_lifecycle/{inbox,active,review,done,archive}/`` plus
+    the retained v2 buckets ``reports/`` / ``issues/`` / ``shared/``.
+    The superseded v2 buckets ``tasks/`` and ``log/`` are no longer
+    created on fresh init (use ``python -m fcop migrate --to-v3`` to
+    upgrade an existing v2 project).
+
+    Writes ``fcop/fcop.json``, deposits ``LETTER-TO-ADMIN.md``
+    under ``fcop/``, creates the ``workspace/`` cage with a
     starter README (per Rule 7.5), deploys the team's three-layer
-    docs to ``docs/agents/shared/`` (TEAM-README / TEAM-ROLES /
+    docs to ``fcop/shared/`` (TEAM-README / TEAM-ROLES /
     TEAM-OPERATING-RULES + ``roles/{ROLE}.md``, both zh and en),
     and (per ADR-0006) deploys the bundled protocol rules to **four**
     locations so any agent host sees them:
@@ -858,7 +864,7 @@ def init_project(
         f"Path: {status.path}",
         f"Roles: {', '.join(cfg.roles)}",
         f"Leader: {cfg.leader}",
-        "Directories: tasks/, reports/, issues/, shared/, log/",
+        "Directories (v3): _lifecycle/{inbox,active,review,done,archive}/, reports/, issues/, shared/",
         "Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md",
         f"Letter deposited: {letter_relpath}",
         "",
@@ -883,8 +889,13 @@ def init_solo(
     ADMIN. Rule 0.b still applies: the agent uses files to split itself
     into *proposer* and *reviewer*, even though there is no second role.
 
+    Since 3.0.2 fresh init produces the **v3 topology** (per spec §1.1):
+    ``fcop/_lifecycle/{inbox,active,review,done,archive}/`` plus retained
+    ``reports/`` / ``issues/`` / ``shared/``. Superseded v2 buckets
+    (``tasks/``, ``log/``) are no longer created on fresh init.
+
     Beyond ``fcop.json`` and the canonical directories, this also
-    deposits ``docs/agents/LETTER-TO-ADMIN.md`` (the user manual),
+    deposits ``fcop/LETTER-TO-ADMIN.md`` (the user manual),
     creates the ``workspace/`` cage with a starter README (per Rule
     7.5), deploys the bundled solo three-layer docs (TEAM-README /
     TEAM-ROLES / TEAM-OPERATING-RULES + ``roles/ME.md``, both zh and
@@ -932,7 +943,7 @@ def init_solo(
         f"Path: {status.path}\n"
         f"Role: {cfg.leader} ({label})\n"
         f"Lang: {cfg.lang}\n"
-        f"Directories: tasks/, reports/, issues/, shared/, log/\n"
+        f"Directories (v3): _lifecycle/{{inbox,active,review,done,archive}}/, reports/, issues/, shared/\n"
         f"Rules deployed: .cursor/rules/*.mdc, AGENTS.md, CLAUDE.md\n"
         f"Letter deposited: {letter_relpath}\n"
         f"\n"
@@ -954,8 +965,13 @@ def create_custom_team(
     e.g. ``TASK-20260423-001-BOSS-to-CODER.md``. Use ``validate_team_config``
     first to catch illegal role codes without writing anything.
 
+    Since 3.0.2 fresh init produces the **v3 topology** (per spec §1.1):
+    ``fcop/_lifecycle/{inbox,active,review,done,archive}/`` plus retained
+    ``reports/`` / ``issues/`` / ``shared/``. Superseded v2 buckets
+    (``tasks/``, ``log/``) are no longer created on fresh init.
+
     Custom teams have **no bundled three-layer docs**, so
-    ``docs/agents/shared/`` is left empty (apart from the project's
+    ``fcop/shared/`` is left empty (apart from the project's
     own ``shared/README.md``). The recommended next step is to read
     the closest preset (``fcop://teams/<closest-preset>`` — see the
     ``teams/_data/README.md`` "Custom teams" section) and hand-author
@@ -963,7 +979,7 @@ def create_custom_team(
     ``TEAM-OPERATING-RULES.md`` + ``roles/{ROLE}.md`` based on it.
 
     The other init artifacts are deposited as usual:
-    ``docs/agents/fcop.json``, ``LETTER-TO-ADMIN.md``,
+    ``fcop/fcop.json``, ``LETTER-TO-ADMIN.md``,
     ``workspace/README.md``, plus the protocol rule files at
     ``.cursor/rules/*.mdc`` + ``AGENTS.md`` + ``CLAUDE.md`` (existing
     copies archived under ``.fcop/migrations/``).

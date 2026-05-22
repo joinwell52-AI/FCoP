@@ -7,12 +7,12 @@
     "source": "github",
     "subfolder": "mcp"
   },
-  "version": "3.0.1",
+  "version": "3.0.2",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "fcop-mcp",
-      "version": "3.0.1",
+      "version": "3.0.2",
       "transport": {
         "type": "stdio"
       },

@@ -39,15 +39,19 @@ class TestInitPreset:
         assert project.config_path.is_file()
         assert project.is_initialized() is True
 
-        # Canonical tree is present.
+        # Canonical tree is present (FCoP 3.0+ topology: _lifecycle/* +
+        # reports/ issues/ shared/; v2's tasks/ and log/ are superseded).
         for directory in (
-            project.tasks_dir,
+            project.tasks_dir,  # resolves to _lifecycle/inbox on v3
             project.reports_dir,
             project.issues_dir,
             project.shared_dir,
-            project.log_dir,
         ):
             assert directory.is_dir()
+        # v3 lifecycle buckets — see FCoP 3.0 spec §1.1.
+        lifecycle = project._workspace_root / "_lifecycle"
+        for bucket in ("inbox", "active", "review", "done", "archive"):
+            assert (lifecycle / bucket).is_dir()
 
         # Returned status reflects the fresh init.
         assert status.is_initialized is True

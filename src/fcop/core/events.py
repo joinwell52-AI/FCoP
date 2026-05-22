@@ -292,6 +292,15 @@ def scan_workspace(workspace_dir: Path, *, project_root: Path) -> WatcherState:
     for sub in ("tasks", "reports", "reviews"):
         _scan_dir(log_root / sub, archived=True)
 
+    # FCoP 3.0+ topology: tasks live under _lifecycle/{inbox,active,
+    # review,done}/ and archived ones under _lifecycle/archive/. We
+    # scan them in addition to the v2 layout above so the same event
+    # pipeline works on both topologies (per ADR-0034 §6).
+    lifecycle_root = workspace_dir / "_lifecycle"
+    for sub in ("inbox", "active", "review", "done"):
+        _scan_dir(lifecycle_root / sub, archived=False)
+    _scan_dir(lifecycle_root / "archive", archived=True)
+
     # fcop.json 实际位于 workspace_dir 下（per Project.config_path），
     # 但为了兼容老 layout 也兼查 project_root。
     for config in (workspace_dir / "fcop.json", project_root / "fcop.json"):

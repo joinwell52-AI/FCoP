@@ -921,12 +921,27 @@ class Project:
                 "archived under .fcop/migrations/)."
             )
 
+        # FCoP 3.0 default topology (per spec §1.1 / §6):
+        #   _lifecycle/{inbox,active,review,done,archive}/  ← state buckets
+        #   reports/  issues/  shared/                      ← retained from v2
+        # v2's tasks/ is superseded by _lifecycle/inbox/.
+        # v2's log/   is removed; archive/ + report-in-place takes over.
+        from fcop.lifecycle.state import ensure_lifecycle_dirs as _ensure_lifecycle_dirs
+
+        _ensure_lifecycle_dirs(self._workspace_root)
+        # Refresh the cached topology now that _lifecycle/ exists, so
+        # that property accessors (is_v3, tasks_dir, log_dir, …) see
+        # the freshly-initialised v3 layout instead of the pre-init
+        # "empty" snapshot taken in __init__.
+        from fcop.lifecycle.detect import detect_topology as _detect
+
+        self._topology = _detect(
+            self._path, workspace_root=self._workspace_root
+        )
         for directory in (
-            self.tasks_dir,
             self.reports_dir,
             self.issues_dir,
             self.shared_dir,
-            self.log_dir,
         ):
             directory.mkdir(parents=True, exist_ok=True)
 
@@ -1372,16 +1387,29 @@ class Project:
 
         # Parse all filenames once — cheap and avoids repeated regex
         # compilations across every role.
-        active_tasks = _parse_dir_files(self.tasks_dir, parse_task_filename)
-        archived_tasks = _parse_dir_files(
-            self.log_dir / "tasks", parse_task_filename
-        )
-        active_reports = _parse_dir_files(
-            self.reports_dir, parse_report_filename
-        )
-        archived_reports = _parse_dir_files(
-            self.log_dir / "reports", parse_report_filename
-        )
+        # v2 → v3 archive location:
+        #   v2: log/tasks/  log/reports/
+        #   v3: _lifecycle/archive/  (single bucket; tasks + reports
+        #       co-located, classifier handles split)
+        if self.is_v3:
+            archive_root = self._workspace_root / "_lifecycle" / "archive"
+            active_tasks = _parse_dir_files(self.tasks_dir, parse_task_filename)
+            archived_tasks = _parse_dir_files(archive_root, parse_task_filename)
+            active_reports = _parse_dir_files(
+                self.reports_dir, parse_report_filename
+            )
+            archived_reports = _parse_dir_files(archive_root, parse_report_filename)
+        else:
+            active_tasks = _parse_dir_files(self.tasks_dir, parse_task_filename)
+            archived_tasks = _parse_dir_files(
+                self.log_dir / "tasks", parse_task_filename
+            )
+            active_reports = _parse_dir_files(
+                self.reports_dir, parse_report_filename
+            )
+            archived_reports = _parse_dir_files(
+                self.log_dir / "reports", parse_report_filename
+            )
         active_issues = _parse_dir_files(
             self.issues_dir, parse_issue_filename
         )
@@ -1553,6 +1581,12 @@ class Project:
         if resolved_scope in ("new", "upgrade", "takeover"):
             all_violations.extend(self._scan_cursor_rules())
             all_violations.extend(self._scan_shared_deployment())
+            # FCoP 3.0 topology compliance — runs in every scope so a
+            # fresh ``init_*`` self-check (``new``) catches missing
+            # ``_lifecycle/`` immediately, before any work lands.
+            all_violations.extend(
+                self._scan_lifecycle_topology_compliance()
+            )
         if resolved_scope in ("upgrade", "takeover"):
             all_violations.extend(self._scan_ghost_prefixes())
             all_violations.extend(self._scan_outdated_role_docs())
@@ -1925,6 +1959,124 @@ class Project:
                 rollback="git revert HEAD",
             )],
         )]
+
+    def _scan_lifecycle_topology_compliance(self) -> list[Violation]:
+        """Audit FCoP 3.0 ``_lifecycle/`` topology compliance.
+
+        Two checks (per spec §1.1 / §6 + TASK-20260522-004):
+
+        - **P0**: ``fcop.json.protocol_version`` is v3+ but the project
+          has no ``_lifecycle/`` directory at all. Project is broken on
+          its own terms — every v3 tool path will refuse to run.
+        - **P1**: project is in v3 topology yet retains the superseded
+          ``tasks/`` or ``log/`` v2 buckets. Hygiene only — both
+          locations parse correctly, but having two task homes invites
+          drift.
+
+        Pure-v2 projects (``protocol_version`` < 3 *and* no
+        ``_lifecycle/``) are silently skipped: they are not v3, so v3
+        compliance does not apply.
+        """
+        from fcop.errors import ConfigError
+        from fcop.inspection import RemediationStep, Violation
+
+        # Skip uninitialized projects entirely — they have no opinion
+        # about which topology version they should be in yet.
+        try:
+            _ = self.config
+        except ConfigError:
+            return []
+        if not self._workspace_root.is_dir():
+            return []
+
+        lifecycle_root = self._workspace_root / "_lifecycle"
+        has_lifecycle = lifecycle_root.is_dir()
+
+        # A bucket counts as "v2 residual" only if it actually contains
+        # files. Empty ``tasks/`` / ``log/`` directories left behind by
+        # tooling do not constitute a v2 project.
+        residual: list[str] = []
+        v2_has_content = False
+        for legacy in ("tasks", "log"):
+            legacy_path = self._workspace_root / legacy
+            if not legacy_path.is_dir():
+                continue
+            try:
+                content = [p for p in legacy_path.rglob("*") if p.is_file()]
+            except OSError:
+                content = []
+            if content:
+                v2_has_content = True
+                residual.append(
+                    str(legacy_path.relative_to(self._path)) + "/"
+                )
+
+        violations: list[Violation] = []
+
+        # P0: initialized project with no _lifecycle/ AND no v2 task
+        # content — the topology layer is simply missing. Pure v2
+        # projects (have v2 content, no _lifecycle/) are skipped here;
+        # the migration path covers them.
+        if not has_lifecycle and not v2_has_content:
+            violations.append(Violation(
+                violation_id="P0-000",
+                severity="P0",
+                rule_violated="FCoP 3.0 spec §1.1 (_lifecycle/ MUST exist)",
+                summary=(
+                    "项目已初始化但 _lifecycle/ 与 v2 桶都不存在 —— "
+                    "拓扑层缺失，task/report/review 写入会失败"
+                ),
+                evidence=[
+                    f"missing: {lifecycle_root.relative_to(self._path)}/",
+                ],
+                impact=(
+                    "v3 工具路径全部依赖 _lifecycle/{inbox,active,review,done,"
+                    "archive}/；缺这层目录 task/report/review 写入会失败"
+                ),
+                scan_source="_scan_lifecycle_topology_compliance",
+                remediation=[RemediationStep(
+                    action="重新部署初始化产物以补齐 _lifecycle/",
+                    command=(
+                        "python -c \"from fcop import Project; "
+                        "Project('.').deploy_role_templates(force=True)\"\n"
+                        "# 或者完全重新初始化（会丢已有协作历史）：\n"
+                        "# rm -rf fcop/ && fcop init ..."
+                    ),
+                    executor="ADMIN",
+                    estimated_minutes=5,
+                    tier=1,
+                    rollback="git checkout fcop/",
+                )],
+            ))
+
+        # P1: v3 lifecycle present AND v2 buckets retain content —
+        # both topologies parse correctly, but two task homes invite
+        # drift. Trigger the migration path.
+        if has_lifecycle and residual:
+            violations.append(Violation(
+                violation_id="P1-000",
+                severity="P1",
+                rule_violated="FCoP 3.0 spec §6 (v2 buckets superseded)",
+                summary=(
+                    f"v3 项目残留 {len(residual)} 个 v2 桶（tasks/ / log/）"
+                ),
+                evidence=residual,
+                impact=(
+                    "v2 与 v3 拓扑并存会导致同一份 task 出现在两处，"
+                    "list/archive 操作行为不一致"
+                ),
+                scan_source="_scan_lifecycle_topology_compliance",
+                remediation=[RemediationStep(
+                    action="把残留 v2 桶迁移到 _lifecycle/",
+                    command="python -m fcop migrate --to-v3",
+                    executor="ADMIN",
+                    estimated_minutes=3,
+                    tier=2,
+                    rollback="git checkout fcop/",
+                )],
+            ))
+
+        return violations
 
     def _scan_ghost_prefixes(self) -> list[Violation]:
         """Detect stale ghost-prefix files (DRAFT-/HANDOFF-/AMEND-/*-v2.md).

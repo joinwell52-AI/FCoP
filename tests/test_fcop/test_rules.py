@@ -101,10 +101,10 @@ class TestGetLetterIntro:
 
     def test_zh_includes_current_summary_block(self) -> None:
         intro = get_letter_intro("zh")
-        assert "v2.0.0 摘要" in intro, (
-            "v2.0.0 introduces Rule 4.6 (internal/external doc convention) + "
-            "two-diagram duality; rules/protocol bumped to 3.0.0. The intro "
-            "must surface the current version summary."
+        assert "v3.0.2 摘要" in intro, (
+            "v3.0.2 is the init-topology patch on top of the v2.0.0 "
+            "philosophical major (Rule 4.6 + two-diagram duality); the "
+            "intro must surface the current version summary."
         )
 
     def test_zh_is_strict_prefix_of_full_letter(self) -> None:

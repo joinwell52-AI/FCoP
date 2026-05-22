@@ -23,6 +23,29 @@ from fcop.lifecycle.migrate import plan as migrate_plan
 from fcop.lifecycle.state import LIFECYCLE_DIRNAME, Stage
 
 
+def _seed_v2_legacy(tmp_path: Path) -> Project:
+    """Build a legacy v2 project (pre-FCoP-3.0).
+
+    Since FCoP 3.0.2, ``Project.init()`` defaults to v3 topology, so
+    constructing a v2-shaped project means writing the directory tree
+    by hand: the five v2 buckets (``tasks/`` ``reports/`` ``issues/``
+    ``shared/`` ``log/``) plus a minimal ``fcop.json``. Used by the
+    "v2 behaviour unchanged" regression tests.
+    """
+    workspace = tmp_path / "fcop"
+    workspace.mkdir(parents=True, exist_ok=True)
+    for sub in ("tasks", "reports", "issues", "shared", "log"):
+        (workspace / sub).mkdir(parents=True, exist_ok=True)
+    (workspace / "fcop.json").write_text(
+        '{"version": "2.0.0", "mode": "team", "team": "dev-team",'
+        ' "team_name": "dev-team", "leader": "PM",'
+        ' "roles": [{"code": "PM", "label": "PM"},'
+        ' {"code": "DEV", "label": "DEV"}]}',
+        encoding="utf-8",
+    )
+    return Project(tmp_path)
+
+
 def _seed_v3_initialized(tmp_path: Path) -> Project:
     """Build a v3 project that's also been ``init()``-ed.
 
@@ -92,11 +115,9 @@ class TestWriteTaskOnV3:
 
     def test_v2_write_task_unchanged(self, tmp_path: Path) -> None:
         """v2 projects must not get a transitions: field stamped."""
-        # v2-style init: no _lifecycle/ before construction.
-        p = Project(tmp_path)
-        p.init(team="dev-team", lang="en")
-        # Re-construct: still v2 topology because no _lifecycle/.
-        p = Project(tmp_path)
+        # FCoP 3.0.2+: init() now defaults to v3 topology, so we have to
+        # build a v2 project by hand to keep this regression alive.
+        p = _seed_v2_legacy(tmp_path)
         assert p.is_v3 is False
 
         task = p.write_task(
@@ -178,9 +199,8 @@ class TestArchiveTaskOnV3:
 
 class TestV2BehaviourUnchanged:
     def test_archive_task_on_v2_still_uses_log_tasks(self, tmp_path: Path) -> None:
-        p = Project(tmp_path)
-        p.init(team="dev-team", lang="en")
-        p = Project(tmp_path)
+        # FCoP 3.0.2+: init() defaults to v3 — see _seed_v2_legacy comment.
+        p = _seed_v2_legacy(tmp_path)
         assert p.is_v3 is False
 
         task = p.write_task(

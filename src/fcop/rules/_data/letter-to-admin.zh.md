@@ -6,7 +6,7 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
-> **v2.0.0 摘要**（当前版本，2026-05-13）：
+> **v3.0.2 摘要**（当前版本，2026-05-22；含 v2.0.0 哲学纪元 + 3.0.2 init 拓扑修复）：
 > - **"两图对偶"纪元**：`2.0.0` 是 *philosophical* major release。1.x
 >   的全部 API 继续工作（per ADR-0003 附加性扩展），主版本号跨越的
 >   原因是协议哲学的固化——FCoP 现在同时承认**两张图**：
@@ -51,6 +51,10 @@
 > - **MCP 工具总数**：35 个（v1.5.0 起未变）。完整清单见 `docs/mcp-tools.md`。
 > - **规则版本**：`fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`。
 >   升级后跑 `redeploy_rules()` 刷新本地四件套规则文件。
+> - **v3 拓扑（3.0.2 修复）**：fresh init 立即创建 `_lifecycle/{inbox,active,
+>   review,done,archive}/`（per spec §1.1）。3.0.0 / 3.0.1 的 fresh init 漏建
+>   了这一层，磁盘上仍是 v2 形态——已落项目跑 `python -m fcop migrate --to-v3`
+>   升到 v3，新项目 3.0.2 起直接产 v3。
 >
 > _(历史摘要：v1.3 / v1.4 / v1.5 及更早版本的变更见 `CHANGELOG.md`)_
 
@@ -332,19 +336,23 @@ validate_team_config(roles="MANAGER,CODER,TESTER,ARTIST", leader="MANAGER")
 项目根/
 ├── fcop/                      ← 协作元数据（谁在做什么）
 │   ├── fcop.json                     ← 项目身份（mode / roles / leader）
-│   ├── tasks/                        ← 派发中的任务
-│   ├── reports/                      ← 回执
-│   ├── issues/                       ← 问题单
-│   ├── shared/                       ← 共享文档
+│   ├── _lifecycle/                   ← v3 五桶：位置即状态（自 3.0.2 fresh init 立即兑现）
+│   │   ├── inbox/                    ← 新落 TASK 的入口
+│   │   ├── active/                   ← 正在进行
+│   │   ├── review/                   ← 等审查 / REVIEW-*
+│   │   ├── done/                     ← 已完成
+│   │   └── archive/                  ← 长期归档
+│   ├── reports/                      ← 回执（保留）
+│   ├── issues/                       ← 问题单（保留）
+│   ├── shared/                       ← 共享文档（保留）
 │   │   ├── README.md                 ← 共享目录使用说明
-│   │   ├── TEAM-README.md            ← [0.5.4] 团队定位 + ADMIN 职责
-│   │   ├── TEAM-ROLES.md             ← [0.5.4] Layer 1 · 角色边界
-│   │   ├── TEAM-OPERATING-RULES.md   ← [0.5.4] Layer 2 · 运作规则
-│   │   └── roles/                    ← [0.5.4] Layer 3 · 单岗深度
+│   │   ├── TEAM-README.md            ← 团队定位 + ADMIN 职责
+│   │   ├── TEAM-ROLES.md             ← Layer 1 · 角色边界
+│   │   ├── TEAM-OPERATING-RULES.md   ← Layer 2 · 运作规则
+│   │   └── roles/                    ← Layer 3 · 单岗深度
 │   │       ├── PM.md
 │   │       ├── DEV.md
 │   │       └── ...                   ← 每个角色一份（中英双语）
-│   ├── log/                          ← 归档
 │   └── LETTER-TO-ADMIN.md            ← 这封信本身，留个底
 ├── workspace/                        ← ★ 产物家（代码、脚本、数据）★
 │   └── README.md                     ← 约定说明

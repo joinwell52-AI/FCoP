@@ -6,7 +6,7 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **v2.0.0 summary** (current, 2026-05-13):
+> **v3.0.2 summary** (current, 2026-05-22; covers v2.0.0 philosophical era + 3.0.2 init topology fix):
 > - **"Two-diagram era"**: `2.0.0` is a *philosophical* major release.
 >   All v1.x public APIs keep working (per ADR-0003 additive expansion);
 >   the major bump records that FCoP now formally acknowledges **two**
@@ -66,6 +66,11 @@ you and an AI team collaborate through **files**. Your one job:
 > - **Rule versions**: `fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`.
 >   Run `redeploy_rules()` after upgrading to refresh the four local rule
 >   files.
+> - **v3 topology (3.0.2 fix)**: fresh init now creates
+>   `_lifecycle/{inbox,active,review,done,archive}/` immediately
+>   (per spec §1.1). Fresh inits on 3.0.0 / 3.0.1 missed this layer
+>   — run `python -m fcop migrate --to-v3` on those projects to
+>   upgrade; new projects on 3.0.2+ are v3-native from day one.
 >
 > _(Earlier summaries: v1.3 / v1.4 / v1.5 and older — see `CHANGELOG.md`)_
 
@@ -378,19 +383,23 @@ concrete reason.
 project root/
 ├── fcop/                      ← Coordination metadata (who does what)
 │   ├── fcop.json                     ← Project identity (mode / roles / leader)
-│   ├── tasks/                        ← Tasks in flight
-│   ├── reports/                      ← Completion reports
-│   ├── issues/                       ← Issue records
-│   ├── shared/                       ← Standing docs
+│   ├── _lifecycle/                   ← v3 five-bucket: location-is-state (delivered on fresh init since 3.0.2)
+│   │   ├── inbox/                    ← Entry point for new TASKs
+│   │   ├── active/                   ← In progress
+│   │   ├── review/                   ← Awaiting review / REVIEW-*
+│   │   ├── done/                     ← Completed
+│   │   └── archive/                  ← Long-term archive
+│   ├── reports/                      ← Completion reports (retained)
+│   ├── issues/                       ← Issue records (retained)
+│   ├── shared/                       ← Standing docs (retained)
 │   │   ├── README.md                 ← Shared-directory conventions
-│   │   ├── TEAM-README.md            ← [0.5.4] Team positioning + ADMIN duties
-│   │   ├── TEAM-ROLES.md             ← [0.5.4] Layer 1 · role boundaries
-│   │   ├── TEAM-OPERATING-RULES.md   ← [0.5.4] Layer 2 · operating rules
-│   │   └── roles/                    ← [0.5.4] Layer 3 · single-role depth
+│   │   ├── TEAM-README.md            ← Team positioning + ADMIN duties
+│   │   ├── TEAM-ROLES.md             ← Layer 1 · role boundaries
+│   │   ├── TEAM-OPERATING-RULES.md   ← Layer 2 · operating rules
+│   │   └── roles/                    ← Layer 3 · single-role depth
 │   │       ├── PM.md
 │   │       ├── DEV.md
 │   │       └── ...                   ← one per role (bilingual)
-│   ├── log/                          ← Archives
 │   └── LETTER-TO-ADMIN.md            ← This letter, kept for reference
 ├── workspace/                        ← ★ Artifact home (code, scripts, data) ★
 │   └── README.md                     ← Convention reference

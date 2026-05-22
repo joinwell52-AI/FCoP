@@ -214,9 +214,9 @@ class TestInitUnderExplicitWorkspace:
         project = Project(tmp_path, workspace_dir="custom-ws")
         project.init_solo(role_code="ME", lang="zh")
         assert (tmp_path / "custom-ws" / "fcop.json").is_file()
-        assert (tmp_path / "custom-ws" / "tasks").is_dir()
+        # FCoP 3.0+: _lifecycle/inbox supersedes tasks/; log/ is removed.
+        assert (tmp_path / "custom-ws" / "_lifecycle" / "inbox").is_dir()
         assert (tmp_path / "custom-ws" / "reports").is_dir()
-        assert (tmp_path / "custom-ws" / "log").is_dir()
         # And nothing under the v1.0 default — proving the override
         # actually kept artifacts off the standard path.
         assert not (tmp_path / "fcop").exists()
