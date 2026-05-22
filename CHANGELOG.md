@@ -8,6 +8,72 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.0.2] — 2026-05-22 (Init topology fix · v3 _lifecycle on fresh init)
+
+### Fixed / 修复
+
+* **Critical · `init_*` did not create `_lifecycle/`.** FCoP 3.0
+  spec §1.1 mandates the v3 five-bucket topology (`_lifecycle/{inbox,
+  active,review,done,archive}/`), but `Project._apply_init` in 3.0.0 /
+  3.0.1 only created legacy v2 directories (`tasks/`, `reports/`,
+  `issues/`, `shared/`, `log/`) and skipped the lifecycle layer.
+  Every fresh project initialised on 3.0.0–3.0.1 was therefore
+  born **non-compliant** with the 3.0 spec. Tracked as
+  `ISSUE-20260522-001-ME` / `TASK-20260522-004-ADMIN-to-ME`.
+* `_apply_init` now calls `ensure_lifecycle_dirs(...)` and refreshes
+  the cached topology so `Project.is_v3` and `tasks_dir` /
+  `reports_dir` / `issues_dir` resolve to v3 paths immediately
+  after init. Per spec §6 the superseded v2 buckets (`tasks/`,
+  `log/`) are no longer created on fresh init; `reports/` /
+  `issues/` / `shared/` are retained for hybrid compatibility.
+* `core.events.scan_workspace` now scans `_lifecycle/{inbox,active,
+  review,done,archive}/` so v3-native events (TASK_CREATED etc.)
+  fire correctly.
+* `Project.role_occupancy()` now reads archived task counts from
+  `_lifecycle/archive/` for v3 projects (and continues to read
+  `log/tasks/` for v2 projects).
+
+### Added / 新增
+
+* `Project._scan_lifecycle_topology_compliance()` audit scan (D9):
+  - **P0** — initialised project missing both `_lifecycle/` and
+    any v2 content ⇒ topology layer is absent.
+  - **P1** — `_lifecycle/` present *and* `tasks/` / `log/` still
+    contain files ⇒ co-existing topologies, run
+    `python -m fcop migrate --to-v3` to consolidate.
+  Wired into `audit(scope="new" | "upgrade" | "takeover")`.
+* `tests/test_init_v3_topology.py` — 7 new tests covering
+  `init_solo` / `init_project` / `init_custom` v3 topology and the
+  `Project.is_v3` / path-accessor invariants.
+
+### Documentation / 文档
+
+* `fcop/LETTER-TO-ADMIN.md` — keeps the existing v3 promise; adds
+  "3.0.2 起 fresh init 立即兑现" note plus dual-path guidance
+  (init / migrate).
+* `README.md` / `README.zh.md` — patch banner pointing at the
+  3.0.2 init-fix.
+* MCP tool descriptors (`init_solo` / `init_project` /
+  `create_custom_team`) call out v3 `_lifecycle/` topology
+  explicitly.
+
+### Test
+
+* All 1209 tests pass (3 skipped, 1 warning).
+
+### Migration
+
+* **Existing v2 projects**: unaffected. Run
+  `python -m fcop migrate --to-v3` if/when ready to adopt v3.
+* **3.0.0 / 3.0.1 fresh-init projects** that look like v2 on disk
+  (no `_lifecycle/`): treated as v2 by every code path; either
+  re-init under 3.0.2 or run `migrate --to-v3` to upgrade.
+* **No breaking changes** vs. 3.0.1 surface — this is a SemVer
+  **patch** (init was doing the wrong thing; the contract was
+  already in §1.1 of the 3.0 spec).
+
+---
+
 ## [3.0.1] — 2026-05-21 (Path-consolidation patch)
 
 ### Fixed / 修复

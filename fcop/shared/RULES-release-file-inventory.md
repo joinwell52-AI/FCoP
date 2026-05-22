@@ -298,18 +298,28 @@ session_id: sess-20260513-me-05
 
 ## 4. 自动化校验入口 / Audit Hooks
 
-本清单设计为可被 `fcop.audit` 子模块解析:
+本清单设计为可被脚本与 CI 直接解析。**自 v3.0.2 起两条 audit 已落地**
+(从 P3"未来实现"晋升为 P0 强制门禁):
 
-- **`audit.inventory_drift()`**(未来实现,P3):扫本文件每行"文件枚举",
-  与 `git ls-files` 比对,产出三类警告:
-  - 清单有、仓库无 → 文件被删但清单忘了改
-  - 仓库有、清单无 → 新文件未纳入发版纪律
-  - 路径漂移 → 文件被重命名但清单还指旧路径
-- **`audit.assertion_lines()`**(未来实现,P3):用 §F 列出的精确行号
-  位置扫 `vX.Y.Z 摘要` 字面量,与 `_version.py` 当前值对照,提前发现
-  hardcoded 不同步。
+- **`scripts/release_audit.py`**(已落地,v3.0.2):一次跑 R1–R12 共
+  12 项检查,覆盖双 `_version.py` 对齐、`mcp/server.json`、CHANGELOG、
+  公共门面文档、README 双语发版表、CITATION.cff、letter-to-admin、
+  5 处 hardcoded `vX.Y.Z`、ADR Proposed 状态、backup remote、
+  `mcp/pyproject.toml` pin、双语配对完整性。
+  调用:`py -3 scripts/release_audit.py --new X.Y.Z --old A.B.C`。
+  P0 失败 = 退出码 1 = 阻断发版。
+- **`scripts/inventory_drift.py`**(已落地,v3.0.2):扫本文件 §2
+  "文件枚举"与 `git ls-files` 比对,产出三类警告:
+  - Class 1 `listed-but-missing` — 清单有、仓库无
+  - Class 2 `tracked-but-unlisted` — 仓库有、清单无(governed root 内)
+  - Class 3 `path-drift` — 同 basename 不同路径(疑似重命名)
+  调用:`py -3 scripts/inventory_drift.py [--lenient]`。
+  默认严格模式三类全归零;`--lenient` 仅 Class 1 阻断。
+- **`audit.assertion_lines()`** 已纳入 `release_audit.py` R8 检查
+  (5 处 hardcoded `vX.Y.Z` 字面量与 `_version.py` 对照)。
 
-在 audit 落地之前,SOP §G 的 6 条 `rg` 命令是手工版校验入口。
+CI 集成:GitHub Actions `release-gate.yml` 在 tag push 时强制跑两脚本,
+任一 P0 失败拒绝 tag。本地手工 `rg` 命令(SOP §G)仍保留为快速排查手段。
 
 ---
 
@@ -332,6 +342,7 @@ SOP(`docs/release-process.md` 双语)再翻清单,有时序差。
 | 日期 | 版本 | 变更 | 关联 TASK |
 |---|---|---|---|
 | 2026-05-13 | v1.0(本文件落档) | 初版,12 类 6 字段全填实 | TASK-20260513-013 |
+| 2026-05-22 | v1.1(随 fcop@3.0.2) | §4 audit hooks 从 P3 升 P0:`scripts/release_audit.py`(R1–R12)+ `scripts/inventory_drift.py`(三类漂移)落地为发版强制门禁;新增 ADR/MIGRATION/cursor-rules glob 覆盖;basename-only inventory 解析支持 | TASK-20260522-005 |
 
 变更日志只 append,不重写历史(Rule 5)。
 

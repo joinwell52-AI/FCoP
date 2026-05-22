@@ -62,36 +62,49 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Release target: ${TAG} (version ${VERSION})"
 
-      - name: Check fcop version matches tag
+      - name: Compute previous version (--old)
+        id: prev
+        env:
+          NEW: ${{ steps.extract.outputs.version }}
         run: |
-          FCOP_VER=$(
-            grep -E '^__version__[[:space:]]*=' src/fcop/_version.py \
-              | head -1 \
-              | sed -E 's/^__version__[[:space:]]*=[[:space:]]*['\''\"]([^'\''\"]+)['\''\"].*/\1/'
-          )
-          if [[ "${FCOP_VER}" != "${{ steps.extract.outputs.version }}" ]]; then
-            echo "::error::src/fcop/_version.py has __version__=${FCOP_VER} but tag says ${{ steps.extract.outputs.version }}"
-            exit 1
-          fi
+          # Pick the previous "## [X.Y.Z]" header in CHANGELOG.md, after
+          # the new one. Fallback to NEW itself if no prior section
+          # exists yet (first-ever release).
+          PREV=$(awk -v new="${NEW}" '
+            $0 ~ "^## \\["new"\\]" { seen=1; next }
+            seen && match($0, /^## \[([0-9]+\.[0-9]+\.[0-9]+)\]/, m) {
+              print m[1]; exit
+            }
+          ' CHANGELOG.md)
+          if [[ -z "${PREV}" ]]; then PREV="${NEW}"; fi
+          echo "old=${PREV}" >> "$GITHUB_OUTPUT"
+          echo "Previous version: ${PREV}"
 
-      - name: Check fcop-mcp version matches tag
-        run: |
-          MCP_VER=$(
-            grep -E '^__version__[[:space:]]*=' mcp/src/fcop_mcp/_version.py \
-              | head -1 \
-              | sed -E 's/^__version__[[:space:]]*=[[:space:]]*['\''\"]([^'\''\"]+)['\''\"].*/\1/'
-          )
-          if [[ "${MCP_VER}" != "${{ steps.extract.outputs.version }}" ]]; then
-            echo "::error::mcp/src/fcop_mcp/_version.py has __version__=${MCP_VER} but tag says ${{ steps.extract.outputs.version }}"
-            exit 1
-          fi
+      - name: Setup Python (for release_audit.py)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-      - name: Check CHANGELOG has a section for this version
+      - name: Run release audit (R1..R12)
+        env:
+          NEW: ${{ steps.extract.outputs.version }}
+          OLD: ${{ steps.prev.outputs.old }}
         run: |
-          if ! grep -qE "^## \[${{ steps.extract.outputs.version }}\]" CHANGELOG.md; then
-            echo "::error::CHANGELOG.md is missing a '## [${{ steps.extract.outputs.version }}]' section"
-            exit 1
-          fi
+          # release_audit.py covers R1 (version pair) + R2 (mcp/server.json)
+          # + R3 (CHANGELOG section/date) + R4 (stale --old in public docs)
+          # + R5 (README release table row) + R6 (CITATION.cff) + R7
+          # (letter-to-admin) + R8 (hardcoded vX.Y.Z) + R9 (no Proposed
+          # ADRs) + R10 (backup remote, P1 — local-dev concern, skipped
+          # on CI) + R11 (mcp pyproject pin) + R12 (bilingual pairing).
+          # --ci => exit 1 on any P0 fail; P1 fails are warnings only.
+          # Skip R10 (backup-remote): the GitHub runner clones with a
+          # single `origin` remote and never has a backup remote. R10
+          # is verified locally by the maintainer before tagging.
+          python scripts/release_audit.py \
+            --new "${NEW}" \
+            --old "${OLD}" \
+            --ci \
+            --only versions,mcp-server,changelog,public-docs,readme-pair,citation,letter,hardcoded,adr,pin,bilingual
 
   build:
     name: Build both wheels
