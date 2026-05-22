@@ -132,6 +132,11 @@ init_* 工具返回 "ok" **不等于** 文件真的生成了。3.0.0 / 3.0.1 那
 就翻过这种车——工具说成功但 _lifecycle 五桶是空的，3.0.2 才修。所以
 你必须 ls 验证。
 
+> ⚠️ **3.0.2 fresh init 不再创建 `fcop/tasks/` 与 `fcop/log/`**——
+> spec §6 钦定退场，已搬到 `_lifecycle/inbox/` 和 `_lifecycle/archive/`。
+> 看到这两个目录不存在是**正常的**，不是 init 失败。
+> 老 v2 项目要升 v3 走 `python -m fcop migrate --to-v3`，不是这份 prompt 的事。
+
 跑这几条（PowerShell）：
 
   ls fcop/_lifecycle/
@@ -145,17 +150,19 @@ init_* 工具返回 "ok" **不等于** 文件真的生成了。3.0.0 / 3.0.1 那
   ├── fcop.json
   ├── LETTER-TO-ADMIN.md
   ├── _lifecycle/                    ← v3 五桶（必查）
-  │   ├── intent/
-  │   ├── plan/
-  │   ├── execution/
-  │   ├── verification/
+  │   ├── inbox/
+  │   ├── active/
+  │   ├── review/
+  │   ├── done/
   │   └── archive/
   ├── shared/
   │   ├── TEAM-README.md
   │   ├── TEAM-ROLES.md
   │   ├── TEAM-OPERATING-RULES.md
   │   └── roles/{ROLE}.md
-  └── (兼容五桶: tasks/ reports/ issues/ shared/ log/ —— v3 仍保留)
+  ├── reports/                       ← 报告（v3 仍保留）
+  ├── issues/                        ← 问题单（v3 仍保留）
+  └── reviews/                       ← 审查（v3 仍保留）
 
   workspace/
   └── README.md

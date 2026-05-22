@@ -145,6 +145,12 @@ created. v3.0.0 / v3.0.1 had exactly this bug — tool said success but
 _lifecycle's five buckets were empty (fixed in v3.0.2). So you MUST
 verify with ls.
 
+> ⚠️ **v3.0.2 fresh init no longer creates `fcop/tasks/` or `fcop/log/`** —
+> spec §6 retired them; they moved to `_lifecycle/inbox/` and
+> `_lifecycle/archive/`. Their absence is **expected**, not a failure.
+> Old v2 projects upgrade with `python -m fcop migrate --to-v3` —
+> that is out of scope for this prompt.
+
 Run (PowerShell):
 
   ls fcop/_lifecycle/
@@ -158,17 +164,19 @@ Expected layout (v3 topology):
   ├── fcop.json
   ├── LETTER-TO-ADMIN.md
   ├── _lifecycle/                    ← v3 five buckets (must check)
-  │   ├── intent/
-  │   ├── plan/
-  │   ├── execution/
-  │   ├── verification/
+  │   ├── inbox/
+  │   ├── active/
+  │   ├── review/
+  │   ├── done/
   │   └── archive/
   ├── shared/
   │   ├── TEAM-README.md
   │   ├── TEAM-ROLES.md
   │   ├── TEAM-OPERATING-RULES.md
   │   └── roles/{ROLE}.md
-  └── (legacy buckets: tasks/ reports/ issues/ shared/ log/ — kept in v3)
+  ├── reports/                       ← reports (kept in v3)
+  ├── issues/                        ← issues (kept in v3)
+  └── reviews/                       ← reviews (kept in v3)
 
   workspace/
   └── README.md
