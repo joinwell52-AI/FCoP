@@ -451,6 +451,32 @@ class Project:
         return self.lifecycle_root / "archive"
 
     @property
+    def history_dir(self) -> pathlib.Path:
+        """``<workspace>/history/`` — date-sharded deep archive (v3 only).
+
+        Structure::
+
+            history/
+              2026-05-22/
+                TASK-20260522-001-ADMIN-to-ME/
+                  TASK-20260522-001-ADMIN-to-ME.md   ← task file
+                  REPORT-20260522-001-ME-to-ADMIN.md ← related report(s)
+              2026-05-23/
+                ...
+
+        Each date directory holds one sub-directory per task, named
+        after the task file (without ``.md``).  Both the task and its
+        associated reports are placed inside that sub-directory so the
+        pair can be inspected or deleted atomically.
+
+        The date used for sharding is the UTC date on which the task
+        transitioned to ``done`` (``done_at``).  This lets you quickly
+        find all work completed on a given day without scanning the
+        full archive.
+        """
+        return self._workspace_root / "history"
+
+    @property
     def workspace_dir(self) -> pathlib.Path:
         """FCoP workspace root.
 
@@ -2793,6 +2819,252 @@ class Project:
 
             log_reports.mkdir(parents=True, exist_ok=True)
             entry.replace(log_reports / entry.name)
+
+    # ── History archive (v3 deep archive) ────────────────────────────────
+    #
+    # These three methods implement the *second* archival layer that sits
+    # beyond _lifecycle/archive/.  The flow is:
+    #
+    #   active work  ──► _lifecycle/archive/   (archive_task, existing)
+    #                         │
+    #                         ▼
+    #                    history/YYYY-MM-DD/TASK-.../   (archive_to_history, new)
+    #
+    # Once a task is in history/ it is considered immutable.  The date
+    # shard is the UTC date on which the task was marked *done*
+    # (transitions to Stage.DONE), giving O(1) lookup for a given day.
+
+    def archive_to_history(
+        self,
+        filename_or_id: str,
+        *,
+        done_date: "_dt.date | None" = None,
+    ) -> pathlib.Path:
+        """Move a *closed* task from ``_lifecycle/archive/`` to the deep
+        history archive (``history/YYYY-MM-DD/<task-stem>/``).
+
+        The method also moves every report that cites the task (found in
+        ``reports/``) into the same sub-directory, keeping the task+report
+        pair together for easy retrieval.
+
+        Args:
+            filename_or_id: Full filename or task-id — same shapes
+                accepted by :meth:`read_task`.
+            done_date: Override the UTC calendar date used as the
+                ``history/`` shard key.  When *None* (the default) the
+                date is derived from the task's ``done_at`` event, i.e.
+                the ``at`` timestamp of the ``transitions:`` entry whose
+                ``to_stage`` is ``done``.  Supply an explicit
+                :class:`datetime.date` when the task's frontmatter lacks
+                a ``done`` transition (e.g. it was fast-tracked straight
+                to ``archive``); in that case today's UTC date is a
+                sensible fallback.
+
+        Returns:
+            The :class:`pathlib.Path` of the new directory that holds the
+            moved task (and any accompanying reports).
+
+        Raises:
+            TaskNotFoundError: No matching task found anywhere (neither
+                open directories nor ``_lifecycle/archive/``).
+            PermissionError: The task is *not* in ``_lifecycle/archive/``
+                yet — call :meth:`archive_task` first.
+        """
+        import datetime as _dt2
+
+        from fcop.lifecycle.events import read_events as _read_events
+        from fcop.lifecycle.state import Stage as _Stage
+
+        # ── 1. Locate the task ──────────────────────────────────────────
+        source, is_archived = self._resolve_task_file(filename_or_id)
+        if source is None:
+            raise TaskNotFoundError(
+                f"cannot archive to history: no task matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+        if not is_archived or source.parent != self.archive_dir:
+            raise PermissionError(
+                f"task {filename_or_id!r} must be in _lifecycle/archive/ before "
+                "archiving to history — call archive_task() first."
+            )
+
+        # ── 2. Determine the shard date ────────────────────────────────
+        if done_date is None:
+            text = source.read_text(encoding="utf-8")
+            events = _read_events(text)
+            done_event = next(
+                (e for e in events if e.to_stage == _Stage.DONE),
+                None,
+            )
+            if done_event is not None:
+                done_date = done_event.at.astimezone(_dt2.timezone.utc).date()
+            else:
+                # Fallback: use today's UTC date (covers fast-tracked tasks)
+                done_date = _dt2.datetime.now(_dt2.timezone.utc).date()
+
+        date_str = done_date.strftime("%Y-%m-%d")
+
+        # ── 3. Build target directory  <history/YYYY-MM-DD/TASK-stem/> ──
+        task_stem = source.stem  # filename without .md
+        target_dir = self.history_dir / date_str / task_stem
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        # ── 4. Move the task file ──────────────────────────────────────
+        target_task = target_dir / source.name
+        source.replace(target_task)
+
+        # ── 5. Move matching reports from reports/ ─────────────────────
+        # Derive the canonical task_id from the filename we just moved.
+        parsed = parse_task_filename(source.name)
+        if parsed is not None and self.reports_dir.is_dir():
+            task_id = parsed.task_id
+            for entry in self.reports_dir.iterdir():
+                if not entry.is_file():
+                    continue
+                if entry.suffix.lower() not in _FCOP_SUFFIXES:
+                    continue
+                if not REPORT_FILENAME_RE.match(entry.name):
+                    continue
+                try:
+                    text = entry.read_text(encoding="utf-8")
+                    fm, _ = parse_task_frontmatter(text)
+                except Exception:
+                    continue
+                if task_id not in fm.references:
+                    continue
+                entry.replace(target_dir / entry.name)
+
+        return target_dir
+
+    def list_history(
+        self,
+        *,
+        date: "_dt.date | str | None" = None,
+    ) -> "list[str]":
+        """List history entries.
+
+        When *date* is supplied the method returns a list of task-stem
+        strings (directory names) found inside
+        ``history/YYYY-MM-DD/``.  When *date* is *None* it returns the
+        list of date-shard strings (``"YYYY-MM-DD"`` format) present
+        under ``history/``.
+
+        Args:
+            date: A :class:`datetime.date` or ``"YYYY-MM-DD"`` string.
+                Pass *None* to list available date shards.
+
+        Returns:
+            Sorted list of strings — either date shards or task stems,
+            depending on whether *date* was provided.
+        """
+        import datetime as _dt2
+
+        if not self.history_dir.is_dir():
+            return []
+
+        if date is None:
+            # Return all date-shard names, newest first
+            return sorted(
+                (
+                    p.name
+                    for p in self.history_dir.iterdir()
+                    if p.is_dir() and len(p.name) == 10 and p.name[4] == "-"
+                ),
+                reverse=True,
+            )
+
+        # Normalise date argument
+        if isinstance(date, str):
+            try:
+                date = _dt2.date.fromisoformat(date)
+            except ValueError as exc:
+                raise ValueError(
+                    f"date must be in YYYY-MM-DD format, got {date!r}"
+                ) from exc
+
+        date_dir = self.history_dir / date.strftime("%Y-%m-%d")
+        if not date_dir.is_dir():
+            return []
+
+        return sorted(p.name for p in date_dir.iterdir() if p.is_dir())
+
+    def read_history_task(
+        self,
+        filename_or_id: str,
+        *,
+        date: "_dt.date | str | None" = None,
+    ) -> "Task":
+        """Read a task from the deep history archive.
+
+        Searches ``history/`` for a task matching *filename_or_id*.  If
+        *date* is provided the search is restricted to that date-shard
+        (much faster when you already know the date); otherwise every
+        date-shard is scanned.
+
+        Args:
+            filename_or_id: Full filename (with or without ``.md``) or
+                task-id (e.g. ``"TASK-20260522-001"``).
+            date: Restrict the search to a specific date shard.  Accepts
+                a :class:`datetime.date` or ``"YYYY-MM-DD"`` string.
+
+        Returns:
+            The matching :class:`Task` with ``is_archived=True``.
+
+        Raises:
+            TaskNotFoundError: No matching task found in history.
+        """
+        import datetime as _dt2
+
+        if not self.history_dir.is_dir():
+            raise TaskNotFoundError(
+                f"history directory does not exist — no task matches {filename_or_id!r}",
+                query=filename_or_id,
+            )
+
+        # Normalise the query to a bare stem / id fragment
+        query = filename_or_id
+        if query.lower().endswith(".md"):
+            query = query[:-3]
+
+        def _search_dir(date_dir: pathlib.Path) -> "pathlib.Path | None":
+            for task_dir in date_dir.iterdir():
+                if not task_dir.is_dir():
+                    continue
+                # Check by stem name or task-id prefix
+                if task_dir.name == query or task_dir.name.startswith(query):
+                    # Look for the .md file inside
+                    for candidate in task_dir.iterdir():
+                        if candidate.is_file() and candidate.suffix.lower() == ".md":
+                            if TASK_FILENAME_RE.match(candidate.name):
+                                return candidate
+            return None
+
+        if date is not None:
+            if isinstance(date, str):
+                try:
+                    date = _dt2.date.fromisoformat(date)
+                except ValueError as exc:
+                    raise ValueError(
+                        f"date must be in YYYY-MM-DD format, got {date!r}"
+                    ) from exc
+            date_dir = self.history_dir / date.strftime("%Y-%m-%d")
+            found = _search_dir(date_dir) if date_dir.is_dir() else None
+        else:
+            found = None
+            for shard in sorted(self.history_dir.iterdir(), reverse=True):
+                if not shard.is_dir():
+                    continue
+                found = _search_dir(shard)
+                if found is not None:
+                    break
+
+        if found is None:
+            raise TaskNotFoundError(
+                f"no task matching {filename_or_id!r} found in history",
+                query=filename_or_id,
+            )
+
+        return _load_task_strict(found, is_archived=True)
 
     def inspect_task(self, filename_or_id: str) -> list[ValidationIssue]:
         """Validate a task file against the FCoP schema.

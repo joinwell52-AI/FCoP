@@ -454,6 +454,29 @@
         ],
         "return": "Task"
       },
+      "archive_to_history": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          },
+          {
+            "annotation": "'_dt.date | None'",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "done_date"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
       "assert_boundary": {
         "params": [
           {
@@ -802,6 +825,23 @@
         ],
         "return": "bool"
       },
+      "list_history": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "'_dt.date | str | None'",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "date"
+          }
+        ],
+        "return": "'list[str]'"
+      },
       "list_issues": {
         "params": [
           {
@@ -1041,6 +1081,29 @@
           }
         ],
         "return": "list[Event]"
+      },
+      "read_history_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "filename_or_id"
+          },
+          {
+            "annotation": "'_dt.date | str | None'",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "date"
+          }
+        ],
+        "return": "'Task'"
       },
       "read_issue": {
         "params": [
@@ -1513,6 +1576,17 @@
         "return": "pathlib.Path"
       },
       "done_dir": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          }
+        ],
+        "return": "pathlib.Path"
+      },
+      "history_dir": {
         "params": [
           {
             "annotation": null,

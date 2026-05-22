@@ -278,6 +278,48 @@ init_* 工具返回 "ok" **不等于** 文件真的生成了。3.0.0 / 3.0.1 那
 - P1 / P2 是建议级，可以先放着等我看
 
 体检通过 → bringup 完成，等我下一步指令。
+
+═══════════════════════════════════════════════════════════════════
+§7 · v3 任务生命周期快查（3.1.0 起）
+═══════════════════════════════════════════════════════════════════
+
+⚠️ **v3 项目（fcop ≥ 3.0.0）的任务文件不再扔进 tasks/ 根目录，
+而是走五阶段 _lifecycle/ 状态机。必须用 MCP 工具驱动每次转移
+——不允许直接 mv / 写文件绕过工具层。**
+
+任务生命周期状态机：
+
+  inbox → active → review → done → archive
+                ↘              ↙
+                  done（无需审查时）
+
+MCP 工具对应表：
+
+  create_task            创建任务           → _lifecycle/inbox/
+  claim_task             Agent 认领任务      inbox → active
+  submit_task            Agent 提交审查      active → review
+  finish_task            Agent 直接完成      active → done（跳过审查）
+  approve_task           ADMIN 批准          review → done
+  reject_task            ADMIN 退回（撤回）  review → active（重做）
+  archive_task           归档已完成          done → archive
+
+典型 Agent 工作流（有审查）：
+
+  1. ADMIN 调 write_task     → _lifecycle/inbox/ 落盘
+  2. Agent 调 claim_task     → 移到 active/，开始工作
+  3. Agent 调 submit_task    → 移到 review/，等审查
+  4. ADMIN 调 approve_task   → 移到 done/
+  5. 任一方调 archive_task   → 移到 archive/，归档完毕
+
+快速工作流（无需审查，Agent 直接完成）：
+
+  1. ADMIN 调 write_task    → inbox/
+  2. Agent 调 claim_task    → active/
+  3. Agent 调 finish_task   → done/（跳过 review）
+  4. archive_task           → archive/
+
+所有工具均已在 fcop-mcp 3.1.0 可用。不要自己 mkdir 或 mv
+——只用 MCP 工具操作，否则 fcop_audit 会报 P0 违规。
 ```
 
 ---

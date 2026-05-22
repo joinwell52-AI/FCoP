@@ -1248,6 +1248,427 @@ def archive_task(task_id: str, lang: str = "") -> str:
     return f"Archived: {task.filename}\nNew path: {task.path}"
 
 
+# ─── History deep archive tools (v3) ─────────────────────────────────
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def archive_to_history(task_id: str, done_date: str = "") -> str:
+    """Move a closed task from ``_lifecycle/archive/`` to the deep history archive.
+
+    The task **and** all its associated reports are moved together into
+    ``history/YYYY-MM-DD/<task-stem>/``, creating an immutable, date-sharded
+    record.  The date shard defaults to the UTC date when the task was marked
+    *done*; you can override it via *done_date*.
+
+    Call :func:`archive_task` first to move the task from ``_lifecycle/done/``
+    to ``_lifecycle/archive/`` before calling this tool.
+
+    Args:
+        task_id:   Task ID (e.g. ``TASK-20260522-001``) or full filename.
+        done_date: Override the shard date in ``YYYY-MM-DD`` format.
+                   Leave empty to use the task's own ``done_at`` timestamp.
+    """
+    import datetime as _dt
+
+    try:
+        project, _source = _get_project_write("archive_to_history")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "archive_to_history is a v3-only operation; this project uses the v2 layout."
+
+    date_obj: "_dt.date | None" = None
+    if done_date:
+        try:
+            date_obj = _dt.date.fromisoformat(done_date)
+        except ValueError:
+            return f"Invalid done_date {done_date!r} — expected YYYY-MM-DD format."
+
+    try:
+        target_dir = project.archive_to_history(task_id, done_date=date_obj)
+    except fcop.TaskNotFoundError as exc:
+        return f"Task not found: {task_id} ({exc})"
+    except PermissionError as exc:
+        return str(exc)
+    except Exception as exc:  # noqa: BLE001
+        return _format_error(exc)
+
+    # List what ended up in the target directory
+    moved = sorted(p.name for p in target_dir.iterdir() if p.is_file())
+    moved_str = "\n  ".join(moved) if moved else "(none)"
+    return (
+        f"Archived to history: {target_dir.relative_to(project.workspace_dir)}\n"
+        f"Files moved:\n  {moved_str}"
+    )
+
+
+@mcp.tool(tags={"binding_required", "tier:L0"})
+def list_history(date: str = "") -> str:
+    """List the deep history archive.
+
+    When *date* is supplied (``YYYY-MM-DD``) the tool lists every task
+    entry stored under that date shard.  When *date* is omitted it lists
+    all available date shards (newest first).
+
+    Args:
+        date: Optional date shard in ``YYYY-MM-DD`` format.
+              Leave empty to list all available date shards.
+    """
+    import datetime as _dt
+
+    try:
+        project, _source = _get_project()
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "list_history is a v3-only operation; this project uses the v2 layout."
+
+    date_obj: "_dt.date | None" = None
+    if date:
+        try:
+            date_obj = _dt.date.fromisoformat(date)
+        except ValueError:
+            return f"Invalid date {date!r} — expected YYYY-MM-DD format."
+
+    try:
+        entries = project.list_history(date=date_obj)
+    except Exception as exc:  # noqa: BLE001
+        return _format_error(exc)
+
+    if not entries:
+        msg = f"No history entries for {date}." if date else "History archive is empty."
+        return msg
+
+    if date_obj is None:
+        header = f"History date shards ({len(entries)} total):"
+    else:
+        header = f"Tasks archived on {date} ({len(entries)} total):"
+
+    lines = "\n".join(f"  {e}" for e in entries)
+    return f"{header}\n{lines}"
+
+
+@mcp.tool(tags={"binding_required", "tier:L0"})
+def read_history_task(task_id: str, date: str = "") -> str:
+    """Read a task from the deep history archive.
+
+    Searches ``history/`` for the task matching *task_id*.  Providing
+    *date* restricts the search to that date shard (much faster).
+
+    Args:
+        task_id: Task ID (e.g. ``TASK-20260522-001``) or full filename.
+        date:    Optional ``YYYY-MM-DD`` date shard to restrict the search.
+    """
+    import datetime as _dt
+
+    try:
+        project, _source = _get_project()
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "read_history_task is a v3-only operation; this project uses the v2 layout."
+
+    date_obj: "_dt.date | None" = None
+    if date:
+        try:
+            date_obj = _dt.date.fromisoformat(date)
+        except ValueError:
+            return f"Invalid date {date!r} — expected YYYY-MM-DD format."
+
+    try:
+        task = project.read_history_task(task_id, date=date_obj)
+    except fcop.TaskNotFoundError as exc:
+        return f"Task not found in history: {task_id} ({exc})"
+    except Exception as exc:  # noqa: BLE001
+        return _format_error(exc)
+
+    return _format_task(task)
+
+
+# ─── v3 Lifecycle transition tools ───────────────────────────────────
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def claim_task(task_id: str, actor: str = "agent") -> str:
+    """Claim a task from ``inbox`` → ``active`` (v3 lifecycle).
+
+    Moves the task file from ``_lifecycle/inbox/`` to
+    ``_lifecycle/active/`` and appends a ``claim_task`` transition
+    event to the file's frontmatter.  On v2 projects this is a no-op
+    that returns an informational message.
+
+    Args:
+        task_id: Task ID (e.g. ``TASK-20260423-001``) or full filename.
+        actor:   Role code of the agent claiming the task (default ``"agent"``).
+    """
+    import datetime as _dt
+
+    from fcop.lifecycle.atomic import commit as _commit
+    from fcop.lifecycle.events import TransitionEvent as _TransitionEvent
+    from fcop.lifecycle.state import Stage as _Stage
+    from fcop.lifecycle.state import stage_of_path as _stage_of_path
+    from fcop.lifecycle.transitions import IllegalTransitionError as _ITE
+
+    try:
+        project, _source = _get_project_write("claim_task")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "claim_task is a v3-only operation; this project uses the v2 layout."
+
+    path, _archived = project._resolve_task_file(task_id)
+    if path is None:
+        return f"Task not found: {task_id}"
+
+    current = _stage_of_path(path, project_root=project.workspace_dir)
+    if current is not _Stage.INBOX:
+        return (
+            f"Cannot claim: task is in stage '{current.value if current else 'unknown'}', "
+            f"expected 'inbox'."
+        )
+
+    event = _TransitionEvent(
+        at=_dt.datetime.now(_dt.timezone.utc),
+        from_stage=_Stage.INBOX,
+        to_stage=_Stage.ACTIVE,
+        by=actor,
+        tool="claim_task",
+    )
+    try:
+        result = _commit(path, _Stage.ACTIVE, event, project_root=project.workspace_dir)
+    except (_ITE, fcop.FcopError) as exc:
+        return _format_error(exc)
+
+    return f"Claimed: {task_id}\nNew path: {result.destination_path}"
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def submit_task(task_id: str, actor: str = "agent") -> str:
+    """Submit an active task for review: ``active`` → ``review`` (v3 lifecycle).
+
+    Moves the task file from ``_lifecycle/active/`` to
+    ``_lifecycle/review/`` and appends a ``submit_task`` transition
+    event.  On v2 projects this is a no-op.
+
+    Args:
+        task_id: Task ID or full filename.
+        actor:   Role code of the agent submitting the task.
+    """
+    import datetime as _dt
+
+    from fcop.lifecycle.atomic import commit as _commit
+    from fcop.lifecycle.events import TransitionEvent as _TransitionEvent
+    from fcop.lifecycle.state import Stage as _Stage
+    from fcop.lifecycle.state import stage_of_path as _stage_of_path
+    from fcop.lifecycle.transitions import IllegalTransitionError as _ITE
+
+    try:
+        project, _source = _get_project_write("submit_task")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "submit_task is a v3-only operation; this project uses the v2 layout."
+
+    path, _archived = project._resolve_task_file(task_id)
+    if path is None:
+        return f"Task not found: {task_id}"
+
+    current = _stage_of_path(path, project_root=project.workspace_dir)
+    if current is not _Stage.ACTIVE:
+        return (
+            f"Cannot submit: task is in stage '{current.value if current else 'unknown'}', "
+            f"expected 'active'."
+        )
+
+    event = _TransitionEvent(
+        at=_dt.datetime.now(_dt.timezone.utc),
+        from_stage=_Stage.ACTIVE,
+        to_stage=_Stage.REVIEW,
+        by=actor,
+        tool="submit_task",
+    )
+    try:
+        result = _commit(path, _Stage.REVIEW, event, project_root=project.workspace_dir)
+    except (_ITE, fcop.FcopError) as exc:
+        return _format_error(exc)
+
+    return f"Submitted for review: {task_id}\nNew path: {result.destination_path}"
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def finish_task(task_id: str, actor: str = "agent") -> str:
+    """Finish an active task directly: ``active`` → ``done`` (v3 lifecycle).
+
+    Moves the task file from ``_lifecycle/active/`` to
+    ``_lifecycle/done/`` without a review step.  Use this for tasks
+    that do not require ADMIN approval.  On v2 projects this is a no-op.
+
+    Args:
+        task_id: Task ID or full filename.
+        actor:   Role code of the agent finishing the task.
+    """
+    import datetime as _dt
+
+    from fcop.lifecycle.atomic import commit as _commit
+    from fcop.lifecycle.events import TransitionEvent as _TransitionEvent
+    from fcop.lifecycle.state import Stage as _Stage
+    from fcop.lifecycle.state import stage_of_path as _stage_of_path
+    from fcop.lifecycle.transitions import IllegalTransitionError as _ITE
+
+    try:
+        project, _source = _get_project_write("finish_task")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "finish_task is a v3-only operation; this project uses the v2 layout."
+
+    path, _archived = project._resolve_task_file(task_id)
+    if path is None:
+        return f"Task not found: {task_id}"
+
+    current = _stage_of_path(path, project_root=project.workspace_dir)
+    if current is not _Stage.ACTIVE:
+        return (
+            f"Cannot finish: task is in stage '{current.value if current else 'unknown'}', "
+            f"expected 'active'."
+        )
+
+    event = _TransitionEvent(
+        at=_dt.datetime.now(_dt.timezone.utc),
+        from_stage=_Stage.ACTIVE,
+        to_stage=_Stage.DONE,
+        by=actor,
+        tool="finish_task",
+    )
+    try:
+        result = _commit(path, _Stage.DONE, event, project_root=project.workspace_dir)
+    except (_ITE, fcop.FcopError) as exc:
+        return _format_error(exc)
+
+    return f"Finished: {task_id}\nNew path: {result.destination_path}"
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def approve_task(task_id: str, actor: str = "ADMIN", note: str = "") -> str:
+    """Approve a task under review: ``review`` → ``done`` (v3 lifecycle).
+
+    Moves the task file from ``_lifecycle/review/`` to
+    ``_lifecycle/done/`` and appends an ``approve_task`` event.
+    Typically called by ADMIN after inspecting the work.
+    On v2 projects this is a no-op.
+
+    Args:
+        task_id: Task ID or full filename.
+        actor:   Role code of the approver (default ``"ADMIN"``).
+        note:    Optional approval note appended to the transition event.
+    """
+    import datetime as _dt
+
+    from fcop.lifecycle.atomic import commit as _commit
+    from fcop.lifecycle.events import TransitionEvent as _TransitionEvent
+    from fcop.lifecycle.state import Stage as _Stage
+    from fcop.lifecycle.state import stage_of_path as _stage_of_path
+    from fcop.lifecycle.transitions import IllegalTransitionError as _ITE
+
+    try:
+        project, _source = _get_project_write("approve_task")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "approve_task is a v3-only operation; this project uses the v2 layout."
+
+    path, _archived = project._resolve_task_file(task_id)
+    if path is None:
+        return f"Task not found: {task_id}"
+
+    current = _stage_of_path(path, project_root=project.workspace_dir)
+    if current is not _Stage.REVIEW:
+        return (
+            f"Cannot approve: task is in stage '{current.value if current else 'unknown'}', "
+            f"expected 'review'."
+        )
+
+    event = _TransitionEvent(
+        at=_dt.datetime.now(_dt.timezone.utc),
+        from_stage=_Stage.REVIEW,
+        to_stage=_Stage.DONE,
+        by=actor,
+        tool="approve_task",
+        note=note if note else None,
+    )
+    try:
+        result = _commit(path, _Stage.DONE, event, project_root=project.workspace_dir)
+    except (_ITE, fcop.FcopError) as exc:
+        return _format_error(exc)
+
+    return f"Approved: {task_id}\nNew path: {result.destination_path}"
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def reject_task(task_id: str, actor: str = "ADMIN", note: str = "") -> str:
+    """Reject / recall a task under review: ``review`` → ``active`` (v3 lifecycle).
+
+    Moves the task file back from ``_lifecycle/review/`` to
+    ``_lifecycle/active/`` so the agent can rework it.  Appends a
+    ``reject_task`` transition event.  This is the FCoP v3 "撤回"
+    (recall) mechanism — ADMIN sends the work back for revision
+    without discarding it.  On v2 projects this is a no-op.
+
+    Args:
+        task_id: Task ID or full filename.
+        actor:   Role code of the rejector (default ``"ADMIN"``).
+        note:    Mandatory rejection reason (strongly recommended).
+    """
+    import datetime as _dt
+
+    from fcop.lifecycle.atomic import commit as _commit
+    from fcop.lifecycle.events import TransitionEvent as _TransitionEvent
+    from fcop.lifecycle.state import Stage as _Stage
+    from fcop.lifecycle.state import stage_of_path as _stage_of_path
+    from fcop.lifecycle.transitions import IllegalTransitionError as _ITE
+
+    try:
+        project, _source = _get_project_write("reject_task")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "reject_task is a v3-only operation; this project uses the v2 layout."
+
+    path, _archived = project._resolve_task_file(task_id)
+    if path is None:
+        return f"Task not found: {task_id}"
+
+    current = _stage_of_path(path, project_root=project.workspace_dir)
+    if current is not _Stage.REVIEW:
+        return (
+            f"Cannot reject: task is in stage '{current.value if current else 'unknown'}', "
+            f"expected 'review'."
+        )
+
+    event = _TransitionEvent(
+        at=_dt.datetime.now(_dt.timezone.utc),
+        from_stage=_Stage.REVIEW,
+        to_stage=_Stage.ACTIVE,
+        by=actor,
+        tool="reject_task",
+        note=note if note else None,
+    )
+    try:
+        result = _commit(path, _Stage.ACTIVE, event, project_root=project.workspace_dir)
+    except (_ITE, fcop.FcopError) as exc:
+        return _format_error(exc)
+
+    return f"Rejected (returned to active): {task_id}\nNew path: {result.destination_path}"
+
+
 # ─── Report CRUD tools ───────────────────────────────────────────────
 
 

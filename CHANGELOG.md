@@ -8,6 +8,59 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.2.0] — 2026-05-22 (History deep archive · date-sharded `history/YYYY-MM-DD/` layer)
+
+### Added — `fcop`
+- `Project.history_dir` property — returns `<workspace_root>/history/` path.
+- `Project.archive_to_history(filename_or_id, *, done_date)` — moves a closed task from
+  `_lifecycle/archive/` plus all its paired reports from `reports/` into
+  `history/<YYYY-MM-DD>/<TASK-stem>/`, keyed by the task's `done_at` date.
+- `Project.list_history(*, date)` — lists task IDs in the history archive,
+  optionally filtered to a specific `YYYY-MM-DD` date directory.
+- `Project.read_history_task(filename_or_id, *, date)` — reads a `Task` object
+  from the history archive.
+
+### Added — `fcop-mcp`
+- `archive_to_history` tool — MCP wrapper for `Project.archive_to_history`.
+- `list_history` tool — MCP wrapper for `Project.list_history`.
+- `read_history_task` tool — MCP wrapper for `Project.read_history_task`.
+
+### Design rationale
+- The existing `_lifecycle/archive/` flat directory and `archive_task` tool are
+  **unchanged**; the new `history/` layer is an *additional, deeper archival layer*.
+- Date-sharded structure (`history/YYYY-MM-DD/`) keeps any single directory at
+  `O(tasks_per_day)` rather than `O(total_tasks)`, solving the `O(N)` scalability
+  bottleneck at 30+ days × 100 tasks/day scale.
+- Tasks and their reports are moved as an *organic pair* into a per-task
+  subdirectory, so the full context is always co-located.
+
+---
+
+## [3.1.0] — 2026-05-22 (FCoP v3 lifecycle MCP tools — claim / submit / finish / approve / reject)
+
+### Added / 新增
+
+* **Five missing v3 lifecycle transition MCP tools (GitHub #8).**  The FCoP v3
+  lifecycle state machine (`inbox → active → review → done → archive`) was fully
+  defined in `fcop.lifecycle.transitions` but had no MCP surface for the middle
+  stages.  Five tools are now exposed in `fcop-mcp`:
+
+  | Tool | Transition | Caller |
+  |---|---|---|
+  | `claim_task` | `inbox → active` | Agent |
+  | `submit_task` | `active → review` | Agent |
+  | `finish_task` | `active → done` | Agent (no review needed) |
+  | `approve_task` | `review → done` | ADMIN |
+  | `reject_task` | `review → active` | ADMIN (recall / rework) |
+
+  All five tools use `fcop.lifecycle.atomic.commit` for atomic file moves,
+  append a typed `TransitionEvent` to the task file's frontmatter, and are
+  no-ops on v2 projects (return an informational message instead of raising).
+  `reject_task` implements the "撤回" (recall) mechanism — ADMIN can push
+  a task back to `active` for revision without discarding it.
+
+---
+
 ## [3.0.3] — 2026-05-22 (Audit false-positive sweep · bringup-prompt hardening)
 
 ### Fixed / 修复
