@@ -44,13 +44,45 @@ Run these two:
   python --version
   pip show fcop fcop-mcp
 
+Run all four (first two: local; last two: PyPI latest — **look it up,
+do NOT guess**):
+
+  python --version
+  pip show fcop fcop-mcp
+  pip index versions fcop
+  pip index versions fcop-mcp
+
 Requirements:
 - Python ≥ 3.10
-- If either fcop / fcop-mcp is missing, tell me "not installed"
-- If both are installed, paste the version numbers back to me
+- If fcop / fcop-mcp is missing, say "not installed"
+- If both are installed, paste BOTH "local version" and "PyPI latest"
+  number sets
 
-Show the raw output. **Stop and wait for me to decide whether to
-upgrade** — do not pip install before I say so.
+The first version listed by `pip index versions fcop` is PyPI's current
+latest — that's the authoritative answer. Do **NOT** write "might be X
+or higher" or "need to confirm PyPI sync" — running the command gives
+you the answer; if you didn't run it, don't make things up.
+
+If `pip index versions` is unavailable on your pip (very old pip),
+fall back to:
+
+  python -m pip install --dry-run --upgrade fcop fcop-mcp
+
+Read the version on the "Would install" line as the PyPI latest — same
+authority, still no guessing.
+
+Decision rules (follow them, do NOT improvise):
+- local == PyPI latest → "**already latest, no upgrade needed**", go §3.
+- local < PyPI latest → "needs upgrade {local}→{latest}", wait for me
+  to say "upgrade" before going to §2.
+- local > PyPI latest → unusual (pre-release? local dev wheel?), paste
+  both numbers, **stop and wait** for me to decide, no auto-action.
+- not installed → "not installed, PyPI latest is X.Y.Z", wait for me
+  to say "install" before going to §2.
+
+Paste the five numbers (Python / local fcop / local fcop-mcp / PyPI
+latest fcop / PyPI latest fcop-mcp) plus which bucket you decided.
+**Stop and wait** — do not pip install before I say so.
 
 ═══════════════════════════════════════════════════════════════════
 §2 · Upgrade to latest (no version pin)
