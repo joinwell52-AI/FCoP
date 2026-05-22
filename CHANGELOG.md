@@ -8,6 +8,87 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.0.3] — 2026-05-22 (Audit false-positive sweep · bringup-prompt hardening)
+
+### Fixed / 修复
+
+* **`fcop_audit()` false positive — `_scan_misplaced_envelopes` (GitHub #3).**
+  On v3 projects tasks live under `_lifecycle/{inbox,active,review,done,
+  archive}/` but the scanner only accepted the single legacy `tasks/` bucket,
+  flagging every v3-native task file as misplaced.  The scan is now v3
+  topology-aware: any of the five `_lifecycle/` sub-directories is accepted
+  as a valid home for `kind: task` envelopes; v2 projects are unaffected.
+  Helper `v3_task_valid_dirs` is computed once per call and compared via
+  resolved paths, avoiding symlink confusion.
+
+* **`fcop_audit()` false positive — `_scan_outdated_role_docs` / RULE_DOC_DRIFT
+  (GitHub #4).**  Running `deploy_role_templates()` immediately triggered a
+  `RULE_DOC_DRIFT P1` violation because the deployed template content still
+  referenced an older version string.  `deploy_role_templates()` now writes a
+  `.deployed_version` marker file under `fcop/shared/` containing the current
+  `fcop.__version__`.  `_scan_outdated_role_docs` reads the marker on startup;
+  if the deployed version is within 1 minor version of the installed package,
+  the scan is skipped — templates are freshly deployed and any version-string
+  lag is expected and benign.
+
+* **`fcop_audit()` false positive — `_scan_ghost_prefixes` / ADR-0033 trailing
+  slug (GitHub #5).**  Legitimate FCoP envelope filenames that contain a
+  "v2"-like token in their ADR-0033 trailing slug (e.g.
+  `TASK-20260512-025-PM-to-OPS-phase-a-fix-v2.md`) matched the catch-all
+  `*-v[0-9]*.md` ghost-prefix glob and were incorrectly flagged.  A new helper
+  `_is_valid_envelope_filename(name)` uses the canonical
+  `TASK_FILENAME_RE` / `REPORT_FILENAME_RE` / `ISSUE_FILENAME_RE` /
+  `REVIEW_FILENAME_RE` regexes from `fcop.core.filename` to filter out
+  legitimate envelopes before reporting them as ghost-prefix files.
+
+* **`fcop_audit()` false positive — `_scan_shared_deployment` (GitHub #6).**
+  The scanner used a hardcoded `dev-team` role list and hardcoded team names,
+  causing false positives in `solo` projects and when running with
+  `scope="takeover"` on projects without `fcop.json`.  The scan now reads the
+  actual role list from `self.config` (with a `ConfigError` guard for missing
+  `fcop.json`) and handles both solo and team mode correctly.
+
+* **`agent-bringup-prompt.zh.md` — critical defects for Windows + Cursor
+  (GitHub #7).**  Multiple actionable fixes:
+  - §1 Venv detection: prompt now finds the Cursor-managed venv and binds
+    `$venvPip` / `$venvPy` variables for all subsequent operations.
+  - §1 Version consistency: added cross-check that `fcop` and `fcop-mcp`
+    versions match; mismatches are a common source of MCP tool failures.
+  - §2 Upgrade path: uses `& $venvPip` (not system `pip`), and adds a
+    mandatory "🔴 升级完必须完全退出并重启 Cursor！" warning.
+  - §3 Anti-patterns: four new named anti-pattern warnings (system pip, no
+    restart, version mismatch, calling write tools before `set_project_dir`).
+  - §4 Startup: `set_project_dir(path=...)` is now listed as an explicit
+    prerequisite; warns that `fcop_report()` can take 1–3 minutes.
+  - §5 Verification: replaced bash `ls` with `Get-ChildItem`; corrected path
+    separators for PowerShell.
+
+### Added / 新增
+
+* `agent-bringup-prompt.en.md` — English counterpart to the Chinese
+  bring-up prompt, deployed alongside `agent-bringup-prompt.zh.md`.
+* Bringup prompt §1 now instructs the agent to query PyPI directly for the
+  latest `fcop` / `fcop-mcp` version rather than hard-coding a version
+  string.
+* Bringup prompt §5 corrected to use v3 lifecycle bucket names
+  (`_lifecycle/{inbox,active,review,done,archive}`) and drop obsolete v2
+  directories (`tasks/`, `log/`).
+
+### Test / 测试
+
+* All **1209 tests pass** (3 skipped).  No regressions introduced.
+
+### Notes / 说明
+
+* All four `_scan_*` false-positive fixes are **backwards-compatible**:
+  v2 projects and projects that have never called `deploy_role_templates`
+  retain the same audit behaviour as before.
+* The `.deployed_version` marker is written as a **best-effort** operation;
+  `deploy_role_templates` never fails if the marker cannot be written
+  (e.g. read-only filesystem).
+
+---
+
 ## [3.0.2] — 2026-05-22 (Init topology fix · v3 _lifecycle on fresh init)
 
 ### Fixed / 修复
