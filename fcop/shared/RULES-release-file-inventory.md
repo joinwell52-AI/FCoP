@@ -91,6 +91,8 @@ session_id: sess-20260513-me-05
   - `src/fcop/rules/_data/letter-to-admin.en.md`(英文 ADMIN 说明书)
   - `src/fcop/rules/_data/agent-install-prompt.zh.md`
   - `src/fcop/rules/_data/agent-install-prompt.en.md`
+  - `src/fcop/rules/_data/agent-bringup-prompt.zh.md`(v3.0.2 新增 · TASK-007)
+  - `src/fcop/rules/_data/agent-bringup-prompt.en.md`(v3.0.2 新增 · TASK-007)
   - `src/fcop/rules/_data/internal-readme.zh.md`(v2.0.0 ADR-0034 新增)
   - `src/fcop/rules/_data/internal-readme.en.md`(v2.0.0 ADR-0034 新增)
   - `src/fcop/rules/_data/fcop-spec-v1.0.{zh,en}.md`
