@@ -968,6 +968,7 @@ class Project:
             self.reports_dir,
             self.issues_dir,
             self.shared_dir,
+            self.history_dir,
         ):
             directory.mkdir(parents=True, exist_ok=True)
 
@@ -2913,26 +2914,40 @@ class Project:
         target_task = target_dir / source.name
         source.replace(target_task)
 
-        # ── 5. Move matching reports from reports/ ─────────────────────
-        # Derive the canonical task_id from the filename we just moved.
+        # ── 5. Move matching reports ────────────────────────────────────
+        # Scan both reports/ and _lifecycle/archive/ so that manually
+        # pre-archived reports are picked up even if they haven't gone
+        # through the standard reports/ → history/ path.
         parsed = parse_task_filename(source.name)
-        if parsed is not None and self.reports_dir.is_dir():
-            task_id = parsed.task_id
-            for entry in self.reports_dir.iterdir():
-                if not entry.is_file():
-                    continue
-                if entry.suffix.lower() not in _FCOP_SUFFIXES:
-                    continue
-                if not REPORT_FILENAME_RE.match(entry.name):
-                    continue
-                try:
-                    text = entry.read_text(encoding="utf-8")
-                    fm, _ = parse_task_frontmatter(text)
-                except Exception:
-                    continue
-                if task_id not in fm.references:
-                    continue
-                entry.replace(target_dir / entry.name)
+        if parsed is not None:
+            task_id_key = parsed.task_id
+            search_dirs = [
+                d for d in (self.reports_dir, self.archive_dir) if d.is_dir()
+            ]
+            for search_dir in search_dirs:
+                for entry in search_dir.iterdir():
+                    if not entry.is_file():
+                        continue
+                    if entry.suffix.lower() not in _FCOP_SUFFIXES:
+                        continue
+                    if not REPORT_FILENAME_RE.match(entry.name):
+                        continue
+                    # Try matching by frontmatter references first,
+                    # then fall back to task-id substring in filename.
+                    matched = False
+                    try:
+                        text = entry.read_text(encoding="utf-8")
+                        fm, _ = parse_task_frontmatter(text)
+                        matched = task_id_key in fm.references
+                    except Exception:
+                        pass
+                    if not matched:
+                        # Heuristic: report filename contains the task date+seq
+                        matched = task_id_key in entry.stem
+                    if matched:
+                        dest = target_dir / entry.name
+                        if not dest.exists():
+                            entry.replace(dest)
 
         return target_dir
 

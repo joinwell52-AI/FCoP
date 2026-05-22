@@ -559,10 +559,12 @@ agent forgets what to do, you can spot it and nudge it back.
 | "assign a task to CODER" / "ask X to do Y" | `write_task(recipient="CODER", body="...")` | Drops a `TASK-*-to-CODER.md` |
 | "what's the state of the project" | `get_team_status()` | Task / report / issue / workspace counts + recent activity |
 | "how many workspaces do we have?" | `list_workspaces()` | Lists every `workspace/<slug>/` with create time |
-| "what tasks are still pending?" | `list_tasks()` | Lists unarchived `tasks/` |
+| "what tasks are still pending?" | `list_tasks()` | Lists pending tasks (v3: `_lifecycle/inbox/active/review/`) |
 | "what does task X say?" | `read_task("TASK-...")` | Reads body |
 | "any open issues?" | `list_issues()` | Lists `issues/` |
-| "archive X, it's done" | `archive_task("TASK-...")` | Moves to `log/` |
+| "archive X, it's done" | `archive_task("TASK-...")` | Moves to `_lifecycle/archive/` (v3) |
+| "push this archive file to history" | `archive_to_history("TASK-...")` | Single: `_lifecycle/archive/` → `history/YYYY-MM-DD/TASK-XXX/` |
+| "bulk-push all archives to history" | `bulk_archive_to_history()` | Bulk: drains `_lifecycle/archive/`, moves all into date-sharded `history/` |
 | "show me the completion reports" | `list_reports()` / `read_report(...)` | Reads `reports/` |
 
 ### Rescue / edge cases

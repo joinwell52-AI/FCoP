@@ -498,10 +498,12 @@ list_workspaces()
 | "派个任务给 CODER" / "让 XXX 做 YYY" | `write_task(recipient="CODER", body="...")` | 落一份 `TASK-*-to-CODER.md` |
 | "看看现在项目什么状态" | `get_team_status()` | 任务/回执/问题/工作区数量 + 最近活跃 |
 | "有几个工作区？" / "做过几个东西了？" | `list_workspaces()` | 列所有 `workspace/<slug>/` 和创建时间 |
-| "还有哪些任务没做？" | `list_tasks()` | 列 `tasks/` 下未归档任务 |
+| "还有哪些任务没做？" | `list_tasks()` | 列未完成任务（v3: `_lifecycle/inbox/active/review/`）|
 | "xxx 任务说了什么？" | `read_task("TASK-...")` | 读正文 |
 | "问题单有啥" | `list_issues()` | 列 `issues/` |
-| "xxx 任务做完了归档吧" | `archive_task("TASK-...")` | 移到 `log/` |
+| "xxx 任务做完了归档吧" | `archive_task("TASK-...")` | 移到 `_lifecycle/archive/`（v3）|
+| "把归档文件推进历史存档" | `archive_to_history("TASK-...")` | 单条：`_lifecycle/archive/` → `history/YYYY-MM-DD/TASK-XXX/` |
+| "把所有归档文件批量推进历史" | `bulk_archive_to_history()` | 批量：清空 `_lifecycle/archive/`，全部移入 `history/` 日期分片 |
 | "看看完成回执" | `list_reports()` / `read_report(...)` | 查 `reports/` |
 
 ### 救场 / 特殊情况

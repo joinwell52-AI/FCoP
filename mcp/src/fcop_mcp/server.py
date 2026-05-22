@@ -1067,11 +1067,13 @@ def write_task(
     references: str = "",
     risk_level: str = "",
 ) -> str:
-    """Create a new task file under ``docs/agents/tasks/``.
+    """Create a new task file (v3: ``_lifecycle/inbox/``; v2: ``fcop/tasks/``).
 
     The library assigns a filename of the form
     ``TASK-YYYYMMDD-NNN-{SENDER}-to-{RECIPIENT}.md`` and writes a
-    FCoP-v1.1-compliant YAML frontmatter + markdown body.
+    FCoP-compliant YAML frontmatter + markdown body.
+    In a v3 project the task is placed in ``_lifecycle/inbox/`` so the
+    recipient can ``claim_task`` it.
 
     Args:
         sender: Sender role code (uppercase).
@@ -1300,6 +1302,133 @@ def archive_to_history(task_id: str, done_date: str = "") -> str:
     return (
         f"Archived to history: {target_dir.relative_to(project.workspace_dir)}\n"
         f"Files moved:\n  {moved_str}"
+    )
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def bulk_archive_to_history(done_date: str = "") -> str:
+    """Migrate **all** tasks from ``_lifecycle/archive/`` into the deep history archive.
+
+    This is a convenience migration tool.  It iterates every task in
+    ``_lifecycle/archive/`` and calls :func:`archive_to_history` for each
+    one, moving each task together with its associated reports into
+    ``history/YYYY-MM-DD/<task-stem>/``.
+
+    Useful when:
+    - A project is being upgraded and existing archived tasks need to be
+      moved into the new date-sharded history structure.
+    - You have just finished a manual archiving session and want to flush
+      everything from ``_lifecycle/archive/`` into ``history/`` in one step.
+
+    The ``history/`` directory is created automatically if it does not yet exist.
+
+    Args:
+        done_date: Override the shard date (``YYYY-MM-DD``) for **all**
+                   migrated tasks.  Leave empty to use each task's own
+                   ``done_at`` timestamp (falls back to today if missing).
+
+    Returns:
+        A summary of how many tasks were migrated and any errors encountered.
+    """
+    import datetime as _dt
+
+    try:
+        project, _source = _get_project_write("bulk_archive_to_history")
+    except fcop.FcopError as exc:
+        return _format_error(exc)
+
+    if not project.is_v3:
+        return "bulk_archive_to_history is a v3-only operation; this project uses the v2 layout."
+
+    date_obj: "_dt.date | None" = None
+    if done_date:
+        try:
+            date_obj = _dt.date.fromisoformat(done_date)
+        except ValueError:
+            return f"Invalid done_date {done_date!r} — expected YYYY-MM-DD format."
+
+    # Ensure history/ exists (idempotent)
+    project.history_dir.mkdir(parents=True, exist_ok=True)
+
+    archive_dir = project._workspace_root / "_lifecycle" / "archive"
+    if not archive_dir.exists():
+        return "No _lifecycle/archive/ directory found. Nothing to migrate."
+
+    task_files = sorted(archive_dir.glob("TASK-*.md"))
+    if not task_files:
+        return "_lifecycle/archive/ exists but contains no TASK-*.md files. Nothing to migrate."
+
+    successes: list[str] = []
+    errors: list[str] = []
+
+    for task_file in task_files:
+        task_id = task_file.stem  # e.g. TASK-20260522-001-ADMIN-to-ME
+        try:
+            target_dir = project.archive_to_history(task_id, done_date=date_obj)
+            moved = sorted(p.name for p in target_dir.iterdir() if p.is_file())
+            successes.append(
+                f"  {target_dir.relative_to(project.workspace_dir)}: {', '.join(moved)}"
+            )
+        except fcop.TaskNotFoundError as exc:
+            errors.append(f"  {task_id}: not found — {exc}")
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"  {task_id}: {exc}")
+
+    lines = [f"Migrated {len(successes)} task(s) to history/."]
+    if successes:
+        lines.append("Moved:")
+        lines.extend(successes)
+    if errors:
+        lines.append(f"\nErrors ({len(errors)}):")
+        lines.extend(errors)
+
+    return "\n".join(lines)
+
+
+@mcp.tool(tags={"binding_required", "tier:L1"})
+def create_task(
+    sender: str,
+    recipient: str,
+    subject: str,
+    body: str,
+    priority: str = "P2",
+    thread_key: str = "",
+    references: str = "",
+    risk_level: str = "",
+) -> str:
+    """Create a new task and place it in the inbox (v3) or tasks folder (v2).
+
+    This is the canonical **FCoP v3 spec §8 L1** entry-point for task
+    creation — functionally identical to :func:`write_task` but named to
+    match the spec.  In a v3 project the task lands in
+    ``_lifecycle/inbox/`` so the recipient can ``claim_task`` it.
+
+    Args:
+        sender:     Sender role code (uppercase).
+        recipient:  Recipient role code (uppercase). May use the slot
+                    form ``ROLE.D1`` or ``TEAM`` for broadcast.
+        subject:    One-line subject for the ``subject:`` frontmatter field.
+        body:       Task body in Markdown.
+        priority:   ``P0`` / ``P1`` / ``P2`` / ``P3`` (or legacy aliases).
+                    Default: ``P2``.
+        thread_key: Optional thread identifier.
+        references: Comma-separated task filenames for ``references:`` field.
+        risk_level: ``low`` / ``medium`` / ``high`` / ``irreversible``.
+                    Leave empty to accept the default (``medium``).
+
+    Returns:
+        The filename of the created task on success; error string on failure.
+    """
+    # Delegate to write_task — identical logic, different canonical name.
+    return write_task(
+        sender=sender,
+        recipient=recipient,
+        subject=subject,
+        body=body,
+        priority=priority,
+        thread_key=thread_key,
+        references=references,
+        risk_level=risk_level,
     )
 
 

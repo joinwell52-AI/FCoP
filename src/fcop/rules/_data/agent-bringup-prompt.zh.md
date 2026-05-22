@@ -234,6 +234,9 @@ init_* 工具返回 "ok" **不等于** 文件真的生成了。3.0.0 / 3.0.1 那
   │   ├── review/
   │   ├── done/
   │   └── archive/
+  ├── history/                       ← 深度历史归档（日期分片，v3 新增）
+  │   └── YYYY-MM-DD/
+  │       └── TASK-XXX/             ← 一对任务+报告存一个子目录
   ├── shared/
   │   ├── TEAM-README.md
   │   ├── TEAM-ROLES.md
@@ -295,30 +298,34 @@ init_* 工具返回 "ok" **不等于** 文件真的生成了。3.0.0 / 3.0.1 那
 
 MCP 工具对应表：
 
-  create_task            创建任务           → _lifecycle/inbox/
-  claim_task             Agent 认领任务      inbox → active
-  submit_task            Agent 提交审查      active → review
-  finish_task            Agent 直接完成      active → done（跳过审查）
-  approve_task           ADMIN 批准          review → done
-  reject_task            ADMIN 退回（撤回）  review → active（重做）
-  archive_task           归档已完成          done → archive
+  create_task              创建任务           → _lifecycle/inbox/
+  claim_task               Agent 认领任务      inbox → active
+  submit_task              Agent 提交审查      active → review
+  finish_task              Agent 直接完成      active → done（跳过审查）
+  approve_task             ADMIN 批准          review → done
+  reject_task              ADMIN 退回（撤回）  review → active（重做）
+  archive_task             归档已完成          done → _lifecycle/archive/
+  archive_to_history       推入历史归档（单条）_lifecycle/archive/ → history/YYYY-MM-DD/TASK-XXX/
+  bulk_archive_to_history  批量推入历史归档    清空 _lifecycle/archive/，全部移入 history/ 日期分片
 
 典型 Agent 工作流（有审查）：
 
-  1. ADMIN 调 write_task     → _lifecycle/inbox/ 落盘
-  2. Agent 调 claim_task     → 移到 active/，开始工作
-  3. Agent 调 submit_task    → 移到 review/，等审查
-  4. ADMIN 调 approve_task   → 移到 done/
-  5. 任一方调 archive_task   → 移到 archive/，归档完毕
+  1. ADMIN 调 write_task       → _lifecycle/inbox/ 落盘
+  2. Agent 调 claim_task       → 移到 active/，开始工作
+  3. Agent 调 submit_task      → 移到 review/，等审查
+  4. ADMIN 调 approve_task     → 移到 done/
+  5. 任一方调 archive_task     → 移到 _lifecycle/archive/，归档完毕
+  6. （可选）archive_to_history → 推入 history/ 日期分片，长期保存
 
 快速工作流（无需审查，Agent 直接完成）：
 
-  1. ADMIN 调 write_task    → inbox/
-  2. Agent 调 claim_task    → active/
-  3. Agent 调 finish_task   → done/（跳过 review）
-  4. archive_task           → archive/
+  1. ADMIN 调 write_task              → inbox/
+  2. Agent 调 claim_task              → active/
+  3. Agent 调 finish_task             → done/（跳过 review）
+  4. archive_task                     → _lifecycle/archive/
+  5. （可选）bulk_archive_to_history  → 批量推入 history/
 
-所有工具均已在 fcop-mcp 3.1.0 可用。不要自己 mkdir 或 mv
+所有工具均已在 fcop-mcp 3.2.0 可用。不要自己 mkdir 或 mv
 ——只用 MCP 工具操作，否则 fcop_audit 会报 P0 违规。
 ```
 
