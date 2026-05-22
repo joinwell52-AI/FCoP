@@ -1159,6 +1159,18 @@ class Project:
             target.write_text(content, encoding="utf-8", newline="\n")
             deployed.append(target)
 
+        # Write a version-marker file so _scan_outdated_role_docs knows
+        # the templates were freshly deployed at this package version,
+        # preventing false RULE_DOC_DRIFT violations. (Issue #4)
+        if deployed:
+            try:
+                from fcop._version import __version__ as _pkg_ver
+
+                _marker = shared / ".deployed_version"
+                _marker.write_text(_pkg_ver, encoding="utf-8")
+            except Exception:
+                pass  # Best-effort — never fail a deployment over a marker
+
         # `lang` is threaded through to the return value by recording
         # it (indirectly) in the files deployed; the report itself
         # carries only paths, which is enough for callers to decide
@@ -1844,6 +1856,22 @@ class Project:
             "issue": self.issues_dir,
             "review": self.reviews_dir,
         }
+        # v3 topology: TASK envelopes progress through _lifecycle/{state}/
+        # directories (inbox → active → review → done → archive).  Accept
+        # any of them as valid; only check the single bucket_map entry for
+        # v2 projects or for non-task kinds. (Issue #3)
+        v3_task_valid_dirs: frozenset[str] | None = None
+        if self.is_v3:
+            v3_task_valid_dirs = frozenset(
+                str(d.resolve())
+                for d in (
+                    self.inbox_dir,
+                    self.active_dir,
+                    self.review_dir,
+                    self.done_dir,
+                    self.archive_dir,
+                )
+            )
         fcop_root = self._path / "fcop"
         if not fcop_root.exists():
             return []
@@ -1857,6 +1885,10 @@ class Project:
                 fm = _extract_frontmatter_kind(text)
                 if fm not in bucket_map:
                     continue
+                # v3-aware: any _lifecycle/{state}/ is a valid home for tasks
+                if fm == "task" and v3_task_valid_dirs is not None:
+                    if str(md.parent.resolve()) in v3_task_valid_dirs:
+                        continue
                 expected_dir = bucket_map[fm]
                 if md.parent.resolve() != expected_dir.resolve():
                     misplaced.append(str(md.relative_to(self._path)))
@@ -2113,7 +2145,14 @@ class Project:
         found_paths: list[pathlib.Path] = []
         for pat in ghost_patterns:
             found_paths.extend(fcop_root.rglob(pat))
-        found_paths.extend(fcop_root.rglob(version_pattern))
+        # ADR-0033 trailing slugs can contain "v2"-like tokens (e.g.
+        # "TASK-20260512-025-PM-to-OPS-phase-a-fix-v2.md") which match the
+        # *-v[0-9]*.md glob but are perfectly valid envelope files.  Filter
+        # them out with the canonical filename regexes before flagging. (#5)
+        found_paths.extend(
+            p for p in fcop_root.rglob(version_pattern)
+            if not _is_valid_envelope_filename(p.name)
+        )
         found = sorted({
             str(p.relative_to(self._path))
             for p in found_paths
@@ -2171,6 +2210,20 @@ class Project:
             pkg_major, pkg_minor = int(parts[0]), int(parts[1])
         except Exception:
             return []
+
+        # If deploy_role_templates() left a version marker and it matches
+        # the installed package (within 1 minor version), skip the scan —
+        # the templates were just freshly deployed and any in-content version
+        # references are expected to lag slightly. (Issue #4)
+        _marker_path = self._path / "fcop" / "shared" / ".deployed_version"
+        if _marker_path.exists():
+            try:
+                _marker_parts = _marker_path.read_text(encoding="utf-8").strip().split(".")
+                _m_major, _m_minor = int(_marker_parts[0]), int(_marker_parts[1])
+                if (pkg_major - _m_major) * 100 + (pkg_minor - _m_minor) <= 1:
+                    return []
+            except Exception:
+                pass  # Corrupt marker — fall through to the full scan
 
         # Matches version tags like "v1.3", "v1.4.0", "v1.0 ~ v1.4" etc.
         ver_re = re.compile(r"v(\d+)\.(\d+)")
@@ -6023,6 +6076,33 @@ def _is_audit_exempt_path(p: pathlib.Path, fcop_root: pathlib.Path) -> bool:
     except ValueError:
         return False
     return any(part in _AUDIT_EXEMPT_DIR_NAMES for part in rel.parts)
+
+
+def _is_valid_envelope_filename(name: str) -> bool:
+    """Return True if *name* matches any canonical FCoP envelope filename regex.
+
+    Used by :func:`_scan_ghost_prefixes <Project._scan_ghost_prefixes>` to
+    avoid flagging legitimate ADR-0033 trailing-slug filenames (e.g.
+    ``TASK-20260512-025-PM-to-OPS-phase-a-fix-v2.md``) as ghost-prefix
+    files — those contain "v2"-like tokens inside the slug portion, but are
+    perfectly valid envelopes. (Issue #5)
+    """
+    from fcop.core.filename import (
+        ISSUE_FILENAME_RE,
+        REPORT_FILENAME_RE,
+        REVIEW_FILENAME_RE,
+        TASK_FILENAME_RE,
+    )
+
+    return any(
+        pat.fullmatch(name) is not None
+        for pat in (
+            TASK_FILENAME_RE,
+            REPORT_FILENAME_RE,
+            ISSUE_FILENAME_RE,
+            REVIEW_FILENAME_RE,
+        )
+    )
 
 
 def _read_local_rules_version(project_root: pathlib.Path) -> str | None:
