@@ -35,17 +35,39 @@ prompt。
 §1 · 环境检查
 ═══════════════════════════════════════════════════════════════════
 
-跑这四条（前两条查本地，后两条查 PyPI 上的最新版——**自己查，不准猜**）：
+⚠️ **Cursor MCP 服务器运行在独立 venv，必须用 venv 里的 pip 操作，
+用系统 pip 升级对 Cursor 完全无效。**
 
-  python --version
-  pip show fcop fcop-mcp
-  pip index versions fcop
-  pip index versions fcop-mcp
+第一步：探测 Cursor venv 路径，再决定用哪个 pip：
 
-要求：
-- Python ≥ 3.10
-- 如果 fcop / fcop-mcp 任一没装，告诉我"未安装"
-- 如果两个都已安装，把"本地版本"和"PyPI 最新版本"两组数字都贴给我看
+  # Windows PowerShell
+  $venvPip = "$env:USERPROFILE\.cursor\fcop_mcp_venv\Scripts\pip.exe"
+  $venvPy  = "$env:USERPROFILE\.cursor\fcop_mcp_venv\Scripts\python.exe"
+  if (Test-Path $venvPip) {
+      Write-Host "✅ 找到 Cursor venv：$venvPip"
+  } else {
+      Write-Host "⚠️ Cursor venv 未找到，将回退到系统 pip（安装路径可能与预期不同）"
+  }
+
+  # macOS / Linux
+  # VENV_PIP="$HOME/.cursor/fcop_mcp_venv/bin/pip"
+  # [ -f "$VENV_PIP" ] && echo "✅ 找到 Cursor venv" || echo "⚠️ 未找到 Cursor venv"
+
+找到 venv 后，跑这四条（后两条查 PyPI 最新版——**自己查，不准猜**）：
+
+  # Windows（用 venv pip）
+  & $venvPip show fcop fcop-mcp
+  & $venvPip index versions fcop
+  & $venvPip index versions fcop-mcp
+  & $venvPy --version
+
+  # macOS / Linux（用 venv pip）
+  # $VENV_PIP show fcop fcop-mcp
+  # $VENV_PIP index versions fcop
+  # $VENV_PIP index versions fcop-mcp
+
+如果 venv 不存在，退而求其次用系统 pip，但要在报告里注明"Cursor venv
+未找到，使用系统 pip"——这意味着升级后还需要单独处理 venv。
 
 `pip index versions fcop` 输出的**第一行第一个版本号**就是 PyPI 当前
 最新——这是权威答案，**不准**写"可能是 X 或更高"、"需要确认墙内同步"
@@ -54,7 +76,7 @@ prompt。
 如果 `pip index versions` 这条命令在你的 pip 上不可用（很老的 pip），
 退而求其次跑：
 
-  python -m pip install --dry-run --upgrade fcop fcop-mcp
+  & $venvPip install --dry-run --upgrade fcop fcop-mcp
 
 读"Would install"那行的版本号当 PyPI 最新——同样是权威答案，不准猜。
 
@@ -65,7 +87,12 @@ prompt。
   原样把两个数字给我，**停下等我决定**，不要自作主张。
 - 完全没装 → 说"未安装，PyPI 最新是 X.Y.Z"，等我说"装"再进 §2。
 
-四组数字（Python 版 / 本地 fcop / 本地 fcop-mcp / PyPI 最新 fcop /
+**额外检查：版本一致性**
+- fcop 版本 ≠ fcop-mcp 版本 → **两包版本必须一致**，否则 `_lifecycle`
+  会静默不创建（已知 3.0.1 vs 3.0.2 案例）。版本不一致时说明原因，
+  **停下等我决定**，不要直接升级。
+
+五组数字（Python 版 / venv fcop / venv fcop-mcp / PyPI 最新 fcop /
 PyPI 最新 fcop-mcp）+ 你判定的档位贴给我，**停下等我**，没让你升你
 不准 pip install。
 
@@ -73,20 +100,34 @@ PyPI 最新 fcop-mcp）+ 你判定的档位贴给我，**停下等我**，没让
 §2 · 升级到最新版（不锁版本号）
 ═══════════════════════════════════════════════════════════════════
 
-我说升级了，再跑：
+我说升级了，再跑（**必须用 venv pip**，否则 Cursor 无感知）：
 
-  pip install --upgrade --no-cache-dir fcop fcop-mcp
+  # Windows PowerShell（venv pip）
+  & $venvPip install --upgrade --no-cache-dir fcop fcop-mcp
+
+  # macOS / Linux（venv pip）
+  # $VENV_PIP install --upgrade --no-cache-dir fcop fcop-mcp
 
 注意：
 - **不**写 ==X.Y.Z 这种锁版本号——拉 PyPI 上最新版
 - 全新装也用同一条命令，不区分场景
 - --no-cache-dir 是为了避免拿到本地缓存的旧 wheel
+- 如果 §1 发现 venv 不存在，这里也用系统 pip，但要注明
 
 装完跑这条确认版本：
 
-  python -c "import fcop, fcop_mcp; print('fcop:', fcop.__version__, '/ fcop-mcp:', fcop_mcp.__version__)"
+  & $venvPy -c "import fcop, fcop_mcp; print('fcop:', fcop.__version__, '/ fcop-mcp:', fcop_mcp.__version__)"
 
-把版本号贴给我，**停下**等我判断够不够新。
+把版本号贴给我。**版本必须一致**（两个包版本号相同），不一致则停下。
+
+🔴 **重要：升级完必须完全退出并重启 Cursor！**
+
+venv 里的包升级后，MCP 服务器进程**不会自动感知**新版本。如果不重启，
+Cursor 仍加载旧版本——init 工具会返回 "ok" 但 `_lifecycle` 不创建。
+
+  步骤：完全关闭 Cursor → 重新打开 → 打开本项目 → 继续下一步
+
+重启 Cursor 后，**停下**等我确认再进 §3。
 
 ═══════════════════════════════════════════════════════════════════
 §3 · 边界声明（最重要，记不住别动手）
@@ -114,6 +155,14 @@ FCoP 有两套接口，**不要混**：
 - ❌ 找不到 API 时自己脑补 fcop.project.Project.init_project(...)
 - ❌ ADMIN 没明确选择前自己 init_solo() 起步——init 是 ADMIN 选择题
 - ❌ 看到工具返回 "ok" 就当成功——必须**物理 ls 验证**目录是否真生成
+- ❌ 用系统 pip 升级 fcop / fcop-mcp —— Cursor 用独立 venv，系统升完
+   Cursor 毫无感知，MCP 服务器仍载旧版，_lifecycle 会静默不创建
+- ❌ 升级后忘了重启 Cursor —— venv 升级后 MCP 进程不自动热加载新包，
+   必须完全退出 Cursor 再重新打开
+- ❌ fcop 与 fcop-mcp 版本不一致 —— 如 3.0.1 + 3.0.2，init_project 返回
+   ok 但 _lifecycle 静默不创建；两包版本号必须相同
+- ❌ 在 set_project_dir 之前调 MCP 写入工具 —— 没绑定项目根目录时所有
+   写操作都会报 WriteRefused，必须先 set_project_dir(path="...")
 
 **碰到不确定怎么办**：
 - 优先读项目里 fcop/LETTER-TO-ADMIN.md
@@ -126,7 +175,16 @@ FCoP 有两套接口，**不要混**：
 §4 · 初始化（ADMIN 选择题，agent 不准默认）
 ═══════════════════════════════════════════════════════════════════
 
-调这个 MCP 工具：
+**第一步：绑定项目根目录（写操作前必须先做）**
+
+在调任何 MCP 写入工具之前，必须先绑定项目根目录，否则写操作报 WriteRefused：
+
+  set_project_dir(path="D:\\path\\to\\your\\project")  # 替换成实际路径
+
+**第二步：调用 fcop_report()**
+
+⚠️ **`fcop_report()` 可能需要 1-3 分钟才能返回，属正常现象，耐心等待即可。**
+不要因为等待时间长就认为 MCP 失联或工具卡死。
 
   fcop_report()
 
@@ -160,10 +218,10 @@ init_* 工具返回 "ok" **不等于** 文件真的生成了。3.0.0 / 3.0.1 那
 
 跑这几条（PowerShell）：
 
-  ls fcop/_lifecycle/
-  ls fcop/
-  ls workspace/
-  ls .cursor/rules/
+  Get-ChildItem "fcop\_lifecycle" -Force | Format-Table Name, Attributes
+  Get-ChildItem "fcop" -Force | Format-Table Name, Attributes
+  Get-ChildItem "workspace" -Force -ErrorAction SilentlyContinue | Format-Table Name, Attributes
+  Get-ChildItem ".cursor\rules" -Force | Format-Table Name, Attributes
 
 应该能看到（v3 拓扑）：
 
