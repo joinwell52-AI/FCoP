@@ -13,7 +13,7 @@
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 项目主页</a></strong> ·
   <a href="README.md">English</a> ·
   <a href="docs/getting-started.md">上手 FCoP</a> ·
-  <a href="src/fcop/rules/_data/agent-install-prompt.zh.md">安装 prompt</a> ·
+  <a href="src/fcop/rules/_data/agent-install-prompt.zh.md"><strong>👉 点我安装！！</strong></a> ·
   <a href="src/fcop/rules/_data/agent-bringup-prompt.zh.md">起项目 prompt</a> ·
   <a href="docs/mcp-tools.md"><strong>MCP 工具清单（35 个）</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
