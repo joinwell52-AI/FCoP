@@ -1764,24 +1764,40 @@ class Project:
 
     def _scan_shared_deployment(self) -> list[Violation]:
         """Check fcop/shared/ three-layer team document deployment completeness."""
+        from fcop.errors import ConfigError
         from fcop.inspection import RemediationStep, Violation
 
+        # 尝试读取 config；没有 fcop.json 的接管场景（takeover）也要检查基础文档
+        cfg = None
+        team_name = "dev-team"
+        project_roles: tuple[str, ...] = ()
+        try:
+            cfg = self.config
+            # solo 模式不要求三层团队文档（Rule 4.5 仅约束 team 模式）
+            if cfg.mode == "solo":
+                return []
+            team_name = cfg.team
+            project_roles = cfg.roles
+        except ConfigError:
+            # fcop.json 不存在（takeover 场景）：只检查 6 份基础文档，
+            # 不检查角色文件（未知项目角色集）
+            pass
+
         shared = self.shared_dir
-        # Standard dev-team documents (6 base + 4 role files)
+        # 六份基础文档（双语）
         expected_base = [
             "TEAM-README.md", "TEAM-README.en.md",
             "TEAM-ROLES.md", "TEAM-ROLES.en.md",
             "TEAM-OPERATING-RULES.md", "TEAM-OPERATING-RULES.en.md",
         ]
-        # Role files: support both naming conventions (PM-01.md and PM.md)
+        # 从 fcop.json 读取实际角色列表，支持两种命名约定（role.md / role-01.md）
         expected_roles = []
-        for role in ("PM", "DEV", "QA", "OPS"):
-            # Check either naming convention
+        for role in project_roles:
             if not (shared / f"roles/{role}-01.md").exists() and not (shared / f"roles/{role}.md").exists():
                 expected_roles.append(f"roles/{role}.md")
-        all_expected_count = len(expected_base) + 4  # 4 roles
+        all_expected_count = len(expected_base) + len(project_roles)
         missing_base = [f for f in expected_base if not (shared / f).exists()]
-        missing = missing_base + expected_roles  # expected_roles already contains only missing ones
+        missing = missing_base + expected_roles  # expected_roles 已过滤，只含缺失项
         if not missing:
             return []
 
@@ -1798,7 +1814,7 @@ class Project:
             scan_source="_scan_shared_deployment",
             remediation=[RemediationStep(
                 action="部署团队宪法文件",
-                command='deploy_role_templates(team="dev-team", force=True)',
+                command=f'deploy_role_templates(team="{team_name}", force=True)',
                 executor="ADMIN",
                 estimated_minutes=1,
                 tier=1,
