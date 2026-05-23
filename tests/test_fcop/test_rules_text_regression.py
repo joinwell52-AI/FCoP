@@ -13,6 +13,7 @@ exact failure mode this regression battery prevents.
 
 from __future__ import annotations
 
+import re
 from importlib import resources
 
 
@@ -23,38 +24,33 @@ def _read_rule_data(filename: str) -> str:
         return f.read()
 
 
+def _parse_frontmatter_version(text: str, key: str) -> tuple[int, int, int] | None:
+    """Extract ``X.Y.Z`` from ``key: X.Y.Z`` in frontmatter."""
+    m = re.search(rf"^{re.escape(key)}:\s*(\d+)\.(\d+)\.(\d+)\s*$", text, re.MULTILINE)
+    if m:
+        return int(m.group(1)), int(m.group(2)), int(m.group(3))
+    return None
+
+
 class TestRulesVersion:
     def test_rules_version_is_180_or_later(self) -> None:
         text = _read_rule_data("fcop-rules.mdc")
-        # Accept 1.8.0+, any 2.x, or any 3.x+ (rules went 3.0.0 in fcop 2.0.0).
-        has_v1_match = any(
-            f"fcop_rules_version: 1.{minor}.0" in text
-            for minor in range(8, 100)
-        )
-        has_v2plus_match = any(
-            f"fcop_rules_version: {major}.{minor}.0" in text
-            for major in range(2, 100)
-            for minor in range(0, 100)
-        )
-        assert has_v1_match or has_v2plus_match, (
-            "fcop-rules.mdc must declare fcop_rules_version >= 1.8.0 "
-            "since 0.7.1"
+        # Accept any X.Y.Z >= 1.8.0 (rules went 3.0.0 in fcop 2.0.0).
+        ver = _parse_frontmatter_version(text, "fcop_rules_version")
+        assert ver is not None, "fcop-rules.mdc must declare fcop_rules_version: X.Y.Z"
+        assert ver >= (1, 8, 0), (
+            f"fcop-rules.mdc fcop_rules_version {'.'.join(str(n) for n in ver)} "
+            "must be >= 1.8.0 since 0.7.1"
         )
 
     def test_protocol_version_is_160_or_later(self) -> None:
         text = _read_rule_data("fcop-protocol.mdc")
-        has_v1_match = any(
-            f"fcop_protocol_version: 1.{minor}.0" in text
-            for minor in range(6, 100)
-        )
-        has_v2plus_match = any(
-            f"fcop_protocol_version: {major}.{minor}.0" in text
-            for major in range(2, 100)
-            for minor in range(0, 100)
-        )
-        assert has_v1_match or has_v2plus_match, (
-            "fcop-protocol.mdc must declare fcop_protocol_version >= 1.6.0 "
-            "since 0.7.1"
+        # Accept any X.Y.Z >= 1.6.0 (protocol went 3.x in fcop 2.0.0).
+        ver = _parse_frontmatter_version(text, "fcop_protocol_version")
+        assert ver is not None, "fcop-protocol.mdc must declare fcop_protocol_version: X.Y.Z"
+        assert ver >= (1, 6, 0), (
+            f"fcop-protocol.mdc fcop_protocol_version {'.'.join(str(n) for n in ver)} "
+            "must be >= 1.6.0 since 0.7.1"
         )
 
 

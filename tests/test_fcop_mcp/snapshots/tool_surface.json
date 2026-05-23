@@ -63,6 +63,26 @@
   },
   "tools": [
     {
+      "name": "approve_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "note",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "archive_task",
       "params": [
         {
@@ -78,11 +98,51 @@
       ]
     },
     {
+      "name": "archive_to_history",
+      "params": [
+        {
+          "name": "done_date",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "bulk_archive_to_history",
+      "params": [
+        {
+          "name": "done_date",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "check_update",
       "params": [
         {
           "name": "lang",
           "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "claim_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
           "type": "string"
         }
       ]
@@ -113,6 +173,51 @@
         {
           "name": "team_name",
           "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_task",
+      "params": [
+        {
+          "name": "body",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "risk_level",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "sender",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "thread_key",
+          "required": false,
           "type": "string"
         }
       ]
@@ -238,6 +343,21 @@
       ]
     },
     {
+      "name": "finish_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "get_available_teams",
       "params": [
         {
@@ -331,6 +451,16 @@
         },
         {
           "name": "tag",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_history",
+      "params": [
+        {
+          "name": "date",
           "required": false,
           "type": "string"
         }
@@ -527,6 +657,21 @@
       ]
     },
     {
+      "name": "read_history_task",
+      "params": [
+        {
+          "name": "date",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "read_report",
       "params": [
         {
@@ -577,10 +722,45 @@
       ]
     },
     {
+      "name": "reject_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "note",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "set_project_dir",
       "params": [
         {
           "name": "path",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "submit_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
           "required": true,
           "type": "string"
         }

@@ -46,7 +46,7 @@ def _max_changelog_version(text: str, pattern: re.Pattern[str]) -> tuple[int, in
     versions: list[tuple[int, int, int]] = []
     for match in pattern.finditer(text):
         groups = match.groups()
-        if len(groups) == 3:
+        if len(groups) >= 3 and groups[2] is not None:
             versions.append((int(groups[0]), int(groups[1]), int(groups[2])))
         else:
             versions.append((int(groups[0]), int(groups[1]), 0))
@@ -84,12 +84,13 @@ def test_fcop_protocol_frontmatter_matches_body_changelog() -> None:
     """``fcop-protocol.mdc`` frontmatter must equal the highest body
     changelog entry.
 
-    Body convention: ``- **vX.Y** (YYYY-MM-DD) — ...`` lines under the
-    "Protocol Version Log" section.
+    Body convention: ``- **vX.Y** (YYYY-MM-DD)`` or ``- **vX.Y.Z** (YYYY-MM-DD)``
+    lines under the "Protocol Version Log" section.
     """
     text = _read(PROTOCOL_FILE)
     frontmatter = _frontmatter_version(text, "fcop_protocol_version")
-    body_pattern = re.compile(r"^-\s+\*\*v(\d+)\.(\d+)\*\*", re.MULTILINE)
+    # Accept both "- **v3.2**" (two-part) and "- **v3.2.3**" (three-part) formats.
+    body_pattern = re.compile(r"^-\s+\*\*v(\d+)\.(\d+)(?:\.(\d+))?\*\*", re.MULTILINE)
     latest_body = _max_changelog_version(text, body_pattern)
 
     assert frontmatter[:2] == latest_body[:2], (
@@ -116,7 +117,8 @@ def test_no_stale_rules_version_anywhere_in_data() -> None:
     protocol_frontmatter = _frontmatter_version(protocol_text, "fcop_protocol_version")
 
     rules_body_pattern = re.compile(r"\*\*(\d+)\.(\d+)\.(\d+) changes")
-    protocol_body_pattern = re.compile(r"^-\s+\*\*v(\d+)\.(\d+)\*\*", re.MULTILINE)
+    # Accept both "- **v3.2**" (two-part) and "- **v3.2.3**" (three-part) formats.
+    protocol_body_pattern = re.compile(r"^-\s+\*\*v(\d+)\.(\d+)(?:\.(\d+))?\*\*", re.MULTILINE)
 
     rules_body = _max_changelog_version(rules_text, rules_body_pattern)
     protocol_body = _max_changelog_version(protocol_text, protocol_body_pattern)
