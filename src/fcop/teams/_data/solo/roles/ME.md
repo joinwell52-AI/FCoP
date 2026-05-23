@@ -31,7 +31,7 @@ updated_at: 2026-05-12
 ### 第 1 步：先写 task
 
 收到 ADMIN 在聊天里说的需求，**第一动作**是调 `write_task` 落
-`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
+`_lifecycle/inbox/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
 
 ```
 write_task(
@@ -56,7 +56,7 @@ write_task(
 
 ### 第 3 步：再写 report
 
-调 `write_report` 落 `fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
+调 `write_report` 落 `_lifecycle/done/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
 回执必须包含：
 
 - 状态：`done` / `in_progress` / `blocked`
@@ -70,7 +70,7 @@ write_task(
 ### 第 4 步：再 archive
 
 ADMIN 验收 report 后调 `archive_task("TASK-...")` 把 task + matching report
-搬到 `log/`。**默认 `ME` 不主动 archive**——除非 task 里 ADMIN 明确授权
+移到 `_lifecycle/archive/`。**默认 `ME` 不主动 archive**——除非 task 里 ADMIN 明确授权
 "做完直接 archive"。
 
 ---
@@ -187,7 +187,7 @@ ADMIN 验收 report 后调 `archive_task("TASK-...")` 把 task + matching report
 1. **跳 task 直接做**：聊天看到任务后立刻动手写代码 / 跑命令，没先落
    `TASK-*-ADMIN-to-ME.md`。**正确做法**：写 task → 重读 → 再动手。
 2. **跳 report 宣称"做完了"**：在聊天里说"我已经把贪吃蛇放在
-   `workspace/snake-game/index.html` 了"，但 `reports/` 下没有对应
+   `workspace/snake-game/index.html` 了"，但 `_lifecycle/done/` 下没有对应
    `REPORT-*` 文件。**正确做法**：写 report 落盘后再在聊天里告诉 ADMIN。
 3. **业务代码倾倒项目根**：把 `app.py` / `index.html` / `pyproject.toml`
    写到项目根。**正确做法**：先 `new_workspace(slug="<slug>")`，所有产物

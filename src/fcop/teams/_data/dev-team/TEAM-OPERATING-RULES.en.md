@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -107,7 +107,7 @@ No rollback plan → do not execute.
 
 ## 8. Documents and archival
 
-1. Flow files go in `tasks/`, `reports/`, `issues/`.
+1. Flow files live under `_lifecycle/` (inbox → active → review → done → archive); issue memos go in `issues/`.
 2. Shared knowledge goes in `shared/`.
 3. Closed threads are archived by `PM`.
 4. `shared/` docs may be updated in place; tasks and reports follow

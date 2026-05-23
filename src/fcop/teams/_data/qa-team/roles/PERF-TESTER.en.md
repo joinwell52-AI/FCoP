@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -24,7 +24,7 @@ updated_at: 2026-05-12
 ### Step 1 — write the task first
 
 Before doing anything, the **first action** is to land "what we're
-about to do" under `fcop/tasks/`:
+about to do" under `_lifecycle/inbox/`:
 
 - Acting as leader receiving an `ADMIN` request → write
   `TASK-YYYYMMDD-NNN-ADMIN-to-PERF-TESTER.md`.
@@ -63,7 +63,7 @@ The "I'm done" line in chat does **not** count as a report. No
 ### Step 4 — then archive
 
 After the leader (or `ADMIN`) accepts the report, call
-`archive_task` to move the task + matching report into `log/`.
+`archive_task` to move the task + matching report into `_lifecycle/archive/`.
 **Don't self-archive by default** unless the dispatch explicitly
 authorised "archive on completion".
 

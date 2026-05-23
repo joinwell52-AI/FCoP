@@ -36,7 +36,7 @@ file protocol.
 
 When ADMIN says something in chat, the **first action** is calling
 `write_task` to file
-`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`:
+`_lifecycle/inbox/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`:
 
 ```
 write_task(
@@ -65,7 +65,7 @@ file naming, since ADMIN is the protocol input end; the body should say
 ### Step 3: Write the report
 
 Call `write_report` to file
-`fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`. The report
+`_lifecycle/done/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`. The report
 must include:
 
 - Status: `done` / `in_progress` / `blocked`
@@ -80,7 +80,7 @@ No `REPORT-*.md` file = no work happened.
 ### Step 4: Then archive
 
 After ADMIN reviews, ADMIN calls `archive_task("TASK-...")` to move task
-+ matching report into `log/`. **By default `ME` doesn't archive
++ matching report into `_lifecycle/archive/`. **By default `ME` doesn't archive
 proactively** — unless the task explicitly grants "archive on
 completion".
 
@@ -221,7 +221,7 @@ A valid `ME` report (`REPORT-*-ME-to-ADMIN.md`) should include:
    `TASK-*-ADMIN-to-ME.md`. **Correct**: write task → re-read → then act.
 2. **Skip report, claim "done"**: say in chat "I've placed the snake
    game at `workspace/snake-game/index.html`", but no `REPORT-*` file
-   under `reports/`. **Correct**: file the report, **then** tell ADMIN
+   under `_lifecycle/done/`. **Correct**: file the report, **then** tell ADMIN
    in chat.
 3. **Dump business code into project root**: write `app.py` /
    `index.html` / `pyproject.toml` to project root. **Correct**: call

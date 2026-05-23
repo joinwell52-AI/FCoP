@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -95,10 +95,10 @@ Published content cannot be silently modified — revision notes are mandatory.
 
 ## 8. Documents and archival
 
-1. Flow files go in `tasks/`, `reports/`, `issues/`.
+1. Flow files live under `_lifecycle/` (inbox → active → review → done → archive); issue memos go in `issues/`.
 2. Material packages, draft history, brand specs go in `shared/`.
 3. Published work is archived by `PUBLISHER`.
-4. `shared/` docs may be updated in place; tasks/reports are append-only.
+4. `shared/` docs may be updated in place; _lifecycle/ entries are append-only.
 
 ## 9. Operating stance
 

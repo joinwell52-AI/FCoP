@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -90,10 +90,10 @@ Spend, brand reach, user data → **return to `ADMIN`** by default.
 
 ## 8. Documents and archival
 
-1. Flow files in `tasks/`, `reports/`, `issues/`.
+1. Flow files live under `_lifecycle/` (inbox → active → review → done → archive); issue memos go in `issues/`.
 2. Findings, PRDs, architecture decisions in `shared/`.
 3. After a round, `MARKETER` archives and leaves a retro in `shared/`.
-4. `shared/` docs may update in place; tasks/reports are append-only.
+4. `shared/` docs may update in place; _lifecycle/ entries are append-only.
 
 ## 9. Operating stance
 

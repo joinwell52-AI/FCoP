@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -19,7 +19,7 @@ a report looks like, when to escalate, how to self-review".
 1. `ADMIN ↔ ME` is the only channel — direct, no intermediary.
 2. "Chat-only answers" don't substitute for task files. Whatever `ADMIN`
    says in chat, `ME` must **first** write it as
-   `TASK-*-ADMIN-to-ME.md` (under `tasks/`), **then** act.
+   `TASK-*-ADMIN-to-ME.md` (under `_lifecycle/inbox/`), **then** act.
 3. `ME` is **not** allowed to "do first, file the task afterward" —
    this was the most common 0.6.3 violation; 0.6.4 fixes it via the
    hard constraint section in `roles/ME.md`.
@@ -65,7 +65,7 @@ do not fabricate `TASK-*-ME-to-ADMIN.md`. The latter would violate the
 3. **Verbal sync isn't a report** — what `ADMIN` reads in the chat box
    doesn't count if it's not in `REPORT-*` (Rule 0.a).
 4. After ADMIN reviews, ADMIN decides when to call `archive_task()` to
-   move task + report into `log/`.
+   move task + report into `_lifecycle/archive/`.
 
 ## 4. Issue rules
 
@@ -122,7 +122,7 @@ Write it down, then execute. If you can't even write a rollback plan,
 
 ## 8. Documents and archival
 
-1. Process files go in `tasks/` / `reports/` / `issues/`, **append-only**
+1. Process files live under `_lifecycle/` (inbox/active/review/done/archive), **append-only**
    (issue close is a protocol-permitted exception).
 2. Shared knowledge / long-term conventions go in `shared/`, in-place
    updates allowed.

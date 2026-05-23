@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -98,10 +98,10 @@ Record and confirm before execution:
 
 ## 9. Documents and archival
 
-1. Flow files in `tasks/`, `reports/`, `issues/`.
+1. Flow files live under `_lifecycle/` (inbox → active → review → done → archive); issue memos go in `issues/`.
 2. Test plans, risk matrices, automation specs, perf baselines in `shared/`.
 3. After each round, `LEAD-QA` archives and leaves a retro.
-4. `shared/` docs may update in place; tasks/reports are append-only.
+4. `shared/` docs may update in place; _lifecycle/ entries are append-only.
 
 ## 10. Operating stance
 

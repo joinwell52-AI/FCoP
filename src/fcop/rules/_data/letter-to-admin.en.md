@@ -239,7 +239,7 @@ Tomorrow you need DEV. Open a new Cursor window, say:
 > **"You are DEV on dev-team"** (optionally with `, thread feature_login`)
 
 The two windows **do not chat with each other** — they coordinate
-through files under `fcop/tasks/`.
+through files under `_lifecycle/`.
 
 ### ⚠️ One role, one agent (FCoP enforces this automatically since 0.7.0)
 
@@ -250,15 +250,15 @@ through files under `fcop/tasks/`.
 2. **The same role code cannot be assigned to multiple agents
    simultaneously** — don't tell two Cursor windows "you are ME", and
    don't tell two windows "you are PM". Those two agents will fight
-   over the same filename space under `fcop/tasks/`, `reports/`,
-   `issues/`, breaking Rule 0.b's self-review mechanism and Rule 4's
+   over the same filename space under `_lifecycle/`, `issues/`,
+   breaking Rule 0.b's self-review mechanism and Rule 4's
    role routing.
 
 Since `fcop_protocol_version: 1.5.0` (fcop-mcp 0.7.0), an agent will
 **proactively** cross-check `fcop_report()`'s "Role occupancy" section
 before transitioning to BOUND:
 
-- You say "you are PM" but `tasks/` already shows another session has
+- You say "you are PM" but `_lifecycle/` already shows another session has
   written files as PM → the agent MUST refuse the binding under Rule 8,
   drop a conflict note at `.fcop/proposals/`, and hand you three
   options:

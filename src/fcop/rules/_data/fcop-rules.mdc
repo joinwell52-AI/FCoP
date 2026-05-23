@@ -1,7 +1,7 @@
 ---
-description: FCoP Rules (behavior governance protocol layer · v1.0 — agent runtime contract for filesystem-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（行为治理协议层 · v1.0 —— agent 在共享文件系统上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
+description: FCoP Rules (behavior governance protocol layer · v3 — agent runtime contract for _lifecycle/-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（行为治理协议层 · v3 —— agent 在 _lifecycle/ 目录结构上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 3.0.0
+fcop_rules_version: 3.2.2
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -515,20 +515,22 @@ project state:
 - **文件夹**承载**协作的边界**：团队、项目、角色、子任务、私有/公开、
   跨域收发这些"谁和谁一起干、归谁管"的分界，都由目录结构表达，而不是
   靠某个注册中心或运行时状态。
-- 文件命名与目录具体怎么排（`fcop/{team}/`、`tasks/`、`reports/`、
-  `inbox/`、`outbox/`、`.fcop/drawer/{role}/`、`tasks/{batch}/` …）属于
+- 文件命名与目录具体怎么排（v3: `_lifecycle/{inbox,active,review,done,archive}/`；
+  v2 legacy: `tasks/`、`reports/`、`issues/`、`shared/`、`log/`）属于
   协议解释（`fcop-protocol.mdc`）的范畴；本规则只立两条底线：
   **有内容必落文件，有边界必用文件夹**。
+- **v3 核心变更**：协作文件统一进 `_lifecycle/` 目录，位置即状态。
+  详见 Rule 8.v3。
 
 Files carry **content**: one valid message equals one file on disk;
 anything said only in chat is treated as *not having happened*. Folders
 carry **boundaries**: team / project / role / sub-task / private-vs-public /
 cross-scope in&out — all "who works with whom, under what scope" lines
 are expressed by directory structure, not by a registry or runtime state.
-Specific naming and layout (`fcop/{team}/`, `tasks/`, `reports/`,
-`inbox/`, `outbox/`, `.fcop/drawer/{role}/`, `tasks/{batch}/`, …) belong
-to the protocol commentary (`fcop-protocol.mdc`); this rule only sets two
-floors: **content lands in a file, boundaries live in folders**.
+In **v3**, coordination files live under `_lifecycle/{inbox,active,review,
+done,archive}/` — directory position is the lifecycle state.
+Specific naming and layout belong to `fcop-protocol.mdc`; this rule sets
+two floors: **content lands in a file, boundaries live in folders**.
 
 ---
 
@@ -762,6 +764,63 @@ go under `workspace/<slug>/` — one slug per "thing you're doing".**
 (pre-0.4.6 projects have no `workspace/` and still work), but agents on
 task execution **default** to `new_workspace` rather than dumping files
 into the root. Ignoring this convention = guaranteed chaos on day two.
+
+---
+
+## Rule 8.v3 · _lifecycle/ Directory Structure / v3 生命周期目录结构
+
+> **v3.0.0 核心变更：五桶（tasks / reports / issues / shared / log）统一
+> 合并为 `_lifecycle/` 生命周期目录。目录位置即任务状态。**
+>
+> **v3.0.0 core change: the five-bucket layout (tasks / reports / issues /
+> shared / log) is unified into a single `_lifecycle/` directory. Directory
+> position = task state.**
+
+### v3 项目目录布局 / v3 Project Directory Layout
+
+```
+<project>/
+├── _lifecycle/           ← FCoP v3 唯一协调目录（强制）
+│   ├── inbox/            ← 新进任务（待领取）
+│   ├── active/           ← 正在执行（已认领）
+│   ├── review/           ← 待审核（已提交）
+│   ├── done/             ← 已完成（已批准）
+│   └── archive/          ← 已归档（长期保留）
+├── history/              ← 深度历史归档（v3.2.0+，按日期分桶）
+│   └── YYYY-MM-DD/
+├── workspace/<slug>/     ← Rule 7.5 工作产物笼子（soft convention）
+└── fcop.json             ← 项目身份（唯一权威）
+```
+
+### 生命周期状态机 / Lifecycle State Machine
+
+```
+inbox ──claim──► active ──submit──► review
+                  ▲                    │
+                  └────reject──────────┤
+                                       ▼
+                              approve → done ──archive──► archive/
+                                              (history/)
+```
+
+| 阶段 / Stage | 目录 | MCP 工具触发 | 含义 |
+|---|---|---|---|
+| `inbox` | `_lifecycle/inbox/` | `write_task` | 新建任务，待领取 |
+| `active` | `_lifecycle/active/` | `claim` | 已认领，执行中 |
+| `review` | `_lifecycle/review/` | `submit` | 提交审核 |
+| `done` | `_lifecycle/done/` | `finish` / `approve` | 完成 / 批准 |
+| `archive` | `_lifecycle/archive/` | `archive_task` | 常规归档 |
+| `history` | `history/YYYY-MM-DD/` | `archive_to_history` | 深度历史归档（v3.2.0+）|
+
+### 向后兼容 / Backward Compatibility
+
+v2.x 项目仍使用 `tasks/ reports/ issues/ shared/ log/` 五桶结构，`fcop`
+库保持 detect-and-warn 支持。迁移到 v3 建议用 `fcop_audit(scope="upgrade")`
+先扫描，再调用 `migrate_to_v3()` 工具。
+
+v2.x projects continue to work with the five-bucket layout; the library
+provides detect-and-warn. For migration, run
+`fcop_audit(scope="upgrade")` first, then `migrate_to_v3()`.
 
 ---
 
@@ -1032,10 +1091,57 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 3.0.0`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 3.2.2`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
 
-**3.0.0 changes / 3.0.0 变更**（随 `fcop@2.0.0`）:
+**3.2.2 changes / 3.2.2 变更**（随 `fcop@3.2.2`）:
+
+- **Pre-release gate 硬化**：`prerelease_check.py` 新增 Check 7–10，检查
+  `fcop` 库与 `fcop-mcp` 版本锁步、关键 bundled 规则文件完整性、规则文件
+  与 v3 `_lifecycle/` 结构一致性、生命周期各阶段覆盖；修正 `CHANGELOG.md`
+  路径指向项目根而非 `mcp/`。
+- **fcop-rules.mdc / fcop-protocol.mdc** bundled 版本同步升级，补充
+  `_lifecycle/` 目录拓扑和生命周期状态机文档，修复与
+  `fcop@3.x` 的规则漂移。
+- `fcop_rules_version` frontmatter 更正为 `3.2.2`，与包版本对齐。
+
+**3.2.0 changes / 3.2.0 变更**（随 `fcop@3.2.0`）:
+
+- 新增 **历史深归档（History Deep Archive）**：`history/YYYY-MM-DD/` 层
+  提供按日期隔离的长期存档桶。
+- `Project` 新增属性 `history_dir`；新增工具 `archive_to_history`、
+  `list_history`、`read_history_task`。
+
+**3.1.0 changes / 3.1.0 变更**（随 `fcop@3.1.0`）:
+
+- 新增 **FCoP v3 生命周期 MCP 工具**：`claim`（inbox → active）、
+  `submit`（active → review）、`finish`（review → done）、
+  `approve`（review → done，有批准记录）、`reject`（review → active）。
+- 工具总数增至 **45**（含上述 5 个新增生命周期工具）。
+
+**3.0.3 / 3.0.2 / 3.0.1 changes**（随 `fcop@3.0.x`）:
+
+- 3.0.3：`fcop_audit()` 修复；`agent-bringup-prompt.zh.md` 全面修订（venv
+  检测、版本一致性、升级路径、`set_project_dir` 前置、PowerShell 路径）；
+  新增 `agent-bringup-prompt.en.md`；bringup prompt 修正为使用 v3
+  `_lifecycle/` 桶名（`inbox / active / review / done / archive`）。
+- 3.0.2：**关键修复** — `init_*` 未创建 `_lifecycle/` 目录的 bug。
+- 3.0.1：`_lifecycle/inbox` 初始化路径修复。
+
+**3.0.0 changes / 3.0.0 变更**（随 `fcop@3.0.0`）:
+
+- **_lifecycle/ 目录取代 tasks/ reports/ issues/ shared/ log/ 五桶**——
+  这是 v3 最核心的结构变更。项目协作文件统一进
+  `_lifecycle/{inbox,active,review,done,archive}/`，生命周期即目录位置。
+- 引入生命周期状态机：`inbox` → `active` → `review` → `done` → `archive`。
+- `fcop_audit()` 可扫描 `_lifecycle/` 结构合规性。
+- `agent-bringup-prompt` 同步更新至 v3 结构。
+
+---
+
+**旧版本 history（v2.x 及以下）/ Legacy history (v2.x and below)**:
+
+**3.0.0 rule-doc changes / 3.0.0 规则文档变更**（随 `fcop@2.0.0`）:
 
 - 新增 **Rule 4.6 · Internal vs External Documentation / 内外档案体系**
   （non-mandatory soft convention，per ADR-0034）：

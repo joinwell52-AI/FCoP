@@ -178,7 +178,7 @@ create_custom_team(
 | **Agent（窗口）** | 你打开的每个 Cursor 聊天窗口 | 一个窗口承担**一个**角色，靠你发 `你是 {ROLE}，在 {team}` 指派 |
 
 **协议不强制角色数 = 窗口数**。FCoP 是文件协议——你只开了 `PM` 一个
-窗口，PM 派给 `DEV/QA/OPS` 的任务文件会**安静地躺在 `tasks/` 排队**，
+窗口，PM 派给 `DEV/QA/OPS` 的任务文件会**安静地躺在 `_lifecycle/inbox/` 排队**，
 等你开下一个窗口指派对应角色，它就自动接单。
 
 ### 最省事的开法（推荐）
@@ -200,7 +200,7 @@ create_custom_team(
 | | `mode: "solo"` | `mode: "team"` + 先开 1 个 PM |
 |---|---|---|
 | 角色数 | 1（`ME`） | 4（`PM/DEV/QA/OPS`） |
-| 能派活吗 | 不能（没有下级） | 能——PM 可以写 `TASK-...-to-DEV.md`，文件堆在 `tasks/` |
+| 能派活吗 | 不能（没有下级） | 能——PM 可以写 `TASK-...-to-DEV.md`，文件堆在 `_lifecycle/inbox/` |
 | 要切团队怎么办 | 重新 `init_project()` | 开下一个 Cursor 窗口，发指派句就行 |
 
 说人话：**Solo 是"我就一个人干到底"；团队模式开 1 个 PM 是"我先开
@@ -216,7 +216,7 @@ PM，班子其他人随叫随到"**。
 
 > **"你是 DEV，在 dev-team"**（可选加线程名：`，线程 feature_login`）
 
-两个窗口**不互相通话**，靠 `fcop/tasks/` 下的文件做中转。
+两个窗口**不互相通话**，靠 `_lifecycle/` 下的文件做中转。
 
 ### ⚠️ 一个角色只能给一个 agent（0.7.0 起 FCoP 自动核对）
 
@@ -225,13 +225,13 @@ PM，班子其他人随叫随到"**。
 1. **`ADMIN` 不可被指派给任何 agent**——你是真人，AI 不能戴这顶帽子。
 2. **同一角色码不可同时指派给多个 agent**——别在两个 Cursor 窗口都说
    "你是 ME"，也别在两个窗口都说"你是 PM"。这两个 agent 会在
-   `fcop/tasks/`、`reports/`、`issues/` 里抢同一个文件名空间，
+   `_lifecycle/`、`issues/` 里抢同一个文件名空间，
    破坏 Rule 0.b 的自审机制和 Rule 4 的角色路由。
 
 自 `fcop_protocol_version: 1.5.0`（fcop-mcp 0.7.0）起，agent 在转 BOUND
 之前会**主动**比对 `fcop_report()` 输出的「角色占用」段：
 
-- 你说"你是 PM"，但 `tasks/` 里已经有别的 session 用 PM 写过文件 →
+- 你说"你是 PM"，但 `_lifecycle/` 里已经有别的 session 用 PM 写过文件 →
   agent 必须按 Rule 8 拒绝绑定，向 `.fcop/proposals/` 落一份冲突说明，
   把三选一交还给你：
   - **交班**：让旧那位收尾再指派
@@ -472,7 +472,7 @@ list_workspaces()
 
 ## 你怎么用 FCoP：只说人话
 
-**先把最重要的说清楚**：FCoP 有 32 个工具——**全是给 Agent 用的，
+**先把最重要的说清楚**：FCoP 有 45 个工具——**全是给 Agent 用的，
 不是给你用的**。你从头到尾只说人话，Agent 负责翻译成工具调用。
 
 ```
@@ -529,7 +529,7 @@ list_workspaces()
   路径是 `C:\Users\xxx` 之类），你说"绑到 `E:\你的项目`"或直接说
   "调 `set_project_dir("...")`"。
 
-**其他 24 个你从来不用背**。Agent 自己会挑。
+**其他 43 个你从来不用背**。Agent 自己会挑。
 
 ### Agent 为什么知道该调哪个？
 
@@ -588,7 +588,7 @@ list_workspaces()
 - `fcop_report` —— 灰了 Rule 0 失效，Agent 新会话没法做第一步
 - `set_project_dir` —— 灰了 MCP 绑错目录时你只能改 `mcp.json` + 重启
 
-剩下的 24 个你用不到的可以灰——不过 Agent 突然少了工具会一脸懵，
+剩下的 43 个你用不到的可以灰——不过 Agent 突然少了工具会一脸懵，
 **建议全开就好**。
 
 ---

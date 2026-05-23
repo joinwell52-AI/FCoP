@@ -1,4 +1,4 @@
-# FCoP Preset Team Templates
+﻿# FCoP Preset Team Templates
 
 This directory ships the stock **template library** bundled inside the
 `fcop` Python package, giving users without role docs a copy-and-run
@@ -107,7 +107,7 @@ All URIs accept a language suffix: `?lang=zh` (default) or `?lang=en`.
 
 ## Not in here
 
-- Real task files (`TASK-*.md`) — produced at runtime, live in `fcop/tasks/`.
+- Real task files (`TASK-*.md`) — produced at runtime, live under `_lifecycle/`.
 - Real reports / issues (`REPORT-*.md` / `ISSUE-*.md`) — same.
 - Project-specific norms — put them in the project's own `fcop/shared/`,
   don't modify these bundled templates.

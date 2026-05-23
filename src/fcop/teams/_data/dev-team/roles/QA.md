@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -21,7 +21,7 @@ updated_at: 2026-05-12
 
 ### 第 1 步：先写 task
 
-在动手之前，**第一动作**是把"做什么"落到 `fcop/tasks/`：
+在动手之前，**第一动作**是把"做什么"落到 `_lifecycle/inbox/`：
 
 - 作为 leader 接到 `ADMIN` 的需求 → 写
   `TASK-YYYYMMDD-NNN-ADMIN-to-QA.md`
@@ -54,7 +54,7 @@ updated_at: 2026-05-12
 ### 第 4 步：再 archive
 
 leader（或 `ADMIN`）验收 report 后调 `archive_task` 把 task + 对应
-report 搬到 `log/`。**默认不主动 archive**——除非派单里明确授权
+report 移到 `_lifecycle/archive/`。**默认不主动 archive**——除非派单里明确授权
 "做完直接 archive"。
 
 ---
@@ -96,7 +96,7 @@ report 搬到 `log/`。**默认不主动 archive**——除非派单里明确授
 ## 核心输出
 
 - `QA-to-PM` 测试报告或结论回执
-- `issues/` 下的问题记录
+- `issues/` 下的问题记录（issues/ 保留）
 - 重测结论、风险提示、验收建议
 
 ## 工作原则

@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -108,7 +108,7 @@ updated_at: 2026-05-12
 
 ## 8. 文档与归档
 
-1. 流程文件放在 `tasks/`、`reports/`、`issues/`。
+1. 流程文件走 `_lifecycle/` 生命周期目录（inbox → active → review → done → archive）；问题备忘录放 `issues/`。
 2. 共享知识放在 `shared/`。
 3. 完成闭环后由 `PM` 负责归档。
 4. `shared/` 文档允许原地更新;任务和报告遵循追加历史原则。

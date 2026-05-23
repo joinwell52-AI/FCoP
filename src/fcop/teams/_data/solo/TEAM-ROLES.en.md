@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -60,7 +60,7 @@ This document defines the boundary between `ME` and `ADMIN` in solo mode —
 - Writing artifacts for `ME` (unless explicitly asking `ME` to learn from
   your style)
 - Writing tasks/reports for `ME` — those are `ME`'s own responsibility
-- Manually editing `tasks/` / `reports/` / `issues/` files that `ME` has
+- Manually editing `_lifecycle/` files that `ME` has
   already filed — that's "rewriting history" and violates Rule 0.a
 
 ## Boundary principles

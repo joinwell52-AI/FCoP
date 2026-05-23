@@ -8,6 +8,28 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.2.2] — 2026-05-23 (Pre-release check hardening · rule-file consistency gates)
+
+### Added — `fcop-mcp`
+- `prerelease_check.py` gains checks 7–10:
+  - **Check 7** — `fcop` library version == `fcop-mcp` version (lockstep guard).
+  - **Check 8** — All critical bundled rule files (`fcop-rules.mdc`,
+    `fcop-protocol.mdc`, `agent-bringup-prompt.{zh,en}.md`,
+    `letter-to-admin.{zh,en}.md`) exist and are non-empty.
+  - **Check 9** — `fcop-rules.mdc` references current major version and
+    documents the `_lifecycle/` directory structure introduced in FCoP 3.0.
+  - **Check 10** — `fcop-protocol.mdc` covers all v3 lifecycle stages
+    (`inbox → active → review → done → archive`).
+- `CHANGELOG.md` path in `prerelease_check.py` corrected to project root
+  (`PROJECT_ROOT / "CHANGELOG.md"`) from the erroneous `mcp/CHANGELOG.md`.
+
+### Fixed — `fcop-rules.mdc` / `fcop-protocol.mdc` (bundled)
+- Both files updated to document the FCoP v3 `_lifecycle/` directory topology
+  and lifecycle state machine, replacing the legacy `tasks/ reports/ issues/
+  shared/ log/` references in the pre-release gate and rule-distribution layer.
+
+---
+
 ## [3.2.0] — 2026-05-22 (History deep archive · date-sharded `history/YYYY-MM-DD/` layer)
 
 ### Added — `fcop`

@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: rules
@@ -97,7 +97,7 @@ updated_at: 2026-05-12
 
 ## 9. 文档与归档
 
-1. 流程文件放在 `tasks/`、`reports/`、`issues/`。
+1. 流程文件走 `_lifecycle/` 生命周期目录（inbox → active → review → done → archive）；问题备忘录放 `issues/`。
 2. 测试计划、风险矩阵、自动化套件说明、性能基线放在 `shared/`。
 3. 测试闭环后由 `LEAD-QA` 负责归档,并在 `shared/` 留下"本轮测试复盘"。
 4. `shared/` 文档允许原地更新;任务和报告遵循追加历史原则。
