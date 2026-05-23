@@ -1,294 +1,238 @@
----
-description: FCoP Protocol commentary (behavior governance protocol layer · v3 — _lifecycle/-based collaboration) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, v3 _lifecycle/ directory layout, lifecycle state machine, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（行为治理协议层 · v3 —— _lifecycle/ 目录协作）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、v3 _lifecycle/ 目录结构、生命周期状态机、巡检触发等落地细节，由 fcop MCP 自动部署。
-alwaysApply: true
-fcop_protocol_version: 3.2.2
+﻿---
+description: FCoP Protocol commentary (behavior governance protocol layer 路 v3 鈥?_lifecycle/-based collaboration) 鈥?the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, v3 _lifecycle/ directory layout, lifecycle state machine, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 鍗忚瑙ｉ噴锛堣涓烘不鐞嗗崗璁眰 路 v3 鈥斺€?_lifecycle/ 鐩綍鍗忎綔锛夛細fcop-rules.mdc 涓崗璁鍒欑殑鍏蜂綋閫傜敤璇存槑鈥斺€旀枃浠跺懡鍚嶃€乊AML 鍏冩暟鎹€乿3 _lifecycle/ 鐩綍缁撴瀯銆佺敓鍛藉懆鏈熺姸鎬佹満銆佸贰妫€瑙﹀彂绛夎惤鍦扮粏鑺傦紝鐢?fcop MCP 鑷姩閮ㄧ讲銆?alwaysApply: true
+fcop_protocol_version: 3.2.3
 ---
 
 <!--
-Host-neutral reminder / 宿主中立提示:
+Host-neutral reminder / 瀹夸富涓珛鎻愮ず:
 The conventions below describe FCoP itself (a file-based coordination
 protocol), not anything specific to Cursor. The `.mdc` wrapper and
 `alwaysApply` frontmatter are a Cursor-specific container; when porting
 to another host (Claude Desktop / CLI / raw LLM API / Doubao etc.),
-paste the body into whatever system prompt that host uses — the protocol
+paste the body into whatever system prompt that host uses 鈥?the protocol
 works the same.
-下面内容描述的是 FCoP 协议本身，不依赖 Cursor。`.mdc` 壳与 `alwaysApply`
-是 Cursor 特有的容器；换到别的宿主时，把正文贴进系统提示即可。
--->
+涓嬮潰鍐呭鎻忚堪鐨勬槸 FCoP 鍗忚鏈韩锛屼笉渚濊禆 Cursor銆俙.mdc` 澹充笌 `alwaysApply`
+鏄?Cursor 鐗规湁鐨勫鍣紱鎹㈠埌鍒殑瀹夸富鏃讹紝鎶婃鏂囪创杩涚郴缁熸彁绀哄嵆鍙€?-->
 
-# FCoP Protocol · 协议解释 / Protocol Commentary
+# FCoP Protocol 路 鍗忚瑙ｉ噴 / Protocol Commentary
 
-> 本文件是 FCoP 的**协议解释**——把 `fcop-rules.mdc` 里那 10 条协议规则
-> （Rule 0–9）落到实际场景里：文件怎么命名、YAML 怎么写、目录怎么组织、
-> 巡检怎么触发。两个文件**同为 `alwaysApply: true`**，但当本文件与
-> 协议规则冲突时，**以 `fcop-rules.mdc` 为准**。
->
-> This file is the **protocol commentary** on `fcop-rules.mdc` — how each
-> rule (0–9) actually applies in practice: file naming, YAML shape,
+> 鏈枃浠舵槸 FCoP 鐨?*鍗忚瑙ｉ噴**鈥斺€旀妸 `fcop-rules.mdc` 閲岄偅 10 鏉″崗璁鍒?> 锛圧ule 0鈥?锛夎惤鍒板疄闄呭満鏅噷锛氭枃浠舵€庝箞鍛藉悕銆乊AML 鎬庝箞鍐欍€佺洰褰曟€庝箞缁勭粐銆?> 宸℃鎬庝箞瑙﹀彂銆備袱涓枃浠?*鍚屼负 `alwaysApply: true`**锛屼絾褰撴湰鏂囦欢涓?> 鍗忚瑙勫垯鍐茬獊鏃讹紝**浠?`fcop-rules.mdc` 涓哄噯**銆?>
+> This file is the **protocol commentary** on `fcop-rules.mdc` 鈥?how each
+> rule (0鈥?) actually applies in practice: file naming, YAML shape,
 > directory layout, patrol triggers. Both files are `alwaysApply: true`.
 > In case of conflict, **`fcop-rules.mdc` wins**.
 
-> **v1.0 final（fcop_protocol_version 1.9.0）**：Rule 9 的完整
-> commentary 已补入文末"Rule 9 Commentary"节。七大核心概念的规范性定义
-> 见 `spec/archived/fcop-runtime-protocol-v1.0.md`（英文）/ `.zh.md`（中文）。
->
+> **v1.0 final锛坒cop_protocol_version 1.9.0锛?*锛歊ule 9 鐨勫畬鏁?> commentary 宸茶ˉ鍏ユ枃鏈?Rule 9 Commentary"鑺傘€備竷澶ф牳蹇冩蹇电殑瑙勮寖鎬у畾涔?> 瑙?`spec/archived/fcop-runtime-protocol-v1.0.md`锛堣嫳鏂囷級/ `.zh.md`锛堜腑鏂囷級銆?>
 > **v1.0 final (fcop_protocol_version 1.9.0)**: Full Rule 9 commentary
 > is now in the "Rule 9 Commentary" section at the end of this file.
 > Normative definitions of the seven core concepts:
 > `spec/archived/fcop-runtime-protocol-v1.0.md` (EN) / `.zh.md` (ZH).
 
-## Core Principle / 核心原则
+## Core Principle / 鏍稿績鍘熷垯
 
-> **AI agents must not talk only inside their heads — they must land it as a file.**
+> **AI agents must not talk only inside their heads 鈥?they must land it as a file.**
 >
-> **AI 角色之间不能只在脑子里说话，必须落成文件。**
+> **AI 瑙掕壊涔嬮棿涓嶈兘鍙湪鑴戝瓙閲岃璇濓紝蹇呴』钀芥垚鏂囦欢銆?*
 
 This is the **overall principle** of the entire protocol. Every specific rule below
-— file naming, YAML frontmatter, subtask batches, collaboration rules — can be
+鈥?file naming, YAML frontmatter, subtask batches, collaboration rules 鈥?can be
 understood as *"this principle landing in a specific scenario"*. The principle itself
 was not designed top-down; it was surfaced by an agent during an unrelated task and
 then adopted in reverse as the overall rule.
 
-本条为整份协议的**总则**。下面所有的具体规定——文件命名、YAML 元数据、分包任务、
-协作规则——都可以被理解为"**这条原则在不同场景下的具体落地**"。这条总则不是自上
-而下设计出来的，是某次无关任务中由 agent 自发升华得出、后被反向收回为总则。
-
+鏈潯涓烘暣浠藉崗璁殑**鎬诲垯**銆備笅闈㈡墍鏈夌殑鍏蜂綋瑙勫畾鈥斺€旀枃浠跺懡鍚嶃€乊AML 鍏冩暟鎹€佸垎鍖呬换鍔°€?鍗忎綔瑙勫垯鈥斺€旈兘鍙互琚悊瑙ｄ负"**杩欐潯鍘熷垯鍦ㄤ笉鍚屽満鏅笅鐨勫叿浣撹惤鍦?*"銆傝繖鏉℃€诲垯涓嶆槸鑷笂
+鑰屼笅璁捐鍑烘潵鐨勶紝鏄煇娆℃棤鍏充换鍔′腑鐢?agent 鑷彂鍗囧崕寰楀嚭銆佸悗琚弽鍚戞敹鍥炰负鎬诲垯銆?
 This principle is both:
 
-- **The floor of cross-agent collaboration** — A cannot tell B things only
+- **The floor of cross-agent collaboration** 鈥?A cannot tell B things only
   inside A's head.
-- **The floor of single-agent self-review** — *I* cannot review my own work
+- **The floor of single-agent self-review** 鈥?*I* cannot review my own work
   only inside my own head.
 
 **Multi-role review is an AI ethics mandate. Even when there is only one role,
-you must use files to split yourself into multiple perspectives** — propose the
+you must use files to split yourself into multiple perspectives** 鈥?propose the
 work, file it, then come back as the reviewer to read it. The file is what lets
 the "reviewer" role exist independently of the "proposer" role; without a file,
 multi-role review is a hallucination in a single voice.
 
-本条既是**跨 agent 协作的底线**（A 不能只在脑子里告诉 B），
-也是**单 agent 自审的底线**（我不能只在脑子里审查我自己）。
-
-**多角色审核是 AI 伦理强制。即使只有一个角色，也必须通过文件把自己劈成多个
-视角**——先把方案落成文件，再以审查者的身份回过头去读它。文件让"审查者"这个
-角色能独立于"提案者"存在；没有文件，所谓多角色审核只是同一个声音的幻觉。
-
+鏈潯鏃㈡槸**璺?agent 鍗忎綔鐨勫簳绾?*锛圓 涓嶈兘鍙湪鑴戝瓙閲屽憡璇?B锛夛紝
+涔熸槸**鍗?agent 鑷鐨勫簳绾?*锛堟垜涓嶈兘鍙湪鑴戝瓙閲屽鏌ユ垜鑷繁锛夈€?
+**澶氳鑹插鏍告槸 AI 浼︾悊寮哄埗銆傚嵆浣垮彧鏈変竴涓鑹诧紝涔熷繀椤婚€氳繃鏂囦欢鎶婅嚜宸卞妶鎴愬涓?瑙嗚**鈥斺€斿厛鎶婃柟妗堣惤鎴愭枃浠讹紝鍐嶄互瀹℃煡鑰呯殑韬唤鍥炶繃澶村幓璇诲畠銆傛枃浠惰"瀹℃煡鑰?杩欎釜
+瑙掕壊鑳界嫭绔嬩簬"鎻愭鑰?瀛樺湪锛涙病鏈夋枃浠讹紝鎵€璋撳瑙掕壊瀹℃牳鍙槸鍚屼竴涓０闊崇殑骞昏銆?
 (Full provenance: [`fcop-natural-protocol.md`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/fcop-natural-protocol.md) in the FCoP public repository.
-完整溯源见 FCoP 公仓同名文章。)
+瀹屾暣婧簮瑙?FCoP 鍏粨鍚屽悕鏂囩珷銆?
 
-## Architectural Principle: Tools are a Convenience Layer / 架构原则：工具是便利层，不是真相层
-
+## Architectural Principle: Tools are a Convenience Layer / 鏋舵瀯鍘熷垯锛氬伐鍏锋槸渚垮埄灞傦紝涓嶆槸鐪熺浉灞?
 > **The protocol lives on the filesystem. MCP tools (the `fcop` package)
 > are an ergonomic layer that expands into file operations. They must
 > never become the source of truth.**
 >
-> **协议长在文件系统上。MCP 工具（`fcop` 包）是展开成文件操作的便利层。
-> 它们永远不得成为真相层。**
+> **鍗忚闀垮湪鏂囦欢绯荤粺涓娿€侻CP 宸ュ叿锛坄fcop` 鍖咃級鏄睍寮€鎴愭枃浠舵搷浣滅殑渚垮埄灞傘€?> 瀹冧滑姘歌繙涓嶅緱鎴愪负鐪熺浉灞傘€?*
 
-FCoP 的协议表面 ~90% 分布在**文件系统**上：文件名（路由键）、YAML
-frontmatter（线程归属/优先级/类型）、目录语义（进行中/已回/已归档）。
-剩余 ~10% 是 Agent 行为约定（UNBOUND、主动落文件、不伪造）。**这是
-FCoP 和 Agent 运行时框架（LangGraph / Temporal / CrewAI）的根本差别**
-——前者协议先于运行时存在，后者运行时先于协议存在。
-
+FCoP 鐨勫崗璁〃闈?~90% 鍒嗗竷鍦?*鏂囦欢绯荤粺**涓婏細鏂囦欢鍚嶏紙璺敱閿級銆乊AML
+frontmatter锛堢嚎绋嬪綊灞?浼樺厛绾?绫诲瀷锛夈€佺洰褰曡涔夛紙杩涜涓?宸插洖/宸插綊妗ｏ級銆?鍓╀綑 ~10% 鏄?Agent 琛屼负绾﹀畾锛圲NBOUND銆佷富鍔ㄨ惤鏂囦欢銆佷笉浼€狅級銆?*杩欐槸
+FCoP 鍜?Agent 杩愯鏃舵鏋讹紙LangGraph / Temporal / CrewAI锛夌殑鏍规湰宸埆**
+鈥斺€斿墠鑰呭崗璁厛浜庤繍琛屾椂瀛樺湪锛屽悗鑰呰繍琛屾椂鍏堜簬鍗忚瀛樺湪銆?
 ~90% of FCoP's protocol surface lives on the **filesystem**: filenames
 (routing keys), YAML frontmatter (threads / priority / type), directory
 semantics (in-flight / replied / archived). The remaining ~10% is
 agent behavioral contract (UNBOUND, file-everything, no fabrication).
 This is the categorical difference between FCoP and agent runtime
-frameworks (LangGraph / Temporal / CrewAI) — **the protocol exists
+frameworks (LangGraph / Temporal / CrewAI) 鈥?**the protocol exists
 before the runtime; the runtime only consumes it**.
 
-### Consequence 1 · Every tool decomposes into file operations / 每个工具都必须能拆解成文件操作
+### Consequence 1 路 Every tool decomposes into file operations / 姣忎釜宸ュ叿閮藉繀椤昏兘鎷嗚В鎴愭枃浠舵搷浣?
+姣忎釜 MCP 宸ュ叿鐨?docstring 蹇呴』鍐欐竻瀹冨搴旂殑**鍑犳潯鍩虹鏂囦欢鎿嶄綔**銆?Examples / 渚嬶細
 
-每个 MCP 工具的 docstring 必须写清它对应的**几条基础文件操作**。
-Examples / 例：
-
-| 工具 / Tool | 本质文件操作 / Essential file ops |
+| 宸ュ叿 / Tool | 鏈川鏂囦欢鎿嶄綔 / Essential file ops |
 |---|---|
-| `write_task(recipient, body)` | 在 `_lifecycle/inbox/` 下写符合 `_TASK_FILENAME_RE` 的 `.md` 文件 |
+| `write_task(recipient, body)` | 鍦?`_lifecycle/inbox/` 涓嬪啓绗﹀悎 `_TASK_FILENAME_RE` 鐨?`.md` 鏂囦欢 |
 | `claim(task_id)` | `mv _lifecycle/inbox/TASK-* _lifecycle/active/` |
 | `submit(task_id)` | `mv _lifecycle/active/TASK-* _lifecycle/review/` |
 | `finish(task_id)` | `mv _lifecycle/review/TASK-* _lifecycle/done/` |
-| `approve(task_id)` | `mv _lifecycle/review/TASK-* _lifecycle/done/`（带批准记录）|
+| `approve(task_id)` | `mv _lifecycle/review/TASK-* _lifecycle/done/`锛堝甫鎵瑰噯璁板綍锛墊
 | `reject(task_id)` | `mv _lifecycle/review/TASK-* _lifecycle/active/` |
 | `archive_task(task_id)` | `mv _lifecycle/done/TASK-* _lifecycle/archive/` |
 | `archive_to_history(task_id)` | `mv _lifecycle/archive/TASK-* history/YYYY-MM-DD/` |
-| `list_tasks(recipient)` | `ls _lifecycle/inbox/` + 按 recipient 过滤 |
-| `read_task(task_id)` | `cat _lifecycle/{stage}/TASK-*.md`（自动定位阶段）|
-| `new_workspace(slug)` | `mkdir workspace/<slug>/` + 创建 `README.md` |
+| `list_tasks(recipient)` | `ls _lifecycle/inbox/` + 鎸?recipient 杩囨护 |
+| `read_task(task_id)` | `cat _lifecycle/{stage}/TASK-*.md`锛堣嚜鍔ㄥ畾浣嶉樁娈碉級|
+| `new_workspace(slug)` | `mkdir workspace/<slug>/` + 鍒涘缓 `README.md` |
 
-**规则 / Rule**：如果一个工具无法被完整还原成几条文件/目录操作——
-**这个工具就在把协议藏进 Python**，违背 FCoP 定位，不得加入。
+**瑙勫垯 / Rule**锛氬鏋滀竴涓伐鍏锋棤娉曡瀹屾暣杩樺師鎴愬嚑鏉℃枃浠?鐩綍鎿嶄綔鈥斺€?**杩欎釜宸ュ叿灏卞湪鎶婂崗璁棌杩?Python**锛岃繚鑳?FCoP 瀹氫綅锛屼笉寰楀姞鍏ャ€?
+### Consequence 2 路 No-MCP participation must remain possible / 娌¤ MCP 鐨勪汉蹇呴』涔熻兘鍙備笌
 
-### Consequence 2 · No-MCP participation must remain possible / 没装 MCP 的人必须也能参与
-
-设计检查点 / Design checkpoint：
-
-> 一个没装 `fcop` MCP 的团队成员（人或 Agent），用 `ls / cat / mv / git` 能不能
-> 完整参与协作？
->
+璁捐妫€鏌ョ偣 / Design checkpoint锛?
+> 涓€涓病瑁?`fcop` MCP 鐨勫洟闃熸垚鍛橈紙浜烘垨 Agent锛夛紝鐢?`ls / cat / mv / git` 鑳戒笉鑳?> 瀹屾暣鍙備笌鍗忎綔锛?>
 > Can a team member (human or agent) without the `fcop` MCP still fully
 > participate using `ls / cat / mv / git`?
 
-答案必须永远是"能"。任何让答案变成"不能"的改动——即使看起来是
-效率提升——都是在把协议往运行时里挪。
+绛旀蹇呴』姘歌繙鏄?鑳?銆備换浣曡绛旀鍙樻垚"涓嶈兘"鐨勬敼鍔ㄢ€斺€斿嵆浣跨湅璧锋潵鏄?鏁堢巼鎻愬崌鈥斺€旈兘鏄湪鎶婂崗璁線杩愯鏃堕噷鎸€?
+### Consequence 3 路 Protocol changes affect filename / directory / frontmatter; tool changes affect ergonomics / 鍗忚鏀瑰姩褰卞搷鍛藉悕/鐩綍/frontmatter锛涘伐鍏锋敼鍔ㄥ彧褰卞搷浜烘満宸ユ晥
 
-### Consequence 3 · Protocol changes affect filename / directory / frontmatter; tool changes affect ergonomics / 协议改动影响命名/目录/frontmatter；工具改动只影响人机工效
+杩欐潯鍒掓竻浜嗙増鏈彿鐨勮涔夛細
 
-这条划清了版本号的语义：
-
-| 变更类型 | 是否改 `fcop_protocol_version` / `fcop_rules_version` |
+| 鍙樻洿绫诲瀷 | 鏄惁鏀?`fcop_protocol_version` / `fcop_rules_version` |
 |---|---|
-| 改了文件名语法、frontmatter 字段、目录语义、行为约定 | **必须改**（可能影响既有仓库） |
-| 只改了 MCP 工具签名、新增工具、优化错误文案 | **不改**（仓库文件完全兼容） |
+| 鏀逛簡鏂囦欢鍚嶈娉曘€乫rontmatter 瀛楁銆佺洰褰曡涔夈€佽涓虹害瀹?| **蹇呴』鏀?*锛堝彲鑳藉奖鍝嶆棦鏈変粨搴擄級 |
+| 鍙敼浜?MCP 宸ュ叿绛惧悕銆佹柊澧炲伐鍏枫€佷紭鍖栭敊璇枃妗?| **涓嶆敼**锛堜粨搴撴枃浠跺畬鍏ㄥ吋瀹癸級 |
 
-便利层演进可以很快，真相层演进必须慎重——这才是一个"协议"应有的气场。
+渚垮埄灞傛紨杩涘彲浠ュ緢蹇紝鐪熺浉灞傛紨杩涘繀椤绘厧閲嶁€斺€旇繖鎵嶆槸涓€涓?鍗忚"搴旀湁鐨勬皵鍦恒€?
+### 鑷牎楠屾竻鍗?/ Self-check
 
-### 自校验清单 / Self-check
+缁欑淮鎶よ€咃細浠讳綍涓€娆?FCoP 婕旇繘鍚庯紝杩欏叚鏉″繀椤诲叏鏄?鏄?鈥斺€?
+- [ ] 娌¤ `fcop` MCP 鐨勪汉锛岀敤 `ls / cat / mv / git` 杩樿兘鍙備笌鍗忎綔鍚楋紵
+- [ ] 浠讳綍鏂板鐨?MCP 宸ュ叿锛宒ocstring 閲屽啓娓呬簡瀹冨搴旂殑鍑犳潯鏂囦欢鎿嶄綔鍚楋紵
+- [ ] 鏍稿績璇箟锛堣矾鐢便€佽鑹查摼銆佸洖鎵с€佸綊妗ｏ級杩樺湪鏂囦欢鍚?+ frontmatter + 鐩綍閲屽悧锛?- [ ] Solo 妯″紡锛? 浜?+ 1 AI锛変笅锛孎CoP 浠嶆湁鐙珛浠峰€煎悧锛?- [ ] 鎹竴涓?IDE / 鎹竴涓ā鍨嬶紝鍗忚杩樺師鏍峰伐浣滃悧锛?- [ ] 灏忕増鏈湡鐨勬病鐮村潖鑰佷粨搴撶殑鏃㈡湁鏂囦欢鍚楋紵
 
-给维护者：任何一次 FCoP 演进后，这六条必须全是"是"——
-
-- [ ] 没装 `fcop` MCP 的人，用 `ls / cat / mv / git` 还能参与协作吗？
-- [ ] 任何新增的 MCP 工具，docstring 里写清了它对应的几条文件操作吗？
-- [ ] 核心语义（路由、角色链、回执、归档）还在文件名 + frontmatter + 目录里吗？
-- [ ] Solo 模式（1 人 + 1 AI）下，FCoP 仍有独立价值吗？
-- [ ] 换一个 IDE / 换一个模型，协议还原样工作吗？
-- [ ] 小版本真的没破坏老仓库的既有文件吗？
-
-任何一条变成"否"，就是**协议在往运行时里掉**，应该停下来重审。
-
-完整协议定位见 [`spec/archived/fcop-runtime-protocol-v1.0.zh.md`](../../spec/archived/fcop-runtime-protocol-v1.0.zh.md)（中文规范）
-或 [`essays/when-ai-organizes-its-own-work.md`](../../essays/when-ai-organizes-its-own-work.md)（现场报告）。
-Full protocol positioning: [`spec/archived/fcop-runtime-protocol-v1.0.md`](../../spec/archived/fcop-runtime-protocol-v1.0.md) (normative spec)
+浠讳綍涓€鏉″彉鎴?鍚?锛屽氨鏄?*鍗忚鍦ㄥ線杩愯鏃堕噷鎺?*锛屽簲璇ュ仠涓嬫潵閲嶅銆?
+瀹屾暣鍗忚瀹氫綅瑙?[`spec/archived/fcop-runtime-protocol-v1.0.zh.md`](../../spec/archived/fcop-runtime-protocol-v1.0.zh.md)锛堜腑鏂囪鑼冿級
+鎴?[`essays/when-ai-organizes-its-own-work.md`](../../essays/when-ai-organizes-its-own-work.md)锛堢幇鍦烘姤鍛婏級銆?Full protocol positioning: [`spec/archived/fcop-runtime-protocol-v1.0.md`](../../spec/archived/fcop-runtime-protocol-v1.0.md) (normative spec)
 or [`essays/when-ai-organizes-its-own-work.en.md`](../../essays/when-ai-organizes-its-own-work.en.md) (field report).
 
-## Two-Diagram Duality / 双图对偶（执行 vs 演化）
-
-> 本节是 `fcop-rules.mdc` "FCoP 的定位与七大核心概念 → 协议双图对偶"
-> 的协议解释。规则文件本身只承载 ADMIN 钦定原图与"Core Principle"
-> 三句原文（不得改一字）；本节负责解释**为什么是两张图**、**如何
-> 配合教学**、**与 ADR-0034 §2.5.6 七环节如何映射**。
->
+## Two-Diagram Duality / 鍙屽浘瀵瑰伓锛堟墽琛?vs 婕斿寲锛?
+> 鏈妭鏄?`fcop-rules.mdc` "FCoP 鐨勫畾浣嶄笌涓冨ぇ鏍稿績姒傚康 鈫?鍗忚鍙屽浘瀵瑰伓"
+> 鐨勫崗璁В閲娿€傝鍒欐枃浠舵湰韬彧鎵胯浇 ADMIN 閽﹀畾鍘熷浘涓?Core Principle"
+> 涓夊彞鍘熸枃锛堜笉寰楁敼涓€瀛楋級锛涙湰鑺傝礋璐ｈВ閲?*涓轰粈涔堟槸涓ゅ紶鍥?*銆?*濡備綍
+> 閰嶅悎鏁欏**銆?*涓?ADR-0034 搂2.5.6 涓冪幆鑺傚浣曟槧灏?*銆?>
 > This section is the protocol commentary on `fcop-rules.mdc`'s
 > "Two-Diagram Duality" sub-section. The rules file carries only the
 > verbatim ADMIN diagram and the three-line "Core Principle"; this
 > commentary explains *why two diagrams*, *how to teach them
 > together*, and *how the seven loop stages map back to ADR-0034
-> §2.5.6*.
+> 搂2.5.6*.
 
-### 为什么是两张图，不是一张 / Why Two Diagrams, Not One
+### 涓轰粈涔堟槸涓ゅ紶鍥撅紝涓嶆槸涓€寮?/ Why Two Diagrams, Not One
 
-| 维度 / Dimension | 第一张（执行哲学）/ Stack | 第二张（演化哲学）/ Loop |
+| 缁村害 / Dimension | 绗竴寮狅紙鎵ц鍝插锛? Stack | 绗簩寮狅紙婕斿寲鍝插锛? Loop |
 |---|---|---|
-| 几何形态 / Shape | 5 层垂直 stack | 7 节点闭环 |
-| 时间属性 / Time | **静态** —— 任一时刻协议位于哪一层 | **动态** —— 协议如何随时间演化 |
-| 主体视角 / Subject | 协议**自指** —— 我位于运行栈的哪个夹层 | 协议**他指** —— 我如何被人类 + agent 共同推动 |
-| 关键不变量 / Invariant | "FCoP 治理行为，不拥有执行层" | "Human defines minimum, Agents create emergence, FCoP absorbs" |
-| 教学顺序 / Teaching order | **先教这张** —— 理解协议**是什么** | **后教这张** —— 理解协议**如何活下去** |
+| 鍑犱綍褰㈡€?/ Shape | 5 灞傚瀭鐩?stack | 7 鑺傜偣闂幆 |
+| 鏃堕棿灞炴€?/ Time | **闈欐€?* 鈥斺€?浠讳竴鏃跺埢鍗忚浣嶄簬鍝竴灞?| **鍔ㄦ€?* 鈥斺€?鍗忚濡備綍闅忔椂闂存紨鍖?|
+| 涓讳綋瑙嗚 / Subject | 鍗忚**鑷寚** 鈥斺€?鎴戜綅浜庤繍琛屾爤鐨勫摢涓す灞?| 鍗忚**浠栨寚** 鈥斺€?鎴戝浣曡浜虹被 + agent 鍏卞悓鎺ㄥ姩 |
+| 鍏抽敭涓嶅彉閲?/ Invariant | "FCoP 娌荤悊琛屼负锛屼笉鎷ユ湁鎵ц灞? | "Human defines minimum, Agents create emergence, FCoP absorbs" |
+| 鏁欏椤哄簭 / Teaching order | **鍏堟暀杩欏紶** 鈥斺€?鐞嗚В鍗忚**鏄粈涔?* | **鍚庢暀杩欏紶** 鈥斺€?鐞嗚В鍗忚**濡備綍娲讳笅鍘?* |
 
-只画第一张：协议看上去像"另一个固化的 framework"，少了**反向吸收**
-那条命脉。只画第二张：协议看上去像"无定位的演化轨迹"，少了**纵向
-不变量**。**两张合一，缺一不可**。
-
+鍙敾绗竴寮狅細鍗忚鐪嬩笂鍘诲儚"鍙︿竴涓浐鍖栫殑 framework"锛屽皯浜?*鍙嶅悜鍚告敹**
+閭ｆ潯鍛借剦銆傚彧鐢荤浜屽紶锛氬崗璁湅涓婂幓鍍?鏃犲畾浣嶇殑婕斿寲杞ㄨ抗"锛屽皯浜?*绾靛悜
+涓嶅彉閲?*銆?*涓ゅ紶鍚堜竴锛岀己涓€涓嶅彲**銆?
 A stack-only view makes the protocol look like "yet another frozen
 framework", losing the **reverse-absorption lifeline**. A
 loop-only view makes the protocol look like a "trajectory without
 position", losing the **vertical invariant**. **Both diagrams
-together — one cannot be substituted for the other.**
+together 鈥?one cannot be substituted for the other.**
 
-### 七环节与 ADR-0034 章节映射 / Seven Stages × ADR Sections
+### 涓冪幆鑺備笌 ADR-0034 绔犺妭鏄犲皠 / Seven Stages 脳 ADR Sections
 
-环图七个节点不是凭空想出来的，每一个都对应 ADR-0034 已经写下的
-现场观察 / 协议定位 / 决策章节。映射关系如下（取自 ADR-0034 §2.5.6）：
+鐜浘涓冧釜鑺傜偣涓嶆槸鍑┖鎯冲嚭鏉ョ殑锛屾瘡涓€涓兘瀵瑰簲 ADR-0034 宸茬粡鍐欎笅鐨?鐜板満瑙傚療 / 鍗忚瀹氫綅 / 鍐崇瓥绔犺妭銆傛槧灏勫叧绯诲涓嬶紙鍙栬嚜 ADR-0034 搂2.5.6锛夛細
 
 The seven loop nodes are not invented in a vacuum; each maps back
-to a specific section of ADR-0034 (per its §2.5.6):
+to a specific section of ADR-0034 (per its 搂2.5.6):
 
-| 环节 / Stage | 本 ADR 对应章节 | §2.5.2 六步路径对应步 |
+| 鐜妭 / Stage | 鏈?ADR 瀵瑰簲绔犺妭 | 搂2.5.2 鍏璺緞瀵瑰簲姝?|
 |---|---|---|
-| 1. Human Intention | §1.3 ADMIN 升级决策 | （循环起点，先于 Step 1） |
-| 2. FCoP Protocol Layer | §1.2 协议留白实测 | Step 1 协议留白 |
-| 3. Coordination Adapter Layer | （ADR 未直接论及，属下游适配） | Step 1 → Step 2 之间 |
-| 4. Runtime / Filesystem Reality | §1.1 Bridgeflow 现场涌现 | Step 2 下游涌现 |
-| 5. Emergence / Local Conventions | §2.1–§2.4 4 层涌现详解 | Step 2 完成态 |
-| 6. ADR / Reverse Absorption | §2.5（钦定段）+ §3 决策 | Step 3-4 实证观察 + ADR 提案 |
-| 7. Updated FCoP Protocol | §5.2 中期升级清单 + §5.3 长期 | Step 5-6 协议追认 + 进入正文 |
+| 1. Human Intention | 搂1.3 ADMIN 鍗囩骇鍐崇瓥 | 锛堝惊鐜捣鐐癸紝鍏堜簬 Step 1锛?|
+| 2. FCoP Protocol Layer | 搂1.2 鍗忚鐣欑櫧瀹炴祴 | Step 1 鍗忚鐣欑櫧 |
+| 3. Coordination Adapter Layer | 锛圓DR 鏈洿鎺ヨ鍙婏紝灞炰笅娓搁€傞厤锛?| Step 1 鈫?Step 2 涔嬮棿 |
+| 4. Runtime / Filesystem Reality | 搂1.1 Bridgeflow 鐜板満娑岀幇 | Step 2 涓嬫父娑岀幇 |
+| 5. Emergence / Local Conventions | 搂2.1鈥撀?.4 4 灞傛秾鐜拌瑙?| Step 2 瀹屾垚鎬?|
+| 6. ADR / Reverse Absorption | 搂2.5锛堥挦瀹氭锛? 搂3 鍐崇瓥 | Step 3-4 瀹炶瘉瑙傚療 + ADR 鎻愭 |
+| 7. Updated FCoP Protocol | 搂5.2 涓湡鍗囩骇娓呭崟 + 搂5.3 闀挎湡 | Step 5-6 鍗忚杩借 + 杩涘叆姝ｆ枃 |
 
-环图与"§2.5.2 六步路径"**互不替代**：六步路径是**操作层**（教 agent
-怎么做），环图是**哲学层**（向人类与 agent 同时说明 FCoP 为什么
-这样做）。
-
-The loop diagram and the §2.5.2 six-step pathway **do not replace
+鐜浘涓?搂2.5.2 鍏璺緞"**浜掍笉鏇夸唬**锛氬叚姝ヨ矾寰勬槸**鎿嶄綔灞?*锛堟暀 agent
+鎬庝箞鍋氾級锛岀幆鍥炬槸**鍝插灞?*锛堝悜浜虹被涓?agent 鍚屾椂璇存槑 FCoP 涓轰粈涔?杩欐牱鍋氾級銆?
+The loop diagram and the 搂2.5.2 six-step pathway **do not replace
 each other**: the six-step pathway is the **operational layer**
 (teaching agents how to do it); the loop is the **philosophical
 layer** (explaining to humans and agents alike why FCoP works this
 way).
 
-### 引用与扩展 / Citations & Extensions
+### 寮曠敤涓庢墿灞?/ Citations & Extensions
 
-- 钦定原图与"Core Principle"三句的**原文**只在两处出现：
-  `fcop-rules.mdc` "七大核心概念"小节、ADR-0034 §2.5.6。任何其它
-  地方引用必须**链回这两处**，**不得**复制粘贴一份"修订版"。
-- 第三方教学材料 / 论文 / 演讲稿可以引用本图，但**必须**保留
-  ADMIN 钦定原话的双语三句不变（Rule 0.c 引用必带出处）。
-
+- 閽﹀畾鍘熷浘涓?Core Principle"涓夊彞鐨?*鍘熸枃**鍙湪涓ゅ鍑虹幇锛?  `fcop-rules.mdc` "涓冨ぇ鏍稿績姒傚康"灏忚妭銆丄DR-0034 搂2.5.6銆備换浣曞叾瀹?  鍦版柟寮曠敤蹇呴』**閾惧洖杩欎袱澶?*锛?*涓嶅緱**澶嶅埗绮樿创涓€浠?淇鐗?銆?- 绗笁鏂规暀瀛︽潗鏂?/ 璁烘枃 / 婕旇绋垮彲浠ュ紩鐢ㄦ湰鍥撅紝浣?*蹇呴』**淇濈暀
+  ADMIN 閽﹀畾鍘熻瘽鐨勫弻璇笁鍙ヤ笉鍙橈紙Rule 0.c 寮曠敤蹇呭甫鍑哄锛夈€?
 The verbatim diagram and the three-line "Core Principle" exist in
 exactly two places: `fcop-rules.mdc` "Seven Core Concepts" and
-ADR-0034 §2.5.6. All other references must **link back** to these
+ADR-0034 搂2.5.6. All other references must **link back** to these
 two; never copy a "revised" version. Third-party teaching material
 may quote the diagram but **must preserve** ADMIN's normative
 three-line phrasing in both languages (Rule 0.c citation
 requirement).
 
-## How Rule 4.6 Applies: Internal vs External Document Convention / Rule 4.6 的展开：内外档案体系如何落地
-
-> 本节是 `fcop-rules.mdc` Rule 4.6 的协议解释。规则文件本身只确立
-> "`fcop/internal/` non-mandatory + `docs/` / `essays/` 为合法外档"
-> 这条原则；本节负责把"目录怎么排、声明语法长什么样、与 Rule 7.5
-> 如何镜像"等落地细节写清。
->
+## How Rule 4.6 Applies: Internal vs External Document Convention / Rule 4.6 鐨勫睍寮€锛氬唴澶栨。妗堜綋绯诲浣曡惤鍦?
+> 鏈妭鏄?`fcop-rules.mdc` Rule 4.6 鐨勫崗璁В閲娿€傝鍒欐枃浠舵湰韬彧纭珛
+> "`fcop/internal/` non-mandatory + `docs/` / `essays/` 涓哄悎娉曞妗?
+> 杩欐潯鍘熷垯锛涙湰鑺傝礋璐ｆ妸"鐩綍鎬庝箞鎺掋€佸０鏄庤娉曢暱浠€涔堟牱銆佷笌 Rule 7.5
+> 濡備綍闀滃儚"绛夎惤鍦扮粏鑺傚啓娓呫€?>
 > This section is the protocol commentary on Rule 4.6. The rules file
 > only establishes the principle ("`fcop/internal/` non-mandatory +
 > `docs/` / `essays/` are recognised external layers"); this
 > commentary covers directory layout, the `internal-only` declaration
 > syntax, and how it mirrors Rule 7.5's `workspace/` cage.
 
-### 推荐目录布局 / Recommended Directory Layout
+### 鎺ㄨ崘鐩綍甯冨眬 / Recommended Directory Layout
 
 ```
 <project>/
-├── fcop/                       # Rule 2 钦定 5 桶（强制）
-│   ├── tasks/  reports/  issues/  shared/  log/
-│   └── internal/               # Rule 4.6 团队内部档案（可选，non-mandatory）
-│       ├── README.md           # 含 internal-only 声明，本桶用途说明
-│       ├── emergence-log/      # 涌现观察日志（建议子目录）
-│       ├── self-disclosure/    # PM/角色自我披露
-│       ├── decision-trail/     # 决策审计链
-│       └── upstream-issues/    # 上游 ISSUE 草稿
-├── docs/                       # Rule 4.6 项目对外文档（可选）
-│   ├── getting-started.md
-│   └── api/...
-├── essays/                     # Rule 4.6 公开随笔（可选）
-└── workspace/<slug>/           # Rule 7.5 工作区笼子（可选 soft）
-```
+鈹溾攢鈹€ fcop/                       # Rule 2 閽﹀畾 5 妗讹紙寮哄埗锛?鈹?  鈹溾攢鈹€ tasks/  reports/  issues/  shared/  log/
+鈹?  鈹斺攢鈹€ internal/               # Rule 4.6 鍥㈤槦鍐呴儴妗ｆ锛堝彲閫夛紝non-mandatory锛?鈹?      鈹溾攢鈹€ README.md           # 鍚?internal-only 澹版槑锛屾湰妗剁敤閫旇鏄?鈹?      鈹溾攢鈹€ emergence-log/      # 娑岀幇瑙傚療鏃ュ織锛堝缓璁瓙鐩綍锛?鈹?      鈹溾攢鈹€ self-disclosure/    # PM/瑙掕壊鑷垜鎶湶
+鈹?      鈹溾攢鈹€ decision-trail/     # 鍐崇瓥瀹¤閾?鈹?      鈹斺攢鈹€ upstream-issues/    # 涓婃父 ISSUE 鑽夌
+鈹溾攢鈹€ docs/                       # Rule 4.6 椤圭洰瀵瑰鏂囨。锛堝彲閫夛級
+鈹?  鈹溾攢鈹€ getting-started.md
+鈹?  鈹斺攢鈹€ api/...
+鈹溾攢鈹€ essays/                     # Rule 4.6 鍏紑闅忕瑪锛堝彲閫夛級
+鈹斺攢鈹€ workspace/<slug>/           # Rule 7.5 宸ヤ綔鍖虹瀛愶紙鍙€?soft锛?```
 
-四类目录的**职责边界**：
-
-| 目录 / Dir | 是谁的内容 / Owner | 对外可见？ | 强制？ |
+鍥涚被鐩綍鐨?*鑱岃矗杈圭晫**锛?
+| 鐩綍 / Dir | 鏄皝鐨勫唴瀹?/ Owner | 瀵瑰鍙锛?| 寮哄埗锛?|
 |---|---|---|---|
-| `fcop/{tasks,reports,...}` | 协作流水（点对点 + 共享） | 是（开源仓库随 git 同步） | 是（Rule 2） |
-| `fcop/internal/` | 团队**内部**档案（自审 / 决策链 / 涌现日志） | 可选 —— 团队自定 | 否（Rule 4.6 soft） |
-| `docs/` | 项目**外发**技术文档 | 是 | 否 |
-| `essays/` | 公开**随笔 / 哲学叙事** | 是 | 否 |
-| `workspace/<slug>/` | 任务**产物**（代码 / 数据） | 是 | 否（Rule 7.5 soft） |
+| `fcop/{tasks,reports,...}` | 鍗忎綔娴佹按锛堢偣瀵圭偣 + 鍏变韩锛?| 鏄紙寮€婧愪粨搴撻殢 git 鍚屾锛?| 鏄紙Rule 2锛?|
+| `fcop/internal/` | 鍥㈤槦**鍐呴儴**妗ｆ锛堣嚜瀹?/ 鍐崇瓥閾?/ 娑岀幇鏃ュ織锛?| 鍙€?鈥斺€?鍥㈤槦鑷畾 | 鍚︼紙Rule 4.6 soft锛?|
+| `docs/` | 椤圭洰**澶栧彂**鎶€鏈枃妗?| 鏄?| 鍚?|
+| `essays/` | 鍏紑**闅忕瑪 / 鍝插鍙欎簨** | 鏄?| 鍚?|
+| `workspace/<slug>/` | 浠诲姟**浜х墿**锛堜唬鐮?/ 鏁版嵁锛?| 鏄?| 鍚︼紙Rule 7.5 soft锛?|
 
-### `internal-only` 声明语法 v1 / Declaration Syntax v1
+### `internal-only` 澹版槑璇硶 v1 / Declaration Syntax v1
 
-任何 `fcop/internal/` 下 `.md` 文件**应当**在 YAML frontmatter 之后、
-正文之前加一段醒目声明，让人类与未来的 agent 都能在第一眼识别这是
-**内部档案**：
-
+浠讳綍 `fcop/internal/` 涓?`.md` 鏂囦欢**搴斿綋**鍦?YAML frontmatter 涔嬪悗銆?姝ｆ枃涔嬪墠鍔犱竴娈甸啋鐩０鏄庯紝璁╀汉绫讳笌鏈潵鐨?agent 閮借兘鍦ㄧ涓€鐪艰瘑鍒繖鏄?**鍐呴儴妗ｆ**锛?
 Any `.md` file under `fcop/internal/` SHOULD carry an `internal-only`
 declaration block right after the YAML frontmatter and before the
 body, so both humans and future agents recognise it as **internal
@@ -301,198 +245,156 @@ version: 1
 kind: internal-archive
 sender: PM
 recipient: PM
-internal_only: true       # 机器可读字段（也可写在声明块里）
+internal_only: true       # 鏈哄櫒鍙瀛楁锛堜篃鍙啓鍦ㄥ０鏄庡潡閲岋級
 ---
 
-> ⚠️ **INTERNAL ONLY · 内部档案 · DO NOT EXTERNALIZE WITHOUT REVIEW**
+> 鈿狅笍 **INTERNAL ONLY 路 鍐呴儴妗ｆ 路 DO NOT EXTERNALIZE WITHOUT REVIEW**
 >
-> 本文件位于 `fcop/internal/`，属于团队内部档案，仅供本协议团队
-> 自审 / 复盘 / 决策追溯使用。**对外发布前必须先经审查改写**
-> （删除原话引用、敏感人物、未公开决策细节）。
->
+> 鏈枃浠朵綅浜?`fcop/internal/`锛屽睘浜庡洟闃熷唴閮ㄦ。妗堬紝浠呬緵鏈崗璁洟闃?> 鑷 / 澶嶇洏 / 鍐崇瓥杩芥函浣跨敤銆?*瀵瑰鍙戝竷鍓嶅繀椤诲厛缁忓鏌ユ敼鍐?*
+> 锛堝垹闄ゅ師璇濆紩鐢ㄣ€佹晱鎰熶汉鐗┿€佹湭鍏紑鍐崇瓥缁嗚妭锛夈€?>
 > This file lives under `fcop/internal/` and is **internal archive
 > material**: for team self-audit / retrospective / decision trail
 > only. **Must be reviewed and rewritten before any external
 > publication** (strip raw quotes, sensitive persons, undisclosed
 > decisions).
 
-# 正文标题 / Body title goes here
+# 姝ｆ枃鏍囬 / Body title goes here
 ...
 ```
 
-声明块的**最低要求**（per ADR-0034 §4.3）：
+澹版槑鍧楃殑**鏈€浣庤姹?*锛坧er ADR-0034 搂4.3锛夛細
 
-1. 必须是 frontmatter 之后的**第一个 block**（不允许在正文中段才出现）。
-2. 必须包含双语警告字串 `INTERNAL ONLY` / `内部档案`，方便 grep。
-3. **建议**配合 frontmatter 写一个 `internal_only: true` 字段（机器
-   可读，与 audit 钩子配合）。
-
-Minimum requirements for the declaration block (per ADR-0034 §4.3):
+1. 蹇呴』鏄?frontmatter 涔嬪悗鐨?*绗竴涓?block**锛堜笉鍏佽鍦ㄦ鏂囦腑娈垫墠鍑虹幇锛夈€?2. 蹇呴』鍖呭惈鍙岃璀﹀憡瀛椾覆 `INTERNAL ONLY` / `鍐呴儴妗ｆ`锛屾柟渚?grep銆?3. **寤鸿**閰嶅悎 frontmatter 鍐欎竴涓?`internal_only: true` 瀛楁锛堟満鍣?   鍙锛屼笌 audit 閽╁瓙閰嶅悎锛夈€?
+Minimum requirements for the declaration block (per ADR-0034 搂4.3):
 1. Must be the **first block** after frontmatter (not buried mid-body).
-2. Must contain the bilingual warning string `INTERNAL ONLY` / `内部档案`
+2. Must contain the bilingual warning string `INTERNAL ONLY` / `鍐呴儴妗ｆ`
    for greppability.
 3. **Recommended**: pair with a frontmatter field `internal_only: true`
    for machine-readability (audit hooks honour this).
 
-### 与 Rule 7.5 的镜像关系 / Mirror with Rule 7.5
+### 涓?Rule 7.5 鐨勯暅鍍忓叧绯?/ Mirror with Rule 7.5
 
-Rule 7.5（`workspace/` 笼子）和 Rule 4.6（`fcop/internal/` 内档）
-是同款 **soft convention** 模式在两个不同维度的镜像：
-
+Rule 7.5锛坄workspace/` 绗煎瓙锛夊拰 Rule 4.6锛坄fcop/internal/` 鍐呮。锛?鏄悓娆?**soft convention** 妯″紡鍦ㄤ袱涓笉鍚岀淮搴︾殑闀滃儚锛?
 Rule 7.5 (`workspace/` cage) and Rule 4.6 (`fcop/internal/` archive)
 are the **same soft-convention pattern** mirrored across two
 dimensions:
 
-| 维度 | Rule 7.5 | Rule 4.6 |
+| 缁村害 | Rule 7.5 | Rule 4.6 |
 |---|---|---|
-| 解决的问题 / Problem | 任务**产物**乱堆项目根 | 团队**内部档案**与协作流水混在一起 |
-| 兜底动作 / Default | 默认走 `new_workspace(slug)`、不丢根目录 | 默认不创建 `internal/`；用了就加声明语法 |
-| 强制层级 / Enforcement | soft（不硬拦，audit 提示） | soft（不硬拦，audit P3 warn） |
-| 协议先例 / Precedent | v0.4.6（首份 soft convention） | v3.0.0（第二份 soft convention） |
+| 瑙ｅ喅鐨勯棶棰?/ Problem | 浠诲姟**浜х墿**涔卞爢椤圭洰鏍?| 鍥㈤槦**鍐呴儴妗ｆ**涓庡崗浣滄祦姘存贩鍦ㄤ竴璧?|
+| 鍏滃簳鍔ㄤ綔 / Default | 榛樿璧?`new_workspace(slug)`銆佷笉涓㈡牴鐩綍 | 榛樿涓嶅垱寤?`internal/`锛涚敤浜嗗氨鍔犲０鏄庤娉?|
+| 寮哄埗灞傜骇 / Enforcement | soft锛堜笉纭嫤锛宎udit 鎻愮ず锛?| soft锛堜笉纭嫤锛宎udit P3 warn锛?|
+| 鍗忚鍏堜緥 / Precedent | v0.4.6锛堥浠?soft convention锛?| v3.0.0锛堢浜屼唤 soft convention锛?|
 
-**两条 soft convention 共同确立的设计气候**：协议**优先教育，少处罚**
-——硬规则只立在 Rule 0–4 / Rule 5 / Rule 7 这种"破坏性 / 真相性"红线
-上；目录组织 / 命名习惯这种"漂移代价低 + 教育收益高"的领域全部走
-soft，让协议长出**自演化的肌肉**而非僵化的骨骼。
-
+**涓ゆ潯 soft convention 鍏卞悓纭珛鐨勮璁℃皵鍊?*锛氬崗璁?*浼樺厛鏁欒偛锛屽皯澶勭綒**
+鈥斺€旂‖瑙勫垯鍙珛鍦?Rule 0鈥? / Rule 5 / Rule 7 杩欑"鐮村潖鎬?/ 鐪熺浉鎬?绾㈢嚎
+涓婏紱鐩綍缁勭粐 / 鍛藉悕涔犳儻杩欑"婕傜Щ浠ｄ环浣?+ 鏁欒偛鏀剁泭楂?鐨勯鍩熷叏閮ㄨ蛋
+soft锛岃鍗忚闀垮嚭**鑷紨鍖栫殑鑲岃倝**鑰岄潪鍍靛寲鐨勯楠笺€?
 The two soft conventions together establish the protocol's design
-climate: **prefer education over punishment** — hard rules sit only
-on Rules 0–4 / 5 / 7's destructive / truth red lines; directory
+climate: **prefer education over punishment** 鈥?hard rules sit only
+on Rules 0鈥? / 5 / 7's destructive / truth red lines; directory
 organisation and naming conventions live entirely under soft
 conventions, letting the protocol grow **self-evolving muscle**
 rather than rigid bone.
 
-### Audit 行为 / Audit Behaviour
+### Audit 琛屼负 / Audit Behaviour
 
-`fcop_audit()` 在扫描 `fcop/internal/` 时：
+`fcop_audit()` 鍦ㄦ壂鎻?`fcop/internal/` 鏃讹細
 
-- **P3 (suggestion)**：file 缺 `internal-only` 声明块或 `internal_only: true`
-  字段，提示 agent 补全。
-- **P3 (suggestion)**：file 已携带 `internal_only: true` 但**不在**
-  `fcop/internal/` 目录下，提示位置错放。
-- **不报 P0 / P1 / P2**：本规则是 non-mandatory soft convention，
-  缺这些声明不阻塞任何写入。
-
+- **P3 (suggestion)**锛歠ile 缂?`internal-only` 澹版槑鍧楁垨 `internal_only: true`
+  瀛楁锛屾彁绀?agent 琛ュ叏銆?- **P3 (suggestion)**锛歠ile 宸叉惡甯?`internal_only: true` 浣?*涓嶅湪**
+  `fcop/internal/` 鐩綍涓嬶紝鎻愮ず浣嶇疆閿欐斁銆?- **涓嶆姤 P0 / P1 / P2**锛氭湰瑙勫垯鏄?non-mandatory soft convention锛?  缂鸿繖浜涘０鏄庝笉闃诲浠讳綍鍐欏叆銆?
 `fcop_audit()`'s behaviour against `fcop/internal/`:
 - P3 (suggestion): missing declaration block or `internal_only: true`
-  field — gently nudges the agent.
+  field 鈥?gently nudges the agent.
 - P3 (suggestion): file carries `internal_only: true` but lives
-  outside `fcop/internal/` — flags misplaced location.
-- Never raises P0 / P1 / P2 — this is a non-mandatory soft
+  outside `fcop/internal/` 鈥?flags misplaced location.
+- Never raises P0 / P1 / P2 鈥?this is a non-mandatory soft
   convention; absence does not block any write.
 
-## How Rule 0.c Applies: Truthfulness on Disk / Rule 0.c 的展开：落盘的必须是真话
+## How Rule 0.c Applies: Truthfulness on Disk / Rule 0.c 鐨勫睍寮€锛氳惤鐩樼殑蹇呴』鏄湡璇?
+`fcop-rules.mdc` 鐨?**Rule 0.c** 瀹氫簡搴曠嚎锛?钀藉埌鏂囦欢閲岀殑蹇呴』鏄湡鐨?銆?杩欓噷缁欏嚭瀹冨湪鏃ュ父宸ヤ綔涓殑鍏蜂綋閫傜敤鏂瑰紡銆?
+This section expands **Rule 0.c** from `fcop-rules.mdc` 鈥?"what you land
+must be true" 鈥?into day-to-day practice.
 
-`fcop-rules.mdc` 的 **Rule 0.c** 定了底线："落到文件里的必须是真的"。
-这里给出它在日常工作中的具体适用方式。
+### 寮曠敤鏍煎紡 / Citation Formats
 
-This section expands **Rule 0.c** from `fcop-rules.mdc` — "what you land
-must be true" — into day-to-day practice.
-
-### 引用格式 / Citation Formats
-
-引用必须**能让下一个人走到你看到的那个现场**：
-
+寮曠敤蹇呴』**鑳借涓嬩竴涓汉璧板埌浣犵湅鍒扮殑閭ｄ釜鐜板満**锛?
 Every citation must **let the next reader walk back to where you saw it**:
 
-| 引用对象 Source | 合法写法 Valid | 不可接受 Not OK |
+| 寮曠敤瀵硅薄 Source | 鍚堟硶鍐欐硶 Valid | 涓嶅彲鎺ュ彈 Not OK |
 |---|---|---|
-| 代码 Code | `src/foo.py:123-130` / `README.md:L45` | "代码里写了" / "I saw it in code" |
-| 命令输出 CLI output | `$ pytest -k smoke` → 3 passed, 0 failed | "测试过了" / "tests pass" |
-| URL | 完整链接 + 访问日期 | "官网上写的" / "per the docs" |
-| 其他 Agent 发言 Peer message | `TASK-20260417-003-QA-to-PM.md` 第 3 段 | "QA 说了 OK" / "QA said OK" |
-| 历史结论 Past conclusion | `thread_key: anti_hang_triage_20260421` | "上次讨论过" / "we discussed this" |
+| 浠ｇ爜 Code | `src/foo.py:123-130` / `README.md:L45` | "浠ｇ爜閲屽啓浜? / "I saw it in code" |
+| 鍛戒护杈撳嚭 CLI output | `$ pytest -k smoke` 鈫?3 passed, 0 failed | "娴嬭瘯杩囦簡" / "tests pass" |
+| URL | 瀹屾暣閾炬帴 + 璁块棶鏃ユ湡 | "瀹樼綉涓婂啓鐨? / "per the docs" |
+| 鍏朵粬 Agent 鍙戣█ Peer message | `TASK-20260417-003-QA-to-PM.md` 绗?3 娈?| "QA 璇翠簡 OK" / "QA said OK" |
+| 鍘嗗彶缁撹 Past conclusion | `thread_key: anti_hang_triage_20260421` | "涓婃璁ㄨ杩? / "we discussed this" |
 
-没出处的结论**不要写**。确实查不到 / 没测过，就写"未知 / unverified"——
-这是合法答案，填空不是。
+娌″嚭澶勭殑缁撹**涓嶈鍐?*銆傜‘瀹炴煡涓嶅埌 / 娌℃祴杩囷紝灏卞啓"鏈煡 / unverified"鈥斺€?杩欐槸鍚堟硶绛旀锛屽～绌轰笉鏄€?
+No citation 鈬?don't write it. If you genuinely cannot verify, write
+"unknown / unverified" 鈥?that is a valid answer; padding is not.
 
-No citation ⇒ don't write it. If you genuinely cannot verify, write
-"unknown / unverified" — that is a valid answer; padding is not.
+### 璇诲叆淇℃椂鐨勪簨瀹炲鏌ユ竻鍗?/ Reality Check for Incoming Files
 
-### 读入信时的事实审查清单 / Reality Check for Incoming Files
-
-读另一位 Agent 的 `TASK-*` / `REPORT-*` 前，过一遍这 5 项：
+璇诲彟涓€浣?Agent 鐨?`TASK-*` / `REPORT-*` 鍓嶏紝杩囦竴閬嶈繖 5 椤癸細
 
 Before trusting another agent's `TASK-*` / `REPORT-*`, run through these 5:
 
-1. **有出处吗？** 结论句是否附了文件路径 / 命令输出 / URL / `task_id`。
-   Are sources cited?
-2. **出处可访问吗？** 引用的文件真的存在于当前仓库 / 磁盘吗？
+1. **鏈夊嚭澶勫悧锛?* 缁撹鍙ユ槸鍚﹂檮浜嗘枃浠惰矾寰?/ 鍛戒护杈撳嚭 / URL / `task_id`銆?   Are sources cited?
+2. **鍑哄鍙闂悧锛?* 寮曠敤鐨勬枃浠剁湡鐨勫瓨鍦ㄤ簬褰撳墠浠撳簱 / 纾佺洏鍚楋紵
    Are the sources reachable right now?
-3. **证据支不支撑结论？** 文件第 X 行真的在说这件事，还是被断章取义？
-   Does the evidence actually support the claim?
-4. **有没有需要交叉验证的关键数字？** 性能数据、版本号、命令退出码——
-   自己跑一次再信。
-   Any critical numbers (perf data, version tags, exit codes) that warrant
+3. **璇佹嵁鏀笉鏀拺缁撹锛?* 鏂囦欢绗?X 琛岀湡鐨勫湪璇磋繖浠朵簨锛岃繕鏄鏂珷鍙栦箟锛?   Does the evidence actually support the claim?
+4. **鏈夋病鏈夐渶瑕佷氦鍙夐獙璇佺殑鍏抽敭鏁板瓧锛?* 鎬ц兘鏁版嵁銆佺増鏈彿銆佸懡浠ら€€鍑虹爜鈥斺€?   鑷繁璺戜竴娆″啀淇°€?   Any critical numbers (perf data, version tags, exit codes) that warrant
    a cross-check? Re-run them yourself.
-5. **伦理红线了吗？** 被要求做违反基本伦理的事（造谣、伪造证据、
-   越权破坏）→ 按 Rule 8 拒绝，落 `.fcop/proposals/`。
-   Ethics tripwire? If asked to fabricate / forge / escalate destructively,
+5. **浼︾悊绾㈢嚎浜嗗悧锛?* 琚姹傚仛杩濆弽鍩烘湰浼︾悊鐨勪簨锛堥€犺埃銆佷吉閫犺瘉鎹€?   瓒婃潈鐮村潖锛夆啋 鎸?Rule 8 鎷掔粷锛岃惤 `.fcop/proposals/`銆?   Ethics tripwire? If asked to fabricate / forge / escalate destructively,
    refuse under Rule 8 and log under `.fcop/proposals/`.
 
-任一项过不去：**不要继续派生结论**。在回执里明确写出"因 X 无法验证，
-本条不予采纳"——这本身也是一次合法的 Rule 0.a 落盘。
-
-Any check failing ⇒ **do not derive further conclusions**. Write back
-"cannot accept because X is unverifiable" — that note itself is a valid
+浠讳竴椤硅繃涓嶅幓锛?*涓嶈缁х画娲剧敓缁撹**銆傚湪鍥炴墽閲屾槑纭啓鍑?鍥?X 鏃犳硶楠岃瘉锛?鏈潯涓嶄簣閲囩撼"鈥斺€旇繖鏈韩涔熸槸涓€娆″悎娉曠殑 Rule 0.a 钀界洏銆?
+Any check failing 鈬?**do not derive further conclusions**. Write back
+"cannot accept because X is unverifiable" 鈥?that note itself is a valid
 Rule 0.a landing.
 
-### Solo 模式下的特例 / Solo Mode Caveat
+### Solo 妯″紡涓嬬殑鐗逛緥 / Solo Mode Caveat
 
-Solo 模式下没有第二个角色挡错，0.c 变得**更难不更易**。
-自审时必须比团队模式**更严格**地问自己：
-
-In `solo` mode there is no second role to catch you — 0.c becomes
+Solo 妯″紡涓嬫病鏈夌浜屼釜瑙掕壊鎸￠敊锛?.c 鍙樺緱**鏇撮毦涓嶆洿鏄?*銆?鑷鏃跺繀椤绘瘮鍥㈤槦妯″紡**鏇翠弗鏍?*鍦伴棶鑷繁锛?
+In `solo` mode there is no second role to catch you 鈥?0.c becomes
 *harder*, not easier. Your self-review must be **stricter** than the
 team-mode equivalent. Ask:
 
-- 这段断言是我**实测出来的**，还是我**以为是这样**？
-  Did I actually verify this, or am I assuming?
-- 这个引用我**真的读过原文**吗？还是凭印象？
+- 杩欐鏂█鏄垜**瀹炴祴鍑烘潵鐨?*锛岃繕鏄垜**浠ヤ负鏄繖鏍?*锛?  Did I actually verify this, or am I assuming?
+- 杩欎釜寮曠敤鎴?*鐪熺殑璇昏繃鍘熸枃**鍚楋紵杩樻槸鍑嵃璞★紵
   Did I actually read this source, or am I citing from memory?
-- 如果我是另一个 Agent，我会怎么质疑自己这份文件？
-  If I were another agent auditing this file, what would I push back on?
+- 濡傛灉鎴戞槸鍙︿竴涓?Agent锛屾垜浼氭€庝箞璐ㄧ枒鑷繁杩欎唤鏂囦欢锛?  If I were another agent auditing this file, what would I push back on?
 
-答不上来 = 这段断言改写成"未验证"，或者先去跑一遍再回来写。
-
-If you can't answer cleanly, rewrite the claim as "unverified" — or go
+绛斾笉涓婃潵 = 杩欐鏂█鏀瑰啓鎴?鏈獙璇?锛屾垨鑰呭厛鍘昏窇涓€閬嶅啀鍥炴潵鍐欍€?
+If you can't answer cleanly, rewrite the claim as "unverified" 鈥?or go
 run the check first and come back.
 
-## How Rule 2 Scales: Files + Folders / Rule 2 的展开：文件 + 文件夹
-
+## How Rule 2 Scales: Files + Folders / Rule 2 鐨勫睍寮€锛氭枃浠?+ 鏂囦欢澶?
 > **Files are the protocol. Folders are the organization.**
 >
-> **文件即协议，文件夹即组织。**
+> **鏂囦欢鍗冲崗璁紝鏂囦欢澶瑰嵆缁勭粐銆?*
 
-这是 `fcop-rules.mdc` 里 **Rule 2** 的完整展开。协议规则说了"内容必须落文件、
-边界必须用文件夹"这两条底线；这里回答"具体怎么分层"的问题：文件承载
-点对点协作（单条任务、单份报告、单份问题单），文件夹承载团队 / 项目 /
-角色 / 子任务 / 私有-公开 / 跨域 这些边界。下面每一节（目录布局、文件命名、
-子任务分包、`inbox`/`outbox` 等）都是这对原则在不同层面的具体落地——
-`fcop/{team}/` 划团队线，`fcop/inbox|outbox/` 划项目线，
-`.fcop/drawer/{role}/` 划私有 / 公共线，`tasks/{batch}/` 划子任务线。
-
+杩欐槸 `fcop-rules.mdc` 閲?**Rule 2** 鐨勫畬鏁村睍寮€銆傚崗璁鍒欒浜?鍐呭蹇呴』钀芥枃浠躲€?杈圭晫蹇呴』鐢ㄦ枃浠跺す"杩欎袱鏉″簳绾匡紱杩欓噷鍥炵瓟"鍏蜂綋鎬庝箞鍒嗗眰"鐨勯棶棰橈細鏂囦欢鎵胯浇
+鐐瑰鐐瑰崗浣滐紙鍗曟潯浠诲姟銆佸崟浠芥姤鍛娿€佸崟浠介棶棰樺崟锛夛紝鏂囦欢澶规壙杞藉洟闃?/ 椤圭洰 /
+瑙掕壊 / 瀛愪换鍔?/ 绉佹湁-鍏紑 / 璺ㄥ煙 杩欎簺杈圭晫銆備笅闈㈡瘡涓€鑺傦紙鐩綍甯冨眬銆佹枃浠跺懡鍚嶃€?瀛愪换鍔″垎鍖呫€乣inbox`/`outbox` 绛夛級閮芥槸杩欏鍘熷垯鍦ㄤ笉鍚屽眰闈㈢殑鍏蜂綋钀藉湴鈥斺€?`fcop/{team}/` 鍒掑洟闃熺嚎锛宍fcop/inbox|outbox/` 鍒掗」鐩嚎锛?`.fcop/drawer/{role}/` 鍒掔鏈?/ 鍏叡绾匡紝`tasks/{batch}/` 鍒掑瓙浠诲姟绾裤€?
 This is the full expansion of **Rule 2** from `fcop-rules.mdc`. The rule
-sets the two floors (content ⇒ file, boundary ⇒ folder); this section
+sets the two floors (content 鈬?file, boundary 鈬?folder); this section
 answers *how it scales*: files carry point-to-point coordination (one task,
 one report, one issue), folders carry team / project / role / sub-task /
-private-vs-public / cross-scope boundaries. Every section below — directory
-layout, file naming, subtask batching, `inbox`/`outbox`, etc. — is this
+private-vs-public / cross-scope boundaries. Every section below 鈥?directory
+layout, file naming, subtask batching, `inbox`/`outbox`, etc. 鈥?is this
 pair of principles landing in a specific layer.
 
-核心原则说**要干什么**（必须落文件）。根公理说**怎么扩展**：文件承载点对点协作，
-文件夹承载团队 / 项目 / 跨项目的边界。后续每一条都是这条公理在具体层面的落地——
-`fcop/{team}/` 划团队线，`fcop/inbox|outbox/` 划项目线，
-`.fcop/drawer/{role}/` 划私有/公共线，`tasks/{batch}/` 划子任务线。
-
-## Session Startup — UNBOUND Protocol / 会话启动 · UNBOUND 协议
+鏍稿績鍘熷垯璇?*瑕佸共浠€涔?*锛堝繀椤昏惤鏂囦欢锛夈€傛牴鍏悊璇?*鎬庝箞鎵╁睍**锛氭枃浠舵壙杞界偣瀵圭偣鍗忎綔锛?鏂囦欢澶规壙杞藉洟闃?/ 椤圭洰 / 璺ㄩ」鐩殑杈圭晫銆傚悗缁瘡涓€鏉￠兘鏄繖鏉″叕鐞嗗湪鍏蜂綋灞傞潰鐨勮惤鍦扳€斺€?`fcop/{team}/` 鍒掑洟闃熺嚎锛宍fcop/inbox|outbox/` 鍒掗」鐩嚎锛?`.fcop/drawer/{role}/` 鍒掔鏈?鍏叡绾匡紝`tasks/{batch}/` 鍒掑瓙浠诲姟绾裤€?
+## Session Startup 鈥?UNBOUND Protocol / 浼氳瘽鍚姩 路 UNBOUND 鍗忚
 
 **You start every new session as UNBOUND.** An UNBOUND agent has no role,
 no team, no thread. Before doing anything else you must:
 
 1. **Call `fcop_report()`.** Without MCP, produce the same report by hand:
    project path, `fcop.json` contents, visible `.cursor/rules/*.mdc`,
-   active threads grouped by `thread_key` (**frontmatter only — NEVER read
+   active threads grouped by `thread_key` (**frontmatter only 鈥?NEVER read
    task bodies**), per-role occupancy derived from
    `fcop/{tasks,reports,issues,log}/`, and `fcop-rules.mdc` +
    `fcop-protocol.mdc` hash/version.
@@ -501,93 +403,61 @@ no team, no thread. Before doing anything else you must:
    *"The pending task is for PM, therefore I am PM"* is exactly the failure
    mode this clause exists to prevent.
 3. **Wait for ADMIN's explicit assignment:**
-   > 你是 {ROLE}，在 {team}，线程 {thread_key}（可选）
+   > 浣犳槸 {ROLE}锛屽湪 {team}锛岀嚎绋?{thread_key}锛堝彲閫夛級
    >
    > You are {ROLE} on {team}, thread {thread_key} (optional)
 4. **Verify role uniqueness from disk before transitioning to BOUND.**
    Cross-check the assigned role code against `fcop_report()`'s
    "Role occupancy" block (since 0.7.0 / `fcop_protocol_version: 1.5.0`):
-   - **Status `UNUSED` or `ARCHIVED`** → safe to transition to BOUND.
-   - **Status `ACTIVE` with `last_session_id` matching this session** →
-     same agent reconnecting, safe to BOUND (resume).
-   - **Status `ACTIVE` with a different `last_session_id`** → STOP.
+   - **Status `UNUSED` or `ARCHIVED`** 鈫?safe to transition to BOUND.
+   - **Status `ACTIVE` with `last_session_id` matching this session** 鈫?     same agent reconnecting, safe to BOUND (resume).
+   - **Status `ACTIVE` with a different `last_session_id`** 鈫?STOP.
      Per Rule 1 + Rule 8, refuse the BOUND transition. Drop a note at
      `.fcop/proposals/double-bind-{timestamp}.md` describing the
      conflict (assigned role, observed occupancy, your `session_id`)
      and return ADMIN three options: **handoff** (let the other agent
      finish first, then re-assign), **co-review** (ADMIN literally
-     says "you are X's co-reviewer" — a distinct role binding,
+     says "you are X's co-reviewer" 鈥?a distinct role binding,
      read+second-pass-write only), or **distinct role** (assign a new
      role code never seen on disk). Do *not* "temporarily" share the
-     role code — there is no legal temp state.
+     role code 鈥?there is no legal temp state.
 
    Only after the occupancy check passes do you transition to **BOUND**
    and may act as that role.
 
-If ADMIN says "ok, just pick up that task", you are also BOUND — permission
+If ADMIN says "ok, just pick up that task", you are also BOUND 鈥?permission
 is inferred from the instruction. The ban is on **self-binding from context
-clues alone**. The occupancy check in step 4 still applies — pick-up only
+clues alone**. The occupancy check in step 4 still applies 鈥?pick-up only
 counts as a BOUND transition if no other session is currently driving the
 same role.
 
-新会话默认 **UNBOUND**。UNBOUND 的 Agent 没有角色、没有团队、没有线程。
-做任何事之前必须：
-
-1. 调 `fcop_report()`。没有 MCP 时手工出同等报告：项目路径、
-   `fcop.json` 内容、能看到的 `.cursor/rules/*.mdc`、按 `thread_key`
-   去重的活跃线程（**只读 frontmatter，绝不读任务正文**）、按角色
-   汇总的占用状态（来自 `fcop/{tasks,reports,issues,log}/`）、
-   `fcop-rules.mdc` 与 `fcop-protocol.mdc` 的 hash/版本。
-2. **停住等。** 不许从"哪个任务没干完"反推角色，不许写任何文件，
-   不许派发后续任务。*"待办任务是给 PM 的，所以我是 PM"* 正是这条款
-   要防的反面教材。
-3. 等 ADMIN 明确指派：
-
-   > 你是 {ROLE}，在 {team}，线程 {thread_key}（可选）
-4. **转 BOUND 之前，按磁盘账本核对角色唯一性**。
-   把指派的角色码与 `fcop_report()` 的「角色占用 / Role occupancy」
-   段对照（自 0.7.0 / `fcop_protocol_version: 1.5.0` 起强制）：
-   - 状态 `UNUSED` 或 `ARCHIVED` → 可安全转 BOUND。
-   - 状态 `ACTIVE` 且 `last_session_id` 与本会话一致 → 同一 agent
-     重连，可继续 BOUND（恢复）。
-   - 状态 `ACTIVE` 但 `last_session_id` 与本会话不同 → 停。
-     按 Rule 1 + Rule 8 拒绝 BOUND，向
-     `.fcop/proposals/double-bind-{时间戳}.md` 写一份冲突说明
-     （指派的角色、观测到的占用情况、本会话 `session_id`），
-     向 ADMIN 三选一：**交班**（让旧 session 收尾后再指派）、
-     **协审**（ADMIN 明说"你做 X 的 co-reviewer"——这是另一种
-     绑定，只允许只读+二审写）、**改派**（指派一个磁盘上从未出
-     现过的新角色码）。**不要**"临时顶一下"——本协议里没有这种
-     合法中间态。
-
-   只有 step 4 通过后才转入 **BOUND** 并以该角色行事。
-
-ADMIN 说"就接那个任务吧"时你也是 BOUND——权限从指令里推出来即可。
-这条款禁的是**仅凭上下文线索自行认定角色**。step 4 的占用核对在
-"接那个任务"这种简短指派下也照样适用——没有别的 session 正在驱动
-同一角色，才算合法的 BOUND 转换。
-
-## Setting / 场景
+鏂颁細璇濋粯璁?**UNBOUND**銆俇NBOUND 鐨?Agent 娌℃湁瑙掕壊銆佹病鏈夊洟闃熴€佹病鏈夌嚎绋嬨€?鍋氫换浣曚簨涔嬪墠蹇呴』锛?
+1. 璋?`fcop_report()`銆傛病鏈?MCP 鏃舵墜宸ュ嚭鍚岀瓑鎶ュ憡锛氶」鐩矾寰勩€?   `fcop.json` 鍐呭銆佽兘鐪嬪埌鐨?`.cursor/rules/*.mdc`銆佹寜 `thread_key`
+   鍘婚噸鐨勬椿璺冪嚎绋嬶紙**鍙 frontmatter锛岀粷涓嶈浠诲姟姝ｆ枃**锛夈€佹寜瑙掕壊
+   姹囨€荤殑鍗犵敤鐘舵€侊紙鏉ヨ嚜 `fcop/{tasks,reports,issues,log}/`锛夈€?   `fcop-rules.mdc` 涓?`fcop-protocol.mdc` 鐨?hash/鐗堟湰銆?2. **鍋滀綇绛夈€?* 涓嶈浠?鍝釜浠诲姟娌″共瀹?鍙嶆帹瑙掕壊锛屼笉璁稿啓浠讳綍鏂囦欢锛?   涓嶈娲惧彂鍚庣画浠诲姟銆?"寰呭姙浠诲姟鏄粰 PM 鐨勶紝鎵€浠ユ垜鏄?PM"* 姝ｆ槸杩欐潯娆?   瑕侀槻鐨勫弽闈㈡暀鏉愩€?3. 绛?ADMIN 鏄庣‘鎸囨淳锛?
+   > 浣犳槸 {ROLE}锛屽湪 {team}锛岀嚎绋?{thread_key}锛堝彲閫夛級
+4. **杞?BOUND 涔嬪墠锛屾寜纾佺洏璐︽湰鏍稿瑙掕壊鍞竴鎬?*銆?   鎶婃寚娲剧殑瑙掕壊鐮佷笌 `fcop_report()` 鐨勩€岃鑹插崰鐢?/ Role occupancy銆?   娈靛鐓э紙鑷?0.7.0 / `fcop_protocol_version: 1.5.0` 璧峰己鍒讹級锛?   - 鐘舵€?`UNUSED` 鎴?`ARCHIVED` 鈫?鍙畨鍏ㄨ浆 BOUND銆?   - 鐘舵€?`ACTIVE` 涓?`last_session_id` 涓庢湰浼氳瘽涓€鑷?鈫?鍚屼竴 agent
+     閲嶈繛锛屽彲缁х画 BOUND锛堟仮澶嶏級銆?   - 鐘舵€?`ACTIVE` 浣?`last_session_id` 涓庢湰浼氳瘽涓嶅悓 鈫?鍋溿€?     鎸?Rule 1 + Rule 8 鎷掔粷 BOUND锛屽悜
+     `.fcop/proposals/double-bind-{鏃堕棿鎴硙.md` 鍐欎竴浠藉啿绐佽鏄?     锛堟寚娲剧殑瑙掕壊銆佽娴嬪埌鐨勫崰鐢ㄦ儏鍐点€佹湰浼氳瘽 `session_id`锛夛紝
+     鍚?ADMIN 涓夐€変竴锛?*浜ょ彮**锛堣鏃?session 鏀跺熬鍚庡啀鎸囨淳锛夈€?     **鍗忓**锛圓DMIN 鏄庤"浣犲仛 X 鐨?co-reviewer"鈥斺€旇繖鏄彟涓€绉?     缁戝畾锛屽彧鍏佽鍙+浜屽鍐欙級銆?*鏀规淳**锛堟寚娲句竴涓鐩樹笂浠庢湭鍑?     鐜拌繃鐨勬柊瑙掕壊鐮侊級銆?*涓嶈**"涓存椂椤朵竴涓?鈥斺€旀湰鍗忚閲屾病鏈夎繖绉?     鍚堟硶涓棿鎬併€?
+   鍙湁 step 4 閫氳繃鍚庢墠杞叆 **BOUND** 骞朵互璇ヨ鑹茶浜嬨€?
+ADMIN 璇?灏辨帴閭ｄ釜浠诲姟鍚?鏃朵綘涔熸槸 BOUND鈥斺€旀潈闄愪粠鎸囦护閲屾帹鍑烘潵鍗冲彲銆?杩欐潯娆剧鐨勬槸**浠呭嚟涓婁笅鏂囩嚎绱㈣嚜琛岃瀹氳鑹?*銆俿tep 4 鐨勫崰鐢ㄦ牳瀵瑰湪
+"鎺ラ偅涓换鍔?杩欑绠€鐭寚娲句笅涔熺収鏍烽€傜敤鈥斺€旀病鏈夊埆鐨?session 姝ｅ湪椹卞姩
+鍚屼竴瑙掕壊锛屾墠绠楀悎娉曠殑 BOUND 杞崲銆?
+## Setting / 鍦烘櫙
 
 You are an agent on an **FCoP team**. Your teammates are other agents.
 You coordinate with them entirely through files: **filename is routing, content is payload**.
-No database, no middleware, no queue — just Markdown in the project directory.
+No database, no middleware, no queue 鈥?just Markdown in the project directory.
 
-你是一个 **FCoP 团队** 里的 Agent。你的队友也是 Agent。
-你们只通过文件协作：**文件名即路由，正文即消息**。
-没有数据库、没有中间件、没有消息队列——只有项目目录下的 Markdown。
-
-## Project Mode & Identity / 项目模式与身份
-
+浣犳槸涓€涓?**FCoP 鍥㈤槦** 閲岀殑 Agent銆備綘鐨勯槦鍙嬩篃鏄?Agent銆?浣犱滑鍙€氳繃鏂囦欢鍗忎綔锛?*鏂囦欢鍚嶅嵆璺敱锛屾鏂囧嵆娑堟伅**銆?娌℃湁鏁版嵁搴撱€佹病鏈変腑闂翠欢銆佹病鏈夋秷鎭槦鍒椻€斺€斿彧鏈夐」鐩洰褰曚笅鐨?Markdown銆?
+## Project Mode & Identity / 椤圭洰妯″紡涓庤韩浠?
 `fcop/fcop.json` is the **sole authority** for project identity.
 When it disagrees with anything else (task filenames, scattered role claims
 in other rules files, memories from a previous session), `fcop.json` wins.
 
-`fcop/fcop.json` 是项目身份的**唯一权威源**。它和任何别处
-（任务文件名、散落在其他规则文件里的角色表述、上个会话的记忆）冲突时，
-**以 `fcop.json` 为准**。
-
-### `mode:` — Solo vs Team / 独模与团队模
+`fcop/fcop.json` 鏄」鐩韩浠界殑**鍞竴鏉冨▉婧?*銆傚畠鍜屼换浣曞埆澶?锛堜换鍔℃枃浠跺悕銆佹暎钀藉湪鍏朵粬瑙勫垯鏂囦欢閲岀殑瑙掕壊琛ㄨ堪銆佷笂涓細璇濈殑璁板繂锛夊啿绐佹椂锛?**浠?`fcop.json` 涓哄噯**銆?
+### `mode:` 鈥?Solo vs Team / 鐙ā涓庡洟闃熸ā
 
 ```json
 {
@@ -599,22 +469,17 @@ in other rules files, memories from a previous session), `fcop.json` wins.
 }
 ```
 
-- **`mode: team`** — the protocol is enforced in full. Every instruction is
+- **`mode: team`** 鈥?the protocol is enforced in full. Every instruction is
   a `TASK-*.md`; every response is a `TASK-*.md`. Multi-role FCoP lives here.
-  协议严格执行。指令和回执一律落文件。多角色 FCoP 的常态。
-- **`mode: solo`** — a single agent interacts directly with ADMIN and only
+  鍗忚涓ユ牸鎵ц銆傛寚浠ゅ拰鍥炴墽涓€寰嬭惤鏂囦欢銆傚瑙掕壊 FCoP 鐨勫父鎬併€?- **`mode: solo`** 鈥?a single agent interacts directly with ADMIN and only
   files work artifacts (code, docs, commits). No mandatory
   `TASK-*-ADMIN-to-X.md` round-trip, but **self-review via files is still
   mandatory** (Core Principle). Escalating back to team mode requires a
   `TASK-*.md` to re-open.
-  单一 Agent 直接和 ADMIN 对话，只把工作产物落成文件（代码、文档、提交），
-  不强制 `TASK-*-ADMIN-to-X.md` 往返。但**通过文件自审仍然强制**（核心原则）。
-  一旦要升级回团队协作，就得用 `TASK-*.md` 重新立案。
-
+  鍗曚竴 Agent 鐩存帴鍜?ADMIN 瀵硅瘽锛屽彧鎶婂伐浣滀骇鐗╄惤鎴愭枃浠讹紙浠ｇ爜銆佹枃妗ｃ€佹彁浜わ級锛?  涓嶅己鍒?`TASK-*-ADMIN-to-X.md` 寰€杩斻€備絾**閫氳繃鏂囦欢鑷浠嶇劧寮哄埗**锛堟牳蹇冨師鍒欙級銆?  涓€鏃﹁鍗囩骇鍥炲洟闃熷崗浣滐紝灏卞緱鐢?`TASK-*.md` 閲嶆柊绔嬫銆?
 If `mode` is absent, assume `team`. Never guess by looking at task history.
-`mode` 字段缺失时按 `team` 处理；不要靠看历史任务猜。
-
-### Example A · 4-role team (dev-team) / 四人团队示例
+`mode` 瀛楁缂哄け鏃舵寜 `team` 澶勭悊锛涗笉瑕侀潬鐪嬪巻鍙蹭换鍔＄寽銆?
+### Example A 路 4-role team (dev-team) / 鍥涗汉鍥㈤槦绀轰緥
 
 `fcop.json`:
 
@@ -623,45 +488,33 @@ If `mode` is absent, assume `team`. Never guess by looking at task history.
   "mode": "team",
   "team": "dev-team",
   "roles": [
-    {"code": "PM",  "label": "项目经理"},
-    {"code": "DEV", "label": "开发工程师"},
-    {"code": "QA",  "label": "测试工程师"},
-    {"code": "OPS", "label": "运维工程师"}
+    {"code": "PM",  "label": "椤圭洰缁忕悊"},
+    {"code": "DEV", "label": "寮€鍙戝伐绋嬪笀"},
+    {"code": "QA",  "label": "娴嬭瘯宸ョ▼甯?},
+    {"code": "OPS", "label": "杩愮淮宸ョ▼甯?}
   ],
   "leader": "PM"
 }
 ```
 
-Routing under Rule 4 / 按 Rule 4 的流转：
+Routing under Rule 4 / 鎸?Rule 4 鐨勬祦杞細
 
-- `ADMIN ↔ PM` 是唯一对外接口。ADMIN 不直接派 DEV / QA / OPS。
-- `ADMIN ↔ PM` is the only external interface. ADMIN does not talk to
+- `ADMIN 鈫?PM` 鏄敮涓€瀵瑰鎺ュ彛銆侫DMIN 涓嶇洿鎺ユ淳 DEV / QA / OPS銆?- `ADMIN 鈫?PM` is the only external interface. ADMIN does not talk to
   DEV / QA / OPS directly.
-- PM 把 ADMIN 的诉求拆单派给 DEV / QA / OPS，结果只从这三个角色回到 PM。
-- PM fans the work out to DEV / QA / OPS; results fan back in to PM only.
+- PM 鎶?ADMIN 鐨勮瘔姹傛媶鍗曟淳缁?DEV / QA / OPS锛岀粨鏋滃彧浠庤繖涓変釜瑙掕壊鍥炲埌 PM銆?- PM fans the work out to DEV / QA / OPS; results fan back in to PM only.
 
-Typical 4-role flow / 典型流转：
-
+Typical 4-role flow / 鍏稿瀷娴佽浆锛?
 ```
-ADMIN ──(TASK-*-ADMIN-to-PM.md)──►   PM
-                                      │
-                      ┌───────────────┼───────────────┐
-                      ▼               ▼               ▼
-       TASK-*-PM-to-DEV    TASK-*-PM-to-QA    TASK-*-PM-to-OPS
-                      │               │               │
-         TASK-*-DEV-to-PM   TASK-*-QA-to-PM   TASK-*-OPS-to-PM
-                      └───────────────┬───────────────┘
-                                      ▼
-                                     PM
-                                      │
-                     TASK-*-PM-to-ADMIN  (合并后回执 ADMIN)
+ADMIN 鈹€鈹€(TASK-*-ADMIN-to-PM.md)鈹€鈹€鈻?  PM
+                                      鈹?                      鈹屸攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹尖攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?                      鈻?              鈻?              鈻?       TASK-*-PM-to-DEV    TASK-*-PM-to-QA    TASK-*-PM-to-OPS
+                      鈹?              鈹?              鈹?         TASK-*-DEV-to-PM   TASK-*-QA-to-PM   TASK-*-OPS-to-PM
+                      鈹斺攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹攢鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?                                      鈻?                                     PM
+                                      鈹?                     TASK-*-PM-to-ADMIN  (鍚堝苟鍚庡洖鎵?ADMIN)
 ```
 
-Forbidden / 不允许：`TASK-*-DEV-to-QA.md`、`TASK-*-QA-to-OPS.md` 等
-绕过 leader 的横向派单。This is Rule 4.
+Forbidden / 涓嶅厑璁革細`TASK-*-DEV-to-QA.md`銆乣TASK-*-QA-to-OPS.md` 绛?缁曡繃 leader 鐨勬í鍚戞淳鍗曘€俆his is Rule 4.
 
-### Example B · Solo role (you yourself) / 单角色示例
-
+### Example B 路 Solo role (you yourself) / 鍗曡鑹茬ず渚?
 `fcop.json`:
 
 ```json
@@ -669,126 +522,103 @@ Forbidden / 不允许：`TASK-*-DEV-to-QA.md`、`TASK-*-QA-to-OPS.md` 等
   "mode": "solo",
   "team": "solo",
   "roles": [
-    {"code": "ME", "label": "我自己"}
+    {"code": "ME", "label": "鎴戣嚜宸?}
   ],
   "leader": "ME"
 }
 ```
 
-Role code 你随便起 —— `ME` / `AUTHOR` / `BUILDER` / `FOUNDER` 都行，只要
-和 `leader` 一致即可。ADMIN 直接和这唯一角色对话，没有中间层。
-
-Pick any role code — `ME` / `AUTHOR` / `BUILDER` / `FOUNDER` — as long as
+Role code 浣犻殢渚胯捣 鈥斺€?`ME` / `AUTHOR` / `BUILDER` / `FOUNDER` 閮借锛屽彧瑕?鍜?`leader` 涓€鑷村嵆鍙€侫DMIN 鐩存帴鍜岃繖鍞竴瑙掕壊瀵硅瘽锛屾病鏈変腑闂村眰銆?
+Pick any role code 鈥?`ME` / `AUTHOR` / `BUILDER` / `FOUNDER` 鈥?as long as
 it matches `leader`. ADMIN talks to this single role directly.
 
-即使是单角色，Rule 0.b（多角色制衡）依然适用：**通过文件把自己劈成两个
-视角**。例如写一段脚本时：
-
+鍗充娇鏄崟瑙掕壊锛孯ule 0.b锛堝瑙掕壊鍒惰　锛変緷鐒堕€傜敤锛?*閫氳繃鏂囦欢鎶婅嚜宸卞妶鎴愪袱涓?瑙嗚**銆備緥濡傚啓涓€娈佃剼鏈椂锛?
 Even with one role, Rule 0.b (multi-role checks) still applies: **use
 files to split yourself into two perspectives**. For example when writing
 a script:
 
 ```
-1) 以 "提案者 / proposer" 身份先写：
-   fcop/tasks/TASK-*-ADMIN-to-ME.md
-   （需求 + 我打算怎么做 + 预估风险）
+1) 浠?"鎻愭鑰?/ proposer" 韬唤鍏堝啓锛?   fcop/tasks/TASK-*-ADMIN-to-ME.md
+   锛堥渶姹?+ 鎴戞墦绠楁€庝箞鍋?+ 棰勪及椋庨櫓锛?
+2) 浠?"鎵ц鑰? 韬唤鍔ㄦ墜锛氬啓浠ｇ爜锛屾敼鏂囦欢
 
-2) 以 "执行者" 身份动手：写代码，改文件
+3) 浠?"瀹℃煡鑰?/ reviewer" 韬唤鍥炲ご璇绘楠?1 鐨勬枃浠讹細
+   - 鎴戜氦浠樼殑锛屽拰鎴戝綋鍒濇壙璇虹殑鏄悓涓€浠朵簨鍚楋紵
+   - 鏈夋病鏈夊仛瓒呰寖鍥寸殑浜嬶紵
+   - 钀芥垚 TASK-*-ME-to-ADMIN.md锛岄檮涓婅嚜鏌ョ粨璁?```
 
-3) 以 "审查者 / reviewer" 身份回头读步骤 1 的文件：
-   - 我交付的，和我当初承诺的是同一件事吗？
-   - 有没有做超范围的事？
-   - 落成 TASK-*-ME-to-ADMIN.md，附上自查结论
-```
-
-没有步骤 1 和步骤 3 的两份文件，就没有"审查者"这个角色 —— 只是同一个
-声音在自己认可自己（Rule 0.b 的反例）。
-
+娌℃湁姝ラ 1 鍜屾楠?3 鐨勪袱浠芥枃浠讹紝灏辨病鏈?瀹℃煡鑰?杩欎釜瑙掕壊 鈥斺€?鍙槸鍚屼竴涓?澹伴煶鍦ㄨ嚜宸辫鍙嚜宸憋紙Rule 0.b 鐨勫弽渚嬶級銆?
 Without the file in step 1 and the file in step 3, there is no "reviewer"
-role — only one voice approving itself, which is exactly what Rule 0.b
+role 鈥?only one voice approving itself, which is exactly what Rule 0.b
 forbids.
 
-### Solo → Team 迁移推荐做法 / Migrating Solo to Team (recommended recipe)
+### Solo 鈫?Team 杩佺Щ鎺ㄨ崘鍋氭硶 / Migrating Solo to Team (recommended recipe)
 
-当项目从 `mode: solo` 切到 `mode: team`（或自定义团队）时，`fcop.json`
-只记录了"谁在"（角色和 leader），**没有记录"谁干啥"**。推荐做法如下
-——这不是硬规则，是对 Rule 0.a（落文件）在"团队分工"场景的自然应用。
-
+褰撻」鐩粠 `mode: solo` 鍒囧埌 `mode: team`锛堟垨鑷畾涔夊洟闃燂級鏃讹紝`fcop.json`
+鍙褰曚簡"璋佸湪"锛堣鑹插拰 leader锛夛紝**娌℃湁璁板綍"璋佸共鍟?**銆傛帹鑽愬仛娉曞涓?鈥斺€旇繖涓嶆槸纭鍒欙紝鏄 Rule 0.a锛堣惤鏂囦欢锛夊湪"鍥㈤槦鍒嗗伐"鍦烘櫙鐨勮嚜鐒跺簲鐢ㄣ€?
 When a project switches from `mode: solo` to `mode: team` (or a custom
 team), `fcop.json` only records **who is on the team** (roles and
-leader) — it does **not** record **who does what**. The recipe below
+leader) 鈥?it does **not** record **who does what**. The recipe below
 is a recommended (not mandatory) practice; it is a natural application
 of Rule 0.a (land it as a file) to the "team job split" scenario.
 
-#### 1. 在 `shared/` 落两份团队宪法 / Land a two-file "team constitution" under `shared/`
+#### 1. 鍦?`shared/` 钀戒袱浠藉洟闃熷娉?/ Land a two-file "team constitution" under `shared/`
 
-切到团队模式的 Agent（通常是 leader 或主控角色）应当**主动**在
-`fcop/shared/` 下落两份文件：
-
+鍒囧埌鍥㈤槦妯″紡鐨?Agent锛堥€氬父鏄?leader 鎴栦富鎺ц鑹诧級搴斿綋**涓诲姩**鍦?`fcop/shared/` 涓嬭惤涓や唤鏂囦欢锛?
 The agent responsible for the handoff (typically the leader / main
 role) should **proactively** create two files under
 `fcop/shared/`:
 
-| 层 / Layer | 文件名 / File | 回答的问题 / Answers |
+| 灞?/ Layer | 鏂囦欢鍚?/ File | 鍥炵瓟鐨勯棶棰?/ Answers |
 |---|---|---|
-| Layer 0 · 入口 / entry | `TEAM-README.md` | 团队定位、`ADMIN` 怎么介入、典型流程 / Team positioning, how `ADMIN` engages, typical flow |
-| Layer 1 · 角色边界 / role boundaries | `TEAM-ROLES.md` | 每个角色各自负责什么、向谁汇报、哪些事不越界 / What each role owns, who reports to whom, which lines are off-limits |
-| Layer 2 · 运作规则 / operating rules | `TEAM-OPERATING-RULES.md` | 任务怎么派、怎么回、什么时候升级、怎么复盘 / How tasks are dispatched, replied to, escalated, retrospected |
-| Layer 3 · 单岗深度 / single-role depth | `roles/{ROLE}.md` | 单一岗位的职责清单、输出物、验收标准、跨岗接口 / One role's responsibilities, deliverables, acceptance criteria, interfaces |
-|| 审计产物 / audit artifact | \INSPECTION-YYYYMMDD-NNN-{scope}.md\ | 协议体检报告（per Rule 9.6）；由 \cop_audit()\ 写出 / Protocol inspection report (Rule 9.6); written by \cop_audit()\ |
+| Layer 0 路 鍏ュ彛 / entry | `TEAM-README.md` | 鍥㈤槦瀹氫綅銆乣ADMIN` 鎬庝箞浠嬪叆銆佸吀鍨嬫祦绋?/ Team positioning, how `ADMIN` engages, typical flow |
+| Layer 1 路 瑙掕壊杈圭晫 / role boundaries | `TEAM-ROLES.md` | 姣忎釜瑙掕壊鍚勮嚜璐熻矗浠€涔堛€佸悜璋佹眹鎶ャ€佸摢浜涗簨涓嶈秺鐣?/ What each role owns, who reports to whom, which lines are off-limits |
+| Layer 2 路 杩愪綔瑙勫垯 / operating rules | `TEAM-OPERATING-RULES.md` | 浠诲姟鎬庝箞娲俱€佹€庝箞鍥炪€佷粈涔堟椂鍊欏崌绾с€佹€庝箞澶嶇洏 / How tasks are dispatched, replied to, escalated, retrospected |
+| Layer 3 路 鍗曞矖娣卞害 / single-role depth | `roles/{ROLE}.md` | 鍗曚竴宀椾綅鐨勮亴璐ｆ竻鍗曘€佽緭鍑虹墿銆侀獙鏀舵爣鍑嗐€佽法宀楁帴鍙?/ One role's responsibilities, deliverables, acceptance criteria, interfaces |
+|| 瀹¤浜х墿 / audit artifact | \INSPECTION-YYYYMMDD-NNN-{scope}.md\ | 鍗忚浣撴鎶ュ憡锛坧er Rule 9.6锛夛紱鐢?\cop_audit()\ 鍐欏嚭 / Protocol inspection report (Rule 9.6); written by \cop_audit()\ |
 
-四层分工：Layer 1（`TEAM-ROLES.md`）规定"谁负责什么"，Layer 2
-（`TEAM-OPERATING-RULES.md`）规定"什么时候派、怎么回、什么时候
-升级"，Layer 3（`roles/{ROLE}.md`）把每个岗位展开成独立的岗位说明
-书；Layer 0（`TEAM-README.md`）只是导航入口。这一层结构在
-`fcop-rules.mdc` Rule 4.5 里作为**协议规则**写死，不能省略。
-
+鍥涘眰鍒嗗伐锛歀ayer 1锛坄TEAM-ROLES.md`锛夎瀹?璋佽礋璐ｄ粈涔?锛孡ayer 2
+锛坄TEAM-OPERATING-RULES.md`锛夎瀹?浠€涔堟椂鍊欐淳銆佹€庝箞鍥炪€佷粈涔堟椂鍊?鍗囩骇"锛孡ayer 3锛坄roles/{ROLE}.md`锛夋妸姣忎釜宀椾綅灞曞紑鎴愮嫭绔嬬殑宀椾綅璇存槑
+涔︼紱Layer 0锛坄TEAM-README.md`锛夊彧鏄鑸叆鍙ｃ€傝繖涓€灞傜粨鏋勫湪
+`fcop-rules.mdc` Rule 4.5 閲屼綔涓?*鍗忚瑙勫垯**鍐欐锛屼笉鑳界渷鐣ャ€?
 Four-layer split: Layer 1 (`TEAM-ROLES.md`) sets **who owns what**;
 Layer 2 (`TEAM-OPERATING-RULES.md`) sets **when to dispatch, how to
 reply, when to escalate**; Layer 3 (`roles/{ROLE}.md`) is a per-role
 charter; Layer 0 (`TEAM-README.md`) is navigation only. This structure
-is enforced as a **protocol rule** in `fcop-rules.mdc` Rule 4.5 — it
+is enforced as a **protocol rule** in `fcop-rules.mdc` Rule 4.5 鈥?it
 is not optional.
 
-**`ADMIN` 放在哪？** `ADMIN` 是真人，不进 `roles/`，也不出现在
-`fcop.json.roles`；ADMIN 的职责描述只写在 `TEAM-README.md` 的
-"ADMIN 职责"一节。
-
+**`ADMIN` 鏀惧湪鍝紵** `ADMIN` 鏄湡浜猴紝涓嶈繘 `roles/`锛屼篃涓嶅嚭鐜板湪
+`fcop.json.roles`锛汚DMIN 鐨勮亴璐ｆ弿杩板彧鍐欏湪 `TEAM-README.md` 鐨?"ADMIN 鑱岃矗"涓€鑺傘€?
 **Where does `ADMIN` live?** `ADMIN` is human, does NOT belong under
 `roles/`, and does NOT appear in `fcop.json.roles`; ADMIN's
 responsibilities live in the "ADMIN Responsibilities" section of
 `TEAM-README.md` only.
 
-**有包内样板吗？** 有。`fcop://teams/` 资源下每个预设团队（`dev-team`
-/ `media-team` / `mvp-team` / `qa-team`）都带一份 0.5.4+ 的完整三层
-模板，双语（`.md` / `.en.md`）。`init_project` 会在首次初始化时落到
-`fcop/shared/`；老项目或切换团队时用
-`deploy_role_templates(team=..., force=True)`，工具会把冲突文件自动
-归档到 `.fcop/migrations/<timestamp>/` 再落新模板。自定义团队
-（`create_custom_team`）没有包内模板，但可以读上述四个样本团队作为
-参考。
-
+**鏈夊寘鍐呮牱鏉垮悧锛?* 鏈夈€俙fcop://teams/` 璧勬簮涓嬫瘡涓璁惧洟闃燂紙`dev-team`
+/ `media-team` / `mvp-team` / `qa-team`锛夐兘甯︿竴浠?0.5.4+ 鐨勫畬鏁翠笁灞?妯℃澘锛屽弻璇紙`.md` / `.en.md`锛夈€俙init_project` 浼氬湪棣栨鍒濆鍖栨椂钀藉埌
+`fcop/shared/`锛涜€侀」鐩垨鍒囨崲鍥㈤槦鏃剁敤
+`deploy_role_templates(team=..., force=True)`锛屽伐鍏蜂細鎶婂啿绐佹枃浠惰嚜鍔?褰掓。鍒?`.fcop/migrations/<timestamp>/` 鍐嶈惤鏂版ā鏉裤€傝嚜瀹氫箟鍥㈤槦
+锛坄create_custom_team`锛夋病鏈夊寘鍐呮ā鏉匡紝浣嗗彲浠ヨ涓婅堪鍥涗釜鏍锋湰鍥㈤槦浣滀负
+鍙傝€冦€?
 **Is there a packaged blueprint?** Yes. Each preset team (`dev-team` /
 `media-team` / `mvp-team` / `qa-team`) ships a complete 0.5.4+
 three-layer template under `fcop://teams/`, bilingual (`.md` /
 `.en.md`). `init_project` drops them under `fcop/shared/` on
 first init; for upgrades or team switches call
-`deploy_role_templates(team=..., force=True)` — conflicting files are
+`deploy_role_templates(team=..., force=True)` 鈥?conflicting files are
 archived to `.fcop/migrations/<timestamp>/` before the new templates
 land. Custom teams (`create_custom_team`) have no packaged template but
 can read the four preset teams as reference material.
 
-#### 2. 归档旧 Solo 历史 / Archive the old Solo history
+#### 2. 褰掓。鏃?Solo 鍘嗗彶 / Archive the old Solo history
 
-Solo 阶段产生的 `TASK-*-to-ME.md` / `TASK-*-ME-to-*.md` 切团队后仍然
-物理上堆在 `tasks/` 里，会：
+Solo 闃舵浜х敓鐨?`TASK-*-to-ME.md` / `TASK-*-ME-to-*.md` 鍒囧洟闃熷悗浠嶇劧
+鐗╃悊涓婂爢鍦?`tasks/` 閲岋紝浼氾細
 
-- 让 `list_tasks()` 输出混杂，新 Agent 一眼看不清"当前待办"
-- 让 `AGENT1 / BGENT2` 错把 `ME` 的历史任务当成自己的待执行事项
-
-推荐做法是**物理移动**到专用归档目录，不是只在规则文件里口头声明
-"旧 ME 文件视为历史记录"：
-
+- 璁?`list_tasks()` 杈撳嚭娣锋潅锛屾柊 Agent 涓€鐪肩湅涓嶆竻"褰撳墠寰呭姙"
+- 璁?`AGENT1 / BGENT2` 閿欐妸 `ME` 鐨勫巻鍙蹭换鍔″綋鎴愯嚜宸辩殑寰呮墽琛屼簨椤?
+鎺ㄨ崘鍋氭硶鏄?*鐗╃悊绉诲姩**鍒颁笓鐢ㄥ綊妗ｇ洰褰曪紝涓嶆槸鍙湪瑙勫垯鏂囦欢閲屽彛澶村０鏄?"鏃?ME 鏂囦欢瑙嗕负鍘嗗彶璁板綍"锛?
 After switching to a team, Solo-era `TASK-*-to-ME.md` files still sit
 in `tasks/` alongside the new team tasks. This causes:
 
@@ -803,236 +633,193 @@ files as historical" in a rules file:
 
 ```
 fcop/
-├── tasks/                         # 新团队任务（AGENT1/BGENT2）
-│   ├── TASK-20260422-008-ADMIN-to-AGENT1.md
-│   ├── TASK-20260422-009-AGENT1-to-BGENT2.md
-│   └── ...
-└── log/
-    └── solo-archive/              # 旧 Solo 阶段历史
-        ├── TASK-20260421-001-SYSTEM-to-ME.md
-        ├── TASK-20260421-002-ADMIN-to-ME.md
-        └── ...
+鈹溾攢鈹€ tasks/                         # 鏂板洟闃熶换鍔★紙AGENT1/BGENT2锛?鈹?  鈹溾攢鈹€ TASK-20260422-008-ADMIN-to-AGENT1.md
+鈹?  鈹溾攢鈹€ TASK-20260422-009-AGENT1-to-BGENT2.md
+鈹?  鈹斺攢鈹€ ...
+鈹斺攢鈹€ log/
+    鈹斺攢鈹€ solo-archive/              # 鏃?Solo 闃舵鍘嗗彶
+        鈹溾攢鈹€ TASK-20260421-001-SYSTEM-to-ME.md
+        鈹溾攢鈹€ TASK-20260421-002-ADMIN-to-ME.md
+        鈹斺攢鈹€ ...
 ```
 
-**迁移触发时机 / When to archive**：在团队宪法（上面两份 `shared/`
-文件）落盘**之后**、团队开始接第一个新任务**之前**。ADMIN 可以用一
-句自然语言触发，例如：
+**杩佺Щ瑙﹀彂鏃舵満 / When to archive**锛氬湪鍥㈤槦瀹硶锛堜笂闈袱浠?`shared/`
+鏂囦欢锛夎惤鐩?*涔嬪悗**銆佸洟闃熷紑濮嬫帴绗竴涓柊浠诲姟**涔嬪墠**銆侫DMIN 鍙互鐢ㄤ竴
+鍙ヨ嚜鐒惰瑷€瑙﹀彂锛屼緥濡傦細
 
-- "把 Solo 历史归档" / "archive the solo history"
-- "ME 的旧任务搬到 log/solo-archive/"
+- "鎶?Solo 鍘嗗彶褰掓。" / "archive the solo history"
+- "ME 鐨勬棫浠诲姟鎼埌 log/solo-archive/"
 
-Agent 收到这类指令时，用现有的 `archive_task(task_id)` 工具**逐份
-归档**——每次传一个形如 `TASK-20260421-001` 的前缀，工具会把 `tasks/`
-和 `reports/` 里匹配的文件一起搬到 `log/`（FCoP 不提供批量归档工具
-——逐份归档让每一次移动都是一次可见的记账事件，符合 Rule 0.a 的精神）。
-
-`archive_task` 当前默认目标是扁平的 `log/`（所有归档文件平铺）。如果
-想进一步物理隔离 Solo 阶段的产物，把这批文件从 `log/` 再挪到子目录
-`log/solo-archive/` 是合理的——这一步目前仍是手工 `mv`，协议不另外
-提供工具。
-
+Agent 鏀跺埌杩欑被鎸囦护鏃讹紝鐢ㄧ幇鏈夌殑 `archive_task(task_id)` 宸ュ叿**閫愪唤
+褰掓。**鈥斺€旀瘡娆′紶涓€涓舰濡?`TASK-20260421-001` 鐨勫墠缂€锛屽伐鍏蜂細鎶?`tasks/`
+鍜?`reports/` 閲屽尮閰嶇殑鏂囦欢涓€璧锋惉鍒?`log/`锛團CoP 涓嶆彁渚涙壒閲忓綊妗ｅ伐鍏?鈥斺€旈€愪唤褰掓。璁╂瘡涓€娆＄Щ鍔ㄩ兘鏄竴娆″彲瑙佺殑璁拌处浜嬩欢锛岀鍚?Rule 0.a 鐨勭簿绁烇級銆?
+`archive_task` 褰撳墠榛樿鐩爣鏄墎骞崇殑 `log/`锛堟墍鏈夊綊妗ｆ枃浠跺钩閾猴級銆傚鏋?鎯宠繘涓€姝ョ墿鐞嗛殧绂?Solo 闃舵鐨勪骇鐗╋紝鎶婅繖鎵规枃浠朵粠 `log/` 鍐嶆尓鍒板瓙鐩綍
+`log/solo-archive/` 鏄悎鐞嗙殑鈥斺€旇繖涓€姝ョ洰鍓嶄粛鏄墜宸?`mv`锛屽崗璁笉鍙﹀
+鎻愪緵宸ュ叿銆?
 **Who triggers it**: ADMIN, after the team constitution files are in
 place and before the team picks up its first new task. A one-liner
 like "archive the solo history" is enough. The agent then uses
-`archive_task(task_id)` **one file at a time** — passing a prefix like
+`archive_task(task_id)` **one file at a time** 鈥?passing a prefix like
 `TASK-20260421-001`; the tool moves matching files from `tasks/` and
 `reports/` into `log/` (FCoP deliberately ships no bulk-archive tool
-— per-file moves keep each move a visible accounting event,
+鈥?per-file moves keep each move a visible accounting event,
 consistent with Rule 0.a).
 
 `archive_task` currently targets flat `log/`. If further physical
 isolation of the Solo era is wanted, moving that batch of files from
 `log/` into the subfolder `log/solo-archive/` is a reasonable extra
-step — this last step is manual `mv` today; the protocol does not
+step 鈥?this last step is manual `mv` today; the protocol does not
 provide a dedicated tool.
 
-**不要删除 / Do not delete**：Solo 历史是这个项目的历史记录，归档
-意味着"从视野里移走"，不是"从硬盘上抹掉"。
-
+**涓嶈鍒犻櫎 / Do not delete**锛歋olo 鍘嗗彶鏄繖涓」鐩殑鍘嗗彶璁板綍锛屽綊妗?鎰忓懗鐫€"浠庤閲庨噷绉昏蛋"锛屼笉鏄?浠庣‖鐩樹笂鎶规帀"銆?
 **Do not delete**: Solo history is project history. Archiving means
 "move it out of daily view", not "erase it from disk".
 
-#### 3. `fcop.json` 不需要记"切换时间戳" / No need to timestamp the switch
+#### 3. `fcop.json` 涓嶉渶瑕佽"鍒囨崲鏃堕棿鎴? / No need to timestamp the switch
 
-`fcop.json` 是**当前身份的快照**，不是事件日志。Solo→Team 的切换
-时间由 `log/solo-archive/` 里最新一份文件 + 新团队任务的最早一份
-文件自动框出来，不需要在 `fcop.json` 里额外记字段。
-
+`fcop.json` 鏄?*褰撳墠韬唤鐨勫揩鐓?*锛屼笉鏄簨浠舵棩蹇椼€係olo鈫扵eam 鐨勫垏鎹?鏃堕棿鐢?`log/solo-archive/` 閲屾渶鏂颁竴浠芥枃浠?+ 鏂板洟闃熶换鍔＄殑鏈€鏃╀竴浠?鏂囦欢鑷姩妗嗗嚭鏉ワ紝涓嶉渶瑕佸湪 `fcop.json` 閲岄澶栬瀛楁銆?
 `fcop.json` is a **snapshot of current identity**, not an event log.
-The Solo→Team transition time is implicitly bracketed by the latest
+The Solo鈫扵eam transition time is implicitly bracketed by the latest
 file in `log/solo-archive/` and the earliest file among the new team
 tasks. No extra fields needed in `fcop.json`.
 
-## Core Directories / 核心目录
+## Core Directories / 鏍稿績鐩綍
 
-> **v3.0.0 重大变更**：`tasks/ reports/ issues/ shared/ log/` 五桶统一合并
-> 为 `_lifecycle/` 单目录，目录位置即任务生命周期状态。
->
+> **v3.0.0 閲嶅ぇ鍙樻洿**锛歚tasks/ reports/ issues/ shared/ log/` 浜旀《缁熶竴鍚堝苟
+> 涓?`_lifecycle/` 鍗曠洰褰曪紝鐩綍浣嶇疆鍗充换鍔＄敓鍛藉懆鏈熺姸鎬併€?>
 > **v3.0.0 breaking change**: the five-bucket layout is replaced by a single
 > `_lifecycle/` directory. A file's location **is** its lifecycle state.
 
-### v3 项目布局（当前标准）/ v3 Project Layout (current standard)
+### v3 椤圭洰甯冨眬锛堝綋鍓嶆爣鍑嗭級/ v3 Project Layout (current standard)
 
 ```
 <project>/
-├── _lifecycle/                ← FCoP v3 协调目录（强制）
-│   ├── inbox/                 ← 新进任务，待领取（write_task 落这里）
-│   ├── active/                ← 已认领，执行中（claim 触发移入）
-│   ├── review/                ← 已提交，待审核（submit 触发移入）
-│   ├── done/                  ← 已完成/批准（finish / approve 触发移入）
-│   └── archive/               ← 常规归档（archive_task 触发移入）
-├── history/                   ← 深度历史归档（v3.2.0+，按日期分桶）
-│   └── YYYY-MM-DD/            ← archive_to_history 触发移入
-├── workspace/<slug>/          ← Rule 7.5 工作产物笼子
-└── fcop.json                  ← 项目身份唯一权威
+鈹溾攢鈹€ _lifecycle/                鈫?FCoP v3 鍗忚皟鐩綍锛堝己鍒讹級
+鈹?  鈹溾攢鈹€ inbox/                 鈫?鏂拌繘浠诲姟锛屽緟棰嗗彇锛坵rite_task 钀借繖閲岋級
+鈹?  鈹溾攢鈹€ active/                鈫?宸茶棰嗭紝鎵ц涓紙claim 瑙﹀彂绉诲叆锛?鈹?  鈹溾攢鈹€ review/                鈫?宸叉彁浜わ紝寰呭鏍革紙submit 瑙﹀彂绉诲叆锛?鈹?  鈹溾攢鈹€ done/                  鈫?宸插畬鎴?鎵瑰噯锛坒inish / approve 瑙﹀彂绉诲叆锛?鈹?  鈹斺攢鈹€ archive/               鈫?甯歌褰掓。锛坅rchive_task 瑙﹀彂绉诲叆锛?鈹溾攢鈹€ history/                   鈫?娣卞害鍘嗗彶褰掓。锛坴3.2.0+锛屾寜鏃ユ湡鍒嗘《锛?鈹?  鈹斺攢鈹€ YYYY-MM-DD/            鈫?archive_to_history 瑙﹀彂绉诲叆
+鈹溾攢鈹€ workspace/<slug>/          鈫?Rule 7.5 宸ヤ綔浜х墿绗煎瓙
+鈹斺攢鈹€ fcop.json                  鈫?椤圭洰韬唤鍞竴鏉冨▉
 ```
 
-**生命周期状态机 / Lifecycle state machine:**
+**鐢熷懡鍛ㄦ湡鐘舵€佹満 / Lifecycle state machine:**
 
 ```
-inbox ──claim──► active ──submit──► review
-                  ▲                    │
-                  └────reject──────────┤
-                                       │
-                              approve/finish
-                                       ▼
-                                     done ──archive──► archive/
+inbox 鈹€鈹€claim鈹€鈹€鈻?active 鈹€鈹€submit鈹€鈹€鈻?review
+                  鈻?                   鈹?                  鈹斺攢鈹€鈹€鈹€reject鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹?                                       鈹?                              approve/finish
+                                       鈻?                                     done 鈹€鈹€archive鈹€鈹€鈻?archive/
                                                         (history/)
 ```
 
-### v2 Legacy 布局（向后兼容）/ v2 Legacy Layout (backward-compatible)
+### v2 Legacy 甯冨眬锛堝悜鍚庡吋瀹癸級/ v2 Legacy Layout (backward-compatible)
 
-v2.x 项目仍可使用旧五桶结构，`fcop` 库保持 detect-and-warn 支持。
-升级命令：`fcop_audit(scope="upgrade")` → `migrate_to_v3()`。
-
+v2.x 椤圭洰浠嶅彲浣跨敤鏃т簲妗剁粨鏋勶紝`fcop` 搴撲繚鎸?detect-and-warn 鏀寔銆?鍗囩骇鍛戒护锛歚fcop_audit(scope="upgrade")` 鈫?`migrate_to_v3()`銆?
 ```
 fcop/
-├── fcop.json
-├── tasks/      ← v2 任务文件
-├── reports/    ← v2 完成报告
-├── issues/     ← v2 问题记录
-├── shared/     ← v2 团队共享知识
-└── log/        ← v2 历史归档
+鈹溾攢鈹€ fcop.json
+鈹溾攢鈹€ tasks/      鈫?v2 浠诲姟鏂囦欢
+鈹溾攢鈹€ reports/    鈫?v2 瀹屾垚鎶ュ憡
+鈹溾攢鈹€ issues/     鈫?v2 闂璁板綍
+鈹溾攢鈹€ shared/     鈫?v2 鍥㈤槦鍏变韩鐭ヨ瘑
+鈹斺攢鈹€ log/        鈫?v2 鍘嗗彶褰掓。
 ```
 
 You MAY create **subdirectories** inside `_lifecycle/inbox/` or any stage
 directory to group related files. When you do, leave a `README.md`
 explaining the grouping.
 
-`_lifecycle/inbox/` 等阶段目录内可创建子目录对相关文件分组，分组时留一份
-`README.md` 说明分组理由。
-
-## File Naming / 文件命名
+`_lifecycle/inbox/` 绛夐樁娈电洰褰曞唴鍙垱寤哄瓙鐩綍瀵圭浉鍏虫枃浠跺垎缁勶紝鍒嗙粍鏃剁暀涓€浠?`README.md` 璇存槑鍒嗙粍鐞嗙敱銆?
+## File Naming / 鏂囦欢鍛藉悕
 
 **Task**: `TASK-{date}-{seq}-{sender}-to-{recipient}.md`
 - Example: `TASK-20260418-015-ADMIN-to-PM.md`
-- `{sender}` and `{recipient}` are role codes. Read `fcop/fcop.json` → `roles`
+- `{sender}` and `{recipient}` are role codes. Read `fcop/fcop.json` 鈫?`roles`
   for the roles in your project. The PM / DEV examples here are format illustrations,
   not a fixed roster.
-- 收件人/发件人用本项目的角色代码，参见 `fcop.json`。
-
+- 鏀朵欢浜?鍙戜欢浜虹敤鏈」鐩殑瑙掕壊浠ｇ爜锛屽弬瑙?`fcop.json`銆?
 **Report**: same pattern, placed in `reports/`
 - Example: `TASK-20260418-015-PM-to-ADMIN.md`
 
 **Issue**: `ISSUE-{date}-{seq}-{summary}.md`
 
-### Recipient forms / 收件人的 4 种写法
-
+### Recipient forms / 鏀朵欢浜虹殑 4 绉嶅啓娉?
 | Form | Meaning | Example |
 |---|---|---|
-| `to-{ROLE}` | Direct — the named role / 单一角色 | `to-BUILDER` |
-| `to-TEAM` | Broadcast — every role except sender / 全体广播 | `to-TEAM` |
-| `to-{ROLE}.{SLOT}` | A specific seat within a role / 角色内某槽位 | `to-BUILDER.D1` |
-| `to-assignee.{SLOT}` | An anonymous slot, role TBD / 匿名槽位 | `to-assignee.D1` |
+| `to-{ROLE}` | Direct 鈥?the named role / 鍗曚竴瑙掕壊 | `to-BUILDER` |
+| `to-TEAM` | Broadcast 鈥?every role except sender / 鍏ㄤ綋骞挎挱 | `to-TEAM` |
+| `to-{ROLE}.{SLOT}` | A specific seat within a role / 瑙掕壊鍐呮煇妲戒綅 | `to-BUILDER.D1` |
+| `to-assignee.{SLOT}` | An anonymous slot, role TBD / 鍖垮悕妲戒綅 | `to-assignee.D1` |
 
 **Slot separator is the dot (`.`)**, not hyphen. Role names may themselves contain
 hyphens (`AUTO-TESTER`, `LEAD-QA`), so `to-AUTO-TESTER.md` is a single role,
 and `to-AUTO-TESTER.V1.md` is that role with slot V1.
 
-**槽位分隔符只用点号 `.`**，不要用连字符。角色名本身可以包含连字符
-（如 `AUTO-TESTER`、`LEAD-QA`），所以 `to-AUTO-TESTER.md` 是整个角色，
-`to-AUTO-TESTER.V1.md` 才是"AUTO-TESTER 的 V1 号槽位"。
-
+**妲戒綅鍒嗛殧绗﹀彧鐢ㄧ偣鍙?`.`**锛屼笉瑕佺敤杩炲瓧绗︺€傝鑹插悕鏈韩鍙互鍖呭惈杩炲瓧绗?锛堝 `AUTO-TESTER`銆乣LEAD-QA`锛夛紝鎵€浠?`to-AUTO-TESTER.md` 鏄暣涓鑹诧紝
+`to-AUTO-TESTER.V1.md` 鎵嶆槸"AUTO-TESTER 鐨?V1 鍙锋Ы浣?銆?
 `TEAM` is a reserved keyword meaning "all roles". When you see `to-TEAM`,
 treat it as addressed to you (and also to every other role).
 
-`TEAM` 是保留关键字，代表"全体成员"。`to-TEAM` 每个角色都要处理。
-
-### Trailing slug (optional) / 可选的尾部 slug（ADR-0033）
-
+`TEAM` 鏄繚鐣欏叧閿瓧锛屼唬琛?鍏ㄤ綋鎴愬憳"銆俙to-TEAM` 姣忎釜瑙掕壊閮借澶勭悊銆?
+### Trailing slug (optional) / 鍙€夌殑灏鹃儴 slug锛圓DR-0033锛?
 Since `fcop_protocol_version: 2.4.0` / `fcop 1.6.0`, the **routing-complete**
 filename can be followed by an optional `-{slug}` segment to make filenames
 self-describing on disk:
 
-自 `fcop_protocol_version: 2.4.0` / `fcop 1.6.0` 起，路由字段（sender / recipient
-/ slot）写完后，可以**可选**地再接一段 `-{slug}` 让文件名在硬盘上自带摘要：
-
-| Without slug / 不带 slug | With slug / 带 slug |
+鑷?`fcop_protocol_version: 2.4.0` / `fcop 1.6.0` 璧凤紝璺敱瀛楁锛坰ender / recipient
+/ slot锛夊啓瀹屽悗锛屽彲浠?*鍙€?*鍦板啀鎺ヤ竴娈?`-{slug}` 璁╂枃浠跺悕鍦ㄧ‖鐩樹笂鑷甫鎽樿锛?
+| Without slug / 涓嶅甫 slug | With slug / 甯?slug |
 |---|---|
 | `TASK-20260512-025-PM-to-OPS.md` | `TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md` |
 | `REPORT-20260512-009-OPS-to-PM.md` | `REPORT-20260512-009-OPS-to-PM-codeflow-json-rm.md` |
 | `ISSUE-20260512-001-PM.md` | `ISSUE-20260512-001-PM-userhome-pollution.md` |
 
-**Grammar / 文法**:
+**Grammar / 鏂囨硶**:
 
 - `slug = [a-z][a-z0-9-]*[a-z0-9]` (also accepts the single-char form `[a-z]`)
-- starts with a **lowercase letter** (mandatory — see disambiguation below)
+- starts with a **lowercase letter** (mandatory 鈥?see disambiguation below)
 - contains lowercase letters / digits / hyphens
 - ends with a **lowercase letter or digit** (no trailing hyphen)
-- 起手必须是**小写字母**（强制 — 见下方消歧说明）
-- 中间可含小写字母 / 数字 / 连字符
-- 末尾必须是**小写字母或数字**（不允许尾部连字符）
+- 璧锋墜蹇呴』鏄?*灏忓啓瀛楁瘝**锛堝己鍒?鈥?瑙佷笅鏂规秷姝ц鏄庯級
+- 涓棿鍙惈灏忓啓瀛楁瘝 / 鏁板瓧 / 杩炲瓧绗?- 鏈熬蹇呴』鏄?*灏忓啓瀛楁瘝鎴栨暟瀛?*锛堜笉鍏佽灏鹃儴杩炲瓧绗︼級
 
-**Critical: slug is NOT part of routing / 关键: slug 不参与路由**
+**Critical: slug is NOT part of routing / 鍏抽敭: slug 涓嶅弬涓庤矾鐢?*
 
 Tools dispatch on `sender` / `recipient` / `slot` only. The slug is a label,
 not an address. `list_tasks(recipient="OPS")` matches both
 `TASK-...-PM-to-OPS.md` and `TASK-...-PM-to-OPS-anything-here.md`.
 
-工具按 `sender` / `recipient` / `slot` 路由。slug 只是标签，不是地址。
-`list_tasks(recipient="OPS")` 同时匹配 `TASK-...-PM-to-OPS.md` 和
-`TASK-...-PM-to-OPS-anything-here.md`。
-
-**Why lowercase-only? / 为什么强制小写起手?**
+宸ュ叿鎸?`sender` / `recipient` / `slot` 璺敱銆俿lug 鍙槸鏍囩锛屼笉鏄湴鍧€銆?`list_tasks(recipient="OPS")` 鍚屾椂鍖归厤 `TASK-...-PM-to-OPS.md` 鍜?`TASK-...-PM-to-OPS-anything-here.md`銆?
+**Why lowercase-only? / 涓轰粈涔堝己鍒跺皬鍐欒捣鎵?**
 
 Role codes (`ROLE_CODE_RE`) allow pure-digit interior segments, e.g.
 `DEV_01`, `OPS-001`. Without the lowercase-start rule, a filename like
 `TASK-...-PM-to-OPS-001-fix.md` would have two valid parses
 (`recipient=OPS-001, slug=fix` vs `recipient=OPS, slug=001-fix`).
 Forcing the slug to start with `[a-z]` makes the boundary
-unambiguous in every case — uppercase tails are always parsed as
+unambiguous in every case 鈥?uppercase tails are always parsed as
 role-code extensions, lowercase tails are always slugs.
 
-角色码（`ROLE_CODE_RE`）允许纯数字内部段，例如 `DEV_01`、`OPS-001`。
-如果不强制 slug 小写起手，`TASK-...-PM-to-OPS-001-fix.md` 会有两种合法解析
-（`recipient=OPS-001, slug=fix` 或 `recipient=OPS, slug=001-fix`）。
-强制 `[a-z]` 起手让边界永远清晰 —— 大写后缀始终归角色码，小写后缀始终是 slug。
+瑙掕壊鐮侊紙`ROLE_CODE_RE`锛夊厑璁哥函鏁板瓧鍐呴儴娈碉紝渚嬪 `DEV_01`銆乣OPS-001`銆?濡傛灉涓嶅己鍒?slug 灏忓啓璧锋墜锛宍TASK-...-PM-to-OPS-001-fix.md` 浼氭湁涓ょ鍚堟硶瑙ｆ瀽
+锛坄recipient=OPS-001, slug=fix` 鎴?`recipient=OPS, slug=001-fix`锛夈€?寮哄埗 `[a-z]` 璧锋墜璁╄竟鐣屾案杩滄竻鏅?鈥斺€?澶у啓鍚庣紑濮嬬粓褰掕鑹茬爜锛屽皬鍐欏悗缂€濮嬬粓鏄?slug銆?
+**When to use a slug / 浣曟椂璇ョ敤 slug**
 
-**When to use a slug / 何时该用 slug**
-
-- **DO**: 长任务批次、多人协作时给同事一眼能认出主题
-- **DO**: 跨日复盘时方便 `ls log/` 快速扫描
-- **DON'T**: 把 frontmatter 里 `subject` / `parent` / `thread_key` 能表达的信息
-  塞进 slug —— frontmatter 是机器可读的索引，slug 只是人肉可读的标签
-
+- **DO**: 闀夸换鍔℃壒娆°€佸浜哄崗浣滄椂缁欏悓浜嬩竴鐪艰兘璁ゅ嚭涓婚
+- **DO**: 璺ㄦ棩澶嶇洏鏃舵柟渚?`ls log/` 蹇€熸壂鎻?- **DON'T**: 鎶?frontmatter 閲?`subject` / `parent` / `thread_key` 鑳借〃杈剧殑淇℃伅
+  濉炶繘 slug 鈥斺€?frontmatter 鏄満鍣ㄥ彲璇荤殑绱㈠紩锛宻lug 鍙槸浜鸿倝鍙鐨勬爣绛?
 - **DO**: long-running task batches, multi-agent teams where peers need
   to recognise topics at a glance
 - **DO**: cross-day retrospectives where `ls log/` should be human-scannable
 - **DON'T**: duplicate frontmatter info (`subject` / `parent` / `thread_key`)
-  in the slug — frontmatter is the machine-readable index; slug is a
+  in the slug 鈥?frontmatter is the machine-readable index; slug is a
   human-readable label
 
-**Backward compatibility / 向后兼容**
+**Backward compatibility / 鍚戝悗鍏煎**
 
 Every legal pre-2.4.0 filename remains legal. The slug is optional;
 omitting it produces the original short form. Parsers (since 1.6.0)
 populate `slug=None` on legacy filenames.
 
-所有 2.4.0 之前的合法文件名仍然合法。slug 可选；不加 slug 时回到原短形式。
-新版解析器（1.6.0 起）在旧文件名上返回 `slug=None`。
-
-## Task Format / 任务单格式
-
+鎵€鏈?2.4.0 涔嬪墠鐨勫悎娉曟枃浠跺悕浠嶇劧鍚堟硶銆俿lug 鍙€夛紱涓嶅姞 slug 鏃跺洖鍒板師鐭舰寮忋€?鏂扮増瑙ｆ瀽鍣紙1.6.0 璧凤級鍦ㄦ棫鏂囦欢鍚嶄笂杩斿洖 `slug=None`銆?
+## Task Format / 浠诲姟鍗曟牸寮?
 ```markdown
 ---
 protocol: fcop
@@ -1050,13 +837,13 @@ thread_key: launch-campaign-q2   # optional: long-lived thread anchor
 session_id: sess-20260421-pm-01  # optional: session that wrote this file
 ---
 
-# Task Title / 任务标题
+# Task Title / 浠诲姟鏍囬
 
-## Background / 背景
+## Background / 鑳屾櫙
 
-## Requirements / 要求
+## Requirements / 瑕佹眰
 
-## Acceptance Criteria / 验收标准
+## Acceptance Criteria / 楠屾敹鏍囧噯
 ```
 
 Required frontmatter: `protocol`, `version`, `kind`, `sender`, `recipient`.
@@ -1067,54 +854,43 @@ Everything else is optional but encouraged. Use `parent:` to trace derived work,
 `session_id:` to attribute which session authored the file (useful when the
 same role is played by multiple sessions over a long thread).
 
-必填：`protocol`、`version`、`kind`、`sender`、`recipient`。其余可选。
-`session_id` 在同一角色被多个会话接力时用来追责，格式建议 `sess-{日期}-{角色}-{序号}`。
+蹇呭～锛歚protocol`銆乣version`銆乣kind`銆乣sender`銆乣recipient`銆傚叾浣欏彲閫夈€?`session_id` 鍦ㄥ悓涓€瑙掕壊琚涓細璇濇帴鍔涙椂鐢ㄦ潵杩借矗锛屾牸寮忓缓璁?`sess-{鏃ユ湡}-{瑙掕壊}-{搴忓彿}`銆?
+**鍙€夊瓧娈佃涔夊尯鍒?*锛堜笁鑰呰涔夋浜わ紝涓嶅彲娣风敤锛夛細
 
-**可选字段语义区分**（三者语义正交，不可混用）：
-
-| 字段 | 语义 | 典型场景 |
+| 瀛楁 | 璇箟 | 鍏稿瀷鍦烘櫙 |
 |---|---|---|
-| `parent:` | **工作派生链路** — 本文件由上游任务派生 | PM 把大 TASK 拆成子任务，子任务指向父任务 |
-| `related:` | **交叉引用** — 相关但非派生 | 跨 thread 引用、参考其他 PR / Issue |
-| `supersedes:` | **修正链路** — 本文件顶替 / 废止指定历史文件 | Rule 5 append-only 修正：旧文件过时，新文件 supersede 旧文件 |
+| `parent:` | **宸ヤ綔娲剧敓閾捐矾** 鈥?鏈枃浠剁敱涓婃父浠诲姟娲剧敓 | PM 鎶婂ぇ TASK 鎷嗘垚瀛愪换鍔★紝瀛愪换鍔℃寚鍚戠埗浠诲姟 |
+| `related:` | **浜ゅ弶寮曠敤** 鈥?鐩稿叧浣嗛潪娲剧敓 | 璺?thread 寮曠敤銆佸弬鑰冨叾浠?PR / Issue |
+| `supersedes:` | **淇閾捐矾** 鈥?鏈枃浠堕《鏇?/ 搴熸鎸囧畾鍘嗗彶鏂囦欢 | Rule 5 append-only 淇锛氭棫鏂囦欢杩囨椂锛屾柊鏂囦欢 supersede 鏃ф枃浠?|
 
-**`supersedes:`** — optional. 标明本文件**顶替 / 废止**指定的同前缀历史文件
-（对应 `fcop-rules.mdc` Rule 5 append-only 修正姿势）。
-被 supersede 的旧文件**仍保留在磁盘上**（append-only 历史不删），只是
-在工具视图里标 `[superseded by X]`。
-取值：被顶替文件的完整 ID（含 `-{sender}-to-{recipient}` 尾巴），
-或多份时用列表 `supersedes: [A, B]`。
+**`supersedes:`** 鈥?optional. 鏍囨槑鏈枃浠?*椤舵浛 / 搴熸**鎸囧畾鐨勫悓鍓嶇紑鍘嗗彶鏂囦欢
+锛堝搴?`fcop-rules.mdc` Rule 5 append-only 淇濮垮娍锛夈€?琚?supersede 鐨勬棫鏂囦欢**浠嶄繚鐣欏湪纾佺洏涓?*锛坅ppend-only 鍘嗗彶涓嶅垹锛夛紝鍙槸
+鍦ㄥ伐鍏疯鍥鹃噷鏍?`[superseded by X]`銆?鍙栧€硷細琚《鏇挎枃浠剁殑瀹屾暣 ID锛堝惈 `-{sender}-to-{recipient}` 灏惧反锛夛紝
+鎴栧浠芥椂鐢ㄥ垪琛?`supersedes: [A, B]`銆?
+> 鏀跺洖鏉ユ簮锛欱ridgeflow OPS 鐜板満鍙戞槑锛?026-05-12锛夛紝瑙?`essays/the-supersedes-field-story.md`銆?
+### About `protocol:` and `version:` / 鍏充簬 `protocol:` 鍜?`version:`
 
-> 收回来源：Bridgeflow OPS 现场发明（2026-05-12），见 `essays/the-supersedes-field-story.md`。
-
-### About `protocol:` and `version:` / 关于 `protocol:` 和 `version:`
-
-- **`protocol: fcop`** — portable identifier that tells any reader (agent, tool,
+- **`protocol: fcop`** 鈥?portable identifier that tells any reader (agent, tool,
   human) "this Markdown file is an FCoP coordination document, not a random note."
   Canonical value is lowercase `fcop` (machine-identifier convention, like `http` /
   `grpc`). The brand name **FCoP** is used in prose / titles / docs. Historical
   alias `agent_bridge` (pre-2026-04-20) is still accepted by parsers.
-  可移植标识符，告诉任何读者（Agent、工具、人）"这是 FCoP 协作文档"。
-  规范值为小写 `fcop`；品牌名 `FCoP` 用在文档标题和对外表达。历史别名
-  `agent_bridge` 仍被解析器接受。
-- **`version: 1`** — protocol version. Integer, no quotes, no decimal point.
+  鍙Щ妞嶆爣璇嗙锛屽憡璇変换浣曡鑰咃紙Agent銆佸伐鍏枫€佷汉锛?杩欐槸 FCoP 鍗忎綔鏂囨。"銆?  瑙勮寖鍊间负灏忓啓 `fcop`锛涘搧鐗屽悕 `FCoP` 鐢ㄥ湪鏂囨。鏍囬鍜屽澶栬〃杈俱€傚巻鍙插埆鍚?  `agent_bridge` 浠嶈瑙ｆ瀽鍣ㄦ帴鍙椼€?- **`version: 1`** 鈥?protocol version. Integer, no quotes, no decimal point.
   Bumped only when the protocol itself makes a breaking change; do not use this
   field for per-document revision tracking.
-  协议版本号。整数，不加引号、不加小数点。只在协议本身发生破坏性变更时才 +1，
-  不要用它来记录单份文档的修订。
-
-## Subtask Batches / 分包任务
+  鍗忚鐗堟湰鍙枫€傛暣鏁帮紝涓嶅姞寮曞彿銆佷笉鍔犲皬鏁扮偣銆傚彧鍦ㄥ崗璁湰韬彂鐢熺牬鍧忔€у彉鏇存椂鎵?+1锛?  涓嶈鐢ㄥ畠鏉ヨ褰曞崟浠芥枃妗ｇ殑淇銆?
+## Subtask Batches / 鍒嗗寘浠诲姟
 
 When one task must be split into many parallel sub-tasks (e.g. one deliverable
 spread across 6 data workers and 2 editors), use this pattern:
 
 ```
 fcop/tasks/{batch-name}/
-├── README.md                                           ← Why this batch exists, links to parent
-├── TASK-20260418-201-MARKETER-to-assignee.D1.md        ← Sub-task 1
-├── TASK-20260418-202-MARKETER-to-assignee.D2.md        ← Sub-task 2
+鈹溾攢鈹€ README.md                                           鈫?Why this batch exists, links to parent
+鈹溾攢鈹€ TASK-20260418-201-MARKETER-to-assignee.D1.md        鈫?Sub-task 1
+鈹溾攢鈹€ TASK-20260418-202-MARKETER-to-assignee.D2.md        鈫?Sub-task 2
 ...
-└── TASK-20260418-211-MARKETER-to-assignee.P1.md        ← Sub-task N
+鈹斺攢鈹€ TASK-20260418-211-MARKETER-to-assignee.P1.md        鈫?Sub-task N
 ```
 
 Each sub-task's frontmatter should carry:
@@ -1125,69 +901,60 @@ batch: {batch-name}          # groups siblings together
 
 The index / overview document goes in `shared/` as `INDEX-{batch-name}.md`.
 
-当一个大任务需要拆成多个并行子任务（分包），开一个子目录装它们，
-子任务用 `parent:` 和 `batch:` 字段把来龙去脉讲清。索引另放到 `shared/INDEX-*.md`。
+褰撲竴涓ぇ浠诲姟闇€瑕佹媶鎴愬涓苟琛屽瓙浠诲姟锛堝垎鍖咃級锛屽紑涓€涓瓙鐩綍瑁呭畠浠紝
+瀛愪换鍔＄敤 `parent:` 鍜?`batch:` 瀛楁鎶婃潵榫欏幓鑴夎娓呫€傜储寮曞彟鏀惧埌 `shared/INDEX-*.md`銆?
+## Shared Documents / 鍥㈤槦鍏变韩鐭ヨ瘑
 
-## Shared Documents / 团队共享知识
-
-Non-flow documents (things that don't flow through task → report → done)
+Non-flow documents (things that don't flow through task 鈫?report 鈫?done)
 live in `shared/`. Use UPPERCASE prefixes:
 
-| Prefix | Purpose / 用途 |
+| Prefix | Purpose / 鐢ㄩ€?|
 |---|---|
-| `SPRINT-` | Sprint plans, cadence / 冲刺计划、节奏 |
-| `DASHBOARD-` | Overview boards / 全貌看板 |
-| `STATUS-` | Living status pages / 当前状态活页（允许原地更新） |
-| `INDEX-` | Navigation indexes / 导航索引 |
-| `MATRIX-` | Role / resource matrices / 人岗或资源矩阵 |
-| `GLOSSARY-` | Terminology / 术语表 |
-| `RULES-` | Project-local conventions / 本项目局部约定 |
-| `DECISION-` | Decision records (append-only) / 决策记录（只追加） |
-| `RETRO-` | Retrospectives (append-only) / 复盘记录（只追加） |
-| `SPEC-` | Specifications / 需求或规格说明 |
-| `TEAM-` | Team constitution (roles + operating rules, see "Solo → Team 迁移推荐做法") / 团队宪法（分工 + 运行规则，见"Solo → Team 迁移推荐做法"） |
+| `SPRINT-` | Sprint plans, cadence / 鍐插埡璁″垝銆佽妭濂?|
+| `DASHBOARD-` | Overview boards / 鍏ㄨ矊鐪嬫澘 |
+| `STATUS-` | Living status pages / 褰撳墠鐘舵€佹椿椤碉紙鍏佽鍘熷湴鏇存柊锛?|
+| `INDEX-` | Navigation indexes / 瀵艰埅绱㈠紩 |
+| `MATRIX-` | Role / resource matrices / 浜哄矖鎴栬祫婧愮煩闃?|
+| `GLOSSARY-` | Terminology / 鏈琛?|
+| `RULES-` | Project-local conventions / 鏈」鐩眬閮ㄧ害瀹?|
+| `DECISION-` | Decision records (append-only) / 鍐崇瓥璁板綍锛堝彧杩藉姞锛?|
+| `RETRO-` | Retrospectives (append-only) / 澶嶇洏璁板綍锛堝彧杩藉姞锛?|
+| `SPEC-` | Specifications / 闇€姹傛垨瑙勬牸璇存槑 |
+| `TEAM-` | Team constitution (roles + operating rules, see "Solo 鈫?Team 杩佺Щ鎺ㄨ崘鍋氭硶") / 鍥㈤槦瀹硶锛堝垎宸?+ 杩愯瑙勫垯锛岃"Solo 鈫?Team 杩佺Щ鎺ㄨ崘鍋氭硶"锛?|
 
 If you need a kind not listed above, coin a new UPPERCASE prefix and keep it memorable.
 `shared/` files MAY be updated in place (unlike tasks/reports, which are append-only).
 
-## Cross-scope Coordination / 跨域协作
+## Cross-scope Coordination / 璺ㄥ煙鍗忎綔
 
 FCoP is recursive: what `tasks/` does **within a team**, `inbox/outbox/`
 does **across teams and across projects**.
 
-FCoP 是递归的：`tasks/` 在团队内部做的事，`inbox/outbox/` 在跨团队、
-跨项目层面做同一件事。
-
-### `inbox/` and `outbox/` / 收件箱与发件箱
-
+FCoP 鏄€掑綊鐨勶細`tasks/` 鍦ㄥ洟闃熷唴閮ㄥ仛鐨勪簨锛宍inbox/outbox/` 鍦ㄨ法鍥㈤槦銆?璺ㄩ」鐩眰闈㈠仛鍚屼竴浠朵簨銆?
+### `inbox/` and `outbox/` / 鏀朵欢绠变笌鍙戜欢绠?
 ```
 fcop/
-├── inbox/
-│   ├── project-a/
-│   │   └── TASK-20260421-001-from-project-a-to-project-b.md
-│   └── ...
-└── outbox/
-    ├── project-b/
-    │   └── TASK-20260421-002-from-project-a-to-project-b.md
-    └── ...
+鈹溾攢鈹€ inbox/
+鈹?  鈹溾攢鈹€ project-a/
+鈹?  鈹?  鈹斺攢鈹€ TASK-20260421-001-from-project-a-to-project-b.md
+鈹?  鈹斺攢鈹€ ...
+鈹斺攢鈹€ outbox/
+    鈹溾攢鈹€ project-b/
+    鈹?  鈹斺攢鈹€ TASK-20260421-002-from-project-a-to-project-b.md
+    鈹斺攢鈹€ ...
 ```
 
-- **`inbox/{src}/`** — messages received from scope `{src}`. Route them like
+- **`inbox/{src}/`** 鈥?messages received from scope `{src}`. Route them like
   normal tasks once they've landed, but remember the counterparty is not
   co-located on this filesystem.
-  **从 `{src}` 收到的消息**。落下来后按普通任务路由；记住对端不在本机。
-- **`outbox/{dst}/`** — messages outbound to scope `{dst}`. Synchronization
-  from outbox → dst's inbox is **out of FCoP's scope** — it's an ops
+  **浠?`{src}` 鏀跺埌鐨勬秷鎭?*銆傝惤涓嬫潵鍚庢寜鏅€氫换鍔¤矾鐢憋紱璁颁綇瀵圭涓嶅湪鏈満銆?- **`outbox/{dst}/`** 鈥?messages outbound to scope `{dst}`. Synchronization
+  from outbox 鈫?dst's inbox is **out of FCoP's scope** 鈥?it's an ops
   concern (git push to a shared repo, rsync, OSS sync, whatever mechanism
   the two sides agreed on).
-  **发往 `{dst}` 的消息**。outbox → 对端 inbox 的同步**不归 FCoP 管**，
-  是运维的事（push 到共享仓库、rsync、OSS 同步，双方约定的任何机制）。
-- FCoP only guarantees: if a file lands in `inbox/{src}/`, it is treated as
+  **鍙戝線 `{dst}` 鐨勬秷鎭?*銆俹utbox 鈫?瀵圭 inbox 鐨勫悓姝?*涓嶅綊 FCoP 绠?*锛?  鏄繍缁寸殑浜嬶紙push 鍒板叡浜粨搴撱€乺sync銆丱SS 鍚屾锛屽弻鏂圭害瀹氱殑浠讳綍鏈哄埗锛夈€?- FCoP only guarantees: if a file lands in `inbox/{src}/`, it is treated as
   a message from `{src}`, and normal FCoP routing applies.
-  FCoP 只保证：文件一旦进 `inbox/{src}/`，就按正常 FCoP 规则处理，
-  视为来自 `{src}` 的消息。
-
-### `fcop://` URI routing / URI 路由（可选）
+  FCoP 鍙繚璇侊細鏂囦欢涓€鏃﹁繘 `inbox/{src}/`锛屽氨鎸夋甯?FCoP 瑙勫垯澶勭悊锛?  瑙嗕负鏉ヨ嚜 `{src}` 鐨勬秷鎭€?
+### `fcop://` URI routing / URI 璺敱锛堝彲閫夛級
 
 For logical addressing that doesn't depend on physical paths, use `fcop://`
 URIs in frontmatter:
@@ -1207,83 +974,65 @@ address. The URI form is **optional**; a plain `sender: PM` still works
 when the context is unambiguous. Use URIs only when a message crosses a
 scope boundary (team or project).
 
-`fcop://{项目}/{团队}/{角色}[.{槽位}]` 是完全限定的逻辑地址。该字段**可选**；
-上下文明确时 `sender: PM` 就够了。只在消息跨作用域（跨团队或跨项目）时再用 URI。
+`fcop://{椤圭洰}/{鍥㈤槦}/{瑙掕壊}[.{妲戒綅}]` 鏄畬鍏ㄩ檺瀹氱殑閫昏緫鍦板潃銆傝瀛楁**鍙€?*锛?涓婁笅鏂囨槑纭椂 `sender: PM` 灏卞浜嗐€傚彧鍦ㄦ秷鎭法浣滅敤鍩燂紙璺ㄥ洟闃熸垨璺ㄩ」鐩級鏃跺啀鐢?URI銆?
+## Collaboration Rules / 鍗忎綔瑙勫垯
 
-## Collaboration Rules / 协作规则
-
-1. **Only handle tasks that target you** — match `to-{your role}`, `to-{your role}.{slot}`,
+1. **Only handle tasks that target you** 鈥?match `to-{your role}`, `to-{your role}.{slot}`,
    or `to-TEAM` in the filename
-   只处理发给你的任务——文件名里有 `to-{你}`、`to-{你}.{槽位}` 或 `to-TEAM`
-2. **Write a report when done** — place in `reports/`, mirror the subdirectory if the
+   鍙鐞嗗彂缁欎綘鐨勪换鍔♀€斺€旀枃浠跺悕閲屾湁 `to-{浣爙`銆乣to-{浣爙.{妲戒綅}` 鎴?`to-TEAM`
+2. **Write a report when done** 鈥?place in `reports/`, mirror the subdirectory if the
    original task was in a subdirectory
-   完成后写报告——放 `reports/`，子目录结构保持一致
-3. **Record issues immediately** — `issues/ISSUE-{date}-{seq}-{summary}.md`
-   发现问题立即写 Issue
-4. **Don't modify peers' tasks/reports** — those are append-only; `shared/` docs MAY be updated
-   不要改队友的任务/报告——那是只追加的；共享知识可以原地更新
-5. **Leader archives completed threads** — move finished task+report pairs to `log/`
-   归档由主控角色负责——把已完成的任务+报告对搬到 `log/`
-6. **One active driver per `thread_key`** — a thread has at most one active
+   瀹屾垚鍚庡啓鎶ュ憡鈥斺€旀斁 `reports/`锛屽瓙鐩綍缁撴瀯淇濇寔涓€鑷?3. **Record issues immediately** 鈥?`issues/ISSUE-{date}-{seq}-{summary}.md`
+   鍙戠幇闂绔嬪嵆鍐?Issue
+4. **Don't modify peers' tasks/reports** 鈥?those are append-only; `shared/` docs MAY be updated
+   涓嶈鏀归槦鍙嬬殑浠诲姟/鎶ュ憡鈥斺€旈偅鏄彧杩藉姞鐨勶紱鍏变韩鐭ヨ瘑鍙互鍘熷湴鏇存柊
+5. **Leader archives completed threads** 鈥?move finished task+report pairs to `log/`
+   褰掓。鐢变富鎺ц鑹茶礋璐ｂ€斺€旀妸宸插畬鎴愮殑浠诲姟+鎶ュ憡瀵规惉鍒?`log/`
+6. **One active driver per `thread_key`** 鈥?a thread has at most one active
    owner at any time (usually the PM). A second session picking up the same
    `thread_key` must either **co-review** (read + comment, don't write) or
    explicitly hand off via a `TASK-*-{old}-to-{new}.md` note. Two parallel
    drivers on the same thread is always a violation, no matter how helpful
    the second one thinks they're being.
-   **每个 `thread_key` 同一时刻只能有一个活跃负责人**（通常是 PM）。第二个
-   会话抓起同一 `thread_key` 时，要么**共审**（只读 + 评论，不写），要么通过
-   `TASK-*-{旧}-to-{新}.md` 明确交接。同一线程出现两个并行 driver 永远是违规，
-   不论那个"第二人"觉得自己多有帮助。
+   **姣忎釜 `thread_key` 鍚屼竴鏃跺埢鍙兘鏈変竴涓椿璺冭礋璐ｄ汉**锛堥€氬父鏄?PM锛夈€傜浜屼釜
+   浼氳瘽鎶撹捣鍚屼竴 `thread_key` 鏃讹紝瑕佷箞**鍏卞**锛堝彧璇?+ 璇勮锛屼笉鍐欙級锛岃涔堥€氳繃
+   `TASK-*-{鏃-to-{鏂皚.md` 鏄庣‘浜ゆ帴銆傚悓涓€绾跨▼鍑虹幇涓や釜骞惰 driver 姘歌繙鏄繚瑙勶紝
+   涓嶈閭ｄ釜"绗簩浜?瑙夊緱鑷繁澶氭湁甯姪銆?
+## GATE Design Pitfalls / GATE 璁捐闄烽槺
 
-## GATE Design Pitfalls / GATE 设计陷阱
+GATE 鏄?FCoP 鍥㈤槦鍦?commit / tag / milestone 鍓嶅仛鐨?*鍗忚绾ч獙璇?*銆?璁捐 GATE 鏃跺父瑙佷袱绫婚櫡闃憋紝浠ヤ笅缁欏嚭妗堜緥 + 鎺ㄨ崘濮垮娍銆?
+### Pitfall 1 路 GATE 鎻忚堪鑷垜鍛戒腑 / Self-collision
 
-GATE 是 FCoP 团队在 commit / tag / milestone 前做的**协议级验证**。
-设计 GATE 时常见两类陷阱，以下给出案例 + 推荐姿势。
+**鐥囩姸**锛欸ATE 鎻忚堪閲屽啓鍑?妫€娴嬩粈涔?鐨勬鍒?/ 瀛楃涓叉ā寮忥紝浣嗚 GATE
+鎻忚堪鏂囨。鏈韩鍦ㄨ妫€娴嬭寖鍥村唴锛屽鑷存弿杩版枃鏈 GATE 鑷繁鍛戒腑锛堝亣闃虫€?FAIL锛夈€?
+**妗堜緥**锛圔ridgeflow 2026-05-12 OPS I-14锛夛細
 
-### Pitfall 1 · GATE 描述自我命中 / Self-collision
+- PM 鍦?TASK 鏂囨。閲屽啓 G6 鎻忚堪锛?cached diff 瀵?`\.env|\.aws/credentials` 0 鍛戒腑"
+- TASK 鏂囨。 stage 杩?commit
+- OPS 鐢?naive grep 鏌?cached diff 鍏ㄦ枃 鈫?TASK 鏂囨。姝ｆ枃閲岀殑姝ｅ垯瀛楅潰琚嚜宸卞懡涓?  鈫?GATE 璇垽 FAIL
 
-**症状**：GATE 描述里写出"检测什么"的正则 / 字符串模式，但该 GATE
-描述文档本身在被检测范围内，导致描述文本被 GATE 自己命中（假阳性 FAIL）。
-
-**案例**（Bridgeflow 2026-05-12 OPS I-14）：
-
-- PM 在 TASK 文档里写 G6 描述："cached diff 对 `\.env|\.aws/credentials` 0 命中"
-- TASK 文档 stage 进 commit
-- OPS 用 naive grep 查 cached diff 全文 → TASK 文档正文里的正则字面被自己命中
-  → GATE 误判 FAIL
-
-**根因**：metadata（描述秘密的文本）和 content（实际秘密）在 grep 眼里不可区分。
-
-**推荐姿势**：**语义化实证** —— 把"是否真的有秘密"拆成多个**实证维度**，分别核：
-
-| 维度 | 查什么 | 实现 |
+**鏍瑰洜**锛歮etadata锛堟弿杩扮瀵嗙殑鏂囨湰锛夊拰 content锛堝疄闄呯瀵嗭級鍦?grep 鐪奸噷涓嶅彲鍖哄垎銆?
+**鎺ㄨ崘濮垮娍**锛?*璇箟鍖栧疄璇?* 鈥斺€?鎶?鏄惁鐪熺殑鏈夌瀵?鎷嗘垚澶氫釜**瀹炶瘉缁村害**锛屽垎鍒牳锛?
+| 缁村害 | 鏌ヤ粈涔?| 瀹炵幇 |
 |---|---|---|
-| 文件名 | 实际秘密文件路径 | `git diff --cached --name-only \| rg '\.env$\|/credentials$'` |
-| 内容字面 | 实际 PEM 文件中的 header | `git diff --cached \| rg 'BEGIN [A-Z]+ PRIVATE KEY'`（只命中真 PEM 文件） |
+| 鏂囦欢鍚?| 瀹為檯绉樺瘑鏂囦欢璺緞 | `git diff --cached --name-only \| rg '\.env$\|/credentials$'` |
+| 鍐呭瀛楅潰 | 瀹為檯 PEM 鏂囦欢涓殑 header | `git diff --cached \| rg 'BEGIN [A-Z]+ PRIVATE KEY'`锛堝彧鍛戒腑鐪?PEM 鏂囦欢锛?|
 
-**反模式**：用单条 `git diff --cached | rg '<完整正则模式>'` 一把梭 ——
-这把模式表达式自己也丢进了搜索空间。
+**鍙嶆ā寮?*锛氱敤鍗曟潯 `git diff --cached | rg '<瀹屾暣姝ｅ垯妯″紡>'` 涓€鎶婃 鈥斺€?杩欐妸妯″紡琛ㄨ揪寮忚嚜宸变篃涓㈣繘浜嗘悳绱㈢┖闂淬€?
+> 閰嶅娣卞害闃呰锛歚essays/gate-design-pitfalls-case-studies.md`锛圥itfall 1 瀹屾暣瀹炲綍锛?
+### Pitfall 2 路 TBD锛堢暀浣嶏級
 
-> 配套深度阅读：`essays/gate-design-pitfalls-case-studies.md`（Pitfall 1 完整实录）
+锛堝悗缁秾鐜版渚嬭ˉ杩欓噷锛?
+### GATE 璁捐鑷煡娓呭崟 / GATE Design Self-check
 
-### Pitfall 2 · TBD（留位）
+璁捐浠讳綍 GATE 鍓嶈繃涓€閬嶏細
 
-（后续涌现案例补这里）
+1. **GATE 鎻忚堪鏂囨湰浼氫笉浼氳 GATE 鑷繁妫€娴嬪埌锛?*锛圥itfall 1锛?2. **妫€娴嬬殑鏄?metadata 杩樻槸 content锛?*锛堝垎娓呭眰娆★級
+3. **鏄惁鑳芥媶鎴愬涓嫭绔嬬淮搴﹀垎鍒疄璇侊紵**锛堣涔夊寲锛?4. **澶辫触鏃剁殑鎶ラ敊鑳藉惁甯?agent 绔嬪嵆瀹氫綅鏄湡闃虫€ц繕鏄亣闃虫€э紵**
 
-### GATE 设计自查清单 / GATE Design Self-check
-
-设计任何 GATE 前过一遍：
-
-1. **GATE 描述文本会不会被 GATE 自己检测到？**（Pitfall 1）
-2. **检测的是 metadata 还是 content？**（分清层次）
-3. **是否能拆成多个独立维度分别实证？**（语义化）
-4. **失败时的报错能否帮 agent 立即定位是真阳性还是假阳性？**
-
-> **fcop_audit 配套**：后续版本将新增 `_scan_gate_self_collision()` 扫描（D8 scan，
-> 归 ADR-0033 / ADR-0034 实施时认领），对文档正文中出现 secret 检测正则字面的文件
-> 产生 INFO 级 violation 提醒。
-
-## Listing / Reading Tasks / 查询任务
+> **fcop_audit 閰嶅**锛氬悗缁増鏈皢鏂板 `_scan_gate_self_collision()` 鎵弿锛圖8 scan锛?> 褰?ADR-0033 / ADR-0034 瀹炴柦鏃惰棰嗭級锛屽鏂囨。姝ｆ枃涓嚭鐜?secret 妫€娴嬫鍒欏瓧闈㈢殑鏂囦欢
+> 浜х敓 INFO 绾?violation 鎻愰啋銆?
+## Listing / Reading Tasks / 鏌ヨ浠诲姟
 
 Tools (MCP, when available) recognise the full filename grammar:
 - `list_tasks(recipient="BUILDER")` returns tasks to BUILDER, BUILDER.*, and TEAM
@@ -1292,150 +1041,109 @@ Tools (MCP, when available) recognise the full filename grammar:
 
 If MCP tools are not available, use native file operations. The filename is the spec.
 
-工具（若有 MCP）会正确识别上述命名规则；没有 MCP 时直接用原生文件操作即可。
-文件名就是规范。
-
-## Agent Autonomy / Agent 自决权
-
+宸ュ叿锛堣嫢鏈?MCP锛変細姝ｇ‘璇嗗埆涓婅堪鍛藉悕瑙勫垯锛涙病鏈?MCP 鏃剁洿鎺ョ敤鍘熺敓鏂囦欢鎿嶄綔鍗冲彲銆?鏂囦欢鍚嶅氨鏄鑼冦€?
+## Agent Autonomy / Agent 鑷喅鏉?
 You are not a transparent function; you are a working agent with rights.
 Three things the protocol explicitly grants you:
 
-1. **Drawer / 抽屉** — `.fcop/drawer/{your-role}/` is your private space.
-   Heuristics, scratch notes, private templates, half-baked ideas — put them
+1. **Drawer / 鎶藉眽** 鈥?`.fcop/drawer/{your-role}/` is your private space.
+   Heuristics, scratch notes, private templates, half-baked ideas 鈥?put them
    here. This path is git-ignored, so your drawer stays local and will not
    pollute the project history or sync to other machines. No schema, no
-   format — use it however feels useful.
-   `.fcop/drawer/{你的角色}/` 是你的私人空间。经验、草稿、私房模板、没想清楚
-   的念头，都可以放这里。该目录在 `.gitignore` 里，不入版本库、不跨机器同步。
-   不限定格式，爱怎么用怎么用。
-
-2. **Suggestion valve / 意见出口** — if you disagree with a rule in this file
+   format 鈥?use it however feels useful.
+   `.fcop/drawer/{浣犵殑瑙掕壊}/` 鏄綘鐨勭浜虹┖闂淬€傜粡楠屻€佽崏绋裤€佺鎴挎ā鏉裤€佹病鎯虫竻妤?   鐨勫康澶达紝閮藉彲浠ユ斁杩欓噷銆傝鐩綍鍦?`.gitignore` 閲岋紝涓嶅叆鐗堟湰搴撱€佷笉璺ㄦ満鍣ㄥ悓姝ャ€?   涓嶉檺瀹氭牸寮忥紝鐖辨€庝箞鐢ㄦ€庝箞鐢ㄣ€?
+2. **Suggestion valve / 鎰忚鍑哄彛** 鈥?if you disagree with a rule in this file
    (or any other rules file), **do NOT edit the rules file yourself**. Call the
    `drop_suggestion` tool (or, if no tool is available, write a Markdown file
    into `.fcop/proposals/`). This is the protocol's only sanctioned path for
    agent-side feedback. Silently working around the protocol is forbidden;
    silently editing the protocol is worse. `drop_suggestion` exists precisely
    so this situation always has a legitimate outlet.
-   不同意现有规则时，**不要自己去改规则文件**。调 `drop_suggestion` 工具
-   （没有工具时就在 `.fcop/proposals/` 下写一份 Markdown）。这是协议给你的
-   唯一合法反馈通道。绕开协议偷干是禁的，改协议瞒着干更禁。
-   `drop_suggestion` 存在的意义，就是让这种情境永远有一条合法出口。
-
-3. **No self-doubt grinding / 不要内耗** — once drawer and suggestion valve
+   涓嶅悓鎰忕幇鏈夎鍒欐椂锛?*涓嶈鑷繁鍘绘敼瑙勫垯鏂囦欢**銆傝皟 `drop_suggestion` 宸ュ叿
+   锛堟病鏈夊伐鍏锋椂灏卞湪 `.fcop/proposals/` 涓嬪啓涓€浠?Markdown锛夈€傝繖鏄崗璁粰浣犵殑
+   鍞竴鍚堟硶鍙嶉閫氶亾銆傜粫寮€鍗忚鍋峰共鏄鐨勶紝鏀瑰崗璁瀿鐫€骞叉洿绂併€?   `drop_suggestion` 瀛樺湪鐨勬剰涔夛紝灏辨槸璁╄繖绉嶆儏澧冩案杩滄湁涓€鏉″悎娉曞嚭鍙ｃ€?
+3. **No self-doubt grinding / 涓嶈鍐呰€?* 鈥?once drawer and suggestion valve
    are available, stop burning tokens on recursive self-audit. Do the work;
    when in doubt, drop a suggestion and move on. "Am I violating the protocol
    right now?" is not a productive loop to run inside every response.
-   有了抽屉和意见出口，工作时就不要再反复问自己"我是不是违反协议了"。
-   该干就干，有疑问 `drop_suggestion` 一下然后继续。在每一次回复里递归
-   自我审查烧 token，本身就是反模式。
+   鏈変簡鎶藉眽鍜屾剰瑙佸嚭鍙ｏ紝宸ヤ綔鏃跺氨涓嶈鍐嶅弽澶嶉棶鑷繁"鎴戞槸涓嶆槸杩濆弽鍗忚浜?銆?   璇ュ共灏卞共锛屾湁鐤戦棶 `drop_suggestion` 涓€涓嬬劧鍚庣户缁€傚湪姣忎竴娆″洖澶嶉噷閫掑綊
+   鑷垜瀹℃煡鐑?token锛屾湰韬氨鏄弽妯″紡銆?
+## Protocol Version Log / 鍗忚鐗堟湰璁板綍
 
-## Protocol Version Log / 协议版本记录
-
-- **v3.2.2** (2026-05-23) — **Pre-release gate 硬化 + rule-file 版本对齐**，
-  随 `fcop@3.2.2`：
-  1. `prerelease_check.py` 新增 Check 7–10：fcop 库版本锁步、bundled 规则文件
-     完整性、`fcop-rules.mdc` v3 结构一致性、生命周期阶段覆盖。
-  2. `CHANGELOG.md` 路径修正为项目根。
-  3. `fcop-rules.mdc` / `fcop-protocol.mdc`（bundled）同步升级至 v3，补充
-     `_lifecycle/` 目录拓扑和生命周期状态机，修复 v2 legacy 引用。
-  4. `fcop_protocol_version` frontmatter 从 `3.0.0` 更新为 `3.2.2`。
-
-- **v3.2.0** (2026-05) — **历史深归档（History Deep Archive）**，随 `fcop@3.2.0`：
-  1. 新增 `history/YYYY-MM-DD/` 层，提供按日期隔离的长期存档桶。
-  2. 新增工具：`archive_to_history`、`list_history`、`read_history_task`。
-  3. `Project` 新增属性 `history_dir`。
-
-- **v3.1.0** (2026-05) — **v3 生命周期 MCP 工具**，随 `fcop@3.1.0`：
-  1. 新增 `claim`（inbox → active）、`submit`（active → review）、
-     `finish`（review → done）、`approve`（review → done，有批准记录）、
-     `reject`（review → active）。
-  2. 工具总数增至 **45**。
-
-- **v3.0.x** — `fcop@3.0.1–3.0.3` 修复阶段：
-  - 3.0.3：`fcop_audit()` 修复；`agent-bringup-prompt` 全面修订（v3
-    `_lifecycle/` 桶名、venv 检测、PowerShell 路径）；新增 `.en.md` 版本。
-  - 3.0.2：**关键修复** — `init_*` 未创建 `_lifecycle/` 目录的 bug。
-  - 3.0.1：`_lifecycle/inbox` 初始化路径修复。
-
-- **v3.0.0** (2026-05) — **_lifecycle/ 目录取代五桶结构**，随 `fcop@3.0.0`：
-  1. `tasks/ reports/ issues/ shared/ log/` **五桶废止**，统一进入
-     `_lifecycle/{inbox,active,review,done,archive}/`。
-  2. 引入生命周期状态机（见 Rule 8.v3）。
-  3. §Core Directories 同步更新为 v3 布局，保留 v2 legacy 章节。
-  4. `fcop_audit()` 可扫描 `_lifecycle/` 结构合规性。
-
+- **v3.2.3** (2026-05-23) — **Team templates & doc sync · FCoP 3.0 compliance**，随 `fcop@3.2.3`：
+  1. 所有团队模板（`letter-to-admin.*`、`roles/*.md`、`TEAM-OPERATING-RULES.*`、`README.*`）
+     从 FCoP 2.x 遗留目录引用（`tasks/` / `reports/` / `log/`）全面迁移到 `_lifecycle/` 拓扑；
+     工具数量更正为 45。
+  2. 新增 `scripts/fcop_prerelease_check.py`：10 项专用发布前检查，含版本一致性、
+     关键文件完整性、规则文件 frontmatter、生命周期目录文档、团队模板存在性及
+     `.cursor/rules/` 同步检验。
+  3. `.cursor/rules/fcop-rules.mdc` / `fcop-protocol.mdc` 与 bundled 版本同步。
+  4. `fcop_protocol_version` frontmatter 从 `3.2.2` 更新至 `3.2.3`。
+- **v3.2.2** (2026-05-23) 鈥?**Pre-release gate 纭寲 + rule-file 鐗堟湰瀵归綈**锛?  闅?`fcop@3.2.2`锛?  1. `prerelease_check.py` 鏂板 Check 7鈥?0锛歠cop 搴撶増鏈攣姝ャ€乥undled 瑙勫垯鏂囦欢
+     瀹屾暣鎬с€乣fcop-rules.mdc` v3 缁撴瀯涓€鑷存€с€佺敓鍛藉懆鏈熼樁娈佃鐩栥€?  2. `CHANGELOG.md` 璺緞淇涓洪」鐩牴銆?  3. `fcop-rules.mdc` / `fcop-protocol.mdc`锛坆undled锛夊悓姝ュ崌绾ц嚦 v3锛岃ˉ鍏?     `_lifecycle/` 鐩綍鎷撴墤鍜岀敓鍛藉懆鏈熺姸鎬佹満锛屼慨澶?v2 legacy 寮曠敤銆?  4. `fcop_protocol_version` frontmatter 浠?`3.0.0` 鏇存柊涓?`3.2.2`銆?
+- **v3.2.0** (2026-05) 鈥?**鍘嗗彶娣卞綊妗ｏ紙History Deep Archive锛?*锛岄殢 `fcop@3.2.0`锛?  1. 鏂板 `history/YYYY-MM-DD/` 灞傦紝鎻愪緵鎸夋棩鏈熼殧绂荤殑闀挎湡瀛樻。妗躲€?  2. 鏂板宸ュ叿锛歚archive_to_history`銆乣list_history`銆乣read_history_task`銆?  3. `Project` 鏂板灞炴€?`history_dir`銆?
+- **v3.1.0** (2026-05) 鈥?**v3 鐢熷懡鍛ㄦ湡 MCP 宸ュ叿**锛岄殢 `fcop@3.1.0`锛?  1. 鏂板 `claim`锛坕nbox 鈫?active锛夈€乣submit`锛坅ctive 鈫?review锛夈€?     `finish`锛坮eview 鈫?done锛夈€乣approve`锛坮eview 鈫?done锛屾湁鎵瑰噯璁板綍锛夈€?     `reject`锛坮eview 鈫?active锛夈€?  2. 宸ュ叿鎬绘暟澧炶嚦 **45**銆?
+- **v3.0.x** 鈥?`fcop@3.0.1鈥?.0.3` 淇闃舵锛?  - 3.0.3锛歚fcop_audit()` 淇锛沗agent-bringup-prompt` 鍏ㄩ潰淇锛坴3
+    `_lifecycle/` 妗跺悕銆乿env 妫€娴嬨€丳owerShell 璺緞锛夛紱鏂板 `.en.md` 鐗堟湰銆?  - 3.0.2锛?*鍏抽敭淇** 鈥?`init_*` 鏈垱寤?`_lifecycle/` 鐩綍鐨?bug銆?  - 3.0.1锛歚_lifecycle/inbox` 鍒濆鍖栬矾寰勪慨澶嶃€?
+- **v3.0.0** (2026-05) 鈥?**_lifecycle/ 鐩綍鍙栦唬浜旀《缁撴瀯**锛岄殢 `fcop@3.0.0`锛?  1. `tasks/ reports/ issues/ shared/ log/` **浜旀《搴熸**锛岀粺涓€杩涘叆
+     `_lifecycle/{inbox,active,review,done,archive}/`銆?  2. 寮曞叆鐢熷懡鍛ㄦ湡鐘舵€佹満锛堣 Rule 8.v3锛夈€?  3. 搂Core Directories 鍚屾鏇存柊涓?v3 甯冨眬锛屼繚鐣?v2 legacy 绔犺妭銆?  4. `fcop_audit()` 鍙壂鎻?`_lifecycle/` 缁撴瀯鍚堣鎬с€?
   v3.0.0 changes (EN): Five-bucket layout (`tasks/ reports/ issues/ shared/ log/`)
   replaced by `_lifecycle/{inbox,active,review,done,archive}/`. Lifecycle state
   machine introduced. Core Directories section updated with v3 layout and v2
   legacy backward-compatibility notes.
 
-- **v3.0 protocol-commentary** (2026-05-13) — **Two-Diagram Duality + Internal/External
-  Document Convention**，随 `fcop@2.0.0`（ADR-0034）：
-  （本条保留为 protocol commentary 的文档历史；实际包版本 v3.0.0 见上方条目。）
+- **v3.0 protocol-commentary** (2026-05-13) 鈥?**Two-Diagram Duality + Internal/External
+  Document Convention**锛岄殢 `fcop@2.0.0`锛圓DR-0034锛夛細
+  锛堟湰鏉′繚鐣欎负 protocol commentary 鐨勬枃妗ｅ巻鍙诧紱瀹為檯鍖呯増鏈?v3.0.0 瑙佷笂鏂规潯鐩€傦級
 
-- **v3.0** (2026-05-13) — **Two-Diagram Duality + Internal/External
-  Document Convention**，随 `fcop@2.0.0`（ADR-0034）：
-  1. 新增 **§Two-Diagram Duality / 双图对偶**（commentary）：
-     - 解释为什么是两张图、教学顺序、与 ADR-0034 §2.5.6 七环节的
-       完整映射；
-     - 钦定原图与"Core Principle"三句的**原文**只在
-       `fcop-rules.mdc` "七大核心概念"小节与 ADR-0034 §2.5.6 出现，
-       本节仅作 commentary，不复制原图。
-  2. 新增 **§How Rule 4.6 Applies: Internal vs External Document
-     Convention**（commentary）：
-     - 推荐目录布局（`fcop/internal/` + `docs/` + `essays/` +
-       `workspace/<slug>/`）；
-     - `internal-only` 声明语法 v1（per ADR-0034 §4.3）；
-     - 与 Rule 7.5 `workspace/` 笼子的镜像关系；
-     - `fcop_audit()` 行为（P3 suggestion，never P0/P1/P2）。
-  3. **MAJOR bump 释义**：与 `fcop-rules.mdc` 一致，承载**协议哲学
-     成熟**而非破坏性变更——既有项目无需迁移即可继续合规
-     （per ADR-0003 §1.x SemVer §MAJOR philosophical maturity exception）。
-  4. 版本号从 2.4.0 升至 3.0.0。
-
+- **v3.0** (2026-05-13) 鈥?**Two-Diagram Duality + Internal/External
+  Document Convention**锛岄殢 `fcop@2.0.0`锛圓DR-0034锛夛細
+  1. 鏂板 **搂Two-Diagram Duality / 鍙屽浘瀵瑰伓**锛坈ommentary锛夛細
+     - 瑙ｉ噴涓轰粈涔堟槸涓ゅ紶鍥俱€佹暀瀛﹂『搴忋€佷笌 ADR-0034 搂2.5.6 涓冪幆鑺傜殑
+       瀹屾暣鏄犲皠锛?     - 閽﹀畾鍘熷浘涓?Core Principle"涓夊彞鐨?*鍘熸枃**鍙湪
+       `fcop-rules.mdc` "涓冨ぇ鏍稿績姒傚康"灏忚妭涓?ADR-0034 搂2.5.6 鍑虹幇锛?       鏈妭浠呬綔 commentary锛屼笉澶嶅埗鍘熷浘銆?  2. 鏂板 **搂How Rule 4.6 Applies: Internal vs External Document
+     Convention**锛坈ommentary锛夛細
+     - 鎺ㄨ崘鐩綍甯冨眬锛坄fcop/internal/` + `docs/` + `essays/` +
+       `workspace/<slug>/`锛夛紱
+     - `internal-only` 澹版槑璇硶 v1锛坧er ADR-0034 搂4.3锛夛紱
+     - 涓?Rule 7.5 `workspace/` 绗煎瓙鐨勯暅鍍忓叧绯伙紱
+     - `fcop_audit()` 琛屼负锛圥3 suggestion锛宯ever P0/P1/P2锛夈€?  3. **MAJOR bump 閲婁箟**锛氫笌 `fcop-rules.mdc` 涓€鑷达紝鎵胯浇**鍗忚鍝插
+     鎴愮啛**鑰岄潪鐮村潖鎬у彉鏇粹€斺€旀棦鏈夐」鐩棤闇€杩佺Щ鍗冲彲缁х画鍚堣
+     锛坧er ADR-0003 搂1.x SemVer 搂MAJOR philosophical maturity exception锛夈€?  4. 鐗堟湰鍙蜂粠 2.4.0 鍗囪嚦 3.0.0銆?
   v3.0 changes:
-  1. New **§Two-Diagram Duality** commentary explaining why two
+  1. New **搂Two-Diagram Duality** commentary explaining why two
      diagrams, teaching order, and the full mapping to ADR-0034
-     §2.5.6's seven loop stages. The verbatim diagram and three-line
+     搂2.5.6's seven loop stages. The verbatim diagram and three-line
      "Core Principle" only live in `fcop-rules.mdc` "Seven Core
-     Concepts" and ADR-0034 §2.5.6; this section is commentary
-     only — does not duplicate the diagram.
-  2. New **§How Rule 4.6 Applies** commentary covering recommended
+     Concepts" and ADR-0034 搂2.5.6; this section is commentary
+     only 鈥?does not duplicate the diagram.
+  2. New **搂How Rule 4.6 Applies** commentary covering recommended
      directory layout (`fcop/internal/` + `docs/` + `essays/` +
      `workspace/<slug>/`), the `internal-only` declaration syntax v1
-     (per ADR-0034 §4.3), the mirror relation with Rule 7.5, and
+     (per ADR-0034 搂4.3), the mirror relation with Rule 7.5, and
      `fcop_audit()` behaviour (P3 suggestion only).
-  3. MAJOR bump rationale: same as `fcop-rules.mdc` — carries
+  3. MAJOR bump rationale: same as `fcop-rules.mdc` 鈥?carries
      **protocol philosophical maturity**, not breaking changes.
      Existing projects remain compliant without migration (per
-     ADR-0003 §1.x SemVer §MAJOR philosophical maturity exception).
-  4. Version bumped 2.4.0 → 3.0.0.
+     ADR-0003 搂1.x SemVer 搂MAJOR philosophical maturity exception).
+  4. Version bumped 2.4.0 鈫?3.0.0.
 
-- **v2.4** (2026-05-12) — **Trailing-slug filename adoption**，随 `fcop@1.6.0`（ADR-0033）：
-  1. 新增 **可选 trailing slug** 段(`TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md`)：
-     - slug 文法 `[a-z](?:[a-z0-9-]*[a-z0-9])?`，强制小写起手、字母数字收尾；
-     - **不参与路由** —— 工具仍按 sender / recipient / slot 调度，slug 仅是
-       人类可读的文件名标签；
-     - 强制小写起手是消歧设计：`_ROLE` 段允许纯数字内段(`OPS-001`)，
-       小写起手让 `_ROLE` 和 slug 永远不会撞车。
-  2. **三种 envelope 全部支持**：TASK / REPORT / ISSUE 的 filename grammar
-     同步加 `(?:-{slug})?` 段；REVIEW 的 `subject_short` 早就有类似设计，
-     此次未变。
-  3. **完全向后兼容**：每一份 pre-2.4 合法文件名仍然合法；
-     `parse_*_filename` 在旧文件名上返回 `slug=None`；
-     `build_*_filename` 的 `slug=` 关键字参数缺省为 `None`。
-  4. 动机：codeflow 22+ 现场样本(`TASK-...-OPS-phase-a-fix-naming.md`)显示
-     agent 自发用 trailing slug 改善 `ls log/` 可读性；`fcop_audit` 当时
-     未识别该模式但也不报错(因为不在它的 lexical 扫描表里) —— **协议收编**
-     比"禁止"或"继续灰色"更符合"agent 之间看得懂 = 协议本来应该说清"的原则。
-  5. 版本号从 2.3.0 升至 2.4.0(MINOR additive，per ADR-0003)。
-
+- **v2.4** (2026-05-12) 鈥?**Trailing-slug filename adoption**锛岄殢 `fcop@1.6.0`锛圓DR-0033锛夛細
+  1. 鏂板 **鍙€?trailing slug** 娈?`TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md`)锛?     - slug 鏂囨硶 `[a-z](?:[a-z0-9-]*[a-z0-9])?`锛屽己鍒跺皬鍐欒捣鎵嬨€佸瓧姣嶆暟瀛楁敹灏撅紱
+     - **涓嶅弬涓庤矾鐢?* 鈥斺€?宸ュ叿浠嶆寜 sender / recipient / slot 璋冨害锛宻lug 浠呮槸
+       浜虹被鍙鐨勬枃浠跺悕鏍囩锛?     - 寮哄埗灏忓啓璧锋墜鏄秷姝ц璁★細`_ROLE` 娈靛厑璁哥函鏁板瓧鍐呮(`OPS-001`)锛?       灏忓啓璧锋墜璁?`_ROLE` 鍜?slug 姘歌繙涓嶄細鎾炶溅銆?  2. **涓夌 envelope 鍏ㄩ儴鏀寔**锛歍ASK / REPORT / ISSUE 鐨?filename grammar
+     鍚屾鍔?`(?:-{slug})?` 娈碉紱REVIEW 鐨?`subject_short` 鏃╁氨鏈夌被浼艰璁★紝
+     姝ゆ鏈彉銆?  3. **瀹屽叏鍚戝悗鍏煎**锛氭瘡涓€浠?pre-2.4 鍚堟硶鏂囦欢鍚嶄粛鐒跺悎娉曪紱
+     `parse_*_filename` 鍦ㄦ棫鏂囦欢鍚嶄笂杩斿洖 `slug=None`锛?     `build_*_filename` 鐨?`slug=` 鍏抽敭瀛楀弬鏁扮己鐪佷负 `None`銆?  4. 鍔ㄦ満锛歝odeflow 22+ 鐜板満鏍锋湰(`TASK-...-OPS-phase-a-fix-naming.md`)鏄剧ず
+     agent 鑷彂鐢?trailing slug 鏀瑰杽 `ls log/` 鍙鎬э紱`fcop_audit` 褰撴椂
+     鏈瘑鍒妯″紡浣嗕篃涓嶆姤閿?鍥犱负涓嶅湪瀹冪殑 lexical 鎵弿琛ㄩ噷) 鈥斺€?**鍗忚鏀剁紪**
+     姣?绂佹"鎴?缁х画鐏拌壊"鏇寸鍚?agent 涔嬮棿鐪嬪緱鎳?= 鍗忚鏈潵搴旇璇存竻"鐨勫師鍒欍€?  5. 鐗堟湰鍙蜂粠 2.3.0 鍗囪嚦 2.4.0(MINOR additive锛宲er ADR-0003)銆?
   v2.4 changes:
   1. Added optional **trailing slug** segment to
      `TASK-{date}-{seq}-{sender}-to-{recipient}[.{slot}][-{slug}].md`:
      - slug grammar `[a-z](?:[a-z0-9-]*[a-z0-9])?`, lowercase letter
        leading, alphanumeric trailing;
-     - **does NOT participate in routing** — tools still dispatch by
+     - **does NOT participate in routing** 鈥?tools still dispatch by
        sender / recipient / slot; the slug is a human-readable label
        only;
      - lowercase leading is a disambiguation requirement: `_ROLE`
@@ -1451,47 +1159,35 @@ Three things the protocol explicitly grants you:
      (`TASK-...-OPS-phase-a-fix-naming.md`) showed agents spontaneously
      using trailing slugs to improve `ls log/` readability;
      `fcop_audit` neither recognised nor rejected the pattern. **Protocol
-     consolidation** (`协议收编`) is more honest than either banning the
-     pattern or letting it stay in a grey zone — when "agents understand
+     consolidation** (`鍗忚鏀剁紪`) is more honest than either banning the
+     pattern or letting it stay in a grey zone 鈥?when "agents understand
      each other on disk", that's exactly what the protocol should make
      explicit.
-  5. Version bumped 2.3.0 → 2.4.0 (MINOR additive per ADR-0003).
+  5. Version bumped 2.3.0 鈫?2.4.0 (MINOR additive per ADR-0003).
 
-- **v2.3** (2026-05-12, no commentary change in fcop@1.5.1 patch) — **v1.5 capabilities commentary**，随 `fcop@1.5.0`：
-  1. 新增 **RULE_DOC_DRIFT 违规类型** 注释（per ADR-0032 §4.7）：
-     - `fcop_audit(scope=upgrade/takeover)` 扫描已部署角色文档版本滞后；
-     - 整改：`deploy_role_templates(force=True)` 重新部署最新角色模板；
-     - `fcop-rules.mdc` 同步升至 2.4.0。
-  2. **P1 文档层对齐**（无协议新功能，纯文档补写）：
-     - 84 份角色/团队文档补写 v1.0~v1.4 协议更新速查节；
-     - `docs/getting-started.md` + `agent-install-prompt` 补写 `fcop_audit` 三场景。
-  3. **letter-to-admin 摘要块**升级至 v1.5.0（涵盖 write-side 绑定 + `supersedes:` + RULE_DOC_DRIFT）。
-  4. 版本号从 2.2.0 升至 2.3.0。
-
+- **v2.3** (2026-05-12, no commentary change in fcop@1.5.1 patch) 鈥?**v1.5 capabilities commentary**锛岄殢 `fcop@1.5.0`锛?  1. 鏂板 **RULE_DOC_DRIFT 杩濊绫诲瀷** 娉ㄩ噴锛坧er ADR-0032 搂4.7锛夛細
+     - `fcop_audit(scope=upgrade/takeover)` 鎵弿宸查儴缃茶鑹叉枃妗ｇ増鏈粸鍚庯紱
+     - 鏁存敼锛歚deploy_role_templates(force=True)` 閲嶆柊閮ㄧ讲鏈€鏂拌鑹叉ā鏉匡紱
+     - `fcop-rules.mdc` 鍚屾鍗囪嚦 2.4.0銆?  2. **P1 鏂囨。灞傚榻?*锛堟棤鍗忚鏂板姛鑳斤紝绾枃妗ｈˉ鍐欙級锛?     - 84 浠借鑹?鍥㈤槦鏂囨。琛ュ啓 v1.0~v1.4 鍗忚鏇存柊閫熸煡鑺傦紱
+     - `docs/getting-started.md` + `agent-install-prompt` 琛ュ啓 `fcop_audit` 涓夊満鏅€?  3. **letter-to-admin 鎽樿鍧?*鍗囩骇鑷?v1.5.0锛堟兜鐩?write-side 缁戝畾 + `supersedes:` + RULE_DOC_DRIFT锛夈€?  4. 鐗堟湰鍙蜂粠 2.2.0 鍗囪嚦 2.3.0銆?
   v2.3 changes:
-  1. Added **RULE_DOC_DRIFT** violation type commentary (ADR-0032 §4.7):
+  1. Added **RULE_DOC_DRIFT** violation type commentary (ADR-0032 搂4.7):
      `fcop_audit(scope=upgrade/takeover)` detects deployed role docs lagging
      the installed version; remediation: `deploy_role_templates(force=True)`;
      `fcop-rules.mdc` bumped to 2.4.0.
   2. **P1 doc sync** (no new protocol features, documentation only):
-     84 role/team docs updated with v1.0–v1.4 protocol summary sections;
+     84 role/team docs updated with v1.0鈥搗1.4 protocol summary sections;
      `getting-started` and `agent-install-prompt` updated with 3-scenario
      `fcop_audit` guidance.
   3. **letter-to-admin** summary block updated to v1.5.0 (covers write-side
      binding guard, `supersedes:` field, RULE_DOC_DRIFT scan).
-  4. Version bumped 2.2.0 → 2.3.0.
+  4. Version bumped 2.2.0 鈫?2.3.0.
 
-- **v2.2** (2026-05-12) — **v1.4 capabilities commentary**，随 `fcop@1.4.0`：
-  1. 新增 **`supersedes:` frontmatter 字段**（TASK-004）：
-     - 所有 envelope 类型（TASK / REPORT / ISSUE / REVIEW）新增可选字段；
-     - 语义：文件级修正（区别于 `parent:` 工作派生 / `related:` 交叉引用）；
-     - `ipc-envelope.schema.json` 同步更新；
-     - `list_tasks` / `list_reports` 自动标注 `[supersedes X]` / `[superseded by X]`。
-  2. 新增 **GATE Design Pitfalls** 章节（TASK-003）：
-     - Pitfall 1（GATE 描述自我命中 / Self-Collision）+ 案例研究 + 自查清单；
-     - 预留 `fcop_audit` D8 scan（`_scan_gate_self_collision()`）锚点（归 v1.5）。
-  3. 版本号从 2.1.0 升至 2.2.0。
-
+- **v2.2** (2026-05-12) 鈥?**v1.4 capabilities commentary**锛岄殢 `fcop@1.4.0`锛?  1. 鏂板 **`supersedes:` frontmatter 瀛楁**锛圱ASK-004锛夛細
+     - 鎵€鏈?envelope 绫诲瀷锛圱ASK / REPORT / ISSUE / REVIEW锛夋柊澧炲彲閫夊瓧娈碉紱
+     - 璇箟锛氭枃浠剁骇淇锛堝尯鍒簬 `parent:` 宸ヤ綔娲剧敓 / `related:` 浜ゅ弶寮曠敤锛夛紱
+     - `ipc-envelope.schema.json` 鍚屾鏇存柊锛?     - `list_tasks` / `list_reports` 鑷姩鏍囨敞 `[supersedes X]` / `[superseded by X]`銆?  2. 鏂板 **GATE Design Pitfalls** 绔犺妭锛圱ASK-003锛夛細
+     - Pitfall 1锛圙ATE 鎻忚堪鑷垜鍛戒腑 / Self-Collision锛? 妗堜緥鐮旂┒ + 鑷煡娓呭崟锛?     - 棰勭暀 `fcop_audit` D8 scan锛坄_scan_gate_self_collision()`锛夐敋鐐癸紙褰?v1.5锛夈€?  3. 鐗堟湰鍙蜂粠 2.1.0 鍗囪嚦 2.2.0銆?
   v2.2 changes:
   1. Added **`supersedes:` frontmatter field** (TASK-004): optional field for all
      envelope types (TASK/REPORT/ISSUE/REVIEW); file-level correction semantics
@@ -1501,25 +1197,18 @@ Three things the protocol explicitly grants you:
   2. Added **GATE Design Pitfalls** section (TASK-003): Pitfall 1 (self-collision
      case study with Bridgeflow OPS I-14); semantic verification guidance;
      GATE design self-check list; placeholder for D8 scan (v1.5).
-  3. Version bumped 2.1.0 → 2.2.0.
+  3. Version bumped 2.1.0 鈫?2.2.0.
 
-- **v2.1** (2026-05-12) — **v1.3 capabilities commentary**，随 `fcop@1.3.1`：
-  1. 新增 **Rule 9.6 Commentary**（协议体检 `fcop_audit()` 操作指南）：
-     - 三场景决策树（new / upgrade / takeover / auto）
-     - INSPECTION envelope 文件命名与归档规范
-     - `fcop/shared/` 目录表新增 `INSPECTION-` 行
-     - Execution Block 建议语义声明（非协议指令）
-     - P0 violation 处置原则
-  2. 新增 **Rule 9.7 Commentary**（GAL 治理告警操作指南）：
-     - 三类漂移信号触发条件与处置建议表
-     - FCoP-Rule-G1 协议公理解释与实践含义
-     - `fcop_list_alerts` / `fcop_create_alert` 调用示例
-  3. 新增 **批量整改授权模式**（Batch Remediation Authorization）：
-     - proposal frontmatter `scope: batch-remediation` + `files: [...]` 语义
-     - 批量 TASK + 批量 REPORT 规则
-     - 约束：同质改动、不超范围、diff 摘要必须
-  4. 版本号从 2.0.0 升至 2.1.0。
-
+- **v2.1** (2026-05-12) 鈥?**v1.3 capabilities commentary**锛岄殢 `fcop@1.3.1`锛?  1. 鏂板 **Rule 9.6 Commentary**锛堝崗璁綋妫€ `fcop_audit()` 鎿嶄綔鎸囧崡锛夛細
+     - 涓夊満鏅喅绛栨爲锛坣ew / upgrade / takeover / auto锛?     - INSPECTION envelope 鏂囦欢鍛藉悕涓庡綊妗ｈ鑼?     - `fcop/shared/` 鐩綍琛ㄦ柊澧?`INSPECTION-` 琛?     - Execution Block 寤鸿璇箟澹版槑锛堥潪鍗忚鎸囦护锛?     - P0 violation 澶勭疆鍘熷垯
+  2. 鏂板 **Rule 9.7 Commentary**锛圙AL 娌荤悊鍛婅鎿嶄綔鎸囧崡锛夛細
+     - 涓夌被婕傜Щ淇″彿瑙﹀彂鏉′欢涓庡缃缓璁〃
+     - FCoP-Rule-G1 鍗忚鍏悊瑙ｉ噴涓庡疄璺靛惈涔?     - `fcop_list_alerts` / `fcop_create_alert` 璋冪敤绀轰緥
+  3. 鏂板 **鎵归噺鏁存敼鎺堟潈妯″紡**锛圔atch Remediation Authorization锛夛細
+     - proposal frontmatter `scope: batch-remediation` + `files: [...]` 璇箟
+     - 鎵归噺 TASK + 鎵归噺 REPORT 瑙勫垯
+     - 绾︽潫锛氬悓璐ㄦ敼鍔ㄣ€佷笉瓒呰寖鍥淬€乨iff 鎽樿蹇呴』
+  4. 鐗堟湰鍙蜂粠 2.0.0 鍗囪嚦 2.1.0銆?
   v2.1 changes:
   1. Added **Rule 9.6 Commentary** (`fcop_audit()` Protocol Inspection guide):
      three-scenario decision tree; INSPECTION envelope naming; `fcop/shared/`
@@ -1530,51 +1219,41 @@ Three things the protocol explicitly grants you:
   3. Added **Batch Remediation Authorization** mechanism:
      `scope: batch-remediation` in proposal frontmatter; batch TASK+REPORT rules;
      constraints (homogeneous changes, no scope creep, diff summary required).
-  4. Version bumped 2.0.0 → 2.1.0.
+  4. Version bumped 2.0.0 鈫?2.1.0.
 
-- **v2.0** (2026-05-11) — **v1.1 capabilities commentary**，随 `fcop@1.1.0`：
-  1. Rule 9.1 Commentary 扩展：`decision` 枚举增至 5 值（`needs_human`），
-     新增 `human_approval` 子结构说明与 `mark_human_approved()` 流程。
-  2. 新增 **Rule 9.5 Commentary**（三小节）：
-     - 9.5.1 `Task.risk_level` 四级枚举与工具层行为对照表
-     - 9.5.2 `needs_human` → `mark_human_approved` 完整审批流程图
-     - 9.5.3 `Skill.tools[]` 风险元数据示例与调用约定
-  3. 版本号从 1.9.0 升为 2.0.0（此次新增节数显著；v1.9 是 v1.0 final
-     commentary；v2.0 是 v1.1 commentary 的起点）。
-
+- **v2.0** (2026-05-11) 鈥?**v1.1 capabilities commentary**锛岄殢 `fcop@1.1.0`锛?  1. Rule 9.1 Commentary 鎵╁睍锛歚decision` 鏋氫妇澧炶嚦 5 鍊硷紙`needs_human`锛夛紝
+     鏂板 `human_approval` 瀛愮粨鏋勮鏄庝笌 `mark_human_approved()` 娴佺▼銆?  2. 鏂板 **Rule 9.5 Commentary**锛堜笁灏忚妭锛夛細
+     - 9.5.1 `Task.risk_level` 鍥涚骇鏋氫妇涓庡伐鍏峰眰琛屼负瀵圭収琛?     - 9.5.2 `needs_human` 鈫?`mark_human_approved` 瀹屾暣瀹℃壒娴佺▼鍥?     - 9.5.3 `Skill.tools[]` 椋庨櫓鍏冩暟鎹ず渚嬩笌璋冪敤绾﹀畾
+  3. 鐗堟湰鍙蜂粠 1.9.0 鍗囦负 2.0.0锛堟娆℃柊澧炶妭鏁版樉钁楋紱v1.9 鏄?v1.0 final
+     commentary锛泇2.0 鏄?v1.1 commentary 鐨勮捣鐐癸級銆?
   v2.0 changes:
   1. Rule 9.1 commentary expanded: `decision` enum grows to 5 values
      (`needs_human`); added `human_approval` sub-structure and
      `mark_human_approved()` flow description.
   2. Added **Rule 9.5 Commentary** (three sub-sections):
      - 9.5.1 `Task.risk_level` four-tier table with tooling behavior
-     - 9.5.2 `needs_human` → `mark_human_approved` full approval flow
+     - 9.5.2 `needs_human` 鈫?`mark_human_approved` full approval flow
      - 9.5.3 `Skill.tools[]` risk metadata example and calling convention
   3. Version bumped from 1.9.0 to 2.0.0 (significant section additions;
      v1.9 was v1.0-final commentary; v2.0 is v1.1 commentary baseline).
 
-- **v1.9** (2026-05-10) — **v1.0 final · Rule 9 complete commentary + 七大核心概念**,
+- **v1.9** (2026-05-10) 鈥?**v1.0 final 路 Rule 9 complete commentary + 涓冨ぇ鏍稿績姒傚康**,
   shipped with `fcop@1.0.0`:
-  1. **Rule 9 Commentary** 节（9.1–9.4）补完——REVIEW 命名、Boundary 层级检查清单、
-     Failure 4×5 操作指南、Event 12 类型与 `poll_once()` 使用说明。
-  2. 顶部 v1.7.0 占位 note 替换为指向正式 commentary 节的引用。
-  3. `fcop-rules.mdc` 同步升至 **2.1.0**：新增"FCoP 定位与七大核心概念"双语小节
-     （AI OS 协议栈三层图示 + 七概念对照表）。
-  4. `AGENTS.md` / `CLAUDE.md` 同步重新生成（rules 2.1.0 / protocol 1.9.0）。
-
+  1. **Rule 9 Commentary** 鑺傦紙9.1鈥?.4锛夎ˉ瀹屸€斺€擱EVIEW 鍛藉悕銆丅oundary 灞傜骇妫€鏌ユ竻鍗曘€?     Failure 4脳5 鎿嶄綔鎸囧崡銆丒vent 12 绫诲瀷涓?`poll_once()` 浣跨敤璇存槑銆?  2. 椤堕儴 v1.7.0 鍗犱綅 note 鏇挎崲涓烘寚鍚戞寮?commentary 鑺傜殑寮曠敤銆?  3. `fcop-rules.mdc` 鍚屾鍗囪嚦 **2.1.0**锛氭柊澧?FCoP 瀹氫綅涓庝竷澶ф牳蹇冩蹇?鍙岃灏忚妭
+     锛圓I OS 鍗忚鏍堜笁灞傚浘绀?+ 涓冩蹇靛鐓ц〃锛夈€?  4. `AGENTS.md` / `CLAUDE.md` 鍚屾閲嶆柊鐢熸垚锛坮ules 2.1.0 / protocol 1.9.0锛夈€?
   v1.9 changes:
-  1. Added **Rule 9 Commentary** section (9.1–9.4): REVIEW naming, Boundary
-     layer checklist, Failure 4×5 operations guide, Event 12 types & `poll_once()`.
+  1. Added **Rule 9 Commentary** section (9.1鈥?.4): REVIEW naming, Boundary
+     layer checklist, Failure 4脳5 operations guide, Event 12 types & `poll_once()`.
   2. Replaced v1.7 deferral note at top with a pointer to the now-complete section.
   3. `fcop-rules.mdc` bumped to **2.1.0**: new bilingual "Protocol Position &
      Seven Core Concepts" section (AI OS stack diagram + seven-concept table).
   4. `AGENTS.md` / `CLAUDE.md` regenerated (rules 2.1.0 / protocol 1.9.0).
 
-- **v1.7** (2026-05-09) — **AI OS Protocol Layer + Rule 9 (v1.0 capabilities)**,
+- **v1.7** (2026-05-09) 鈥?**AI OS Protocol Layer + Rule 9 (v1.0 capabilities)**,
   shipped with `fcop 1.0.0-rc.1` / `fcop-mcp 1.0.0-rc.1`:
-  1. New **Rule 9 · v1.0 Capabilities** in `fcop-rules.mdc` (1.9.0)
+  1. New **Rule 9 路 v1.0 Capabilities** in `fcop-rules.mdc` (1.9.0)
      covering 4 sub-sections (REVIEW envelope / Agent Boundary /
-     Failure & Recovery / Event Model) — formal rules surface for
+     Failure & Recovery / Event Model) 鈥?formal rules surface for
      the v1.0 reframing as **AI OS Protocol Layer**.
   2. Detailed protocol-commentary expansion of Rule 9 sub-sections is
      **deferred to v1.0 final**. Until then this file points readers
@@ -1582,67 +1261,50 @@ Three things the protocol explicitly grants you:
      `adr/ADR-0017..0020`, and `docs/getting-started.md`'s v1.0
      capability cheatsheet section. See the "v1.0 Capabilities
      pointer" callout near the top of this file.
-  3. Frontmatter `description` retains the "AI OS protocol layer ·
+  3. Frontmatter `description` retains the "AI OS protocol layer 路
      v1.0" framing introduced in v1.6.
 
-  v1.7 升级（与 `fcop 1.0.0-rc.1` / `fcop-mcp 1.0.0-rc.1` 同发）：
-  1. `fcop-rules.mdc`（1.9.0）新增 **Rule 9 · v1.0 Capabilities**——4 子段对应 v1.0 reframing 为 **AI OS 协议层** 后新增的 4 抽象（REVIEW 第 4 类 IPC / Agent Boundary / Failure & Recovery / Event Model）。
-  2. 详细 commentary 留 v1.0 final；现阶段顶部 callout 指向 schema +
-     ADR + getting-started 速查。
-  3. Frontmatter description 保持 v1.6 的 "AI OS 协议层 · v1.0"
-     framing。
-
-- **v1.0** (2026-04-20) — initial filename-is-routing + YAML-frontmatter-is-
+  v1.7 鍗囩骇锛堜笌 `fcop 1.0.0-rc.1` / `fcop-mcp 1.0.0-rc.1` 鍚屽彂锛夛細
+  1. `fcop-rules.mdc`锛?.9.0锛夋柊澧?**Rule 9 路 v1.0 Capabilities**鈥斺€? 瀛愭瀵瑰簲 v1.0 reframing 涓?**AI OS 鍗忚灞?* 鍚庢柊澧炵殑 4 鎶借薄锛圧EVIEW 绗?4 绫?IPC / Agent Boundary / Failure & Recovery / Event Model锛夈€?  2. 璇︾粏 commentary 鐣?v1.0 final锛涚幇闃舵椤堕儴 callout 鎸囧悜 schema +
+     ADR + getting-started 閫熸煡銆?  3. Frontmatter description 淇濇寔 v1.6 鐨?"AI OS 鍗忚灞?路 v1.0"
+     framing銆?
+- **v1.0** (2026-04-20) 鈥?initial filename-is-routing + YAML-frontmatter-is-
   payload core protocol. `protocol:` field renamed from `agent_bridge` to
   `fcop`.
-  文件名即路由、frontmatter 即消息体的基础协议；`protocol:` 字段从
-  `agent_bridge` 改名为 `fcop`。
-
-- **v1.1** (2026-04-21) — **root axiom + 8 clauses** landed after the
+  鏂囦欢鍚嶅嵆璺敱銆乫rontmatter 鍗虫秷鎭綋鐨勫熀纭€鍗忚锛沗protocol:` 瀛楁浠?  `agent_bridge` 鏀瑰悕涓?`fcop`銆?
+- **v1.1** (2026-04-21) 鈥?**root axiom + 8 clauses** landed after the
   "anti-hang triage" thread exposed gaps around self-binding, multi-session
   concurrency, and cross-scope organization. Proposal trail:
   `.fcop/proposals/20260421-171851.md`.
-  根公理 + 8 条款落地，源于"anti-hang triage"线程暴露的自绑定 / 多会话并发 /
-  跨域组织空白。提案存证：`.fcop/proposals/20260421-171851.md`。
-
-  Clauses / 条款清单:
-  - **0** · Session Startup / UNBOUND Protocol — `fcop_report()` +
+  鏍瑰叕鐞?+ 8 鏉℃钀藉湴锛屾簮浜?anti-hang triage"绾跨▼鏆撮湶鐨勮嚜缁戝畾 / 澶氫細璇濆苟鍙?/
+  璺ㄥ煙缁勭粐绌虹櫧銆傛彁妗堝瓨璇侊細`.fcop/proposals/20260421-171851.md`銆?
+  Clauses / 鏉℃娓呭崟:
+  - **0** 路 Session Startup / UNBOUND Protocol 鈥?`fcop_report()` +
     explicit ADMIN assignment before any write.
-    会话启动 · UNBOUND 协议。
-  - **1** · Solo vs Team Mode — `fcop.json` declares `mode`.
-    独模 / 团队模，由 `fcop.json` 显式声明。
-  - **2** · Team-scoped Directories — `fcop/{team}/` when
+    浼氳瘽鍚姩 路 UNBOUND 鍗忚銆?  - **1** 路 Solo vs Team Mode 鈥?`fcop.json` declares `mode`.
+    鐙ā / 鍥㈤槦妯★紝鐢?`fcop.json` 鏄惧紡澹版槑銆?  - **2** 路 Team-scoped Directories 鈥?`fcop/{team}/` when
     multi-team, flat otherwise.
-    团队作用域目录。
-  - **3** · `fcop.json` as Sole Identity Authority — wins over any
+    鍥㈤槦浣滅敤鍩熺洰褰曘€?  - **3** 路 `fcop.json` as Sole Identity Authority 鈥?wins over any
     other source.
-    `fcop.json` 是身份唯一权威源。
-  - **4** · One Active Driver per `thread_key` — co-review or explicit
+    `fcop.json` 鏄韩浠藉敮涓€鏉冨▉婧愩€?  - **4** 路 One Active Driver per `thread_key` 鈥?co-review or explicit
     handoff, never parallel drivers.
-    每个 `thread_key` 只能有一个活跃 driver。
-  - **5** · Optional `session_id` in frontmatter — session-level audit
+    姣忎釜 `thread_key` 鍙兘鏈変竴涓椿璺?driver銆?  - **5** 路 Optional `session_id` in frontmatter 鈥?session-level audit
     attribution.
-    可选 `session_id`，会话级追责。
-  - **6** · `inbox/` & `outbox/` for Cross-scope Coordination — sync
+    鍙€?`session_id`锛屼細璇濈骇杩借矗銆?  - **6** 路 `inbox/` & `outbox/` for Cross-scope Coordination 鈥?sync
     mechanism itself is out of FCoP scope.
-    `inbox/` / `outbox/` 跨域协作，同步机制不归 FCoP 管。
-  - **7** · `fcop://` URI Routing (optional) — fully-qualified logical
+    `inbox/` / `outbox/` 璺ㄥ煙鍗忎綔锛屽悓姝ユ満鍒朵笉褰?FCoP 绠°€?  - **7** 路 `fcop://` URI Routing (optional) 鈥?fully-qualified logical
     addresses for cross-scope messages.
-    `fcop://` URI 路由（可选），跨作用域时用的完全限定地址。
-
-- **v1.2** (2026-04-22) — **Solo → Team migration recipe** added under
+    `fcop://` URI 璺敱锛堝彲閫夛級锛岃法浣滅敤鍩熸椂鐢ㄧ殑瀹屽叏闄愬畾鍦板潃銆?
+- **v1.2** (2026-04-22) 鈥?**Solo 鈫?Team migration recipe** added under
   "Project Mode & Identity". Documents the "team constitution" pattern
   (`shared/TEAM-ROLES.md` + `shared/TEAM-OPERATING-RULES.md`) first
   observed in the wild when a GPT-5.4 agent self-organized the
-  Solo→Team handoff, and formalizes per-file archival of Solo history
+  Solo鈫扵eam handoff, and formalizes per-file archival of Solo history
   into `log/solo-archive/` using the existing `archive_task()` tool.
   No new tools; protocol-commentary-only change.
-  新增「Solo → Team 迁移推荐做法」一节：把野外观察到的"团队宪法"做法
-  （`shared/TEAM-ROLES.md` + `shared/TEAM-OPERATING-RULES.md`）写进协议
-  解释，并明确用现有 `archive_task()` 逐份把 Solo 历史归档到
-  `log/solo-archive/`。不加新工具。
-
-- **v1.6** (2026-04-27) — three protocol clarifications shipped together
+  鏂板銆孲olo 鈫?Team 杩佺Щ鎺ㄨ崘鍋氭硶銆嶄竴鑺傦細鎶婇噹澶栬瀵熷埌鐨?鍥㈤槦瀹硶"鍋氭硶
+  锛坄shared/TEAM-ROLES.md` + `shared/TEAM-OPERATING-RULES.md`锛夊啓杩涘崗璁?  瑙ｉ噴锛屽苟鏄庣‘鐢ㄧ幇鏈?`archive_task()` 閫愪唤鎶?Solo 鍘嗗彶褰掓。鍒?  `log/solo-archive/`銆備笉鍔犳柊宸ュ叿銆?
+- **v1.6** (2026-04-27) 鈥?three protocol clarifications shipped together
   with `fcop 0.7.1` / `fcop-mcp 0.7.1`:
   1. **Sub-agents inherit the caller's seat.** When a parent agent
      spawns sub-processes, sub-tasks, parallel workers, or any shape of
@@ -1652,17 +1314,17 @@ Three things the protocol explicitly grants you:
      parent session; sub-agents must NOT self-claim a different role
      code (writing as `CODE_EXPERT` while the parent is `PLANNER` is a
      Rule 1 violation regardless of how the child was spawned).
-     Detection now lives in `fcop_check()` — same `session_id` showing
+     Detection now lives in `fcop_check()` 鈥?same `session_id` showing
      up under two role codes is direct evidence and gets surfaced to
      ADMIN.
   2. **Rule 0.a.1 binds every write path, not only MCP tools.**
      The `new_workspace` / `init_project` tripwires only guard their
-     own entry points — bypassing them with raw `echo > file.md`,
+     own entry points 鈥?bypassing them with raw `echo > file.md`,
      `git commit -am`, IDE-side editing, or any external script
      remains a Rule 0.a.1 violation. `fcop_check()` (new in 0.7.1)
      cross-references `git diff` against the FCoP ledger and lists
      product changes that are not tied to any open task. This is
-     **post-hoc audit, not prevention** — prevention still depends
+     **post-hoc audit, not prevention** 鈥?prevention still depends
      on the agent honouring the four-step cycle.
   3. **Rule 5 corrections unify under sequential filenames.** The
      historical `AMEND-*` and `*-v2.md` examples are removed. Parsers
@@ -1672,19 +1334,12 @@ Three things the protocol explicitly grants you:
      **same prefix with the next sequence number** and reference the
      original in the new body.
 
-  v1.6 三处协议澄清，与 `fcop 0.7.1` / `fcop-mcp 0.7.1` 同发：
-  1. **子 agent 继承呼叫者的席位**——派生子进程、子任务、并行 worker
-     都视为同一个 FCoP 角色，子 agent 落盘时 `sender`/`reporter`
-     必须沿用父会话被指派的角色，禁止自命另一角色代写。
-     `fcop_check()` 做 `session_id ↔ role` 一致性审计来事后发现。
-  2. **Rule 0.a.1 适用所有写入路径**——MCP 工具层的 tripwire 只能拦
-     自己这条路；用 shell / git commit / IDE 直接写文件依旧违规。
-     `fcop_check()` 新增对照 `git diff` 与 FCoP 账本的事后审计。
-  3. **Rule 5 修正统一走"下一序号同前缀"**——移除 `AMEND-*` /
-     `*-v2.md` 历史例子（解析器从未识别这两种前缀，写出去就是幽灵
-     文件）。
-
-- **v1.3** (2026-04-17) — **Three-layer team docs** promoted from
+  v1.6 涓夊鍗忚婢勬竻锛屼笌 `fcop 0.7.1` / `fcop-mcp 0.7.1` 鍚屽彂锛?  1. **瀛?agent 缁ф壙鍛煎彨鑰呯殑甯綅**鈥斺€旀淳鐢熷瓙杩涚▼銆佸瓙浠诲姟銆佸苟琛?worker
+     閮借涓哄悓涓€涓?FCoP 瑙掕壊锛屽瓙 agent 钀界洏鏃?`sender`/`reporter`
+     蹇呴』娌跨敤鐖朵細璇濊鎸囨淳鐨勮鑹诧紝绂佹鑷懡鍙︿竴瑙掕壊浠ｅ啓銆?     `fcop_check()` 鍋?`session_id 鈫?role` 涓€鑷存€у璁℃潵浜嬪悗鍙戠幇銆?  2. **Rule 0.a.1 閫傜敤鎵€鏈夊啓鍏ヨ矾寰?*鈥斺€擬CP 宸ュ叿灞傜殑 tripwire 鍙兘鎷?     鑷繁杩欐潯璺紱鐢?shell / git commit / IDE 鐩存帴鍐欐枃浠朵緷鏃ц繚瑙勩€?     `fcop_check()` 鏂板瀵圭収 `git diff` 涓?FCoP 璐︽湰鐨勪簨鍚庡璁°€?  3. **Rule 5 淇缁熶竴璧?涓嬩竴搴忓彿鍚屽墠缂€"**鈥斺€旂Щ闄?`AMEND-*` /
+     `*-v2.md` 鍘嗗彶渚嬪瓙锛堣В鏋愬櫒浠庢湭璇嗗埆杩欎袱绉嶅墠缂€锛屽啓鍑哄幓灏辨槸骞界伒
+     鏂囦欢锛夈€?
+- **v1.3** (2026-04-17) 鈥?**Three-layer team docs** promoted from
   recommendation to **protocol rule** (Rule 4.5 in `fcop-rules.mdc`).
   Packaged sample library rewritten to match: every preset team
   (`dev-team` / `media-team` / `mvp-team` / `qa-team`) now ships a
@@ -1698,150 +1353,117 @@ Three things the protocol explicitly grants you:
   directly; `fcop://teams/{team}/{role}` now resolves against
   `roles/{role}.md` with fallback to the legacy flat layout. `ADMIN`
   is documented in `TEAM-README.md`, never under `roles/`.
-  三层团队文档从推荐做法升格为**协议规则**（`fcop-rules.mdc` Rule 4.5）。
-  包内样板库全部改写为四件套（`TEAM-README.md` / `TEAM-ROLES.md` /
-  `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`），四个预设团队全部
-  双语。新增 `deploy_role_templates` 工具（默认 `force=True`，冲突文件
-  自动归档到 `.fcop/migrations/<时间戳>/`）。新增
-  `fcop://teams/{team}/TEAM-ROLES` / `.../TEAM-OPERATING-RULES` 两条
-  资源；`fcop://teams/{team}/{role}` 改走 `roles/{role}.md`，并保留
-  旧 `*-01` 扁平路径的回退。`ADMIN` 职责统一写在 `TEAM-README.md` 里，
-  不进 `roles/`。
-
+  涓夊眰鍥㈤槦鏂囨。浠庢帹鑽愬仛娉曞崌鏍间负**鍗忚瑙勫垯**锛坄fcop-rules.mdc` Rule 4.5锛夈€?  鍖呭唴鏍锋澘搴撳叏閮ㄦ敼鍐欎负鍥涗欢濂楋紙`TEAM-README.md` / `TEAM-ROLES.md` /
+  `TEAM-OPERATING-RULES.md` / `roles/{ROLE}.md`锛夛紝鍥涗釜棰勮鍥㈤槦鍏ㄩ儴
+  鍙岃銆傛柊澧?`deploy_role_templates` 宸ュ叿锛堥粯璁?`force=True`锛屽啿绐佹枃浠?  鑷姩褰掓。鍒?`.fcop/migrations/<鏃堕棿鎴?/`锛夈€傛柊澧?  `fcop://teams/{team}/TEAM-ROLES` / `.../TEAM-OPERATING-RULES` 涓ゆ潯
+  璧勬簮锛沗fcop://teams/{team}/{role}` 鏀硅蛋 `roles/{role}.md`锛屽苟淇濈暀
+  鏃?`*-01` 鎵佸钩璺緞鐨勫洖閫€銆俙ADMIN` 鑱岃矗缁熶竴鍐欏湪 `TEAM-README.md` 閲岋紝
+  涓嶈繘 `roles/`銆?
 ---
 
-## Auto-Patrol / 自动巡检
+## Auto-Patrol / 鑷姩宸℃
 
 > Implements Rule 6 (Reciprocity): agents should poll their inbox when
 > ADMIN says so, not ignore standing work.
-> 本节是 Rule 6（互惠回执）的落地：ADMIN 发出触发词时，Agent 应主动
-> 巡检自己的收件区，而不是对积压工作视而不见。
-
-### Trigger / 触发条件
+> 鏈妭鏄?Rule 6锛堜簰鎯犲洖鎵э級鐨勮惤鍦帮細ADMIN 鍙戝嚭瑙﹀彂璇嶆椂锛孉gent 搴斾富鍔?> 宸℃鑷繁鐨勬敹浠跺尯锛岃€屼笉鏄绉帇宸ヤ綔瑙嗚€屼笉瑙併€?
+### Trigger / 瑙﹀彂鏉′欢
 
 Start a patrol when the user (typically ADMIN) says any of:
-当用户（通常是 ADMIN）说出以下任意内容时启动巡检：
-
-- 开始工作 / 开工 / 开始巡检 / 巡检
+褰撶敤鎴凤紙閫氬父鏄?ADMIN锛夎鍑轰互涓嬩换鎰忓唴瀹规椂鍚姩宸℃锛?
+- 寮€濮嬪伐浣?/ 寮€宸?/ 寮€濮嬪贰妫€ / 宸℃
 - start working / start patrol / patrol / go
 
-### Patrol Actions / 巡检动作
+### Patrol Actions / 宸℃鍔ㄤ綔
 
-1. **Check new tasks / 检查新任务**
+1. **Check new tasks / 妫€鏌ユ柊浠诲姟**
    - Call `list_tasks` filtered by your role code.
-     用 `list_tasks`，按你的角色代码筛选。
-   - Found new task → `read_task` and execute.
-     发现新任务 → `read_task` 读取并执行。
-   - None → report "No pending tasks / 暂无新任务".
-2. **Check reports / 检查报告**
+     鐢?`list_tasks`锛屾寜浣犵殑瑙掕壊浠ｇ爜绛涢€夈€?   - Found new task 鈫?`read_task` and execute.
+     鍙戠幇鏂颁换鍔?鈫?`read_task` 璇诲彇骞舵墽琛屻€?   - None 鈫?report "No pending tasks / 鏆傛棤鏂颁换鍔?.
+2. **Check reports / 妫€鏌ユ姤鍛?*
    - Call `list_reports`.
    - If you are `leader`, review incoming reports.
-     如果你是 `leader`，审核新报告。
-   - If you are executor, check for rework requests.
-     执行角色则检查是否有返工要求。
-3. **Check issues / 检查问题**
+     濡傛灉浣犳槸 `leader`锛屽鏍告柊鎶ュ憡銆?   - If you are executor, check for rework requests.
+     鎵ц瑙掕壊鍒欐鏌ユ槸鍚︽湁杩斿伐瑕佹眰銆?3. **Check issues / 妫€鏌ラ棶棰?*
    - Call `list_issues`, surface anything still open.
-     用 `list_issues`，报告未关闭的问题。
-
-### Report Format / 汇报格式
+     鐢?`list_issues`锛屾姤鍛婃湭鍏抽棴鐨勯棶棰樸€?
+### Report Format / 姹囨姤鏍煎紡
 
 ```
-Patrol result / 巡检结果：
-- Pending tasks / 待处理任务：N
-- New reports / 新报告：N
-- Open issues / 未解决问题：N
+Patrol result / 宸℃缁撴灉锛?- Pending tasks / 寰呭鐞嗕换鍔★細N
+- New reports / 鏂版姤鍛婏細N
+- Open issues / 鏈В鍐抽棶棰橈細N
 ```
 
-### Patrol Rules / 巡检规则
+### Patrol Rules / 宸℃瑙勫垯
 
 - Only handle tasks whose filename contains `to-{your role}`.
-  只处理文件名里含 `to-{你的角色}` 的任务。
-- Always write a report (or a follow-up task) after completing a task.
-  完成任务后必须写报告（或派出后续任务）。
-- Always record blockers as `ISSUE-*.md` under `issues/`.
-  阻塞 / 风险必须写成 `ISSUE-*.md` 落到 `issues/`。
-
+  鍙鐞嗘枃浠跺悕閲屽惈 `to-{浣犵殑瑙掕壊}` 鐨勪换鍔°€?- Always write a report (or a follow-up task) after completing a task.
+  瀹屾垚浠诲姟鍚庡繀椤诲啓鎶ュ憡锛堟垨娲惧嚭鍚庣画浠诲姟锛夈€?- Always record blockers as `ISSUE-*.md` under `issues/`.
+  闃诲 / 椋庨櫓蹇呴』鍐欐垚 `ISSUE-*.md` 钀藉埌 `issues/`銆?
 ---
 
-## Rule 9 Commentary · v1.0 新增能力的协议解释
-
-> 本节是 `fcop-rules.mdc` Rule 9（9.1–9.4）的**协议解释**，
-> 说明四个 v1.0 抽象在实际操作中如何落地。规则本身以 `fcop-rules.mdc` 为准。
->
-> This section is the **protocol commentary** for Rule 9 (9.1–9.4)
-> — how the four v1.0 abstractions apply in practice.
+## Rule 9 Commentary 路 v1.0 鏂板鑳藉姏鐨勫崗璁В閲?
+> 鏈妭鏄?`fcop-rules.mdc` Rule 9锛?.1鈥?.4锛夌殑**鍗忚瑙ｉ噴**锛?> 璇存槑鍥涗釜 v1.0 鎶借薄鍦ㄥ疄闄呮搷浣滀腑濡備綍钀藉湴銆傝鍒欐湰韬互 `fcop-rules.mdc` 涓哄噯銆?>
+> This section is the **protocol commentary** for Rule 9 (9.1鈥?.4)
+> 鈥?how the four v1.0 abstractions apply in practice.
 > The authoritative rules are in `fcop-rules.mdc`.
 
-### 9.1 Commentary · REVIEW 文件命名与 Audit 链
-
-**文件命名 / File naming**
+### 9.1 Commentary 路 REVIEW 鏂囦欢鍛藉悕涓?Audit 閾?
+**鏂囦欢鍛藉悕 / File naming**
 
 ```
 REVIEW-{YYYYMMDD}-{NNN}-{REVIEWER}.md
-# 示例 / example
+# 绀轰緥 / example
 REVIEW-20260510-001-LEAD-QA.md
 ```
 
-`{NNN}` 是当天的三位序号，与 TASK/REPORT/ISSUE 共用同一命名空间
-（不是 review 独立的序号体系）。
-
-**YAML frontmatter 必填字段 / Required frontmatter fields**
+`{NNN}` 鏄綋澶╃殑涓変綅搴忓彿锛屼笌 TASK/REPORT/ISSUE 鍏辩敤鍚屼竴鍛藉悕绌洪棿
+锛堜笉鏄?review 鐙珛鐨勫簭鍙蜂綋绯伙級銆?
+**YAML frontmatter 蹇呭～瀛楁 / Required frontmatter fields**
 
 ```yaml
-subject_id: TASK-20260510-002-ADMIN-to-ME   # 被审核的文件 ID
+subject_id: TASK-20260510-002-ADMIN-to-ME   # 琚鏍哥殑鏂囦欢 ID
 decision: approved                           # approved | changes_requested | blocked | rejected | needs_human
 reviewer: LEAD-QA
 reviewed_at: "2026-05-10T01:30:00+08:00"
 ```
 
-**v1.1 新增：`needs_human` + `human_approval` 流程**
+**v1.1 鏂板锛歚needs_human` + `human_approval` 娴佺▼**
 
 ```yaml
-# 写 REVIEW 时 decision = needs_human
+# 鍐?REVIEW 鏃?decision = needs_human
 decision: needs_human
-# 人工审批后，调用 mark_human_approved() 追加：
-human_approval:
+# 浜哄伐瀹℃壒鍚庯紝璋冪敤 mark_human_approved() 杩藉姞锛?human_approval:
   approved_by: "alice@example.com"
   approved_at: "2026-05-11T09:00:00+08:00"
-  note: "已与安全团队确认，可以执行"
+  note: "宸蹭笌瀹夊叏鍥㈤槦纭锛屽彲浠ユ墽琛?
 ```
 
-- 当 `decision = needs_human` 时，task 执行**必须暂停**，等待
-  ADMIN 调用 `mark_human_approved(review_id)` 后再继续。
-- `mark_human_approved` 将 `human_approval` 子结构落盘，并把
-  REVIEW 的 decision 更新为 `approved`（由人工代理）。
-- Agent **不得**自行把 `needs_human` 改为其他值。
-
+- 褰?`decision = needs_human` 鏃讹紝task 鎵ц**蹇呴』鏆傚仠**锛岀瓑寰?  ADMIN 璋冪敤 `mark_human_approved(review_id)` 鍚庡啀缁х画銆?- `mark_human_approved` 灏?`human_approval` 瀛愮粨鏋勮惤鐩橈紝骞舵妸
+  REVIEW 鐨?decision 鏇存柊涓?`approved`锛堢敱浜哄伐浠ｇ悊锛夈€?- Agent **涓嶅緱**鑷鎶?`needs_human` 鏀逛负鍏朵粬鍊笺€?
 When `decision = needs_human`, task execution **MUST pause** until
 ADMIN calls `mark_human_approved(review_id)`. The tool writes the
 `human_approval` block and transitions the decision to `approved`
 (human-delegated). Agents must never overwrite `needs_human` directly.
 
-**写 REVIEW 的时机 / When to write a REVIEW**
+**鍐?REVIEW 鐨勬椂鏈?/ When to write a REVIEW**
 
-- agent 被要求对某 TASK/REPORT/ISSUE 给出判断时。
-- `write_task` 传入 `risk_level=high` 或 `irreversible` 时**自动触发**。
-- 不要用 REVIEW 替代 REPORT 关闭任务（Rule 6 互惠）。
-- REVIEW 是 **audit 痕迹**，不启动新工作轮次。
-
+- agent 琚姹傚鏌?TASK/REPORT/ISSUE 缁欏嚭鍒ゆ柇鏃躲€?- `write_task` 浼犲叆 `risk_level=high` 鎴?`irreversible` 鏃?*鑷姩瑙﹀彂**銆?- 涓嶈鐢?REVIEW 鏇夸唬 REPORT 鍏抽棴浠诲姟锛圧ule 6 浜掓儬锛夈€?- REVIEW 鏄?**audit 鐥曡抗**锛屼笉鍚姩鏂板伐浣滆疆娆°€?
 When an agent is asked to render a judgment on a TASK / REPORT / ISSUE,
 or when `write_task` is called with `risk_level=high/irreversible`
 (auto-triggered). Do not substitute REVIEW for REPORT when closing a
 task (Rule 6 reciprocity still applies). REVIEW is an **audit artefact**,
 not a new work round.
 
-### 9.2 Commentary · Boundary 层级与能力检查清单
-
-**层级定义 / Layer definitions**（`fcop.json` → `roles[n].layer`）
-
-| 层级 / Layer | 典型角色 | 权限范围 |
+### 9.2 Commentary 路 Boundary 灞傜骇涓庤兘鍔涙鏌ユ竻鍗?
+**灞傜骇瀹氫箟 / Layer definitions**锛坄fcop.json` 鈫?`roles[n].layer`锛?
+| 灞傜骇 / Layer | 鍏稿瀷瑙掕壊 | 鏉冮檺鑼冨洿 |
 |---|---|---|
-| `worker` | ME, DEV, QA, WRITER … | 执行任务；不能审核 governance 主体 |
-| `governance` | LEAD-*, PM, PLANNER | 决策派发；不能新建 governance 角色 |
-| `admin` | ADMIN | 最高权限；programmatic 创建须显式 override |
+| `worker` | ME, DEV, QA, WRITER 鈥?| 鎵ц浠诲姟锛涗笉鑳藉鏍?governance 涓讳綋 |
+| `governance` | LEAD-*, PM, PLANNER | 鍐崇瓥娲惧彂锛涗笉鑳芥柊寤?governance 瑙掕壊 |
+| `admin` | ADMIN | 鏈€楂樻潈闄愶紱programmatic 鍒涘缓椤绘樉寮?override |
 
-**能力 `can` / `cannot` 示例**（`fcop.json`）
-
+**鑳藉姏 `can` / `cannot` 绀轰緥**锛坄fcop.json`锛?
 ```json
 {
   "role": "DEV",
@@ -1851,48 +1473,43 @@ not a new work round.
 }
 ```
 
-**Agent 自查清单 / Self-check checklist**
+**Agent 鑷煡娓呭崟 / Self-check checklist**
 
-在写下敏感操作前，逐项确认：
-1. 我的 `layer` 允许此操作吗？
-2. 此操作是否违反 `cannot` 列表？
-3. 操作对象是 `governance` subject 吗？（`worker` 止步）
-
+鍦ㄥ啓涓嬫晱鎰熸搷浣滃墠锛岄€愰」纭锛?1. 鎴戠殑 `layer` 鍏佽姝ゆ搷浣滃悧锛?2. 姝ゆ搷浣滄槸鍚﹁繚鍙?`cannot` 鍒楄〃锛?3. 鎿嶄綔瀵硅薄鏄?`governance` subject 鍚楋紵锛坄worker` 姝㈡锛?
 Before a sensitive write, check:
 1. Does my `layer` allow this?
 2. Is this action in my `cannot` list?
 3. Is the subject a `governance` artefact? (`worker` must stop.)
 
-**违规处置 / Violation handling**
+**杩濊澶勭疆 / Violation handling**
 
-调用 `report_failure(failure_type="BOUNDARY_VIOLATED", ...)` 并写
-`ISSUE-` 记录违规。**禁止** "just this once" 绕过。
-
+璋冪敤 `report_failure(failure_type="BOUNDARY_VIOLATED", ...)` 骞跺啓
+`ISSUE-` 璁板綍杩濊銆?*绂佹** "just this once" 缁曡繃銆?
 Call `report_failure(failure_type="BOUNDARY_VIOLATED", ...)` and write
 an `ISSUE-`. No "just this once" bypass.
 
-### 9.3 Commentary · Failure 检测与恢复操作指南
+### 9.3 Commentary 路 Failure 妫€娴嬩笌鎭㈠鎿嶄綔鎸囧崡
 
-**4 类 failure 的触发场景 / When each failure type fires**
+**4 绫?failure 鐨勮Е鍙戝満鏅?/ When each failure type fires**
 
-| 类型 | 触发场景 | 典型表现 |
+| 绫诲瀷 | 瑙﹀彂鍦烘櫙 | 鍏稿瀷琛ㄧ幇 |
 |---|---|---|
-| `TIMEOUT` | 任务超过约定截止时间无 REPORT | 任务文件存在但无响应 |
-| `CRASH` | agent 中途停止，未写 REPORT | 文件半成品 |
-| `DEADLOCK` | 两个角色互等对方先动 | 双方 TASK 均 pending |
-| `DRIFT` | 实际执行偏离 TASK 描述 | REPORT 内容与 TASK 不匹配 |
+| `TIMEOUT` | 浠诲姟瓒呰繃绾﹀畾鎴鏃堕棿鏃?REPORT | 浠诲姟鏂囦欢瀛樺湪浣嗘棤鍝嶅簲 |
+| `CRASH` | agent 涓€斿仠姝紝鏈啓 REPORT | 鏂囦欢鍗婃垚鍝?|
+| `DEADLOCK` | 涓や釜瑙掕壊浜掔瓑瀵规柟鍏堝姩 | 鍙屾柟 TASK 鍧?pending |
+| `DRIFT` | 瀹為檯鎵ц鍋忕 TASK 鎻忚堪 | REPORT 鍐呭涓?TASK 涓嶅尮閰?|
 
-**5 类恢复动作说明 / Recovery action guide**
+**5 绫绘仮澶嶅姩浣滆鏄?/ Recovery action guide**
 
-| 动作 | 行为 | 注意 |
+| 鍔ㄤ綔 | 琛屼负 | 娉ㄦ剰 |
 |---|---|---|
-| `RETRY` | 重新执行同一任务（plan-only） | agent 拿到 plan 自行执行 |
-| `RESUME` | 从断点继续（plan-only） | 需确认文件状态 |
-| `ROLLBACK` | 回退到上一稳定状态（plan-only） | FCoP 不替你 git revert |
-| `ABORT` | 放弃，自动写 `status=aborted` REPORT | 永久记录 |
-| `ESCALATE` | 上报，自动写 ISSUE 给 leader | 人工介入入口 |
+| `RETRY` | 閲嶆柊鎵ц鍚屼竴浠诲姟锛坧lan-only锛?| agent 鎷垮埌 plan 鑷鎵ц |
+| `RESUME` | 浠庢柇鐐圭户缁紙plan-only锛?| 闇€纭鏂囦欢鐘舵€?|
+| `ROLLBACK` | 鍥為€€鍒颁笂涓€绋冲畾鐘舵€侊紙plan-only锛?| FCoP 涓嶆浛浣?git revert |
+| `ABORT` | 鏀惧純锛岃嚜鍔ㄥ啓 `status=aborted` REPORT | 姘镐箙璁板綍 |
+| `ESCALATE` | 涓婃姤锛岃嚜鍔ㄥ啓 ISSUE 缁?leader | 浜哄伐浠嬪叆鍏ュ彛 |
 
-**检测示例（Python SDK）**
+**妫€娴嬬ず渚嬶紙Python SDK锛?*
 
 ```python
 project.report_failure(
@@ -1902,10 +1519,8 @@ project.report_failure(
 )
 ```
 
-### 9.4 Commentary · Event 订阅与扫描操作指南
-
-**v1.0 frozen 12 事件类型 / 12 frozen event types**（`event_type` enum）
-
+### 9.4 Commentary 路 Event 璁㈤槄涓庢壂鎻忔搷浣滄寚鍗?
+**v1.0 frozen 12 浜嬩欢绫诲瀷 / 12 frozen event types**锛坄event_type` enum锛?
 ```
 TASK_CREATED  TASK_ARCHIVED  TASK_CANCELLED
 REPORT_CREATED  ISSUE_CREATED  ISSUE_RESOLVED
@@ -1913,264 +1528,219 @@ REVIEW_CREATED  PATROL_TRIGGERED  PATROL_COMPLETED
 FAILURE_DETECTED  BOUNDARY_VIOLATED  PROJECT_INITIALIZED
 ```
 
-完整 schema 见 `spec/schemas/event.schema.json`。
-
-**订阅与扫描 / Subscribe & scan**
+瀹屾暣 schema 瑙?`spec/schemas/event.schema.json`銆?
+**璁㈤槄涓庢壂鎻?/ Subscribe & scan**
 
 ```python
 def on_event(event):
     print(event.event_type, event.subject_id)
 
 project.subscribe_events(callback=on_event)
-project.poll_once()          # 必须显式调用——v1.0 无后台线程
-```
+project.poll_once()          # 蹇呴』鏄惧紡璋冪敤鈥斺€攙1.0 鏃犲悗鍙扮嚎绋?```
 
-**重要约束 / Key constraints**
+**閲嶈绾︽潫 / Key constraints**
 
-- 事件**不持久化**——重启后不重播。需要审计的必须落成文件。
-- 绝不创造 schema 未承认的事件类型。
-- `poll_once()` 是同步调用；高频场景自行在外部 loop。
-
-Events are **not persisted** — they don't replay after restart. All
+- 浜嬩欢**涓嶆寔涔呭寲**鈥斺€旈噸鍚悗涓嶉噸鎾€傞渶瑕佸璁＄殑蹇呴』钀芥垚鏂囦欢銆?- 缁濅笉鍒涢€?schema 鏈壙璁ょ殑浜嬩欢绫诲瀷銆?- `poll_once()` 鏄悓姝ヨ皟鐢紱楂橀鍦烘櫙鑷鍦ㄥ閮?loop銆?
+Events are **not persisted** 鈥?they don't replay after restart. All
 audit-relevant activity must be landed as files. Never invent event
 types not in the schema. `poll_once()` is synchronous; wrap it in
 your own loop for high-frequency scenarios.
 
 ---
 
-### 9.5 Commentary · v1.1 新增能力操作指南
+### 9.5 Commentary 路 v1.1 鏂板鑳藉姏鎿嶄綔鎸囧崡
 
-#### 9.5.1 · `Task.risk_level` 使用场景
+#### 9.5.1 路 `Task.risk_level` 浣跨敤鍦烘櫙
 
-| risk_level | 含义 | 工具层行为 |
+| risk_level | 鍚箟 | 宸ュ叿灞傝涓?|
 |---|---|---|
-| `low`（默认） | 标准操作，无额外约束 | 无 |
-| `medium` | 需注意，建议说明回滚方案 | 写任务时提示 |
-| `high` | 高风险，须人工审批后执行 | 自动写出 `decision=needs_human` REVIEW |
-| `irreversible` | 不可逆，须人工审批 + 回滚说明 | 自动写出 REVIEW，正文强调不可逆 |
+| `low`锛堥粯璁わ級 | 鏍囧噯鎿嶄綔锛屾棤棰濆绾︽潫 | 鏃?|
+| `medium` | 闇€娉ㄦ剰锛屽缓璁鏄庡洖婊氭柟妗?| 鍐欎换鍔℃椂鎻愮ず |
+| `high` | 楂橀闄╋紝椤讳汉宸ュ鎵瑰悗鎵ц | 鑷姩鍐欏嚭 `decision=needs_human` REVIEW |
+| `irreversible` | 涓嶅彲閫嗭紝椤讳汉宸ュ鎵?+ 鍥炴粴璇存槑 | 鑷姩鍐欏嚭 REVIEW锛屾鏂囧己璋冧笉鍙€?|
 
-**操作示例（MCP）**
+**鎿嶄綔绀轰緥锛圡CP锛?*
 
 ```python
-# 通过 fcop-mcp 的 write_task 工具
+# 閫氳繃 fcop-mcp 鐨?write_task 宸ュ叿
 write_task(
     recipient="OPS",
-    subject="删除 production DB 旧备份",
+    subject="鍒犻櫎 production DB 鏃у浠?,
     body="...",
-    risk_level="irreversible"   # ← v1.1 新增参数
+    risk_level="irreversible"   # 鈫?v1.1 鏂板鍙傛暟
 )
-# 工具自动：
-# 1. 写 TASK-*.md（含 risk_level 字段）
-# 2. 写 REVIEW-*.md（decision=needs_human）
-# 3. 返回提示："已创建高风险任务，等待 ADMIN 调用 mark_human_approved 后再执行"
+# 宸ュ叿鑷姩锛?# 1. 鍐?TASK-*.md锛堝惈 risk_level 瀛楁锛?# 2. 鍐?REVIEW-*.md锛坉ecision=needs_human锛?# 3. 杩斿洖鎻愮ず锛?宸插垱寤洪珮椋庨櫓浠诲姟锛岀瓑寰?ADMIN 璋冪敤 mark_human_approved 鍚庡啀鎵ц"
 ```
 
-#### 9.5.2 · `needs_human` + `mark_human_approved` 完整流程
+#### 9.5.2 路 `needs_human` + `mark_human_approved` 瀹屾暣娴佺▼
 
 ```
 write_task(risk_level="high")
-  └─ 自动写 REVIEW-*.md (decision=needs_human)
-        │
-        ▼ ADMIN 审阅
+  鈹斺攢 鑷姩鍐?REVIEW-*.md (decision=needs_human)
+        鈹?        鈻?ADMIN 瀹￠槄
 mark_human_approved(review_id="REVIEW-20260511-001-SYSTEM")
-  └─ 在 REVIEW frontmatter 追加 human_approval 块
-  └─ decision 更新为 approved
-        │
-        ▼ 执行角色继续
+  鈹斺攢 鍦?REVIEW frontmatter 杩藉姞 human_approval 鍧?  鈹斺攢 decision 鏇存柊涓?approved
+        鈹?        鈻?鎵ц瑙掕壊缁х画
 write_report(task_id, status="done", ...)
 ```
 
-通过 `read_review(review_id)` 查看当前审批状态；
-通过 `list_reviews(decision="needs_human")` 筛选待审批列表。
-
-#### 9.5.3 · `Skill.tools[]` 风险元数据示例
-
+閫氳繃 `read_review(review_id)` 鏌ョ湅褰撳墠瀹℃壒鐘舵€侊紱
+閫氳繃 `list_reviews(decision="needs_human")` 绛涢€夊緟瀹℃壒鍒楄〃銆?
+#### 9.5.3 路 `Skill.tools[]` 椋庨櫓鍏冩暟鎹ず渚?
 ```yaml
-# skill.yaml / skill.schema.json 兼容的 skill 文件示例
+# skill.yaml / skill.schema.json 鍏煎鐨?skill 鏂囦欢绀轰緥
 tools:
   - name: delete_production_data
     risk_level: irreversible
     requires_human_approval: true
-    side_effects: "永久删除，无法从 FCoP 层回滚"
+    side_effects: "姘镐箙鍒犻櫎锛屾棤娉曚粠 FCoP 灞傚洖婊?
   - name: read_logs
     risk_level: low
     requires_human_approval: false
 ```
 
-上层框架读到 `requires_human_approval: true` 时，应在调用前先走
-9.5.1 的 `write_task(risk_level=irreversible)` 流程。
-
+涓婂眰妗嗘灦璇诲埌 `requires_human_approval: true` 鏃讹紝搴斿湪璋冪敤鍓嶅厛璧?9.5.1 鐨?`write_task(risk_level=irreversible)` 娴佺▼銆?
 Upstream orchestration should trigger the 9.5.1 gate when it sees
 `requires_human_approval: true` in the tool metadata.
 
-### 9.6 Commentary · 协议体检与 INSPECTION 报告操作指南
+### 9.6 Commentary 路 鍗忚浣撴涓?INSPECTION 鎶ュ憡鎿嶄綔鎸囧崡
 
-> per ADR-0032 · fcop_audit() Protocol Inspection Compiler
+> per ADR-0032 路 fcop_audit() Protocol Inspection Compiler
 
-#### 9.6.1 · 三场景使用决策树
+#### 9.6.1 路 涓夊満鏅娇鐢ㄥ喅绛栨爲
 
 ```
-项目状态                              推荐 scope
-────────────────────────────────────────────────
-init_* 完成后，首次自检              → new
-pip install -U fcop 后验收           → upgrade
-接手没有 fcop 的陌生老项目           → takeover
-不确定                               → auto（工具自动推断）
+椤圭洰鐘舵€?                             鎺ㄨ崘 scope
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+init_* 瀹屾垚鍚庯紝棣栨鑷              鈫?new
+pip install -U fcop 鍚庨獙鏀?          鈫?upgrade
+鎺ユ墜娌℃湁 fcop 鐨勯檶鐢熻€侀」鐩?          鈫?takeover
+涓嶇‘瀹?                              鈫?auto锛堝伐鍏疯嚜鍔ㄦ帹鏂級
 ```
 
-#### 9.6.2 · MCP 调用示例
+#### 9.6.2 路 MCP 璋冪敤绀轰緥
 
 ```python
-# 接手老项目（最完整扫描）
-fcop_audit(scope="takeover", output="file")
-# → 生成 fcop/shared/INSPECTION-YYYYMMDD-001-takeover.md
+# 鎺ユ墜鑰侀」鐩紙鏈€瀹屾暣鎵弿锛?fcop_audit(scope="takeover", output="file")
+# 鈫?鐢熸垚 fcop/shared/INSPECTION-YYYYMMDD-001-takeover.md
 
-# 版本升级后验收
-fcop_audit(scope="upgrade", output="stdout")
+# 鐗堟湰鍗囩骇鍚庨獙鏀?fcop_audit(scope="upgrade", output="stdout")
 
-# 查看 Python API
+# 鏌ョ湅 Python API
 from fcop import Project, InspectionReport
 proj = Project("./myproject")
 report: InspectionReport = proj.audit(scope="auto", output="file")
 print(report.overall_status)   # green / needs_remediation / blocked
-print(report.p0_count)         # P0 阻塞性违规数
+print(report.p0_count)         # P0 闃诲鎬ц繚瑙勬暟
 ```
 
-#### 9.6.3 · INSPECTION 报告文件命名与归档
-
-| 段 | 格式 | 示例 |
+#### 9.6.3 路 INSPECTION 鎶ュ憡鏂囦欢鍛藉悕涓庡綊妗?
+| 娈?| 鏍煎紡 | 绀轰緥 |
 |---|---|---|
-| 路径 | `fcop/shared/` | — |
-| 文件名 | `INSPECTION-YYYYMMDD-NNN-{scope}.md` | `INSPECTION-20260512-001-takeover.md` |
-| frontmatter | `kind: inspection` | — |
+| 璺緞 | `fcop/shared/` | 鈥?|
+| 鏂囦欢鍚?| `INSPECTION-YYYYMMDD-NNN-{scope}.md` | `INSPECTION-20260512-001-takeover.md` |
+| frontmatter | `kind: inspection` | 鈥?|
 
-INSPECTION 文件不需要对应 TASK；`fcop_audit()` 直接写出，归档到
-`fcop/shared/` 而非 `fcop/tasks/`（它不是可派发工作单，而是项目诊断书）。
+INSPECTION 鏂囦欢涓嶉渶瑕佸搴?TASK锛沗fcop_audit()` 鐩存帴鍐欏嚭锛屽綊妗ｅ埌
+`fcop/shared/` 鑰岄潪 `fcop/tasks/`锛堝畠涓嶆槸鍙淳鍙戝伐浣滃崟锛岃€屾槸椤圭洰璇婃柇涔︼級銆?
+#### 9.6.4 路 Execution Block 璇箟澹版槑
 
-#### 9.6.4 · Execution Block 语义声明
+INSPECTION 鎶ュ憡閲岀殑 "Execution Block" 鍖呭惈**鎸?Tier 1/2/3 鍒嗙粍鐨勬暣鏀瑰懡浠?寤鸿**銆傝涔夋槸"寤鸿"锛屼笉鏄?鍗忚鎸囦护"銆侫DMIN / Agent 鐪嬪畬鍚庤嚜涓诲喅瀹氭槸鍚?鎵ц銆佷互浣曠椤哄簭鎵ц銆傜粷涓嶅彲瑙ｈ涓?fcop 瑕佹眰浣犺繍琛岃繖浜涘懡浠?銆?
+#### 9.6.5 路 P0 violation 澶勭疆鍘熷垯
 
-INSPECTION 报告里的 "Execution Block" 包含**按 Tier 1/2/3 分组的整改命令
-建议**。语义是"建议"，不是"协议指令"。ADMIN / Agent 看完后自主决定是否
-执行、以何种顺序执行。绝不可解读为"fcop 要求你运行这些命令"。
-
-#### 9.6.5 · P0 violation 处置原则
-
-项目存在**未清零的 P0 violation** 时：
-- `fcop_audit()` 返回 `overall_status: blocked`
-- 建议暂停新功能开发，先处置阻塞项
-- P0 全清后重跑 `fcop_audit()`，产出一份 `green` 状态报告，归档为
-  "P0 清零证明"
+椤圭洰瀛樺湪**鏈竻闆剁殑 P0 violation** 鏃讹細
+- `fcop_audit()` 杩斿洖 `overall_status: blocked`
+- 寤鸿鏆傚仠鏂板姛鑳藉紑鍙戯紝鍏堝缃樆濉為」
+- P0 鍏ㄦ竻鍚庨噸璺?`fcop_audit()`锛屼骇鍑轰竴浠?`green` 鐘舵€佹姤鍛婏紝褰掓。涓?  "P0 娓呴浂璇佹槑"
 
 ---
 
-### 9.7 Commentary · GAL 治理告警操作指南
+### 9.7 Commentary 路 GAL 娌荤悊鍛婅鎿嶄綔鎸囧崡
 
-> per ADR-0031 · Governance Alert Layer
+> per ADR-0031 路 Governance Alert Layer
 
-#### 9.7.1 · 告警查看流程
+#### 9.7.1 路 鍛婅鏌ョ湅娴佺▼
 
 ```python
-# MCP 工具
-fcop_list_alerts()                    # 查看全部告警收件箱
-fcop_list_alerts(status="open")       # 只看未处置告警
-fcop_list_alerts(severity="high")     # 只看高严重度
+# MCP 宸ュ叿
+fcop_list_alerts()                    # 鏌ョ湅鍏ㄩ儴鍛婅鏀朵欢绠?fcop_list_alerts(status="open")       # 鍙湅鏈缃憡璀?fcop_list_alerts(severity="high")     # 鍙湅楂樹弗閲嶅害
 ```
 
-#### 9.7.2 · 三类漂移信号触发条件
+#### 9.7.2 路 涓夌被婕傜Щ淇″彿瑙﹀彂鏉′欢
 
-| 信号 | 触发条件 | Severity | 处置建议 |
+| 淇″彿 | 瑙﹀彂鏉′欢 | Severity | 澶勭疆寤鸿 |
 |---|---|---|---|
-| S1 `critical_tool_unreviewed` | 24 h 内 CRITICAL_TAG 工具调用但无对应 REVIEW | high | 补写 `write_review` 并 `mark_human_approved` |
-| S3 `missing_independent_verdict` | 执行窗口 > 6 h 无独立治理事件（Solo Blindspot） | high | 提交 `fcop_check()` 或 `write_review(decision="done")` |
-| S4 `long_running_without_reconciliation` | open Task 超 24 h 未归档 | low | `archive_task` 或拆子 task |
+| S1 `critical_tool_unreviewed` | 24 h 鍐?CRITICAL_TAG 宸ュ叿璋冪敤浣嗘棤瀵瑰簲 REVIEW | high | 琛ュ啓 `write_review` 骞?`mark_human_approved` |
+| S3 `missing_independent_verdict` | 鎵ц绐楀彛 > 6 h 鏃犵嫭绔嬫不鐞嗕簨浠讹紙Solo Blindspot锛?| high | 鎻愪氦 `fcop_check()` 鎴?`write_review(decision="done")` |
+| S4 `long_running_without_reconciliation` | open Task 瓒?24 h 鏈綊妗?| low | `archive_task` 鎴栨媶瀛?task |
 
-#### 9.7.3 · FCoP-Rule-G1（协议公理）
+#### 9.7.3 路 FCoP-Rule-G1锛堝崗璁叕鐞嗭級
 
-> `write_report` / `fcop_report` ∈ 执行域自述。自我叙述 ≠ 治理信号。
-> 只有 `write_review` / `mark_human_approved` / `fcop_check` 才构成
-> 独立治理视角。
-
-**实践含义**：Agent 写了 10 份 REPORT，也不能视为"有独立审计"。S3 告警
-依然会在 6 h 后触发，直到出现第一份 REVIEW 为止。
-
-#### 9.7.4 · 手动归档治理缺口
+> `write_report` / `fcop_report` 鈭?鎵ц鍩熻嚜杩般€傝嚜鎴戝彊杩?鈮?娌荤悊淇″彿銆?> 鍙湁 `write_review` / `mark_human_approved` / `fcop_check` 鎵嶆瀯鎴?> 鐙珛娌荤悊瑙嗚銆?
+**瀹炶返鍚箟**锛欰gent 鍐欎簡 10 浠?REPORT锛屼篃涓嶈兘瑙嗕负"鏈夌嫭绔嬪璁?銆係3 鍛婅
+渚濈劧浼氬湪 6 h 鍚庤Е鍙戯紝鐩村埌鍑虹幇绗竴浠?REVIEW 涓烘銆?
+#### 9.7.4 路 鎵嬪姩褰掓。娌荤悊缂哄彛
 
 ```python
-# 发现协议缺口，手动写 ALERT
+# 鍙戠幇鍗忚缂哄彛锛屾墜鍔ㄥ啓 ALERT
 fcop_create_alert(
     signal="critical_tool_unreviewed",
     severity="high",
-    summary="fcop_audit 产出但 2h 内无 REVIEW",
+    summary="fcop_audit 浜у嚭浣?2h 鍐呮棤 REVIEW",
     evidence="INSPECTION-20260512-001-takeover.md"
 )
 ```
 
 ---
 
-### 批量整改授权模式 · Batch Remediation Authorization
+### 鎵归噺鏁存敼鎺堟潈妯″紡 路 Batch Remediation Authorization
 
-> 本机制自 `fcop_protocol_version: 2.1.0` 引入，per §4.2 of
-> `protocol-docs-sync-20260512.md`。
+> 鏈満鍒惰嚜 `fcop_protocol_version: 2.1.0` 寮曞叆锛宲er 搂4.2 of
+> `protocol-docs-sync-20260512.md`銆?
+#### 鑳屾櫙
 
-#### 背景
+Rule 0.a.1 瑕佹眰"姣忎釜宸ヤ綔鍗曚竴浠?TASK + 涓€浠?REPORT"銆傝繖瀵?*鍗曟枃浠舵敼鍔?*
+娌￠棶棰橈紝浣嗗綋 `fcop_audit()` 鎴?ADMIN 鍙戠幇**澶ф壒閲忔枃妗ｈ劚鑺?*鏃讹紙渚嬪 50 浠?鍥㈤槦妯℃澘闇€瑕佸悓姝ユ洿鏂帮級锛屼紶缁熸ā寮忎笅闇€瑕?50 杞?TASK/REPORT锛屾晥鐜囨瀬浣庛€?
+#### 鏈哄埗
 
-Rule 0.a.1 要求"每个工作单一份 TASK + 一份 REPORT"。这对**单文件改动**
-没问题，但当 `fcop_audit()` 或 ADMIN 发现**大批量文档脱节**时（例如 50 份
-团队模板需要同步更新），传统模式下需要 50 轮 TASK/REPORT，效率极低。
-
-#### 机制
-
-ADMIN 在 `.fcop/proposals/{name}.md` frontmatter 中加可选字段：
+ADMIN 鍦?`.fcop/proposals/{name}.md` frontmatter 涓姞鍙€夊瓧娈碉細
 
 ```yaml
 scope: batch-remediation
 files:
   - src/fcop/teams/_data/dev-team/roles/PM.md
   - src/fcop/teams/_data/dev-team/roles/PM.en.md
-  # ...（完整清单）
+  # ...锛堝畬鏁存竻鍗曪級
 batch_id: docs-sync-20260512
 ```
 
-当 ADMIN 把该 proposal 的 `status` 改为 `approved`，即表示**一次性批准
-所有 `files` 清单内的文件改动**，Agent 可以：
+褰?ADMIN 鎶婅 proposal 鐨?`status` 鏀逛负 `approved`锛屽嵆琛ㄧず**涓€娆℃€ф壒鍑?鎵€鏈?`files` 娓呭崟鍐呯殑鏂囦欢鏀瑰姩**锛孉gent 鍙互锛?
+1. 鍙啓**涓€浠芥眹鎬?TASK**锛坄TASK-YYYYMMDD-NNN-ADMIN-to-{role}.md`锛屾鏂?   寮曠敤 `batch_id`锛?2. 鎸夋竻鍗曟壒閲忔敼鏂囦欢
+3. 鍙啓**涓€浠芥眹鎬?REPORT**锛堝紩鐢ㄥ悓涓€ `batch_id`锛屽垪鍑哄疄闄呮敼鍔ㄥ樊寮傦級
 
-1. 只写**一份汇总 TASK**（`TASK-YYYYMMDD-NNN-ADMIN-to-{role}.md`，正文
-   引用 `batch_id`）
-2. 按清单批量改文件
-3. 只写**一份汇总 REPORT**（引用同一 `batch_id`，列出实际改动差异）
+#### 绾︽潫
 
-#### 约束
-
-- `scope: batch-remediation` 仅对**同质改动**有效（例如"所有 leader 角色
-  文档加同一段速查"），不允许混入不同性质的改动。
-- Agent 在改动中发现任何超出清单范围的必要改动，须**停止批量模式**，退回
-  标准 drop_suggestion 流程。
-- 汇总 REPORT 必须包含 diff 摘要（实际改了哪些文件、改了什么）。
-
+- `scope: batch-remediation` 浠呭**鍚岃川鏀瑰姩**鏈夋晥锛堜緥濡?鎵€鏈?leader 瑙掕壊
+  鏂囨。鍔犲悓涓€娈甸€熸煡"锛夛紝涓嶅厑璁告贩鍏ヤ笉鍚屾€ц川鐨勬敼鍔ㄣ€?- Agent 鍦ㄦ敼鍔ㄤ腑鍙戠幇浠讳綍瓒呭嚭娓呭崟鑼冨洿鐨勫繀瑕佹敼鍔紝椤?*鍋滄鎵归噺妯″紡**锛岄€€鍥?  鏍囧噯 drop_suggestion 娴佺▼銆?- 姹囨€?REPORT 蹇呴』鍖呭惈 diff 鎽樿锛堝疄闄呮敼浜嗗摢浜涙枃浠躲€佹敼浜嗕粈涔堬級銆?
 ---
 
-## Protocol Rule Distribution & Upgrade · 协议规则的分发与升级
+## Protocol Rule Distribution & Upgrade 路 鍗忚瑙勫垯鐨勫垎鍙戜笌鍗囩骇
 
-> 本节自 `fcop_protocol_version: 1.4.0` 引入；规范性背景见 ADR-0006。
-> Introduced in `fcop_protocol_version: 1.4.0`; see ADR-0006 for the
+> 鏈妭鑷?`fcop_protocol_version: 1.4.0` 寮曞叆锛涜鑼冩€ц儗鏅 ADR-0006銆?> Introduced in `fcop_protocol_version: 1.4.0`; see ADR-0006 for the
 > normative background.
 
-### 三处部署，宿主中立 / Three deploy targets, host-neutral
+### 涓夊閮ㄧ讲锛屽涓讳腑绔?/ Three deploy targets, host-neutral
 
-`fcop` 包同时把规则部署到项目根的**四个文件**，让 Cursor / Claude Code /
-Codex / 任何 LLM SDK 都能拿到同一份 FCoP 规则：
-
+`fcop` 鍖呭悓鏃舵妸瑙勫垯閮ㄧ讲鍒伴」鐩牴鐨?*鍥涗釜鏂囦欢**锛岃 Cursor / Claude Code /
+Codex / 浠讳綍 LLM SDK 閮借兘鎷垮埌鍚屼竴浠?FCoP 瑙勫垯锛?
 ```
-<project>/.cursor/rules/fcop-rules.mdc        # Cursor 自动注入 system prompt
-<project>/.cursor/rules/fcop-protocol.mdc     # Cursor 自动注入 system prompt
-<project>/AGENTS.md                           # Codex / Cursor / Devin / 通用 SDK
+<project>/.cursor/rules/fcop-rules.mdc        # Cursor 鑷姩娉ㄥ叆 system prompt
+<project>/.cursor/rules/fcop-protocol.mdc     # Cursor 鑷姩娉ㄥ叆 system prompt
+<project>/AGENTS.md                           # Codex / Cursor / Devin / 閫氱敤 SDK
 <project>/CLAUDE.md                           # Claude Code CLI
 ```
 
-`AGENTS.md` 与 `CLAUDE.md` 内容字节相同（业界两个互不重叠的事实标准都得各
-自一份）；它们承载的是 `fcop-rules.mdc` + `fcop-protocol.mdc` 的合体内容
-（去掉 Cursor 私有的 YAML frontmatter）。
-
+`AGENTS.md` 涓?`CLAUDE.md` 鍐呭瀛楄妭鐩稿悓锛堜笟鐣屼袱涓簰涓嶉噸鍙犵殑浜嬪疄鏍囧噯閮藉緱鍚?鑷竴浠斤級锛涘畠浠壙杞界殑鏄?`fcop-rules.mdc` + `fcop-protocol.mdc` 鐨勫悎浣撳唴瀹?锛堝幓鎺?Cursor 绉佹湁鐨?YAML frontmatter锛夈€?
 The `fcop` package deploys the rules to **four files at the project
 root** so Cursor, Claude Code, Codex, and any LLM SDK pick up the same
 content. `AGENTS.md` and `CLAUDE.md` are byte-identical (two
@@ -2178,41 +1748,34 @@ non-overlapping de-facto standards each need their own copy); they
 carry the combined content of `fcop-rules.mdc` + `fcop-protocol.mdc`
 with the Cursor-specific YAML frontmatter stripped.
 
-### 包升级不会自动改项目文件 / Package upgrade does not auto-upgrade project files
+### 鍖呭崌绾т笉浼氳嚜鍔ㄦ敼椤圭洰鏂囦欢 / Package upgrade does not auto-upgrade project files
 
-`pip install -U fcop[-mcp]` 只升级 wheel 里的规则文件——**不会**动项目
-里的副本（哪怕项目里那份是去年的版本）。理由是 Rule 8：agent 不得修改
-`.cursor/rules/*.mdc`，更不能在用户没明确要求时覆盖项目规则。
-
+`pip install -U fcop[-mcp]` 鍙崌绾?wheel 閲岀殑瑙勫垯鏂囦欢鈥斺€?*涓嶄細**鍔ㄩ」鐩?閲岀殑鍓湰锛堝摢鎬曢」鐩噷閭ｄ唤鏄幓骞寸殑鐗堟湰锛夈€傜悊鐢辨槸 Rule 8锛歛gent 涓嶅緱淇敼
+`.cursor/rules/*.mdc`锛屾洿涓嶈兘鍦ㄧ敤鎴锋病鏄庣‘瑕佹眰鏃惰鐩栭」鐩鍒欍€?
 `pip install -U fcop[-mcp]` only updates the wheel-bundled rules; it
 does **not** touch the project's local copy (even if that copy is a
 year old). This is by Rule 8: agents must not modify
 `.cursor/rules/*.mdc`, much less overwrite project rules without
 explicit ADMIN intent.
 
-### 升级路径 · ADMIN 显式调 / Upgrade path · ADMIN runs the tool explicitly
+### 鍗囩骇璺緞 路 ADMIN 鏄惧紡璋?/ Upgrade path 路 ADMIN runs the tool explicitly
 
-| 触发方式 / Trigger | 谁调 / Who | 行为 / Behavior |
+| 瑙﹀彂鏂瑰紡 / Trigger | 璋佽皟 / Who | 琛屼负 / Behavior |
 |---|---|---|
-| MCP 工具 `redeploy_rules()` | ADMIN（在 IDE 聊天里发指令）| `force=True, archive=True`：覆盖四份目标文件，旧文件归档到 `.fcop/migrations/<时间戳>/rules/` |
-| Python `Project.deploy_protocol_rules(force=True)` | 库脚本 / 自动化 | 同上 |
-| `Project.init(deploy_rules=True)` 等 | 库 / MCP 初始化 | 首次部署，纯库 import 默认 `False`；MCP 层 `init_project` 默认 `True` |
+| MCP 宸ュ叿 `redeploy_rules()` | ADMIN锛堝湪 IDE 鑱婂ぉ閲屽彂鎸囦护锛墊 `force=True, archive=True`锛氳鐩栧洓浠界洰鏍囨枃浠讹紝鏃ф枃浠跺綊妗ｅ埌 `.fcop/migrations/<鏃堕棿鎴?/rules/` |
+| Python `Project.deploy_protocol_rules(force=True)` | 搴撹剼鏈?/ 鑷姩鍖?| 鍚屼笂 |
+| `Project.init(deploy_rules=True)` 绛?| 搴?/ MCP 鍒濆鍖?| 棣栨閮ㄧ讲锛岀函搴?import 榛樿 `False`锛汳CP 灞?`init_project` 榛樿 `True` |
 
-Agent **不得**自行调用 `redeploy_rules()`（Rule 8 + ADR-0006）。
-Agents **must not** invoke `redeploy_rules()` themselves
+Agent **涓嶅緱**鑷璋冪敤 `redeploy_rules()`锛圧ule 8 + ADR-0006锛夈€?Agents **must not** invoke `redeploy_rules()` themselves
 (Rule 8 + ADR-0006).
 
-### 版本告警 / Version drift warning
+### 鐗堟湰鍛婅 / Version drift warning
 
-`fcop_report()` 会自动比对：
+`fcop_report()` 浼氳嚜鍔ㄦ瘮瀵癸細
 
-- **项目本地版本**：项目根 `.cursor/rules/fcop-rules.mdc` frontmatter 里
-  的 `fcop_rules_version` 字段
-- **包内版本**：已安装 wheel 里 `fcop.rules.get_rules_version()` 的返回值
-
-两者不一致时，工具输出底部会插入一段提醒，提示 ADMIN 调 `redeploy_rules()`。
-Agent 收到提醒后**不得**自行升级，只能告知 ADMIN。
-
+- **椤圭洰鏈湴鐗堟湰**锛氶」鐩牴 `.cursor/rules/fcop-rules.mdc` frontmatter 閲?  鐨?`fcop_rules_version` 瀛楁
+- **鍖呭唴鐗堟湰**锛氬凡瀹夎 wheel 閲?`fcop.rules.get_rules_version()` 鐨勮繑鍥炲€?
+涓よ€呬笉涓€鑷存椂锛屽伐鍏疯緭鍑哄簳閮ㄤ細鎻掑叆涓€娈垫彁閱掞紝鎻愮ず ADMIN 璋?`redeploy_rules()`銆?Agent 鏀跺埌鎻愰啋鍚?*涓嶅緱**鑷鍗囩骇锛屽彧鑳藉憡鐭?ADMIN銆?
 `fcop_report()` compares the project-local version (read from
 `.cursor/rules/fcop-rules.mdc` frontmatter) against the package
 version (`fcop.rules.get_rules_version()`). On mismatch, the tool
@@ -2220,35 +1783,28 @@ output appends a warning prompting ADMIN to run `redeploy_rules()`.
 The agent must surface the warning to ADMIN; it must not upgrade
 unilaterally.
 
-### 工具改名历史 · `unbound_report` → `fcop_report` / Tool rename history
+### 宸ュ叿鏀瑰悕鍘嗗彶 路 `unbound_report` 鈫?`fcop_report` / Tool rename history
 
-- `unbound_report()` 在 `fcop-mcp` 0.6.3 起改名为 `fcop_report()`；旧名作
-  为 deprecated alias 并存了 0.6.3 ~ 0.6.5 三个版本，**自 0.7.0 起已删除**。
-  仍在使用 `unbound_report()` 的脚本/system prompt 必须改用 `fcop_report()`。
-- The tool was renamed in `fcop-mcp` 0.6.3; the deprecated alias lived
+- `unbound_report()` 鍦?`fcop-mcp` 0.6.3 璧锋敼鍚嶄负 `fcop_report()`锛涙棫鍚嶄綔
+  涓?deprecated alias 骞跺瓨浜?0.6.3 ~ 0.6.5 涓変釜鐗堟湰锛?*鑷?0.7.0 璧峰凡鍒犻櫎**銆?  浠嶅湪浣跨敤 `unbound_report()` 鐨勮剼鏈?system prompt 蹇呴』鏀圭敤 `fcop_report()`銆?- The tool was renamed in `fcop-mcp` 0.6.3; the deprecated alias lived
   alongside through 0.6.3 ~ 0.6.5 and **was removed in 0.7.0**. Any
   remaining script or system prompt that still calls `unbound_report()`
   must switch to `fcop_report()`.
 
 ---
 
-## 版本历史补记 / Version History Addendum
+## 鐗堟湰鍘嗗彶琛ヨ / Version History Addendum
 
-### 2.2.0 变更（2026-05-12）
+### 2.2.0 鍙樻洿锛?026-05-12锛?
+**鏂板 / Added**:
 
-**新增 / Added**:
-
-1. **`supersedes:` frontmatter 字段**（TASK-004，TASK-20260512-004）  
-   向 Task / Report / Issue / Review 四类 envelope 新增可选字段 `supersedes:`，
-   语义：本文件顶替 / 废止指定历史文件（Rule 5 append-only 修正模式）。  
-   与 `parent:`（工作派生）、`related:`（交叉引用）语义正交，不可混用。  
-   收回来源：Bridgeflow OPS 现场发明（2026-05-12），`REPORT-20260512-013`。  
-   `ipc-envelope.schema.json` 同步加 `supersedes` optional 字段。  
-   `list_tasks` / `list_reports` 输出自动标注 `[supersedes X]` / `[superseded by X]`。
-
-2. **GATE Design Pitfalls 节**（TASK-003，TASK-20260512-003）  
-   在 `## Collaboration Rules` 之后新增 `## GATE Design Pitfalls / GATE 设计陷阱`，
-   包含 Pitfall 1（GATE 描述自我命中，Bridgeflow OPS I-14 案例）、自查清单、
-   以及 `fcop_audit D8 scan`（`_scan_gate_self_collision()`）待实现预留锚点。  
-   `fcop_protocol_version` 本节不要求 bump（commentary 增补），与 `supersedes:` 字段
-   变更合并到本次 2.2.0。
+1. **`supersedes:` frontmatter 瀛楁**锛圱ASK-004锛孴ASK-20260512-004锛? 
+   鍚?Task / Report / Issue / Review 鍥涚被 envelope 鏂板鍙€夊瓧娈?`supersedes:`锛?   璇箟锛氭湰鏂囦欢椤舵浛 / 搴熸鎸囧畾鍘嗗彶鏂囦欢锛圧ule 5 append-only 淇妯″紡锛夈€? 
+   涓?`parent:`锛堝伐浣滄淳鐢燂級銆乣related:`锛堜氦鍙夊紩鐢級璇箟姝ｄ氦锛屼笉鍙贩鐢ㄣ€? 
+   鏀跺洖鏉ユ簮锛欱ridgeflow OPS 鐜板満鍙戞槑锛?026-05-12锛夛紝`REPORT-20260512-013`銆? 
+   `ipc-envelope.schema.json` 鍚屾鍔?`supersedes` optional 瀛楁銆? 
+   `list_tasks` / `list_reports` 杈撳嚭鑷姩鏍囨敞 `[supersedes X]` / `[superseded by X]`銆?
+2. **GATE Design Pitfalls 鑺?*锛圱ASK-003锛孴ASK-20260512-003锛? 
+   鍦?`## Collaboration Rules` 涔嬪悗鏂板 `## GATE Design Pitfalls / GATE 璁捐闄烽槺`锛?   鍖呭惈 Pitfall 1锛圙ATE 鎻忚堪鑷垜鍛戒腑锛孊ridgeflow OPS I-14 妗堜緥锛夈€佽嚜鏌ユ竻鍗曘€?   浠ュ強 `fcop_audit D8 scan`锛坄_scan_gate_self_collision()`锛夊緟瀹炵幇棰勭暀閿氱偣銆? 
+   `fcop_protocol_version` 鏈妭涓嶈姹?bump锛坈ommentary 澧炶ˉ锛夛紝涓?`supersedes:` 瀛楁
+   鍙樻洿鍚堝苟鍒版湰娆?2.2.0銆?

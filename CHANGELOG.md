@@ -8,6 +8,30 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.2.3] — 2026-05-23 (Team template & documentation sync · FCoP 3.0 compliance)
+
+### Fixed — `fcop` (bundled team templates)
+- **`letter-to-admin.zh.md` / `letter-to-admin.en.md`** — tool count updated
+  32 → 45; all directory references updated from legacy `tasks/reports/log/`
+  to `_lifecycle/` topology introduced in FCoP 3.0.
+- **All `roles/*.md` files** across `dev-team`, `media-team`, `mvp-team`,
+  `qa-team`, `solo` templates — `fcop/tasks/` → `_lifecycle/inbox/`,
+  `log/` → `_lifecycle/archive/` paths corrected to FCoP 3.0 standard.
+- **`TEAM-OPERATING-RULES.md` / `TEAM-OPERATING-RULES.en.md`** — v2 directory
+  references replaced with v3 `_lifecycle/` lifecycle-stage model.
+- **`README.md` / `README.en.md`** — corrected directory references to use
+  `_lifecycle/` structure.
+- **`.cursor/rules/fcop-rules.mdc`** and **`.cursor/rules/fcop-protocol.mdc`**
+  synchronized to match the bundled versions (previously diverged to v3.0.0).
+
+### Added — `fcop`
+- `scripts/fcop_prerelease_check.py` — dedicated pre-release validation script
+  for the `fcop` library; checks version consistency, critical file presence,
+  rule-file frontmatter, lifecycle directory documentation, team template
+  existence, and `.cursor/rules/` sync (10 checks total).
+
+---
+
 ## [3.2.2] — 2026-05-23 (Pre-release check hardening · rule-file consistency gates)
 
 ### Added — `fcop-mcp`

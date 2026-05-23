@@ -1,7 +1,7 @@
 ---
 description: FCoP Rules (behavior governance protocol layer · v3 — agent runtime contract for _lifecycle/-based collaboration) — the protocol rules every agent must follow inside an FCoP project. Auto-deployed by the fcop MCP. Companion file fcop-protocol.mdc explains how each rule applies in practice. FCoP 协议规则（行为治理协议层 · v3 —— agent 在 _lifecycle/ 目录结构上协作的运行时契约）：任何在 FCoP 项目中工作的 Agent 都必须遵守的规则，由 fcop MCP 自动部署；规则的具体适用说明见同目录的 fcop-protocol.mdc。
 alwaysApply: true
-fcop_rules_version: 3.2.2
+fcop_rules_version: 3.2.3
 ---
 
 # FCoP Rules · FCoP 协议规则
@@ -1091,8 +1091,19 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 3.2.2`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 3.2.3`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**3.2.3 changes / 3.2.3 变更**（随 `fcop@3.2.3`）:
+
+- **Team templates & doc sync**：所有团队模板文件（`letter-to-admin.{zh,en}.md`、
+  `roles/*.md`、`TEAM-OPERATING-RULES.{md,en.md}`、`README.{md,en.md}`）从
+  FCoP 2.x 遗留目录引用（`tasks/` / `reports/` / `log/`）全面迁移到 FCoP 3.0
+  `_lifecycle/` 拓扑；工具数量更正为 45。
+- **fcop_prerelease_check.py** 新增至 `scripts/`：10 项专用发布前检查，含版本
+  一致性、关键文件完整性、规则文件 frontmatter、生命周期目录文档、团队模板
+  存在性及 `.cursor/rules/` 同步检验。
+- **`.cursor/rules/fcop-rules.mdc` / `fcop-protocol.mdc`** 与 bundled 版本同步。
 
 **3.2.2 changes / 3.2.2 变更**（随 `fcop@3.2.2`）:
 

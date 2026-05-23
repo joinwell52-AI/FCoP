@@ -469,7 +469,7 @@
             "name": "filename_or_id"
           },
           {
-            "annotation": "'_dt.date | None'",
+            "annotation": "_dt.date | None",
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "done_date"
@@ -834,13 +834,13 @@
             "name": "self"
           },
           {
-            "annotation": "'_dt.date | str | None'",
+            "annotation": "_dt.date | str | None",
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "date"
           }
         ],
-        "return": "'list[str]'"
+        "return": "list[str]"
       },
       "list_issues": {
         "params": [
@@ -1097,13 +1097,13 @@
             "name": "filename_or_id"
           },
           {
-            "annotation": "'_dt.date | str | None'",
+            "annotation": "_dt.date | str | None",
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "date"
           }
         ],
-        "return": "'Task'"
+        "return": "Task"
       },
       "read_issue": {
         "params": [

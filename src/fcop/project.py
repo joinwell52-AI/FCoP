@@ -1913,9 +1913,8 @@ class Project:
                 if fm not in bucket_map:
                     continue
                 # v3-aware: any _lifecycle/{state}/ is a valid home for tasks
-                if fm == "task" and v3_task_valid_dirs is not None:
-                    if str(md.parent.resolve()) in v3_task_valid_dirs:
-                        continue
+                if fm == "task" and v3_task_valid_dirs is not None and str(md.parent.resolve()) in v3_task_valid_dirs:
+                    continue
                 expected_dir = bucket_map[fm]
                 if md.parent.resolve() != expected_dir.resolve():
                     misplaced.append(str(md.relative_to(self._path)))
@@ -2839,7 +2838,7 @@ class Project:
         self,
         filename_or_id: str,
         *,
-        done_date: "_dt.date | None" = None,
+        done_date: _dt.date | None = None,
     ) -> pathlib.Path:
         """Move a *closed* task from ``_lifecycle/archive/`` to the deep
         history archive (``history/YYYY-MM-DD/<task-stem>/``).
@@ -2954,8 +2953,8 @@ class Project:
     def list_history(
         self,
         *,
-        date: "_dt.date | str | None" = None,
-    ) -> "list[str]":
+        date: _dt.date | str | None = None,
+    ) -> list[str]:
         """List history entries.
 
         When *date* is supplied the method returns a list of task-stem
@@ -3007,8 +3006,8 @@ class Project:
         self,
         filename_or_id: str,
         *,
-        date: "_dt.date | str | None" = None,
-    ) -> "Task":
+        date: _dt.date | str | None = None,
+    ) -> Task:
         """Read a task from the deep history archive.
 
         Searches ``history/`` for a task matching *filename_or_id*.  If
@@ -3041,7 +3040,7 @@ class Project:
         if query.lower().endswith(".md"):
             query = query[:-3]
 
-        def _search_dir(date_dir: pathlib.Path) -> "pathlib.Path | None":
+        def _search_dir(date_dir: pathlib.Path) -> pathlib.Path | None:
             for task_dir in date_dir.iterdir():
                 if not task_dir.is_dir():
                     continue
@@ -3049,9 +3048,8 @@ class Project:
                 if task_dir.name == query or task_dir.name.startswith(query):
                     # Look for the .md file inside
                     for candidate in task_dir.iterdir():
-                        if candidate.is_file() and candidate.suffix.lower() == ".md":
-                            if TASK_FILENAME_RE.match(candidate.name):
-                                return candidate
+                        if candidate.is_file() and candidate.suffix.lower() == ".md" and TASK_FILENAME_RE.match(candidate.name):
+                            return candidate
             return None
 
         if date is not None:
