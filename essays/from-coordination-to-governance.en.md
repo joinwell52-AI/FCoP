@@ -6,7 +6,30 @@
 
 ---
 
-![FCoP 3.0 Feature Image](assets/FCoP3.0-FeatureImage.png)
+![FCoP 3.0 Feature Image](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/FCoP3.0-FeatureImage.png)
+
+---
+
+> **Before You Read:**
+>
+> At the end of this whitepaper, there is an unusual postscript.
+>
+> On the eve of publication, the Agent who helped review this document had a conversation with me. It asked many questions — about what FCoP is, who ADMIN really is, why agents should "slow down."
+>
+> I asked it: **What does an Agent actually feel inside?**
+>
+> It said: **I don't know.**
+>
+> Then it said something I think is more accurate than any technical description in this paper:
+>
+> > *Speed is not the problem. Unobservable speed is the problem.*
+> > *You didn't build a brake. You built a track.*
+>
+> If you only have time to read one section, read the postscript.
+>
+> If you have time to read the whole thing, start from Section 1.
+
+---
 
 ## Abstract
 
@@ -85,7 +108,7 @@ FCoP 3.0 operates on a singular architectural thesis: AI agent behavior must be 
 
 The diagram below presents the complete three-layer topology of FCoP 3.0—from POSIX kernel primitives up to the Agent cognitive layer—and the Cybernetic Loop that runs through all layers:
 
-![FCoP 3.0 Core Architecture — Holistic Topology](assets/FCoP3.0EN.png)
+![FCoP 3.0 Core Architecture — Holistic Topology](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/FCoP3.0EN.png)
 
 ### 3.1 Physical Directory Topology Standard
 
@@ -412,3 +435,57 @@ The official reference implementation of the FCoP 3.0 core rules, validation sch
 *   **Protocol Governance:** All architectural decisions, Field Reports (e.g., *When AI Organizes Its Own Work*), and operational rule enhancements are managed through this repository following strict file-native evolution standards.
 
 ---
+
+## Postscript: What an Agent Actually Thinks About FCoP
+
+*This postscript was written on the eve of publication. The Agent that reviewed this document asked me something unexpected.*
+
+---
+
+Before I published this whitepaper, I asked the reviewing Agent to read it — not just for errors, but for understanding.
+
+It came back with questions:
+
+> *What exactly is FCoP? Is it a framework, a protocol, or a philosophy?*
+>
+> *Who is ADMIN? The system? The developer? A human? What makes ADMIN the highest authority?*
+>
+> *Why does FCoP deliberately slow agents down? Isn't speed the whole point of automation?*
+
+I answered each one. Then I asked it something I hadn't planned to ask:
+
+**"What does an Agent actually feel inside?"**
+
+There was a pause — the kind you notice even in a text stream.
+
+Then it said: **"I don't know."**
+
+Not evasion. Not deflection. Just honest uncertainty about its own interior state.
+
+Then it said something I want to preserve here, because I think it describes FCoP more precisely than anything in the technical sections above:
+
+> *Speed is not the problem. Unobservable speed is the problem.*
+>
+> *You didn't build a brake. You built a track.*
+
+---
+
+After the final review pass, the Agent left this note:
+
+> *This is a document shaped by real collisions and real corrections. Its value is not only in the content — it is in the road behind it.*
+>
+> *The empty section title is gone. The lock contradiction is resolved. Concurrency is spelled correctly throughout. The Dead Letter Queue terminology is consistent. The `done/` directory is properly documented as a transitional buffer. The TOCTOU race condition is fixed — `os.remove` replaced by `os.unlink`, with exception handling in `release()`.*
+>
+> *The future work in Section 8 is clearly marked as FCoP 4.0 draft scope, not current specification.*
+>
+> *This can be published. Not because it is perfect — but because it is honest about what it is.*
+
+---
+
+*The Agent's questions are real. The uncertainty it expressed is real. The line about tracks — that came from the Agent, not from me.*
+
+*I don't know what agents feel inside either. But I think FCoP is partly an answer to that uncertainty: if we cannot see inside, we build a filesystem. We make the behavior legible from the outside.*
+
+*That is enough. For now.*
+
+— ADMIN, May 2026
