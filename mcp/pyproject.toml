@@ -130,6 +130,7 @@ select = [
 ]
 ignore = [
     "E501",
+    "N814",  # CamelCase class imported as private constant alias (e.g. _ITE) is intentional
 ]
 
 [tool.mypy]

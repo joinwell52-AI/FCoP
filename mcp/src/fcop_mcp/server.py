@@ -1280,7 +1280,7 @@ def archive_to_history(task_id: str, done_date: str = "") -> str:
     if not project.is_v3:
         return "archive_to_history is a v3-only operation; this project uses the v2 layout."
 
-    date_obj: "_dt.date | None" = None
+    date_obj: _dt.date | None = None
     if done_date:
         try:
             date_obj = _dt.date.fromisoformat(done_date)
@@ -1340,7 +1340,7 @@ def bulk_archive_to_history(done_date: str = "") -> str:
     if not project.is_v3:
         return "bulk_archive_to_history is a v3-only operation; this project uses the v2 layout."
 
-    date_obj: "_dt.date | None" = None
+    date_obj: _dt.date | None = None
     if done_date:
         try:
             date_obj = _dt.date.fromisoformat(done_date)
@@ -1454,7 +1454,7 @@ def list_history(date: str = "") -> str:
     if not project.is_v3:
         return "list_history is a v3-only operation; this project uses the v2 layout."
 
-    date_obj: "_dt.date | None" = None
+    date_obj: _dt.date | None = None
     if date:
         try:
             date_obj = _dt.date.fromisoformat(date)
@@ -1500,7 +1500,7 @@ def read_history_task(task_id: str, date: str = "") -> str:
     if not project.is_v3:
         return "read_history_task is a v3-only operation; this project uses the v2 layout."
 
-    date_obj: "_dt.date | None" = None
+    date_obj: _dt.date | None = None
     if date:
         try:
             date_obj = _dt.date.fromisoformat(date)
@@ -1514,7 +1514,7 @@ def read_history_task(task_id: str, date: str = "") -> str:
     except Exception as exc:  # noqa: BLE001
         return _format_error(exc)
 
-    return _format_task(task)
+    return _format_task_full(task)
 
 
 # ─── v3 Lifecycle transition tools ───────────────────────────────────
