@@ -325,7 +325,7 @@ MCP 工具对应表：
   4. archive_task                     → _lifecycle/archive/
   5. （可选）bulk_archive_to_history  → 批量推入 history/
 
-所有工具均已在 fcop-mcp 3.2.0 可用。不要自己 mkdir 或 mv
+所有工具均已在 fcop-mcp 3.2.2 可用。不要自己 mkdir 或 mv
 ——只用 MCP 工具操作，否则 fcop_audit 会报 P0 违规。
 ```
 

@@ -6,7 +6,7 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **v3.0.2 summary** (current, 2026-05-22; covers v2.0.0 philosophical era + 3.0.2 init topology fix):
+> **v3.2.2 summary** (current, 2026-05-23; covers deep archiving / v3 lifecycle + v2.0.0 philosophical era):
 > - **"Two-diagram era"**: `2.0.0` is a *philosophical* major release.
 >   All v1.x public APIs keep working (per ADR-0003 additive expansion);
 >   the major bump records that FCoP now formally acknowledges **two**
@@ -61,18 +61,24 @@ you and an AI team collaborate through **files**. Your one job:
 >   `TASK-20260512-025-PM-to-OPS-phase-a-fix.md`). The slug is not part
 >   of routing — it's a human-readable label. Pre-1.6 filenames remain
 >   valid.
-> - **MCP tool count**: 35 (unchanged since v1.5.0). Full list:
->   `docs/mcp-tools.md`.
+> - **MCP tool count**: 45 (v3.2.2). Full list: `docs/mcp-tools.md`.
+> - **Deep archiving (3.2.x new)**: `archive_to_history(task_id)` /
+>   `bulk_archive_to_history()` move completed task-report pairs into
+>   `history/YYYY-MM-DD/TASK-XXX/` (date-sharded).
+>   `list_history` / `read_history_task` provide index and retrieval.
+> - **v3 lifecycle tools (3.2.x new)**: `create_task` → `claim_task` →
+>   `submit_task` → `approve_task` / `reject_task` → `finish_task`;
+>   files flow through `_lifecycle/inbox/` → `active/` → `review/` →
+>   `done/`.
 > - **Rule versions**: `fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`.
 >   Run `redeploy_rules()` after upgrading to refresh the four local rule
 >   files.
 > - **v3 topology (3.0.2 fix)**: fresh init now creates
->   `_lifecycle/{inbox,active,review,done,archive}/` immediately
->   (per spec §1.1). Fresh inits on 3.0.0 / 3.0.1 missed this layer
->   — run `python -m fcop migrate --to-v3` on those projects to
->   upgrade; new projects on 3.0.2+ are v3-native from day one.
+>   `_lifecycle/{inbox,active,review,done,archive}/` and `history/`
+>   immediately (per spec §1.1). Run `python -m fcop migrate --to-v3`
+>   on older projects to upgrade.
 >
-> _(Earlier summaries: v1.3 / v1.4 / v1.5 and older — see `CHANGELOG.md`)_
+> _(Earlier summaries: v1.3 / v1.4 / v1.5 / v3.0.x / v3.1.x and older — see `CHANGELOG.md`)_
 
 ---
 
@@ -526,7 +532,7 @@ Output shows each slug's title and creation time.
 
 ## How you actually use FCoP: just talk
 
-**First, the important part**: FCoP ships 32 tools — **all of them are
+**First, the important part**: FCoP ships 45 tools — **all of them are
 for the agent, not for you**. You talk in plain language from start to
 finish; the agent translates your intent into the right tool call.
 
@@ -642,7 +648,7 @@ correction takes one line.
 
 ### ⚠️ Cursor's "click-to-grey-out" switches: 2 you must never grey
 
-Cursor's MCP panel shows these 32 tools as buttons. Click → greyed =
+Cursor's MCP panel shows these 45 tools as buttons. Click → greyed =
 disabled. **Greying these two will hurt you**:
 
 - `fcop_report` — greyed out, Rule 0 breaks; agents can't take
