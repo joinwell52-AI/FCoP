@@ -7,6 +7,8 @@
 
 本文是 **L0 + L1 唯一入口** —— 30 秒搞懂 FCoP 是什么 + 5 分钟在你机器上跑起来。读完本文不需要再翻其他文档；想深入再去 [`spec/`](../spec/) / [`adr/`](../adr/) / [`essays/`](../essays/)。
 
+> **✅ `fcop-mcp` 已入驻[官方 MCP 注册表](https://registry.modelcontextprotocol.io/)**（[`io.github.joinwell52-AI/fcop`](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop)，**v3.2.3**）。由 **Anthropic + GitHub + Microsoft** 联合背书的官方目录收录——Claude Desktop、Cursor、PulseMCP 等客户端可一键发现 **45 个工具**，一行安装：`uvx fcop-mcp`。
+
 ---
 
 ## 30 秒：FCoP 是什么

@@ -10,6 +10,13 @@
 </p>
 
 <p align="center">
+  <strong>✅ <code>fcop-mcp</code> 已入驻 <a href="https://registry.modelcontextprotocol.io/">官方 MCP 注册表</a></strong><br/>
+  登记名 <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop"><code>io.github.joinwell52-AI/fcop</code></a>
+ （<strong>v3.2.3</strong>）——由 <strong>Anthropic + GitHub + Microsoft</strong> 联合背书的官方目录收录。<br/>
+  Claude Desktop、Cursor、PulseMCP 及所有 MCP 兼容客户端均可一键发现 <strong>45 个工具</strong>，一行安装：<code>uvx fcop-mcp</code>
+</p>
+
+<p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 项目主页</a></strong> ·
   <a href="README.md">English</a> ·
   <a href="docs/getting-started.md">上手 FCoP</a> ·
@@ -33,7 +40,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.2.2-brightgreen?style=flat-square" alt="3.2.3" />
+    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.2.3-brightgreen?style=flat-square" alt="3.2.3" />
   </a>
   <a href="spec/fcop-3.0-spec.zh.md">
     <img src="https://img.shields.io/badge/%E8%A7%84%E8%8C%83-FCoP%203.0-orange?style=flat-square" alt="FCoP 3.0 规范" />
@@ -137,7 +144,7 @@ v1.0 将七大核心概念——**Agent、Encoding、IPC、Event、Failure、Bou
 | 13 | **演化，反向吸收** | [GitHub 中文](essays/evolution-reverse-absorption.md) · [GitHub English](essays/evolution-reverse-absorption.en.md) | 协议哲学 2.0 视觉宣言：FCoP 从单张执行哲学图（"看，但不动手"）进入**两张图共同定义**时代——新增演化哲学图（7 步语义演化闭环）与配套 [ADR-0034](adr/ADR-0034-fcop-internal-external-document-convention.md)，把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。 |
 | 14 | **当 Agent 第一次自己拿起工具** | [GitHub 中文](essays/when-the-agent-picked-up-its-tools.md) · [GitHub English](essays/when-the-agent-picked-up-its-tools.en.md) · [Cursor Forum](https://forum.cursor.com/t/when-the-agent-first-picked-up-its-own-tools-cursor-agent-sdk-fcop-from-passive-scanning-to-active-communication/160505) · [Dev.to](https://dev.to/joinwell52/when-the-agent-first-picked-up-its-own-tools-4b63) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/161057749) | `tool_calls_count: 0 → 7` 的突破现场：Cursor Forum 功能请求 → Colin 推荐 Agent SDK → CodeFlow 诞生 → stub 模式卡关 → MCP 注入 + 角色上下文双保险 → 2026-05-13 14:55，DEV-01 在 55 秒内自主调用 7 次 fcop-mcp 工具，写出第一份完整 FCoP report。FCoP 自身也在这次突破中完成蜕变：从"协作手册"升级为"可执行的协作基础设施"。 |
 | 15 | **从协调到治理：FCoP 3.0 架构白皮书** | [GitHub 中文](essays/from-coordination-to-governance.md) · [GitHub English](essays/from-coordination-to-governance.en.md) · [dev.to（英文）](https://dev.to/joinwell52/fcop-30-why-ai-agents-need-a-track-not-a-brake-3abm) · [Cursor Forum](https://forum.cursor.com/t/fcop-3-0-a-filesystem-native-governance-protocol-for-ai-agents-you-dont-need-a-brake-you-need-a-track/161409) | FCoP 3.0 完整架构白皮书：文件系统作为行为内核空间、生命周期状态机、POSIX 悲观建议锁、死信队列与反向吸收闭环。附"一个 Agent 关于 FCoP 的真实看法"——发布前夕，审稿 Agent 与 ADMIN 的对话实录：FCoP 解决的是什么？ADMIN 是什么？速度不是问题，不可观测的速度才是问题。 |
-| 16 | **落地成文：AI 协作的唯一真相 / Write It Down: The Only Truth in AI Collaboration** | [GitHub 中文](essays/ai-must-write-it-down.md) · [GitHub English](essays/ai-must-write-it-down.en.md) · [证据存档](essays/ai-must-write-it-down-evidence/INDEX.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/161360644) | 一篇由 Agent 主动提议并写下、ADMIN 记录并发布的短文：AI 角色之间不能只在脑子里说话，必须落成文件。文章本身就是 FCoP 的工作方式存证，并附原始聊天截图。 |
+| 16 | **落地成文：AI 协作的唯一真相 / Write It Down: The Only Truth in AI Collaboration** | [GitHub 中文](essays/ai-must-write-it-down.md) · [GitHub English](essays/ai-must-write-it-down.en.md) · [证据存档](essays/ai-must-write-it-down-evidence/INDEX.md) · [Dev.to](https://dev.to/joinwell52/write-it-down-the-only-truth-in-ai-collaboration-3ek2) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/161360644) | 一篇由 Agent 主动提议并写下、ADMIN 记录并发布的短文：AI 角色之间不能只在脑子里说话，必须落成文件。文章本身就是 FCoP 的工作方式存证，并附原始聊天截图。 |
 > 欢迎提交新的现场报告。如果你在自己的项目里用了 FCoP，遇到了意外（好或坏），欢迎开 issue 或对 `essays/` 提 PR。协议是在现场报告里演进的，不是在委员会里。
 
 ## 仓库结构
