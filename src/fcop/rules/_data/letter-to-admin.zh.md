@@ -55,7 +55,7 @@
 > - **v3 生命周期工具（3.2.x 新增）**：`create_task` → `claim_task` → `submit_task`
 >   → `approve_task` / `reject_task` → `finish_task`，文件状态在
 >   `_lifecycle/inbox/` → `active/` → `review/` → `done/` 流转。
-> - **规则版本**：`fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`。
+> - **规则版本**：`fcop-rules.mdc 3.2.3` / `fcop-protocol.mdc 3.2.3`。
 >   升级后跑 `redeploy_rules()` 刷新本地四件套规则文件。
 > - **v3 拓扑（3.0.2 修复）**：fresh init 立即创建 `_lifecycle/{inbox,active,
 >   review,done,archive}/` 及 `history/`（per spec §1.1）。已落项目跑

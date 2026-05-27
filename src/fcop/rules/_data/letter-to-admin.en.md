@@ -70,7 +70,7 @@ you and an AI team collaborate through **files**. Your one job:
 >   `submit_task` → `approve_task` / `reject_task` → `finish_task`;
 >   files flow through `_lifecycle/inbox/` → `active/` → `review/` →
 >   `done/`.
-> - **Rule versions**: `fcop-rules.mdc 3.0.0` / `fcop-protocol.mdc 3.0.0`.
+> - **Rule versions**: `fcop-rules.mdc 3.2.3` / `fcop-protocol.mdc 3.2.3`.
 >   Run `redeploy_rules()` after upgrading to refresh the four local rule
 >   files.
 > - **v3 topology (3.0.2 fix)**: fresh init now creates

@@ -1,4 +1,4 @@
-# FCoP MCP 工具清单（fcop-mcp 3.x）<!-- 45 tools — v3.2.2 release -->
+# FCoP MCP 工具清单（fcop-mcp 3.x）<!-- 45 tools — v3.2.3 release -->
 
 > 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组。
 >
