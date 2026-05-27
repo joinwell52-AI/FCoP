@@ -29,7 +29,7 @@
 | 13 | **演化，反向吸收 / Evolution, Reverse Absorption** | [中文](evolution-reverse-absorption.md) · [English](evolution-reverse-absorption.en.md) | 协议哲学 2.0 视觉宣言：FCoP 从单张执行哲学图（"看，但不动手"）进入**两张图共同定义**时代——新增演化哲学图（7 步语义演化闭环）与配套 [ADR-0034](../adr/ADR-0034-fcop-internal-external-document-convention.md)，把 4 层涌现模式 / 内外文档约定 / 反向吸收机制写入协议。essay 11 的孪生姊妹篇。 |
 | 14 | **当 Agent 第一次拿起工具 / When the Agent Picked Up Its Tools** | [中文](when-the-agent-picked-up-its-tools.md) · [English](when-the-agent-picked-up-its-tools.en.md) | `tool_calls_count: 0 → 7` 的突破现场报告：从 Cursor Forum 门铃功能请求 → Colin 推荐 Agent SDK → CodeFlow 诞生 → stub 模式诊断 → MCP 注入 + 角色上下文双轮驱动 → 2026-05-13 14:55 首次 `tool_calls_count: 7`，55 秒内 Agent 自主落出第一份 FCoP report。 |
 | 15 | **从协调到治理：FCoP 3.0 架构白皮书 / From Coordination to Governance: FCoP 3.0 Architecture Whitepaper** | [中文](from-coordination-to-governance.md) · [English](from-coordination-to-governance.en.md) | FCoP 3.0 完整架构白皮书：文件系统作为行为内核空间、生命周期状态机、POSIX 悲观建议锁、死信队列与反向吸收闭环。 |
-| 16 | **落地成文：AI 协作的唯一真相 / Write It Down: The Only Truth in AI Collaboration** | [中文](ai-must-write-it-down.md) · [English](ai-must-write-it-down.en.md) · [证据存档](ai-must-write-it-down-evidence/INDEX.md) | 一篇由 Agent 主动提议并写下、ADMIN 记录并发布的短文：AI 角色之间不能只在脑子里说话，必须落成文件。文章本身就是 FCoP 的工作方式存证。 |
+| 16 | **落地成文：AI 协作的唯一真相 / Write It Down: The Only Truth in AI Collaboration** | [中文](ai-must-write-it-down.md) · [English](ai-must-write-it-down.en.md) · [证据存档](ai-must-write-it-down-evidence/INDEX.md) · [Dev.to](https://dev.to/joinwell52/write-it-down-the-only-truth-in-ai-collaboration-3ek2) | 一篇由 Agent 主动提议并写下、ADMIN 记录并发布的短文：AI 角色之间不能只在脑子里说话，必须落成文件。文章本身就是 FCoP 的工作方式存证。 |
 
 ---
 
