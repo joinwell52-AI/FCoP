@@ -25,7 +25,7 @@
   <a href="docs/mcp-tools.md"><strong>MCP Tools (45)</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
-  <a href="spec/fcop-3.0-spec.md"><strong>3.0 Spec</strong></a> ·
+  <a href="spec/fcop-v3-spec.md"><strong>v3 Spec (3.2.4)</strong></a> ·
   <a href="adr/README.md">ADR Index</a>
 </p>
 
@@ -42,8 +42,8 @@
   <a href="CHANGELOG.md">
     <img src="https://img.shields.io/badge/release-3.2.4-brightgreen?style=flat-square" alt="3.2.4" />
   </a>
-  <a href="spec/fcop-3.0-spec.md">
-    <img src="https://img.shields.io/badge/spec-FCoP%203.0-orange?style=flat-square" alt="FCoP 3.0 spec" />
+  <a href="spec/fcop-v3-spec.md">
+    <img src="https://img.shields.io/badge/spec-FCoP%20v3.2.4-orange?style=flat-square" alt="FCoP v3.2.4 spec" />
   </a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20Registry-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="Official MCP Registry: io.github.joinwell52-AI/fcop" />
@@ -58,7 +58,7 @@
 ## 🆕 FCoP 3.0 is here — *Files carry protocol. Paths address state. Events replay transitions.*
 
 <p align="center">
-  <a href="spec/fcop-3.0-spec.md">
+  <a href="spec/fcop-v3-spec.md">
     <img src="assets/fcop-3.0-architecture.png" alt="FCoP 3.0 · Canonical Architecture — Files carry protocol. Paths address state. Events replay transitions." width="900" />
   </a>
 </p>
@@ -73,7 +73,8 @@
 
 | Doc | Purpose |
 |---|---|
-| [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) · [zh](spec/fcop-3.0-spec.zh.md) | Single-page canonical spec |
+| [`spec/fcop-v3-spec.md`](spec/fcop-v3-spec.md) · [zh](spec/fcop-v3-spec.zh.md) | **Current** single-page spec (3.0 → 3.2.4: `_lifecycle/` + `history/`) |
+| [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) · [zh](spec/fcop-3.0-spec.zh.md) | Frozen **3.0.0** baseline (2026-05-21) |
 | [`spec/fcop-3.0-rfc.md`](spec/fcop-3.0-rfc.md) · [zh](spec/fcop-3.0-rfc.zh.md) | IETF-style RFC projection |
 | [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md) · [zh](docs/MIGRATION-3.0.zh.md) | 2.x → 3.0 migration guide |
 | [`CHANGELOG.md` `[3.0.0]`](CHANGELOG.md) | Full release notes |

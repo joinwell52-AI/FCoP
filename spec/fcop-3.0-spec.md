@@ -12,6 +12,10 @@
 | **Supersedes** | FCoP 2.x (additive migration path defined in §9) |
 | **Source ADRs** | ADR-0035 (State) · ADR-0036 (Event) · ADR-0038 (Boundary) · ADR-0039 (Freeze Discipline) · ADR-0040 (Canonical Two-Layer) · NOTE-custody-is-not-a-layer |
 
+> **⚠️ Superseded for day-to-day reading (2026-05-27)**  
+> This document freezes **FCoP 3.0.0** only (`_lifecycle/` + `transitions:`). It does **not** include v3.1 lifecycle MCP tools or the v3.2.0+ `history/` deep-archive layer.  
+> **Read instead:** [`fcop-v3-spec.md`](./fcop-v3-spec.md) · [`fcop-v3-spec.zh.md`](./fcop-v3-spec.zh.md)
+
 ---
 
 <p align="center">

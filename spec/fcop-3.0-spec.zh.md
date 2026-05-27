@@ -15,6 +15,15 @@
 
 > **关于本文性质**：本文为英文规范的中文平行版本（informative）。规范性条款的权威表达以英文版为准。两版同步发布、同版本号、内容等价。
 
+> ⚠️ **文档已落后（2026-05-27）**  
+> 本文仅描述 **FCoP 3.0.0**（2026-05-21）的 `_lifecycle/` 状态层与 `transitions:` 事件层，**不包含**：
+>
+> - **v3.1.0** 生命周期 MCP：`claim_task` / `submit_task` / `finish_task` / `approve_task` / `reject_task`
+> - **v3.2.0+** 历史深档案：`history/YYYY-MM-DD/<task-stem>/` 与四个 `*_history` 工具
+> - **workspace 根路径说明**：典型布局为 `<repo>/fcop/_lifecycle/`（非必须把 `_lifecycle/` 放在 Git 仓库根）
+>
+> **请改读当前规范**：[`fcop-v3-spec.zh.md`](./fcop-v3-spec.zh.md) · [`fcop-v3-spec.md`](./fcop-v3-spec.md)
+
 ---
 
 <p align="center">
