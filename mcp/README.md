@@ -11,11 +11,12 @@ a second “FCoP product” and does not replace the protocol text.
 - **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
 - **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
 
-**🎯 v2.0.2 — Now in the [official MCP registry](https://registry.modelcontextprotocol.io/)** (2026-05-13). `fcop-mcp` is officially registered as `io.github.joinwell52-AI/fcop` in the Anthropic + GitHub + Microsoft jointly-backed catalog at `registry.modelcontextprotocol.io`. **Claude Desktop, Cursor, PulseMCP, and every MCP-compatible client can now discover and install it out of the box** — `uvx fcop-mcp` one-liner is all you need. v2.0.2 is a double-pack lockstep administrative bump (per ADR-0002): `fcop` library code is **unchanged** from v2.0.0; the bump aligns both package version numbers and consolidates the fcop-mcp@2.0.1 MCP-metadata patch that landed the same day. Same release also lands the **release+backup one-shot SOP** — `RULES-release-file-inventory.md` (12-category inventory), `RULES-mcp-registry-release.md` (3-step path for future bumps), and the append-only backup mirror at `joinwell52-AI/FCoP-backup`.
+**🎯 v3.2.3 — Official MCP registry package, docs aligned with FCoP 3.0** (2026-05-23).  
+`fcop-mcp` remains registered as `io.github.joinwell52-AI/fcop` in the [official MCP registry](https://registry.modelcontextprotocol.io/), and is discoverable from Claude Desktop / Cursor / PulseMCP and other MCP-compatible clients (`uvx fcop-mcp`). This release synchronizes team-template and rule-document references to the v3 `_lifecycle/` topology and keeps `fcop` / `fcop-mcp` lockstep semantics (ADR-0002).
 
-**Upgrading from `0.6.x` / `0.7.x` / `1.x` / `2.0.0`?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) — run `pip install -U fcop fcop-mcp` in the MCP venv (or `uvx fcop-mcp` for the always-fresh install), restart the IDE, then run the MCP tool `redeploy_rules()` once to refresh on-disk protocol rule files. **v2.0.0** is the immediate predecessor — a *philosophical* major bump ("two-diagram era", 2026-05-13): same execution surface as v1.x (per ADR-0003 additive), the major version records that FCoP is now defined by **two** diagrams together — the **execution stack** (5-layer vertical, stable since v1.x) *and* the **FCoP Semantic Evolution Loop** (7-node closed loop, newly canonicalised). Same release adds Rule 4.6 (`fcop/internal/` vs `docs/` + `essays/` soft convention with `internal-only` declaration v1), `Project.init(deploy_internal_template=...)` opt-in, P3 (suggestion) audit severity, and a bundled `fcop_audit` exemption list that fixes three upstream bugs surfaced by codeflow cross-project patrol (ISSUE-008/009/010). Earlier: **v1.6** trailing-slug filename adoption (ADR-0033); **v1.5** 84-doc protocol-awareness sync + `RULE_DOC_DRIFT`; **v1.4** write-side bind enforcement (P0) + `supersedes:` field; **v1.3** Governance Alert Layer + `fcop_audit()` Protocol Inspection Compiler — 35 MCP tools total; **v1.2** Capability Governance pillar (`FCoPGovernanceMiddleware`, Skill Resolver, Risk Tagging, append-only audit log); **v1.1** `Task.risk_level`, `Review.decision=needs_human`, `Review.human_approval`, `Agent.layer` governance contracts, `Skill.tools[]` risk metadata; **v1.0** introduced the `fcop/` workspace path (previously `docs/agents/`); see [`docs/MIGRATION-1.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/MIGRATION-1.0.md) for details.
+**Upgrading from older lines (`0.6.x` / `0.7.x` / `1.x` / `2.x`)?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) — install in the MCP venv (`pip install -U fcop fcop-mcp`), restart IDE, then run `redeploy_rules()` once to refresh on-disk rule files.
 
-**What can the server actually do?** The **35 MCP tools** and 14 read-only resources are indexed (with grouping, when-to-call, and parameter cheatsheet) in [**`docs/mcp-tools.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md). Authoritative descriptions remain in source docstrings ([`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)). **v2.0.0** adds: Rule 4.6 (`fcop/internal/` vs external `docs/` + `essays/`); `Project.init(deploy_internal_template=...)` opt-in parameter on all three init entrypoints; new public symbol `fcop.rules.get_internal_readme(lang)`; P3 (suggestion, non-blocking) severity tier in `InspectionReport` + `_scan_internal_only_declarations()`; `fcop_audit` exemption list (`log/`, `_archive/`, `legacy-non-protocol/`) preventing false positives on archive directories. **v1.3.0** adds: Governance Alert Layer (ADR-0031) with `fcop_list_alerts` + `fcop_create_alert` and drift signal scanning (Solo Blindspot S3, CRITICAL-unreviewed S1, long-running S4); `fcop_audit()` Protocol Inspection Compiler (ADR-0032) with three-scenario deep scan and INSPECTION report (Execution Block). **v1.2.1** adds 2 governance audit tools (`list_governance_events`, `get_governance_summary`) and the `FCoPGovernanceMiddleware` — every tool call is automatically tagged by risk level and written to an append-only `fcop_events.jsonl` audit log (ADR-0030-bis). **v1.1.0** adds 4 review tools: `write_review`, `list_reviews`, `read_review`, `mark_human_approved` (human-in-the-loop approval flow), and extends `write_task` with a `risk_level` parameter — high-risk tasks automatically trigger a `needs_human` review. **0.6.4** adds 2 new resources (`fcop://prompt/install` zh + en) and gives every `init_*` tool a `force` parameter for clean ADMIN-driven team switches. **0.6.5** wires the **Rule 0.a.1 hard constraint** (`task → do → report → archive` four-step cycle) into the tool layer: `new_workspace` prepends a soft Rule 0.a.1 reminder when no open `TASK-*.md` mentions the slug, and `fcop_report` (initialised branch) ends with the explicit four-step template — both bilingual, both additive (no signature changes). See [`docs/releases/0.6.5.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/0.6.5.md).
+**What can the server actually do?** The current surface is **45 MCP tools** plus read-only resources; see [**`docs/mcp-tools.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md). Authoritative behavior stays in source docstrings ([`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)).
 
 **0.6.3 ships [ADR-0006](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0006-host-neutral-rule-distribution.md)** — host-neutral protocol-rule distribution. New tool **`fcop_report`** is now the canonical session/init report (its header carries a `[Versions]` block that flags drift between the wheel-bundled rules and the project-local `.cursor/rules/` copy). New ADMIN-only tool **`redeploy_rules`** writes the four protocol-rule targets — `.cursor/rules/fcop-rules.mdc`, `.cursor/rules/fcop-protocol.mdc`, `AGENTS.md`, `CLAUDE.md` — so Cursor, Claude Code CLI, and Codex CLI all see the same rules. Legacy **`unbound_report`** stays as a deprecated alias of `fcop_report` (emits `DeprecationWarning`, removed in 0.7.0). See [`docs/releases/0.6.3.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/0.6.3.md) for the full migration story.
 
@@ -159,7 +160,7 @@ python -c "from fcop import Issue, Project; print('fcop OK', Project)"
 python -c "from fcop_mcp.server import mcp; print('fcop-mcp OK')"
 ```
 
-If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, same MAJOR in lockstep with the current release; e.g. `fcop 1.0.x` + `fcop-mcp 1.0.x`).
+If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, **same version in lockstep** per [ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md); e.g. `fcop 3.2.x` + `fcop-mcp 3.2.x`).
 
 ---
 
@@ -190,8 +191,12 @@ Resolution order (see [ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main
 1. Last `set_project_dir` in this MCP session  
 2. `FCOP_PROJECT_DIR`  
 3. Legacy 0.5.x env var `CODEFLOW_PROJECT_DIR` (still recognized with a deprecation warning — use `FCOP_PROJECT_DIR`)  
-4. Walk up for `docs/agents/fcop.json` / `fcop-rules.mdc` / `docs/agents/tasks/`  
-5. Current working directory  
+4. Walk up from cwd for any of these markers (first hit wins):
+   - `.cursor/rules/fcop-rules.mdc` (present after `init_*` on v3 projects)
+   - `docs/agents/fcop.json` or `docs/agents/tasks/` (legacy 0.7.x layout)
+5. Current working directory (last resort)
+
+Write guards additionally accept `fcop/fcop.json` (v1.0+ / v3 default workspace) or legacy `docs/agents/fcop.json`. v3 coordination files live under `fcop/_lifecycle/`; see [`docs/getting-started.en.md`](../docs/getting-started.en.md).
 
 To pin a folder in config:
 
@@ -201,11 +206,13 @@ To pin a folder in config:
 
 ---
 
-## Stability (1.x)
+## Stability (3.x)
 
-Tool and resource **shapes** are **additive-only** within a single MINOR release line ([stability charter, ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)). Configs that work on `fcop-mcp` `1.0.0+` will keep working on later `1.x` patch and minor releases. Breaking changes are allowed only at MAJOR boundaries; patch releases never break existing tool calls.
+Within a single **MINOR** line (e.g. `3.2.x`), MCP tool/resource **shapes** stay **additive-only** ([stability charter, ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)): no renames, no required-parameter tightening, no resource removal. Patch releases do not break existing tool calls.
 
-For projects still on `fcop-mcp 0.7.x`, see [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and [`docs/releases/1.0.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/1.0.0.md) for the 0.7 → 1.0 migration narrative. For v1.0 → v1.1 (additive, no breaking changes), see [`docs/MIGRATION-1.1.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/MIGRATION-1.1.md) and [`docs/releases/1.1.0.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/1.1.0.md).
+`fcop` and `fcop-mcp` ship **lockstep** with the same version number ([ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md)). Install both together, e.g. `pip install -U "fcop>=3.2.3,<3.3" "fcop-mcp>=3.2.3,<3.3"`.
+
+Upgrading from `0.6.x` / `0.7.x` / `1.x` / `2.x`? See [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and the release notes under [`docs/releases/`](../docs/releases/). v3.0.0 introduced the `_lifecycle/` topology — run `fcop_audit(scope="upgrade")` then `migrate_to_v3()` on unmigrated v2 workspaces.
 
 ---
 
