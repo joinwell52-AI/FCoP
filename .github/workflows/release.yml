@@ -85,7 +85,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Run release audit (R1..R12)
+      - name: Run release audit (R1..R13)
         env:
           NEW: ${{ steps.extract.outputs.version }}
           OLD: ${{ steps.prev.outputs.old }}
@@ -95,7 +95,8 @@ jobs:
           # + R5 (README release table row) + R6 (CITATION.cff) + R7
           # (letter-to-admin) + R8 (hardcoded vX.Y.Z) + R9 (no Proposed
           # ADRs) + R10 (backup remote, P1 — local-dev concern, skipped
-          # on CI) + R11 (mcp pyproject pin) + R12 (bilingual pairing).
+          # on CI) + R11 (mcp pyproject pin) + R12 (bilingual pairing)
+          # + R13 (bundled rule UTF-8 / mojibake).
           # --ci => exit 1 on any P0 fail; P1 fails are warnings only.
           # Skip R10 (backup-remote): the GitHub runner clones with a
           # single `origin` remote and never has a backup remote. R10
@@ -104,7 +105,7 @@ jobs:
             --new "${NEW}" \
             --old "${OLD}" \
             --ci \
-            --only versions,mcp-server,changelog,public-docs,readme-pair,citation,letter,hardcoded,adr,pin,bilingual
+            --only versions,mcp-server,changelog,public-docs,readme-pair,citation,letter,hardcoded,adr,pin,bilingual,encoding
 
   build:
     name: Build both wheels
@@ -140,7 +141,18 @@ jobs:
           /tmp/smoke/bin/pip install --upgrade pip --quiet
           /tmp/smoke/bin/pip install dist/fcop-*.whl
           /tmp/smoke/bin/pip install mcp/dist/fcop_mcp-*.whl
-          /tmp/smoke/bin/python -c "import fcop, fcop_mcp; print('fcop:', fcop.__version__); print('fcop-mcp:', fcop_mcp.__version__)"
+          /tmp/smoke/bin/python -c "
+          import fcop, fcop_mcp
+          from pathlib import Path
+          import fcop.rules as rules_pkg
+          proto = Path(rules_pkg.__file__).parent / '_data' / 'fcop-protocol.mdc'
+          text = proto.read_text(encoding='utf-8')
+          assert '协议解释' in text, 'missing 协议解释 in installed fcop-protocol.mdc'
+          assert '鍗忚' not in text, 'mojibake detected in fcop-protocol.mdc'
+          print('fcop:', fcop.__version__)
+          print('fcop-mcp:', fcop_mcp.__version__)
+          print('bundled protocol OK:', proto)
+          "
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

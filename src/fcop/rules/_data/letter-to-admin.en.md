@@ -6,7 +6,13 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
-> **v3.2.3 summary** (current, 2026-05-23; covers deep archiving / v3 lifecycle + v2.0.0 philosophical era):
+> **v3.2.4 summary** (current PyPI package, 2026-05-27; **protocol rules remain 3.2.3**):
+> - **Packaging fix**: restores UTF-8 in wheel `fcop-protocol.mdc` (PyPI 3.2.3 is bad);
+>   use `pip install -U "fcop>=3.2.4"`, do not reinstall 3.2.3.
+> - **fcop-mcp**: PyPI `"FCoP (protocol)"` URL → `docs/getting-started.en.md`;
+>   long description synced to 45 tools / v3 `_lifecycle/`.
+>
+> **v3.2.3 summary** (2026-05-23; deep archiving / v3 lifecycle + v2.0.0 philosophical era):
 > - **"Two-diagram era"**: `2.0.0` is a *philosophical* major release.
 >   All v1.x public APIs keep working (per ADR-0003 additive expansion);
 >   the major bump records that FCoP now formally acknowledges **two**
@@ -61,7 +67,7 @@ you and an AI team collaborate through **files**. Your one job:
 >   `TASK-20260512-025-PM-to-OPS-phase-a-fix.md`). The slug is not part
 >   of routing — it's a human-readable label. Pre-1.6 filenames remain
 >   valid.
-> - **MCP tool count**: 45 (v3.2.3). Full list: `docs/mcp-tools.md`.
+> - **MCP tool count**: 45 (v3.2.4 package / v3.2.3 protocol). Full list: `docs/mcp-tools.md`.
 > - **Deep archiving (3.2.x new)**: `archive_to_history(task_id)` /
 >   `bulk_archive_to_history()` move completed task-report pairs into
 >   `history/YYYY-MM-DD/TASK-XXX/` (date-sharded).

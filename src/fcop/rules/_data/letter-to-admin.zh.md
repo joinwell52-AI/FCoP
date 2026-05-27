@@ -6,7 +6,13 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
-> **v3.2.3 摘要**（当前版本，2026-05-23；含深度归档/v3 生命周期 + v2.0.0 哲学纪元）：
+> **v3.2.4 摘要**（当前 PyPI 包版本，2026-05-27；**协议规则仍为 3.2.3**）：
+> - **打包修复**：修复 PyPI 3.2.3 wheel 内 `fcop-protocol.mdc` UTF-8 损坏；请
+>   `pip install -U "fcop>=3.2.4"`，勿重装 3.2.3。
+> - **fcop-mcp**：PyPI 链接「FCoP (协议)」→ `docs/getting-started.en.md`；
+>   长描述对齐 45 工具 / v3 `_lifecycle/`。
+>
+> **v3.2.3 摘要**（2026-05-23；含深度归档/v3 生命周期 + v2.0.0 哲学纪元）：
 > - **"两图对偶"纪元**：`2.0.0` 是 *philosophical* major release。1.x
 >   的全部 API 继续工作（per ADR-0003 附加性扩展），主版本号跨越的
 >   原因是协议哲学的固化——FCoP 现在同时承认**两张图**：
@@ -48,7 +54,7 @@
 >   `ISSUE` 三种 envelope 在路由字段尾部可追加一个**可选**的
 >   `-{slug}` 段（如 `TASK-20260512-025-PM-to-OPS-phase-a-fix.md`）。
 >   slug 不参与路由，只是人类可读标签；旧文件名继续合法。
-> - **MCP 工具总数**：45 个（v3.2.3）。完整清单见 `docs/mcp-tools.md`。
+> - **MCP 工具总数**：45 个（v3.2.4 包 / v3.2.3 协议）。完整清单见 `docs/mcp-tools.md`。
 > - **深度归档（3.2.x 新增）**：`archive_to_history(task_id)` / `bulk_archive_to_history()`
 >   把已完成任务-回执对推入 `history/YYYY-MM-DD/TASK-XXX/`，按日期分片，
 >   `list_history` / `read_history_task` 提供索引和读取。

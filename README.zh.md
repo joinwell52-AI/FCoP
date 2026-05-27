@@ -12,7 +12,7 @@
 <p align="center">
   <strong>✅ <code>fcop-mcp</code> 已入驻 <a href="https://registry.modelcontextprotocol.io/">官方 MCP 注册表</a></strong><br/>
   登记名 <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop"><code>io.github.joinwell52-AI/fcop</code></a>
- （<strong>v3.2.3</strong>）——由 <strong>Anthropic + GitHub + Microsoft</strong> 联合背书的官方目录收录。<br/>
+ （<strong>v3.2.4</strong>）——由 <strong>Anthropic + GitHub + Microsoft</strong> 联合背书的官方目录收录。<br/>
   Claude Desktop、Cursor、PulseMCP 及所有 MCP 兼容客户端均可一键发现 <strong>45 个工具</strong>，一行安装：<code>uvx fcop-mcp</code>
 </p>
 
@@ -40,7 +40,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.2.3-brightgreen?style=flat-square" alt="3.2.3" />
+    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.2.4-brightgreen?style=flat-square" alt="3.2.4" />
   </a>
   <a href="spec/fcop-3.0-spec.zh.md">
     <img src="https://img.shields.io/badge/%E8%A7%84%E8%8C%83-FCoP%203.0-orange?style=flat-square" alt="FCoP 3.0 规范" />
@@ -229,7 +229,8 @@ mkdir -p fcop/{tasks,reports,issues,shared,log}
 
 | 版本 | 一句话 |
 |---|---|
-| **3.2.3**（[详细](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)） | **v3.2.3 — 团队模板与文档同步 · FCoP 3.0 合规。** bundled 团队样板（`letter-to-admin`、`roles/*`、`TEAM-OPERATING-RULES` 等）目录引用从 v2 `tasks/` / `log/` 全面迁到 `_lifecycle/`；工具数 32→45；`.cursor/rules/` 与 bundled 规则对齐；新增 `scripts/fcop_prerelease_check.py`（10 项发版前检查）。无 API 破坏性变更。 |
+| **3.2.4**（[详细](docs/releases/3.2.4.md) · [CHANGELOG](CHANGELOG.md)） | **v3.2.4 — PyPI 元数据与 bundled 协议编码修复。** 修复 wheel 内 `fcop-protocol.mdc` 乱码（勿用 PyPI 3.2.3）；修复 `fcop-mcp`「FCoP (协议)」404；PyPI 长描述对齐 45 工具 / v3 `_lifecycle/`。无 API 变更。 |
+| **3.2.3**（[详细](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)） | **v3.2.3 — 团队模板与文档同步 · FCoP 3.0 合规。** bundled 团队样板目录引用迁到 `_lifecycle/`；工具数 32→45。**PyPI 3.2.3 wheel 协议文件损坏，请升 3.2.4。** |
 | **3.2.2**（[CHANGELOG](CHANGELOG.md)） | **v3.2.2 — 发布前检查硬化 + 规则文件 v3 一致性。** `fcop-mcp` 的 `prerelease_check.py` 新增 Check 7–10（双包版本锁步、bundled 规则完整性、`_lifecycle/` 结构文档、生命周期阶段覆盖）；`fcop-rules.mdc` / `fcop-protocol.mdc` 补充 v3 目录拓扑与状态机说明。 |
 | **3.2.0**（[CHANGELOG](CHANGELOG.md)） | **v3.2.0 — 深度历史归档。** 新增 `history/YYYY-MM-DD/` 日期分片长期归档层及 `archive_to_history` / `list_history` / `read_history_task` 等 MCP 工具；生命周期工具（`claim` / `submit` / `approve` / `reject` / `finish`）在 3.1.x 引入，工具总数增至 **45**。 |
 | **3.0.2**（[CHANGELOG](CHANGELOG.md)） | **v3.0.2 — 初始化拓扑修复。** 关键 patch：3.0.0 / 3.0.1 的 `Project._apply_init` 只创建了 v2 老桶，跳过了 spec §1.1 强制要求的 v3 `_lifecycle/{inbox,active,review,done,archive}/` 五桶。3.0.2 让 fresh init 直接落 v3 拓扑（同时不再创建被 superseded 的 v2 `tasks/` / `log/`）；`core.events.scan_workspace` 与 `Project.role_occupancy()` 在 v3 项目下从 `_lifecycle/` 读取。新增 audit 扫描 `_scan_lifecycle_topology_compliance()`（D9）：P0 = 已初始化项目同时缺 `_lifecycle/` 和 v2 内容；P1 = 两套拓扑共存（建议 `migrate --to-v3`）。MCP 工具描述（`init_solo` / `init_project` / `create_custom_team`）同步更新。1209 测试全绿。SemVer patch：相对 3.0.1 无 API 表面改动——init 之前在做错事。 |

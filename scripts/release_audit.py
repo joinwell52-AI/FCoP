@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Release sync audit — automated R1..R12 checks for FCoP releases.
+Release sync audit — automated R1..R13 checks for FCoP releases.
 
 This is the executable form of `docs/release-process.md` §G's six manual
 `rg` commands plus inventory §4's audit-hook contract. It is a repo-side
@@ -70,7 +70,7 @@ class AuditReport:
     def render_text(self) -> str:
         lines: list[str] = []
         lines.append("=" * 72)
-        lines.append("FCoP Release Sync Audit — R1..R12")
+        lines.append("FCoP Release Sync Audit — R1..R13")
         lines.append("=" * 72)
         for f in self.findings:
             icon = {"pass": "OK ", "fail": "XX ", "skip": "-- "}[f.status]
@@ -633,6 +633,29 @@ def check_r12_bilingual_pairing() -> Finding:
     )
 
 
+def check_r13_bundled_rule_encoding() -> Finding:
+    """R13 · bundled fcop-protocol.mdc UTF-8 / no mojibake (3.2.3 regression)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from rule_encoding_guard import validate_bundled_rules
+
+    rules_data = REPO_ROOT / "src" / "fcop" / "rules" / "_data"
+    issues = validate_bundled_rules(rules_data)
+    if not issues:
+        return Finding(
+            "R13", "P0", "pass",
+            "bundled 规则文件 UTF-8 正常、无乱码",
+            "bundled rule files UTF-8 OK, no mojibake",
+        )
+    return Finding(
+        "R13", "P0", "fail",
+        "bundled 规则文件疑似乱码或缺锚点",
+        "bundled rule files look corrupted or missing anchors",
+        detail_zh="; ".join(issues[:8]),
+        detail_en="; ".join(issues[:8]),
+        remediation="从干净副本恢复 src/fcop/rules/_data/fcop-protocol.mdc 后重跑",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
@@ -650,6 +673,7 @@ CHECK_REGISTRY: dict[str, tuple[str, Callable[..., Finding]]] = {
     "backup-remote": ("R10", check_r10_backup_remote),
     "pin": ("R11", check_r11_mcp_pyproject_pin),
     "bilingual": ("R12", check_r12_bilingual_pairing),
+    "encoding": ("R13", check_r13_bundled_rule_encoding),
 }
 
 
@@ -662,10 +686,10 @@ def run_audit(new: str, old: str, only: Iterable[str] | None,
         if unknown:
             print(f"::warning::unknown check(s) ignored: {sorted(unknown)}",
                   file=sys.stderr)
-    # Fixed order matching R1..R12.
+    # Fixed order matching R1..R13.
     order = ["versions", "mcp-server", "changelog", "public-docs",
              "readme-pair", "citation", "letter", "hardcoded",
-             "adr", "backup-remote", "pin", "bilingual"]
+             "adr", "backup-remote", "pin", "bilingual", "encoding"]
     for name in order:
         if name not in selected:
             continue
@@ -693,6 +717,8 @@ def run_audit(new: str, old: str, only: Iterable[str] | None,
         elif name == "pin":
             report.add(fn(new))
         elif name == "bilingual":
+            report.add(fn())
+        elif name == "encoding":
             report.add(fn())
     return report
 

@@ -8,6 +8,32 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.2.4] — 2026-05-27 (PyPI metadata & bundled protocol encoding fix)
+
+### Fixed — `fcop`
+- **`fcop-protocol.mdc` (bundled)** — restored valid UTF-8 after v3.2.3 wheel shipped
+  mojibake in `src/fcop/rules/_data/fcop-protocol.mdc` (regression from v3.2.3 release
+  sync). PyPI 3.2.3 wheels are immutable; **install `fcop>=3.2.4`** for a correct
+  bundled copy. After upgrade, run `redeploy_rules()` to refresh project-local
+  `.cursor/rules/` copies.
+
+### Fixed — `fcop-mcp`
+- **`[project.urls]` `"FCoP (protocol)"`** — pointed at removed
+  `docs/fcop-standalone.en.md` (404 since v1.0.0); now
+  `docs/getting-started.en.md` (per ADR-0015 merge).
+- **`mcp/README.md` (PyPI long description)** — aligned with v3.2.3+ surface:
+  45 MCP tools, `_lifecycle/` topology, lockstep `fcop 3.2.x` install guidance
+  (replaces stale v2.0.2 / 35-tool text frozen on PyPI 3.2.3).
+
+### Docs
+- `docs/releases/3.2.4.md` — release notes for this patch.
+- `docs/releases/3.2.3.md` — documents known bad wheel encoding on PyPI 3.2.3.
+
+No API or protocol-schema changes (`fcop_rules_version` / `fcop_protocol_version`
+remain **3.2.3**).
+
+---
+
 ## [3.2.3] — 2026-05-23 (Team template & documentation sync · FCoP 3.0 compliance)
 
 ### Fixed — `fcop` (bundled team templates)

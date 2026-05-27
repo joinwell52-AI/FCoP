@@ -7,7 +7,7 @@
 
 This is the **L0 + L1 single entry point** — get FCoP in 30 seconds, run it on your machine in 5 minutes. Reading this page is enough; deeper docs in [`spec/`](../spec/) / [`adr/`](../adr/) / [`essays/`](../essays/) are optional.
 
-> **✅ `fcop-mcp` is on the [official MCP Registry](https://registry.modelcontextprotocol.io/)** ([`io.github.joinwell52-AI/fcop`](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop), **v3.2.3**). Backed by **Anthropic + GitHub + Microsoft** — Claude Desktop, Cursor, PulseMCP, and every MCP client can discover **45 tools** and install with one line: `uvx fcop-mcp`.
+> **✅ `fcop-mcp` is on the [official MCP Registry](https://registry.modelcontextprotocol.io/)** ([`io.github.joinwell52-AI/fcop`](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop), **v3.2.4**). Backed by **Anthropic + GitHub + Microsoft** — Claude Desktop, Cursor, PulseMCP, and every MCP client can discover **45 tools** and install with one line: `uvx fcop-mcp`.
 
 ---
 

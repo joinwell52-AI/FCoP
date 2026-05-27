@@ -12,7 +12,7 @@
 <p align="center">
   <strong>✅ <code>fcop-mcp</code> is on the <a href="https://registry.modelcontextprotocol.io/">official MCP Registry</a></strong><br/>
   Listed as <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop"><code>io.github.joinwell52-AI/fcop</code></a>
-  (<strong>v3.2.3</strong>) — backed by <strong>Anthropic + GitHub + Microsoft</strong>.<br/>
+  (<strong>v3.2.4</strong>) — backed by <strong>Anthropic + GitHub + Microsoft</strong>.<br/>
   Claude Desktop, Cursor, PulseMCP, and every MCP-compatible client can discover <strong>45 tools</strong> and install with one line: <code>uvx fcop-mcp</code>
 </p>
 
@@ -40,7 +40,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/release-3.2.3-brightgreen?style=flat-square" alt="3.2.3" />
+    <img src="https://img.shields.io/badge/release-3.2.4-brightgreen?style=flat-square" alt="3.2.4" />
   </a>
   <a href="spec/fcop-3.0-spec.md">
     <img src="https://img.shields.io/badge/spec-FCoP%203.0-orange?style=flat-square" alt="FCoP 3.0 spec" />
@@ -249,7 +249,8 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 
 | Version | One-line |
 |---|---|
-| **3.2.3** ([notes](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.3 — Team template & doc sync · FCoP 3.0 compliance.** Bundled team templates (`letter-to-admin`, `roles/*`, `TEAM-OPERATING-RULES`, …) migrate legacy `tasks/` / `log/` references to `_lifecycle/`; tool count 32→45; `.cursor/rules/` synced with bundled rules; new `scripts/fcop_prerelease_check.py` (10 pre-release checks). No breaking API changes. |
+| **3.2.4** ([notes](docs/releases/3.2.4.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.4 — PyPI metadata & bundled protocol encoding fix.** Restores UTF-8 in wheel `fcop-protocol.mdc` (avoid PyPI 3.2.3); fixes `fcop-mcp`「FCoP (protocol)」link → `getting-started.en.md`; syncs PyPI long description to 45 tools / v3 `_lifecycle/`. No API changes — upgrade from 3.2.3. |
+| **3.2.3** ([notes](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.3 — Team template & doc sync · FCoP 3.0 compliance.** Bundled team templates (`letter-to-admin`, `roles/*`, `TEAM-OPERATING-RULES`, …) migrate legacy `tasks/` / `log/` references to `_lifecycle/`; tool count 32→45; `.cursor/rules/` synced with bundled rules; new `scripts/fcop_prerelease_check.py` (10 pre-release checks). **PyPI 3.2.3 wheel had bad protocol encoding — use 3.2.4.** |
 | **3.2.2** ([CHANGELOG](CHANGELOG.md)) | **v3.2.2 — Pre-release gate hardening + rule-file v3 consistency.** `fcop-mcp` `prerelease_check.py` gains Checks 7–10 (lockstep version guard, bundled rule integrity, `_lifecycle/` docs, lifecycle stage coverage); `fcop-rules.mdc` / `fcop-protocol.mdc` document v3 directory topology and state machine. |
 | **3.2.0** ([CHANGELOG](CHANGELOG.md)) | **v3.2.0 — History deep archive.** Adds `history/YYYY-MM-DD/` date-sharded long-term archive layer plus `archive_to_history` / `list_history` / `read_history_task` MCP tools; lifecycle tools (`claim` / `submit` / `approve` / `reject` / `finish`) landed in 3.1.x; **45** MCP tools total. |
 | **3.0.2** ([CHANGELOG](CHANGELOG.md)) | **v3.0.2 — Init topology fix.** `Project._apply_init` in 3.0.0 / 3.0.1 only created the legacy v2 buckets and skipped the mandatory v3 `_lifecycle/{inbox,active,review,done,archive}/` layer (spec §1.1). 3.0.2 makes fresh init produce the v3 topology directly (and stops creating the superseded v2 `tasks/` / `log/` buckets); `core.events.scan_workspace` and `Project.role_occupancy()` now read from `_lifecycle/` for v3 projects. New audit scan `_scan_lifecycle_topology_compliance()` (D9): P0 when initialised projects miss both `_lifecycle/` and v2 content; P1 when both topologies coexist (suggests `migrate --to-v3`). MCP tool descriptors (`init_solo` / `init_project` / `create_custom_team`) updated. 1209 tests green. Patch (SemVer): no API surface changes vs 3.0.1 — init was simply doing the wrong thing. |

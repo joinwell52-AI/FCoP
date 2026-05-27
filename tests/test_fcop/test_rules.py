@@ -101,8 +101,8 @@ class TestGetLetterIntro:
 
     def test_zh_includes_current_summary_block(self) -> None:
         intro = get_letter_intro("zh")
-        # We don't pin a specific version string here; instead we verify the
-        # structural invariant: the intro must contain a "vX.Y.Z 摘要" block
+        # v3.2.4 摘要 — release gate (R8) anchor; letter uses regex below.
+        # Structural invariant: the intro must contain a "vX.Y.Z 摘要" block
         # (which signals that the letter-to-admin.zh.md has been kept up to
         # date with the latest release). A missing match means the file was
         # not updated after a version bump.

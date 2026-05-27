@@ -55,6 +55,8 @@ MAJOR.MINOR.PATCH[rcN|devN]
 
 ### A. 代码层 / Code
 
+- [ ] **`python scripts/fcop_prerelease_check.py` 全绿**（含 **[11] bundled 规则 UTF-8 / 乱码**：
+      `fcop-protocol.mdc` 须含「协议解释」、不得含 3.2.3 事故乱码片段；若已 `build`，wheel 内同检）
 - [ ] `src/fcop/_version.py` bump 到目标版本(如 `__version__ = "1.7.0"`)
 - [ ] `mcp/src/fcop_mcp/_version.py` **同步** bump,字符串与 `fcop` 一致
 - [ ] `mcp/pyproject.toml` 的 `fcop>=1.0,<2.0` 依赖约束保持 **MAJOR 锁**

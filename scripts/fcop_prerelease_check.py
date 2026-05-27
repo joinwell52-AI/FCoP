@@ -15,11 +15,21 @@ fcop 库 发版前一条龙检查脚本
   [8]  letter-to-admin 顶部摘要含当前版本
   [9]  fcop-README.pypi.md 存在且非空
   [10] wheel 文件捆绑内容 (如已构建)
+  [11] bundled 规则文件 UTF-8 / 乱码检查 (fcop-protocol.mdc 等)
 
 所有检查通过才允许发版；任何一条 FAIL 即退出码非零。
 """
 import re, sys, zipfile
 from pathlib import Path
+
+# Windows 控制台默认 GBK；强制 UTF-8 以便 ✓/✗ 与中文报错正常显示
+try:
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+    sys.stderr.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+except (AttributeError, OSError):
+    pass
+
+from rule_encoding_guard import validate_bundled_rules, validate_wheel_rules
 
 ROOT = Path(__file__).resolve().parent.parent   # FCoP/
 SRC_FCOP = ROOT / "src" / "fcop"
@@ -292,6 +302,23 @@ for dd in dist_dirs:
 
 if not whl_found:
     warn(f"未找到 fcop-{version}-*.whl（先 build 再重跑）；跳过 wheel 内容检查")
+
+# ── 11. bundled 规则 UTF-8 / 乱码检查 ─────────────────────────────────────
+print("\n[11] bundled 规则文件 UTF-8 / 乱码检查")
+encoding_issues = validate_bundled_rules(RULES_DATA)
+check("fcop-protocol.mdc / fcop-rules.mdc 无乱码且含预期锚点",
+      not encoding_issues,
+      "; ".join(encoding_issues[:5]) + ("..." if len(encoding_issues) > 5 else ""),
+      "协议解释 / Protocol Commentary 等锚点 OK")
+
+if whl_found:
+    whl_encoding_issues = validate_wheel_rules(whl)
+    check("wheel 内规则文件 UTF-8 / 无乱码",
+          not whl_encoding_issues,
+          "; ".join(whl_encoding_issues[:5]),
+          "wheel 内 fcop-protocol.mdc 可读")
+else:
+    warn("未构建 wheel，跳过 [11] wheel 乱码子检查")
 
 # ── 结果汇总 ──────────────────────────────────────────────────────────────
 print(f"\n{'='*60}")
