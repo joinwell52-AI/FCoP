@@ -35,6 +35,7 @@
 | 1 | **文件是协议的外化载体。** | §6 |
 | 2 | **位置是状态的地址映射。** | §2（`_lifecycle/`）、§4（`history/` 只读归宿）|
 | 3 | **事件是状态转移的可重放证据。** | §3 |
+| 4 | **治理判定落在 `reviews/`，与 `_lifecycle/review/` 阶段正交。** | §5 |
 
 ### §0.3 · 范围
 
@@ -215,28 +216,169 @@ L1 迁移**必须**采用 write-then-rename（读源 → 内存追加 `transitio
 
 ---
 
-## §5 · 其它协调目录（非 `_lifecycle` 阶段）
+## §5 · 其它协调目录与治理审批（非 `_lifecycle` 阶段）
 
-| 目录 | 用途 | 是否随 L1 迁移 |
-|------|------|----------------|
-| `reports/` | `REPORT-*` 完成回执 | 否（路径固定；深档案时**复制/移动**进 `history/`）|
-| `issues/` | `ISSUE-*` | 否 |
-| `shared/` | 团队宪法、`INSPECTION-*` 等 | 否（站立文档可原地更新）|
-| `reviews/` | `REVIEW-*` 审计判定 | 否 |
+### 5.0 目录一览
 
-信封类型与 frontmatter 见 `spec/schemas/ipc-envelope.schema.json` 与 bundled `fcop-rules.mdc` Rule 9。
+| 目录 | 信封 | 是否随 L1 迁移 | 说明 |
+|------|------|----------------|------|
+| `reports/` | `REPORT-*` | 否 | 执行回执（Rule 6 互惠）；深档案时**复制/移动**进 `history/` |
+| `issues/` | `ISSUE-*` | 否 | 阻塞 / 风险 / 违规记录 |
+| `shared/` | `INSPECTION-*`、团队宪法等 | 否 | 站立文档可原地更新；`INSPECTION` 为协议体检产物（Rule 9.6）|
+| `reviews/` | `REVIEW-*` | 否 | **治理层审计判定**（v1.0+，ADR-0017）；见 §5.2–§5.5 |
+| `alerts/`（可选）| `ALERT-*` | 否 | 治理告警层 GAL（v1.3+，ADR-0031）；见 §5.6 |
+
+IPC 四类信封：`TASK` / `REPORT` / `ISSUE` / `REVIEW`。机器可读 schema：`spec/schemas/ipc-envelope.schema.json`、`spec/schemas/review.schema.json`。行为规则：bundled `fcop-rules.mdc` Rule 9、`fcop-protocol.mdc` Rule 9 Commentary。
+
+### 5.1 两种「review」——**必须**消歧
+
+FCoP v3 里 **review 一词指两件正交的事**。混用会导致目录、工具与审批流程全部读错。
+
+| 维度 | **A · 生命周期阶段** `_lifecycle/review/` | **B · 治理信封** `reviews/REVIEW-*.md` |
+|------|---------------------------------------------|----------------------------------------|
+| **是什么** | TASK 文件的**当前阶段**（目录位置 = NOW 真相）| 对某份制品的**审计判定记录**（独立文件，不迁移）|
+| **典型动作** | `submit_task` → `approve_task` / `reject_task` | `write_review` →（可选）`mark_human_approved` |
+| **谁在做** | 执行角色提交；leader / ADMIN 通过或打回任务 | `layer: governance` 或 `admin` 角色写 REVIEW |
+| **与 Rule 6** | 仍须 `REPORT-*` 关闭工作；`approve_task` **不替代** REPORT | REVIEW **不替代** REPORT；不能单靠 REVIEW 宣称任务已交付 |
+| **人工介入** | `reject_task` 的 `note` 是打回说明，不是 `needs_human` 枚举 | `decision: needs_human` + `human_approval` 子结构（ADR-0026）|
+
+> **记忆口诀**：**目录上的 review = 任务在等人点通过；文件里的 REVIEW = 治理判决写在 `reviews/`。**
+
+两条链路**可以**同时存在（例如：TASK 在 `_lifecycle/review/` 等人 `approve_task`，同时磁盘上有一份 `REVIEW-*` 要求 ADMIN 人工批高风险操作），但**没有**协议规定的自动绑定——实现方不得假设「进了 `_lifecycle/review/` 就一定有 REVIEW 文件」或反之。
+
+### 5.2 治理层 `REVIEW-*` 信封（v1.0+ · ADR-0017）
+
+**语义**：REVIEW 是第四类 IPC envelope，承载**对已有制品的判断**（通过 / 驳回 / 要求修改 / 弃权 / 升级人工），不是新一轮派工。
+
+**规则 R1（与 REPORT 正交）** — REVIEW 是**审计痕迹**；关闭 TASK 的合法路径仍是 `REPORT-*`（或后续 `TASK-*` 回执），见 Rule 6。  
+**规则 R2（只追加）** — `reviews/` 下文件**不得**原地改写 `decision`；修正须写新 REVIEW 并 `supersedes:` 指向旧文件（Rule 5，与 TASK/REPORT 相同纪律）。  
+**规则 R3（边界）** — `worker` 层角色**不得**对 `governance` 主体写 REVIEW（Rule 9.2 / ADR-0020）；工具层 `write_review` 会调 `assert_boundary`。
+
+#### 5.2.1 文件名文法（**不同于** TASK/REPORT）
+
+REVIEW **不**使用 `{SENDER}-to-{RECIPIENT}` 路由段：
+
+```
+REVIEW-{YYYYMMDD}-{NNN}-{REVIEWER}-on-{subject_short}.md
+```
+
+| 段 | 含义 |
+|----|------|
+| `{REVIEWER}` | 写 REVIEW 的角色码（可与 `reviewer_role` frontmatter 一致）|
+| `{subject_short}` | 被审对象的**短标签**（小写 slug；**不是**完整 `subject_ref`）|
+
+`subject_ref` 在 frontmatter 里指向完整 ID（如 `TASK-20260510-003-ADMIN-to-DEV`）；`subject_short` 仅用于文件名可读性（如 `task-003`）。工具 `write_review` 可从 `subject_ref` 自动派生 `subject_short`。
+
+#### 5.2.2 Frontmatter（**MUST** 若写 REVIEW）
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `protocol` | ✅ | `fcop` |
+| `version` | ✅ | 信封版本（整数，当前为 `1`）|
+| `type` | ✅ | `REVIEW` |
+| `review_id` | ✅ | 与文件名 stem 一致 |
+| `subject_type` | ✅ | `task` \| `report` \| `role_switch` \| `code_change` |
+| `subject_ref` | ✅ | 被审对象引用（通常 `TASK-*` / `REPORT-*` ID）|
+| `reviewer_role` | ✅ | 评审角色码 |
+| `decision` | ✅ | 见 §5.2.3 |
+| `decided_at` | ✅ | ISO-8601 时间戳 |
+| `sender` | ✅ | 与 `reviewer_role` 一致（IPC 惯例）|
+| `reviewer_agent` | 可选 | 具体 session / agent 实例 |
+| `rationale` | 推荐 | `rejected` / `needs_changes` / `needs_human` 时**应当**填写 |
+| `required_changes` | 条件 | `decision=needs_changes` 时**必须**非空列表 |
+| `human_approval` | 条件 | 仅当 `needs_human` 且人工已批后由 `mark_human_approved` 写入 |
+
+正文：Markdown 说明理由、证据引用（须遵守 Rule 0.c 出处）。
+
+#### 5.2.3 `decision` 枚举（v1.1 冻结 · ADR-0025）
+
+工具与 `review.schema.json` 冻结的**五值**（实现层 **MUST** 使用下列字符串）：
+
+| 值 | 含义 |
+|----|------|
+| `approved` | 制品可继续 / 判定通过 |
+| `rejected` | 制品被否决，不得按原方案继续 |
+| `needs_changes` | 要求修改；**必须**配非空 `required_changes` |
+| `abstained` | 审核者回避 / 不在职责范围 |
+| `needs_human` | **升级人工**；在 `human_approval` 落盘前视为 **pending** |
+
+**禁止**使用 `pending` 作为 `decision` 值——它不是合法枚举。
+
+> bundled `fcop-rules.mdc` Rule 9.1 教学叙述中可能出现 `changes_requested`、`blocked` 等同义措辞；**落盘与 MCP 校验**以本表与 `spec/schemas/review.schema.json` 为准。
+
+### 5.3 人工审批回路（`needs_human` · ADR-0026）
+
+当 `decision: needs_human` 时：
+
+1. 相关 TASK 的**执行**在治理语义上**应当暂停**，直到人工闭环（具体阻塞由宿主 / CodeFlow 实现；协议面以 REVIEW 状态为准）。
+2. Agent **不得**自行把 `needs_human` 改成 `approved` 或其它值。
+3. 只有 `layer: admin` 的角色（真人 ADMIN 代理）通过 **`mark_human_approved(review_id, ...)`** 向 REVIEW frontmatter **追加** `human_approval` 子结构，才视为升级已解决。
+
+**典型流程（说明性）**：
+
+```
+write_task(risk_level="high"|"irreversible")
+  → （推荐）write_review(decision="needs_human", subject_ref=<task_id>)
+  → ADMIN 审阅 REVIEW 与 TASK
+  → mark_human_approved(review_id, approver=..., decision=approve|reject)
+  → 执行角色继续 / 写 REPORT / 生命周期 approve_task（若适用）
+```
+
+`human_approval` 子结构**最低字段**（per schema）：`approver`、`decision`（`approve` / `reject`）、`approved_at`、`channel`（`mobile` / `cli` / `web` / `manual_file_edit`）。
+
+### 5.4 `risk_level` 与 REVIEW 触发（ADR-0024）
+
+TASK frontmatter 可选字段 `risk_level`：`low`（默认）| `medium` | `high` | `irreversible`。
+
+| `risk_level` | 协议期望 |
+|--------------|----------|
+| `low` / `medium` | 无强制 REVIEW；`medium` 建议在正文说明回滚方案 |
+| `high` / `irreversible` | **应当**配套 `write_review(decision="needs_human")`；`write_task` 工具可能自动提示或生成 REVIEW（实现细节见 `fcop-mcp`）|
+| `irreversible` | 除 REVIEW 外，**应当**在 TASK/正文中写明回滚方案（配合 Rule 7 破坏性操作纪律）|
+
+`risk_level` **不**驱动 `_lifecycle/` 目录迁移（Rule C，§2.4）。
+
+### 5.5 生命周期审批 vs 治理 REVIEW 对照（端到端）
+
+| 步骤 | 生命周期（§2）| 治理（本节）|
+|------|-------------|-------------|
+| 1 | `write_task` → `_lifecycle/inbox/` | （可选）`risk_level` |
+| 2 | `claim_task` → `active/` | — |
+| 3 | 执行工作 | （高风险时）`write_review` |
+| 4a | `submit_task` → `review/` | — |
+| 4b | 或 `finish_task` → `done/`（跳过生命周期审核）| — |
+| 5 | `approve_task` / `reject_task` | `mark_human_approved`（若 `needs_human`）|
+| 6 | `write_report` → `reports/` | — |
+| 7 | `archive_task` → `archive/` | — |
+| 8 | （可选）`archive_to_history` | — |
+
+### 5.6 治理信号与 GAL（摘要 · ADR-0031）
+
+**FCoP-Rule-G1**：`write_report` / `fcop_report` 属于**执行域自述**，**不构成**独立治理信号。只有 `write_review`、`mark_human_approved`、`fcop_check` 等才构成可审计的**独立治理视角**。
+
+**GAL（Governance Alert Layer）**：`fcop/alerts/ALERT-*.md` 记录漂移信号（如长时间无独立治理事件、CRITICAL 工具无 REVIEW）。GAL **不**自动阻断写盘；由 ADMIN 处置。工具：`fcop_list_alerts`、`fcop_create_alert`（见 [`docs/mcp-tools.md`](../docs/mcp-tools.md)）。
 
 ---
 
 ## §6 · 身份（文件名语法）
 
+### 6.1 TASK / REPORT / ISSUE（路由信封）
+
 ```
 {TYPE}-{YYYYMMDD}-{NNN}-{SENDER}-to-{RECIPIENT}(-{slug}).md
 ```
 
-- `TYPE`：`TASK` | `REPORT` | `ISSUE` | `REVIEW`
+- `TYPE`：`TASK` | `REPORT` | `ISSUE`
 - `slug`：可选；**必须**小写字母起手（ADR-0033）；**不参与路由**
-- 文件名在生命周期内**不可变**；状态变化仅通过**目录位置**
+- 文件名在 `_lifecycle/` 内**不可变**；TASK 的阶段变化仅通过**目录位置**
+
+### 6.2 REVIEW（治理信封 · 非路由）
+
+```
+REVIEW-{YYYYMMDD}-{NNN}-{REVIEWER}-on-{subject_short}.md
+```
+
+详见 §5.2.1。`REVIEW` **不参与** `list_tasks(recipient=...)` 路由。
 
 ---
 
@@ -273,12 +415,23 @@ C1–C10 见 [`fcop-3.0-spec.zh.md` §6](./fcop-3.0-spec.zh.md)。
 | C13 | 不得将 `history/` 中文件再注册为 `_lifecycle` 当前状态 |
 | C14 | `list_history` / `read_history_task` 只读，不修改深档案 |
 
-### 9.3 禁止（继承 + 补充）
+### 9.3 v1.0+ 治理 / 审批（实现 `reviews/` 时 **MUST**）
+
+| # | 要求 |
+|---|------|
+| C15 | `REVIEW-*` 文件名符合 §5.2.1；落盘于 `reviews/`（首次 `write_review` 可懒创建目录）|
+| C16 | `decision` 使用 §5.2.3 五值之一；`needs_changes` 时 `required_changes` 非空 |
+| C17 | `decision=needs_human` 时，**不得**在无 `human_approval` 的情况下将 REVIEW 视为已批准 |
+| C18 | 关闭 TASK 仍须 `REPORT-*`（或合法后续 TASK）；**不得**仅用 REVIEW 代替 reciprocity |
+
+### 9.4 禁止（继承 + 补充）
 
 | # | 禁止 |
 |---|------|
 | P1–P5 | 同 3.0 规范 |
 | P6 | 在下游产品文档中虚构未在 `fcop-mcp` 注册的 MCP 工具名（如 `search_history`、`move_to_history`）并声称属 FCoP 协议 |
+| P7 | Agent 自行把 `needs_human` 改为 `approved`（须 `mark_human_approved`）|
+| P8 | 把 `_lifecycle/review/` 阶段与 `reviews/REVIEW-*` 混为同一机制（见 §5.1）|
 
 ---
 
@@ -290,10 +443,15 @@ C1–C10 见 [`fcop-3.0-spec.zh.md` §6](./fcop-3.0-spec.zh.md)。
 |------|------|
 | v3 生命周期 | `claim_task`, `submit_task`, `finish_task`, `approve_task`, `reject_task` |
 | 历史深档案 | `archive_to_history`, `bulk_archive_to_history`, `list_history`, `read_history_task` |
-| 任务写入 | `create_task`（= `write_task` 的 v3 别名）|
+| 任务 / 报告 / 问题 | `create_task` / `write_task`, `write_report`, `write_issue`, `read_*`, `list_*` |
+| 治理 REVIEW | `write_review`, `list_reviews`, `read_review`, `mark_human_approved` |
+| 治理告警 GAL | `fcop_list_alerts`, `fcop_create_alert` |
+| 协议体检 | `fcop_audit`（产出 `shared/INSPECTION-*`，非 `reviews/`）|
 | 常规归档 | `archive_task` |
 
-**§10 为说明性**：工具名可在 MINOR 包版本中增补，但**不得**改变 §2–§4 已冻结的目录语义。
+完整参数与 `decision` 表见 [`docs/mcp-tools.md`](../docs/mcp-tools.md) §4–§7、§9。
+
+**§10 为说明性**：工具名可在 MINOR 包版本中增补，但**不得**改变 §2–§5 已冻结的目录与信封语义。
 
 ---
 
@@ -322,7 +480,8 @@ fcop/log/tasks/* → fcop/_lifecycle/archive/*   （并合成 transitions）
 | 3.0.0 | 2026-05-21 | [`fcop-3.0-spec`](./fcop-3.0-spec.zh.md) 首发；仅 `_lifecycle/` + 事件层 |
 | 3.1 | 2026-05-22 | 生命周期 MCP 五工具（[CHANGELOG §3.1.0](../CHANGELOG.md)）|
 | 3.2.0 | 2026-05-22 | `history/YYYY-MM-DD/<stem>/` 深档案（[CHANGELOG §3.2.0](../CHANGELOG.md)）|
-| **3.2.4** | 2026-05-27 | **本文**：合并 3.0–3.2 拓扑；纠正 workspace 根路径说明；索引 45 MCP 工具 |
+| **3.2.4** | 2026-05-27 | **本文**：合并 3.0–3.2 拓扑；纠正 workspace 根路径说明；**补全 §5 治理 REVIEW / 人工审批**；索引 45 MCP 工具 |
+| **3.2.4-rev2** | 2026-05-27 | §5 扩写：`reviews/`、两种 review 消歧、`needs_human` 回路、`risk_level`、GAL 摘要 |
 
 ---
 
@@ -333,6 +492,11 @@ fcop/log/tasks/* → fcop/_lifecycle/archive/*   （并合成 transitions）
 - [ADR-0038](../adr/ADR-0038-fcop-boundary-charter.md) · Boundary  
 - [ADR-0039](../adr/ADR-0039-fcop-freeze-discipline-and-runtime-absorption-era.md) · Freeze Discipline  
 - [ADR-0040](../adr/ADR-0040-canonical-one-liner-two-layer-convention.md) · Canonical 双层一句话  
+- [ADR-0017](../adr/ADR-0017-review-file-type-minimal.md) · REVIEW envelope  
+- [ADR-0024](../adr/ADR-0024-task-risk-level.md) · `risk_level`  
+- [ADR-0025](../adr/ADR-0025-review-needs-human.md) · `needs_human`  
+- [ADR-0026](../adr/ADR-0026-review-human-approval.md) · `human_approval` / `mark_human_approved`  
+- [ADR-0031](../adr/ADR-0031-governance-alert-layer.md) · GAL（若存在）  
 - [`docs/mcp-tools.md`](../docs/mcp-tools.md) · MCP 工具权威索引  
 - [`CHANGELOG.md`](../CHANGELOG.md) · 包版本变更记录  
 

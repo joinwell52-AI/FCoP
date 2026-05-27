@@ -7,7 +7,7 @@
 
 | File | Role |
 |---|---|
-| **[`fcop-v3-spec.md`](./fcop-v3-spec.md)** · [中文](./fcop-v3-spec.zh.md) | ★ **Current single-page spec** — `_lifecycle/` (3.0) + lifecycle MCP (3.1) + `history/` deep archive (3.2.0); aligned with **fcop@3.2.4** |
+| **[`fcop-v3-spec.md`](./fcop-v3-spec.md)** · [中文](./fcop-v3-spec.zh.md) | ★ **Current single-page spec** — `_lifecycle/` (3.0) + lifecycle MCP (3.1) + `history/` (3.2.0) + **governance `reviews/` / `needs_human`** (§5); aligned with **fcop@3.2.4** |
 | [`fcop-3.0-spec.md`](./fcop-3.0-spec.md) · [中文](./fcop-3.0-spec.zh.md) | **Frozen 3.0.0 baseline** (2026-05-21). Retained for “FCoP 3.0.0 only” claims — **superseded** for day-to-day reading |
 | [`fcop-3.0-rfc.md`](./fcop-3.0-rfc.md) · [中文](./fcop-3.0-rfc.zh.md) | IETF-style RFC projection of the **3.0.0** content |
 | [`schemas/`](./schemas/) | Machine-readable JSON Schemas |
