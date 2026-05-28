@@ -1,63 +1,61 @@
 # Glama 目录收录与质量分（fcop-mcp）
 
-> 对应 [awesome-mcp-servers PR #6301](https://github.com/punkpeye/awesome-mcp-servers/pull/6301) 维护者要求：须 **Claim** + **Glama Release** 后才有 quality score。  
-> Score 页：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score>
+> 对应 [awesome-mcp-servers PR #6301](https://github.com/punkpeye/awesome-mcp-servers/pull/6301) 维护者要求：**Claim** + **可见 Glama quality score**。  
+> 服务器：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP>  
+> Score：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score>
+
+## 当前状态（2026-05-28）
+
+| 项目 | 状态 |
+|------|------|
+| Glama Claim | ✅ 已完成（Author verified） |
+| Glama Release | ✅ 已发布（v3.2.4） |
+| Profile 完成度 | **92%**（可选：Related servers 未填） |
+| Server Coherence | **B** |
+| Tool Definition Quality | **B** |
+| Maintenance / License | **A** |
+| Score 徽章 | **A - A**（README 已嵌入） |
+| awesome-mcp-servers PR | `joinwell52-AI/awesome-mcp-servers-1` → `add-fcop` |
 
 ## 仓库已准备的文件
 
 | 文件 | 作用 |
 |------|------|
 | `glama.json` | 维护者元数据（`joinwell52-AI`） |
-| `Dockerfile` | Glama 构建镜像（`pip install fcop fcop-mcp` + `ENTRYPOINT fcop-mcp`） |
+| `Dockerfile` | Glama / 本地构建（`python:3.12-slim` + `fcop` / `fcop-mcp`） |
 | `.dockerignore` | 缩小构建上下文 |
 | `README.md` / `README.zh.md` | Glama card / score 徽章 |
 
-## 你必须在浏览器完成的步骤（无法由 Agent 代登）
+## Glama Dockerfile 向导（若需重 Deploy）
 
-### 1. Claim
+**不要**使用默认的 `uv sync` + `fcop`（那是 CLI，不是 MCP 服务）。
 
-1. 打开 <https://glama.ai/mcp/servers/joinwell52-AI/FCoP>
-2. 点击 **Claim**
-3. 用 **joinwell52-AI** 组织下有权限的 GitHub 账号登录并授权
+| 字段 | 推荐值 |
+|------|--------|
+| Python version | **3.12** |
+| Node.js | **24**（`mcp-proxy`） |
+| Build steps | `["pip install --no-cache-dir fcop==3.2.4 fcop-mcp==3.2.4"]` |
+| CMD | `["mcp-proxy", "--", "fcop-mcp"]` |
 
-### 2. 同步仓库
-
-Claim 后进入 Admin → **Sync Server**（或等待每日自动同步）。  
-确保 `main` 已包含本仓库的 `glama.json` 与根目录 `Dockerfile`。
-
-### 3. Glama Release（不是 GitHub Release）
-
-1. Admin → **Dockerfile** 页
-2. Dockerfile path：`Dockerfile`（仓库根目录）
-3. 点击 **Deploy**，等待构建成功
-4. 点击 **Make Release**，版本填 `3.2.4`（与 PyPI / `fcop-mcp` 一致）
-
-完成后 Score 页应出现 **Tool Definition Quality** 与 **Server Coherence**，总分会高于当前的 **17%**。
-
-### 4. 可选：种子用量
-
-在服务器页使用 **Try in Browser** 跑几次工具调用，缓解 “No recent usage” 提示。
-
-### 5. 回复 PR #6301
-
-在 PR 留言并 @punkpeye，附上更新后的 Score 链接。
-
-## 本地验证 Docker 镜像
-
-```bash
-docker build -t fcop-mcp:glama-test .
-docker run --rm fcop-mcp:glama-test
-```
-
-stdio 模式下进程会等待 stdin；看到无报错退出即说明依赖安装正常。可用：
-
-```bash
-docker run --rm fcop-mcp:glama-test python -c "import fcop_mcp, fcop; print('ok')"
-```
+或优先使用仓库根目录 **`Dockerfile`**（若 Admin 页提供 “Use repository Dockerfile”）。
 
 ## 徽章（已写入 README）
 
 ```markdown
 [![FCoP MCP server](https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg)](https://glama.ai/mcp/servers/joinwell52-AI/FCoP)
+
 [![FCoP MCP server](https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg)](https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score)
 ```
+
+## 本地验证 Docker 镜像
+
+```bash
+docker build -t fcop-mcp:glama-test .
+docker run --rm fcop-mcp:glama-test python -c "import fcop_mcp, fcop; print('ok')"
+```
+
+## PR #6301 维护者回复要点
+
+- Claim：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP>
+- Score：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score>
+- 列表条目：45 MCP tools，`v3.2.4`，含 Glama card + score 徽章
