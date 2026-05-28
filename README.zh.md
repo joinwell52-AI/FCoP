@@ -48,6 +48,12 @@
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20%E6%B3%A8%E5%86%8C%E8%A1%A8-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="官方 MCP 注册表:io.github.joinwell52-AI/fcop" />
   </a>
+  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">
+    <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg" alt="Glama 收录 fcop-mcp" />
+  </a>
+  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score">
+    <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="Glama 质量分" />
+  </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
