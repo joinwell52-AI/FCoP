@@ -210,7 +210,7 @@ To pin a folder in config:
 
 Within a single **MINOR** line (e.g. `3.2.x`), MCP tool/resource **shapes** stay **additive-only** ([stability charter, ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)): no renames, no required-parameter tightening, no resource removal. Patch releases do not break existing tool calls.
 
-`fcop` and `fcop-mcp` ship **lockstep** with the same version number ([ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md)). Install both together, e.g. `pip install -U "fcop>=3.2.4,<3.3" "fcop-mcp>=3.2.4,<3.3"`. **Avoid PyPI 3.2.3** (bad bundled `fcop-protocol.mdc` encoding).
+`fcop` and `fcop-mcp` ship **lockstep** with the same version number ([ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md)). Install both together, e.g. `pip install -U "fcop>=3.2.5,<3.3" "fcop-mcp>=3.2.5,<3.3"`. **Avoid PyPI 3.2.3** (bad bundled `fcop-protocol.mdc` encoding).
 
 Upgrading from `0.6.x` / `0.7.x` / `1.x` / `2.x`? See [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and the release notes under [`docs/releases/`](../docs/releases/). v3.0.0 introduced the `_lifecycle/` topology — run `fcop_audit(scope="upgrade")` then `migrate_to_v3()` on unmigrated v2 workspaces.
 

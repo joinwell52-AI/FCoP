@@ -12,7 +12,7 @@
 <p align="center">
   <strong>✅ <code>fcop-mcp</code> is on the <a href="https://registry.modelcontextprotocol.io/">official MCP Registry</a></strong><br/>
   Listed as <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop"><code>io.github.joinwell52-AI/fcop</code></a>
-  (<strong>v3.2.4</strong>) — backed by <strong>Anthropic + GitHub + Microsoft</strong>.<br/>
+  (<strong>v3.2.5</strong>) — backed by <strong>Anthropic + GitHub + Microsoft</strong>.<br/>
   Claude Desktop, Cursor, PulseMCP, and every MCP-compatible client can discover <strong>45 tools</strong> and install with one line: <code>uvx fcop-mcp</code>
 </p>
 
@@ -25,7 +25,7 @@
   <a href="docs/mcp-tools.md"><strong>MCP Tools (45)</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
   <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
-  <a href="spec/fcop-v3-spec.md"><strong>v3 Spec (3.2.4)</strong></a> ·
+  <a href="spec/fcop-v3-spec.md"><strong>v3 Spec (3.2.5)</strong></a> ·
   <a href="adr/README.md">ADR Index</a>
 </p>
 
@@ -40,10 +40,10 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/release-3.2.4-brightgreen?style=flat-square" alt="3.2.4" />
+    <img src="https://img.shields.io/badge/release-3.2.5-brightgreen?style=flat-square" alt="3.2.5" />
   </a>
   <a href="spec/fcop-v3-spec.md">
-    <img src="https://img.shields.io/badge/spec-FCoP%20v3.2.4-orange?style=flat-square" alt="FCoP v3.2.4 spec" />
+    <img src="https://img.shields.io/badge/spec-FCoP%20v3.2.5-orange?style=flat-square" alt="FCoP v3.2.5 spec" />
   </a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20Registry-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="Official MCP Registry: io.github.joinwell52-AI/fcop" />
@@ -79,7 +79,7 @@
 
 | Doc | Purpose |
 |---|---|
-| [`spec/fcop-v3-spec.md`](spec/fcop-v3-spec.md) · [zh](spec/fcop-v3-spec.zh.md) | **Current** single-page spec (3.0 → 3.2.4: `_lifecycle/` + `history/`) |
+| [`spec/fcop-v3-spec.md`](spec/fcop-v3-spec.md) · [zh](spec/fcop-v3-spec.zh.md) | **Current** single-page spec (3.0 → 3.2.5: `_lifecycle/` + `history/`) |
 | [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) · [zh](spec/fcop-3.0-spec.zh.md) | Frozen **3.0.0** baseline (2026-05-21) |
 | [`spec/fcop-3.0-rfc.md`](spec/fcop-3.0-rfc.md) · [zh](spec/fcop-3.0-rfc.zh.md) | IETF-style RFC projection |
 | [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md) · [zh](docs/MIGRATION-3.0.zh.md) | 2.x → 3.0 migration guide |
@@ -256,6 +256,7 @@ I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
 
 | Version | One-line |
 |---|---|
+| **3.2.5** ([notes](docs/releases/3.2.5.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.5 — Rule 0.a.1 collaboration cycle · Hot/Cold Path.** Executor stops after `report`; archive requires ADMIN/leader authorization; bundled rules **3.2.5**; 34 role charters get Common Block; `write_task` gains **`parent`** field. No breaking API removals. |
 | **3.2.4** ([notes](docs/releases/3.2.4.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.4 — PyPI metadata & bundled protocol encoding fix.** Restores UTF-8 in wheel `fcop-protocol.mdc` (avoid PyPI 3.2.3); fixes `fcop-mcp`「FCoP (protocol)」link → `getting-started.en.md`; syncs PyPI long description to 45 tools / v3 `_lifecycle/`. No API changes — upgrade from 3.2.3. |
 | **3.2.3** ([notes](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.3 — Team template & doc sync · FCoP 3.0 compliance.** Bundled team templates (`letter-to-admin`, `roles/*`, `TEAM-OPERATING-RULES`, …) migrate legacy `tasks/` / `log/` references to `_lifecycle/`; tool count 32→45; `.cursor/rules/` synced with bundled rules; new `scripts/fcop_prerelease_check.py` (10 pre-release checks). **PyPI 3.2.3 wheel had bad protocol encoding — use 3.2.4.** |
 | **3.2.2** ([CHANGELOG](CHANGELOG.md)) | **v3.2.2 — Pre-release gate hardening + rule-file v3 consistency.** `fcop-mcp` `prerelease_check.py` gains Checks 7–10 (lockstep version guard, bundled rule integrity, `_lifecycle/` docs, lifecycle stage coverage); `fcop-rules.mdc` / `fcop-protocol.mdc` document v3 directory topology and state machine. |

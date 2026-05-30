@@ -12,7 +12,7 @@
 <p align="center">
   <strong>✅ <code>fcop-mcp</code> 已入驻 <a href="https://registry.modelcontextprotocol.io/">官方 MCP 注册表</a></strong><br/>
   登记名 <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop"><code>io.github.joinwell52-AI/fcop</code></a>
- （<strong>v3.2.4</strong>）——由 <strong>Anthropic + GitHub + Microsoft</strong> 联合背书的官方目录收录。<br/>
+ （<strong>v3.2.5</strong>）——由 <strong>Anthropic + GitHub + Microsoft</strong> 联合背书的官方目录收录。<br/>
   Claude Desktop、Cursor、PulseMCP 及所有 MCP 兼容客户端均可一键发现 <strong>45 个工具</strong>，一行安装：<code>uvx fcop-mcp</code>
 </p>
 
@@ -25,7 +25,7 @@
   <a href="docs/mcp-tools.md"><strong>MCP 工具清单（45 个）</strong></a> ·
   <a href="essays/when-ai-organizes-its-own-work.md">现场报告</a> ·
   <a href="essays/fcop-natural-protocol.md">自然协议</a> ·
-  <a href="spec/fcop-v3-spec.zh.md"><strong>v3 规范（3.2.4）</strong></a> ·
+  <a href="spec/fcop-v3-spec.zh.md"><strong>v3 规范（3.2.5）</strong></a> ·
   <a href="adr/README.md">ADR 索引</a>
 </p>
 
@@ -40,10 +40,10 @@
     <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
   </a>
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.2.4-brightgreen?style=flat-square" alt="3.2.4" />
+    <img src="https://img.shields.io/badge/%E5%8F%91%E5%B8%83-3.2.5-brightgreen?style=flat-square" alt="3.2.5" />
   </a>
   <a href="spec/fcop-v3-spec.zh.md">
-    <img src="https://img.shields.io/badge/%E8%A7%84%E8%8C%83-FCoP%20v3.2.4-orange?style=flat-square" alt="FCoP v3.2.4 规范" />
+    <img src="https://img.shields.io/badge/%E8%A7%84%E8%8C%83-FCoP%20v3.2.5-orange?style=flat-square" alt="FCoP v3.2.5 规范" />
   </a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20%E6%B3%A8%E5%86%8C%E8%A1%A8-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="官方 MCP 注册表:io.github.joinwell52-AI/fcop" />
@@ -75,7 +75,7 @@
 
 | 文档 | 用途 |
 |---|---|
-| [`spec/fcop-v3-spec.zh.md`](spec/fcop-v3-spec.zh.md) · [en](spec/fcop-v3-spec.md) | **当前**单页规范（3.0 → 3.2.4：`_lifecycle/` + `history/`）|
+| [`spec/fcop-v3-spec.zh.md`](spec/fcop-v3-spec.zh.md) · [en](spec/fcop-v3-spec.md) | **当前**单页规范（3.0 → 3.2.5：`_lifecycle/` + `history/`）|
 | [`spec/fcop-3.0-spec.zh.md`](spec/fcop-3.0-spec.zh.md) · [en](spec/fcop-3.0-spec.md) | 冻结的 **3.0.0** 基线（2026-05-21）|
 | [`spec/fcop-3.0-rfc.zh.md`](spec/fcop-3.0-rfc.zh.md) · [en](spec/fcop-3.0-rfc.md) | RFC 中文平行版 |
 | [`docs/MIGRATION-3.0.zh.md`](docs/MIGRATION-3.0.zh.md) · [en](docs/MIGRATION-3.0.md) | 2.x → 3.0 迁移指南 |
@@ -236,6 +236,7 @@ mkdir -p fcop/{tasks,reports,issues,shared,log}
 
 | 版本 | 一句话 |
 |---|---|
+| **3.2.5**（[详细](docs/releases/3.2.5.md) · [CHANGELOG](CHANGELOG.md)） | **v3.2.5 — Rule 0.a 协作闭环 · Hot/Cold Path。** 执行者 `report` 后停步，归档需 ADMIN/leader 授权；bundled 规则 **3.2.5**；34 份角色 charter 注入 Common Block；`write_task` 新增 **`parent`** 字段。无破坏性 API 移除。 |
 | **3.2.4**（[详细](docs/releases/3.2.4.md) · [CHANGELOG](CHANGELOG.md)） | **v3.2.4 — PyPI 元数据与 bundled 协议编码修复。** 修复 wheel 内 `fcop-protocol.mdc` 乱码（勿用 PyPI 3.2.3）；修复 `fcop-mcp`「FCoP (协议)」404；PyPI 长描述对齐 45 工具 / v3 `_lifecycle/`。无 API 变更。 |
 | **3.2.3**（[详细](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)） | **v3.2.3 — 团队模板与文档同步 · FCoP 3.0 合规。** bundled 团队样板目录引用迁到 `_lifecycle/`；工具数 32→45。**PyPI 3.2.3 wheel 协议文件损坏，请升 3.2.4。** |
 | **3.2.2**（[CHANGELOG](CHANGELOG.md)） | **v3.2.2 — 发布前检查硬化 + 规则文件 v3 一致性。** `fcop-mcp` 的 `prerelease_check.py` 新增 Check 7–10（双包版本锁步、bundled 规则完整性、`_lifecycle/` 结构文档、生命周期阶段覆盖）；`fcop-rules.mdc` / `fcop-protocol.mdc` 补充 v3 目录拓扑与状态机说明。 |

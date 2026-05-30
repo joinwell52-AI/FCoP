@@ -23,8 +23,8 @@ identifiers:
 repository-code: "https://github.com/joinwell52-AI/FCoP"
 url: "https://joinwell52-ai.github.io/FCoP/"
 license: MIT
-date-released: "2026-05-27"
-version: "v3.2.4"
+date-released: "2026-05-30"
+version: "v3.2.5"
 keywords:
   - "multi-agent coordination"
   - "filename as protocol"
