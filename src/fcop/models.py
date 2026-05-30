@@ -231,6 +231,7 @@ class TaskFrontmatter:
     recipient: str
     priority: Priority
     thread_key: str | None = None
+    parent: str | None = None
     subject: str | None = None
     references: tuple[str, ...] = ()
     risk_level: RiskLevel = RiskLevel.MEDIUM

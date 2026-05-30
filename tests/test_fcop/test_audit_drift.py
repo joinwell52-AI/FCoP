@@ -5,8 +5,10 @@ section in :func:`fcop_report`. Surfaces two independent classes of
 ledger violation:
 
 1. **Working-tree drift** (Rule 0.a.1 / ISSUE-20260427-001): files
-   touched outside ``docs/agents/{tasks,reports,issues,log}/`` that
-   bypass the four-step task→do→report→archive cycle.
+   touched outside the FCoP ledger that bypass the Rule 0.a.1
+   collaboration cycle (``task → execute/dispatch → report``) without
+   a linked open task. Missing ``archive_task`` alone is **not** drift
+   (per Rule 0.a.5 — archive requires authorization).
 2. **session_id ↔ role conflicts** (Rule 1 / ISSUE-20260427-004): a
    ``session_id`` that signed files under more than one role code,
    the canonical evidence of sub-agent role impersonation.

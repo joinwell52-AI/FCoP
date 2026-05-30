@@ -133,7 +133,7 @@ class TestRule1MentionsSubAgent:
 
 class TestRule0a1AllPaths:
     """ISSUE-20260427-001 regression: Rule 0.a.1 must clarify that the
-    four-step cycle binds *every* write path, not only MCP tools.
+    collaboration cycle binds *every* write path, not only MCP tools.
     """
 
     def test_rule0a1_calls_out_non_mcp_paths(self) -> None:
@@ -145,7 +145,18 @@ class TestRule0a1AllPaths:
             or "binds every write path" in text.lower()
         )
         assert zh_match or en_match, (
-            "Rule 0.a.1 must spell out that the four-step cycle "
+            "Rule 0.a.1 must spell out that the collaboration cycle "
             "applies to shell / git / IDE writes, not just MCP "
             "tools (since 1.8.0). ISSUE-20260427-001 regression."
         )
+
+    def test_rule0a1_325_subclauses_present(self) -> None:
+        text = _read_rule_data("fcop-rules.mdc")
+        for marker in (
+            "0.a.2",
+            "Hot Path",
+            "0.a.5",
+            "0.a.6",
+            "REPORT Is Stop Signal",
+        ):
+            assert marker in text, f"fcop-rules.mdc missing 3.2.5 marker {marker!r}"

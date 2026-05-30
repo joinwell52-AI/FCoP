@@ -62,10 +62,24 @@ def test_role_charter_declares_hard_constraint(
     assert anchor in haystack, (
         f"{team}/{role} ({lang}) charter is missing the canonical "
         f"hard-constraint anchor {anchor!r} — Rule 0.a.1 says role "
-        "templates must NOT soften the four-step workflow into "
+        "templates must NOT soften the collaboration cycle into "
         "'simple tasks may run directly'. Add the workflow hard "
         "constraint section back."
     )
+    if lang == "zh":
+        assert "Hot Path" in body or "热路径" in body, (
+            f"{team}/{role} (zh) must document Hot/Cold Path (3.2.5)"
+        )
+        assert "Rule 0.a.6" in body or "停步" in body, (
+            f"{team}/{role} (zh) must document REPORT stop signal (3.2.5)"
+        )
+    else:
+        assert "Hot Path" in body or "Cold Path" in body, (
+            f"{team}/{role} (en) must document Hot/Cold Path (3.2.5)"
+        )
+        assert "Rule 0.a.6" in body or "stop" in body.lower(), (
+            f"{team}/{role} (en) must document REPORT stop signal (3.2.5)"
+        )
 
 
 def test_every_team_contributes_role_cases() -> None:

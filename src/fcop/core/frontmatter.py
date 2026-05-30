@@ -72,6 +72,7 @@ _KNOWN_KEYS: frozenset[str] = frozenset(
         "recipient",
         "priority",
         "thread_key",
+        "parent",
         "subject",
         "references",
     }
@@ -259,6 +260,7 @@ def parse_task_frontmatter(text: str) -> tuple[TaskFrontmatter, str]:
 
     # optional scalars
     thread_key = _optional_string(raw, "thread_key")
+    parent = _optional_string(raw, "parent")
     subject = _optional_string(raw, "subject")
     references = _parse_references(raw.get("references"))
 
@@ -271,6 +273,7 @@ def parse_task_frontmatter(text: str) -> tuple[TaskFrontmatter, str]:
         recipient=recipient,
         priority=priority,
         thread_key=thread_key,
+        parent=parent,
         subject=subject,
         references=references,
         extra=extra,
@@ -299,6 +302,8 @@ def serialize_task_frontmatter(fm: TaskFrontmatter) -> str:
     }
     if fm.thread_key:
         data["thread_key"] = fm.thread_key
+    if fm.parent:
+        data["parent"] = fm.parent
     if fm.subject:
         data["subject"] = fm.subject
     if fm.references:

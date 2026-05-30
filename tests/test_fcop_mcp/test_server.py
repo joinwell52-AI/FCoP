@@ -160,7 +160,7 @@ class TestInit:
         assert "📨 给 ADMIN 的一封信" in out
         assert "原样" in out
         assert "FCoP 致 ADMIN 的一封信" in out
-        assert "v3.2.4 摘要" in out
+        assert "v3.2.5 摘要" in out
         assert "LETTER-TO-ADMIN.md" in out  # path shown in reply (layout-agnostic)
 
     def test_init_project_reply_letter_handover_en(
@@ -179,7 +179,7 @@ class TestInit:
         out = _call("init_solo", role_code="ME", role_label="", lang="zh")
         assert "📨 给 ADMIN 的一封信" in out
         assert "FCoP 致 ADMIN 的一封信" in out
-        assert "v3.2.4 摘要" in out
+        assert "v3.2.5 摘要" in out
 
     def test_create_custom_team_reply_includes_letter_handover(
         self, project_dir: Path
@@ -193,7 +193,7 @@ class TestInit:
             team_name="my-team",
         )
         assert "📨 给 ADMIN 的一封信" in out
-        assert "v3.2.4 摘要" in out
+        assert "v3.2.5 摘要" in out
 
     def test_validate_team_config_ok(self, project_dir: Path) -> None:
         _call("set_project_dir", path=str(project_dir))
@@ -286,10 +286,15 @@ class TestReportsAndIssues:
             recipient="DEV",
             subject="Task for report",
             body="to be reported on",
+            parent="TASK-20260422-001-ADMIN-to-PM",
+            thread_key="release-325",
         )
         task_filename = next(
             tok for tok in task_out.split() if tok.startswith("TASK-")
         )
+        detail = _call("read_task", filename=task_filename)
+        assert "parent: TASK-20260422-001-ADMIN-to-PM" in detail
+        assert "thread_key: release-325" in detail
         parts = task_filename.split("-")
         task_id = f"{parts[0]}-{parts[1]}-{parts[2]}"
 
@@ -554,31 +559,33 @@ class TestSessionReportAndRedeploy:
         assert "protocol:" in out
         assert "local " in out and "packaged " in out
 
-    def test_fcop_report_initialized_includes_four_step_template_zh(
+    def test_fcop_report_initialized_includes_collaboration_cycle_template_zh(
         self, initialized_project: Path
     ) -> None:
-        """0.6.5: agent reading fcop_report must see the 4-step cycle template."""
+        """3.2.5: fcop_report must teach the collaboration cycle, not executor-mandatory archive."""
         out = _call("fcop_report", lang="zh")
-        # All four step verbs/tools must be present so the agent has a
-        # ready-to-paste mental model the moment ADMIN sends a request.
         assert "Rule 0.a.1" in out
         assert "write_task" in out
-        assert "new_workspace" in out
         assert "write_report" in out
-        assert "archive_task" in out
-        # The "no skip" message must be explicit.
+        assert "Rule 0.a.6" in out or "停步" in out
+        assert "Rule 0.a.5" in out or "按授权" in out
         assert "简单任务" in out or "no 'simple = skip'" in out
+        # archive_task may appear only as leader/authorised action — not as executor step 4 mandate
+        if "archive_task" in out:
+            assert "默认" in out or "authorised" in out.lower() or "授权" in out
 
-    def test_fcop_report_initialized_includes_four_step_template_en(
+    def test_fcop_report_initialized_includes_collaboration_cycle_template_en(
         self, initialized_project: Path
     ) -> None:
         out = _call("fcop_report", lang="en")
         assert "Rule 0.a.1" in out
         assert "write_task" in out
-        assert "new_workspace" in out
         assert "write_report" in out
-        assert "archive_task" in out
+        assert "Rule 0.a.6" in out or "STOP" in out
+        assert "Rule 0.a.5" in out or "authorised" in out.lower()
         assert "no 'simple = skip'" in out
+        if "archive_task" in out:
+            assert "must NOT" in out or "authorised" in out.lower() or "authorization" in out.lower()
 
     def test_fcop_report_drift_warning_when_local_is_older(
         self, initialized_project: Path
@@ -672,6 +679,88 @@ class TestSessionReportAndRedeploy:
         )
         assert archived[0].read_text(encoding="utf-8") == "# stale\n"
         assert "归档" in out or "Archived" in out
+
+
+# ─── 3.2.5 MCP tool docstring scope ──────────────────────────────────
+
+
+def _tool_doc(name: str) -> str:
+    """Return the registered MCP tool's docstring from ``fcop_mcp.server``."""
+    from fcop_mcp import server as srv
+
+    fn = getattr(srv, name, None)
+    assert fn is not None, f"MCP tool {name!r} not found on fcop_mcp.server"
+    return fn.__doc__ or ""
+
+
+class TestMcpToolDocstrings325:
+    """3.2.5: hot-path / lifecycle-closure tools must document stop semantics.
+
+    Scope is intentionally narrow — see ``fcop-protocol.mdc`` §MCP 工具
+    docstring 修改范围. Only the nine mandatory tools are asserted here;
+    the five check-as-needed tools have lighter coverage.
+    """
+
+    @pytest.mark.parametrize(
+        "tool_name,needles",
+        [
+            ("claim_task", ["Hot Path", "read_task", "inspect_task"]),
+            ("read_task", ["Hot Path", "inspect_task", "Before executing"]),
+            ("inspect_task", ["Hot Path", "read_task", "PASS"]),
+            (
+                "fcop_check",
+                ["Not Hot Path", "fcop_audit", "write_report"],
+            ),
+            (
+                "fcop_audit",
+                ["Not lifecycle closure", "archive_task", "fcop_check"],
+            ),
+            (
+                "write_report",
+                ["Rule 0.a.6", "finish_task", "archive_task"],
+            ),
+            (
+                "finish_task",
+                ["Rule 0.a.6", "write_report", "archive_task"],
+            ),
+            (
+                "archive_task",
+                ["Rule 0.a.5", "write_report", "business completion"],
+            ),
+            (
+                "archive_to_history",
+                ["archive_task", "Rule 0.a.5", "write_report"],
+            ),
+        ],
+    )
+    def test_mandatory_tool_docstrings_325(
+        self, tool_name: str, needles: list[str]
+    ) -> None:
+        doc = _tool_doc(tool_name)
+        for needle in needles:
+            assert needle in doc, (
+                f"{tool_name} docstring missing {needle!r}; "
+                "see fcop-protocol.mdc §MCP 工具 docstring 修改范围 (3.2.5)"
+            )
+
+    @pytest.mark.parametrize(
+        "tool_name,needles",
+        [
+            ("fcop_report", ["Rule 0.a.1", "fcop_audit", "archive_task"]),
+            ("write_task", ["Cold Path", "Rule 0.a.2", "thread_key"]),
+            ("submit_task", ["write_report", "archive_task", "Rule 0.a.3"]),
+            ("approve_task", ["archive_task", "Rule 0.a.3", "REPORT"]),
+            ("reject_task", ["Rule 0.a.6", "archive_task", "REPORT"]),
+        ],
+    )
+    def test_check_as_needed_tool_docstrings_325(
+        self, tool_name: str, needles: list[str]
+    ) -> None:
+        doc = _tool_doc(tool_name)
+        for needle in needles:
+            assert needle in doc, (
+                f"{tool_name} docstring missing {needle!r} (3.2.5 check-as-needed)"
+            )
 
 
 # ─── Resources ───────────────────────────────────────────────────────

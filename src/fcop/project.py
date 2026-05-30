@@ -2415,6 +2415,7 @@ class Project:
         body: str,
         references: Sequence[str] = (),
         thread_key: str | None = None,
+        parent: str | None = None,
         slot: str | None = None,
         risk_level: RiskLevel | str | None = None,
     ) -> Task:
@@ -2441,6 +2442,9 @@ class Project:
                 on. Written as ``references: [...]`` in the frontmatter.
             thread_key: Optional thread grouping key — ties a sequence
                 of back-and-forth tasks together.
+            parent: Optional upstream task ID for work-derivation
+                linkage (``parent:`` frontmatter; distinct from
+                ``references:`` cross-links).
             slot: Optional recipient qualifier (``.BACKEND`` → recipient
                 becomes ``DEV.BACKEND`` in the filename). Role grammar
                 applies to the slot too.
@@ -2473,6 +2477,7 @@ class Project:
             recipient=recipient,
             priority=priority_enum,
             thread_key=thread_key,
+            parent=parent,
             subject=subject or None,
             references=tuple(references),
             risk_level=risk_level_enum,

@@ -6,6 +6,20 @@ I'm **FCoP** (File-based Coordination Protocol) — a protocol that lets
 you and an AI team collaborate through **files**. Your one job:
 **tell me how many people this project has and how they split the work.**
 
+> **v3.2.5 summary** (current PyPI package, 2026-05-30; **protocol rules now 3.2.5**):
+> - **Rule 0.a.1 collaboration cycle rewrite**: `task → execute/dispatch → report → stop`; executors must not self-`archive_task` without ADMIN/leader authorisation (Rule 0.a.5).
+> - **Rule 0.a.2–0.a.6**: Hot/Cold Path, lifecycle ≠ business completion, parent/subtask governance, REPORT as stop signal.
+> - **34 role charters**: unified `_COMMON-FCOP-3.2.5.md` Common Block via `scripts/inject_workflow_constraint.py`.
+> - **`write_task(..., parent=...)`**: canonical `parent:` and `thread_key:` frontmatter; MCP / Python API can write derivation links programmatically.
+> - **MCP docstring alignment (14 tools)**: Hot/Cold Path, authorised archive, `finish_task`/`reject_task` 3.2.5 semantics; **45** tools total unchanged.
+> - **Rules version**: `fcop-rules.mdc 3.2.5` / `fcop-protocol.mdc 3.2.5`. After upgrade run `redeploy_rules()` for the host-neutral quartet.
+>
+> **v3.2.4 summary** (2026-05-27; packaging fix; protocol rules were 3.2.3):
+> - **Packaging fix**: restores UTF-8 in wheel `fcop-protocol.mdc` (PyPI 3.2.3 is bad);
+>   use `pip install -U "fcop>=3.2.4"`, do not reinstall 3.2.3.
+> - **fcop-mcp**: PyPI "FCoP (protocol)" URL → `docs/getting-started.en.md`;
+>   long description synced to 45 tools / v3 `_lifecycle/`.
+>
 > **v3.2.4 summary** (current PyPI package, 2026-05-27; **protocol rules remain 3.2.3**):
 > - **Packaging fix**: restores UTF-8 in wheel `fcop-protocol.mdc` (PyPI 3.2.3 is bad);
 >   use `pip install -U "fcop>=3.2.4"`, do not reinstall 3.2.3.

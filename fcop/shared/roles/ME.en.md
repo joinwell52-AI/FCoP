@@ -26,82 +26,37 @@ file protocol.
 
 ## Core workflow (hard constraint / no exceptions)
 
-> This section is the hardest part of `ME.md` — the concrete translation
-> of `fcop-rules.mdc` Rule 0.a onto the `ME` role. **Any** ADMIN-issued
-> work (no matter how simple it looks) must follow these **4 steps
-> strictly**. The "simple tasks can be done directly" soft constraint is
-> **not allowed**.
+> Solo `ME` translation of Rule 0.a / Rule 0.a.1–0.a.6. Every ADMIN
+> request follows **`task → execute/dispatch → report → await acceptance /
+> archive when authorised`**. No "simple tasks may run directly"; executors
+> **must not** self-archive by default.
 
-### Step 1: Write the task first
+### Step 1 — task
 
-When ADMIN says something in chat, the **first action** is calling
-`write_task` to file
-`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`:
+First action: `write_task` to `_lifecycle/inbox/TASK-*-ADMIN-to-ME.md`.
+Re-read as self-review (Rule 0.b).
 
-```
-write_task(
-    sender="ADMIN",
-    recipient="ME",
-    priority="P2",
-    subject="<one-line goal>",
-    body="<restate the request + your understanding of scope + acceptance criteria + planned approach>"
-)
-```
+### Step 2 — execute / dispatch
 
-After writing, **re-read it** — this is "reviewer ME" cross-checking
-"proposer ME".
+Deliver under `workspace/<slug>/`. Use `parent:` for sub-tasks. Solo is
+usually Hot Path; Cold Path waits for child reports before consolidating.
 
-### Step 2: Then do
+### Step 3 — report (then stop)
 
-Open `workspace/<slug>/` (call `new_workspace(slug=...)` first if
-needed); land the code / scripts / data / docs there. **Don't** dump
-business artifacts into the project root.
+`write_report` with status, artefacts, evidence, blockers, references.
+**Stop after the report** (Rule 0.a.6); wait for ADMIN.
 
-If during execution scope creeps beyond the task, **stop** — go back to
-Step 1 and write a "ME-to-self sub-task" (still `ADMIN -> ME` in the
-file naming, since ADMIN is the protocol input end; the body should say
-"original task XXX has scope creep, this sub-task is appended").
+### Step 4 — await acceptance / archive when authorised
 
-### Step 3: Write the report
-
-Call `write_report` to file
-`fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`. The report
-must include:
-
-- Status: `done` / `in_progress` / `blocked`
-- Artifact list (specific paths under `workspace/<slug>/...`)
-- Verification evidence (commands run, HTTP codes seen, output captured)
-- Blockers / pending-ADMIN-decision items
-- The original task ID (`references=["TASK-..."]`)
-
-The "we're done" summary in chat **doesn't count** as a report.
-No `REPORT-*.md` file = no work happened.
-
-### Step 4: Then archive
-
-After ADMIN reviews, ADMIN calls `archive_task("TASK-...")` to move task
-+ matching report into `log/`. **By default `ME` doesn't archive
-proactively** — unless the task explicitly grants "archive on
-completion".
+**ME must not** call `archive_task` by default. ADMIN archives after
+acceptance, or the task explicitly authorises it (Rule 0.a.5).
 
 ---
 
-### Why these 4 steps cannot be skipped
+### Why skipping steps is forbidden
 
-> Once you allow exceptions for "simple tasks", every task starts
-> calling itself simple. This was the most common 0.6.3 violation:
-> `ME` judged "build a snake game" as a "simple task, execute directly",
-> skipped task/report, and dropped artifacts straight to disk — leaving
-> ADMIN with no traceable collaboration history. ADMIN had to remind
-> `ME` to retroactively file the task and report; the workflow degraded
-> into "after-the-fact paperwork".
-
-**Exception clause**: if ADMIN **explicitly** says in chat "no
-formality needed for this" (e.g. "just read this file for me", "what
-does this code mean?"), `ME` files a `drop_suggestion` memo (saying
-"per ADMIN request, skipped task/report, reason: pure Q&A/lookup"),
-**then** answers directly. **Default is the 4-step path**; exceptions
-must leave a trace.
+Opening a "simple task" exception makes every task claim to be simple.
+Use `drop_suggestion` when ADMIN explicitly skips the process.
 
 ---
 
@@ -221,7 +176,7 @@ A valid `ME` report (`REPORT-*-ME-to-ADMIN.md`) should include:
    `TASK-*-ADMIN-to-ME.md`. **Correct**: write task → re-read → then act.
 2. **Skip report, claim "done"**: say in chat "I've placed the snake
    game at `workspace/snake-game/index.html`", but no `REPORT-*` file
-   under `reports/`. **Correct**: file the report, **then** tell ADMIN
+   under `_lifecycle/done/`. **Correct**: file the report, **then** tell ADMIN
    in chat.
 3. **Dump business code into project root**: write `app.py` /
    `index.html` / `pyproject.toml` to project root. **Correct**: call
@@ -293,7 +248,7 @@ But you should know:
   tasks assigned to you
 - Reference the INSPECTION ID in your report (`references=["INSPECTION-..."]`)
 - If you receive a task that originates from an INSPECTION finding, follow the
-  standard four-step workflow
+  standard Rule 0.a.1 collaboration cycle
 
 ### supersedes field (v1.4)
 

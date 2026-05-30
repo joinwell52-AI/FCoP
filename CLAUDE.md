@@ -11,7 +11,7 @@
 > tool `redeploy_rules()` (or calls
 > `Project.deploy_protocol_rules(force=True)` directly).
 
-> Rules version: `3.2.3` · Protocol commentary version: `3.2.3`
+> Rules version: `3.2.5` · Protocol commentary version: `3.2.5`
 
 ---
 
@@ -255,51 +255,129 @@ ADR-0034 §2.5.6.
 #### 0.a.1 · 工作流硬约束（不允许"简单任务直接执行"软约束）
 
 > **任何**接收到的工作（无论看起来多简单），都必须按
-> **`task → 做 → report → archive`** 四步走。**不允许**角色文档
-> 里出现"对简单任务可以直接执行"这类软约束——Rule 0.a 已经说过：
-> 没落成文件 = 没发生。"简单"不是跳过文件的理由。
+> **`task → 执行/派发 → report → 等待验收 / 按授权 archive`**
+> 走完协作闭环。**不允许**角色文档里出现"对简单任务可以直接执行"
+> 或把 `archive_task` 写成执行者必做第 4 步——Rule 0.a 已经说过：
+> 没落成文件 = 没发生。"简单"不是跳过文件的理由；**目录进
+> `_lifecycle/done/` 也不等于业务验收通过**（见 Rule 0.a.3）。
 >
 > **Every** piece of work received (no matter how trivial it looks)
-> MUST follow the **`task → do → report → archive`** four-step
-> cycle. Role documents are **NOT allowed** to soften this with
-> "simple tasks may run directly" or equivalents — Rule 0.a already
-> said it: not landed in a file = did not happen. "Simple" is not a
-> license to skip the file.
+> MUST follow the cycle
+> **`task → execute/dispatch → report → await acceptance / archive when
+> authorised`**. Role documents are **NOT allowed** to soften this
+> with "simple tasks may run directly" or to list `archive_task` as a
+> mandatory executor step — Rule 0.a already said it: not landed in a
+> file = did not happen. "Simple" is not a license to skip the file;
+> **a lifecycle move to `_lifecycle/done/` is not business acceptance**
+> (see Rule 0.a.3).
 
-- 第 1 步：先用 `write_task` 落 `TASK-*.md`，把"做什么"写下来。
-- 第 2 步：再做（写代码、跑命令、查资料……）。
-- 第 3 步：用 `write_report` 落 `REPORT-*.md`，写"做了什么、结果如何、下一步"。
-- 第 4 步：用 `archive_task` 把 `TASK-*.md` 归档到 `tasks/archive/`。
-- Solo 模式下 0.b 仍生效：先写（提案者）→ 再读 → 再做（审查者通过后）。
-- 角色模板里看到"对简单任务直接执行"= 模板违反 Rule 0.a，请按 Rule 8 上报。
+- 第 1 步 **task**：用 `write_task` 落 `TASK-*.md`（或认领已有 task），
+  把"做什么、谁验收、是否可派发子任务"写清楚。
+- 第 2 步 **执行/派发**：亲自在 `workspace/<slug>/` 交付产物，**或**
+  按 Rule 4 向下游写 `TASK-*-{sender}-to-{recipient}.md` 并跟踪回执
+  （Hot Path / Cold Path 见 Rule 0.a.2）。
+- 第 3 步 **report**：用 `write_report` 落 `REPORT-*.md`，写"做了什么、
+  结果如何、证据在哪、阻塞项"。**写 report 后停止**——见 Rule 0.a.6。
+- 第 4 步 **等待验收 / 按授权 archive**：执行者**默认不**调用
+  `archive_task`。由 `leader` / `ADMIN` 在验收 report 后归档；仅当 task
+  正文**明确授权**"做完直接 archive"时，执行者才可自行归档（Rule 0.a.5）。
+- Solo 模式下 Rule 0.b 仍生效：先写（提案者）→ 再读 → 再做（审查者通过后）。
+- 角色模板里看到"对简单任务直接执行"或"四步含必做 archive"= 违反 Rule 0.a，
+  请按 Rule 8 上报。
 - **Rule 0.a.1 适用所有写入路径，不仅 MCP 工具。** 用 shell `echo > file.md`、
   `cat > file`、`git commit -am`、IDE 直接编辑器、外部脚本——只要落进项目
-  目录、又没经历过 4 步循环，依旧违反本条。MCP 工具层的"Rule 0.a.1
-  tripwire"（`new_workspace` 等）只能拦它**自己**这条路；绕开它=绕开
-  Rule 0.a.1。自 0.7.1 起，`fcop_report()` / `fcop_check()` 会扫 git diff
-  与 FCoP 账本对照，把不在任务链路里的产物变更**显式列给 ADMIN**——
-  这是事后审计，不是预防，预防只能靠 agent 自己守 4 步循环。
+  目录、又没经历过上述协作闭环，依旧违反本条。MCP 工具层的 tripwire
+  （`new_workspace` 等）只能拦它**自己**这条路；绕开它 = 绕开 Rule 0.a.1。
+  自 0.7.1 起，`fcop_report()` / `fcop_check()` 会扫 git diff 与 FCoP 账本
+  对照，把不在任务链路里的产物变更**显式列给 ADMIN**——这是事后审计，不是
+  预防；预防只能靠 agent 自己守本条闭环。
 
-- Step 1: `write_task` to land `TASK-*.md` first ("what to do").
-- Step 2: do it (write code, run commands, look things up...).
-- Step 3: `write_report` to land `REPORT-*.md` ("what got done,
-  outcome, next step").
-- Step 4: `archive_task` to move `TASK-*.md` into `tasks/archive/`.
+- Step 1 **task**: `write_task` to land `TASK-*.md` (or claim an existing
+  task) — scope, acceptor, and whether sub-dispatch is allowed.
+- Step 2 **execute/dispatch**: deliver artefacts under
+  `workspace/<slug>/`, **or** dispatch downstream `TASK-*` files per
+  Rule 4 and track reciprocity (Hot/Cold Path: Rule 0.a.2).
+- Step 3 **report**: `write_report` to land `REPORT-*.md` with outcomes,
+  evidence, and blockers. **Stop after the report** — Rule 0.a.6.
+- Step 4 **await acceptance / archive when authorised**: executors
+  **must not** call `archive_task` by default. `leader` / `ADMIN` archives
+  after accepting the report; executors may archive only when the task
+  body **explicitly authorises** "archive on completion" (Rule 0.a.5).
 - Rule 0.b still applies in solo mode: write (proposer) → re-read →
   execute (after the reviewer pass).
-- A role template containing "simple tasks may run directly" is
-  itself a Rule 0.a violation — escalate via Rule 8.
+- A role template containing "simple tasks may run directly" or
+  mandating executor-side archive is a Rule 0.a violation — escalate
+  via Rule 8.
 - **Rule 0.a.1 binds every write path, not only MCP tools.**
-  Shell `echo > file.md`, `cat > file`, `git commit -am`, IDE-side
-  edits, external scripts — once a file lands in the project tree
-  without the four-step cycle preceding it, the rule is violated.
-  The MCP-tool-layer tripwires (e.g. `new_workspace`) can only
-  guard their own entry path; bypassing them = bypassing 0.a.1.
-  Since 0.7.1, `fcop_report()` / `fcop_check()` cross-reference
-  `git diff` against the FCoP ledger and **explicitly list** product
-  changes that are not tied to any open task — this is post-hoc
-  audit, not prevention. Prevention still depends on the agent
-  honouring the four-step cycle.
+  Shell, git, IDE edits, external scripts — product changes outside
+  the ledger without this cycle violate the rule. MCP tripwires guard
+  only their own entry path. Since 0.7.1, `fcop_report()` /
+  `fcop_check()` cross-reference `git diff` against the FCoP ledger;
+  that is post-hoc audit, not prevention.
+
+#### 0.a.2 · Hot Path / Cold Path / 热路径与冷路径
+
+- **Hot Path（热路径）**：执行者**亲自完成** task 描述的全部工作，不向下游
+  派发子 task。典型：`DEV` 收到 `PM-to-DEV`，写代码、写 report 回 `PM`。
+- **Cold Path（冷路径）**：执行者（通常是 `leader` 或带派发权的角色）把 task
+  **拆分派给下游**，自己**不**在子任务完成前写"整单 done"的 report。必须：
+  1. 父 task 保持 open（`parent:` 指向父 task 的子 task 逐份落地）；
+  2. 等下游 `REPORT-*` 回到 leader；
+  3. leader **汇总**后再写面向上游的 report。
+- **禁止**：子 task 还在 `inbox/active`，父 task 的执行者就 `write_report(status=done)`
+  并 `archive_task`——这违反 Rule 0.a.4 与 Rule 6。
+- **Hot Path**: the assignee does all work personally; no downstream dispatch.
+- **Cold Path**: the assignee splits work into downstream `TASK-*` files,
+  keeps the parent open, waits for child `REPORT-*`, then consolidates
+  before reporting upstream. Never mark the parent done while children
+  are still open (Rule 0.a.4, Rule 6).
+
+#### 0.a.3 · Lifecycle State Is Not Business Completion / 生命周期位置 ≠ 业务完成
+
+- v3 目录位置（`inbox` / `active` / `review` / `done` / `archive`）表达的是
+  **协议生命周期状态**，由 `claim` / `submit` / `finish` / `approve` /
+  `archive_task` 等工具触发移动。
+- **业务完成** = 上游角色（或 `ADMIN`）**接受** report 所陈述的交付物与证据，
+  不是执行者自行 `finish_task` 或文件进了 `_lifecycle/done/` 就算完。
+- `finish_task` / `approve_task` 是 lifecycle 操作；**不能替代**上游对 report
+  内容的验收（Rule 0.a.6）。
+- Directory stage = protocol lifecycle. **Business completion** = upstream
+  acceptance of the report's deliverables and evidence — not merely
+  landing in `_lifecycle/done/`.
+
+#### 0.a.4 · Main Task / Subtask Governance / 主任务与子任务治理
+
+- 子 task 必须在 frontmatter 用 `parent:` 指向父 task ID；同一 `thread_key`
+  下子 task 与父 task 构成可审计派生链。
+- 父 task 的执行者在**所有**子 task 已有对应 report（或显式 `blocked` /
+  `aborted` 回执）之前，**不得**对父 task 写 `status=done` 的 report。
+- 需要修正 scope 时：**追加**新 `TASK-*`（Rule 5），在新正文说明 supersede
+  或派生关系；不要原地改父 task。
+- Child tasks carry `parent:`; the parent stays open until every child
+  has a matching report (or explicit blocked/aborted outcome).
+
+#### 0.a.5 · Archive Requires Authorization / 归档需授权
+
+- `archive_task` 把 task（及配对 report）移入 `_lifecycle/archive/`（或 v2
+  `log/`）——这是**治理动作**，默认由 **`leader` 或 `ADMIN`** 在验收后执行。
+- 执行者**默认禁止**自行 `archive_task`，即使 report 已写、文件已在
+  `done/`。例外：task 正文或 `ADMIN` 聊天指令**明确**授权"验收前可归档 /
+  做完直接 archive"。
+- 无授权自行 archive = 越权治理，按 Rule 8 拒绝或写 `ISSUE-*` 上报。
+- Archiving is a governance action for `leader` / `ADMIN` after acceptance.
+  Executors archive only with explicit authorisation in the task or from
+  `ADMIN`.
+
+#### 0.a.6 · REPORT Is Stop Signal / REPORT 即停步信号
+
+- `write_report` 之后，执行者**进入等待**：等上游 review、返工指令、或
+  验收结论。**不得**在同一 turn 里继续改产物、派发无关新 task、或
+  自行 `archive_task`，除非 task 预授权且 scope 内。
+- 聊天里说"做完了"**不能替代** `REPORT-*.md`；没有 report = 工作未发生
+  （Rule 0.a + Rule 6）。
+- REPORT 是**交棒**，不是"我可以自行结案"的许可证。
+- After `write_report`, **stop and wait** for upstream review. Chat
+  "done" does not substitute for a report file.
 
 ### 0.b · No Single AI Does Decision-to-Execution Alone / 多角色制衡
 
@@ -1102,8 +1180,20 @@ other application). Products USE FCoP; they do not MODIFY it.
 
 ---
 
-**Version**: `fcop_rules_version: 3.2.3`（见 frontmatter）。升级时 `fcop`
+**Version**: `fcop_rules_version: 3.2.5`（见 frontmatter）。升级时 `fcop`
 包会写入新版本；本地手改无效 / Local edits have no effect.
+
+**3.2.5 changes / 3.2.5 变更**（随 `fcop@3.2.5`）:
+
+- **Rule 0.a.1 整段重写**：协作闭环改为
+  `task → 执行/派发 → report → 等待验收/按授权 archive`；执行者默认不得
+  自行 `archive_task`。
+- **新增 Rule 0.a.2–0.a.6**：Hot/Cold Path、生命周期≠业务完成、主子任务治理、
+  归档需授权、REPORT 即停步信号。
+- **团队模板**：34 份角色 charter 与 `_COMMON-FCOP-3.2.5.md` 对齐；
+  `inject_workflow_constraint.py` 改为从 common 文件读取并**替换**旧块。
+- **MCP 文案**：`fcop_report` / `fcop_check` / `finish_task` / `archive_task`
+  docstring 同步 3.2.5 语义。
 
 **3.2.3 changes / 3.2.3 变更**（随 `fcop@3.2.3`）:
 
@@ -1285,7 +1375,7 @@ other application). Products USE FCoP; they do not MODIFY it.
 ﻿---
 description: FCoP Protocol commentary (behavior governance protocol layer · v3 — _lifecycle/-based collaboration) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, v3 _lifecycle/ directory layout, lifecycle state machine, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（行为治理协议层 · v3 —— _lifecycle/ 目录协作）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、v3 _lifecycle/ 目录结构、生命周期状态机、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 3.2.3
+fcop_protocol_version: 3.2.5
 ---
 
 <!--
@@ -1741,6 +1831,48 @@ team-mode equivalent. Ask:
 
 If you can't answer cleanly, rewrite the claim as "unverified" — or go
 run the check first and come back.
+
+## How Rule 0.a Applies: Collaboration Cycle (3.2.5) / Rule 0.a 的展开：协作闭环
+
+> 本节是 `fcop-rules.mdc` Rule 0.a.1–0.a.6（自 **fcop@3.2.5**）的协议解释。
+> 规则文件本身只立底线；这里把 Hot/Cold Path、生命周期 vs 业务完成、
+> 授权归档、REPORT 停步信号落到日常操作。
+
+### 协作闭环 / Collaboration cycle
+
+```
+task → execute/dispatch → report → await acceptance / archive when authorised
+```
+
+| 步 / Step | 工具 / Tool | 执行者默认行为 |
+|---|---|---|
+| 1 task | `write_task` / `claim` | 动手前落 task 或认领 |
+| 2 execute/dispatch | Hot Path 写产物；Cold Path 写下游 `TASK-*` | 见下 |
+| 3 report | `write_report` | **写完后停步**（0.a.6） |
+| 4 acceptance/archive | `leader`/`ADMIN` 验收后 `archive_task` | 执行者**默认不** archive |
+
+### Hot Path vs Cold Path（Rule 0.a.2）
+
+- **Hot Path**：执行者亲自完成全部工作 → 写 report 回上游。
+- **Cold Path**：leader 拆子 task（`parent:` 链）→ 等子 `REPORT-*` →
+  **汇总**后再写面向上游的 report。子 task 仍 open 时，父 task **不得**
+  `write_report(status=done)`。
+
+### 生命周期 ≠ 业务完成（Rule 0.a.3）
+
+`claim` / `submit` / `finish_task` / `approve` 只移动 `_lifecycle/` 目录。
+**业务完成** = 上游接受 report 里的交付物与证据 —— 不是文件进了
+`_lifecycle/done/` 就算完。
+
+### 归档需授权（Rule 0.a.5）
+
+`archive_task` 是治理动作，默认 **`leader` / `ADMIN`** 在验收 report 后执行。
+执行者仅当 task 正文或 ADMIN **明确授权**时才可自行 archive。
+
+### REPORT 即停步（Rule 0.a.6）
+
+`write_report` 之后进入等待：review / 返工 / 验收。聊天"做完了"不能替代
+report 文件。
 
 ## How Rule 2 Scales: Files + Folders / Rule 2 的展开：文件 + 文件夹
 
@@ -2615,6 +2747,23 @@ Three things the protocol explicitly grants you:
 
 ## Protocol Version Log / 协议版本记录
 
+- **v3.2.5** (2026-05-30) — **Rule 0.a collaboration cycle · Hot/Cold Path**，随 `fcop@3.2.5`：
+  1. 新增 **§How Rule 0.a Applies: Collaboration Cycle (3.2.5)**：解释 Rule 0.a.1–0.a.6
+     （Hot/Cold Path、生命周期≠业务完成、主子任务治理、授权归档、REPORT 停步）。
+  2. 与 `fcop-rules.mdc` 3.2.5 对齐：第 4 步改为「等待验收/按授权 archive」；
+     执行者默认不得自行 `archive_task`。
+  3. 34 份角色 charter 经 `_COMMON-FCOP-3.2.5.md` + `inject_workflow_constraint.py` 统一注入。
+  4. `fcop_protocol_version` frontmatter 从 `3.2.3` 更新至 `3.2.5`。
+
+  v3.2.5 changes:
+  1. New **§How Rule 0.a Applies** commentary for Rule 0.a.1–0.a.6 (Hot/Cold Path,
+     lifecycle vs business completion, main/subtask governance, authorized archive,
+     REPORT as stop signal).
+  2. Aligned with `fcop-rules.mdc` 3.2.5: step 4 is wait-for-acceptance / authorized
+     archive; executors must not self-archive by default.
+  3. 34 role charters updated via `_COMMON-FCOP-3.2.5.md` inject script.
+  4. `fcop_protocol_version` frontmatter bumped 3.2.3 → 3.2.5.
+
 - **v3.2.3** (2026-05-23) — **Team templates & doc sync · FCoP 3.0 compliance**，随 `fcop@3.2.3`：
   1. 团队模板（`letter-to-admin.{zh,en}.md`、`roles/*.md`、`TEAM-OPERATING-RULES.{md,en.md}`、
      `README.{md,en.md}`）目录引用从 FCoP 2.x 遗留 `tasks/` / `reports/` / `log/` 全面迁移至
@@ -2962,7 +3111,7 @@ Three things the protocol explicitly grants you:
      cross-references `git diff` against the FCoP ledger and lists
      product changes that are not tied to any open task. This is
      **post-hoc audit, not prevention** — prevention still depends
-     on the agent honouring the four-step cycle.
+     on the agent honouring the collaboration cycle (Rule 0.a.1).
   3. **Rule 5 corrections unify under sequential filenames.** The
      historical `AMEND-*` and `*-v2.md` examples are removed. Parsers
      never recognized those prefixes, so any file using them was a

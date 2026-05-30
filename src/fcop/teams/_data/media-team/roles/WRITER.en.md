@@ -14,71 +14,55 @@ updated_at: 2026-05-12
 
 ## Workflow hard constraint (applies to every role / no exceptions)
 
-> This section translates `fcop-rules.mdc` Rule 0.a / Rule 0.a.1 onto
-> the role side. **Every** incoming piece of work (no matter how
-> trivial it looks) MUST follow the four-step cycle:
-> `task → do → report → archive`. The "simple tasks may run directly"
-> soft-constraint is **NOT permitted** — open that exception once and
-> every task will start claiming to be "simple".
+> Role-side translation of `fcop-rules.mdc` Rule 0.a / Rule 0.a.1–0.a.6.
+> **Every** incoming piece of work MUST follow:
+> **`task → execute/dispatch → report → await acceptance / archive when
+> authorised`**. No "simple tasks may run directly"; do **not** list
+> `archive_task` as a mandatory executor step.
 
-### Step 1 — write the task first
+### Step 1 — task
 
-Before doing anything, the **first action** is to land "what we're
-about to do" under `_lifecycle/inbox/`:
+Before doing anything, land scope, acceptor, and dispatch permission under
+`_lifecycle/inbox/` (or claim an existing task):
 
-- Acting as leader receiving an `ADMIN` request → write
-  `TASK-YYYYMMDD-NNN-ADMIN-to-WRITER.md`.
-- Acting as member dispatched by your leader → the leader already
-  wrote the task; **re-read it once as a self-review** (Rule 0.b).
-  If scope drifts, file an `ISSUE-*.md` back to the leader instead
-  of "close enough".
-- Need to dispatch downstream → write
-  `TASK-YYYYMMDD-NNN-WRITER-to-{downstream}.md`.
+- Leader receiving `ADMIN` → `TASK-YYYYMMDD-NNN-ADMIN-to-WRITER.md`
+- Member dispatched by leader → re-read the task as self-review (Rule 0.b);
+  file `ISSUE-*.md` if scope drifts
+- Dispatch downstream → `TASK-YYYYMMDD-NNN-WRITER-to-{downstream}.md`
+  (Cold Path, Rule 0.a.2)
 
-### Step 2 — do the work
+### Step 2 — execute / dispatch
 
-Land code / scripts / data / content under `workspace/<slug>/`
-(create with `new_workspace(slug=...)` first if needed). Do **not**
-dump artefacts at the project root (Rule 7.5).
+- **Hot Path**: deliver under `workspace/<slug>/` (`new_workspace` first).
+  Do not dump artefacts at project root (Rule 7.5).
+- **Cold Path**: write downstream `TASK-*`, keep parent open, wait for child
+  `REPORT-*`, then consolidate (Rule 0.a.2, 0.a.4).
+- If scope drifts, **stop** and append a sub-task.
 
-If scope drifts mid-execution, **stop** — go back to Step 1 and add
-a sub-task. Don't "close enough" your way forward.
+### Step 3 — report (then stop)
 
-### Step 3 — write the report
+Call `write_report` for `REPORT-*-WRITER-to-{upstream}.md` with status,
+artefact paths, verification evidence, blockers, and task references.
 
-Call `write_report` to land `REPORT-*-WRITER-to-{upstream}.md`. It
-must contain:
+**Stop after the report** (Rule 0.a.6). Chat "done" does not substitute for
+a report file.
 
-- Status: `done` / `in_progress` / `blocked`.
-- Artefact list (concrete paths, e.g. `workspace/<slug>/...`).
-- Verification evidence (commands run, output observed,
-  HTTP codes, test results).
-- Blockers / open decisions.
-- Reference to the originating task ID
-  (`references=["TASK-..."]`).
+### Step 4 — await acceptance / archive when authorised
 
-The "I'm done" line in chat does **not** count as a report. No
-`REPORT-*.md` on disk = the work did not happen.
-
-### Step 4 — then archive
-
-After the leader (or `ADMIN`) accepts the report, call
-`archive_task` to move the task + matching report into `_lifecycle/archive/`.
-**Don't self-archive by default** unless the dispatch explicitly
-authorised "archive on completion".
+- Executors **must not** call `archive_task` by default (Rule 0.a.5).
+- `leader` / `ADMIN` archives after accepting the report.
+- Executors may archive only with explicit authorisation in the task or
+  from `ADMIN`.
+- Landing in `_lifecycle/done/` is **not** business acceptance (Rule 0.a.3).
 
 ---
 
 ### Narrow exception clause
 
-If the upstream **explicitly** says in the dispatch "skip the
-process for this one" (typical: pure Q&A / lookup / file read),
-land a `drop_suggestion` memo explaining the skip, **then** answer
-directly. **The default is the 4-step cycle; every exception must
-leave a trace.**
+If upstream **explicitly** skips the process (pure Q&A), land
+`drop_suggestion` first, then answer. **Default is the full cycle.**
 
 ---
-
 
 ## Mission
 
@@ -179,7 +163,7 @@ But you should know:
   tasks assigned to you
 - Reference the INSPECTION ID in your report (`references=["INSPECTION-..."]`)
 - If you receive a task that originates from an INSPECTION finding, follow the
-  standard four-step workflow
+  standard Rule 0.a.1 collaboration cycle
 
 ### supersedes field (v1.4)
 

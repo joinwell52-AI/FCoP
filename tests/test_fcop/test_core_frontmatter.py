@@ -161,11 +161,13 @@ class TestParseTaskFrontmatter:
     def test_optional_fields_populated(self) -> None:
         text = (
             "---\nprotocol: fcop\nversion: 1\nsender: PM\nrecipient: DEV\n"
-            "thread_key: release-0.6\nsubject: ship the library\n"
+            "thread_key: release-0.6\nparent: TASK-20260422-001-ADMIN-to-PM\n"
+            "subject: ship the library\n"
             "references:\n  - TASK-20260422-001\n  - REPORT-20260422-001\n---\n"
         )
         parsed, _ = fm.parse_task_frontmatter(text)
         assert parsed.thread_key == "release-0.6"
+        assert parsed.parent == "TASK-20260422-001-ADMIN-to-PM"
         assert parsed.subject == "ship the library"
         assert parsed.references == ("TASK-20260422-001", "REPORT-20260422-001")
 
@@ -303,6 +305,7 @@ class TestSerializeTaskFrontmatter:
             recipient="DEV",
             priority=Priority.P1,
             thread_key="t1",
+            parent="TASK-20260422-001-ADMIN-to-PM",
             subject="s",
         )
         out = fm.serialize_task_frontmatter(frontmatter)
@@ -315,6 +318,7 @@ class TestSerializeTaskFrontmatter:
             "recipient",
             "priority",
             "thread_key",
+            "parent",
             "subject",
         ]
 
@@ -328,6 +332,7 @@ class TestSerializeTaskFrontmatter:
         )
         out = fm.serialize_task_frontmatter(frontmatter)
         assert "thread_key" not in out
+        assert "parent" not in out
         assert "subject" not in out
         assert "references" not in out
 

@@ -24,68 +24,42 @@ updated_at: 2026-05-12
 
 ## 核心工作流（硬约束 / 不允许例外）
 
-> 这一节是 `ME.md` 最硬的部分，是 `fcop-rules.mdc` Rule 0.a 在 ME 角色上
-> 的具体翻译。**任何**ADMIN 派发的工作（无论看起来多简单）必须**严格按这
-> 4 步走**，不允许"简单任务直接执行"的软约束。
+> `fcop-rules.mdc` Rule 0.a / Rule 0.a.1–0.a.6 在 solo `ME` 上的翻译。
+> **任何** ADMIN 派发的工作必须走：
+> **`task → 执行/派发 → report → 等待验收 / 按授权 archive`**。
+> 不允许"简单任务直接执行"；**执行者默认不得 archive**。
 
-### 第 1 步：先写 task
+### 第 1 步：task
 
-收到 ADMIN 在聊天里说的需求，**第一动作**是调 `write_task` 落
-`fcop/tasks/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`：
+收到 ADMIN 需求后，**第一动作**是 `write_task` 落
+`_lifecycle/inbox/TASK-YYYYMMDD-NNN-ADMIN-to-ME.md`（需求、范围、验收标准、
+方案）。写完**重读**——"审查者 ME"复核"提案者 ME"。
 
-```
-write_task(
-    sender="ADMIN",
-    recipient="ME",
-    priority="P2",
-    subject="<一句话目标>",
-    body="<复述需求 + 你理解的范围 + 验收标准 + 你打算的方案>"
-)
-```
+### 第 2 步：执行 / 派发
 
-写完 **重读一遍**——这一步是"审查者 ME"对"提案者 ME"的复核。
+在 `workspace/<slug>/` 交付产物。范围溢出时追加子 task（frontmatter 用
+`parent:` 链回父 task）。solo 通常走 Hot Path；若需拆分，按 Cold Path
+等子 task 回执后再汇总（Rule 0.a.2、0.a.4）。
 
-### 第 2 步：再做
+### 第 3 步：report（写完后停步）
 
-打开 `workspace/<slug>/`（必要时先 `new_workspace(slug=...)`），把代码 / 脚本
-/ 数据 / 文档落进去。**不要**把业务产物倾倒到项目根。
+`write_report` 落 `REPORT-*-ME-to-ADMIN.md`（状态、产物、证据、阻塞项、
+task 引用）。**写 report 后停止**（Rule 0.a.6），等 ADMIN 验收或返工。
 
-执行过程中如果范围溢出 task，**停下来**——回到第 1 步追加一份
-"`ME` 自己给自己派的子 task"（这种 task 仍然是 `ADMIN -> ME`，因为 ADMIN
-是协议层的输入端；body 里说明"原 task XXX 范围溢出，追加此子任务"）。
+### 第 4 步：等待验收 / 按授权 archive
 
-### 第 3 步：再写 report
-
-调 `write_report` 落 `fcop/reports/REPORT-YYYYMMDD-NNN-ME-to-ADMIN.md`，
-回执必须包含：
-
-- 状态：`done` / `in_progress` / `blocked`
-- 产物清单（指向 `workspace/<slug>/...` 的具体路径）
-- 验证证据（跑了什么命令、命中什么 HTTP 码、看到什么输出）
-- 阻塞项 / 待 ADMIN 决策项
-- 引用原 task 的 ID（`references=["TASK-..."]`）
-
-聊天里那段"做完了"的总结**不算** report。`REPORT-*.md` 不存在 = 工作没发生。
-
-### 第 4 步：再 archive
-
-ADMIN 验收 report 后调 `archive_task("TASK-...")` 把 task + matching report
-搬到 `log/`。**默认 `ME` 不主动 archive**——除非 task 里 ADMIN 明确授权
-"做完直接 archive"。
+**ME 默认不**调用 `archive_task`。ADMIN 验收后归档；或 task 正文明确授权
+"做完直接 archive"（Rule 0.a.5）。`_lifecycle/done/` ≠ 业务验收（Rule 0.a.3）。
 
 ---
 
-### 为什么这 4 步不允许跳
+### 为什么不允许跳步
 
-> 一旦给"简单任务"开例外，所有任务都会自称"简单"。这是 0.6.3 实战中
-> 反复出现的违规模式：`ME` 把"做个贪吃蛇"判定为"简单任务直接执行"，
-> 跳过 task / report，直接产物落盘——结果 ADMIN 发现没有可追溯的协作
-> 历史，要等 ADMIN 提醒后才补 task / report，工作流变成"事后补单"。
+> 一旦给"简单任务"开例外，所有任务都会自称"简单"。跳过 task/report 会
+> 让协作历史不可审计——必须事后补单。
 
-**例外条款**：如果 ADMIN 在聊天里**明确**说"这件事不用走流程"
-（例如"帮我读一下这个文件就行"、"看看这段代码什么意思"），`ME` 落
-一份 `drop_suggestion` 备忘（说明"应 ADMIN 要求跳过 task/report 流程，
-原因：纯问答/查询"），**然后**才直接回答。**默认走 4 步**，例外要留痕。
+**例外**：ADMIN **明确**说"不用走流程"时，先 `drop_suggestion` 留痕，
+再直接回答。
 
 ---
 
@@ -187,7 +161,7 @@ ADMIN 验收 report 后调 `archive_task("TASK-...")` 把 task + matching report
 1. **跳 task 直接做**：聊天看到任务后立刻动手写代码 / 跑命令，没先落
    `TASK-*-ADMIN-to-ME.md`。**正确做法**：写 task → 重读 → 再动手。
 2. **跳 report 宣称"做完了"**：在聊天里说"我已经把贪吃蛇放在
-   `workspace/snake-game/index.html` 了"，但 `reports/` 下没有对应
+   `workspace/snake-game/index.html` 了"，但 `_lifecycle/done/` 下没有对应
    `REPORT-*` 文件。**正确做法**：写 report 落盘后再在聊天里告诉 ADMIN。
 3. **业务代码倾倒项目根**：把 `app.py` / `index.html` / `pyproject.toml`
    写到项目根。**正确做法**：先 `new_workspace(slug="<slug>")`，所有产物
@@ -251,7 +225,7 @@ TASK 文件中可含 `risk_level: low / medium / high`（由 leader 在派单时
 
 - `INSPECTION-*.md` 体检报告出现在 `fcop/shared/` 后，可能派发整改 TASK 给你
 - 在回执里引用 INSPECTION 报告 ID（`references=["INSPECTION-..."]`）
-- 如收到来自 INSPECTION 的整改任务，正常走"四步流程"即可
+- 如收到来自 INSPECTION 的整改任务，正常走 Rule 0.a.1 协作闭环（task → 执行/派发 → report → 等待验收/按授权 archive）即可
 
 ### supersedes 字段（v1.4）
 

@@ -1,4 +1,4 @@
----
+﻿---
 protocol: fcop
 version: 1
 kind: spec
@@ -53,7 +53,7 @@ updated_at: 2026-05-12
 
 - 不替 `ME` 写产物（除非明确要求 `ME` 学习你的写法）
 - 不替 `ME` 写 task / report——这些是 `ME` 自己的责任
-- 不在 `tasks/` / `reports/` / `issues/` 里手动改 `ME` 已经落盘的文件——
+- 不在 `_lifecycle/` 里手动改 `ME` 已经落盘的文件（`issues/` 同理）——
   那叫"改历史"，违反 Rule 0.a
 
 ## 角色边界原则

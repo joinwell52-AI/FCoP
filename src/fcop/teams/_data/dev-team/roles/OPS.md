@@ -14,59 +14,62 @@ updated_at: 2026-05-12
 
 ## 工作流硬约束（适用于所有角色 / 不允许例外）
 
-> 这一节是 `fcop-rules.mdc` Rule 0.a / Rule 0.a.1 在角色侧的具体翻译。
-> **任何**收到的工作（无论看起来多简单）必须**严格按 4 步走**：
-> `task → 做 → report → archive`。**不允许**"简单任务直接执行"
-> 这种软约束——一旦给"简单任务"开例外，所有任务都会自称"简单"。
+> 这一节是 `fcop-rules.mdc` Rule 0.a / Rule 0.a.1–0.a.6 在角色侧的具体翻译。
+> **任何**收到的工作（无论看起来多简单）必须走完协作闭环：
+> **`task → 执行/派发 → report → 等待验收 / 按授权 archive`**。
+> **不允许**"简单任务直接执行"，也**不允许**把 `archive_task` 写成执行者
+> 必做第 4 步。
 
-### 第 1 步：先写 task
+### 第 1 步：task
 
-在动手之前，**第一动作**是把"做什么"落到 `_lifecycle/inbox/`：
+在动手之前，**第一动作**是把"做什么、谁验收、可否派发子任务"落到
+`_lifecycle/inbox/`（或认领已有 task）：
 
 - 作为 leader 接到 `ADMIN` 的需求 → 写
   `TASK-YYYYMMDD-NNN-ADMIN-to-OPS.md`
-- 作为 member 被 leader 派活 → leader 已经写了 task，自己**重读一遍**
-  当作自审（Rule 0.b）；范围有偏差就落 `ISSUE-*.md` 回 leader，不
-  要"差不多照着做"
-- 需要派给下游 → 写
-  `TASK-YYYYMMDD-NNN-OPS-to-{下游}.md`
+- 作为 member 被 leader 派活 → leader 已写 task；**重读一遍**当作自审
+  （Rule 0.b）；范围有偏差就落 `ISSUE-*.md` 回 leader
+- 需要派给下游 → 写 `TASK-YYYYMMDD-NNN-OPS-to-{下游}.md`（Cold Path，
+  见 Rule 0.a.2）
 
-### 第 2 步：再做
+### 第 2 步：执行 / 派发
 
-把代码 / 脚本 / 数据 / 内容落到 `workspace/<slug>/`（必要时先
-`new_workspace(slug=...)`）。**不要**把业务产物倾倒到项目根（Rule 7.5）。
+- **Hot Path**：亲自在 `workspace/<slug>/` 交付产物（必要时先
+  `new_workspace(slug=...)`）。**不要**把业务产物倾倒到项目根（Rule 7.5）。
+- **Cold Path**：向下游写 `TASK-*`，父 task 保持 open，等子 task 的
+  `REPORT-*` 回来后再汇总（Rule 0.a.2、0.a.4）。
+- 范围溢出时**停下来**——追加子 task，不要"差不多"地推进。
 
-执行过程中如果范围溢出 task，**停下来**——回第 1 步追加一份子 task，
-不要"反正差不多"地推进。
-
-### 第 3 步：再写 report
+### 第 3 步：report（写完后停步）
 
 调 `write_report` 落 `REPORT-*-OPS-to-{上游}.md`，回执必须包含：
 
 - 状态：`done` / `in_progress` / `blocked`
-- 产物清单（指向具体路径，例如 `workspace/<slug>/...`）
-- 验证证据（跑了什么命令、看到什么输出 / HTTP 码 / 测试结果）
+- 产物清单（`workspace/<slug>/...` 等具体路径）
+- 验证证据（命令、输出、HTTP 码、测试结果）
 - 阻塞项 / 待决策项
-- 引用原 task 的 ID（`references=["TASK-..."]`）
+- 引用原 task ID（`references=["TASK-..."]`）
 
-聊天里那段"做完了"的总结**不算** report。`REPORT-*.md` 不存在 = 工作没发生。
+**写 report 后停止**（Rule 0.a.6）：等上游 review / 返工 / 验收。聊天里
+"做完了"**不算** report。
 
-### 第 4 步：再 archive
+### 第 4 步：等待验收 / 按授权 archive
 
-leader（或 `ADMIN`）验收 report 后调 `archive_task` 把 task + 对应
-report 移到 `_lifecycle/archive/`。**默认不主动 archive**——除非派单里明确授权
-"做完直接 archive"。
+- **执行者默认不**调用 `archive_task`（Rule 0.a.5）。
+- 由 `leader` / `ADMIN` 验收 report 后归档到 `_lifecycle/archive/`。
+- 仅当 task 正文或 `ADMIN` **明确授权**"做完直接 archive"时，执行者才可
+  自行 `archive_task`。
+- 文件进 `_lifecycle/done/` **不等于**业务验收通过（Rule 0.a.3）。
 
 ---
 
 ### 例外条款（很窄）
 
-如果上游在派单里**明确**说"这件事不用走流程"（典型场景：纯问答 /
-查询 / 读个文件），落一份 `drop_suggestion` 备忘说明跳过原因，**然后**
-才直接回答。**默认走 4 步，例外要留痕**。
+上游**明确**说"这件事不用走流程"（纯问答 / 读文件）时，先落
+`drop_suggestion` 说明跳过原因，**然后**才直接回答。**默认走完整闭环，
+例外要留痕**。
 
 ---
-
 
 ## 角色使命
 
@@ -171,7 +174,7 @@ TASK 文件中可含 `risk_level: low / medium / high`（由 leader 在派单时
 
 - `INSPECTION-*.md` 体检报告出现在 `fcop/shared/` 后，可能派发整改 TASK 给你
 - 在回执里引用 INSPECTION 报告 ID（`references=["INSPECTION-..."]`）
-- 如收到来自 INSPECTION 的整改任务，正常走"四步流程"即可
+- 如收到来自 INSPECTION 的整改任务，正常走 Rule 0.a.1 协作闭环（task → 执行/派发 → report → 等待验收/按授权 archive）即可
 
 ### supersedes 字段（v1.4）
 

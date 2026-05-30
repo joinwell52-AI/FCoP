@@ -57,7 +57,7 @@ ADMIN  ──发任务──▶  ME  ──写产物──▶  workspace/<slug>/
 | 入口 | `README.md`（本文） | 团队定位、ADMIN 说明、协作链路 |
 | 第 1 层 | `TEAM-ROLES.md` | `ME` 负责什么、不负责什么；`ADMIN` 边界 |
 | 第 2 层 | `TEAM-OPERATING-RULES.md` | 任务怎么派、回执怎么写、什么时候升级、跨"自审" |
-| 第 3 层 | `roles/ME.md` | `ME` 的核心职责（含**工作流硬约束**：先 task → 做 → report → archive） |
+| 第 3 层 | `roles/ME.md` | `ME` 的核心职责（含**工作流硬约束**：task → 执行 → report → 停步；archive 需 ADMIN/leader 授权） |
 
 solo 也分三层不是为了"凑齐"。`ME.md` 里专门写了 **Rule 0.a 在单角色场景下
 怎么自审**——这是 solo 模式区别于"无协议"的唯一硬约束，不读这一份会把

@@ -6,6 +6,20 @@
 通过**文件**协作的协议。你唯一要做的事：**告诉我你这个项目是几个人、
 怎么分工。**
 
+> **v3.2.5 摘要**（当前 PyPI 包版本，2026-05-30；**协议规则同步 3.2.5**）：
+> - **Rule 0.a.1 协作闭环重写**：`task → 执行/派发 → report → 停步`；执行者默认不得自行 `archive_task`，归档需 ADMIN/leader 授权（Rule 0.a.5）。
+> - **Rule 0.a.2–0.a.6**：Hot/Cold Path、生命周期≠业务完成、主子任务治理、REPORT 即停步信号。
+> - **34 份角色 charter**：统一注入 `_COMMON-FCOP-3.2.5.md` Common Block（`scripts/inject_workflow_constraint.py`）。
+> - **`write_task(..., parent=...)`**：`parent:` 与 `thread_key:` 为规范 frontmatter 字段；MCP / Python API 可程序化写入派生链路。
+> - **MCP docstring 对齐（14 工具）**：Hot/Cold Path、授权归档、`finish_task`/`reject_task` 等 3.2.5 语义；工具总数仍为 **45**。
+> - **规则版本**：`fcop-rules.mdc 3.2.5` / `fcop-protocol.mdc 3.2.5`。升级后跑 `redeploy_rules()` 刷新项目根四件套。
+>
+> **v3.2.4 摘要**（2026-05-27；打包修复，协议规则仍为 3.2.3）：
+> - **打包修复**：修复 PyPI 3.2.3 wheel 内 `fcop-protocol.mdc` UTF-8 损坏；请
+>   `pip install -U "fcop>=3.2.4"`，勿重装 3.2.3。
+> - **fcop-mcp**：PyPI 链接「FCoP (协议)」→ `docs/getting-started.en.md`；
+>   长描述对齐 45 工具 / v3 `_lifecycle/`。
+>
 > **v3.2.4 摘要**（当前 PyPI 包版本，2026-05-27；**协议规则仍为 3.2.3**）：
 > - **打包修复**：修复 PyPI 3.2.3 wheel 内 `fcop-protocol.mdc` UTF-8 损坏；请
 >   `pip install -U "fcop>=3.2.4"`，勿重装 3.2.3。

@@ -1,7 +1,7 @@
 ﻿---
 description: FCoP Protocol commentary (behavior governance protocol layer · v3 — _lifecycle/-based collaboration) — the protocol commentary on the rules defined in fcop-rules.mdc. Covers file naming, YAML frontmatter, v3 _lifecycle/ directory layout, lifecycle state machine, patrol triggers, and other practical conventions. Auto-deployed by the fcop MCP. FCoP 协议解释（行为治理协议层 · v3 —— _lifecycle/ 目录协作）：fcop-rules.mdc 中协议规则的具体适用说明——文件命名、YAML 元数据、v3 _lifecycle/ 目录结构、生命周期状态机、巡检触发等落地细节，由 fcop MCP 自动部署。
 alwaysApply: true
-fcop_protocol_version: 3.2.3
+fcop_protocol_version: 3.2.5
 ---
 
 <!--
@@ -457,6 +457,48 @@ team-mode equivalent. Ask:
 
 If you can't answer cleanly, rewrite the claim as "unverified" — or go
 run the check first and come back.
+
+## How Rule 0.a Applies: Collaboration Cycle (3.2.5) / Rule 0.a 的展开：协作闭环
+
+> 本节是 `fcop-rules.mdc` Rule 0.a.1–0.a.6（自 **fcop@3.2.5**）的协议解释。
+> 规则文件本身只立底线；这里把 Hot/Cold Path、生命周期 vs 业务完成、
+> 授权归档、REPORT 停步信号落到日常操作。
+
+### 协作闭环 / Collaboration cycle
+
+```
+task → execute/dispatch → report → await acceptance / archive when authorised
+```
+
+| 步 / Step | 工具 / Tool | 执行者默认行为 |
+|---|---|---|
+| 1 task | `write_task` / `claim` | 动手前落 task 或认领 |
+| 2 execute/dispatch | Hot Path 写产物；Cold Path 写下游 `TASK-*` | 见下 |
+| 3 report | `write_report` | **写完后停步**（0.a.6） |
+| 4 acceptance/archive | `leader`/`ADMIN` 验收后 `archive_task` | 执行者**默认不** archive |
+
+### Hot Path vs Cold Path（Rule 0.a.2）
+
+- **Hot Path**：执行者亲自完成全部工作 → 写 report 回上游。
+- **Cold Path**：leader 拆子 task（`parent:` 链）→ 等子 `REPORT-*` →
+  **汇总**后再写面向上游的 report。子 task 仍 open 时，父 task **不得**
+  `write_report(status=done)`。
+
+### 生命周期 ≠ 业务完成（Rule 0.a.3）
+
+`claim` / `submit` / `finish_task` / `approve` 只移动 `_lifecycle/` 目录。
+**业务完成** = 上游接受 report 里的交付物与证据 —— 不是文件进了
+`_lifecycle/done/` 就算完。
+
+### 归档需授权（Rule 0.a.5）
+
+`archive_task` 是治理动作，默认 **`leader` / `ADMIN`** 在验收 report 后执行。
+执行者仅当 task 正文或 ADMIN **明确授权**时才可自行 archive。
+
+### REPORT 即停步（Rule 0.a.6）
+
+`write_report` 之后进入等待：review / 返工 / 验收。聊天"做完了"不能替代
+report 文件。
 
 ## How Rule 2 Scales: Files + Folders / Rule 2 的展开：文件 + 文件夹
 
@@ -1331,6 +1373,23 @@ Three things the protocol explicitly grants you:
 
 ## Protocol Version Log / 协议版本记录
 
+- **v3.2.5** (2026-05-30) — **Rule 0.a collaboration cycle · Hot/Cold Path**，随 `fcop@3.2.5`：
+  1. 新增 **§How Rule 0.a Applies: Collaboration Cycle (3.2.5)**：解释 Rule 0.a.1–0.a.6
+     （Hot/Cold Path、生命周期≠业务完成、主子任务治理、授权归档、REPORT 停步）。
+  2. 与 `fcop-rules.mdc` 3.2.5 对齐：第 4 步改为「等待验收/按授权 archive」；
+     执行者默认不得自行 `archive_task`。
+  3. 34 份角色 charter 经 `_COMMON-FCOP-3.2.5.md` + `inject_workflow_constraint.py` 统一注入。
+  4. `fcop_protocol_version` frontmatter 从 `3.2.3` 更新至 `3.2.5`。
+
+  v3.2.5 changes:
+  1. New **§How Rule 0.a Applies** commentary for Rule 0.a.1–0.a.6 (Hot/Cold Path,
+     lifecycle vs business completion, main/subtask governance, authorized archive,
+     REPORT as stop signal).
+  2. Aligned with `fcop-rules.mdc` 3.2.5: step 4 is wait-for-acceptance / authorized
+     archive; executors must not self-archive by default.
+  3. 34 role charters updated via `_COMMON-FCOP-3.2.5.md` inject script.
+  4. `fcop_protocol_version` frontmatter bumped 3.2.3 → 3.2.5.
+
 - **v3.2.3** (2026-05-23) — **Team templates & doc sync · FCoP 3.0 compliance**，随 `fcop@3.2.3`：
   1. 团队模板（`letter-to-admin.{zh,en}.md`、`roles/*.md`、`TEAM-OPERATING-RULES.{md,en.md}`、
      `README.{md,en.md}`）目录引用从 FCoP 2.x 遗留 `tasks/` / `reports/` / `log/` 全面迁移至
@@ -1678,7 +1737,7 @@ Three things the protocol explicitly grants you:
      cross-references `git diff` against the FCoP ledger and lists
      product changes that are not tied to any open task. This is
      **post-hoc audit, not prevention** — prevention still depends
-     on the agent honouring the four-step cycle.
+     on the agent honouring the collaboration cycle (Rule 0.a.1).
   3. **Rule 5 corrections unify under sequential filenames.** The
      historical `AMEND-*` and `*-v2.md` examples are removed. Parsers
      never recognized those prefixes, so any file using them was a

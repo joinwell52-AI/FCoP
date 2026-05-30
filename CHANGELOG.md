@@ -8,6 +8,40 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [3.2.5] — 2026-05-30 (Rule 0.a.1 collaboration cycle · Hot/Cold Path)
+
+### Changed — `fcop`
+- **Rule 0.a.1 整段重写** — 协作闭环改为
+  `task → 执行/派发 → report → 等待验收/按授权 archive`；执行者默认不得
+  自行 `archive_task`。
+- **新增 Rule 0.a.2–0.a.6** — Hot/Cold Path、生命周期≠业务完成、主子任务治理、
+  归档需授权、REPORT 即停步信号。
+- **Bundled rules bump** — `fcop-rules.mdc` / `fcop-protocol.mdc` frontmatter
+  升至 **3.2.5**（与包版本 lockstep）。
+- **`write_task(..., parent=...)`** — `TaskFrontmatter.parent` 一等字段；
+  `parse_task_frontmatter` / `serialize_task_frontmatter` / MCP `write_task` /
+  `create_task` 支持程序化写入 `parent:`（与 `thread_key:` 并列规范字段）。
+- **`_COMMON-FCOP-3.2.5.md`** — 34 份角色 charter 统一注入源；
+  `scripts/inject_workflow_constraint.py` 改为读取 common 文件并**替换**旧块。
+- **`fcop-protocol.mdc`** — 新增 Rule 0.a 协作闭环 commentary 节。
+- **`letter-to-admin.{zh,en}.md`** — 顶部 v3.2.5 摘要块；规则版本说明对齐 3.2.5。
+
+### Changed — `fcop-mcp`
+- **14 个 MCP 工具 docstring** — 同步 3.2.5 语义（Hot/Cold Path、授权归档、
+  REPORT 停步、lifecycle≠业务完成）；含 `finish_task` / `reject_task` 测试缺口补齐。
+- **`fcop_report` / `fcop_check` / `finish_task` / `archive_task` /
+  `write_report` docstrings** — 同步 3.2.5 语义（授权归档、REPORT 停步、
+  lifecycle≠业务完成）。
+- **`write_task` / `create_task`** — 新增 `parent` 参数。
+
+### Docs
+- `docs/releases/3.2.5.md` — 本版本 release notes。
+
+### Tests
+- 更新 `test_server` / `test_rules_text_regression` / `test_role_templates` /
+  `test_core_frontmatter`，不再锁死旧四步「执行者必 archive」表述；
+  `TestMcpToolDocstrings325` 14 passed。
+
 ## [3.2.4] — 2026-05-27 (PyPI metadata & bundled protocol encoding fix)
 
 ### Fixed — `fcop`

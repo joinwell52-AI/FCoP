@@ -1064,16 +1064,29 @@ def write_task(
     body: str,
     priority: str = "P2",
     thread_key: str = "",
+    parent: str = "",
     references: str = "",
     risk_level: str = "",
 ) -> str:
-    """Create a new task file (v3: ``_lifecycle/inbox/``; v2: ``fcop/tasks/``).
+    """Create a new task file (Cold Path dispatch or formal intake only).
+
+    **Not Hot Path execution.** Use when ``ADMIN`` / ``leader`` assigns
+    work, when Cold Path fan-out dispatches subtasks, or when you were
+    explicitly told to land a formal task. Agents **must NOT**
+    self-dispatch without an upstream requirement (Rule 0.a.2).
+
+    Subtask linking: set ``thread_key`` for thread continuity; set
+    ``parent`` to the upstream task ID (``parent:`` frontmatter — work
+    derivation, distinct from ``references``). Do **not** emit
+    ``parent_task_id`` as normative output (read-only legacy alias only).
+
+    File ops: write ``TASK-*.md`` under ``_lifecycle/inbox/`` (v3) or
+    ``fcop/tasks/`` (v2). Does **not** claim, finish, or archive.
 
     The library assigns a filename of the form
-    ``TASK-YYYYMMDD-NNN-{SENDER}-to-{RECIPIENT}.md`` and writes a
-    FCoP-compliant YAML frontmatter + markdown body.
-    In a v3 project the task is placed in ``_lifecycle/inbox/`` so the
-    recipient can ``claim_task`` it.
+    ``TASK-YYYYMMDD-NNN-{SENDER}-to-{RECIPIENT}.md`` with FCoP-compliant
+    YAML frontmatter + markdown body. In v3 the recipient ``claim_task``s
+    from inbox.
 
     Args:
         sender: Sender role code (uppercase).
@@ -1089,6 +1102,8 @@ def write_task(
             ``P2``.
         thread_key: Optional thread identifier for linking this task
             to an ongoing conversation.
+        parent: Optional upstream task ID (``TASK-YYYYMMDD-NNN-...``)
+            written to ``parent:`` frontmatter for subtask derivation.
         references: Comma-separated task filenames this task refers
             back to (for ``references:`` frontmatter field).
         risk_level: Operation risk level (per ADR-0024). One of
@@ -1111,6 +1126,7 @@ def write_task(
             body=body,
             references=_parse_refs_list(references),
             thread_key=thread_key or None,
+            parent=parent or None,
             risk_level=risk_level or None,
         )
     except fcop.FcopError as exc:
@@ -1124,7 +1140,14 @@ def write_task(
 
 @mcp.tool(tags={"tier:L2"})
 def read_task(filename: str) -> str:
-    """Read the full content of a task file.
+    """Read the full content of a task file (Hot Path pre-flight).
+
+    **Before executing** on an assigned or claimed task, call this
+    **together with** ``inspect_task`` (Rules 0.a.1 / 0.a.2). Do not
+    mutate the workspace or dispatch from chat/memory alone.
+
+    File ops: ``cat`` the file under ``_lifecycle/{stage}/TASK-*.md``,
+    legacy ``fcop/tasks/``, or ``fcop/log/`` when archived.
 
     Args:
         filename: Task filename (e.g. ``TASK-20260423-001-PM-to-DEV.md``)
@@ -1200,12 +1223,15 @@ def list_tasks(
 
 @mcp.tool(tags={"tier:L2"})
 def inspect_task(filename: str) -> str:
-    """Validate a task file against FCoP grammar.
+    """Validate a task file against FCoP grammar (Hot Path pre-flight).
 
-    Catches deterministic violations that raw ``read_file + regex``
-    agents often miss: filename says ``to-DEV`` but frontmatter says
-    ``recipient: QA``, ``protocol`` field mistyped, required field
-    missing, and so on.
+    Run **before executing** on a claimed/assigned task, alongside
+    ``read_task``. Catches deterministic violations agents often miss
+    (filename ``to-DEV`` vs frontmatter ``recipient: QA``, mistyped
+    ``protocol``, missing required fields). ``PASS`` does **not** replace
+    reading the task body for acceptance criteria.
+
+    File ops: read filename + frontmatter and validate grammar only.
 
     Args:
         filename: Task filename or ID (same forms as ``read_task``).
@@ -1228,10 +1254,22 @@ def inspect_task(filename: str) -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def archive_task(task_id: str, lang: str = "") -> str:
-    """Archive a completed task (move under ``docs/agents/log/``).
+    """Archive a task after governance acceptance (v3: ``_lifecycle/archive/``; v2: ``log/``).
 
-    The report file tied to this task, if any, is moved alongside so
-    the archived pair stays together.
+    **Governance action (Rule 0.a.5).** **Not** Hot Path step 4 for
+    executors. Default actor is ``leader`` or ``ADMIN`` after accepting
+    the paired ``REPORT-*``. Executors must **not** call this unless the
+    task body or ``ADMIN`` explicitly authorises archive-on-completion.
+
+    **Authorization:** subtasks — direct upstream or governance runtime;
+    main tasks — ``ADMIN`` or the main-task owner only. Archive **≠**
+    business completion (Rule 0.a.3).
+
+    Does **not** run automatically after ``write_report`` or
+    ``finish_task``.
+
+    File ops: ``mv`` task (+ matched reports via ``references``) to
+    ``_lifecycle/archive/`` or ``fcop/log/``.
 
     Args:
         task_id: Task ID (e.g. ``TASK-20260423-001``) or full filename.
@@ -1255,15 +1293,18 @@ def archive_task(task_id: str, lang: str = "") -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def archive_to_history(task_id: str, done_date: str = "") -> str:
-    """Move a closed task from ``_lifecycle/archive/`` to the deep history archive.
+    """Deep-history cold storage after governance archive (v3 only).
 
-    The task **and** all its associated reports are moved together into
-    ``history/YYYY-MM-DD/<task-stem>/``, creating an immutable, date-sharded
-    record.  The date shard defaults to the UTC date when the task was marked
-    *done*; you can override it via *done_date*.
+    Moves a task already in ``_lifecycle/archive/`` (or legacy ``log/``)
+    into ``history/YYYY-MM-DD/<task-stem>/`` with its reports — immutable,
+    date-sharded retention. **Not** business acceptance and **not** a
+    substitute for ``write_report`` or authorised ``archive_task``.
 
-    Call :func:`archive_task` first to move the task from ``_lifecycle/done/``
-    to ``_lifecycle/archive/`` before calling this tool.
+    Call ``archive_task`` first (v3: ``done/`` → ``archive/``). Main-task
+    deep archive requires the same governance authorization as
+    ``archive_task`` (Rule 0.a.5).
+
+    File ops: ``mv _lifecycle/archive/TASK-* history/YYYY-MM-DD/<stem>/``.
 
     Args:
         task_id:   Task ID (e.g. ``TASK-20260522-001``) or full filename.
@@ -1393,6 +1434,7 @@ def create_task(
     body: str,
     priority: str = "P2",
     thread_key: str = "",
+    parent: str = "",
     references: str = "",
     risk_level: str = "",
 ) -> str:
@@ -1412,6 +1454,7 @@ def create_task(
         priority:   ``P0`` / ``P1`` / ``P2`` / ``P3`` (or legacy aliases).
                     Default: ``P2``.
         thread_key: Optional thread identifier.
+        parent: Optional upstream task ID for ``parent:`` frontmatter.
         references: Comma-separated task filenames for ``references:`` field.
         risk_level: ``low`` / ``medium`` / ``high`` / ``irreversible``.
                     Leave empty to accept the default (``medium``).
@@ -1427,6 +1470,7 @@ def create_task(
         body=body,
         priority=priority,
         thread_key=thread_key,
+        parent=parent,
         references=references,
         risk_level=risk_level,
     )
@@ -1522,12 +1566,15 @@ def read_history_task(task_id: str, date: str = "") -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def claim_task(task_id: str, actor: str = "agent") -> str:
-    """Claim a task from ``inbox`` → ``active`` (v3 lifecycle).
+    """Claim a task: ``inbox`` → ``active`` (v3 Hot Path start).
 
-    Moves the task file from ``_lifecycle/inbox/`` to
-    ``_lifecycle/active/`` and appends a ``claim_task`` transition
-    event to the file's frontmatter.  On v2 projects this is a no-op
-    that returns an informational message.
+    **Hot Path step 1 (v3):** call before executing on an inbox task.
+    Always follow with ``read_task`` + ``inspect_task``. Does **not**
+    read the task body, write a report, or imply business completion.
+
+    File ops: ``mv _lifecycle/inbox/TASK-* _lifecycle/active/`` + append
+    ``claim_task`` transition event to frontmatter. On v2 projects this
+    is a no-op with an informational message.
 
     Args:
         task_id: Task ID (e.g. ``TASK-20260423-001``) or full filename.
@@ -1577,11 +1624,15 @@ def claim_task(task_id: str, actor: str = "agent") -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def submit_task(task_id: str, actor: str = "agent") -> str:
-    """Submit an active task for review: ``active`` → ``review`` (v3 lifecycle).
+    """Submit for review: ``active`` → ``review`` (v3 lifecycle directory move).
 
-    Moves the task file from ``_lifecycle/active/`` to
-    ``_lifecycle/review/`` and appends a ``submit_task`` transition
-    event.  On v2 projects this is a no-op.
+    **Lifecycle only (Rule 0.a.3).** Does **not** replace ``write_report``,
+    upstream acceptance, or authorised ``archive_task``. Pair with a
+    ``REPORT-*`` before or after submit as your team's operating rules
+    require — this tool alone does not close business work.
+
+    File ops: ``mv _lifecycle/active/TASK-* _lifecycle/review/``. On v2
+    projects this is a no-op.
 
     Args:
         task_id: Task ID or full filename.
@@ -1631,11 +1682,16 @@ def submit_task(task_id: str, actor: str = "agent") -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def finish_task(task_id: str, actor: str = "agent") -> str:
-    """Finish an active task directly: ``active`` → ``done`` (v3 lifecycle).
+    """Move lifecycle stage: ``active`` → ``done`` (v3 directory move only).
 
-    Moves the task file from ``_lifecycle/active/`` to
-    ``_lifecycle/done/`` without a review step.  Use this for tasks
-    that do not require ADMIN approval.  On v2 projects this is a no-op.
+    This is a **lifecycle directory move** — it does **not** replace
+    ``write_report``, upstream acceptance, or authorised ``archive_task``
+    (Rules 0.a.3, 0.a.5, 0.a.6). **Rule 0.a.6:** after reporting, **stop
+    and wait** for review; do **not** chain ``finish_task`` in the same turn
+    as ``write_report`` or treat it as "business complete".
+
+    File ops: ``mv _lifecycle/active/TASK-* _lifecycle/done/``. On v2
+    projects this is a no-op.
 
     Args:
         task_id: Task ID or full filename.
@@ -1685,12 +1741,15 @@ def finish_task(task_id: str, actor: str = "agent") -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def approve_task(task_id: str, actor: str = "ADMIN", note: str = "") -> str:
-    """Approve a task under review: ``review`` → ``done`` (v3 lifecycle).
+    """Approve lifecycle stage: ``review`` → ``done`` (v3 directory move).
 
-    Moves the task file from ``_lifecycle/review/`` to
-    ``_lifecycle/done/`` and appends an ``approve_task`` event.
-    Typically called by ADMIN after inspecting the work.
-    On v2 projects this is a no-op.
+    **Lifecycle approval ≠ business acceptance (Rule 0.a.3).** Typically
+    ``ADMIN`` / reviewer after inspecting the paired ``REPORT-*``.
+    Does **not** auto-call ``archive_task`` or mark blocked upstream
+    work as externally delivered.
+
+    File ops: ``mv _lifecycle/review/TASK-* _lifecycle/done/``. On v2
+    projects this is a no-op.
 
     Args:
         task_id: Task ID or full filename.
@@ -1742,13 +1801,14 @@ def approve_task(task_id: str, actor: str = "ADMIN", note: str = "") -> str:
 
 @mcp.tool(tags={"binding_required", "tier:L1"})
 def reject_task(task_id: str, actor: str = "ADMIN", note: str = "") -> str:
-    """Reject / recall a task under review: ``review`` → ``active`` (v3 lifecycle).
+    """Reject / recall: ``review`` → ``active`` (v3 rework loop).
 
-    Moves the task file back from ``_lifecycle/review/`` to
-    ``_lifecycle/active/`` so the agent can rework it.  Appends a
-    ``reject_task`` transition event.  This is the FCoP v3 "撤回"
-    (recall) mechanism — ADMIN sends the work back for revision
-    without discarding it.  On v2 projects this is a no-op.
+    Returns the task to ``active/`` for revision after a ``REPORT-*``
+    or review finding (complements Rule 0.a.6 stop-and-wait). **Lifecycle
+    only** — does not delete reports or auto-call ``archive_task``.
+
+    File ops: ``mv _lifecycle/review/TASK-* _lifecycle/active/`` + append
+    ``reject_task`` event. On v2 projects this is a no-op.
 
     Args:
         task_id: Task ID or full filename.
@@ -1813,8 +1873,19 @@ def write_report(
     """Write a completion report for a task.
 
     Creates ``REPORT-<task_id>-{REPORTER}-to-{RECIPIENT}.md`` under
-    ``docs/agents/reports/``. The ``task_id`` is the canonical reference
-    back to the source task.
+    ``docs/agents/reports/`` (v3: co-located under ``_lifecycle/``).
+    The ``task_id`` is the canonical reference back to the source task.
+
+    **Stop signal (Rule 0.a.6):** after this call, wait for upstream
+    review / rework — do not keep editing artefacts, dispatch unrelated
+    work, or call ``archive_task`` unless explicitly authorised.
+
+    Does **not** trigger ``finish_task``, ``approve_task``, or
+    ``archive_task`` automatically. ``status=blocked`` still leaves the
+    task open for upstream action.
+
+    File ops: write ``REPORT-*.md`` under ``fcop/reports/`` or co-located
+    ``_lifecycle/`` stage.
 
     Args:
         task_id: Source task ID (e.g. ``TASK-20260423-001``).
@@ -2418,9 +2489,9 @@ _RULE_0A1_TRIPWIRE_BLOCK = (
     "    FCoP Rule 0.a.1 检查：当前没有任何开放 TASK-*.md 提及 slug `{slug}`。\n"
     "\n"
     "If you just got a request from ADMIN, Step 1 is **write_task** —\n"
-    "BEFORE editing any file. The 4-step cycle has no \"simple = skip\" exception.\n"
+    "BEFORE editing any file. Rule 0.a.1 has no \"simple = skip\" exception.\n"
     "如果你刚收到 ADMIN 的需求，第 1 步应当是 **write_task** ——\n"
-    "在动手写任何文件之前。4 步循环没有「简单任务可跳过」这种例外。\n"
+    "在动手写任何文件之前。Rule 0.a.1 没有「简单任务可跳过」这种例外。\n"
     "\n"
     "  write_task(\n"
     "      sender=\"ADMIN\", recipient=\"<your role>\", priority=\"P2\",\n"
@@ -2428,8 +2499,8 @@ _RULE_0A1_TRIPWIRE_BLOCK = (
     "      body=\"<rephrase the request + scope + acceptance criteria>\",\n"
     "  )\n"
     "\n"
-    "Then drop artifacts into workspace/{slug}/, then write_report when done.\n"
-    "随后把产物落到 workspace/{slug}/，完成时再调 write_report 收尾。\n"
+    "Then execute or dispatch, then write_report — then STOP (Rule 0.a.6).\n"
+    "随后执行或派发，再 write_report —— 写完后停步（Rule 0.a.6）。\n"
     "\n"
     "(Workspace was created — this is a reminder, not a block.\n"
     "笼子已建好——这是提醒，不阻断创建。)\n"
@@ -2967,13 +3038,12 @@ def _compose_session_report(lang: str) -> str:
             "    return three options to ADMIN: handoff / co-review / distinct\n"
             "    role. Do NOT 'temporarily' share the role code.\n\n"
             "Once ADMIN binds you to a role, EVERY incoming request runs through\n"
-            "the Rule 0.a.1 four-step cycle — there is no 'simple = skip' exception:\n"
-            "  Step 1  write_task(sender=\"ADMIN\", recipient=\"<your role>\", ...)\n"
-            "          ← BEFORE editing any file\n"
-            "  Step 2  do the work (new_workspace + edit files in workspace/<slug>/)\n"
-            "  Step 3  write_report(task_id=\"TASK-...\", reporter=\"<your role>\", ...)\n"
-            "          ← BEFORE telling ADMIN \"done\" in chat\n"
-            "  Step 4  archive_task(\"TASK-...\")  (after ADMIN accepts)\n"
+            "the Rule 0.a.1 collaboration cycle — there is no 'simple = skip' exception:\n"
+            "  Step 1  write_task(...)  or claim existing task  ← BEFORE editing files\n"
+            "  Step 2  execute (Hot Path) or dispatch downstream TASK-* (Cold Path)\n"
+            "  Step 3  write_report(...)  ← then STOP (Rule 0.a.6); chat 'done' ≠ report\n"
+            "  Step 4  await ADMIN/leader acceptance; archive_task only when authorised\n"
+            "          (Rule 0.a.5 — executors must NOT self-archive by default)\n"
             "Skipping Step 1 or Step 3 violates Rule 0.a.1."
         )
     return (
@@ -3006,14 +3076,13 @@ def _compose_session_report(lang: str) -> str:
         "    .fcop/proposals/double-bind-{时间戳}.md 落一份冲突说明，\n"
         "    把三选一交还 ADMIN：交班 / 协审 / 改派一个未占用角色码。\n"
         "    不要「临时顶一下」——本协议里没有这种合法状态。\n\n"
-        "ADMIN 把你绑定到角色之后，**每一条**新需求都要走 Rule 0.a.1 4 步循环——\n"
+        "ADMIN 把你绑定到角色之后，**每一条**新需求都要走 Rule 0.a.1 协作闭环——\n"
         "没有「简单任务可跳过」这种例外：\n"
-        "  第 1 步  write_task(sender=\"ADMIN\", recipient=\"<你的角色>\", ...)\n"
-        "           ← 在动手写任何文件之前\n"
-        "  第 2 步  做事（new_workspace + 在 workspace/<slug>/ 下落产物）\n"
-        "  第 3 步  write_report(task_id=\"TASK-...\", reporter=\"<你的角色>\", ...)\n"
-        "           ← 在聊天里说「做完了」之前\n"
-        "  第 4 步  archive_task(\"TASK-...\")（ADMIN 验收后）\n"
+        "  第 1 步  write_task(...) 或认领已有 task  ← 在动手写任何文件之前\n"
+        "  第 2 步  执行（Hot Path）或向下游派发 TASK-*（Cold Path）\n"
+        "  第 3 步  write_report(...)  ← 写完后停步（Rule 0.a.6）；聊天「做完了」≠ report\n"
+        "  第 4 步  等待 ADMIN/leader 验收；仅在被授权时 archive_task\n"
+        "          （Rule 0.a.5 — 执行者默认不得自行 archive）\n"
         "跳过第 1 步或第 3 步即违反 Rule 0.a.1。"
     )
 
@@ -3148,6 +3217,12 @@ def fcop_report(lang: str = "zh") -> str:
     bodies, write any files (except via the explicit init tools), or
     claim a role from context clues.
 
+    The initialized report includes the **3.2.5 collaboration cycle**
+    (Rule 0.a.1–0.a.6): ``write_task`` → execute/dispatch →
+    ``write_report`` → wait / authorised ``archive_task``. It does
+    **not** deep-audit the project — use ``fcop_check`` (lightweight)
+    or ``fcop_audit`` (deep) when ADMIN requests.
+
     .. note::
         This tool replaced ``unbound_report`` in 0.6.3. The deprecated
         alias was removed in 0.7.0; existing system prompts and
@@ -3169,9 +3244,11 @@ def fcop_check(lang: str = "zh") -> str:
     (``fcop_protocol_version: 1.6.0``):
 
     1. **Rule 0.a.1 drift** — files in ``git status --porcelain``
-       that live outside ``docs/agents/{tasks,reports,issues,log}/``
-       are by definition work performed without the
-       task→do→report→archive cycle.
+       that live outside the FCoP ledger (``_lifecycle/`` or legacy
+       ``docs/agents/{tasks,reports,issues,log}/``) are work performed
+       without the task→execute/dispatch→report collaboration cycle.
+       Missing ``archive_task`` on an open task is **not** drift by
+       itself — executors default to **not** archiving (Rule 0.a.5).
     2. **Rule 1 sub-agent role impersonation** — any ``session_id``
        that signed files under more than one role code. One session =
        one role binding for life; cross-role usage is direct evidence
@@ -3183,6 +3260,10 @@ def fcop_check(lang: str = "zh") -> str:
     ISSUE-* and decide handoff / co-review / distinct-role per
     Rule 1, just as for the ``role_occupancy`` table in
     ``fcop_report()``.
+
+    **Not Hot Path auto-run:** do **not** invoke after every
+    ``write_report`` by default. For one-shot deep compliance scans use
+    ``fcop_audit`` instead (Rule 9.6).
 
     Decomposes to filesystem operations:
     - ``git status --porcelain -z`` from the project root.
@@ -3386,12 +3467,17 @@ def fcop_audit(
     output: str = "file",
     project_path: str = ".",
 ) -> str:
-    """**协议体检工具（ADR-0032）**。扫描项目，发现协议合规缺口，产出"体检即整改方案"报告。
+    """**协议体检工具（ADR-0032）** — deep compliance scan, not Hot Path.
 
     与 ``fcop_check`` 的区别：
 
-    - ``fcop_check`` — 日常轻量自检（working-tree drift + session/role 冲突）
-    - ``fcop_audit`` — 一次性深度体检（协议合规度全量扫描 + 整改方案）
+    - ``fcop_check`` — 日常轻量自检（working-tree drift + session/role 冲突）；
+      **不**在每次 ``write_report`` 后自动调用
+    - ``fcop_audit`` — 一次性深度体检（协议合规度全量扫描 + 整改方案）；
+      **不**替代协作闭环，**不**等于业务验收或 ``archive_task``
+
+    **Not lifecycle closure:** passing audit does not archive tasks or
+    accept reports. Execution Block commands are **suggestions** only.
 
     三个 scope：
 
