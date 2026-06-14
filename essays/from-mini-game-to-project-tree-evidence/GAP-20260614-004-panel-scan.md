@@ -13,7 +13,7 @@ reviewed_by: null
 task_id: MANUAL-EVAL-1781412524758
 thread_key: null
 source_report: null
-subject: [EVAL] 面板扫描 · 2026-06-14
+subject: "[EVAL] 面板扫描 · 2026-06-14"
 severity: medium
 status: draft
 target_repo: null
@@ -40,6 +40,7 @@ promotion:
   promoted_at: null
   verified_at: null
 ---
+
 > **Evidence archive copy / 证据存档副本**
 >
 > 本文件自 CodeFlowMu 狗食现场 `fcop/internal/eval/` **按原文归档**至随笔证据目录，
