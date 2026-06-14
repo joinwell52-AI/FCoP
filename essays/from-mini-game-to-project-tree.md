@@ -341,9 +341,9 @@ CHILD_TASKS_OPEN
 
 | 证据 | 索引 | 说明 |
 | --- | --- | --- |
-| 初版任务原件 | [`TASK-20260613-020`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/INDEX.md#task-20260613-020) | 原来的任务：Grid Runner v0.1；后续被识别为项目根；关键字段是 `thread_key: panel-task-020` |
-| Phase 2 任务原件 | [`TASK-20260614-004`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/INDEX.md#task-20260614-004) | 后来的任务：Grid Runner Phase 2；关键字段是 `references: TASK-20260613-020`，同 thread |
-| EVAL 原始报告 | [`GAP-20260614-004-panel-scan`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/INDEX.md#gap-20260614-004-panel-scan) | 控制台触发的内部 EVAL 扫描；识别到 `project_tree_emergence` |
+| 初版任务原件 | [`TASK-20260613-020`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/TASK-20260613-020-ADMIN-to-PM.md) | 原来的任务：Grid Runner v0.1；后续被识别为项目根；关键字段是 `thread_key: panel-task-020` |
+| Phase 2 任务原件 | [`TASK-20260614-004`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/TASK-20260614-004-ADMIN-to-PM.md) | 后来的任务：Grid Runner Phase 2；关键字段是 `references: TASK-20260613-020`，同 thread |
+| EVAL 原始报告 | [`GAP-20260614-004-panel-scan`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/GAP-20260614-004-panel-scan.md) | 控制台触发的内部 EVAL 扫描；识别到 `project_tree_emergence` |
 
 关键字段可以压缩成四行：
 

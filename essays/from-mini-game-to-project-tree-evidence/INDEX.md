@@ -1,8 +1,8 @@
 # Evidence for “FCoP Grew a Project Tree / FCoP 跑出了项目树”
 
-This index catalogues the **CodeFlowMu dogfood originals** behind [essay 17](../from-mini-game-to-project-tree.en.md). The TASK / EVAL Markdown files were produced on a local CodeFlowMu workspace and are **not copied into the FCoP repository** in this release. The essay’s workflow figures live under [`essays/assets/`](../assets/) on GitHub.
+This index catalogues the **CodeFlowMu dogfood originals** behind [essay 17](../from-mini-game-to-project-tree.en.md). The three primary ledger files below are **archived verbatim** in this directory for public verification (Rule 0.c). The essay’s workflow figures live under [`essays/assets/`](../assets/) on GitHub.
 
-本索引对应 [第 17 篇随笔](../from-mini-game-to-project-tree.md) 的 CodeFlowMu 狗食现场原件。TASK / EVAL 正文文件仍在本地 CodeFlowMu 工作区，**尚未随 FCoP 公仓一并发布**；正文配图已放在 [`essays/assets/`](../assets/)。
+本索引对应 [第 17 篇随笔](../from-mini-game-to-project-tree.md) 的 CodeFlowMu 狗食现场原件。下方三份 TASK / EVAL **正文已按原文归档**于本目录，读者可在 GitHub 直接打开核对（Rule 0.c）；正文配图见 [`essays/assets/`](../assets/)。
 
 ## Figures shipped in this repository / 本仓库已收录的配图
 
@@ -22,7 +22,8 @@ This index catalogues the **CodeFlowMu dogfood originals** behind [essay 17](../
 - **ID:** `TASK-20260613-020` — Grid Runner v0.1  
 - **Role path:** `ADMIN → PM`  
 - **Key field:** `thread_key: panel-task-020`  
-- **Dogfood path (local, not in FCoP repo):** `fcop/_lifecycle/archive/TASK-20260613-020-ADMIN-to-PM.md`  
+- **Archive file:** [`TASK-20260613-020-ADMIN-to-PM.md`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/TASK-20260613-020-ADMIN-to-PM.md)  
+  *(source: `D:/codeflowmu/fcop/_lifecycle/archive/…`)*  
 - **Reading:** later recognised as the **project root** of the Grid Runner product line.
 
 ### task-20260614-004
@@ -30,14 +31,16 @@ This index catalogues the **CodeFlowMu dogfood originals** behind [essay 17](../
 - **ID:** `TASK-20260614-004` — Grid Runner Phase 2  
 - **Role path:** `ADMIN → PM`  
 - **Key fields:** `references: TASK-20260613-020`, same `thread_key`  
-- **Dogfood path (local):** `fcop/_lifecycle/archive/TASK-20260614-004-ADMIN-to-PM.md`  
+- **Archive file:** [`TASK-20260614-004-ADMIN-to-PM.md`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/TASK-20260614-004-ADMIN-to-PM.md)  
+  *(source: `D:/codeflowmu/fcop/_lifecycle/archive/…`)*  
 - **Reading:** **Phase task** under 020; parent of 005–007 execution tasks.
 
 ### gap-20260614-004-panel-scan
 
 - **ID:** `GAP-20260614-004-panel-scan`  
 - **Kind:** internal EVAL scan triggered from the CodeFlowMu console  
-- **Dogfood path (local):** `fcop/internal/eval/GAP-20260614-004-panel-scan.md`  
+- **Archive file:** [`GAP-20260614-004-panel-scan.md`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/GAP-20260614-004-panel-scan.md)  
+  *(source: `D:/codeflowmu/fcop/internal/eval/…`; evidence copy with archive prologue)*  
 - **Signal:** `project_tree_emergence` — canonical line `020 → 004 → 005 / 006 / 007 / 008`.
 
 ## Compressed field summary / 字段压缩摘要

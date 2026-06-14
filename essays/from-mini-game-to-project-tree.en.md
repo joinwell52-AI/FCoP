@@ -362,9 +362,9 @@ This section keeps only **links and key excerpts**. The full source files are no
 
 | Evidence | Reference | Why it matters |
 |---|---|---|
-| Original task | [`TASK-20260613-020`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/INDEX.md#task-20260613-020) | The original Grid Runner v0.1 task. It later became the project root. Key field: `thread_key: panel-task-020`. |
-| Phase 2 task | [`TASK-20260614-004`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/INDEX.md#task-20260614-004) | The later Grid Runner Phase 2 task. Key field: `references: TASK-20260613-020`, same thread. |
-| EVAL source report | [`GAP-20260614-004-panel-scan`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/INDEX.md#gap-20260614-004-panel-scan) | The internal EVAL scan triggered from the console. It detected `project_tree_emergence`. |
+| Original task | [`TASK-20260613-020`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/TASK-20260613-020-ADMIN-to-PM.md) | The original Grid Runner v0.1 task. It later became the project root. Key field: `thread_key: panel-task-020`. |
+| Phase 2 task | [`TASK-20260614-004`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/TASK-20260614-004-ADMIN-to-PM.md) | The later Grid Runner Phase 2 task. Key field: `references: TASK-20260613-020`, same thread. |
+| EVAL source report | [`GAP-20260614-004-panel-scan`](https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree-evidence/GAP-20260614-004-panel-scan.md) | The internal EVAL scan triggered from the console. It detected `project_tree_emergence`. |
 
 The key fields can be compressed into four lines:
 
