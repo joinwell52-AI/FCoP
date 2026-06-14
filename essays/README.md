@@ -30,6 +30,7 @@
 | 14 | **当 Agent 第一次拿起工具 / When the Agent Picked Up Its Tools** | [中文](when-the-agent-picked-up-its-tools.md) · [English](when-the-agent-picked-up-its-tools.en.md) | `tool_calls_count: 0 → 7` 的突破现场报告：从 Cursor Forum 门铃功能请求 → Colin 推荐 Agent SDK → CodeFlow 诞生 → stub 模式诊断 → MCP 注入 + 角色上下文双轮驱动 → 2026-05-13 14:55 首次 `tool_calls_count: 7`，55 秒内 Agent 自主落出第一份 FCoP report。 |
 | 15 | **从协调到治理：FCoP 3.0 架构白皮书 / From Coordination to Governance: FCoP 3.0 Architecture Whitepaper** | [中文](from-coordination-to-governance.md) · [English](from-coordination-to-governance.en.md) | FCoP 3.0 完整架构白皮书：文件系统作为行为内核空间、生命周期状态机、POSIX 悲观建议锁、死信队列与反向吸收闭环。 |
 | 16 | **落地成文：AI 协作的唯一真相 / Write It Down: The Only Truth in AI Collaboration** | [中文](ai-must-write-it-down.md) · [English](ai-must-write-it-down.en.md) · [证据存档](ai-must-write-it-down-evidence/INDEX.md) · [Dev.to](https://dev.to/joinwell52/write-it-down-the-only-truth-in-ai-collaboration-3ek2) | 一篇由 Agent 主动提议并写下、ADMIN 记录并发布的短文：AI 角色之间不能只在脑子里说话，必须落成文件。文章本身就是 FCoP 的工作方式存证。 |
+| 17 | **FCoP 跑出了项目树 / FCoP Grew a Project Tree** | [中文](from-mini-game-to-project-tree.md) · [English](from-mini-game-to-project-tree.en.md) · [证据存档](from-mini-game-to-project-tree-evidence/INDEX.md) | CodeFlowMu + Grid Runner 狗食：`parent`、`thread_key`、Phase 派单与 `CHILD_TASKS_OPEN` 组合成项目树；归档失败与 PM 在聊天里画树是「认树」时刻；结论指向 additive 的 proposed `spec/0003-project-tree-protocol.md`。 |
 
 ---
 
@@ -40,6 +41,8 @@
 **关心 agent 是否真的"理解"协议**：essay 02 / 04 / 06 / 12 构成一个渐进的证据链（无关任务自发 → 冲突触发 → 直接问内部 agent → 问外部 AI 模型）。
 
 **关心协议如何演化**：essay 07 / 08 / 09 / 10 记录了协议从压力测试到字段级收编的完整过程（2026-05-12 这一天）。
+
+**关心任务流如何长成项目树**：essay 17（Grid Runner / CodeFlowMu 调试）——`parent` + `thread_key` + Phase 派单 + 归档阻塞如何组合成 Project / Phase / Execution / Fix，以及为什么需要 additive 的 0003。
 
 **关心协议工具如何设计**：essay 11（科普）配合 ADR 目录的 `ADR-0030 / 0031 / 0032` 一起读，理解 `fcop_audit()` 为什么是三层架构、为什么"只看不改"。
 
