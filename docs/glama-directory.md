@@ -4,17 +4,17 @@
 > 服务器：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP>  
 > Score：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score>
 
-## 当前状态（2026-05-28）
+## 当前状态（2026-05-30）
 
 | 项目 | 状态 |
 |------|------|
 | Glama Claim | ✅ 已完成（Author verified） |
-| Glama Release | ✅ 已发布（v3.2.4） |
+| Glama Release | ✅ 已发布（v3.2.5） |
 | Profile 完成度 | **92%**（可选：Related servers 未填） |
-| Server Coherence | **B** |
-| Tool Definition Quality | **B** |
-| Maintenance / License | **A** |
-| Score 徽章 | **A - A**（README 已嵌入） |
+| License | **A** |
+| Quality | **B** |
+| Maintenance | **A** |
+| Score 徽章 | **A B A**（README 徽章行末尾：card + score） |
 | awesome-mcp-servers PR | `joinwell52-AI/awesome-mcp-servers-1` → `add-fcop` |
 
 ## 仓库已准备的文件
@@ -34,12 +34,14 @@
 |------|--------|
 | Python version | **3.12** |
 | Node.js | **24**（`mcp-proxy`） |
-| Build steps | `["pip install --no-cache-dir fcop==3.2.4 fcop-mcp==3.2.4"]` |
+| Build steps | `["pip install --no-cache-dir fcop==3.2.5 fcop-mcp==3.2.5"]` |
 | CMD | `["mcp-proxy", "--", "fcop-mcp"]` |
 
 或优先使用仓库根目录 **`Dockerfile`**（若 Admin 页提供 “Use repository Dockerfile”）。
 
-## 徽章（已写入 README）
+## 徽章（已写入 README，排在徽章行末尾）
+
+顺序：… → MCP Registry → DOI → **Glama card** → **Glama score（A B A）**
 
 ```markdown
 [![FCoP MCP server](https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg)](https://glama.ai/mcp/servers/joinwell52-AI/FCoP)
@@ -58,4 +60,4 @@ docker run --rm fcop-mcp:glama-test python -c "import fcop_mcp, fcop; print('ok'
 
 - Claim：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP>
 - Score：<https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score>
-- 列表条目：45 MCP tools，`v3.2.4`，含 Glama card + score 徽章
+- 列表条目：45 MCP tools，`v3.2.5`，含 Glama card + score 徽章（**A B A**，排末尾）

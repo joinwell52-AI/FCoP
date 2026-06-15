@@ -1,20 +1,38 @@
 ---
 title: FCoP 跑出了项目树
-subtitle: 从一个小游戏任务，看多 Agent 协作如何从任务流长成产品演进树
-title_en: FCoP Grew a Project Tree
-status: essay
-series: 17
-date: 2026-06-14
-audience: 关心多角色协作、协议从用法里长出来的人
-length: ~ 10 分钟
-cover_image: https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-cover.png
-related_tasks:
-  - TASK-20260613-020
-  - TASK-20260614-004
-proposed_spec: https://github.com/joinwell52-AI/FCoP/blob/main/spec/0003-project-tree-protocol.md
+subtitle: 从一个小游戏任务，看多 Agent 协作如何从任务流长成产品演化树
+tags:
+  - AI
+  - 多智能体
+  - FCoP
+  - 协作协议
+  - CodeFlowMu
+category: 人工智能
+cover: assets/from-mini-game-to-project-tree-cover.png
 ---
 
-![Cover · FCoP Grew a Project Tree](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-cover.png)
+<!--
+============================================================
+CSDN publication of essay 17 — Chinese full version
+Source of truth on GitHub:
+  https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree.md
+
+Recommended CSDN UI metadata:
+  Title (主标题):     FCoP 跑出了项目树
+  Subtitle (副标题):  从一个小游戏任务，看多 Agent 协作如何从任务流长成产品演化树
+  Tags (标签 max 5):  AI, 多智能体, FCoP, 协作协议, CodeFlowMu
+  Category (分类):    人工智能
+  Cover (封面图):     上传 essays/assets/from-mini-game-to-project-tree-cover.png
+
+图片：正文使用相对路径 assets/*.png（与 .csdn.md 同目录 essays/ 下）。
+发布前请用图床脚本或编辑器把本地图上传到 CSDN，再替换为 img-blog.csdnimg.cn 链接。
+Playwright 自动发布：读文件顶部 YAML；手动发布：从 === COPY FROM HERE === 起复制。
+教程: https://tencentcloud.csdn.net/69ead6a00a2f6a37c5a570fd.html
+============================================================
+=== COPY FROM HERE ===
+-->
+
+![Cover · FCoP Grew a Project Tree](assets/from-mini-game-to-project-tree-cover.png)
 
 # FCoP 跑出了项目树
 
@@ -48,7 +66,7 @@ ADMIN 派单 → PM 拆单 → DEV/OPS/QA 执行 → REPORT → 验收 → 归�
 
 它是一个纯 HTML / CSS / JavaScript 的本地小游戏。玩家在网格里移动、捡金币、躲怪、找出口。规则简单，但足够让 DEV 写代码、OPS 验运行方式、QA 试玩打分。
 
-![Grid Runner 跑起来的样子（验收截图）](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-fig2-gameplay.png)
+![Grid Runner 跑起来的样子（验收截图）](assets/from-mini-game-to-project-tree-fig2-gameplay.png)
 
 6 月 13 日，我通过控制台给 PM 派了第一张任务：
 
@@ -94,7 +112,7 @@ PM 继续拆单：
 
 切到控制台里看，`panel-task-020` 下确实能看到两类东西：上方是 ADMIN 派给 PM 的 020、004；下方是 PM 拆给团队的执行任务。树已经在屏幕上了，但我还没把它读成树。
 
-![CodeFlowMu 控制台「已归档」视图（中文界面；文件名与 `report_missing` 等协议字段仍为英文）](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-fig3-panel-zh-full.png)
+![CodeFlowMu 控制台「已归档」视图（中文界面；文件名与 `report_missing` 等协议字段仍为英文）](assets/from-mini-game-to-project-tree-fig3-panel-zh-full.png)
 
 ---
 
@@ -125,13 +143,13 @@ PM 回答说：不是编号撞了，是父子关系。020 底下还挂着第二�
     └── 008–009  修 bug、复验
 ```
 
-![PM 在聊天里画出 020→004→005–007 的树](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-fig-chat-pm-tree.png)
+![PM 在聊天里画出 020→004→005–007 的树](assets/from-mini-game-to-project-tree-fig-chat-pm-tree.png)
 
 我第一眼看见“项目树”，就是这两轮对话。
 
 不是规范文档告诉我的，也不是某个 UI 主动提醒我的，而是 PM 为了解释“为什么 020 归档不过”，随手把磁盘上的关系画成了一棵树。
 
-![归档被拦住](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-fig4-archive-block.png)
+![归档被拦住](assets/from-mini-game-to-project-tree-fig4-archive-block.png)
 
 这时我才意识到：
 
@@ -212,7 +230,7 @@ TASK-20260613-020  Grid Runner v0.1 / 项目根
 
 不过，EVAL 只能算启发式交叉验证。它有时会把 Fix 链局部也识别成一棵小树，比如 `004 → 007 → 008` 或 `004 → 008 → 009`。这类局部读法有价值，但不能替代主线读法：**020 才是 Grid Runner 这条产品线的根，004 是 Phase 2。**
 
-![EVAL 弹窗里的 Fix 链局部切片（GAP-003）](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-fig6-eval-gap003.png)
+![EVAL 弹窗里的 Fix 链局部切片（GAP-003）](assets/from-mini-game-to-project-tree-fig6-eval-gap003.png)
 
 所以对外讲故事，仍以 TASK / REPORT / archive 路径为准；EVAL 只是说明“人的直觉”和“程序扫描”对上了。
 
@@ -398,7 +416,3 @@ EVAL 同时也会读出一些局部 Fix 链，例如：
 ## 延伸阅读
 
 - **FCoP 开源项目**：[https://github.com/joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
-
----
-
-*已发布：[CSDN](https://blog.csdn.net/m0_51507544/article/details/161995694) · [Dev.to](https://dev.to/joinwell52/fcop-grew-a-project-tree-1oo)*

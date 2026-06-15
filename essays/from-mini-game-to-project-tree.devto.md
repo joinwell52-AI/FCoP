@@ -1,17 +1,10 @@
 ---
 title: FCoP Grew a Project Tree
-subtitle: How a Mini-Game Task Revealed Product Evolution Inside a Multi-Agent Workflow
-title_zh: FCoP 跑出了项目树
-status: essay
-series: 17
-date: 2026-06-14
-audience: Readers interested in multi-agent collaboration, protocol design, and structures that emerge from real use
-length: ~ 10 minutes
+published: true
+description: "How a Grid Runner mini-game task on CodeFlowMu revealed parent, thread_key, Phase dispatch, and CHILD_TASKS_OPEN archives forming a project tree — and why FCoP needs additive spec/0003."
+tags: ai, agents, fcop, governance
 cover_image: https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-cover.png
-related_tasks:
-  - TASK-20260613-020
-  - TASK-20260614-004
-proposed_spec: https://github.com/joinwell52-AI/FCoP/blob/main/spec/0003-project-tree-protocol.md
+canonical_url: https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-mini-game-to-project-tree.en.md
 ---
 
 ![Cover · FCoP Grew a Project Tree](https://raw.githubusercontent.com/joinwell52-AI/FCoP/main/essays/assets/from-mini-game-to-project-tree-cover.png)
@@ -421,7 +414,3 @@ The table below explains the FCoP terms used in this article without requiring r
 ## Further reading
 
 - **FCoP repository**: [https://github.com/joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
-
----
-
-*Published: [CSDN](https://blog.csdn.net/m0_51507544/article/details/161995694) · [Dev.to](https://dev.to/joinwell52/fcop-grew-a-project-tree-1oo)*
