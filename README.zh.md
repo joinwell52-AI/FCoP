@@ -18,6 +18,10 @@
 
 <p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 项目主页</a></strong> ·
+  <a href="https://github.com/joinwell52-AI/joinwell52"><strong>TMPA</strong></a> ·
+  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open</strong></a> ·
+  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu 主页</a> ·
+  <a href="https://joinwell52-ai.github.io/joinwell52/zh/">Digital Employee Works</a> ·
   <a href="README.md">English</a> ·
   <a href="docs/getting-started.md">上手 FCoP</a> ·
   <a href="src/fcop/rules/_data/agent-install-prompt.zh.md"><strong>👉 让 AI 安装！</strong></a> ·
@@ -58,6 +62,20 @@
     <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="Glama 质量分" />
   </a>
 </p>
+
+---
+
+## 生态项目互链
+
+FCoP 是三仓库体系中的协议层。三个项目都可以独立使用，并互相提供清晰入口：
+
+| 层级 | 项目 | 定位 |
+|---|---|---|
+| 理论与规范 | [TMPA](https://github.com/joinwell52-AI/joinwell52) · [主页](https://joinwell52-ai.github.io/joinwell52/zh/) | 治理架构、规范 Core、符合性测试与证据 |
+| 协议 | **FCoP** | 文件式行为治理协议、Python 包与 MCP Server |
+| 可安装产品 | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [主页](https://joinwell52-ai.github.io/CodeFlowMu-open/) | MIT 开源本地四人开发团队（`PM / DEV / OPS / QA`），当前只通过 Cursor SDK 接入 Agent |
+
+完整研究与产品地图：[Digital Employee Works](https://joinwell52-ai.github.io/joinwell52/zh/)。
 
 ---
 

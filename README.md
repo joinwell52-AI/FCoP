@@ -18,6 +18,10 @@
 
 <p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
+  <a href="https://github.com/joinwell52-AI/joinwell52"><strong>TMPA</strong></a> ·
+  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open</strong></a> ·
+  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu Site</a> ·
+  <a href="https://joinwell52-ai.github.io/joinwell52/">Digital Employee Works</a> ·
   <a href="README.zh.md">简体中文</a> ·
   <a href="docs/getting-started.en.md">Getting started</a> ·
   <a href="src/fcop/rules/_data/agent-install-prompt.en.md"><strong>👉 Let AI install!</strong></a> ·
@@ -58,6 +62,20 @@
     <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="FCoP MCP server Glama quality score" />
   </a>
 </p>
+
+---
+
+## Ecosystem links
+
+FCoP is the protocol layer of a three-repository system. Each repository is independently usable and links back to the others:
+
+| Layer | Project | Role |
+|---|---|---|
+| Theory and specification | [TMPA](https://github.com/joinwell52-AI/joinwell52) · [Site](https://joinwell52-ai.github.io/joinwell52/) | Governance architecture, normative Core, conformance, and evidence |
+| Protocol | **FCoP** | File-based behavior governance, Python package, and MCP server |
+| Installable product | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [Site](https://joinwell52-ai.github.io/CodeFlowMu-open/) | MIT-licensed local four-role development team (`PM / DEV / OPS / QA`), currently connected through Cursor SDK only |
+
+Browse the complete research and product map at [Digital Employee Works](https://joinwell52-ai.github.io/joinwell52/).
 
 ---
 
