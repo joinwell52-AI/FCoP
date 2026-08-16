@@ -186,6 +186,11 @@
           "type": "string"
         },
         {
+          "name": "parent",
+          "required": false,
+          "type": "string"
+        },
+        {
           "name": "priority",
           "required": false,
           "type": "string"
@@ -907,6 +912,11 @@
         {
           "name": "body",
           "required": true,
+          "type": "string"
+        },
+        {
+          "name": "parent",
+          "required": false,
           "type": "string"
         },
         {

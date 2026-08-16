@@ -521,6 +521,7 @@ def _format_task_full(task: Task) -> str:
         f"- recipient: {fm.recipient}",
         f"- priority: {fm.priority.value}",
         f"- thread_key: {fm.thread_key or '(none)'}",
+        f"- parent: {fm.parent or '(none)'}",
         f"- subject: {fm.subject or '(none)'}",
         f"- references: {refs}",
         f"- archived: {task.is_archived}",

@@ -268,6 +268,11 @@
         },
         {
           "has_default": true,
+          "name": "parent",
+          "type": "str | None"
+        },
+        {
+          "has_default": true,
           "name": "subject",
           "type": "str | None"
         },
@@ -1513,6 +1518,12 @@
             "has_default": true,
             "kind": "KEYWORD_ONLY",
             "name": "thread_key"
+          },
+          {
+            "annotation": "str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "parent"
           },
           {
             "annotation": "str | None",
