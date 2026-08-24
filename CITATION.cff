@@ -29,6 +29,8 @@ keywords:
   - "multi-agent coordination"
   - "filename as protocol"
   - "filesystem protocol"
+  - "agent governance"
+  - "TMPA"
   - "AI alignment"
   - "human-AI collaboration"
   - "human-computer interaction"
@@ -52,3 +54,12 @@ preferred-citation:
   url: "https://doi.org/10.5281/zenodo.19886035"
   publisher:
     name: "Zenodo"
+references:
+  - type: generic
+    title: "TMPA: Textual Multi-Agent Process Architecture — V1.0 Publication Set"
+    authors:
+      - family-names: "Zhu"
+        given-names: "Wei"
+    year: 2026
+    doi: "10.5281/zenodo.21888488"
+    url: "https://doi.org/10.5281/zenodo.21888488"
