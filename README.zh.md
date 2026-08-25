@@ -19,8 +19,8 @@
 <p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 项目主页</a></strong> ·
   <a href="https://github.com/joinwell52-AI/joinwell52"><strong>TMPA</strong></a> ·
-  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open</strong></a> ·
-  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu 主页</a> ·
+  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open（历史版）</strong></a> ·
+  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu 历史主页</a> ·
   <a href="https://joinwell52-ai.github.io/joinwell52/zh/">Digital Employee Works</a> ·
   <a href="README.md">English</a> ·
   <a href="docs/getting-started.md">上手 FCoP</a> ·
@@ -55,6 +55,9 @@
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
+  <a href="CITATION.cff">
+    <img src="https://img.shields.io/badge/%E5%BC%95%E7%94%A8-CITATION.cff-8b5cf6?style=flat-square" alt="引用本仓库" />
+  </a>
   <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">
     <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg" alt="Glama 收录 fcop-mcp" />
   </a>
@@ -73,7 +76,7 @@ FCoP 是三仓库体系中的协议层。三个项目都可以独立使用，并
 |---|---|---|
 | 理论与规范 | [TMPA](https://github.com/joinwell52-AI/joinwell52) · [主页](https://joinwell52-ai.github.io/joinwell52/zh/) | 治理架构、规范 Core、符合性测试与证据 |
 | 协议 | **FCoP** | 文件式行为治理协议、Python 包与 MCP Server |
-| 可安装产品 | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [主页](https://joinwell52-ai.github.io/CodeFlowMu-open/) | MIT 开源本地四人开发团队（`PM / DEV / OPS / QA`），当前只通过 Cursor SDK 接入 Agent |
+| 历史开源实现 | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [历史主页](https://joinwell52-ai.github.io/CodeFlowMu-open/) | 已于 2026-08-22 冻结在 `V1.2.29-open`；保留用于工程历史、复现与研究引用；不是当前 CodeFlowMu 产品分发路径 |
 
 完整研究与产品地图：[Digital Employee Works](https://joinwell52-ai.github.io/joinwell52/zh/)。
 
@@ -353,7 +356,7 @@ agent 会识别系统、装 `uv`、改 `mcp.json`（**保留**已有 server）�
 
 ## 状态与版本
 
-- **当前发布**：`v3.2.2`（2026-05-22）——**初始化拓扑修复。** 关键 patch：3.0.0 / 3.0.1 的 `Project._apply_init` 只创建了 v2 老桶，跳过了 spec §1.1 强制要求的 v3 `_lifecycle/{inbox,active,review,done,archive}/` 五桶——所有在那两版上 fresh init 的项目都是**生而不合规**的。3.0.2 让 fresh init 直接落 v3 拓扑（同时不再创建被 superseded 的 v2 `tasks/` / `log/`）；`core.events.scan_workspace` 与 `Project.role_occupancy()` 在 v3 项目下从 `_lifecycle/` 读取。新增 audit 扫描 `_scan_lifecycle_topology_compliance()`（D9）：P0 = 已初始化项目同时缺 `_lifecycle/` 和 v2 内容；P1 = 两套拓扑共存（建议 `migrate --to-v3`）。MCP 工具描述（`init_solo` / `init_project` / `create_custom_team`）同步更新。1209 测试全绿。SemVer patch：无 API 表面改动——init 之前在做错事。前置 **v3.0.1**（2026-05-21）—— 路径整合补丁（纯文档）。前置 **v3.0.0**（2026-05-21）—— **协议级 MAJOR ·"文件夹即状态"纪元**：FCoP 协议本体的一次完整重写——canonical 双层（per [ADR-0040](adr/ADR-0040-canonical-one-liner-two-layer-convention.md)）「文件即协议；位置定义状态；事件记录历史」+ 语义本体；新增 `_lifecycle/{inbox,active,review,done,archive}/` 五桶目录拓扑（**与 2.x 不兼容**，须 `fcop migrate --to-v3`）；三层规则集（State / Event / Boundary Charter）+ 7 条允许迁移表外不可 + write-then-rename 原子性；ADR-0037 Custody Layer 在 RFC 评审中**未进 Accepted 即被作废**。详见 [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) 与 [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md)。早期发布：v2.0.2（fcop-mcp 入驻官方 MCP 注册表）、v2.0.0（两图对偶哲学主版本号跨越 + Rule 4.6 `fcop/internal/`）、v1.6（trailing-slug 文件名收编，ADR-0033）、v1.5（84 份协议感知同步）、v1.4（write-side 守门 + `supersedes:` 字段）、v1.3（GAL + `fcop_audit()` 巡查编译器）、v1.2.1（Capability Governance 支柱）、v1.1（Agent.layer + Task.risk_level + needs_human）、v1.0（七大核心概念 spec freeze）。详见 [CHANGELOG](CHANGELOG.md)。
+- **当前发布**：`v3.2.5`（2026-05-30）——Rule 0.a 协作闭环 / Hot-Cold Path 更新。详见 [`docs/releases/3.2.5.md`](docs/releases/3.2.5.md) 与 [`CHANGELOG.md`](CHANGELOG.md)。
 - **规范性文件**：[`spec/fcop-3.0-spec.zh.md`](spec/fcop-3.0-spec.zh.md)（中文 v3.0）· [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md)（英文权威 v3.0）· v1.0/v1.1 早期 spec 草稿在 `spec/` 中保留作为历史参考 · 机器可读契约见 [`spec/schemas/`](spec/schemas/)（8 个 Schema）
 - **本仓内 Agent 规则（`.mdc`）**：[`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc)（`spec/codeflow-core.mdc` 仅为弃用占位）
 - **变更记录**：[`CHANGELOG.md`](CHANGELOG.md)
