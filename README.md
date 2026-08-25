@@ -52,8 +52,14 @@
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20Registry-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="Official MCP Registry: io.github.joinwell52-AI/fcop" />
   </a>
+  <a href="https://doi.org/10.5281/zenodo.20457285">
+    <img src="https://img.shields.io/badge/release_DOI-10.5281%2Fzenodo.20457285-1682D4?style=flat-square" alt="FCoP v3.2.5 DOI 10.5281/zenodo.20457285" />
+  </a>
+  <a href="https://osf.io/92nwm/">
+    <img src="https://img.shields.io/badge/OSF_Registration-92nwm-2F80ED?style=flat-square&logo=osf&logoColor=white" alt="FCoP OSF Registration 92nwm" />
+  </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
-    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
+    <img src="https://img.shields.io/badge/research_snapshot_DOI-10.5281%2Fzenodo.19886036-64748b?style=flat-square" alt="Historical research snapshot DOI 10.5281/zenodo.19886036" />
   </a>
   <a href="CITATION.cff">
     <img src="https://img.shields.io/badge/citation-CITATION.cff-8b5cf6?style=flat-square" alt="Cite this repository" />
@@ -65,6 +71,14 @@
     <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="FCoP MCP server Glama quality score" />
   </a>
 </p>
+
+## Open-science citation records
+
+| Record | Identifier | Scope |
+|---|---|---|
+| Current public release archive | [DOI `10.5281/zenodo.20457285`](https://doi.org/10.5281/zenodo.20457285) | Frozen FCoP `v3.2.5` release archive |
+| Immutable open-science snapshot | [OSF Registration `92nwm`](https://osf.io/92nwm/) | Timestamped registration linked to the public FCoP research project |
+| Historical research snapshot | [DOI `10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036) | `research-snapshot-2026-04-29`; retained for citations of that exact snapshot |
 
 ---
 
@@ -392,7 +406,9 @@ Two official reference implementations, both MIT-licensed:
 
 ## How to cite
 
-If FCoP — the protocol, the field-report essays, the tutorials, or the reference implementations — informs your research, software, or writing, please cite the [Zenodo research snapshot](https://doi.org/10.5281/zenodo.19886036):
+For the current public `v3.2.5` release, use [DOI `10.5281/zenodo.20457285`](https://doi.org/10.5281/zenodo.20457285) together with [OSF Registration `92nwm`](https://osf.io/92nwm/) as the standard archive and immutable registration credentials.
+
+If you specifically cite the April 2026 research snapshot, use its original Zenodo record:
 
 - **DOI**: [`10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036)
 - **Snapshot tag**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) (commit `7f59395`)

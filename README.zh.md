@@ -52,8 +52,14 @@
   <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
     <img src="https://img.shields.io/badge/MCP%20%E6%B3%A8%E5%86%8C%E8%A1%A8-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="官方 MCP 注册表:io.github.joinwell52-AI/fcop" />
   </a>
+  <a href="https://doi.org/10.5281/zenodo.20457285">
+    <img src="https://img.shields.io/badge/%E7%89%88%E6%9C%AC_DOI-10.5281%2Fzenodo.20457285-1682D4?style=flat-square" alt="FCoP v3.2.5 DOI 10.5281/zenodo.20457285" />
+  </a>
+  <a href="https://osf.io/92nwm/">
+    <img src="https://img.shields.io/badge/OSF_Registration-92nwm-2F80ED?style=flat-square&logo=osf&logoColor=white" alt="FCoP OSF Registration 92nwm" />
+  </a>
   <a href="https://doi.org/10.5281/zenodo.19886036">
-    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
+    <img src="https://img.shields.io/badge/%E7%A0%94%E7%A9%B6%E5%BF%AB%E7%85%A7_DOI-10.5281%2Fzenodo.19886036-64748b?style=flat-square" alt="历史研究快照 DOI 10.5281/zenodo.19886036" />
   </a>
   <a href="CITATION.cff">
     <img src="https://img.shields.io/badge/%E5%BC%95%E7%94%A8-CITATION.cff-8b5cf6?style=flat-square" alt="引用本仓库" />
@@ -65,6 +71,14 @@
     <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="Glama 质量分" />
   </a>
 </p>
+
+## 开放科学标准引用凭证
+
+| 记录 | 标识符 | 对应范围 |
+|---|---|---|
+| 当前公开版本档案 | [DOI `10.5281/zenodo.20457285`](https://doi.org/10.5281/zenodo.20457285) | 冻结的 FCoP `v3.2.5` 版本档案 |
+| 不可变开放科学快照 | [OSF Registration `92nwm`](https://osf.io/92nwm/) | 与公开 FCoP 研究项目关联的带时间戳 Registration |
+| 历史研究快照 | [DOI `10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036) | `research-snapshot-2026-04-29`；保留用于引用该精确快照 |
 
 ---
 
@@ -364,7 +378,9 @@ agent 会识别系统、装 `uv`、改 `mcp.json`（**保留**已有 server）�
 
 ## 如何引用
 
-如果 FCoP 的协议、现场报告 essays、教程、或参考实现对你的研究、软件、写作有帮助，请引用 [Zenodo 研究快照](https://doi.org/10.5281/zenodo.19886036)：
+引用当前公开的 `v3.2.5` 版本时，请使用 [DOI `10.5281/zenodo.20457285`](https://doi.org/10.5281/zenodo.20457285)，并以 [OSF Registration `92nwm`](https://osf.io/92nwm/) 作为标准版本档案与不可变注册凭证。
+
+如果需要精确引用 2026 年 4 月研究快照，则继续使用其原始 Zenodo 记录：
 
 - **DOI**：[`10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036)
 - **快照 tag**：[`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29)（commit `7f59395`）
