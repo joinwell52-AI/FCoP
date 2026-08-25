@@ -19,8 +19,8 @@
 <p align="center">
   <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
   <a href="https://github.com/joinwell52-AI/joinwell52"><strong>TMPA</strong></a> ·
-  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open</strong></a> ·
-  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu Site</a> ·
+  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open (Historical)</strong></a> ·
+  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">Historical CodeFlowMu Site</a> ·
   <a href="https://joinwell52-ai.github.io/joinwell52/">Digital Employee Works</a> ·
   <a href="README.zh.md">简体中文</a> ·
   <a href="docs/getting-started.en.md">Getting started</a> ·
@@ -55,6 +55,9 @@
   <a href="https://doi.org/10.5281/zenodo.19886036">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />
   </a>
+  <a href="CITATION.cff">
+    <img src="https://img.shields.io/badge/citation-CITATION.cff-8b5cf6?style=flat-square" alt="Cite this repository" />
+  </a>
   <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">
     <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg" alt="FCoP MCP server on Glama" />
   </a>
@@ -73,7 +76,7 @@ FCoP is the protocol layer of a three-repository system. Each repository is inde
 |---|---|---|
 | Theory and specification | [TMPA](https://github.com/joinwell52-AI/joinwell52) · [Site](https://joinwell52-ai.github.io/joinwell52/) | Governance architecture, normative Core, conformance, and evidence |
 | Protocol | **FCoP** | File-based behavior governance, Python package, and MCP server |
-| Installable product | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [Site](https://joinwell52-ai.github.io/CodeFlowMu-open/) | MIT-licensed local four-role development team (`PM / DEV / OPS / QA`), currently connected through Cursor SDK only |
+| Historical implementation | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [Historical site](https://joinwell52-ai.github.io/CodeFlowMu-open/) | Frozen at `V1.2.29-open` on 2026-08-22; preserved for engineering history, reproducibility, and research reference; not the current CodeFlowMu product distribution path |
 
 Browse the complete research and product map at [Digital Employee Works](https://joinwell52-ai.github.io/joinwell52/).
 
@@ -381,7 +384,7 @@ Two official reference implementations, both MIT-licensed:
 
 ## Status & versioning
 
-- **Current release**: `v3.2.2` (2026-05-22) — **Init topology fix.** Critical patch: `Project._apply_init` in 3.0.0 / 3.0.1 only created the legacy v2 buckets and skipped the mandatory v3 `_lifecycle/{inbox,active,review,done,archive}/` layer required by spec §1.1 — every fresh project initialised on those releases was therefore born non-compliant. 3.0.2 makes fresh init produce the v3 topology directly (and stops creating the superseded v2 `tasks/` / `log/` buckets); `core.events.scan_workspace` and `Project.role_occupancy()` now read from `_lifecycle/` for v3 projects. New audit scan `_scan_lifecycle_topology_compliance()` (D9): P0 when initialised projects miss both `_lifecycle/` and v2 content; P1 when both topologies coexist (suggests `migrate --to-v3`). MCP tool descriptors (`init_solo` / `init_project` / `create_custom_team`) updated. 1209 tests green. Patch (SemVer): no API surface changes — init was doing the wrong thing. Predecessor **v3.0.1** (2026-05-21) — Path-consolidation patch (docs-only). Predecessor **v3.0.0** (2026-05-21) — **Protocol-level MAJOR · "folders-as-state" era**: a complete rewrite of the FCoP protocol body — canonical two-layer (per [ADR-0040](adr/ADR-0040-canonical-one-liner-two-layer-convention.md)) "Files are the protocol; location defines state; events record history" + semantic ontology; adds `_lifecycle/{inbox,active,review,done,archive}/` five-bucket directory topology (**incompatible with 2.x**, requires `fcop migrate --to-v3`); three rule sets (State / Event / Boundary Charter) + 7 allowed transitions (off-table MUST be rejected) + write-then-rename atomicity; ADR-0037 Custody Layer **was withdrawn during RFC review and never reached Accepted**. See [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) and [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md). Earlier releases: v2.0.2 (fcop-mcp registered to official MCP registry), v2.0.0 (two-diagram philosophical major bump + Rule 4.6 `fcop/internal/`), v1.6 (trailing-slug filename grammar, ADR-0033), v1.5 (84-doc protocol-awareness sync), v1.4 (write-side bind + `supersedes:` correction), v1.3 (GAL + `fcop_audit()` inspection compiler). See [CHANGELOG](CHANGELOG.md).
+- **Current release**: `v3.2.5` (2026-05-30) — Rule 0.a collaboration cycle / Hot-Cold Path update. See [`docs/releases/3.2.5.md`](docs/releases/3.2.5.md) and [`CHANGELOG.md`](CHANGELOG.md).
 - **Normative spec**: [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) — single-page canonical (v3.0; supersedes v1.0/v1.1 drafts retained for history) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
 - **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
 - **Change log**: [`CHANGELOG.md`](CHANGELOG.md)
