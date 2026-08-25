@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this work in research, software, or writing, please cite it as below."
+message: "If you use this work in research, software, or writing, please cite the archived research snapshot below."
 type: software
 title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
 abstract: >-
@@ -9,9 +9,8 @@ abstract: >-
   Markdown files are payload. No database, no message queue, no daemon —
   the filesystem itself is the protocol. Two reference implementations
   ship with the repository (the `fcop` Python library and the `fcop-mcp`
-  MCP server for Cursor), alongside six field-report essays documenting
-  observed agent behaviour under the protocol across multiple elicitation
-  conditions, and two case-study tutorials with full dogfood evidence.
+  MCP server for Cursor), alongside field-report essays and case-study
+  tutorials with inspectable evidence.
 authors:
   - family-names: "Zhu"
     given-names: "Wei"
@@ -19,7 +18,10 @@ authors:
 identifiers:
   - type: doi
     value: "10.5281/zenodo.19886035"
-    description: "Concept DOI — always resolves to the latest version on Zenodo"
+    description: "Concept DOI — resolves to the Zenodo record series"
+  - type: doi
+    value: "10.5281/zenodo.19886036"
+    description: "Archived research snapshot DOI — 2026-04-29"
 repository-code: "https://github.com/joinwell52-AI/FCoP"
 url: "https://joinwell52-ai.github.io/FCoP/"
 license: MIT
@@ -43,15 +45,16 @@ keywords:
   - "append-only history"
 preferred-citation:
   type: software
-  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
+  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development (Research Snapshot, April 2026)"
   authors:
     - family-names: "Zhu"
       given-names: "Wei"
       affiliation: "Independent researcher"
   year: 2026
-  month: 5
-  doi: "10.5281/zenodo.19886035"
-  url: "https://doi.org/10.5281/zenodo.19886035"
+  month: 4
+  version: "research-snapshot-2026-04-29"
+  doi: "10.5281/zenodo.19886036"
+  url: "https://doi.org/10.5281/zenodo.19886036"
   publisher:
     name: "Zenodo"
 references:
@@ -63,3 +66,9 @@ references:
     year: 2026
     doi: "10.5281/zenodo.21888488"
     url: "https://doi.org/10.5281/zenodo.21888488"
+  - type: software
+    title: "CodeFlowMu Open — Historical Open Edition"
+    authors:
+      - family-names: "Zhu"
+        given-names: "Wei"
+    url: "https://github.com/joinwell52-AI/CodeFlowMu-open"
