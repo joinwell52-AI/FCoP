@@ -1,0 +1,124 @@
+name: One-shot README metadata sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/readme-metadata-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch README metadata
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_exact(path, old, new, count=1):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              actual = text.count(old)
+              if actual != count:
+                  raise SystemExit(f'{path}: expected {count} copies, found {actual}: {old[:80]!r}')
+              p.write_text(text.replace(old, new, count), encoding='utf-8')
+
+          # English README: historical CodeFlowMu identity + citation entry.
+          replace_exact(
+              'README.md',
+              '<a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open</strong></a> ·',
+              '<a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open (Historical)</strong></a> ·'
+          )
+          replace_exact(
+              'README.md',
+              '<a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu Site</a> ·',
+              '<a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">Historical CodeFlowMu Site</a> ·'
+          )
+          replace_exact(
+              'README.md',
+              '  <a href="https://doi.org/10.5281/zenodo.19886036">\n    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />\n  </a>\n  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">',
+              '  <a href="https://doi.org/10.5281/zenodo.19886036">\n    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />\n  </a>\n  <a href="CITATION.cff">\n    <img src="https://img.shields.io/badge/citation-CITATION.cff-8b5cf6?style=flat-square" alt="Cite this repository" />\n  </a>\n  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">'
+          )
+          replace_exact(
+              'README.md',
+              '| Installable product | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [Site](https://joinwell52-ai.github.io/CodeFlowMu-open/) | MIT-licensed local four-role development team (`PM / DEV / OPS / QA`), currently connected through Cursor SDK only |',
+              '| Historical implementation | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [Historical site](https://joinwell52-ai.github.io/CodeFlowMu-open/) | Frozen at `V1.2.29-open` on 2026-08-22; preserved for engineering history, reproducibility, and research reference; not the current CodeFlowMu product distribution path |'
+          )
+
+          p = Path('README.md')
+          text = p.read_text(encoding='utf-8')
+          text2, n = re.subn(
+              r'^- \*\*Current release\*\*:.*$',
+              '- **Current release**: `v3.2.5` (2026-05-30) — Rule 0.a collaboration cycle / Hot-Cold Path update. See [`docs/releases/3.2.5.md`](docs/releases/3.2.5.md) and [`CHANGELOG.md`](CHANGELOG.md).',
+              text,
+              count=1,
+              flags=re.M,
+          )
+          if n != 1:
+              raise SystemExit(f'README.md: expected one Current release line, replaced {n}')
+          p.write_text(text2, encoding='utf-8')
+
+          # Chinese README: same lifecycle and citation semantics.
+          replace_exact(
+              'README.zh.md',
+              '<a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open</strong></a> ·',
+              '<a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open（历史版）</strong></a> ·'
+          )
+          replace_exact(
+              'README.zh.md',
+              '<a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu 主页</a> ·',
+              '<a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">CodeFlowMu 历史主页</a> ·'
+          )
+          replace_exact(
+              'README.zh.md',
+              '  <a href="https://doi.org/10.5281/zenodo.19886036">\n    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />\n  </a>\n  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">',
+              '  <a href="https://doi.org/10.5281/zenodo.19886036">\n    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.19886036.svg" alt="DOI 10.5281/zenodo.19886036" />\n  </a>\n  <a href="CITATION.cff">\n    <img src="https://img.shields.io/badge/%E5%BC%95%E7%94%A8-CITATION.cff-8b5cf6?style=flat-square" alt="引用本仓库" />\n  </a>\n  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">'
+          )
+          replace_exact(
+              'README.zh.md',
+              '| 可安装产品 | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [主页](https://joinwell52-ai.github.io/CodeFlowMu-open/) | MIT 开源本地四人开发团队（`PM / DEV / OPS / QA`），当前只通过 Cursor SDK 接入 Agent |',
+              '| 历史开源实现 | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [历史主页](https://joinwell52-ai.github.io/CodeFlowMu-open/) | 已于 2026-08-22 冻结在 `V1.2.29-open`；保留用于工程历史、复现与研究引用；不是当前 CodeFlowMu 产品分发路径 |'
+          )
+
+          p = Path('README.zh.md')
+          text = p.read_text(encoding='utf-8')
+          text2, n = re.subn(
+              r'^- \*\*当前发布\*\*：.*$',
+              '- **当前发布**：`v3.2.5`（2026-05-30）——Rule 0.a 协作闭环 / Hot-Cold Path 更新。详见 [`docs/releases/3.2.5.md`](docs/releases/3.2.5.md) 与 [`CHANGELOG.md`](CHANGELOG.md)。',
+              text,
+              count=1,
+              flags=re.M,
+          )
+          if n != 1:
+              raise SystemExit(f'README.zh.md: expected one 当前发布 line, replaced {n}')
+          p.write_text(text2, encoding='utf-8')
+          PY
+
+      - name: Verify patch
+        shell: bash
+        run: |
+          grep -F 'CodeFlowMu Open (Historical)' README.md
+          grep -F 'Historical implementation' README.md
+          grep -F 'Current release**: `v3.2.5`' README.md
+          grep -F 'CodeFlowMu Open（历史版）' README.zh.md
+          grep -F '历史开源实现' README.zh.md
+          grep -F '当前发布**：`v3.2.5`' README.zh.md
+          grep -F 'CITATION.cff' README.md
+          grep -F 'CITATION.cff' README.zh.md
+
+      - name: Commit and remove one-shot workflow
+        shell: bash
+        run: |
+          rm .github/workflows/readme-metadata-sync.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md README.zh.md .github/workflows/readme-metadata-sync.yml
+          git commit -m 'docs: align README citation and historical product status'
+          git push origin HEAD:main
