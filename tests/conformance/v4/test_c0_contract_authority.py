@@ -26,25 +26,37 @@ def _base_errors(text: str) -> set[str]:
 
 def test_c0_parity_01() -> None:
     """C0-PARITY-01 · F4.0.2."""
+    # Arrange: frozen English and Chinese candidate bytes.
     en = _text(SPEC_EN)
     zh = _text(SPEC_ZH)
-    assert _clauses(en) == _clauses(zh)
+    # Act: independently extract clause and named contract sets.
+    en_clauses, zh_clauses = _clauses(en), _clauses(zh)
+    # Assert: exact bilingual authority parity.
+    assert en_clauses == zh_clauses
     for token in [*(f"C{i}" for i in range(1, 9)), *(f"T{i}" for i in range(1, 8))]:
         assert token in en and token in zh
 
 
 def test_c0_auth_01() -> None:
     """C0-AUTH-01 · F4.0.3/F4.12.3."""
+    # Arrange: frozen primary authority text.
     en = _text(SPEC_EN)
-    assert "JSON Schema has machine authority only for structure" in en
-    assert "governs lifecycle, authorization, concurrency, and recovery behavior" in en
-    assert "Conflict among Schema, specification, and tests blocks release" in en
+    # Act: select the three authority/release obligations.
+    obligations = [
+        "JSON Schema has machine authority only for structure",
+        "governs lifecycle, authorization, concurrency, and recovery behavior",
+        "Conflict among Schema, specification, and tests blocks release",
+    ]
+    # Assert: Schema cannot override behavior and conflict blocks release.
+    assert all(item in en for item in obligations)
 
 
 def test_c0_error_registry_01() -> None:
     """C0-ERROR-REGISTRY-01 · F4.10.1-F4.10.3."""
+    # Arrange/Act: extract only the normative F4.10.1 registries.
     en_errors = _base_errors(_text(SPEC_EN))
     zh_errors = _base_errors(_text(SPEC_ZH))
+    # Assert: exact 31-code parity and no test-only code leakage.
     assert en_errors == zh_errors
     assert len(en_errors) == 31
     assert "V4_NOT_IMPLEMENTED" not in en_errors
