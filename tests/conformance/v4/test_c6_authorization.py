@@ -7,7 +7,15 @@ import json
 import pytest
 
 from .driver import V4ConformanceDriver, capture_error, error_code, result_field
-from .fixtures import ATTEMPT_A, WorkspaceFixture, read_frontmatter, sha256_bytes, snapshot_tree
+from .fixtures import (
+    ATTEMPT_A,
+    ISSUER_PROOF,
+    DeterministicProfileEvaluator,
+    WorkspaceFixture,
+    read_frontmatter,
+    sha256_bytes,
+    snapshot_tree,
+)
 from .scenarios import (
     assert_task_stage, authorization_fixture, create_request, report_request,
     transition_request,
@@ -15,34 +23,84 @@ from .scenarios import (
 
 
 def test_c6_n01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
-    # Arrange: review TASK and valid Profile-issued authorization bound to T4/attempt.
+    # Arrange: review TASK, issuer proof, and Profile evaluator returning AUTHORIZED.
     workspace.task("TASK-C6-N01", stage="review", attempt_id=ATTEMPT_A)
     report = workspace.report("REPORT-C6-N01", task_id="TASK-C6-N01", attempt_id=ATTEMPT_A)
     acceptance = workspace.review(
         "REVIEW-C6-ACCEPT", task_id="TASK-C6-N01", review_kind="acceptance",
         decision="approved", attempt_id=ATTEMPT_A, references=["REPORT-C6-N01"],
         profile_ref="profile:test", transition={"from": "review", "to": "done"},
-        authorization_scope="single_use",
+        authorization_scope="single_use", extra={"issuer_proof": ISSUER_PROOF},
     )
+    evaluator = DeterministicProfileEvaluator("AUTHORIZED")
 
-    # Act: execute the authorized transition.
+    # Act: execute the transition through the injected Profile boundary.
+    kwargs = transition_request(
+        "TASK-C6-N01", "review", "done", tool="approve_task",
+        report_ref="REPORT-C6-N01", review_ref="REVIEW-C6-ACCEPT",
+        authorization_ref="REVIEW-C6-ACCEPT",
+    )
+    kwargs["profile_evaluator"] = evaluator
     result = v4_driver.transition(
         test_id="C6-N01", clause="F4.7.1-F4.7.5",
-        **transition_request(
-            "TASK-C6-N01", "review", "done", tool="approve_task",
-            report_ref="REPORT-C6-N01", review_ref="REVIEW-C6-ACCEPT",
-            authorization_ref="REVIEW-C6-ACCEPT",
-        )
+        **kwargs,
     )
 
-    # Assert: transition stores authorization/evidence refs and exact complete-byte digests.
+    # Assert: AUTHORIZED is consulted once and the committed event binds its evidence.
     _, fields = assert_task_stage(workspace, "TASK-C6-N01", "done")
     event = fields["transitions"][-1]
     assert result is not None
+    assert evaluator.calls == [{
+        "profile_ref": "profile:test", "issuer": "ME", "proof": ISSUER_PROOF,
+    }]
     assert event["authorization_ref"] == "REVIEW-C6-ACCEPT"
     assert event["authorization_digest"] == sha256_bytes(acceptance.read_bytes())
     assert event["evidence_ref"] == ["REPORT-C6-N01", "REVIEW-C6-ACCEPT"]
     assert sha256_bytes(report.read_bytes()) in event["evidence_digest"]
+
+
+@pytest.mark.parametrize("profile_result", ["DENIED", "UNKNOWN"])
+def test_c6_profile_evaluator_rejects(
+    workspace: WorkspaceFixture,
+    v4_driver: V4ConformanceDriver,
+    profile_result: str,
+) -> None:
+    # Arrange: an adopted profile_ref and structurally complete authorization,
+    # but a real injected evaluator that returns DENIED or UNKNOWN.
+    task_id = f"TASK-C6-PROFILE-{profile_result}"
+    report_id = f"REPORT-C6-PROFILE-{profile_result}"
+    review_id = f"REVIEW-C6-PROFILE-{profile_result}"
+    workspace.task(task_id, stage="review", attempt_id=ATTEMPT_A)
+    workspace.report(report_id, task_id=task_id, attempt_id=ATTEMPT_A)
+    workspace.review(
+        review_id, task_id=task_id, review_kind="acceptance",
+        decision="approved", attempt_id=ATTEMPT_A, references=[report_id],
+        profile_ref="profile:test", transition={"from": "review", "to": "done"},
+        authorization_scope="single_use", extra={"issuer_proof": ISSUER_PROOF},
+    )
+    evaluator = DeterministicProfileEvaluator(profile_result)
+    before = snapshot_tree(workspace.root)
+    kwargs = transition_request(
+        task_id, "review", "done", tool="approve_task", report_ref=report_id,
+        review_ref=review_id, authorization_ref=review_id,
+    )
+    kwargs["profile_evaluator"] = evaluator
+
+    # Act: production evaluates the proof instead of trusting manifest membership.
+    exc = capture_error(
+        lambda: v4_driver.transition(
+            test_id="C6-R01", clause="F4.7.2-F4.7.5", **kwargs
+        )
+    )
+
+    # Assert: DENIED and UNKNOWN are both structured AUTHORIZATION_INVALID,
+    # with no move, event, or authorization consumption.
+    assert error_code(exc) == "AUTHORIZATION_INVALID"
+    assert evaluator.calls == [{
+        "profile_ref": "profile:test", "issuer": "ME", "proof": ISSUER_PROOF,
+    }]
+    assert snapshot_tree(workspace.root) == before
+    assert_task_stage(workspace, task_id, "review")
 
 
 INVALID_AUTH_CASES = [

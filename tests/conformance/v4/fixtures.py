@@ -14,6 +14,29 @@ import yaml
 WORKSPACE_A = "urn:uuid:11111111-1111-4111-8111-111111111111"
 WORKSPACE_B = "urn:uuid:22222222-2222-4222-8222-222222222222"
 ATTEMPT_A = "urn:uuid:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+ISSUER_PROOF = {"scheme": "test-profile-proof-v1", "value": "valid"}
+
+
+class DeterministicProfileEvaluator:
+    """Injected Profile boundary that records and returns one tri-state result.
+
+    This fixture decides no Core behavior.  Production must call it and apply
+    the F4.7.4 AUTHORIZED/DENIED/UNKNOWN policy itself.
+    """
+
+    RESULTS = frozenset({"AUTHORIZED", "DENIED", "UNKNOWN"})
+
+    def __init__(self, result: str) -> None:
+        if result not in self.RESULTS:
+            raise ValueError(f"invalid test Profile result: {result}")
+        self.result = result
+        self.calls: list[dict[str, Any]] = []
+
+    def __call__(self, *, profile_ref: str, issuer: str, proof: Any) -> str:
+        self.calls.append(
+            {"profile_ref": profile_ref, "issuer": issuer, "proof": proof}
+        )
+        return self.result
 ATTEMPT_B = "urn:uuid:bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
 
 

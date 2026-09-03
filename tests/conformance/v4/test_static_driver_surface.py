@@ -5,7 +5,15 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from .driver import ACTION_CLAUSES, V4ConformanceDriver
+import pytest
+
+from fcop.errors import FcopError
+
+from .driver import ACTION_CLAUSES, V4ConformanceDriver, error_code
+
+
+class StructuredFCoPError(FcopError):
+    error_code = "AUTHORIZATION_INVALID"
 
 
 def test_driver_declares_every_semantic_action() -> None:
@@ -21,6 +29,21 @@ def test_driver_declares_every_semantic_action() -> None:
 
 def test_surface_probe_is_not_a_race_primitive() -> None:
     assert not hasattr(V4ConformanceDriver, "parallel_surface_probe")
+
+
+def test_error_code_requires_a_machine_field() -> None:
+    # Arrange: identical visible text on an unstructured ValueError and a
+    # formal FCoP error object with a structured error_code field.
+    free_text = ValueError("AUTHORIZATION_INVALID")
+    structured = StructuredFCoPError("AUTHORIZATION_INVALID")
+
+    # Act: attempt extraction from both objects.
+    with pytest.raises(AssertionError, match="no structured"):
+        error_code(free_text)
+    observed = error_code(structured)
+
+    # Assert: text alone cannot pass F4.10.2; the machine field can.
+    assert observed == "AUTHORIZATION_INVALID"
 
 
 def test_every_contract_test_has_arrange_act_assert() -> None:

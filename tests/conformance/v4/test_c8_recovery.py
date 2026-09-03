@@ -225,6 +225,13 @@ AUTHORIZED_EDGES = [
     ("T7", "done", "archive", "archive_task"),
 ]
 
+DIFFERENT_AUTHORIZED_EDGE = {
+    "T4": ("review", "active", "reject_task"),
+    "T5": ("review", "done", "approve_task"),
+    "T6": ("done", "archive", "archive_task"),
+    "T7": ("done", "active", "reopen_task"),
+}
+
 
 @pytest.mark.parametrize(
     ("edge", "source_stage", "target_stage", "tool"), AUTHORIZED_EDGES,
@@ -266,7 +273,8 @@ def test_c8_retry_01(
         operation="transition", stage="RESPONSE_LOST", once=True,
     )
 
-    # Act: lose the first response and retry the exact same authorization operation.
+    # Act: lose the first response, retry the exact operation, then try to spend
+    # the consumed authorization on a different valid authorization-gated edge.
     capture_error(
         lambda: v4_driver.transition(
             test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11", **kwargs
@@ -276,10 +284,25 @@ def test_c8_retry_01(
     retry = v4_driver.transition(
         test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11", **kwargs
     )
+    after_exact_retry = snapshot_tree(workspace.root)
+    other_from, other_to, other_tool = DIFFERENT_AUTHORIZED_EDGE[edge]
+    different_kwargs = dict(kwargs)
+    different_kwargs.update({
+        "from_stage": other_from, "to_stage": other_to, "tool": other_tool,
+    })
+    reused = capture_error(
+        lambda: v4_driver.transition(
+            test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11",
+            **different_kwargs,
+        )
+    )
 
-    # Assert: existing result, no second bytes/event, correct terminal state.
+    # Assert: exact retry is Existing; a different transition is REUSED and
+    # performs zero movement, zero new event, and zero second consumption.
     assert result_field(retry, "existing") is True
     assert snapshot_tree(workspace.root) == after_commit
+    assert error_code(reused) == "AUTHORIZATION_REUSED"
+    assert snapshot_tree(workspace.root) == after_exact_retry
     _, fields = assert_task_stage(workspace, task_id, target_stage)
     assert sum(event.get("authorization_ref") == auth_ref for event in fields["transitions"]) == 1
 

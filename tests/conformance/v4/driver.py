@@ -75,31 +75,22 @@ def digest_value(result: Any) -> str:
 
 
 def error_code(exc: BaseException) -> str:
-    """Extract a machine error code without accepting V4_NOT_IMPLEMENTED."""
+    """Extract only a structured machine error code.
+
+    Free-form exception text is deliberately never parsed.  A production
+    rejection must expose ``code`` or ``error_code`` on its formal error
+    object; otherwise F4.10.2 has not been satisfied.
+    """
     if isinstance(exc, V4NotImplemented):
         raise exc
     for name in ("code", "error_code"):
         value = getattr(exc, name, None)
         if isinstance(value, str) and value:
             return value
-    text = str(exc)
-    for token in (
-        "WORKSPACE_ID_MISMATCH", "WORKSPACE_ID_CLONE_CONFLICT",
-        "INVALID_ENVELOPE", "RELATION_INVALID", "REFERENCE_UNRESOLVED",
-        "BRANCH_DEPTH_EXCEEDED", "ROOT_NOT_ACTIVE", "REPORT_REQUIRED",
-        "REPORT_HEAD_AMBIGUOUS", "ATTEMPT_MISMATCH", "REVIEW_REQUIRED",
-        "FAMILY_CONVERGENCE_REQUIRED", "FAMILY_CONVERGENCE_MISMATCH",
-        "EVIDENCE_DIGEST_MISMATCH", "AUTHORIZATION_REQUIRED",
-        "AUTHORIZATION_INVALID", "AUTHORIZATION_EXPIRED",
-        "AUTHORIZATION_REUSED", "AUTHORIZATION_PROFILE_UNAVAILABLE",
-        "OPERATION_ID_CONFLICT", "INVALID_TRANSITION", "BRANCH_NOT_TERMINAL",
-        "LEGACY_TRANSITION_NOT_ALLOWED", "TARGET_ALREADY_EXISTS_DIFFERENT",
-        "STATE_AMBIGUOUS", "RECOVERY_REQUIRED", "LOCK_RECOVERY_REQUIRED",
-        "UNSUPPORTED_FILESYSTEM",
-    ):
-        if token in text:
-            return token
-    raise AssertionError(f"exception has no stable FCoP 4.0 error code: {exc!r}")
+    raise AssertionError(
+        "exception has no structured FCoP 4.0 code/error_code; "
+        f"free text is not a machine contract: {exc!r}"
+    )
 
 
 def capture_error(call: Callable[[], Any]) -> BaseException:
