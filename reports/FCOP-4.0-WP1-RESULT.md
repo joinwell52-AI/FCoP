@@ -101,3 +101,75 @@ NEXT_WP_STARTED: false
 ```
 
 请求 ADMIN 审阅候选合同并决定是否签署 `FCOP_4_CONTRACT_FROZEN`。在该 Gate 明确签署且另行下发 WP2 任务书前，不进入 WP2，不编写符合性测试，不修改 Schema、Core、Lifecycle、MCP 实现或 CodeFlowMu，不发布 RC。
+
+## 8. WP1.1 合同修订回执
+
+本节追加记录 Gate review 要求的 WP1.1 修订；以上 WP1 原始执行事实保留，不被重写。候选合同版本由 `4.0.0-candidate.1` 修订为 `4.0.0-candidate.2`，状态仍为 Candidate / Not Implemented / Not Released。
+
+### 8.1 输入与授权
+
+```yaml
+WP1_1_STATUS: COMPLETE
+AUTHORIZED_SCOPE: WP1_CORRECTION_ONLY
+TASKBOOK: FCoP-4.0-WP1.1-Contract-Correction-Taskbook.zh.md
+TASKBOOK_LINES: 556
+TASKBOOK_BYTES: 20551
+TASKBOOK_SHA256: 66b43ee8f7d5b783011ee24a2f29275c7eaf66a9596bedaa8dc8e2b3a6bcc234
+INPUT_COMMIT: 1b50f9e1fd4d2d21002bb1b98e14fd903a050f07
+BASELINE_HEAD: 68dbeb15f4e7f84e1d03f907be9fa66c2265843e
+WP0_EVIDENCE_COMMIT: c259bebdad77122d24dc18a6dd3f8fe191e4042f
+WORKTREE: D:\FCoP-wp1-contract
+BRANCH: codex/fcop-4.0-wp1-contract
+```
+
+### 8.2 修订完成度
+
+```yaml
+WP1_1_CORRECTIONS: 8/8
+T1_T7_GATE_MATRIX: 7/7
+BASE_ERROR_CODES: 31/31
+SPEC_EN_ZH_PARITY: PASS
+AUTHORIZATION_TRUST_BOUNDARY: CLOSED
+EMPTY_PROFILE_BEHAVIOR: DEFINED
+BRANCH_TERMINAL_GATE: DEFINED
+FAMILY_LINEARIZATION_SCOPE: DEFINED
+WORKSPACE_FORK_BOUNDARY: DEFINED
+FAMILY_DIGEST_ALGORITHM: DEFINED
+RECOVERY_STATE_TABLE: 5/5
+IDEMPOTENCY_LAYERS: 3/3
+```
+
+R1–R8 已作为对原 30 项裁决的精化逐项映射，没有伪造为 38 项新冲突。T1–T7 现在各自唯一说明前置状态、REPORT、REVIEW、Authorization Profile 与新 attempt；`family_digest` 使用固定 `fcop-family-v1` canonical object；恢复只使用五种分类，并区分外部 create 幂等、所有 lifecycle 内部恢复、T4/T5/T6/T7 授权响应丢失重试。
+
+### 8.3 修改与验证边界
+
+```yaml
+FILES_MODIFIED: 6/6_AUTHORIZED_WP1_FILES
+CODE_FILES_MODIFIED: 0
+SCHEMA_FILES_MODIFIED: 0
+TEST_FILES_MODIFIED: 0
+CODEFLOWMU_FILES_MODIFIED: 0
+UTF8_LF: PASS
+CLAUSE_ID_PARITY: PASS
+T1_T7_SEMANTIC_PARITY: PASS
+BASE_ERROR_SET_PARITY: PASS_31_OF_31
+R1_R8_MAPPING: PASS_8_OF_8
+RECOVERY_STATE_TABLE: PASS_5_OF_5
+GIT_DIFF_CHECK: PASS
+DOC_ONLY_ALLOWLIST: PASS
+TESTS: NOT_RERUN_CONTRACT_ONLY
+COMMIT_REACHABILITY: LOCAL_ONLY
+REMOTE_PUSHED: false
+```
+
+最终 WP1.1 commit SHA 由提交后的标准回执报告，避免自引用改变提交 SHA。
+
+### 8.4 Gate 与停止点
+
+```yaml
+FCOP_4_CONTRACT_FROZEN: false
+WP2_STARTED: false
+REQUESTED_GATE: FCOP_4_CONTRACT_FROZEN
+```
+
+Codex 仅重新请求 ADMIN 审阅并签署 Gate，不代签，不进入 WP2，不修改实现、Schema、测试、MCP、发布流程或 CodeFlowMu。
