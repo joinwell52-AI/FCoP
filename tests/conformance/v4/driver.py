@@ -12,9 +12,29 @@ import multiprocessing
 from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from queue import Empty
+from types import MappingProxyType
 from typing import Any, Callable, Mapping, Sequence
 
 from fcop import Project
+
+
+CALLER_AUTHORITY_FIELDS = frozenset({
+    "profile_evaluator", "profile_resolver", "trusted_profiles",
+    "profile_registry", "authorization_evaluator",
+})
+
+
+def contains_caller_authority(value: Any) -> bool:
+    """Business requests are data, never executable authorization policy."""
+    if callable(value):
+        return True
+    if isinstance(value, Mapping):
+        return bool(CALLER_AUTHORITY_FIELDS.intersection(value)) or any(
+            contains_caller_authority(item) for item in value.values()
+        )
+    if isinstance(value, (list, tuple)):
+        return any(contains_caller_authority(item) for item in value)
+    return False
 
 
 ACTION_CLAUSES: dict[str, str] = {
@@ -143,9 +163,27 @@ class V4ConformanceDriver:
         "export_archive": ("export_archive", "export_cold_storage"),
     }
 
-    def __init__(self, root: Path) -> None:
+    def __init__(
+        self, root: Path, *, trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+        test_id: str = "C6-PROFILE-01",
+    ) -> None:
         self.root = Path(root)
-        self.project = Project(self.root)
+        if trusted_profiles is None:
+            self.project = Project(self.root)
+        else:
+            # A real, explicit production initialization seam is required.  Do
+            # not setattr a registry, call evaluators here, or smuggle them into
+            # transition kwargs.  Missing initialization support stays red.
+            parameter = inspect.signature(Project).parameters.get("trusted_profiles")
+            if parameter is None or parameter.kind not in {
+                inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY,
+            }:
+                raise V4NotImplemented(
+                    test_id, "F4.7.4-F4.7.6", "trusted_profile_initialization",
+                    "Project has no explicit trusted_profiles initialization parameter",
+                )
+            registry = MappingProxyType(dict(trusted_profiles))
+            self.project = Project(self.root, trusted_profiles=registry)
 
     def _resolve(
         self, action: str, kwargs: Mapping[str, Any], *, test_id: str, clause: str
@@ -171,6 +209,10 @@ class V4ConformanceDriver:
         raise V4NotImplemented(test_id, clause, action, "; ".join(diagnostics))
 
     def _invoke(self, action: str, *, test_id: str, clause: str, **kwargs: Any) -> Any:
+        # Adapter misuse guard, NOT behavioral conformance credit.  Adversarial
+        # boundary tests bypass this guard and call the real Project method.
+        if contains_caller_authority(kwargs):
+            raise TypeError("caller authority is forbidden in business requests; use trusted initialization")
         method = self._resolve(action, kwargs, test_id=test_id, clause=clause)
         return method(**kwargs)
 
