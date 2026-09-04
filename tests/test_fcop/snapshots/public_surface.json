@@ -368,6 +368,7 @@
     "RoleNotFoundError",
     "TaskNotFoundError",
     "TeamNotFoundError",
+    "V4ProtocolError",
     "ValidationError"
   ],
   "project": {
@@ -574,6 +575,52 @@
         ],
         "return": "list[BoundaryViolation]"
       },
+      "create_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Any",
+            "has_default": false,
+            "kind": "VAR_KEYWORD",
+            "name": "kwargs"
+          }
+        ],
+        "return": "dict[str, Any]"
+      },
+      "create_workspace": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "protocol_version"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "encoding"
+          },
+          {
+            "annotation": "Sequence[str]",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "profiles"
+          }
+        ],
+        "return": "dict[str, Any]"
+      },
       "deploy_protocol_rules": {
         "params": [
           {
@@ -626,6 +673,23 @@
         ],
         "return": "DeploymentReport"
       },
+      "derive_workspace": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Any",
+            "has_default": false,
+            "kind": "VAR_KEYWORD",
+            "name": "kwargs"
+          }
+        ],
+        "return": "dict[str, Any]"
+      },
       "drop_suggestion": {
         "params": [
           {
@@ -648,6 +712,23 @@
           }
         ],
         "return": "pathlib.Path"
+      },
+      "finish_task": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Any",
+            "has_default": false,
+            "kind": "VAR_KEYWORD",
+            "name": "kwargs"
+          }
+        ],
+        "return": "dict[str, Any]"
       },
       "init": {
         "params": [
@@ -801,6 +882,23 @@
           }
         ],
         "return": "ProjectStatus"
+      },
+      "inspect_state": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Any",
+            "has_default": false,
+            "kind": "VAR_KEYWORD",
+            "name": "kwargs"
+          }
+        ],
+        "return": "dict[str, Any]"
       },
       "inspect_task": {
         "params": [
@@ -1298,6 +1396,23 @@
           }
         ],
         "return": "EventSubscription"
+      },
+      "transition": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "Any",
+            "has_default": false,
+            "kind": "VAR_KEYWORD",
+            "name": "kwargs"
+          }
+        ],
+        "return": "dict[str, Any]"
       },
       "validate_team": {
         "params": [

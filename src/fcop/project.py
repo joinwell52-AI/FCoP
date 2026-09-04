@@ -20,9 +20,10 @@ import datetime as _dt
 import os
 import pathlib
 import warnings
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, cast
+from types import MappingProxyType
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 if TYPE_CHECKING:
     from fcop.inspection import InspectionReport, Violation
@@ -143,6 +144,7 @@ from fcop.rules import (
     get_rules_version,
 )
 from fcop.teams import TeamTemplate, get_team_info, get_template
+from fcop.v4.boundary import version_boundary
 
 __all__ = ["Project", "EventSubscription"]
 
@@ -175,6 +177,7 @@ class EventSubscription:
         return self._active
 
 
+@version_boundary
 class Project:
     """Represents an FCoP-managed project rooted at a filesystem path.
 
@@ -208,6 +211,7 @@ class Project:
         *,
         strict: bool = True,
         workspace_dir: str | os.PathLike[str] | None = None,
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
     ) -> None:
         """Bind a :class:`Project` instance to ``path``.
 
@@ -230,6 +234,7 @@ class Project:
                 the DeprecationWarning since the choice is intentional.
         """
         self._path = pathlib.Path(path).resolve()
+        self._trusted_profiles = MappingProxyType(dict(trusted_profiles or {}))
         self._strict = strict
         self._workspace_root, self._workspace_layout = (
             self._resolve_workspace_root(workspace_dir)
@@ -245,6 +250,80 @@ class Project:
 
         self._topology = _detect(
             self._path, workspace_root=self._workspace_root
+        )
+        from fcop.v4.creation import _Creation
+
+        self._v4_creation = _Creation.open_if_declared(self._path)
+        if self._v4_creation is not None and self._workspace_root != self._path / "fcop":
+            from fcop.errors import V4ProtocolError, _V4Code
+
+            raise V4ProtocolError(
+                _V4Code.UNSUPPORTED_ENCODING, "A v4 workspace uses the canonical fcop/ directory",
+                operation_ref="open_workspace",
+            )
+
+    def create_workspace(
+        self, *, protocol_version: str = "4.0",
+        encoding: str = "fcop-filesystem/4.0", profiles: Sequence[str] = (),
+    ) -> dict[str, Any]:
+        """Explicitly create an empty v4 workspace; never migrate or overwrite."""
+        from fcop.v4.creation import _Creation
+
+        if self._workspace_root != self._path / "fcop":
+            from fcop.errors import V4ProtocolError, _V4Code
+
+            raise V4ProtocolError(
+                _V4Code.UNSUPPORTED_ENCODING, "create_workspace cannot migrate a legacy/override directory",
+                operation_ref="create_workspace",
+            )
+        self._v4_creation = _Creation.create(
+            self._path, protocol_version=protocol_version, encoding=encoding, profiles=profiles,
+        )
+        return dict(self._v4_creation.manifest)
+
+    def create_task(self, **kwargs: Any) -> dict[str, Any]:
+        """Create a declared v4 TASK. Legacy callers continue to use write_task."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
+            operation_ref="create_task",
+        )
+
+    def derive_workspace(self, **kwargs: Any) -> dict[str, Any]:
+        """Derive a declared v4 workspace with a new protocol identity."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
+            operation_ref="derive_workspace",
+        )
+
+    def inspect_state(self, **kwargs: Any) -> dict[str, Any]:
+        """Read and validate a v4 envelope; lifecycle recovery is not implied."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
+            operation_ref="inspect_state",
+        )
+
+    def transition(self, **kwargs: Any) -> dict[str, Any]:
+        """Reserved v4 transition boundary; WP3A implements only create-task T1."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
+            operation_ref="transition",
+        )
+
+    def finish_task(self, **kwargs: Any) -> dict[str, Any]:
+        """Reject legacy finish on v4; existing v3 lifecycle APIs are unchanged."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.OPERATION_NOT_IMPLEMENTED, "Use the existing v3 lifecycle API",
+            operation_ref="finish_task",
         )
 
     def _resolve_workspace_root(
