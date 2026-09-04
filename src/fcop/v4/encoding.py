@@ -71,14 +71,29 @@ def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def read_json(path: Path) -> dict[str, Any]:
+def parse_json(data: bytes, *, classification: bool = False) -> dict[str, Any]:
+    """Unique-key strict UTF-8 JSON; defer newline policy only for classification."""
+    def invalid_constant(value: str) -> Any:
+        raise ValueError(f"Non-JSON constant: {value}")
+
     try:
-        result = json.loads(strict_text(path.read_bytes()), object_pairs_hook=_unique_pairs)
+        result = json.loads(
+            data.decode("utf-8") if classification else strict_text(data),
+            object_pairs_hook=_unique_pairs,
+            parse_constant=invalid_constant,
+        )
         if not isinstance(result, dict):
             raise ValueError("Expected object")
         return result
-    except (OSError, ValueError) as exc:
-        raise fail(_V4Code.INVALID_ENVELOPE, "Invalid JSON fact", subject=str(path)) from exc
+    except ValueError as exc:
+        raise fail(_V4Code.INVALID_ENVELOPE, "Invalid JSON fact") from exc
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    try:
+        return parse_json(path.read_bytes())
+    except OSError as exc:
+        raise fail(_V4Code.INVALID_ENVELOPE, "Unreadable JSON fact", subject=str(path)) from exc
 
 
 class _UniqueLoader(yaml.SafeLoader):
@@ -281,6 +296,59 @@ def publish(path: Path, data: bytes) -> None:
         raise fail(
             code, "No-overwrite publication failed; temporary preserved", subject=str(path)
         ) from exc
+
+
+def publish_directory(staging: Path, target: Path) -> None:
+    """Publish a complete sibling directory with a kernel no-replace rename.
+
+    No check-then-rename fallback: missing platform support fails closed.
+    A failed staging remains evidence; this primitive never removes a tree.
+    """
+    if staging.parent != target.parent or staging.stat().st_dev != target.parent.stat().st_dev:
+        raise fail(_V4Code.UNSUPPORTED_FILESYSTEM, "Initialization must stay on one filesystem")
+    try:
+        import ctypes
+
+        if sys.platform == "win32":
+            from ctypes import wintypes
+
+            move = ctypes.WinDLL("kernel32", use_last_error=True).MoveFileExW
+            move.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
+            move.restype = wintypes.BOOL
+            if not move(str(staging), str(target), 0x8):  # WRITE_THROUGH, no replace/copy
+                raise ctypes.WinError(ctypes.get_last_error())
+        elif sys.platform == "linux":
+            libc = ctypes.CDLL(None, use_errno=True)
+            rename = getattr(libc, "renameat2", None)
+            if rename is None:
+                raise fail(_V4Code.UNSUPPORTED_FILESYSTEM, "renameat2 is unavailable")
+            rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p,
+                               ctypes.c_uint]
+            rename.restype = ctypes.c_int
+            # AT_FDCWD = -100; RENAME_NOREPLACE = 1.
+            if rename(-100, os.fsencode(staging), -100, os.fsencode(target), 1):
+                number = ctypes.get_errno()
+                raise OSError(number, os.strerror(number))
+        elif sys.platform == "darwin":
+            libc = ctypes.CDLL(None, use_errno=True)
+            rename = getattr(libc, "renamex_np", None)
+            if rename is None:
+                raise fail(_V4Code.UNSUPPORTED_FILESYSTEM, "renamex_np is unavailable")
+            rename.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+            rename.restype = ctypes.c_int
+            if rename(os.fsencode(staging), os.fsencode(target), 0x4):  # RENAME_EXCL
+                number = ctypes.get_errno()
+                raise OSError(number, os.strerror(number))
+        else:
+            raise fail(_V4Code.UNSUPPORTED_FILESYSTEM, "No certified directory publication")
+    except OSError as exc:
+        raise fail(
+            _V4Code.TARGET_ALREADY_EXISTS_DIFFERENT
+            if target.exists() else _V4Code.RECOVERY_REQUIRED,
+            "Directory publication failed; staging preserved",
+            operation="create_workspace",
+        ) from exc
+    sync_directory(target.parent)
 
 
 @contextmanager

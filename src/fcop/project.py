@@ -144,7 +144,7 @@ from fcop.rules import (
     get_rules_version,
 )
 from fcop.teams import TeamTemplate, get_team_info, get_template
-from fcop.v4.boundary import version_boundary
+from fcop.v4.boundary import bind_v4_methods, version_boundary
 
 __all__ = ["Project", "EventSubscription"]
 
@@ -254,13 +254,17 @@ class Project:
         from fcop.v4.creation import _Creation
 
         self._v4_creation = _Creation.open_if_declared(self._path)
-        if self._v4_creation is not None and self._workspace_root != self._path / "fcop":
+        if (
+            self._v4_creation is not None and not self._v4_creation.invalid
+            and self._workspace_root != self._path / "fcop"
+        ):
             from fcop.errors import V4ProtocolError, _V4Code
 
             raise V4ProtocolError(
                 _V4Code.UNSUPPORTED_ENCODING, "A v4 workspace uses the canonical fcop/ directory",
                 operation_ref="open_workspace",
             )
+        bind_v4_methods(self, Project)
 
     def create_workspace(
         self, *, protocol_version: str = "4.0",
@@ -279,6 +283,7 @@ class Project:
         self._v4_creation = _Creation.create(
             self._path, protocol_version=protocol_version, encoding=encoding, profiles=profiles,
         )
+        bind_v4_methods(self, Project)
         return dict(self._v4_creation.manifest)
 
     def create_task(self, **kwargs: Any) -> dict[str, Any]:

@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import os
+import re
+import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from fcop.errors import V4ProtocolError, _V4Code
+from fcop.core.config import parse_team_config
+from fcop.errors import ConfigError, V4ProtocolError, _V4Code
 from fcop.v4.encoding import (
     BUCKETS,
     ID_RE,
@@ -22,9 +25,12 @@ from fcop.v4.encoding import (
     normalize,
     operation_lock,
     parse_envelope,
+    parse_json,
     publish,
+    publish_directory,
     read_json,
     safe_path,
+    strict_text,
     supported_local,
     sync_directory,
 )
@@ -112,24 +118,38 @@ class _Creation:
     @classmethod
     def open_if_declared(cls, root: Path) -> _Creation | None:
         path = root / "fcop" / "fcop.json"
-        if not path.is_file():
+        if not path.exists() and not path.is_symlink():
             return None
-        # Legacy config parsing remains its existing lazy path. Only manifests
-        # explicitly declaring a protocol_version enter the new boundary.
-        import json
-
+        # Classification and formal reads share strict bytes and duplicate-key
+        # rejection. An ambiguous declaration must never reach a legacy writer.
         try:
-            legacy_probe = json.loads(path.read_bytes())
-        except (ValueError, OSError):
+            raw = safe_path(root, "fcop/fcop.json").read_bytes()
+            declaration = parse_json(raw, classification=True)
+        except (V4ProtocolError, OSError):
             # Preserve legacy construction / is_initialized / config behavior,
             # but never route an unclassifiable declaration to a legacy writer.
             return cls(root, {}, invalid=True)
-        if not isinstance(legacy_probe, dict) or "protocol_version" not in legacy_probe:
+        if "protocol" in declaration and declaration["protocol"] != "fcop":
+            raise fail(_V4Code.UNSUPPORTED_PROTOCOL, "Unrecognized protocol declaration")
+        if "protocol_version" not in declaration:
+            old_version = declaration.get("version")
+            if isinstance(old_version, str) and re.fullmatch(r"[123](?:\.\d+){0,2}", old_version):
+                # Historical v2 manifests used a semver string although the
+                # modern team-config parser expects an integer. Do not rewrite
+                # them or impose that newer parser on legacy writer routing.
+                return None
+            try:
+                legacy = parse_team_config(declaration, source=path)
+            except ConfigError:
+                return cls(root, {}, invalid=True)
+            if legacy.version in {1, 2, 3}:
+                return None
+            raise fail(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Unrecognized legacy version")
+        version = declaration["protocol_version"]
+        if isinstance(version, str) and re.fullmatch(r"[123](?:\.\d+){0,2}", version):
             return None
-        version = legacy_probe["protocol_version"]
-        if isinstance(version, str) and version.split(".")[0] in {"1", "2", "3"}:
-            return None
-        return cls(root, _manifest(read_json(safe_path(root, "fcop/fcop.json"))))
+        strict_text(raw)
+        return cls(root, _manifest(declaration))
 
     @classmethod
     def create(
@@ -159,25 +179,34 @@ class _Creation:
                 operation="create_workspace",
             )
         root.mkdir(parents=True, exist_ok=True)
-        try:
-            workspace.mkdir()
-        except FileExistsError as exc:
+        if any(root.glob(".fcop-init-*")):
             raise fail(
-                _V4Code.TARGET_ALREADY_EXISTS_DIFFERENT,
-                "Concurrent workspace creation",
+                _V4Code.RECOVERY_REQUIRED,
+                "Unresolved initialization staging; evidence preserved",
+                operation="create_workspace",
+            )
+        try:
+            staging = Path(tempfile.mkdtemp(prefix=".fcop-init-", dir=root))
+            sync_directory(root)
+            publish(staging / "fcop.json", canonical(value) + b"\n")
+            for relative in [
+                *(f"_lifecycle/{stage}" for stage in STAGES),
+                *BUCKETS.values(),
+                "operations",
+                "cold",
+            ]:
+                directory = staging / relative
+                directory.mkdir(parents=True)
+                sync_directory(directory)
+                sync_directory(directory.parent)
+            sync_directory(staging)
+            publish_directory(staging, workspace)
+        except OSError as exc:
+            raise fail(
+                _V4Code.RECOVERY_REQUIRED,
+                "Workspace initialization interrupted; staging preserved",
                 operation="create_workspace",
             ) from exc
-        sync_directory(root)
-        publish(workspace / "fcop.json", canonical(value) + b"\n")
-        for relative in [
-            *(f"_lifecycle/{stage}" for stage in STAGES),
-            *BUCKETS.values(),
-            "operations",
-            "cold",
-        ]:
-            directory = safe_path(root, f"fcop/{relative}")
-            directory.mkdir(parents=True)
-            sync_directory(directory.parent)
         return cls(root, value)
 
     def handler(self, name: str) -> Callable[..., Any] | None:
@@ -553,7 +582,7 @@ class _Creation:
             "operation_kind": "create_task",
             "operation_id": opid,
             "task_id": fields["task_id"],
-            "path": str(path),
+            "path": path.relative_to(self.root).as_posix(),
             "digest": request_digest,
             "content_digest": digest(data),
         }
@@ -601,9 +630,18 @@ class _Creation:
                         operation=opid,
                     )
                 try:
+                    relative = fact["path"]
+                    if (
+                        not isinstance(relative, str)
+                        or "\\" in relative
+                        or any(part in {"", ".", ".."} for part in relative.split("/"))
+                        or relative != f"fcop/_lifecycle/inbox/{fact['task_id']}.md"
+                    ):
+                        raise fail(_V4Code.RECOVERY_REQUIRED, "Noncanonical operation path")
+                    initial_path = safe_path(self.root, relative)
                     path, fields = self._resolve(fact["task_id"])
                     valid = (
-                        str(path) == fact["path"]
+                        path == initial_path
                         and digest(path.read_bytes()) == fact["content_digest"]
                         and fields.get("operation_id") == opid
                         and fields.get("normalized_request_digest") == request_digest
@@ -621,7 +659,7 @@ class _Creation:
                     )
                 return {
                     "task_id": fact["task_id"],
-                    "path": fact["path"],
+                    "path": str(path),
                     "digest": request_digest,
                     "existing": True,
                     "warnings": warnings,
@@ -646,9 +684,7 @@ class _Creation:
                     "Incomplete operation publication evidence",
                     operation=opid,
                 )
-            path = safe_path(
-                self.root, Path(planned_fact["path"]).relative_to(self.root).as_posix()
-            )
+            path = safe_path(self.root, planned_fact["path"])
             publish(path, plan["data"])
             publish(fact_path, canonical(planned_fact) + b"\n")
             return {
