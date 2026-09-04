@@ -13,9 +13,10 @@ import tempfile
 import time
 import unicodedata
 from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from typing import Any, cast
+from uuid import uuid4
 
 import yaml
 
@@ -133,6 +134,16 @@ def envelope_bytes(fields: dict[str, Any], body: str) -> bytes:
         return ("---\n" + header + "---\n\n" + normalize(body).rstrip("\n") + "\n").encode("utf-8")
     except UnicodeEncodeError as exc:
         raise fail(_V4Code.INVALID_ENVELOPE, "Envelope is not valid UTF-8") from exc
+
+
+def rewritten_envelope_bytes(path: Path, fields: dict[str, Any]) -> bytes:
+    """Serialize new frontmatter while preserving the existing Markdown bytes."""
+    text = strict_text(path.read_bytes())
+    if not text.startswith("---\n") or "\n---\n" not in text[3:]:
+        raise fail(_V4Code.INVALID_ENVELOPE, "Invalid envelope", subject=path.stem)
+    suffix = text.split("---\n", 2)[2]
+    header = yaml.safe_dump(fields, allow_unicode=True, sort_keys=False)
+    return ("---\n" + header + "---\n" + suffix).encode("utf-8")
 
 
 def safe_path(root: Path, relative: str) -> Path:
@@ -295,6 +306,72 @@ def publish(path: Path, data: bytes) -> None:
         )
         raise fail(
             code, "No-overwrite publication failed; temporary preserved", subject=str(path)
+        ) from exc
+
+
+def replace_durable(path: Path, data: bytes) -> None:
+    """Atomically replace one existing private fact and persist the name change.
+
+    This is deliberately separate from :func:`publish`: business envelopes use
+    no-overwrite publication, while only an already-published operation receipt
+    may use this replacement primitive.
+    """
+    if not path.is_file():
+        raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt replacement target is absent")
+    fd, temporary = tempfile.mkstemp(
+        prefix=f".fcop-replace-{path.stem}-", suffix=".tmp", dir=path.parent
+    )
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            from ctypes import wintypes
+
+            move = ctypes.WinDLL("kernel32", use_last_error=True).MoveFileExW
+            move.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
+            move.restype = wintypes.BOOL
+            # REPLACE_EXISTING | WRITE_THROUGH. Only receipt callers use this.
+            if not move(temporary, str(path), 0x1 | 0x8):
+                raise ctypes.WinError(ctypes.get_last_error())
+        else:
+            os.replace(temporary, path)
+            sync_directory(path.parent)
+    except OSError as exc:
+        raise fail(
+            _V4Code.RECOVERY_REQUIRED,
+            "Atomic receipt replacement failed; temporary preserved",
+            subject=str(path),
+        ) from exc
+
+
+def remove_authoritative(path: Path) -> None:
+    """Remove an authoritative source name with a durable directory boundary."""
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            from ctypes import wintypes
+
+            tombstone = path.parent / f".fcop-delete-{path.stem}-{uuid4().hex}.tmp"
+            move = ctypes.WinDLL("kernel32", use_last_error=True).MoveFileExW
+            move.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
+            move.restype = wintypes.BOOL
+            # A write-through no-replace rename durably removes the authoritative
+            # TASK name. A crash may retain only the non-authoritative tombstone.
+            if not move(str(path), str(tombstone), 0x8):
+                raise ctypes.WinError(ctypes.get_last_error())
+            with suppress(OSError):
+                os.unlink(tombstone)
+        else:
+            os.unlink(path)
+            sync_directory(path.parent)
+    except OSError as exc:
+        raise fail(
+            _V4Code.RECOVERY_REQUIRED,
+            "Authoritative source removal failed; evidence preserved",
+            subject=str(path),
         ) from exc
 
 

@@ -237,31 +237,11 @@ class _Creation:
         )
 
     def transition(self, **kwargs: Any) -> dict[str, Any]:
-        self._check()
         if kwargs.get("tool") == "finish_task":
             return self.finish_task(**kwargs)
-        edge = (kwargs.get("from_stage"), kwargs.get("to_stage"))
-        if edge not in {
-            (None, "inbox"),
-            ("inbox", "active"),
-            ("active", "review"),
-            ("review", "done"),
-            ("review", "active"),
-            ("done", "active"),
-            ("done", "archive"),
-        }:
-            raise fail(
-                _V4Code.INVALID_TRANSITION,
-                "Not a Base transition",
-                operation="transition",
-                subject=kwargs.get("task_id"),
-            )
-        raise fail(
-            _V4Code.OPERATION_NOT_IMPLEMENTED,
-            "Only create_task T1 is available in WP3A",
-            operation="transition",
-            subject=kwargs.get("task_id"),
-        )
+        from fcop.v4.lifecycle import Lifecycle
+
+        return Lifecycle(self).transition(**kwargs)
 
     def finish_task(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         raise fail(
@@ -586,9 +566,37 @@ class _Creation:
             "digest": request_digest,
             "content_digest": digest(data),
         }
-        return {"fact": fact, "data": data, "warnings": warnings}
+        return {
+            "fact": fact,
+            "data": data,
+            "warnings": warnings,
+            "branch_of": normalized["branch_of"],
+        }
 
     def _commit_create(self, plan: dict[str, Any]) -> dict[str, Any]:
+        branch_of = plan["branch_of"]
+        if branch_of is None:
+            return self._commit_create_operation(plan)
+        from fcop.v4.linearization import family_boundary
+
+        with family_boundary(self.root, self.manifest["workspace_id"], branch_of):
+            self._check(plan["fact"]["workspace_id"])
+            root_path, root_fields = self._resolve(branch_of)
+            if root_fields.get("branch_of") is not None:
+                raise fail(
+                    _V4Code.BRANCH_DEPTH_EXCEEDED,
+                    "A Branch cannot be a Branch Root",
+                    subject=branch_of,
+                )
+            if root_path.parent.name != "active":
+                raise fail(
+                    _V4Code.ROOT_NOT_ACTIVE,
+                    "Branch Root must be uniquely active",
+                    subject=branch_of,
+                )
+            return self._commit_create_operation(plan)
+
+    def _commit_create_operation(self, plan: dict[str, Any]) -> dict[str, Any]:
         planned_fact = plan["fact"]
         opid, key = planned_fact["operation_id"], planned_fact["key"]
         request_digest = planned_fact["digest"]
@@ -737,7 +745,63 @@ class _Creation:
         }
 
     def write_report(self, **kwargs: Any) -> dict[str, Any]:
-        return self._append("REPORT", kwargs)
+        from fcop.v4.lifecycle import current_attempt, family_root_for, report_head
+        from fcop.v4.linearization import family_boundary
+
+        self._check(kwargs.get("workspace_id"))
+        subject = kwargs.get("subject_ref")
+        if not isinstance(subject, str) or not subject.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "REPORT subject must name a TASK")
+        root_id = family_root_for(self, subject)
+        with family_boundary(self.root, self.manifest["workspace_id"], root_id):
+            self._check(kwargs.get("workspace_id"))
+            if family_root_for(self, subject) != root_id:
+                raise fail(_V4Code.RECOVERY_REQUIRED, "Family identity changed across lock")
+            task_path, task_fields = self._resolve(subject)
+            request_attempt = kwargs.get("attempt_id")
+            if not isinstance(request_attempt, str):
+                raise fail(_V4Code.INVALID_ENVELOPE, "REPORT attempt must be a UUID URN")
+            # A REPORT for a non-active TASK is an append-only fact but is not a
+            # current-attempt gate candidate. Active current-attempt writes are
+            # the F4.9.5 surface and receive the strict head checks below.
+            try:
+                task_attempt = current_attempt(task_fields)
+            except V4ProtocolError as exc:
+                if exc.code != _V4Code.ATTEMPT_MISMATCH.value:
+                    raise
+                task_attempt = None
+            if task_attempt == request_attempt and task_path.parent.name != "active":
+                raise fail(
+                    _V4Code.INVALID_TRANSITION,
+                    "Current-attempt REPORT writes require an active TASK",
+                )
+            if task_path.parent.name == "active" and request_attempt != task_attempt:
+                raise fail(_V4Code.ATTEMPT_MISMATCH, "REPORT attempt is not current")
+            existing = [
+                item
+                for item in safe_path(self.root, "fcop/reports").glob("REPORT-*.md")
+                if (
+                    (old := self._validate(parse_envelope(item), item)).get("subject_ref")
+                    == subject
+                    and old.get("attempt_id") == request_attempt
+                )
+            ]
+            kind = kwargs.get("report_kind")
+            if kind == "final" and existing:
+                raise fail(_V4Code.REPORT_HEAD_AMBIGUOUS, "Final REPORT already exists")
+            if kind == "replacement":
+                head_path, head = report_head(self, subject, request_attempt)
+                del head_path
+                same_attempt_refs = [
+                    ref for ref in kwargs.get("references", [])
+                    if ref in {old.stem for old in existing}
+                ]
+                if same_attempt_refs != [head["report_id"]]:
+                    raise fail(
+                        _V4Code.REPORT_HEAD_AMBIGUOUS,
+                        "Replacement must reference the unique current head",
+                    )
+            return self._append("REPORT", kwargs)
 
     def write_issue(self, **kwargs: Any) -> dict[str, Any]:
         return self._append("ISSUE", kwargs)
@@ -774,9 +838,9 @@ class _Creation:
         path, fields = self._resolve(identity)
         return {**fields, "path": str(path)}
 
-    def inspect_state(self, *, envelope_path: str | Path) -> dict[str, Any]:
-        self._check()
-        path = safe_path(self.root, str(envelope_path))
-        fields = self._validate(parse_envelope(path), path)
-        warnings = self._relations(fields)
-        return {**fields, "path": str(path), "warnings": warnings}
+    def inspect_state(
+        self, *, task_id: str | None = None, envelope_path: str | Path | None = None
+    ) -> dict[str, Any]:
+        from fcop.v4.lifecycle import Lifecycle
+
+        return Lifecycle(self).inspect_state(task_id=task_id, envelope_path=envelope_path)
