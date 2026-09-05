@@ -1,4 +1,4 @@
-"""Private WP3B T2/T3 planning and receipt-backed file transactions."""
+"""Private T2-T7 lifecycle planning and receipt-backed file transactions."""
 
 from __future__ import annotations
 
@@ -160,13 +160,6 @@ class Lifecycle:
             ("done", "archive"),
         }:
             raise fail(_V4Code.INVALID_TRANSITION, "Not a Base transition", subject=task_id)
-        if edge == ("done", "archive"):
-            raise fail(
-                _V4Code.OPERATION_NOT_IMPLEMENTED,
-                "T7 remains outside the WP3C lifecycle plane",
-                operation="transition",
-                subject=task_id,
-            )
         if edge == (None, "inbox"):
             raise fail(_V4Code.INVALID_TRANSITION, "T1 is create_task, not transition")
         if not isinstance(edge[0], str) or not isinstance(edge[1], str):
@@ -178,13 +171,14 @@ class Lifecycle:
             ("review", "done"): "approve_task",
             ("review", "active"): "reject_task",
             ("done", "active"): "reopen_task",
+            ("done", "archive"): "archive_task",
         }[concrete_edge]
         if request["tool"] != expected_tool or not isinstance(request["actor"], str):
             raise fail(_V4Code.INVALID_TRANSITION, "Tool/actor does not match the edge")
         if edge in {("review", "done"), ("review", "active"), ("done", "active")} and request.get(
             "family_digest"
         ) is not None:
-            raise fail(_V4Code.AUTHORIZATION_INVALID, "WP3C transitions do not consume family_digest")
+            raise fail(_V4Code.AUTHORIZATION_INVALID, "T4-T6 do not consume family_digest")
         if edge == ("inbox", "active") and any(
             request.get(name) is not None
             for name in (
@@ -257,6 +251,8 @@ class Lifecycle:
                 subject=task_id,
             )
         if exact:
+            if source_stage == "done" and target_stage == "archive":
+                self._t7_evidence(request)
             return self._recover(*exact[0], existing=True)
 
         authorized = source_stage in {"review", "done"}
@@ -289,6 +285,15 @@ class Lifecycle:
                 subject=task_id,
             )
         self.creation._relations(fields)
+        root_id = family_root_for(self.creation, task_id)
+        if task_id != root_id and target_stage == "active":
+            root_path, _ = self.creation._resolve(root_id)
+            if root_path.parent.name == "archive":
+                raise fail(
+                    _V4Code.INVALID_TRANSITION,
+                    "An archived Root freezes its Branch family",
+                    subject=task_id,
+                )
         source_bytes = source.read_bytes()
         evidence_ref: list[str] = []
         evidence_digest: list[str] = []
@@ -361,11 +366,18 @@ class Lifecycle:
                     "A conflicting receipt claims the current authorized round",
                     subject=task_id,
                 )
+            prior_evidence: tuple[tuple[str, str], ...] = ()
+            is_t7 = source_stage == "done" and target_stage == "archive"
+            if is_t7:
+                prior_evidence = self._t7_evidence(request)
             gate = validate_gate(
                 self.creation,
                 request,
                 fields,
                 attempt_id=source_attempt_id,
+                prior_evidence=prior_evidence,
+                require_evidence_review=not is_t7,
+                authorization_first=is_t7,
             )
             evidence_ref = list(gate.evidence_ref)
             evidence_digest = list(gate.evidence_digest)
@@ -379,6 +391,8 @@ class Lifecycle:
             event = {"at": datetime.now(timezone.utc).isoformat()}
             if target_stage == "active":
                 event["attempt_id"] = target_attempt_id
+            elif is_t7:
+                event["attempt_id"] = source_attempt_id
             event.update(
                 {
                     "authorization_digest": authorization_digest,
@@ -391,6 +405,8 @@ class Lifecycle:
                     "tool": request["tool"],
                 }
             )
+            if is_t7 and request.get("family_digest") is not None:
+                event["family_digest"] = request["family_digest"]
         updated = dict(fields)
         updated["transitions"] = [*fields["transitions"], event]
         target_bytes = rewritten_envelope_bytes(source, updated)
@@ -428,10 +444,32 @@ class Lifecycle:
                     "request_profile_ref": request.get("profile_ref"),
                     "source_attempt_id": source_attempt_id,
                     "target_attempt_id": target_attempt_id,
+                    "family_digest": request.get("family_digest"),
                 }
             )
         receipt_path = publish_prepared(self.root, receipt)
         return self._finish(receipt_path, receipt, source, target, target_bytes, existing=False)
+
+    def _t7_evidence(
+        self, request: Mapping[str, Any]
+    ) -> tuple[tuple[str, str], ...]:
+        from fcop.v4.convergence import snapshot, validate_stored_convergence
+
+        task_id = request["task_id"]
+        family = snapshot(
+            self.creation,
+            family_root_for(self.creation, task_id),
+            require_terminal=True,
+        )
+        if task_id == family.root_task_id and family.branches:
+            refs, digests = validate_stored_convergence(self.creation, request, family)
+            return tuple(zip(refs, digests, strict=True))
+        if any(request.get(name) is not None for name in ("review_ref", "family_digest")):
+            raise fail(
+                _V4Code.AUTHORIZATION_INVALID,
+                "Only a Root with Branches may carry convergence fields",
+            )
+        return ()
 
     def _visible_attempt(
         self, task_id: str, source_stage: str, target_stage: str

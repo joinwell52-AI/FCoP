@@ -1,4 +1,4 @@
-"""Private WP3C authorization verification for T4, T5, and T6."""
+"""Private trusted authorization verification for T4 through T7."""
 
 from __future__ import annotations
 
@@ -19,7 +19,10 @@ _AUTHORIZATION_CARRIERS: dict[
     str, tuple[frozenset[tuple[str, str]], str]
 ] = {
     "authorization": (
-        frozenset({("review", "done"), ("review", "active"), ("done", "active")}),
+        frozenset({
+            ("review", "done"), ("review", "active"),
+            ("done", "active"), ("done", "archive"),
+        }),
         "authorize",
     ),
     "acceptance": (frozenset({("review", "done")}), "approved"),
@@ -174,10 +177,13 @@ def validate_gate(
     source_fields: Mapping[str, Any],
     *,
     attempt_id: str,
+    prior_evidence: tuple[tuple[str, str], ...] = (),
+    require_evidence_review: bool = True,
+    authorization_first: bool = False,
 ) -> AuthorizationGate:
     """Validate the complete evidence and trusted authorization gate."""
     available = usable_profiles(creation)
-    if not available:
+    if not available and not authorization_first:
         raise fail(
             _V4Code.AUTHORIZATION_PROFILE_UNAVAILABLE,
             "No adopted Profile has a trusted evaluator",
@@ -190,8 +196,8 @@ def validate_gate(
     task_id = request["task_id"]
     report_ref: str | None = None
     report_digest: str | None = None
-    evidence_ref: list[str] = []
-    evidence_digest: list[str] = []
+    evidence_ref = [item[0] for item in prior_evidence]
+    evidence_digest = [item[1] for item in prior_evidence]
     if edge[0] == "review":
         from fcop.v4.lifecycle import report_head
 
@@ -204,19 +210,20 @@ def validate_gate(
         evidence_ref.append(report_ref)
         evidence_digest.append(report_digest)
     elif request.get("report_ref") is not None:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "T6 consumes no REPORT")
+        raise fail(_V4Code.AUTHORIZATION_INVALID, "T6/T7 consumes no REPORT")
 
-    _, review, review_digest = _evidence_review(
-        creation,
-        request,
-        task_id=task_id,
-        attempt_id=attempt_id,
-        edge=edge,
-        report_ref=report_ref,
-        report_digest=report_digest,
-    )
-    evidence_ref.append(review["review_id"])
-    evidence_digest.append(review_digest)
+    if require_evidence_review:
+        _, review, review_digest = _evidence_review(
+            creation,
+            request,
+            task_id=task_id,
+            attempt_id=attempt_id,
+            edge=edge,
+            report_ref=report_ref,
+            report_digest=report_digest,
+        )
+        evidence_ref.append(review["review_id"])
+        evidence_digest.append(review_digest)
 
     auth_path, authorization, authorization_digest = _review(creation, auth_ref)
     del auth_path
@@ -235,15 +242,26 @@ def validate_gate(
             _V4Code.AUTHORIZATION_INVALID,
             "REVIEW kind/decision cannot authorize this lifecycle edge",
         )
+    bound_attempt = authorization.get("attempt_id")
+    attempt_matches = bound_attempt == attempt_id or (
+        edge == ("done", "archive")
+        and request.get("family_digest") is not None
+        and bound_attempt is None
+    )
     if (
         authorization.get("subject_ref") != task_id
         or authorization.get("transition") != {"from": edge[0], "to": edge[1]}
-        or authorization.get("attempt_id") != attempt_id
+        or not attempt_matches
         or authorization.get("operation_kind") != "lifecycle_transition"
         or authorization.get("authorization_scope") != "single_use"
-        or authorization.get("family_digest") is not None
+        or authorization.get("family_digest") != request.get("family_digest")
     ):
         raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization binding mismatch")
+    if not available:
+        raise fail(
+            _V4Code.AUTHORIZATION_PROFILE_UNAVAILABLE,
+            "No adopted Profile has a trusted evaluator",
+        )
     issued = _time(authorization.get("issued_at"), field="issued_at")
     expires_value = authorization.get("expires_at")
     expires: datetime | None = None

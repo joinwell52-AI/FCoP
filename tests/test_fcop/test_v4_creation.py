@@ -760,7 +760,7 @@ def test_closeout_boundary_reflection_binding_and_subclass(tmp_path: Path) -> No
     legacy.init_solo(role_code="ME")
     original_names = set(_METHOD_POLICIES) - {
         "create_workspace", "create_task", "derive_workspace", "inspect_state",
-        "transition", "finish_task",
+        "transition", "finish_task", "family_digest",
     }
     assert len(original_names) == 38
     assert isinstance(vars(Project)["validate_team"], staticmethod)

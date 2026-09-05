@@ -1,4 +1,4 @@
-"""Private durable receipts and five-state classification for T2-T6."""
+"""Private durable receipts and five-state classification for T2-T7."""
 
 from __future__ import annotations
 
@@ -63,12 +63,13 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
     }
     authorization_required = {
         "review_ref", "authorization_ref", "authorization_digest", "profile_ref",
-        "request_profile_ref", "source_attempt_id", "target_attempt_id",
+        "request_profile_ref", "source_attempt_id", "target_attempt_id", "family_digest",
     }
     source = value.get("from_stage")
     target = value.get("to_stage")
     authorized = (source, target) in {
-        ("review", "done"), ("review", "active"), ("done", "active")
+        ("review", "done"), ("review", "active"), ("done", "active"),
+        ("done", "archive"),
     }
     required = base_required | (authorization_required if authorized else set())
     if set(value) != required or value.get("contract") != RECEIPT_CONTRACT:
@@ -96,8 +97,9 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
     if (source, target) not in {
         ("inbox", "active"), ("active", "review"),
         ("review", "done"), ("review", "active"), ("done", "active"),
+        ("done", "archive"),
     }:
-        raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt edge is outside WP3C")
+        raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt edge is outside the implemented lifecycle")
     tool = value.get("tool")
     actor = value.get("actor")
     expected_tool = {
@@ -106,6 +108,7 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
         ("review", "done"): "approve_task",
         ("review", "active"): "reject_task",
         ("done", "active"): "reopen_task",
+        ("done", "archive"): "archive_task",
     }[(source, target)]
     if tool != expected_tool or not isinstance(actor, str) or not actor:
         raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt actor/tool conflicts with edge")
@@ -139,6 +142,10 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
         }
         if target == "active":
             expected_event_keys.add("attempt_id")
+        if target == "archive":
+            expected_event_keys.add("attempt_id")
+        if target == "archive" and value.get("family_digest") is not None:
+            expected_event_keys.add("family_digest")
     if not isinstance(event, dict) or not isinstance(event.get("at"), str):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid receipt event timestamp")
     at = event["at"]
@@ -189,16 +196,24 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
         if target == "active":
             if source_attempt == target_attempt or event.get("attempt_id") != target_attempt:
                 raise fail(_V4Code.RECOVERY_REQUIRED, "T5/T6 must create a new target attempt")
+        elif target == "archive":
+            if source_attempt != target_attempt or event.get("attempt_id") != source_attempt:
+                raise fail(_V4Code.RECOVERY_REQUIRED, "T7 must retain its source attempt")
         elif source_attempt != target_attempt or "attempt_id" in event:
-            raise fail(_V4Code.RECOVERY_REQUIRED, "T4 must retain its source attempt")
+            raise fail(_V4Code.RECOVERY_REQUIRED, "T4/T7 must retain its source attempt")
         review_ref = value.get("review_ref")
         authorization_ref = value.get("authorization_ref")
         profile_ref = value.get("profile_ref")
         request_profile_ref = value.get("request_profile_ref")
         if (
-            not isinstance(review_ref, str)
-            or not ID_RE.fullmatch(review_ref)
-            or not review_ref.startswith("REVIEW-")
+            (
+                review_ref is not None
+                and (
+                    not isinstance(review_ref, str)
+                    or not ID_RE.fullmatch(review_ref)
+                    or not review_ref.startswith("REVIEW-")
+                )
+            )
             or not isinstance(authorization_ref, str)
             or not ID_RE.fullmatch(authorization_ref)
             or not authorization_ref.startswith("REVIEW-")
@@ -219,9 +234,34 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
             or event.get("authorization_digest") != value["authorization_digest"]
         ):
             raise fail(_V4Code.RECOVERY_REQUIRED, "Authorized receipt binding is invalid")
-        expected_evidence_count = 2 if source == "review" else 1
-        if len(refs) != expected_evidence_count or review_ref not in refs:
+        family_digest = value.get("family_digest")
+        if family_digest is not None and (
+            not isinstance(family_digest, str)
+            or not SHA256_RE.fullmatch(family_digest)
+            or event.get("family_digest") != family_digest
+        ):
+            raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt family digest is invalid")
+        expected_evidence_count = 2 if source == "review" else (1 if target == "active" else None)
+        if (
+            expected_evidence_count is not None
+            and (len(refs) != expected_evidence_count or review_ref not in refs)
+        ):
             raise fail(_V4Code.RECOVERY_REQUIRED, "Authorized evidence alignment is invalid")
+        if target == "archive" and (
+            (
+                family_digest is None
+                and (review_ref is not None or refs or digests)
+            )
+            or (
+                family_digest is not None
+                and (
+                    review_ref is None
+                    or len(refs) < 2
+                    or refs[0] != review_ref
+                )
+            )
+        ):
+            raise fail(_V4Code.RECOVERY_REQUIRED, "T7 convergence evidence is invalid")
     expected_request = {
         "contract": "fcop-lifecycle-transition-request-v1",
         "workspace_id": value.get("workspace_id"),
@@ -237,7 +277,7 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
             {
                 "review_ref": value.get("review_ref"),
                 "authorization_ref": value.get("authorization_ref"),
-                "family_digest": None,
+                "family_digest": value.get("family_digest"),
                 "profile_ref": value.get("request_profile_ref"),
             }
         )

@@ -26,6 +26,7 @@ _METHOD_POLICIES = MappingProxyType({
     "write_review": "V4_HANDLER",
     "mark_human_approved": "V4_HANDLER",
     "transition": "V4_HANDLER",  # structured rejection only in WP3A
+    "family_digest": "V4_HANDLER",
     "finish_task": "LEGACY_ONLY",
     "archive_to_history": "LEGACY_ONLY",
     "init": "V4_MUTATION_REJECTED",

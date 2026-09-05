@@ -328,6 +328,15 @@ class Project:
             operation_ref="transition",
         )
 
+    def family_digest(self, *, root_task_id: str) -> str:
+        """Compute the canonical digest of a declared v4 Root family."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
+            operation_ref="family_digest", subject_ref=root_task_id,
+        )
+
     def finish_task(self, **kwargs: Any) -> dict[str, Any]:
         """Reject legacy finish on v4; existing v3 lifecycle APIs are unchanged."""
         from fcop.errors import V4ProtocolError, _V4Code

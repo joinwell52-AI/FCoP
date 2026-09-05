@@ -249,6 +249,7 @@ class _Creation:
             "read_task": self.read_task,
             "inspect_state": self.inspect_state,
             "transition": self.transition,
+            "family_digest": self.family_digest,
             "finish_task": self.finish_task,
         }
         return handlers.get(name)
@@ -272,6 +273,18 @@ class _Creation:
             operation="finish_task",
             subject=kwargs.get("task_id"),
         )
+
+    def family_digest(self, *, root_task_id: str) -> str:
+        from fcop.v4.convergence import snapshot
+        from fcop.v4.linearization import family_boundary
+
+        self._check()
+        if not isinstance(root_task_id, str) or not root_task_id.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "Family subject must name a Root TASK")
+        with family_boundary(self.root, self.manifest["workspace_id"], root_task_id):
+            self._check()
+            family = snapshot(self, root_task_id)
+            return family.digest
 
     def _check(self, workspace_id: str | None = None) -> None:
         current = _manifest(read_json(safe_path(self.root, "fcop/fcop.json")))
@@ -780,6 +793,13 @@ class _Creation:
             self._check(kwargs.get("workspace_id"))
             if family_root_for(self, subject) != root_id:
                 raise fail(_V4Code.RECOVERY_REQUIRED, "Family identity changed across lock")
+            if root_id != subject:
+                root_path, _ = self._resolve(root_id)
+                if root_path.parent.name == "archive":
+                    raise fail(
+                        _V4Code.INVALID_TRANSITION,
+                        "An archived Root freezes Branch REPORT state",
+                    )
             task_path, task_fields = self._resolve(subject)
             request_attempt = kwargs.get("attempt_id")
             if not isinstance(request_attempt, str):
@@ -825,7 +845,27 @@ class _Creation:
         return self._append("ISSUE", kwargs)
 
     def write_review(self, **kwargs: Any) -> dict[str, Any]:
-        return self._append("REVIEW", kwargs)
+        if kwargs.get("review_kind") != "convergence":
+            return self._append("REVIEW", kwargs)
+        from fcop.v4.convergence import validate_convergence_request
+        from fcop.v4.linearization import family_boundary
+
+        subject = kwargs.get("subject_ref")
+        if not isinstance(subject, str) or not subject.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "Convergence subject must name a Root TASK")
+        with family_boundary(self.root, self.manifest["workspace_id"], subject):
+            self._check(kwargs.get("workspace_id"))
+            if kwargs.get("decision") != "approved":
+                raise fail(_V4Code.FAMILY_CONVERGENCE_MISMATCH, "Convergence must be approved")
+            family = validate_convergence_request(
+                self, subject, kwargs.get("family_digest"), kwargs.get("references")
+            )
+            if family.root_path.parent.name != "done":
+                raise fail(
+                    _V4Code.INVALID_TRANSITION,
+                    "Convergence may only be recorded while the Root is done",
+                )
+            return self._append("REVIEW", kwargs)
 
     def mark_human_approved(
         self, *, review_id: str, decision: str, approver: str, profile_ref: str, comment: str = ""

@@ -588,20 +588,20 @@ def test_t4_t5_race_commits_only_one_authorization(tmp_path: Path) -> None:
     assert len([event for event in events if event.get("authorization_ref")]) == 1
 
 
-def test_t7_remains_unimplemented_and_zero_write(tmp_path: Path) -> None:
+def test_t7_uses_trusted_authorization_and_archives_once(tmp_path: Path) -> None:
     workspace = WorkspaceFixture(tmp_path).create()
     workspace.task("TASK-WP3C-T7", stage="done", attempt_id=ATTEMPT_A)
     authorization_fixture(
         workspace, "REVIEW-WP3C-T7", task_id="TASK-WP3C-T7",
         from_stage="done", to_stage="archive", attempt_id=ATTEMPT_A,
     )
-    before = snapshot_tree(tmp_path)
-    with pytest.raises(V4ProtocolError) as caught:
-        _project(tmp_path).transition(
-            **transition_request(
-                "TASK-WP3C-T7", "done", "archive", tool="archive_task",
-                authorization_ref="REVIEW-WP3C-T7",
-            )
+    result = _project(tmp_path).transition(
+        **transition_request(
+            "TASK-WP3C-T7", "done", "archive", tool="archive_task",
+            authorization_ref="REVIEW-WP3C-T7",
         )
-    assert caught.value.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
-    assert snapshot_tree(tmp_path) == before
+    )
+    assert result["to_stage"] == "archive"
+    assert result["existing"] is False
+    fields = read_frontmatter(workspace.task_paths("TASK-WP3C-T7")[0])
+    assert fields["transitions"][-1]["authorization_ref"] == "REVIEW-WP3C-T7"
