@@ -253,7 +253,9 @@ class Project:
         )
         from fcop.v4.creation import _Creation
 
-        self._v4_creation = _Creation.open_if_declared(self._path)
+        self._v4_creation = _Creation.open_if_declared(
+            self._path, trusted_profiles=self._trusted_profiles
+        )
         if (
             self._v4_creation is not None and not self._v4_creation.invalid
             and self._workspace_root != self._path / "fcop"
@@ -281,7 +283,11 @@ class Project:
                 operation_ref="create_workspace",
             )
         self._v4_creation = _Creation.create(
-            self._path, protocol_version=protocol_version, encoding=encoding, profiles=profiles,
+            self._path,
+            protocol_version=protocol_version,
+            encoding=encoding,
+            profiles=profiles,
+            trusted_profiles=self._trusted_profiles,
         )
         bind_v4_methods(self, Project)
         return dict(self._v4_creation.manifest)

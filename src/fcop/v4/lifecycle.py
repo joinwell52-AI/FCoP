@@ -138,16 +138,20 @@ class Lifecycle:
 
     def transition(self, **kwargs: Any) -> dict[str, Any]:
         self.creation._check()
+        from fcop.v4.creation import _request
+
         allowed = {
             "task_id", "from_stage", "to_stage", "tool", "actor",
             "report_ref", "review_ref", "authorization_ref", "family_digest",
+            "profile_ref",
         }
-        if set(kwargs) - allowed or not {
-            "task_id", "from_stage", "to_stage", "tool", "actor"
-        }.issubset(kwargs):
-            raise fail(_V4Code.INVALID_ENVELOPE, "Unexpected or missing transition fields")
-        task_id = kwargs["task_id"]
-        edge = (kwargs["from_stage"], kwargs["to_stage"])
+        request = _request(
+            kwargs,
+            allowed,
+            {"task_id", "from_stage", "to_stage", "tool", "actor"},
+        )
+        task_id = request["task_id"]
+        edge = (request["from_stage"], request["to_stage"])
         if not isinstance(task_id, str) or not task_id.startswith("TASK-"):
             raise fail(_V4Code.INVALID_ENVELOPE, "Invalid TASK identity")
         if edge not in {
@@ -156,24 +160,41 @@ class Lifecycle:
             ("done", "archive"),
         }:
             raise fail(_V4Code.INVALID_TRANSITION, "Not a Base transition", subject=task_id)
-        if edge not in {("inbox", "active"), ("active", "review")}:
+        if edge == ("done", "archive"):
             raise fail(
                 _V4Code.OPERATION_NOT_IMPLEMENTED,
-                "Only T2 and T3 are available in the WP3B lifecycle plane",
+                "T7 remains outside the WP3C lifecycle plane",
                 operation="transition",
                 subject=task_id,
             )
-        expected_tool = "claim_task" if edge == ("inbox", "active") else "submit_task"
-        if kwargs["tool"] != expected_tool or not isinstance(kwargs["actor"], str):
+        if edge == (None, "inbox"):
+            raise fail(_V4Code.INVALID_TRANSITION, "T1 is create_task, not transition")
+        if not isinstance(edge[0], str) or not isinstance(edge[1], str):
+            raise fail(_V4Code.INVALID_TRANSITION, "Transition stages must be strings")
+        concrete_edge = (edge[0], edge[1])
+        expected_tool = {
+            ("inbox", "active"): "claim_task",
+            ("active", "review"): "submit_task",
+            ("review", "done"): "approve_task",
+            ("review", "active"): "reject_task",
+            ("done", "active"): "reopen_task",
+        }[concrete_edge]
+        if request["tool"] != expected_tool or not isinstance(request["actor"], str):
             raise fail(_V4Code.INVALID_TRANSITION, "Tool/actor does not match the edge")
+        if edge in {("review", "done"), ("review", "active"), ("done", "active")} and request.get(
+            "family_digest"
+        ) is not None:
+            raise fail(_V4Code.AUTHORIZATION_INVALID, "WP3C transitions do not consume family_digest")
         if edge == ("inbox", "active") and any(
-            kwargs.get(name) is not None
-            for name in ("report_ref", "review_ref", "authorization_ref", "family_digest")
+            request.get(name) is not None
+            for name in (
+                "report_ref", "review_ref", "authorization_ref", "family_digest", "profile_ref"
+            )
         ):
             raise fail(_V4Code.INVALID_TRANSITION, "T2 consumes no evidence or authorization")
         if edge == ("active", "review") and any(
-            kwargs.get(name) is not None
-            for name in ("review_ref", "authorization_ref", "family_digest")
+            request.get(name) is not None
+            for name in ("review_ref", "authorization_ref", "family_digest", "profile_ref")
         ):
             raise fail(_V4Code.INVALID_TRANSITION, "T3 consumes only a REPORT")
 
@@ -182,25 +203,31 @@ class Lifecycle:
             self.creation._check()
             if family_root_for(self.creation, task_id) != root_id:
                 raise fail(_V4Code.RECOVERY_REQUIRED, "Family identity changed across lock")
-            return self._under_lock(kwargs)
+            return self._under_lock(request)
 
     def _request_digest(self, request: Mapping[str, Any]) -> str:
         from fcop.v4.encoding import canonical
 
-        return digest(
-            canonical(
+        value = {
+            "contract": "fcop-lifecycle-transition-request-v1",
+            "workspace_id": self.creation.manifest["workspace_id"],
+            "task_id": request["task_id"],
+            "from_stage": request["from_stage"],
+            "to_stage": request["to_stage"],
+            "tool": request["tool"],
+            "actor": request["actor"],
+            "report_ref": request.get("report_ref"),
+        }
+        if request["from_stage"] in {"review", "done"}:
+            value.update(
                 {
-                    "contract": "fcop-lifecycle-transition-request-v1",
-                    "workspace_id": self.creation.manifest["workspace_id"],
-                    "task_id": request["task_id"],
-                    "from_stage": request["from_stage"],
-                    "to_stage": request["to_stage"],
-                    "tool": request["tool"],
-                    "actor": request["actor"],
-                    "report_ref": request.get("report_ref"),
+                    "review_ref": request.get("review_ref"),
+                    "authorization_ref": request.get("authorization_ref"),
+                    "family_digest": request.get("family_digest"),
+                    "profile_ref": request.get("profile_ref"),
                 }
             )
-        )
+        return digest(canonical(value))
 
     def _under_lock(self, request: Mapping[str, Any]) -> dict[str, Any]:
         task_id = request["task_id"]
@@ -214,25 +241,35 @@ class Lifecycle:
             to_stage=target_stage,
         )
         if source_stage == "active":
-            attempt_id = self._visible_attempt(task_id, source_stage, target_stage)
+            visible_attempt = self._visible_attempt(task_id, source_stage, target_stage)
             receipts = [
-                item for item in receipts if item[1]["attempt_id"] == attempt_id
+                item for item in receipts if item[1]["attempt_id"] == visible_attempt
             ]
-        if len(receipts) > 1:
+        exact = [
+            item
+            for item in receipts
+            if item[1]["normalized_transition_digest"] == request_digest
+        ]
+        if len(exact) > 1:
             raise fail(
                 _V4Code.RECOVERY_REQUIRED,
-                "Multiple receipts claim the current lifecycle round",
+                "Multiple receipts claim the same lifecycle operation",
                 subject=task_id,
             )
-        if receipts:
-            path, receipt = receipts[0]
-            if receipt["normalized_transition_digest"] != request_digest:
+        if exact:
+            return self._recover(*exact[0], existing=True)
+
+        authorized = source_stage in {"review", "done"}
+        if authorized:
+            from fcop.v4.authorization import find_consumptions
+
+            auth_ref = request.get("authorization_ref")
+            if isinstance(auth_ref, str) and find_consumptions(self.creation, auth_ref):
                 raise fail(
-                    _V4Code.RECOVERY_REQUIRED,
-                    "Unfinished transition receipt conflicts with this request",
+                    _V4Code.AUTHORIZATION_REUSED,
+                    "Authorization was consumed by a different transition",
                     subject=task_id,
                 )
-            return self._recover(path, receipt)
 
         source = safe_path(self.root, f"fcop/_lifecycle/{source_stage}/{task_id}.md")
         target = safe_path(self.root, f"fcop/_lifecycle/{target_stage}/{task_id}.md")
@@ -255,8 +292,14 @@ class Lifecycle:
         source_bytes = source.read_bytes()
         evidence_ref: list[str] = []
         evidence_digest: list[str] = []
+        source_attempt_id: str | None = None
+        target_attempt_id: str | None = None
+        authorization_ref: str | None = None
+        authorization_digest: str | None = None
+        profile_ref: str | None = None
         if source_stage == "inbox":
             attempt_id = uuid4().urn
+            target_attempt_id = attempt_id
             event: dict[str, Any] = {
                 "at": datetime.now(timezone.utc).isoformat(),
                 "attempt_id": attempt_id,
@@ -265,8 +308,24 @@ class Lifecycle:
                 "to": "active",
                 "tool": "claim_task",
             }
-        else:
+            if receipts:
+                raise fail(
+                    _V4Code.RECOVERY_REQUIRED,
+                    "A conflicting receipt already claims T2",
+                    subject=task_id,
+                )
+        elif source_stage == "active":
             attempt_id = current_attempt(fields)
+            source_attempt_id = target_attempt_id = attempt_id
+            current_receipts = [
+                item for item in receipts if item[1]["attempt_id"] == attempt_id
+            ]
+            if current_receipts:
+                raise fail(
+                    _V4Code.RECOVERY_REQUIRED,
+                    "A conflicting receipt claims the current T3 round",
+                    subject=task_id,
+                )
             if request.get("report_ref") is not None:
                 _, explicit = self.creation._resolve(request["report_ref"])
                 if explicit.get("type") != "REPORT":
@@ -287,6 +346,51 @@ class Lifecycle:
                 "to": "review",
                 "tool": "submit_task",
             }
+        else:
+            from fcop.v4.authorization import validate_gate
+
+            source_attempt_id = current_attempt(fields)
+            current_receipts = [
+                item
+                for item in receipts
+                if item[1].get("source_attempt_id") == source_attempt_id
+            ]
+            if current_receipts:
+                raise fail(
+                    _V4Code.RECOVERY_REQUIRED,
+                    "A conflicting receipt claims the current authorized round",
+                    subject=task_id,
+                )
+            gate = validate_gate(
+                self.creation,
+                request,
+                fields,
+                attempt_id=source_attempt_id,
+            )
+            evidence_ref = list(gate.evidence_ref)
+            evidence_digest = list(gate.evidence_digest)
+            authorization_ref = gate.authorization_ref
+            authorization_digest = gate.authorization_digest
+            profile_ref = gate.profile_ref
+            target_attempt_id = (
+                uuid4().urn if target_stage == "active" else source_attempt_id
+            )
+            attempt_id = target_attempt_id
+            event = {"at": datetime.now(timezone.utc).isoformat()}
+            if target_stage == "active":
+                event["attempt_id"] = target_attempt_id
+            event.update(
+                {
+                    "authorization_digest": authorization_digest,
+                    "authorization_ref": authorization_ref,
+                    "by": request["actor"],
+                    "evidence_digest": evidence_digest,
+                    "evidence_ref": evidence_ref,
+                    "from": source_stage,
+                    "to": target_stage,
+                    "tool": request["tool"],
+                }
+            )
         updated = dict(fields)
         updated["transitions"] = [*fields["transitions"], event]
         target_bytes = rewritten_envelope_bytes(source, updated)
@@ -314,8 +418,20 @@ class Lifecycle:
             "transition": event,
             "stage": "PREPARED",
         }
+        if authorized:
+            receipt.update(
+                {
+                    "review_ref": request.get("review_ref"),
+                    "authorization_ref": authorization_ref,
+                    "authorization_digest": authorization_digest,
+                    "profile_ref": profile_ref,
+                    "request_profile_ref": request.get("profile_ref"),
+                    "source_attempt_id": source_attempt_id,
+                    "target_attempt_id": target_attempt_id,
+                }
+            )
         receipt_path = publish_prepared(self.root, receipt)
-        return self._finish(receipt_path, receipt, source, target, target_bytes)
+        return self._finish(receipt_path, receipt, source, target, target_bytes, existing=False)
 
     def _visible_attempt(
         self, task_id: str, source_stage: str, target_stage: str
@@ -350,31 +466,64 @@ class Lifecycle:
     def _verify_evidence(
         self, receipt: Mapping[str, Any], source_fields: Mapping[str, Any]
     ) -> None:
+        del source_fields
         if not receipt["evidence_ref"]:
             return
-        attempt_id = current_attempt(source_fields)
-        report_path, report = report_head(self.creation, receipt["task_id"], attempt_id)
-        if (
-            receipt["evidence_ref"] != [report["report_id"]]
-            or receipt["evidence_digest"] != [digest(report_path.read_bytes())]
-        ):
-            raise fail(_V4Code.RECOVERY_REQUIRED, "REPORT head changed after validation")
+        observed: list[str] = []
+        for reference in receipt["evidence_ref"]:
+            try:
+                path, _ = self.creation._resolve(reference)
+            except Exception as exc:
+                raise fail(
+                    _V4Code.EVIDENCE_DIGEST_MISMATCH,
+                    "Lifecycle evidence is no longer resolvable",
+                ) from exc
+            observed.append(digest(path.read_bytes()))
+        if observed != receipt["evidence_digest"]:
+            code = (
+                _V4Code.EVIDENCE_DIGEST_MISMATCH
+                if receipt.get("authorization_ref") is not None
+                else _V4Code.RECOVERY_REQUIRED
+            )
+            raise fail(code, "Lifecycle evidence bytes changed")
+        authorization_ref = receipt.get("authorization_ref")
+        if authorization_ref is not None:
+            try:
+                path, _ = self.creation._resolve(authorization_ref)
+            except Exception as exc:
+                raise fail(
+                    _V4Code.EVIDENCE_DIGEST_MISMATCH,
+                    "Authorization REVIEW is no longer resolvable",
+                ) from exc
+            if digest(path.read_bytes()) != receipt.get("authorization_digest"):
+                raise fail(
+                    _V4Code.EVIDENCE_DIGEST_MISMATCH,
+                    "Authorization REVIEW bytes changed",
+                )
 
-    def _recover(self, receipt_path: Path, receipt: dict[str, Any]) -> dict[str, Any]:
+    def _recover(
+        self, receipt_path: Path, receipt: dict[str, Any], *, existing: bool = True
+    ) -> dict[str, Any]:
         state = classify(self.root, receipt)
         source = safe_path(self.root, receipt["source_path"])
         target = safe_path(self.root, receipt["target_path"])
         if state == "NOT_COMMITTED":
             target_bytes = self._target_from_receipt(receipt, source)
-            return self._finish(receipt_path, receipt, source, target, target_bytes)
+            return self._finish(
+                receipt_path, receipt, source, target, target_bytes, existing=existing
+            )
         if state == "RECOVERABLE_DUPLICATE":
+            fields = self.creation._validate(parse_envelope(source), source)
+            self._verify_evidence(receipt, fields)
             remove_authoritative(source)
             receipt = set_stage(self.root, receipt_path, receipt, "COMMITTED")
-            return self._result(receipt_path, receipt, target)
+            return self._result(receipt_path, receipt, target, existing=existing)
         if state == "COMMITTED":
+            fields = self.creation._validate(parse_envelope(target), target)
+            self._verify_evidence(receipt, fields)
             if receipt["stage"] != "COMMITTED":
                 receipt = set_stage(self.root, receipt_path, receipt, "COMMITTED")
-            return self._result(receipt_path, receipt, target)
+            return self._result(receipt_path, receipt, target, existing=existing)
         raise fail(
             _V4Code.RECOVERY_REQUIRED,
             f"Lifecycle recovery is {state}; all evidence preserved",
@@ -388,6 +537,8 @@ class Lifecycle:
         source: Path,
         target: Path,
         target_bytes: bytes,
+        *,
+        existing: bool,
     ) -> dict[str, Any]:
         source_fields = self.creation._validate(parse_envelope(source), source)
         self._verify_evidence(receipt, source_fields)
@@ -395,10 +546,15 @@ class Lifecycle:
         receipt = set_stage(self.root, receipt_path, receipt, "TARGET_DURABLE")
         remove_authoritative(source)
         receipt = set_stage(self.root, receipt_path, receipt, "COMMITTED")
-        return self._result(receipt_path, receipt, target)
+        return self._result(receipt_path, receipt, target, existing=existing)
 
     def _result(
-        self, receipt_path: Path, receipt: Mapping[str, Any], target: Path
+        self,
+        receipt_path: Path,
+        receipt: Mapping[str, Any],
+        target: Path,
+        *,
+        existing: bool,
     ) -> dict[str, Any]:
         return {
             "task_id": receipt["task_id"],
@@ -408,6 +564,7 @@ class Lifecycle:
             "status": "COMMITTED",
             "attempt_id": receipt["attempt_id"],
             "receipt_ref": receipt_path.relative_to(self.root).as_posix(),
+            "existing": existing,
         }
 
     def inspect_state(

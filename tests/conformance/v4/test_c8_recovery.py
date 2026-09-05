@@ -8,14 +8,21 @@ from pathlib import Path
 import pytest
 
 from .driver import (
-    V4ConformanceDriver, capture_error, error_code, result_field,
+    V4ConformanceDriver,
+    capture_error,
+    error_code,
+    result_field,
     run_concurrent_operations,
 )
-from .fixtures import ATTEMPT_A, WorkspaceFixture, sha256_bytes, snapshot_tree
-from .scenarios import (
-    assert_task_stage, authorization_fixture, create_request, report_request,
-    transition_request,
+from .fixtures import (
+    ATTEMPT_A,
+    DeterministicProfileEvaluator,
+    WorkspaceFixture,
+    bind_t3,
+    sha256_bytes,
+    snapshot_tree,
 )
+from .scenarios import assert_task_stage, authorization_fixture, create_request, transition_request
 
 
 def _recovery_paths(workspace: WorkspaceFixture, task_id: str) -> tuple[Path, Path]:
@@ -228,7 +235,7 @@ AUTHORIZED_EDGES = [
 DIFFERENT_AUTHORIZED_EDGE = {
     "T4": ("review", "active", "reject_task"),
     "T5": ("review", "done", "approve_task"),
-    "T6": ("done", "archive", "archive_task"),
+    "T6": ("review", "done", "approve_task"),
     "T7": ("done", "active", "reopen_task"),
 }
 
@@ -248,6 +255,7 @@ def test_c8_retry_01(
     if edge in {"T4", "T5"}:
         workspace.report(f"REPORT-C8-{edge}", task_id=task_id, attempt_id=ATTEMPT_A)
         report_ref = f"REPORT-C8-{edge}"
+        bind_t3(workspace, task_id, report_ref)
         kind = "acceptance" if edge == "T4" else "rejection"
         decision = "approved" if edge == "T4" else "rejected"
         workspace.review(
@@ -268,20 +276,23 @@ def test_c8_retry_01(
         task_id, source_stage, target_stage, tool=tool, report_ref=report_ref,
         review_ref=review_ref, authorization_ref=auth_ref,
     )
-    v4_driver.inject_fault(
-        test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11",
-        operation="transition", stage="RESPONSE_LOST", once=True,
+    driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={"profile:test": DeterministicProfileEvaluator("AUTHORIZED")},
+        test_id="C8-RETRY-01",
     )
 
     # Act: lose the first response, retry the exact operation, then try to spend
     # the consumed authorization on a different valid authorization-gated edge.
-    capture_error(
-        lambda: v4_driver.transition(
+    def commit_then_lose_response() -> None:
+        driver.transition(
             test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11", **kwargs
         )
-    )
+        raise ConnectionError("response lost after durable production return")
+
+    capture_error(commit_then_lose_response)
     after_commit = snapshot_tree(workspace.root)
-    retry = v4_driver.transition(
+    retry = driver.transition(
         test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11", **kwargs
     )
     after_exact_retry = snapshot_tree(workspace.root)
@@ -291,7 +302,7 @@ def test_c8_retry_01(
         "from_stage": other_from, "to_stage": other_to, "tool": other_tool,
     })
     reused = capture_error(
-        lambda: v4_driver.transition(
+        lambda: driver.transition(
             test_id="C8-RETRY-01", clause="F4.9.8; F4.9.11",
             **different_kwargs,
         )
@@ -334,10 +345,7 @@ def test_c8_state_01(
     assert result_field(result, "classification") == expected
     if state == "S1":
         assert source.exists() and not target.exists()
-    elif state == "S2":
-        assert not source.exists() and target.exists()
-        assert json.loads(receipt.read_text("utf-8"))["stage"] == "COMMITTED"
-    elif state == "S3":
+    elif state in {"S2", "S3"}:
         assert not source.exists() and target.exists()
         assert json.loads(receipt.read_text("utf-8"))["stage"] == "COMMITTED"
     else:

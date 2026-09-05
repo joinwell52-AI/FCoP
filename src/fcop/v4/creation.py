@@ -8,6 +8,7 @@ import tempfile
 from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -76,10 +77,6 @@ def _manifest(value: dict[str, Any]) -> dict[str, Any]:
 
 
 def _request(kwargs: Mapping[str, Any], allowed: set[str], required: set[str]) -> dict[str, Any]:
-    unknown = set(kwargs) - allowed
-    if unknown or required - set(kwargs):
-        raise fail(_V4Code.INVALID_ENVELOPE, "Unexpected or missing request fields")
-
     # No business request can carry judging logic, even through nesting.
     def check(value: Any) -> None:
         if callable(value):
@@ -95,7 +92,10 @@ def _request(kwargs: Mapping[str, Any], allowed: set[str], required: set[str]) -
                     "profile_result",
                     "profile_evaluator",
                     "profile_resolver",
+                    "profile_registry",
+                    "authorization_evaluator",
                     "caller_judge",
+                    "host_allowlist_match",
                 }:
                     raise fail(_V4Code.AUTHORIZATION_INVALID, "Caller judging logic is forbidden")
                 check(nested)
@@ -104,19 +104,35 @@ def _request(kwargs: Mapping[str, Any], allowed: set[str], required: set[str]) -
                 check(nested)
 
     check(kwargs)
+    unknown = set(kwargs) - allowed
+    if unknown or required - set(kwargs):
+        raise fail(_V4Code.INVALID_ENVELOPE, "Unexpected or missing request fields")
     return dict(kwargs)
 
 
 class _Creation:
     """Private per-Project encoding context, not an independent public API."""
 
-    def __init__(self, root: Path, manifest: dict[str, Any], *, invalid: bool = False) -> None:
+    def __init__(
+        self,
+        root: Path,
+        manifest: dict[str, Any],
+        *,
+        invalid: bool = False,
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+    ) -> None:
         self.root = root
         self.manifest = manifest
         self.invalid = invalid
+        self.trusted_profiles = MappingProxyType(dict(trusted_profiles or {}))
 
     @classmethod
-    def open_if_declared(cls, root: Path) -> _Creation | None:
+    def open_if_declared(
+        cls,
+        root: Path,
+        *,
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+    ) -> _Creation | None:
         path = root / "fcop" / "fcop.json"
         if not path.exists() and not path.is_symlink():
             return None
@@ -128,7 +144,7 @@ class _Creation:
         except (V4ProtocolError, OSError):
             # Preserve legacy construction / is_initialized / config behavior,
             # but never route an unclassifiable declaration to a legacy writer.
-            return cls(root, {}, invalid=True)
+            return cls(root, {}, invalid=True, trusted_profiles=trusted_profiles)
         if "protocol" in declaration and declaration["protocol"] != "fcop":
             raise fail(_V4Code.UNSUPPORTED_PROTOCOL, "Unrecognized protocol declaration")
         if "protocol_version" not in declaration:
@@ -141,7 +157,7 @@ class _Creation:
             try:
                 legacy = parse_team_config(declaration, source=path)
             except ConfigError:
-                return cls(root, {}, invalid=True)
+                return cls(root, {}, invalid=True, trusted_profiles=trusted_profiles)
             if legacy.version in {1, 2, 3}:
                 return None
             raise fail(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Unrecognized legacy version")
@@ -149,11 +165,17 @@ class _Creation:
         if isinstance(version, str) and re.fullmatch(r"[123](?:\.\d+){0,2}", version):
             return None
         strict_text(raw)
-        return cls(root, _manifest(declaration))
+        return cls(root, _manifest(declaration), trusted_profiles=trusted_profiles)
 
     @classmethod
     def create(
-        cls, root: Path, *, protocol_version: str, encoding: str, profiles: Sequence[str]
+        cls,
+        root: Path,
+        *,
+        protocol_version: str,
+        encoding: str,
+        profiles: Sequence[str],
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
     ) -> _Creation:
         if isinstance(profiles, (str, bytes)) or not isinstance(profiles, Sequence):
             raise fail(
@@ -207,7 +229,7 @@ class _Creation:
                 "Workspace initialization interrupted; staging preserved",
                 operation="create_workspace",
             ) from exc
-        return cls(root, value)
+        return cls(root, value, trusted_profiles=trusted_profiles)
 
     def handler(self, name: str) -> Callable[..., Any] | None:
         if self.invalid:
@@ -323,6 +345,7 @@ class _Creation:
             protocol_version="4.0",
             encoding="fcop-filesystem/4.0",
             profiles=self.manifest["profiles"],
+            trusted_profiles=self.trusted_profiles,
         )
         return dict(derived.manifest)
 

@@ -59,6 +59,28 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def bind_t3(workspace: WorkspaceFixture, task_id: str, report_id: str) -> None:
+    """Bind an arranged review TASK to the real current REPORT bytes."""
+    task_path = workspace.task_paths(task_id)[0]
+    report_path = workspace.envelope_paths(report_id)[0]
+    fields = read_frontmatter(task_path)
+    raw = task_path.read_text(encoding="utf-8")
+    body = raw.split("---\n", 2)[2].lstrip("\n").rstrip("\n")
+    fields["transitions"] = [
+        *fields["transitions"],
+        {
+            "at": "2026-09-03T00:02:00+08:00",
+            "by": "ME",
+            "from": "active",
+            "to": "review",
+            "tool": "submit_task",
+            "evidence_ref": [report_id],
+            "evidence_digest": [sha256_bytes(report_path.read_bytes())],
+        },
+    ]
+    task_path.write_bytes(_frontmatter(fields, body))
+
+
 def snapshot_tree(root: Path) -> dict[str, str]:
     return {
         path.relative_to(root).as_posix(): sha256_bytes(path.read_bytes())
@@ -201,6 +223,8 @@ class WorkspaceFixture:
         fields.update({key: value for key, value in optional.items() if value is not None})
         if extra:
             fields.update(dict(extra))
+        if profile_ref is not None:
+            fields.setdefault("issuer_proof", ISSUER_PROOF)
         path = self.root / "fcop" / "reviews" / f"{review_id}.md"
         path.write_bytes(_frontmatter(fields, "fixture review"))
         return path

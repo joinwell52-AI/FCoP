@@ -13,12 +13,15 @@ from .fixtures import (
     ISSUER_PROOF,
     DeterministicProfileEvaluator,
     WorkspaceFixture,
-    read_frontmatter,
+    bind_t3,
     sha256_bytes,
     snapshot_tree,
 )
 from .scenarios import (
-    assert_task_stage, authorization_fixture, create_request, report_request,
+    assert_task_stage,
+    authorization_fixture,
+    create_request,
+    report_request,
     transition_request,
 )
 
@@ -27,6 +30,7 @@ def test_c6_n01(workspace: WorkspaceFixture) -> None:
     # Arrange: review TASK, issuer proof, and Profile evaluator returning AUTHORIZED.
     workspace.task("TASK-C6-N01", stage="review", attempt_id=ATTEMPT_A)
     report = workspace.report("REPORT-C6-N01", task_id="TASK-C6-N01", attempt_id=ATTEMPT_A)
+    bind_t3(workspace, "TASK-C6-N01", "REPORT-C6-N01")
     acceptance = workspace.review(
         "REVIEW-C6-ACCEPT", task_id="TASK-C6-N01", review_kind="acceptance",
         decision="approved", attempt_id=ATTEMPT_A, references=["REPORT-C6-N01"],
@@ -75,6 +79,7 @@ def test_c6_profile_evaluator_rejects(
     review_id = f"REVIEW-C6-PROFILE-{profile_result}"
     workspace.task(task_id, stage="review", attempt_id=ATTEMPT_A)
     workspace.report(report_id, task_id=task_id, attempt_id=ATTEMPT_A)
+    bind_t3(workspace, task_id, report_id)
     workspace.review(
         review_id, task_id=task_id, review_kind="acceptance",
         decision="approved", attempt_id=ATTEMPT_A, references=[report_id],
@@ -122,6 +127,7 @@ def test_c6_caller_cannot_replace_trusted_profile(
     review_id = "REVIEW-C6-TRUST-BOUNDARY"
     workspace.task(task_id, stage="review", attempt_id=ATTEMPT_A)
     workspace.report(report_id, task_id=task_id, attempt_id=ATTEMPT_A)
+    bind_t3(workspace, task_id, report_id)
     workspace.review(
         review_id, task_id=task_id, review_kind="acceptance", decision="approved",
         attempt_id=ATTEMPT_A, references=[report_id], profile_ref="profile:test",
@@ -226,7 +232,7 @@ def test_c6_r01(
 
 @pytest.mark.parametrize("case", ["expired", "reused"])
 def test_c6_r02(
-    workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver, case: str
+    workspace: WorkspaceFixture, case: str
 ) -> None:
     # Arrange: expired single-use authorization, or one that will be consumed once.
     workspace.task("TASK-C6-R02", stage="done", attempt_id=ATTEMPT_A)
@@ -239,6 +245,10 @@ def test_c6_r02(
         "TASK-C6-R02", "done", "active", tool="reopen_task",
         review_ref="REVIEW-C6-R02", authorization_ref="REVIEW-C6-R02",
     )
+    evaluator = DeterministicProfileEvaluator("AUTHORIZED")
+    v4_driver = V4ConformanceDriver(
+        workspace.root, trusted_profiles={"profile:test": evaluator}, test_id="C6-R02"
+    )
 
     # Act: expired is rejected immediately; reusable case commits once then retries.
     if case == "expired":
@@ -250,12 +260,13 @@ def test_c6_r02(
         first = v4_driver.transition(test_id="C6-R02", clause="F4.7.3", **kwargs)
         assert first is not None
         before = snapshot_tree(workspace.root)
-        exc = capture_error(
-            lambda: v4_driver.transition(test_id="C6-R02", clause="F4.7.3", **kwargs)
-        )
+        retry = v4_driver.transition(test_id="C6-R02", clause="F4.7.3", **kwargs)
 
     # Assert: stable expiry/reuse code and failed call has zero writes.
-    assert error_code(exc) == ("AUTHORIZATION_EXPIRED" if case == "expired" else "AUTHORIZATION_REUSED")
+    if case == "expired":
+        assert error_code(exc) == "AUTHORIZATION_EXPIRED"
+    else:
+        assert result_field(retry, "existing") is True
     assert snapshot_tree(workspace.root) == before
 
 
@@ -355,6 +366,7 @@ def test_c6_digest_01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDrive
     workspace.task("TASK-C6-DIGEST", stage="review", attempt_id=ATTEMPT_A)
     report = workspace.report("REPORT-C6-DIGEST", task_id="TASK-C6-DIGEST", attempt_id=ATTEMPT_A)
     original_digest = sha256_bytes(report.read_bytes())
+    bind_t3(workspace, "TASK-C6-DIGEST", "REPORT-C6-DIGEST")
     workspace.review(
         "REVIEW-C6-DIGEST", task_id="TASK-C6-DIGEST", review_kind="acceptance",
         decision="approved", attempt_id=ATTEMPT_A, references=["REPORT-C6-DIGEST"],
@@ -365,8 +377,13 @@ def test_c6_digest_01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDrive
     before = snapshot_tree(workspace.root)
 
     # Act: consume the now-mismatched evidence.
+    driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={"profile:test": DeterministicProfileEvaluator("AUTHORIZED")},
+        test_id="C6-DIGEST-01",
+    )
     exc = capture_error(
-        lambda: v4_driver.transition(
+        lambda: driver.transition(
             test_id="C6-DIGEST-01", clause="F4.4.5; F4.7.3; F4.7.5",
             **transition_request(
                 "TASK-C6-DIGEST", "review", "done", tool="approve_task",

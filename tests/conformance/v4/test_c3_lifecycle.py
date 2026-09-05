@@ -5,7 +5,14 @@ from __future__ import annotations
 import pytest
 
 from .driver import V4ConformanceDriver, capture_error, error_code, result_field
-from .fixtures import ATTEMPT_A, WorkspaceFixture, read_frontmatter, snapshot_tree
+from .fixtures import (
+    ATTEMPT_A,
+    DeterministicProfileEvaluator,
+    WorkspaceFixture,
+    bind_t3,
+    read_frontmatter,
+    snapshot_tree,
+)
 from .scenarios import (
     assert_committed_transition,
     assert_task_stage,
@@ -22,25 +29,30 @@ T1_EVENT = {"at": "2026-09-03T00:00:00+08:00", "from": None, "to": "inbox", "by"
 def test_c3_n01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
     # Arrange: one inbox TASK whose only event is T1.
     workspace.task("TASK-C3-N01", stage="inbox", transitions=[T1_EVENT])
+    driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={"profile:test": DeterministicProfileEvaluator("AUTHORIZED")},
+        test_id="C3-N01",
+    )
 
     # Act: execute T2→T3→T4→T7 with actual REPORT/REVIEW/authorization evidence.
-    claimed = v4_driver.transition(
+    claimed = driver.transition(
         test_id="C3-N01", clause="F4.4.1-F4.4.3", **transition_request(
             "TASK-C3-N01", "inbox", "active", tool="claim_task"
         )
     )
     attempt_id = result_field(claimed, "attempt_id")
-    report = v4_driver.write_report(
+    report = driver.write_report(
         test_id="C3-N01", clause="F4.4.1-F4.4.3",
         **report_request("TASK-C3-N01", attempt_id)
     )
     report_id = result_field(report, "report_id")
-    submitted = v4_driver.transition(
+    submitted = driver.transition(
         test_id="C3-N01", clause="F4.4.1-F4.4.3", **transition_request(
             "TASK-C3-N01", "active", "review", tool="submit_task", report_ref=report_id
         )
     )
-    acceptance = v4_driver.write_review(
+    acceptance = driver.write_review(
         test_id="C3-N01", clause="F4.4.1-F4.4.3",
         **review_request(
             "TASK-C3-N01", review_kind="acceptance", decision="approved",
@@ -49,17 +61,27 @@ def test_c3_n01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
         )
     )
     acceptance_id = result_field(acceptance, "review_id")
-    approved = v4_driver.transition(
+    approve_auth = authorization_fixture(
+        workspace,
+        "REVIEW-C3-APPROVE-AUTH",
+        task_id="TASK-C3-N01",
+        from_stage="review",
+        to_stage="done",
+        attempt_id=attempt_id,
+    )
+    approved = driver.transition(
         test_id="C3-N01", clause="F4.4.1-F4.4.3", **transition_request(
             "TASK-C3-N01", "review", "done", tool="approve_task",
-            report_ref=report_id, review_ref=acceptance_id, authorization_ref=acceptance_id,
+            report_ref=report_id,
+            review_ref=acceptance_id,
+            authorization_ref=read_frontmatter(approve_auth)["review_id"],
         )
     )
     archive_auth = authorization_fixture(
         workspace, "REVIEW-C3-ARCHIVE-AUTH", task_id="TASK-C3-N01",
         from_stage="done", to_stage="archive", attempt_id=attempt_id,
     )
-    archived = v4_driver.transition(
+    archived = driver.transition(
         test_id="C3-N01", clause="F4.4.1-F4.4.3", **transition_request(
             "TASK-C3-N01", "done", "archive", tool="archive_task",
             authorization_ref=read_frontmatter(archive_auth)["review_id"],
@@ -86,7 +108,12 @@ def test_c3_n02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
     )
 
     # Act: perform T6.
-    result = v4_driver.transition(
+    driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={"profile:test": DeterministicProfileEvaluator("AUTHORIZED")},
+        test_id="C3-N02",
+    )
+    result = driver.transition(
         test_id="C3-N02", clause="F4.4.2; F4.6.1", **transition_request(
             "TASK-C3-N02", "done", "active", tool="reopen_task",
             review_ref="REVIEW-C3-REOPEN", authorization_ref="REVIEW-C3-REOPEN",
@@ -214,6 +241,8 @@ def test_c3_gate_01(
     if edge in {"T3", "T4", "T5"}:
         workspace.report(f"REPORT-{edge}", task_id=task_id, attempt_id=ATTEMPT_A)
         report_ref = f"REPORT-{edge}"
+        if edge in {"T4", "T5"}:
+            bind_t3(workspace, task_id, report_ref)
     if edge in {"T4", "T5", "T6"}:
         kind = {"T4": "acceptance", "T5": "rejection", "T6": "reopen"}[edge]
         decision = "approved" if edge != "T5" else "rejected"
@@ -239,7 +268,18 @@ def test_c3_gate_01(
         )
         task_id = result_field(result, "task_id")
     else:
-        result = v4_driver.transition(
+        driver = (
+            V4ConformanceDriver(
+                workspace.root,
+                trusted_profiles={
+                    "profile:test": DeterministicProfileEvaluator("AUTHORIZED")
+                },
+                test_id="C3-GATE-01",
+            )
+            if edge in {"T4", "T5", "T6"}
+            else v4_driver
+        )
+        result = driver.transition(
             test_id="C3-GATE-01", clause="F4.4.2; F4.4.7",
             **transition_request(
                 task_id, source, target, tool=tool, report_ref=report_ref,
@@ -249,7 +289,7 @@ def test_c3_gate_01(
     if missing_error:
         before_bad = snapshot_tree(workspace.root)
         exc = capture_error(
-            lambda: v4_driver.transition(
+            lambda: driver.transition(
                 test_id="C3-GATE-01", clause="F4.4.2; F4.4.7",
                 **transition_request(bad_id, source, target, tool=tool)
             )

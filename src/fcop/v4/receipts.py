@@ -1,4 +1,4 @@
-"""Private durable receipts and five-state classification for T2/T3."""
+"""Private durable receipts and five-state classification for T2-T6."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ def _relative_path(value: Any, *, task_id: str, stage: str) -> str:
 
 
 def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str, Any]:
-    required = {
+    base_required = {
         "contract", "version", "operation_id", "workspace_id", "task_id",
         "operation_kind", "from_stage", "to_stage", "tool", "actor",
         "report_ref",
@@ -61,6 +61,16 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
         "normalized_transition_digest", "evidence_ref", "evidence_digest",
         "attempt_id", "transition", "stage",
     }
+    authorization_required = {
+        "review_ref", "authorization_ref", "authorization_digest", "profile_ref",
+        "request_profile_ref", "source_attempt_id", "target_attempt_id",
+    }
+    source = value.get("from_stage")
+    target = value.get("to_stage")
+    authorized = (source, target) in {
+        ("review", "done"), ("review", "active"), ("done", "active")
+    }
+    required = base_required | (authorization_required if authorized else set())
     if set(value) != required or value.get("contract") != RECEIPT_CONTRACT:
         raise fail(_V4Code.RECOVERY_REQUIRED, "Damaged lifecycle receipt")
     if value.get("version") != 1 or value.get("operation_kind") != "lifecycle_transition":
@@ -74,22 +84,29 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
     if path != receipt_path(root, operation_id):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt identity conflicts with filename")
     task_id = value.get("task_id")
-    source = value.get("from_stage")
-    target = value.get("to_stage")
     if (
         not isinstance(task_id, str)
         or not ID_RE.fullmatch(task_id)
         or not task_id.startswith("TASK-")
-        or source not in {"inbox", "active"}
+        or source not in {"inbox", "active", "review", "done"}
     ):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid receipt subject")
     if not isinstance(source, str) or not isinstance(target, str):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid receipt edge")
-    if (source, target) not in {("inbox", "active"), ("active", "review")}:
-        raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt edge is outside WP3B")
+    if (source, target) not in {
+        ("inbox", "active"), ("active", "review"),
+        ("review", "done"), ("review", "active"), ("done", "active"),
+    }:
+        raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt edge is outside WP3C")
     tool = value.get("tool")
     actor = value.get("actor")
-    expected_tool = "claim_task" if source == "inbox" else "submit_task"
+    expected_tool = {
+        ("inbox", "active"): "claim_task",
+        ("active", "review"): "submit_task",
+        ("review", "done"): "approve_task",
+        ("review", "active"): "reject_task",
+        ("done", "active"): "reopen_task",
+    }[(source, target)]
     if tool != expected_tool or not isinstance(actor, str) or not actor:
         raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt actor/tool conflicts with edge")
     _relative_path(value.get("source_path"), task_id=task_id, stage=source)
@@ -109,11 +126,19 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
     if not _uuid_urn(value.get("attempt_id")):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid receipt attempt")
     event = value.get("transition")
-    expected_event_keys = (
-        {"at", "attempt_id", "by", "from", "to", "tool"}
-        if source == "inbox"
-        else {"at", "by", "evidence_digest", "evidence_ref", "from", "to", "tool"}
-    )
+    if source == "inbox":
+        expected_event_keys = {"at", "attempt_id", "by", "from", "to", "tool"}
+    elif source == "active":
+        expected_event_keys = {
+            "at", "by", "evidence_digest", "evidence_ref", "from", "to", "tool"
+        }
+    else:
+        expected_event_keys = {
+            "at", "by", "evidence_digest", "evidence_ref", "authorization_ref",
+            "authorization_digest", "from", "to", "tool",
+        }
+        if target == "active":
+            expected_event_keys.add("attempt_id")
     if not isinstance(event, dict) or not isinstance(event.get("at"), str):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid receipt event timestamp")
     at = event["at"]
@@ -147,13 +172,56 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
             or report_ref is not None
         ):
             raise fail(_V4Code.RECOVERY_REQUIRED, "T2 receipt carries forbidden evidence")
-    elif (
+    elif source == "active" and (
         len(refs) != 1
         or event.get("evidence_ref") != refs
         or event.get("evidence_digest") != digests
         or report_ref not in {None, refs[0]}
     ):
         raise fail(_V4Code.RECOVERY_REQUIRED, "T3 receipt evidence conflicts with event")
+    elif authorized:
+        source_attempt = value.get("source_attempt_id")
+        target_attempt = value.get("target_attempt_id")
+        if not _uuid_urn(source_attempt) or not _uuid_urn(target_attempt):
+            raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid authorized receipt attempts")
+        if value["attempt_id"] != target_attempt:
+            raise fail(_V4Code.RECOVERY_REQUIRED, "Result attempt conflicts with target attempt")
+        if target == "active":
+            if source_attempt == target_attempt or event.get("attempt_id") != target_attempt:
+                raise fail(_V4Code.RECOVERY_REQUIRED, "T5/T6 must create a new target attempt")
+        elif source_attempt != target_attempt or "attempt_id" in event:
+            raise fail(_V4Code.RECOVERY_REQUIRED, "T4 must retain its source attempt")
+        review_ref = value.get("review_ref")
+        authorization_ref = value.get("authorization_ref")
+        profile_ref = value.get("profile_ref")
+        request_profile_ref = value.get("request_profile_ref")
+        if (
+            not isinstance(review_ref, str)
+            or not ID_RE.fullmatch(review_ref)
+            or not review_ref.startswith("REVIEW-")
+            or not isinstance(authorization_ref, str)
+            or not ID_RE.fullmatch(authorization_ref)
+            or not authorization_ref.startswith("REVIEW-")
+            or not isinstance(profile_ref, str)
+            or not profile_ref
+            or (
+                request_profile_ref is not None
+                and (
+                    not isinstance(request_profile_ref, str)
+                    or not request_profile_ref
+                )
+            )
+            or not isinstance(value.get("authorization_digest"), str)
+            or not SHA256_RE.fullmatch(value["authorization_digest"])
+            or event.get("evidence_ref") != refs
+            or event.get("evidence_digest") != digests
+            or event.get("authorization_ref") != authorization_ref
+            or event.get("authorization_digest") != value["authorization_digest"]
+        ):
+            raise fail(_V4Code.RECOVERY_REQUIRED, "Authorized receipt binding is invalid")
+        expected_evidence_count = 2 if source == "review" else 1
+        if len(refs) != expected_evidence_count or review_ref not in refs:
+            raise fail(_V4Code.RECOVERY_REQUIRED, "Authorized evidence alignment is invalid")
     expected_request = {
         "contract": "fcop-lifecycle-transition-request-v1",
         "workspace_id": value.get("workspace_id"),
@@ -164,6 +232,15 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
         "actor": actor,
         "report_ref": report_ref,
     }
+    if authorized:
+        expected_request.update(
+            {
+                "review_ref": value.get("review_ref"),
+                "authorization_ref": value.get("authorization_ref"),
+                "family_digest": None,
+                "profile_ref": value.get("request_profile_ref"),
+            }
+        )
     if digest(canonical(expected_request)) != value["normalized_transition_digest"]:
         raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt request digest is inconsistent")
     if value.get("stage") not in RECEIPT_STAGES:
