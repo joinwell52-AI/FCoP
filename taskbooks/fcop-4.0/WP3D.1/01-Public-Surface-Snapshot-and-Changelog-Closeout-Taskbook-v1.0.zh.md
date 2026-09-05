@@ -1,6 +1,6 @@
 ---
 taskbook_id: FCOP-4.0-WP3D.1-PUBLIC-SURFACE-CLOSEOUT
-document_role: EXECUTION_AUTHORITY
+document_role: EXECUTION_TASKBOOK
 status: AUTHORIZED_FOR_WP3D_1_ONLY
 execution_authorized: true
 authorized_scope: WP3D_1_ONLY
