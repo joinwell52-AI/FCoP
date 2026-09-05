@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from queue import Empty
 from typing import Any
+from uuid import uuid4
 
 import pytest
 
@@ -610,3 +611,310 @@ def test_inspect_state_uses_path_now_and_rejects_ambiguity(workspace: WorkspaceF
     with pytest.raises(V4ProtocolError) as caught:
         project.inspect_state(task_id="TASK-WP3B-INSPECT")
     assert caught.value.code == "STATE_AMBIGUOUS"
+
+
+def _entry_event(attempt_id: str, *, at: str = "2026-09-03T00:00:01+08:00") -> dict[str, Any]:
+    return {
+        "at": at,
+        "attempt_id": attempt_id,
+        "by": "ME",
+        "from": "inbox",
+        "to": "active",
+        "tool": "claim_task",
+    }
+
+
+def _materialize_rejected_round(
+    workspace: WorkspaceFixture, task_id: str, attempt_id: str
+) -> Path:
+    """Arrange a completed T5 result without implementing the T5 operation."""
+    from tests.conformance.v4.fixtures import _frontmatter
+
+    old_path = workspace.task_paths(task_id)[0]
+    assert old_path.parent.name == "review"
+    fields = read_frontmatter(old_path)
+    fields["transitions"] = [
+        *fields["transitions"],
+        {
+            "at": "2026-09-03T00:10:00+08:00",
+            "attempt_id": attempt_id,
+            "by": "ME",
+            "from": "review",
+            "to": "active",
+            "tool": "reject_task",
+        },
+    ]
+    target = workspace.root / "fcop/_lifecycle/active" / old_path.name
+    target.write_bytes(_frontmatter(fields, "fixture task"))
+    old_path.unlink()
+    return target
+
+
+def _commit_t3(
+    workspace: WorkspaceFixture, task_id: str, attempt_id: str
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    report = workspace.report(
+        f"REPORT-{task_id.removeprefix('TASK-')}-{attempt_id[-4:]}",
+        task_id=task_id,
+        attempt_id=attempt_id,
+    )
+    request = transition_request(
+        task_id, "active", "review", tool="submit_task", report_ref=None
+    )
+    result = Project(workspace.root).transition(**request)
+    assert read_frontmatter(report)["attempt_id"] == attempt_id
+    return request, result
+
+
+def test_t3_receipts_are_scoped_to_attempt_rounds(workspace: WorkspaceFixture) -> None:
+    task_id = "TASK-WP3B1-TWO-ROUNDS"
+    workspace.task(task_id, stage="active", attempt_id=ATTEMPT_A)
+    _, first = _commit_t3(workspace, task_id, ATTEMPT_A)
+    first_receipt = workspace.root / first["receipt_ref"]
+    first_bytes = first_receipt.read_bytes()
+
+    _materialize_rejected_round(workspace, task_id, ATTEMPT_B)
+    second_request, second = _commit_t3(workspace, task_id, ATTEMPT_B)
+
+    receipts = [_receipt(path) for path in _receipt_paths(workspace.root)]
+    assert len(receipts) == 2
+    assert {item["attempt_id"] for item in receipts} == {ATTEMPT_A, ATTEMPT_B}
+    assert len({item["operation_id"] for item in receipts}) == 2
+    assert first_receipt.read_bytes() == first_bytes
+    fields = read_frontmatter(workspace.task_paths(task_id)[0])
+    t3_events = [event for event in fields["transitions"] if event["to"] == "review"]
+    assert len(t3_events) == 2
+    assert t3_events[0]["evidence_ref"] != t3_events[1]["evidence_ref"]
+
+    replay = Project(workspace.root).transition(**second_request)
+    assert replay["receipt_ref"] == second["receipt_ref"]
+    assert replay["attempt_id"] == ATTEMPT_B
+    assert len(read_frontmatter(workspace.task_paths(task_id)[0])["transitions"]) == 4
+    assert first_receipt.read_bytes() == first_bytes
+
+
+def test_current_prepared_t3_wins_over_historical_committed_receipt(
+    workspace: WorkspaceFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fcop.v4.lifecycle import Lifecycle
+
+    task_id = "TASK-WP3B1-HISTORY-PREPARED"
+    workspace.task(task_id, stage="active", attempt_id=ATTEMPT_A)
+    _commit_t3(workspace, task_id, ATTEMPT_A)
+    _materialize_rejected_round(workspace, task_id, ATTEMPT_B)
+    workspace.report("REPORT-WP3B1-B-PREPARED", task_id=task_id, attempt_id=ATTEMPT_B)
+    request = transition_request(task_id, "active", "review", tool="submit_task")
+    original = Lifecycle._finish
+
+    def stop_after_prepared(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        raise V4ProtocolError(_V4Code.RECOVERY_REQUIRED, "prepared boundary")
+
+    monkeypatch.setattr(Lifecycle, "_finish", stop_after_prepared)
+    with pytest.raises(V4ProtocolError):
+        Project(workspace.root).transition(**request)
+    monkeypatch.setattr(Lifecycle, "_finish", original)
+
+    before = {_receipt(path)["attempt_id"]: path.read_bytes() for path in _receipt_paths(workspace.root)}
+    assert {_receipt(path)["stage"] for path in _receipt_paths(workspace.root)} == {
+        "COMMITTED",
+        "PREPARED",
+    }
+    result = Project(workspace.root).transition(**request)
+    assert result["attempt_id"] == ATTEMPT_B
+    assert _receipt(workspace.root / result["receipt_ref"])["stage"] == "COMMITTED"
+    assert next(
+        path for path in _receipt_paths(workspace.root) if _receipt(path)["attempt_id"] == ATTEMPT_A
+    ).read_bytes() == before[ATTEMPT_A]
+
+
+def test_multiple_receipts_for_current_attempt_fail_closed(
+    workspace: WorkspaceFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from fcop.v4.lifecycle import Lifecycle
+    from fcop.v4.receipts import publish_prepared
+
+    task_id = "TASK-WP3B1-CURRENT-CONFLICT"
+    workspace.task(task_id, stage="active", attempt_id=ATTEMPT_A)
+    workspace.report("REPORT-WP3B1-CONFLICT", task_id=task_id, attempt_id=ATTEMPT_A)
+    request = transition_request(task_id, "active", "review", tool="submit_task")
+    original = Lifecycle._finish
+
+    def stop_after_prepared(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args, kwargs
+        raise V4ProtocolError(_V4Code.RECOVERY_REQUIRED, "prepared boundary")
+
+    monkeypatch.setattr(Lifecycle, "_finish", stop_after_prepared)
+    with pytest.raises(V4ProtocolError):
+        Project(workspace.root).transition(**request)
+    monkeypatch.setattr(Lifecycle, "_finish", original)
+    first_path = _receipt_paths(workspace.root)[0]
+    duplicate = _receipt(first_path)
+    duplicate["operation_id"] = uuid4().urn
+    publish_prepared(workspace.root, duplicate)
+    before = snapshot_tree(workspace.root)
+
+    with pytest.raises(V4ProtocolError) as caught:
+        Project(workspace.root).transition(**request)
+    assert caught.value.code == "RECOVERY_REQUIRED"
+    assert snapshot_tree(workspace.root) == before
+    assert len(_receipt_paths(workspace.root)) == 2
+
+
+def test_lost_response_recovers_current_not_historical_round(
+    workspace: WorkspaceFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import fcop.v4.lifecycle as lifecycle
+
+    task_id = "TASK-WP3B1-ROUND-LOSS"
+    workspace.task(task_id, stage="active", attempt_id=ATTEMPT_A)
+    _commit_t3(workspace, task_id, ATTEMPT_A)
+    _materialize_rejected_round(workspace, task_id, ATTEMPT_B)
+    workspace.report("REPORT-WP3B1-ROUND-LOSS-B", task_id=task_id, attempt_id=ATTEMPT_B)
+    request = transition_request(task_id, "active", "review", tool="submit_task")
+    original = lifecycle.set_stage
+
+    def lose_response(
+        root: Path, path: Path, value: dict[str, Any], stage: str
+    ) -> dict[str, Any]:
+        if stage == "COMMITTED" and value["attempt_id"] == ATTEMPT_B:
+            raise V4ProtocolError(_V4Code.RECOVERY_REQUIRED, "response lost")
+        return original(root, path, value, stage)
+
+    monkeypatch.setattr(lifecycle, "set_stage", lose_response)
+    with pytest.raises(V4ProtocolError):
+        Project(workspace.root).transition(**request)
+    monkeypatch.setattr(lifecycle, "set_stage", original)
+    result = Project(workspace.root).transition(**request)
+    assert result["attempt_id"] == ATTEMPT_B
+    fields = read_frontmatter(Path(result["path"]))
+    assert len([event for event in fields["transitions"] if event["to"] == "review"]) == 2
+    assert len(_receipt_paths(workspace.root)) == 2
+
+
+def test_top_level_attempt_without_transition_is_not_authoritative(
+    workspace: WorkspaceFixture,
+) -> None:
+    task_id = "TASK-WP3B1-TOP-ONLY"
+    workspace.task(task_id, stage="active", attempt_id=ATTEMPT_A, transitions=[])
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        Project(workspace.root).write_report(**report_request(task_id, ATTEMPT_A))
+    assert caught.value.code == "ATTEMPT_MISMATCH"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_transition_attempt_overrides_conflicting_top_level_attempt(
+    workspace: WorkspaceFixture,
+) -> None:
+    task_id = "TASK-WP3B1-TRANSITION-WINS"
+    workspace.task(
+        task_id,
+        stage="active",
+        attempt_id=ATTEMPT_A,
+        transitions=[_entry_event(ATTEMPT_B)],
+    )
+    project = Project(workspace.root)
+    assert project.inspect_state(task_id=task_id)["current_attempt_id"] == ATTEMPT_B
+    report = project.write_report(**report_request(task_id, ATTEMPT_B))
+    assert Path(report["path"]).is_file()
+    with pytest.raises(V4ProtocolError) as caught:
+        project.write_report(**report_request(task_id, ATTEMPT_A))
+    assert caught.value.code == "ATTEMPT_MISMATCH"
+
+
+def test_last_entry_to_active_is_current_attempt(workspace: WorkspaceFixture) -> None:
+    task_id = "TASK-WP3B1-LAST-ACTIVE"
+    workspace.task(
+        task_id,
+        stage="active",
+        attempt_id=ATTEMPT_A,
+        transitions=[
+            _entry_event(ATTEMPT_A),
+            {
+                "at": "2026-09-03T00:05:00+08:00",
+                "by": "ME",
+                "from": "active",
+                "to": "review",
+                "tool": "submit_task",
+                "evidence_ref": ["REPORT-OLD"],
+                "evidence_digest": ["0" * 64],
+            },
+            {
+                **_entry_event(ATTEMPT_B, at="2026-09-03T00:06:00+08:00"),
+                "from": "review",
+                "tool": "reject_task",
+            },
+            {
+                **_entry_event(ATTEMPT_A, at="2026-09-03T00:07:00+08:00"),
+                "from": "unknown",
+            },
+        ],
+    )
+    assert Project(workspace.root).inspect_state(task_id=task_id)["current_attempt_id"] == ATTEMPT_B
+
+
+@pytest.mark.parametrize("stage", ["review", "done", "archive"])
+def test_replacement_report_is_append_only_after_active(
+    workspace: WorkspaceFixture, stage: str
+) -> None:
+    task_id = f"TASK-WP3B1-REPLACE-{stage.upper()}"
+    task_path = workspace.task(task_id, stage=stage, attempt_id=ATTEMPT_A)
+    old_report = workspace.report(
+        f"REPORT-WP3B1-OLD-{stage.upper()}", task_id=task_id, attempt_id=ATTEMPT_A
+    )
+    before_task = task_path.read_bytes()
+    before_report = old_report.read_bytes()
+    result = Project(workspace.root).write_report(
+        **report_request(
+            task_id,
+            ATTEMPT_A,
+            report_kind="replacement",
+            references=[old_report.stem],
+        )
+    )
+    assert Path(result["path"]).is_file()
+    assert task_path.read_bytes() == before_task
+    assert old_report.read_bytes() == before_report
+    from fcop.v4.lifecycle import report_head
+
+    creation = Project(workspace.root)._v4_creation
+    assert creation is not None
+    _, head = report_head(creation, task_id, ATTEMPT_A)
+    assert head["report_id"] == result["report_id"]
+
+
+@pytest.mark.parametrize("stage", ["active", "review", "done", "archive"])
+def test_report_for_noncurrent_attempt_is_rejected_in_every_state(
+    workspace: WorkspaceFixture, stage: str
+) -> None:
+    task_id = f"TASK-WP3B1-OLD-REPORT-{stage.upper()}"
+    workspace.task(task_id, stage=stage, attempt_id=ATTEMPT_B)
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        Project(workspace.root).write_report(**report_request(task_id, ATTEMPT_A))
+    assert caught.value.code == "ATTEMPT_MISMATCH"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_concurrent_replacements_leave_one_head(workspace: WorkspaceFixture) -> None:
+    task_id = "TASK-WP3B1-REPLACEMENT-RACE"
+    workspace.task(task_id, stage="review", attempt_id=ATTEMPT_A)
+    first = workspace.report("REPORT-WP3B1-RACE-HEAD", task_id=task_id, attempt_id=ATTEMPT_A)
+    request = report_request(
+        task_id,
+        ATTEMPT_A,
+        report_kind="replacement",
+        references=[first.stem],
+    )
+    results = _run_race(workspace.root, [("write_report", request), ("write_report", request)])
+    assert sorted(status for status, _ in results) == ["error", "ok"]
+    assert [value for status, value in results if status == "error"] == [
+        "REPORT_HEAD_AMBIGUOUS"
+    ]
+    from fcop.v4.lifecycle import report_head
+
+    creation = Project(workspace.root)._v4_creation
+    assert creation is not None
+    _, head = report_head(creation, task_id, ATTEMPT_A)
+    assert head["report_kind"] == "replacement"

@@ -761,21 +761,16 @@ class _Creation:
             request_attempt = kwargs.get("attempt_id")
             if not isinstance(request_attempt, str):
                 raise fail(_V4Code.INVALID_ENVELOPE, "REPORT attempt must be a UUID URN")
-            # A REPORT for a non-active TASK is an append-only fact but is not a
-            # current-attempt gate candidate. Active current-attempt writes are
-            # the F4.9.5 surface and receive the strict head checks below.
             try:
                 task_attempt = current_attempt(task_fields)
             except V4ProtocolError as exc:
-                if exc.code != _V4Code.ATTEMPT_MISMATCH.value:
+                if (
+                    exc.code != _V4Code.ATTEMPT_MISMATCH.value
+                    or task_path.parent.name != "inbox"
+                ):
                     raise
                 task_attempt = None
-            if task_attempt == request_attempt and task_path.parent.name != "active":
-                raise fail(
-                    _V4Code.INVALID_TRANSITION,
-                    "Current-attempt REPORT writes require an active TASK",
-                )
-            if task_path.parent.name == "active" and request_attempt != task_attempt:
+            if task_attempt is not None and request_attempt != task_attempt:
                 raise fail(_V4Code.ATTEMPT_MISMATCH, "REPORT attempt is not current")
             existing = [
                 item

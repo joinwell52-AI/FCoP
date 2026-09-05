@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from .driver import V4ConformanceDriver, capture_error, error_code, result_field
-from .fixtures import ATTEMPT_A, WORKSPACE_A, WorkspaceFixture, read_frontmatter, snapshot_tree
+from .fixtures import ATTEMPT_A, WorkspaceFixture, read_frontmatter, snapshot_tree
 from .scenarios import (
     assert_committed_transition,
     assert_task_stage,
@@ -15,7 +15,6 @@ from .scenarios import (
     review_request,
     transition_request,
 )
-
 
 T1_EVENT = {"at": "2026-09-03T00:00:00+08:00", "from": None, "to": "inbox", "by": "ME", "tool": "create_task"}
 
@@ -80,7 +79,7 @@ def test_c3_n01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
 
 def test_c3_n02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
     # Arrange: done TASK with an old attempt and a valid reopen authorization REVIEW.
-    workspace.task("TASK-C3-N02", stage="done", attempt_id=ATTEMPT_A, transitions=[])
+    workspace.task("TASK-C3-N02", stage="done", attempt_id=ATTEMPT_A)
     auth = authorization_fixture(
         workspace, "REVIEW-C3-REOPEN", task_id="TASK-C3-N02",
         from_stage="done", to_stage="active", attempt_id=ATTEMPT_A,
@@ -96,7 +95,7 @@ def test_c3_n02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
 
     # Assert: unique active path and a genuinely new attempt.
     event = assert_committed_transition(
-        workspace, "TASK-C3-N02", "active", result, previous_events=0,
+        workspace, "TASK-C3-N02", "active", result, previous_events=1,
         expected_from="done", expected_to="active",
     )
     assert result_field(result, "attempt_id") != ATTEMPT_A

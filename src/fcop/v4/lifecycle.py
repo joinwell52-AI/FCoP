@@ -40,29 +40,34 @@ def _uuid_urn(value: Any) -> bool:
 
 
 def current_attempt(fields: Mapping[str, Any]) -> str:
-    """Return the last valid entry-to-active attempt.
-
-    Frozen conformance fixtures materialize an active TASK with a top-level
-    ``attempt_id`` and no synthetic transition history. That representation is
-    accepted only when there are no transitions; normal production T2 always
-    writes the normative transition event.
-    """
+    """Return the attempt on the last valid entry-to-active transition."""
     transitions = fields.get("transitions")
     if not isinstance(transitions, list):
         raise fail(_V4Code.INVALID_ENVELOPE, "TASK transitions must be an array")
     for event in reversed(transitions):
         attempt = event.get("attempt_id") if isinstance(event, Mapping) else None
+        source = event.get("from") if isinstance(event, Mapping) else None
+        expected_tool = (
+            {
+                "inbox": "claim_task",
+                "review": "reject_task",
+                "done": "reopen_task",
+            }.get(source)
+            if isinstance(source, str)
+            else None
+        )
         if (
             isinstance(event, Mapping)
             and event.get("to") == "active"
+            and expected_tool is not None
+            and event.get("tool") == expected_tool
+            and isinstance(event.get("at"), str)
+            and isinstance(event.get("by"), str)
+            and bool(event["by"])
             and _uuid_urn(attempt)
         ):
             assert isinstance(attempt, str)
             return attempt
-    materialized = fields.get("attempt_id")
-    if not transitions and _uuid_urn(materialized):
-        assert isinstance(materialized, str)
-        return materialized
     raise fail(_V4Code.ATTEMPT_MISMATCH, "Current active attempt is not provable")
 
 
@@ -208,6 +213,17 @@ class Lifecycle:
             from_stage=source_stage,
             to_stage=target_stage,
         )
+        if source_stage == "active":
+            attempt_id = self._visible_attempt(task_id, source_stage, target_stage)
+            receipts = [
+                item for item in receipts if item[1]["attempt_id"] == attempt_id
+            ]
+        if len(receipts) > 1:
+            raise fail(
+                _V4Code.RECOVERY_REQUIRED,
+                "Multiple receipts claim the current lifecycle round",
+                subject=task_id,
+            )
         if receipts:
             path, receipt = receipts[0]
             if receipt["normalized_transition_digest"] != request_digest:
@@ -300,6 +316,24 @@ class Lifecycle:
         }
         receipt_path = publish_prepared(self.root, receipt)
         return self._finish(receipt_path, receipt, source, target, target_bytes)
+
+    def _visible_attempt(
+        self, task_id: str, source_stage: str, target_stage: str
+    ) -> str:
+        """Derive one round identity from visible TASK transition history."""
+        attempts: set[str] = set()
+        for stage in (source_stage, target_stage):
+            path = safe_path(self.root, f"fcop/_lifecycle/{stage}/{task_id}.md")
+            if path.is_file():
+                fields = self.creation._validate(parse_envelope(path), path)
+                attempts.add(current_attempt(fields))
+        if len(attempts) != 1:
+            raise fail(
+                _V4Code.RECOVERY_REQUIRED,
+                "Current lifecycle round is not uniquely provable",
+                subject=task_id,
+            )
+        return attempts.pop()
 
     def _target_from_receipt(self, receipt: Mapping[str, Any], source: Path) -> bytes:
         fields = self.creation._validate(parse_envelope(source), source)

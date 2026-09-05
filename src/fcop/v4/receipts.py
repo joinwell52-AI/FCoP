@@ -197,8 +197,6 @@ def matching_receipts(
             and value["to_stage"] == to_stage
         ):
             found.append((path, value))
-    if len(found) > 1:
-        raise fail(_V4Code.RECOVERY_REQUIRED, "Multiple receipts claim one WP3B edge")
     return found
 
 

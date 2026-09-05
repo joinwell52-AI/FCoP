@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import yaml
-
 
 WORKSPACE_A = "urn:uuid:11111111-1111-4111-8111-111111111111"
 WORKSPACE_B = "urn:uuid:22222222-2222-4222-8222-222222222222"
@@ -45,7 +45,7 @@ def _frontmatter(fields: Mapping[str, Any], body: str) -> bytes:
         dict(fields), allow_unicode=True, sort_keys=False, default_flow_style=False
     )
     normalized_body = body.replace("\r\n", "\n").replace("\r", "\n").rstrip("\n")
-    return f"---\n{yaml_text}---\n\n{normalized_body}\n".encode("utf-8")
+    return f"---\n{yaml_text}---\n\n{normalized_body}\n".encode()
 
 
 def read_frontmatter(path: Path) -> dict[str, Any]:
@@ -88,7 +88,7 @@ class WorkspaceFixture:
     root: Path
     workspace_id: str = WORKSPACE_A
 
-    def create(self, *, profiles: Sequence[str] = ("profile:test",)) -> "WorkspaceFixture":
+    def create(self, *, profiles: Sequence[str] = ("profile:test",)) -> WorkspaceFixture:
         manifest = {
             "protocol": "fcop",
             "protocol_version": "4.0",
@@ -114,9 +114,23 @@ class WorkspaceFixture:
     def task(
         self, task_id: str, *, stage: str = "inbox", attempt_id: str | None = None,
         parent: str | None = None, branch_of: str | None = None,
-        references: Sequence[str] = (), transitions: Sequence[Mapping[str, Any]] = (),
+        references: Sequence[str] = (),
+        transitions: Sequence[Mapping[str, Any]] | None = None,
         body: str = "fixture task",
     ) -> Path:
+        if transitions is None:
+            transitions = ()
+            if attempt_id is not None:
+                transitions = (
+                    {
+                        "at": "2026-09-03T00:00:01+08:00",
+                        "attempt_id": attempt_id,
+                        "by": "ME",
+                        "from": "inbox",
+                        "to": "active",
+                        "tool": "claim_task",
+                    },
+                )
         fields: dict[str, Any] = {
             "protocol": "fcop", "version": 4, "type": "TASK", "task_id": task_id,
             "workspace_id": self.workspace_id, "sender": "ME", "recipient": "ME",
