@@ -8,7 +8,7 @@ main_merge_authorized: false
 release_authorized: false
 roadmap_version: 1.4
 roadmap_base_commit: 639d8eb5be4d85303d8ac09e56bcef25c262d583
-active_execution_taskbook_commit: 1b3985375757f7304399764daef387890402da77
+active_execution_taskbook_commit: 274797c1e7647f1831c2f9bb9a300981ec4cc3a7
 ---
 
 # FCoP 4.0 统一项目路线图与阶段门
@@ -66,7 +66,7 @@ WP3D v1.1 已交付远端 review HEAD `639d8eb5be4d85303d8ac09e56bcef25c262d583`
 
 当前 Codex 唯一允许执行：
 
-- Taskbook commit：`1b3985375757f7304399764daef387890402da77`
+- Taskbook commit：`274797c1e7647f1831c2f9bb9a300981ec4cc3a7`
 - Taskbook path：`taskbooks/fcop-4.0/WP3D.1/01-Public-Surface-Snapshot-and-Changelog-Closeout-Taskbook-v1.0.zh.md`
 - Input head：`639d8eb5be4d85303d8ac09e56bcef25c262d583`
 - Authorized scope：`WP3D_1_ONLY`
@@ -155,7 +155,7 @@ WP4不得形成：
 PROGRAM: FCoP 4.0
 ROADMAP_VERSION: 1.4
 ACTIVE_STAGE: WP3D.1
-ACTIVE_EXECUTION_COMMIT: 1b3985375757f7304399764daef387890402da77
+ACTIVE_EXECUTION_COMMIT: 274797c1e7647f1831c2f9bb9a300981ec4cc3a7
 PARALLEL_IMPLEMENTATION_ALLOWED: false
 WP3D_AUTHORIZED: false
 WP3D_1_AUTHORIZED: true
