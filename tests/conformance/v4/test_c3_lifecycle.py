@@ -100,7 +100,7 @@ def test_c3_n01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
 
 
 def test_c3_n02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
-    # Arrange: done TASK with an old attempt and a valid reopen authorization REVIEW.
+    # Arrange: done TASK with an old attempt and a valid authorization REVIEW for reopening.
     workspace.task("TASK-C3-N02", stage="done", attempt_id=ATTEMPT_A)
     auth = authorization_fixture(
         workspace, "REVIEW-C3-REOPEN", task_id="TASK-C3-N02",
@@ -252,7 +252,15 @@ def test_c3_gate_01(
             profile_ref="profile:test", transition={"from": source, "to": target},
             authorization_scope="single_use",
         )
-        review_ref = auth_ref = f"REVIEW-{edge}"
+        review_ref = f"REVIEW-{edge}"
+        if edge == "T6":
+            auth = authorization_fixture(
+                workspace, "REVIEW-T6-AUTHORIZATION", task_id=task_id,
+                from_stage="done", to_stage="active", attempt_id=ATTEMPT_A,
+            )
+            auth_ref = read_frontmatter(auth)["review_id"]
+        else:
+            auth_ref = review_ref
     if edge == "T7":
         authorization_fixture(
             workspace, "REVIEW-T7", task_id=task_id, from_stage="done", to_stage="archive",
