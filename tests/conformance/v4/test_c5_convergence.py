@@ -11,8 +11,8 @@ from .driver import (
     run_concurrent_operations,
 )
 from .fixtures import (
-    ATTEMPT_A, ATTEMPT_B, WorkspaceFixture, canonical_family_digest,
-    read_frontmatter, sha256_bytes, snapshot_tree,
+    ATTEMPT_A, ATTEMPT_B, DeterministicProfileEvaluator, WorkspaceFixture,
+    canonical_family_digest, read_frontmatter, sha256_bytes, snapshot_tree,
 )
 from .scenarios import (
     assert_task_stage, authorization_fixture, create_request, report_request,
@@ -65,9 +65,16 @@ def test_c5_n02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
     # Arrange: done Root, two completed Branches, unique current REPORTs and digest oracle.
     entries, expected_digest = _family(workspace)
     refs = [entry["report_id"] for entry in entries]
+    driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={
+            "profile:test": DeterministicProfileEvaluator("AUTHORIZED")
+        },
+        test_id="C5-N02",
+    )
 
     # Act: append convergence, bind archive authorization, and commit Root T7.
-    convergence = v4_driver.write_review(
+    convergence = driver.write_review(
         test_id="C5-N02", clause="F4.6.5-F4.6.8",
         **review_request(
             "TASK-C5-ROOT", review_kind="convergence", decision="approved",
@@ -79,7 +86,7 @@ def test_c5_n02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
         workspace, "REVIEW-C5-AUTH", task_id="TASK-C5-ROOT",
         from_stage="done", to_stage="archive", family_digest=expected_digest,
     )
-    result = v4_driver.transition(
+    result = driver.transition(
         test_id="C5-N02", clause="F4.6.5-F4.6.8",
         **transition_request(
             "TASK-C5-ROOT", "done", "archive", tool="archive_task",
@@ -213,23 +220,30 @@ def test_c5_branch_01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDrive
 def test_c5_archived_01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
     # Arrange: completed family and an authorization for Branch B T7.
     _, expected = _family(workspace)
+    driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={
+            "profile:test": DeterministicProfileEvaluator("AUTHORIZED")
+        },
+        test_id="C5-ARCHIVED-01",
+    )
     authorization_fixture(
         workspace, "REVIEW-C5-B-ARCHIVE", task_id="TASK-C5-B",
         from_stage="done", to_stage="archive", attempt_id=ATTEMPT_B,
     )
-    before = v4_driver.family_digest(
+    before = driver.family_digest(
         test_id="C5-ARCHIVED-01", clause="F4.6.6-F4.6.8", root_task_id="TASK-C5-ROOT"
     )
 
     # Act: archive one Branch, then recompute the family digest.
-    moved = v4_driver.transition(
+    moved = driver.transition(
         test_id="C5-ARCHIVED-01", clause="F4.6.6-F4.6.8",
         **transition_request(
             "TASK-C5-B", "done", "archive", tool="archive_task",
             authorization_ref="REVIEW-C5-B-ARCHIVE",
         )
     )
-    after = v4_driver.family_digest(
+    after = driver.family_digest(
         test_id="C5-ARCHIVED-01", clause="F4.6.6-F4.6.8", root_task_id="TASK-C5-ROOT"
     )
 

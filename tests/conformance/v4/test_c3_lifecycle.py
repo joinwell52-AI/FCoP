@@ -284,7 +284,7 @@ def test_c3_gate_01(
                 },
                 test_id="C3-GATE-01",
             )
-            if edge in {"T4", "T5", "T6"}
+            if edge in {"T4", "T5", "T6", "T7"}
             else v4_driver
         )
         result = driver.transition(
