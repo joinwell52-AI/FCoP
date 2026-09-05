@@ -15,6 +15,18 @@ if TYPE_CHECKING:
     from fcop.v4.creation import _Creation
 
 
+_AUTHORIZATION_CARRIERS: dict[
+    str, tuple[frozenset[tuple[str, str]], str]
+] = {
+    "authorization": (
+        frozenset({("review", "done"), ("review", "active"), ("done", "active")}),
+        "authorize",
+    ),
+    "acceptance": (frozenset({("review", "done")}), "approved"),
+    "rejection": (frozenset({("review", "active")}), "rejected"),
+}
+
+
 @dataclass(frozen=True)
 class AuthorizationGate:
     """Validated immutable inputs used to construct one transition event."""
@@ -36,6 +48,11 @@ def _time(value: Any, *, field: str) -> datetime:
         return stamp
     except (TypeError, ValueError) as exc:
         raise fail(_V4Code.AUTHORIZATION_INVALID, f"Invalid {field}") from exc
+
+
+def _utc_now() -> datetime:
+    """Return the private UTC clock used at authorization linearization points."""
+    return datetime.now(timezone.utc)
 
 
 def _review(
@@ -203,18 +220,21 @@ def validate_gate(
 
     auth_path, authorization, authorization_digest = _review(creation, auth_ref)
     del auth_path
-    if authorization.get("review_kind") not in {
-        "authorization", "acceptance", "rejection", "reopen"
-    }:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "REVIEW kind cannot carry authorization")
-    expected_decision = {
-        "authorization": "authorize",
-        "acceptance": "approved",
-        "rejection": "rejected",
-        "reopen": "approved",
-    }[authorization["review_kind"]]
-    if authorization.get("decision") != expected_decision:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization decision mismatch")
+    review_kind = authorization.get("review_kind")
+    carrier = (
+        _AUTHORIZATION_CARRIERS.get(review_kind)
+        if isinstance(review_kind, str)
+        else None
+    )
+    if (
+        carrier is None
+        or edge not in carrier[0]
+        or authorization.get("decision") != carrier[1]
+    ):
+        raise fail(
+            _V4Code.AUTHORIZATION_INVALID,
+            "REVIEW kind/decision cannot authorize this lifecycle edge",
+        )
     if (
         authorization.get("subject_ref") != task_id
         or authorization.get("transition") != {"from": edge[0], "to": edge[1]}
@@ -226,9 +246,10 @@ def validate_gate(
         raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization binding mismatch")
     issued = _time(authorization.get("issued_at"), field="issued_at")
     expires_value = authorization.get("expires_at")
+    expires: datetime | None = None
     if expires_value is not None:
         expires = _time(expires_value, field="expires_at")
-        if expires < datetime.now(timezone.utc):
+        if expires < _utc_now():
             raise fail(_V4Code.AUTHORIZATION_EXPIRED, "Authorization has expired")
         if expires < issued:
             raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization time range is invalid")
@@ -255,6 +276,11 @@ def validate_gate(
         raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile evaluation failed") from exc
     if decision != "AUTHORIZED":
         raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile did not authorize issuer proof")
+    if expires is not None and expires < _utc_now():
+        raise fail(
+            _V4Code.AUTHORIZATION_EXPIRED,
+            "Authorization expired before consumption linearization",
+        )
 
     if authorization.get("evidence_digest") is not None:
         bound = authorization["evidence_digest"]

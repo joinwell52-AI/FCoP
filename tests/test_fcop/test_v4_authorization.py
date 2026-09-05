@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 
+import fcop.v4.authorization as v4_authorization
 from fcop import Project
 from fcop.errors import V4ProtocolError
 from tests.conformance.v4.fixtures import (
@@ -88,6 +89,199 @@ def _arrange(root: Path, edge: str) -> tuple[WorkspaceFixture, dict[str, Any], b
 
 def _project(root: Path, evaluator: Any | None = None) -> Project:
     return Project(root, trusted_profiles={"profile:test": evaluator or _Allow()})
+
+
+def _rewrite_review(
+    workspace: WorkspaceFixture, review_id: str, **updates: Any
+) -> None:
+    path = workspace.envelope_paths(review_id)[0]
+    fields = read_frontmatter(path)
+    fields.update(updates)
+    path.write_bytes(_frontmatter(fields, "fixture review"))
+
+
+def test_wp3c1_kind_01_reopen_cannot_be_authorization(tmp_path: Path) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T6")
+    workspace.review(
+        "REVIEW-WP3C1-REOPEN",
+        task_id=request["task_id"],
+        review_kind="reopen",
+        decision="approved",
+        attempt_id=ATTEMPT_A,
+        profile_ref="profile:test",
+        transition={"from": "done", "to": "active"},
+        authorization_scope="single_use",
+    )
+    request.update(
+        review_ref="REVIEW-WP3C1-REOPEN",
+        authorization_ref="REVIEW-WP3C1-REOPEN",
+    )
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        _project(tmp_path).transition(**request)
+    assert caught.value.code == "AUTHORIZATION_INVALID"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_wp3c1_kind_02_acceptance_cannot_authorize_t5(tmp_path: Path) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T5")
+    workspace.review(
+        "REVIEW-WP3C1-T5-ACCEPTANCE",
+        task_id=request["task_id"],
+        review_kind="acceptance",
+        decision="approved",
+        attempt_id=ATTEMPT_A,
+        references=["REPORT-WP3C-T5"],
+        profile_ref="profile:test",
+        transition={"from": "review", "to": "active"},
+        authorization_scope="single_use",
+    )
+    request["authorization_ref"] = "REVIEW-WP3C1-T5-ACCEPTANCE"
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        _project(tmp_path).transition(**request)
+    assert caught.value.code == "AUTHORIZATION_INVALID"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_wp3c1_kind_03_rejection_cannot_authorize_t4(tmp_path: Path) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T4")
+    workspace.review(
+        "REVIEW-WP3C1-T4-REJECTION",
+        task_id=request["task_id"],
+        review_kind="rejection",
+        decision="rejected",
+        attempt_id=ATTEMPT_A,
+        references=["REPORT-WP3C-T4"],
+        profile_ref="profile:test",
+        transition={"from": "review", "to": "done"},
+        authorization_scope="single_use",
+    )
+    request["authorization_ref"] = "REVIEW-WP3C1-T4-REJECTION"
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        _project(tmp_path).transition(**request)
+    assert caught.value.code == "AUTHORIZATION_INVALID"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_wp3c1_kind_04_t6_reopen_with_independent_authorization(tmp_path: Path) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T6")
+    workspace.review(
+        "REVIEW-WP3C1-T6-REOPEN",
+        task_id=request["task_id"],
+        review_kind="reopen",
+        decision="approved",
+        attempt_id=ATTEMPT_A,
+    )
+    request["review_ref"] = "REVIEW-WP3C1-T6-REOPEN"
+    result = _project(tmp_path).transition(**request)
+    event = read_frontmatter(Path(result["path"]))["transitions"][-1]
+    assert event["evidence_ref"] == ["REVIEW-WP3C1-T6-REOPEN"]
+    assert event["authorization_ref"] == "REVIEW-WP3C-T6"
+
+
+def test_wp3c1_exp_01_expiry_is_rechecked_after_evaluator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T4")
+    _rewrite_review(
+        workspace,
+        "REVIEW-WP3C-T4",
+        issued_at="2089-12-31T23:59:59+00:00",
+        expires_at="2090-01-01T00:00:01+00:00",
+    )
+    observed = iter(
+        [
+            v4_authorization._time("2090-01-01T00:00:00+00:00", field="clock"),
+            v4_authorization._time("2090-01-01T00:00:02+00:00", field="clock"),
+        ]
+    )
+    monkeypatch.setattr(v4_authorization, "_utc_now", lambda: next(observed), raising=False)
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        _project(tmp_path).transition(**request)
+    assert caught.value.code == "AUTHORIZATION_EXPIRED"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_wp3c1_exp_02_expired_exact_retry_is_existing_without_evaluator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T4")
+    _rewrite_review(
+        workspace,
+        "REVIEW-WP3C-T4",
+        issued_at="2089-12-31T23:59:59+00:00",
+        expires_at="2090-01-01T00:00:02+00:00",
+    )
+    before_expiry = iter(
+        [
+            v4_authorization._time("2090-01-01T00:00:00+00:00", field="clock"),
+            v4_authorization._time("2090-01-01T00:00:01+00:00", field="clock"),
+        ]
+    )
+    monkeypatch.setattr(v4_authorization, "_utc_now", lambda: next(before_expiry), raising=False)
+    first = _project(tmp_path).transition(**request)
+    committed = snapshot_tree(workspace.root)
+
+    calls = 0
+
+    def forbidden_evaluator(**kwargs: Any) -> str:
+        nonlocal calls
+        calls += 1
+        raise AssertionError(kwargs)
+
+    monkeypatch.setattr(
+        v4_authorization,
+        "_utc_now",
+        lambda: v4_authorization._time("2090-01-01T00:00:03+00:00", field="clock"),
+        raising=False,
+    )
+    retry = _project(tmp_path, forbidden_evaluator).transition(**request)
+    task = read_frontmatter(Path(retry["path"]))
+    assert first["existing"] is False and retry["existing"] is True
+    assert calls == 0
+    assert len([event for event in task["transitions"] if event.get("authorization_ref")]) == 1
+    assert snapshot_tree(workspace.root) == committed
+
+
+def test_wp3c1_rec_01_receipt_profile_must_match_authorization(
+    tmp_path: Path,
+) -> None:
+    workspace, request, _ = _arrange(tmp_path, "T4")
+    first = _project(tmp_path).transition(**request)
+    receipt_path = workspace.root / first["receipt_ref"]
+    receipt = json.loads(receipt_path.read_text("utf-8"))
+    receipt["profile_ref"] = "profile:forged"
+    receipt_path.write_text(
+        json.dumps(receipt, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        _project(tmp_path).transition(**request)
+    assert caught.value.code == "RECOVERY_REQUIRED"
+    assert snapshot_tree(workspace.root) == before
+
+
+def test_wp3c1_reg_01_t4_acceptance_can_carry_authorization(tmp_path: Path) -> None:
+    _, request, _ = _arrange(tmp_path, "T4")
+    result = _project(tmp_path).transition(**request)
+    assert result["to_stage"] == "done" and result["existing"] is False
+
+
+def test_wp3c1_reg_02_t5_rejection_can_carry_authorization(tmp_path: Path) -> None:
+    _, request, _ = _arrange(tmp_path, "T5")
+    result = _project(tmp_path).transition(**request)
+    assert result["to_stage"] == "active" and result["attempt_id"] != ATTEMPT_A
+
+
+def test_wp3c1_reg_03_t6_authorization_can_carry_evidence(tmp_path: Path) -> None:
+    _, request, _ = _arrange(tmp_path, "T6")
+    result = _project(tmp_path).transition(**request)
+    assert result["to_stage"] == "active" and result["attempt_id"] != ATTEMPT_A
 
 
 @pytest.mark.parametrize("edge", ["T4", "T5", "T6"])

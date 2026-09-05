@@ -489,7 +489,7 @@ class Lifecycle:
         authorization_ref = receipt.get("authorization_ref")
         if authorization_ref is not None:
             try:
-                path, _ = self.creation._resolve(authorization_ref)
+                path, authorization = self.creation._resolve(authorization_ref)
             except Exception as exc:
                 raise fail(
                     _V4Code.EVIDENCE_DIGEST_MISMATCH,
@@ -499,6 +499,14 @@ class Lifecycle:
                 raise fail(
                     _V4Code.EVIDENCE_DIGEST_MISMATCH,
                     "Authorization REVIEW bytes changed",
+                )
+            if (
+                authorization.get("review_id") != authorization_ref
+                or authorization.get("profile_ref") != receipt.get("profile_ref")
+            ):
+                raise fail(
+                    _V4Code.RECOVERY_REQUIRED,
+                    "Receipt Profile does not match its Authorization REVIEW",
                 )
 
     def _recover(
