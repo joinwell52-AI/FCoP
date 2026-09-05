@@ -50,6 +50,51 @@ supersedes: "CodeFlowMu-AGENTS拆分与Agent宪法强制加载实施任务书-v0
 
 本文当前只供 ADMIN 审阅。它确定本工作属于 FCoP 4.0 正式范围，但尚不等于授权某个 Agent 立即修改当前审阅分支、代码、分发包、PyPI 包或下游项目。实施应使用独立工作分支，在 4.0 发布 Gate 前与主升级线汇合。
 
+### 0.1 与 FCoP 4.0 主升级线的关系
+
+本任务的正式定位如下：
+
+```yaml
+program: FCOP_4_0
+work_package: WP3C
+relationship_to_wp3b: STACKED_AFTER_ACCEPTED_HEAD
+accepted_parent_head: 511039db227a23ae3e2d79aaae775a92ba392f5c
+implementation_branch_policy: ISOLATED_REVIEW_BRANCH
+parallel_product_line: false
+main_merge_authorized: false
+release_authorized: false
+```
+
+“独立工作分支”只用于隔离变更、固定证据和单独审核，不表示建立第二条 FCoP 4.0 产品线。WP3C 必须从已验收的 WP3B head 顺序接出；不得回写、重写或向已验收 WP3B 分支夹带提交。WP3C 通过自身验收后，只能在获得 `MAIN_MERGE_AUTHORIZED` 的情况下并入 FCoP 4.0 主升级线。
+
+### 0.2 本轮审核必须作出的裁决
+
+审核者应逐项确认或提出修改意见：
+
+1. 是否接受本任务作为 FCoP 4.0 的正式 `WP3C`，而不是独立于 4.0 的旁支项目；
+2. 是否接受 `511039db227a23ae3e2d79aaae775a92ba392f5c` 作为 WP3C 唯一父基线；
+3. 是否接受“大规则文件拆分完成”作为 FCoP 4.0 release blocker；
+4. 是否接受从冻结 4.0 合同全新重建规则包，而不是在 3.x 大文件上增量修改；
+5. 是否接受 Core、分类模块、Manifest、Host 薄适配器和 FCoP 开发规则的职责划分；
+6. 是否接受新增规则必须进入唯一分类源，禁止直接追加到 `AGENTS.md`、`CLAUDE.md` 或 `.mdc`；
+7. 是否接受 Host 文件按 ADMIN 已采用的显式 profile 生成，文件存在不代表平台采用或模型选择；
+8. 是否接受《Agent原生软件工程宪法》只对开发 Agent 强制加载，不无差别注入普通 FCoP 业务 Agent；
+9. 是否接受 CodeFlowMu 在本工作包中仅作为下游兼容 shadow，不升级其 FCoP 固定版本、不修改其产品规则；
+10. 是否接受 WP3C.0 至 WP3C.6 的分段授权、验收和激活顺序。
+
+审核结果必须显式记录为以下之一：
+
+```yaml
+WP3C_TASKBOOK_DECISION: APPROVED | CHANGES_REQUIRED | REJECTED
+WP3C_TASKBOOK_FROZEN_COMMIT: ""
+WP3C_AUTHORIZED_SCOPE: NONE | WP3C_0_ONLY
+MAIN_MERGE_AUTHORIZED: false
+RELEASE_AUTHORIZED: false
+REVIEW_NOTES: []
+```
+
+即使任务书获得 `APPROVED`，首次执行授权也只能是 `WP3C_0_ONLY`。任务书批准、实施授权、主线合并授权和发布授权是四个不同决定，不得相互替代。
+
 ---
 
 ## 1. 当前事实
