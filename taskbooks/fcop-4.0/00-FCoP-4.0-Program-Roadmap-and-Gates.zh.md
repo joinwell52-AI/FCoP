@@ -6,9 +6,9 @@ execution_authorized: false
 authorized_scope: NONE
 main_merge_authorized: false
 release_authorized: false
-roadmap_version: 1.3
-roadmap_base_commit: dd8c39a2e025cc60f37d443abbe0988cbddf1810
-active_execution_taskbook_commit: 4e0d8c524020cc3b1b152d3d3a736f84a2f78a4e
+roadmap_version: 1.4
+roadmap_base_commit: 639d8eb5be4d85303d8ac09e56bcef25c262d583
+active_execution_taskbook_commit: 1b3985375757f7304399764daef387890402da77
 ---
 
 # FCoP 4.0 统一项目路线图与阶段门
@@ -44,8 +44,9 @@ active_execution_taskbook_commit: 4e0d8c524020cc3b1b152d3d3a736f84a2f78a4e
 | WP3C | Authorization 与受控迁移 T4/T5/T6 | COMPLETE | WP3B_LIFECYCLE_ACCEPTED | — |
 | WP3C.1 | 授权载体矩阵、过期线性化与receipt绑定收口 | COMPLETE | WP3C_REMOTE_HEAD bd61efeb… | — |
 | WP3C.2 | T6冻结符合性夹具与冻结合同对齐 | COMPLETE | WP3C.1_REMOTE_HEAD d0d9ec02… | WP3C_AUTHORIZATION_ACCEPTED |
-| WP3D | Branch、显式收敛、family digest 与 T7 | ACTIVE_REAUTHORIZED | WP3D_FIXTURE_ALIGNMENT_ACCEPTED | WP3D_CONVERGENCE_ACCEPTED |
+| WP3D | Branch、显式收敛、family digest 与 T7 | COMPLETE_PENDING_CLOSEOUT | WP3D_FIXTURE_ALIGNMENT_ACCEPTED | WP3D_CONVERGENCE_ACCEPTED |
 | WP3D.0 | 三个T7成功节点的可信Profile夹具对齐 | COMPLETE | WP3D_BLOCKED | WP3D_FIXTURE_ALIGNMENT_ACCEPTED |
+| WP3D.1 | 公共API快照与CHANGELOG收口 | ACTIVE | WP3D_REMOTE_HEAD 639d8eb5… | WP3D_CONVERGENCE_ACCEPTED |
 | WP3E | 剩余 Core 符合性收口；60/60 冻结测试全绿 | NOT_AUTHORIZED | WP3D_CONVERGENCE_ACCEPTED | FCOP_4_CORE_IMPLEMENTATION_ACCEPTED |
 | WP4.0 | 规则大文件、Host入口、装配与发布现状只读审计 | NOT_AUTHORIZED | FCOP_4_CORE_IMPLEMENTATION_ACCEPTED | WP4_BASELINE_VERIFIED |
 | WP4.1 | 冻结规则分层、Manifest、Host Profile 与宪法加载合同 | NOT_AUTHORIZED | WP4_BASELINE_VERIFIED | WP4_RULE_CONTRACT_FROZEN |
@@ -61,32 +62,25 @@ WP3E 只处理 WP3C、WP3D 完成后仍未通过的冻结 Core 测试，不预�
 
 ## 3. 当前唯一允许继续的工作
 
-WP3D.0已由ADMIN审核并签署：
+WP3D v1.1 已交付远端 review HEAD `639d8eb5be4d85303d8ac09e56bcef25c262d583`。ADMIN 审核确认 convergence/T7 实现边界可接受，但 `tests/test_fcop` 仍有一个真实 public-surface snapshot 失败，且 CHANGELOG 未登记已授权的新公共 API；因此尚未签署 `WP3D_CONVERGENCE_ACCEPTED`。
 
-- accepted review head：`685835f5d22b327fd92121fce46941327368095c`
-- Gate commit：`dd8c39a2e025cc60f37d443abbe0988cbddf1810`
-- Gate receipt：`reviews/fcop-4.0/gates/WP3D-FIXTURE-ALIGNMENT-ACCEPTED.md`
-- Decision：`ACCEPTED`
+当前 Codex 唯一允许执行：
 
-旧WP3D任务书提交 `e664fa39592b699637c1f0e6aeee229331b321e3` 已被取代，不能恢复执行。
-
-当前Codex唯一允许执行：
-
-- Taskbook commit：`4e0d8c524020cc3b1b152d3d3a736f84a2f78a4e`
-- Taskbook path：`taskbooks/fcop-4.0/WP3D/02-Branch-Convergence-Family-Digest-and-T7-Restart-Taskbook-v1.1.zh.md`
-- Input head：`dd8c39a2e025cc60f37d443abbe0988cbddf1810`
-- Authorized scope：`WP3D_ONLY`
-- Expected review branch：`review/fcop-4.0-wp3d-convergence-t7-v1.1`
+- Taskbook commit：`1b3985375757f7304399764daef387890402da77`
+- Taskbook path：`taskbooks/fcop-4.0/WP3D.1/01-Public-Surface-Snapshot-and-Changelog-Closeout-Taskbook-v1.0.zh.md`
+- Input head：`639d8eb5be4d85303d8ac09e56bcef25c262d583`
+- Authorized scope：`WP3D_1_ONLY`
+- Expected review branch：`review/fcop-4.0-wp3d.1-public-surface-closeout`
 - Required stop Gate：`WP3D_CONVERGENCE_ACCEPTED`
 
-本轮只实现Branch显式收敛、canonical family digest和普通/Branch/Root T7；公共recovery、cold export、Schema、MCP、规则包、Host与CodeFlowMu继续禁止。
+WP3D.1 只允许更新 `tests/test_fcop/snapshots/public_surface.json`、`CHANGELOG.md` 和交付证据。不得修改生产代码、测试逻辑、冻结 Conformance、MCP、CodeFlowMu 或 main。
 
-## 4. WP3D 完成后的固定动作
+## 4. WP3D.1 完成后的固定动作
 
-1. Codex推送WP3D Content Commit和Manifest Commit并远端回读。
+1. Codex推送WP3D.1 Content Commit和Manifest Commit并远端回读。
 2. Codex停止，不进入WP3E/WP4。
-3. ADMIN审核15个目标节点、digest独立oracle、convergence/T7证据、竞态矩阵、可信Profile边界和全部回归。
-4. 只有签署 `WP3D_CONVERGENCE_ACCEPTED` 后，才能从accepted remote head编制WP3E任务书。
+3. ADMIN确认公共面 snapshot 仅新增 `Project.family_digest`、CHANGELOG已登记、`tests/test_fcop` 零失败，且WP3D全部回归无退化。
+4. 只有签署 `WP3D_CONVERGENCE_ACCEPTED` 后，才能从WP3D.1 accepted remote head编制WP3E任务书。
 5. WP3E只收口剩余Core符合性，不提前进入规则包、MCP或发布层。
 
 ## 5. WP4 的正式边界
@@ -159,15 +153,16 @@ WP4不得形成：
 
 ```yaml
 PROGRAM: FCoP 4.0
-ROADMAP_VERSION: 1.3
-ACTIVE_STAGE: WP3D
-ACTIVE_EXECUTION_COMMIT: 4e0d8c524020cc3b1b152d3d3a736f84a2f78a4e
+ROADMAP_VERSION: 1.4
+ACTIVE_STAGE: WP3D.1
+ACTIVE_EXECUTION_COMMIT: 1b3985375757f7304399764daef387890402da77
 PARALLEL_IMPLEMENTATION_ALLOWED: false
-WP3D_AUTHORIZED: true
+WP3D_AUTHORIZED: false
+WP3D_1_AUTHORIZED: true
 WP4_INCLUDED_IN_FCOP_4: true
 WP4_RELEASE_BLOCKER: true
 WP4_AUTHORIZED: false
 MAIN_MERGE_AUTHORIZED: false
 RELEASE_AUTHORIZED: false
-NEXT_DECISION: EXECUTE_REAUTHORIZED_WP3D_THEN_REVIEW_GATE
+NEXT_DECISION: EXECUTE_WP3D_1_THEN_REVIEW_WP3D_GATE
 ```
