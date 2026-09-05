@@ -713,6 +713,23 @@
         ],
         "return": "pathlib.Path"
       },
+      "family_digest": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "root_task_id"
+          }
+        ],
+        "return": "str"
+      },
       "finish_task": {
         "params": [
           {

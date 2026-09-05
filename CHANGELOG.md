@@ -8,6 +8,16 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [Unreleased]
+
+### Added — `fcop`
+
+- **`Project.family_digest(*, root_task_id: str) -> str`** — 新增 FCoP 4.0
+  declared workspace 的 canonical Root-family digest 公共读取入口；该接口由
+  WP3D 明确授权。本条仅记录候选实现阶段的附加性公共 API 变化，不表示
+  FCoP 4.0 已发布，也不改变 FCoP 3.2.5 行为、MCP surface 或 CodeFlowMu
+  固定版本。
+
 ## [3.2.5] — 2026-05-30 (Rule 0.a.1 collaboration cycle · Hot/Cold Path)
 
 ### Changed — `fcop`
