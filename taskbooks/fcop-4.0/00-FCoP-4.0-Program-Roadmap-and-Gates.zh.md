@@ -6,9 +6,9 @@ execution_authorized: false
 authorized_scope: NONE
 main_merge_authorized: false
 release_authorized: false
-roadmap_version: 1.1
-roadmap_base_commit: 9f72dc0ec9a6c7fcbc781f5bb073eac85d3578ab
-active_execution_taskbook_commit: e664fa39592b699637c1f0e6aeee229331b321e3
+roadmap_version: 1.2
+roadmap_base_commit: e664fa39592b699637c1f0e6aeee229331b321e3
+active_execution_taskbook_commit: e06e059dce3c8bbe55d0dbcf78a36b2c3a024cc6
 ---
 
 # FCoP 4.0 统一项目路线图与阶段门
@@ -44,7 +44,8 @@ active_execution_taskbook_commit: e664fa39592b699637c1f0e6aeee229331b321e3
 | WP3C | Authorization 与受控迁移 T4/T5/T6 | COMPLETE | WP3B_LIFECYCLE_ACCEPTED | — |
 | WP3C.1 | 授权载体矩阵、过期线性化与receipt绑定收口 | COMPLETE | WP3C_REMOTE_HEAD bd61efeb… | — |
 | WP3C.2 | T6冻结符合性夹具与冻结合同对齐 | COMPLETE | WP3C.1_REMOTE_HEAD d0d9ec02… | WP3C_AUTHORIZATION_ACCEPTED |
-| WP3D | Branch、显式收敛、family digest 与 T7 | ACTIVE | WP3C_AUTHORIZATION_ACCEPTED | WP3D_CONVERGENCE_ACCEPTED |
+| WP3D | Branch、显式收敛、family digest 与 T7 | BLOCKED_FIXTURE_CONFLICT | WP3C_AUTHORIZATION_ACCEPTED | WP3D_CONVERGENCE_ACCEPTED |
+| WP3D.0 | 三个T7成功节点的可信Profile夹具对齐 | ACTIVE | WP3D_BLOCKED | WP3D_FIXTURE_ALIGNMENT_ACCEPTED |
 | WP3E | 剩余 Core 符合性收口；60/60 冻结测试全绿 | NOT_AUTHORIZED | WP3D_CONVERGENCE_ACCEPTED | FCOP_4_CORE_IMPLEMENTATION_ACCEPTED |
 | WP4.0 | 规则大文件、Host入口、装配与发布现状只读审计 | NOT_AUTHORIZED | FCOP_4_CORE_IMPLEMENTATION_ACCEPTED | WP4_BASELINE_VERIFIED |
 | WP4.1 | 冻结规则分层、Manifest、Host Profile 与宪法加载合同 | NOT_AUTHORIZED | WP4_BASELINE_VERIFIED | WP4_RULE_CONTRACT_FROZEN |
@@ -60,41 +61,31 @@ WP3E 只处理 WP3C、WP3D 完成后仍未通过的冻结 Core 测试，不预�
 
 ## 3. 当前唯一允许继续的工作
 
-WP3C、WP3C.1与WP3C.2已形成完整验收链；ADMIN Gate已经落盘：
+WP3D已按任务书在编码前停止。阻断事实是三个T7成功节点使用空可信Profile registry，与冻结F4.7.4冲突；生产代码、冻结规范、Schema、MCP、CodeFlowMu和main均未修改。
 
-- accepted review head：`c08d6059b89c599388756db8a5cdbaa4536a8e56`
-- Gate commit：`9f72dc0ec9a6c7fcbc781f5bb073eac85d3578ab`
-- Gate receipt：`reviews/fcop-4.0/gates/WP3C-AUTHORIZATION-ACCEPTED.md`
-- Decision：`ACCEPTED`
+本地阻断提交 `5e6b14b493f7b98bd5754ea862e1b6525e186a5e` 只作为待转存证据，不是远端执行基线。旧WP3D任务书已暂停，不得直接恢复。
 
 当前Codex唯一允许执行：
 
-- Taskbook commit：`e664fa39592b699637c1f0e6aeee229331b321e3`
-- Taskbook path：`taskbooks/fcop-4.0/WP3D/01-Branch-Convergence-Family-Digest-and-T7-Taskbook.zh.md`
-- Taskbook branch：`task/fcop-4.0-wp3d-convergence-t7`
-- Input head：`9f72dc0ec9a6c7fcbc781f5bb073eac85d3578ab`
-- Authorized scope：`WP3D_ONLY`
-- Expected review branch：`review/fcop-4.0-wp3d-convergence-t7`
-- Required stop Gate：`WP3D_CONVERGENCE_ACCEPTED`
+- Taskbook commit：`e06e059dce3c8bbe55d0dbcf78a36b2c3a024cc6`
+- Taskbook path：`taskbooks/fcop-4.0/WP3D.0/01-T7-Trusted-Profile-Conformance-Fixture-Alignment-Taskbook.zh.md`
+- Input head：`e664fa39592b699637c1f0e6aeee229331b321e3`
+- Authorized scope：`WP3D_0_ONLY`
+- Expected review branch：`review/fcop-4.0-wp3d.0-profile-fixture-alignment`
+- Required stop Gate：`WP3D_FIXTURE_ALIGNMENT_ACCEPTED`
 
-WP3D只实现Branch显式收敛、canonical family digest和普通/Branch/Root T7；公共recovery、cold export、Schema、MCP、规则包、Host与CodeFlowMu继续禁止。
+WP3D.0只允许局部修正 `C3-GATE-01[T7]`、`C5-N02`、`C5-ARCHIVED-01` 的可信初始化夹具，并把阻断报告交付GitHub。不得修改全局driver、生产代码或实现T7。
 
-以下候选资料只能作为后续WP4的review input，不得在WP3D中读取为执行授权：
+WP4规则包候选仍只是后续review input，不得在WP3D.0中执行。
 
-- branch：`review/fcop-4.0-rule-package-taskbook`
-- reviewed head：`587a461b9d6bff7a3ec3887ded2dae8b4d368143`
-- original title：`FCoP-4.0-WP3C-rule-package-and-host-adapters-taskbook-v0.1.md`
+## 4. WP3D.0 完成后的固定动作
 
-该候选思想已纳入FCoP 4.0，但原WP3C编号和连续执行权已撤销；必须在Core验收后改编为WP4。
-
-## 4. WP3D 完成后的固定动作
-
-1. Codex推送WP3D review分支、Content Commit和Manifest Commit。
-2. Codex远端回读并验证提交链与全部交付文件摘要。
-3. Codex停止，不进入WP3E/WP4。
-4. ADMIN审核15个目标节点、family digest独立oracle、convergence/T7证据、竞态矩阵和回归。
-5. 只有审核通过并签署 `WP3D_CONVERGENCE_ACCEPTED` 后，才能编制并授权WP3E。
-6. WP3E必须从WP3D已验收remote head顺序接出，只收口剩余Core符合性，不提前进入规则包或发布层。
+1. Codex推送WP3D.0 Content Commit和Manifest Commit并远端回读。
+2. Codex停止，不恢复WP3D、不进入WP3E/WP4。
+3. ADMIN审核两个测试文件的局部修改、负向Profile边界回归及阻断报告。
+4. 只有签署 `WP3D_FIXTURE_ALIGNMENT_ACCEPTED` 后，才能从WP3D.0 accepted remote head重新发布WP3D执行任务书。
+5. 新WP3D任务书必须替代而不是口头恢复旧任务书；其INPUT_HEAD必须是WP3D.0验收remote head。
+6. WP3D完成并签署 `WP3D_CONVERGENCE_ACCEPTED` 前，WP3E和WP4继续禁止。
 
 ## 5. WP4 的正式边界
 
@@ -166,15 +157,15 @@ WP4不得形成：
 
 ```yaml
 PROGRAM: FCoP 4.0
-ROADMAP_VERSION: 1.1
-ACTIVE_STAGE: WP3D
-ACTIVE_EXECUTION_COMMIT: e664fa39592b699637c1f0e6aeee229331b321e3
+ROADMAP_VERSION: 1.2
+ACTIVE_STAGE: WP3D.0
+ACTIVE_EXECUTION_COMMIT: e06e059dce3c8bbe55d0dbcf78a36b2c3a024cc6
 PARALLEL_IMPLEMENTATION_ALLOWED: false
-WP3D_AUTHORIZED: true
+WP3D_AUTHORIZED: false
 WP4_INCLUDED_IN_FCOP_4: true
 WP4_RELEASE_BLOCKER: true
 WP4_AUTHORIZED: false
 MAIN_MERGE_AUTHORIZED: false
 RELEASE_AUTHORIZED: false
-NEXT_DECISION: EXECUTE_WP3D_THEN_REVIEW_GATE
+NEXT_DECISION: EXECUTE_WP3D_0_THEN_REVIEW_FIXTURE_GATE
 ```
