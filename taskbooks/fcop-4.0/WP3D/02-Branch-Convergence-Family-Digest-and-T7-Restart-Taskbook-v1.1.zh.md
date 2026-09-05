@@ -76,7 +76,7 @@ TASKBOOK_BRANCH: task/fcop-4.0-wp3d-convergence-t7-v1.1
 EXPECTED_REVIEW_BRANCH: review/fcop-4.0-wp3d-convergence-t7-v1.1
 ```
 
-INPUT_HEAD包含WP3C.2验收链及ADMIN Gate回执。WP3D必须从包含本任务书的Taskbook Commit顺序接出，不能从main、旧WP3C分支或本地 `D:\FCoP` 猜测起点。
+INPUT_HEAD包含WP3D.0远端验收链及 `WP3D_FIXTURE_ALIGNMENT_ACCEPTED` Gate回执。WP3D必须从包含本任务书的Taskbook Commit顺序接出，不能从main、旧WP3D任务书、旧WP3D本地提交或 `D:\FCoP` 猜测起点。
 
 已验收且不得回退：
 
@@ -92,9 +92,9 @@ INPUT_HEAD包含WP3C.2验收链及ADMIN Gate回执。WP3D必须从包含本任�
 
 ```text
 冻结合同 aec4c2b2…
-> accepted review head c08d6059… 的真实代码
+> accepted review head 685835f5… 的真实代码
 > 冻结Conformance Test ID与测试意图
-> 已签Gate 9f72dc0…
+> 已签Gate dd8c39a2…
 > 本任务书
 > 其他报告、路线图与历史材料
 ```
@@ -102,7 +102,7 @@ INPUT_HEAD包含WP3C.2验收链及ADMIN Gate回执。WP3D必须从包含本任�
 ### 2.2 执行授权
 
 ```text
-ADMIN Gate WP3C_AUTHORIZATION_ACCEPTED
+ADMIN Gate WP3D_FIXTURE_ALIGNMENT_ACCEPTED
 > 本GitHub固定任务书
 > taskbooks/README.zh.md
 > 其他计划或说明
@@ -126,7 +126,7 @@ ADMIN Gate能授权进入下一阶段，但不能改变代码事实或冻结合�
 建议：
 
 ```text
-WORKTREE: D:\FCoP-wp3d-convergence-t7
+WORKTREE: D:\FCoP-wp3d-v1.1-convergence-t7
 BRANCH: review/fcop-4.0-wp3d-convergence-t7-v1.1
 ```
 
@@ -540,7 +540,7 @@ INPUT_HEAD: dd8c39a2e025cc60f37d443abbe0988cbddf1810
 ACCEPTED_REVIEW_HEAD: 685835f5d22b327fd92121fce46941327368095c
 FROZEN_CONTRACT_COMMIT: aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6
 GATE_RECEIPT: reviews/fcop-4.0/gates/WP3D-FIXTURE-ALIGNMENT-ACCEPTED.md
-WORKTREE: D:\FCoP-wp3d-convergence-t7
+WORKTREE: D:\FCoP-wp3d-v1.1-convergence-t7
 BRANCH: review/fcop-4.0-wp3d-convergence-t7-v1.1
 
 CANONICAL_FAMILY_DIGEST: PASS | FAIL
