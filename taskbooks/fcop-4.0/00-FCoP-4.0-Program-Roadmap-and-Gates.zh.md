@@ -42,7 +42,8 @@ active_execution_taskbook_commit: 46c7d7522f020e85ad658a9e0147578d61fe908a
 | WP3A / A.1 | 工作区与创建面 | COMPLETE | IMPLEMENTATION_AUTHORIZED | WP3A_IMPLEMENTATION_ACCEPTED |
 | WP3B / B.1 | 生命周期、原子迁移与执行轮次 | COMPLETE | WP3A_IMPLEMENTATION_ACCEPTED | WP3B_LIFECYCLE_ACCEPTED |
 | WP3C | Authorization 与受控迁移 T4/T5/T6 | COMPLETE_PENDING_CORRECTION | WP3B_LIFECYCLE_ACCEPTED | — |
-| WP3C.1 | 授权载体矩阵、过期线性化与receipt绑定收口 | ACTIVE | WP3C_REMOTE_HEAD bd61efeb… | WP3C_AUTHORIZATION_ACCEPTED |
+| WP3C.1 | 授权载体矩阵、过期线性化与receipt绑定收口 | COMPLETE | WP3C_REMOTE_HEAD bd61efeb… | — |
+| WP3C.2 | T6冻结符合性夹具与冻结合同对齐 | ACTIVE | WP3C.1_REMOTE_HEAD d0d9ec02… | WP3C_AUTHORIZATION_ACCEPTED |
 | WP3D | Branch、显式收敛、family digest 与 T7 | NOT_AUTHORIZED | WP3C_AUTHORIZATION_ACCEPTED | WP3D_CONVERGENCE_ACCEPTED |
 | WP3E | 剩余 Core 符合性收口；60/60 冻结测试全绿 | NOT_AUTHORIZED | WP3D_CONVERGENCE_ACCEPTED | FCOP_4_CORE_IMPLEMENTATION_ACCEPTED |
 | WP4.0 | 规则大文件、Host入口、装配与发布现状只读审计 | NOT_AUTHORIZED | FCOP_4_CORE_IMPLEMENTATION_ACCEPTED | WP4_BASELINE_VERIFIED |
@@ -59,15 +60,15 @@ WP3E 只处理 WP3C、WP3D 完成后仍未通过的冻结 Core 测试，不预�
 
 ## 3. 当前唯一允许继续的工作
 
-当前 WP3C 已交付远端审核头 `bd61efeb04d3cfe52b02c433226492e07a525fce`，但代码审核发现授权载体矩阵、过期线性化与receipt Profile绑定需要最小收口。当前 Codex只能执行：
+当前WP3C.1已交付远端审核头 `d0d9ec029516b4379dbf74f2167490f4867680c4`。三项生产修正通过代码审核，但冻结 `C3-GATE-01[T6]` 夹具仍把 reopen REVIEW 同时作为授权，和冻结F4.7.2冲突。当前Codex只能执行：
 
-- Taskbook commit：`2569e452824e41094b46e03c4b2a80930f8f01dc`
-- Taskbook path：`taskbooks/fcop-4.0/WP3C.1/01-Authorization-Carrier-and-Expiry-Linearization-Closeout-Taskbook.zh.md`
-- Input head：`bd61efeb04d3cfe52b02c433226492e07a525fce`
-- Authorized scope：`WP3C_1_ONLY`
+- Taskbook commit：`cc06603108db31d6c7e0c3b6ce5cf9e8769b6472`
+- Taskbook path：`taskbooks/fcop-4.0/WP3C.2/01-T6-Frozen-Conformance-Fixture-Alignment-Taskbook.zh.md`
+- Input head：`d0d9ec029516b4379dbf74f2167490f4867680c4`
+- Authorized scope：`WP3C_2_ONLY`
 - Required stop Gate：`WP3C_AUTHORIZATION_ACCEPTED`
 
-WP3C.1只修正审核发现，不得重做WP3C，不得吸收WP3D或规则包任务。
+WP3C.2只允许修正一个Conformance测试文件以及报告/Manifest；生产代码不得修改。
 
 以下候选资料只能作为后续 WP4 的 review input，不得在 WP3C 中读取为执行授权：
 
@@ -77,14 +78,14 @@ WP3C.1只修正审核发现，不得重做WP3C，不得吸收WP3D或规则包任
 
 该候选的思想被纳入 FCoP 4.0，但其 WP3C 编号和连续执行权被撤销。它必须改编为 WP4 总规划输入，并在 WP3D/WP3E 验收后的真实 accepted head 上重新核验。
 
-## 4. WP3C.1 完成后的固定动作
+## 4. WP3C.2 完成后的固定动作
 
-1. Codex 推送 WP3C.1 review 分支和 Manifest。
+1. Codex推送WP3C.2 review分支和Manifest。
 2. Codex远端回读并验证交付文件摘要。
 3. Codex停止，不进入 WP3D。
-4. ADMIN审核 WP3C.1 的三项收口、WP3C整体回归和冻结文件。
-5. 只有WP3C.1通过并签署 `WP3C_AUTHORIZATION_ACCEPTED` 后，才能编制并授权WP3D执行任务书。
-6. WP3D任务书必须引用 WP3C.1 已验收的 remote head，不得继续从 `511039db...` 或规则包旧分支接出。
+4. ADMIN审核WP3C.2测试对齐、WP3C.1生产修正和WP3C整体回归。
+5. 只有WP3C.2通过且符合性红灯恢复为既有38项，并签署 `WP3C_AUTHORIZATION_ACCEPTED` 后，才能编制并授权WP3D执行任务书。
+6. WP3D任务书必须引用WP3C.2已验收的remote head，不得继续从 `511039db...` 或规则包旧分支接出。
 
 ## 5. WP4 的正式边界
 
@@ -157,8 +158,8 @@ WP4不得形成：
 ```yaml
 PROGRAM: FCoP 4.0
 ROADMAP_VERSION: 1.0
-ACTIVE_STAGE: WP3C.1
-ACTIVE_EXECUTION_COMMIT: 2569e452824e41094b46e03c4b2a80930f8f01dc
+ACTIVE_STAGE: WP3C.2
+ACTIVE_EXECUTION_COMMIT: cc06603108db31d6c7e0c3b6ce5cf9e8769b6472
 PARALLEL_IMPLEMENTATION_ALLOWED: false
 WP3D_AUTHORIZED: false
 WP4_INCLUDED_IN_FCOP_4: true
@@ -166,5 +167,5 @@ WP4_RELEASE_BLOCKER: true
 WP4_AUTHORIZED: false
 MAIN_MERGE_AUTHORIZED: false
 RELEASE_AUTHORIZED: false
-NEXT_DECISION: REVIEW_WP3C_1_RESULT
+NEXT_DECISION: REVIEW_WP3C_2_RESULT
 ```
