@@ -6,7 +6,6 @@ import json
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[3]
 SNAPSHOT = ROOT / "tests" / "test_fcop_mcp" / "snapshots" / "tool_surface.json"
 COMPAT = ROOT / "reports" / "FCOP-4.0-WP1-COMPATIBILITY-AND-MCP.md"

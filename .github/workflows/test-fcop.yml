@@ -288,7 +288,7 @@ jobs:
             # Fetch the Unreleased section and ensure it mentions either 'Added',
             # 'Deprecated', or 'Changed' — these are the headings Keep a
             # Changelog uses and the only ones relevant to an API shift.
-            SECTION=$(awk '/^## \[Unreleased\]/,/^## \[/' CHANGELOG.md | head -n 200)
+            SECTION=$(awk '/^## \[Unreleased\]$/ { capture=1; next } capture && /^## \[/ { exit } capture { print }' CHANGELOG.md | head -n 200)
             if ! echo "$SECTION" | grep -qE "^### (Added|Changed|Deprecated|Removed)"; then
               echo "::error::[Unreleased] section has no Added / Changed / Deprecated heading."
               echo "Public API drifted (snapshot file changed) but the CHANGELOG does"

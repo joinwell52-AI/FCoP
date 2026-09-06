@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import inspect
 import multiprocessing
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from queue import Empty
 from types import MappingProxyType
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 from fcop import Project
-
 
 CALLER_AUTHORITY_FIELDS = frozenset({
     "profile_evaluator", "profile_resolver", "trusted_profiles",
@@ -56,7 +56,7 @@ ACTION_CLAUSES: dict[str, str] = {
 }
 
 
-class V4NotImplemented(AssertionError):
+class V4NotImplementedError(AssertionError):
     """Production has no callable surface for a required 4.0 action."""
 
     code = "V4_NOT_IMPLEMENTED"
@@ -101,7 +101,7 @@ def error_code(exc: BaseException) -> str:
     rejection must expose ``code`` or ``error_code`` on its formal error
     object; otherwise F4.10.2 has not been satisfied.
     """
-    if isinstance(exc, V4NotImplemented):
+    if isinstance(exc, V4NotImplementedError):
         raise exc
     for name in ("code", "error_code"):
         value = getattr(exc, name, None)
@@ -117,7 +117,7 @@ def capture_error(call: Callable[[], Any]) -> BaseException:
     """Execute an invalid operation and require a real production rejection."""
     try:
         result = call()
-    except V4NotImplemented:
+    except V4NotImplementedError:
         raise
     except BaseException as exc:
         return exc
@@ -178,7 +178,7 @@ class V4ConformanceDriver:
             if parameter is None or parameter.kind not in {
                 inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY,
             }:
-                raise V4NotImplemented(
+                raise V4NotImplementedError(
                     test_id, "F4.7.4-F4.7.6", "trusted_profile_initialization",
                     "Project has no explicit trusted_profiles initialization parameter",
                 )
@@ -206,7 +206,7 @@ class V4ConformanceDriver:
                 diagnostics.append(f"{candidate}=missing_parameters:{missing}")
                 continue
             return method
-        raise V4NotImplemented(test_id, clause, action, "; ".join(diagnostics))
+        raise V4NotImplementedError(test_id, clause, action, "; ".join(diagnostics))
 
     def _invoke(self, action: str, *, test_id: str, clause: str, **kwargs: Any) -> Any:
         # Adapter misuse guard, NOT behavioral conformance credit.  Adversarial

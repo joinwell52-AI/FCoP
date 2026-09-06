@@ -7,16 +7,30 @@ import os
 import pytest
 
 from .driver import (
-    V4ConformanceDriver, capture_error, digest_value, error_code, result_field,
+    V4ConformanceDriver,
+    capture_error,
+    digest_value,
+    error_code,
+    result_field,
     run_concurrent_operations,
 )
 from .fixtures import (
-    ATTEMPT_A, ATTEMPT_B, DeterministicProfileEvaluator, WorkspaceFixture,
-    canonical_family_digest, read_frontmatter, sha256_bytes, snapshot_tree,
+    ATTEMPT_A,
+    ATTEMPT_B,
+    DeterministicProfileEvaluator,
+    WorkspaceFixture,
+    canonical_family_digest,
+    read_frontmatter,
+    sha256_bytes,
+    snapshot_tree,
 )
 from .scenarios import (
-    assert_task_stage, authorization_fixture, create_request, report_request,
-    review_request, transition_request,
+    assert_task_stage,
+    authorization_fixture,
+    create_request,
+    report_request,
+    review_request,
+    transition_request,
 )
 
 

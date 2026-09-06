@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[3]
 SPEC_EN = ROOT / "spec" / "fcop-4.0-spec.md"
 SPEC_ZH = ROOT / "spec" / "fcop-4.0-spec.zh.md"

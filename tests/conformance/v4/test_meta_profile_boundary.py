@@ -1,7 +1,7 @@
 """Adapter/static checks only; never counted as production behavior passes."""
 
-from pathlib import Path
 import inspect
+from pathlib import Path
 
 import pytest
 

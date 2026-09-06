@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from .driver import (
-    V4ConformanceDriver, capture_error, error_code, result_field,
+    V4ConformanceDriver,
+    capture_error,
+    error_code,
+    result_field,
     run_concurrent_operations,
 )
 from .fixtures import ATTEMPT_A, WorkspaceFixture, read_frontmatter, snapshot_tree
