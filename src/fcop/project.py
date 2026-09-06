@@ -337,6 +337,45 @@ class Project:
             operation_ref="family_digest", subject_ref=root_task_id,
         )
 
+    def recover_operation(
+        self,
+        *,
+        operation_id: str,
+        source_path: pathlib.Path | str,
+        target_path: pathlib.Path | str,
+        receipt_path: pathlib.Path | str | None = None,
+        filesystem: str = "local",
+    ) -> dict[str, Any]:
+        """Mechanically classify and reconcile one visible v4 operation."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION,
+            "A declared 4.0 workspace is required",
+            operation_ref=operation_id,
+        )
+
+    def inject_fault(self, *, operation: str, stage: str, once: bool = True) -> None:
+        """Register one in-memory v4 fault boundary for conformance testing."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION,
+            "A declared 4.0 workspace is required",
+            operation_ref=operation,
+        )
+
+    def export_archive(self, *, task_id: str) -> dict[str, Any]:
+        """Export a non-authoritative cold copy of one archived v4 TASK."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION,
+            "A declared 4.0 workspace is required",
+            operation_ref="export_archive",
+            subject_ref=task_id,
+        )
+
     def finish_task(self, **kwargs: Any) -> dict[str, Any]:
         """Reject legacy finish on v4; existing v3 lifecycle APIs are unchanged."""
         from fcop.errors import V4ProtocolError, _V4Code

@@ -11,6 +11,7 @@ from uuid import UUID
 from fcop.errors import V4ProtocolError, _V4Code
 from fcop.v4.encoding import (
     ID_RE,
+    OP_RE,
     canonical,
     digest,
     fail,
@@ -32,10 +33,19 @@ def _uuid_urn(value: Any) -> bool:
         return False
 
 
+def _operation_identity(value: Any) -> bool:
+    return isinstance(value, str) and bool(OP_RE.fullmatch(value))
+
+
 def receipt_path(root: Path, operation_id: str) -> Path:
-    if not _uuid_urn(operation_id):
+    if not _operation_identity(operation_id):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid internal operation identity")
-    return safe_path(root, f"fcop/operations/transition-{UUID(operation_id).hex}.json")
+    name = (
+        f"transition-{UUID(operation_id).hex}.json"
+        if _uuid_urn(operation_id)
+        else f"{operation_id}.json"
+    )
+    return safe_path(root, f"fcop/operations/{name}")
 
 
 def _relative_path(value: Any, *, task_id: str, stage: str) -> str:
@@ -79,7 +89,7 @@ def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str,
     if not _uuid_urn(value.get("workspace_id")):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Invalid receipt workspace identity")
     operation_id = value.get("operation_id")
-    if not _uuid_urn(operation_id):
+    if not _operation_identity(operation_id):
         raise fail(_V4Code.RECOVERY_REQUIRED, "Receipt identity conflicts with filename")
     assert isinstance(operation_id, str)
     if path != receipt_path(root, operation_id):

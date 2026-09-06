@@ -156,6 +156,35 @@ def test_digest_normalization_and_t1_oracle(tmp_path: Path) -> None:
     assert all(item["code"] == "REFERENCE_UNRESOLVED" for item in first["warnings"])
 
 
+def test_gate_required_weak_reference_rejects_without_writes(tmp_path: Path) -> None:
+    project, request = workspace(tmp_path)
+    before = snapshot(tmp_path)
+    with pytest.raises(V4ProtocolError) as caught:
+        project.create_task(
+            **{
+                **request,
+                "operation_id": "gate-ref-missing",
+                "references": ["TASK-MISSING"],
+                "references_required_by_gate": True,
+            }
+        )
+    assert caught.value.code == "REFERENCE_UNRESOLVED"
+    assert snapshot(tmp_path) == before
+
+    existing = project.create_task(
+        **{**request, "operation_id": "gate-ref-existing"}
+    )
+    accepted = project.create_task(
+        **{
+            **request,
+            "operation_id": "gate-ref-valid",
+            "references": [existing["task_id"]],
+            "references_required_by_gate": True,
+        }
+    )
+    assert accepted["warnings"] == []
+
+
 @pytest.mark.parametrize(
     "change,code",
     [
@@ -759,9 +788,10 @@ def test_closeout_boundary_reflection_binding_and_subclass(tmp_path: Path) -> No
     legacy = Project(tmp_path / "legacy")
     legacy.init_solo(role_code="ME")
     original_names = set(_METHOD_POLICIES) - {
-        "create_workspace", "create_task", "derive_workspace", "inspect_state",
-        "transition", "finish_task", "family_digest",
-    }
+            "create_workspace", "create_task", "derive_workspace", "inspect_state",
+            "transition", "finish_task", "family_digest", "recover_operation",
+            "inject_fault", "export_archive",
+        }
     assert len(original_names) == 38
     assert isinstance(vars(Project)["validate_team"], staticmethod)
     assert Project.validate_team(roles=["ME"], leader="ME") == []

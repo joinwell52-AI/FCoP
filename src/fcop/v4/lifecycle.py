@@ -11,6 +11,7 @@ from uuid import UUID, uuid4
 from fcop.errors import _V4Code
 from fcop.v4.encoding import (
     BUCKETS,
+    OP_RE,
     digest,
     fail,
     parse_envelope,
@@ -144,12 +145,23 @@ class Lifecycle:
             "task_id", "from_stage", "to_stage", "tool", "actor",
             "report_ref", "review_ref", "authorization_ref", "family_digest",
             "profile_ref",
+            "internal_operation_id",
         }
         request = _request(
             kwargs,
             allowed,
             {"task_id", "from_stage", "to_stage", "tool", "actor"},
         )
+        internal_operation_id = request.get("internal_operation_id")
+        if internal_operation_id is not None and (
+            not self.creation._has_fault("transition")
+            or not isinstance(internal_operation_id, str)
+            or not OP_RE.fullmatch(internal_operation_id)
+        ):
+            raise fail(
+                _V4Code.INVALID_ENVELOPE,
+                "internal_operation_id is available only to an active fault plan",
+            )
         task_id = request["task_id"]
         edge = (request["from_stage"], request["to_stage"])
         if not isinstance(task_id, str) or not task_id.startswith("TASK-"):
@@ -253,7 +265,20 @@ class Lifecycle:
         if exact:
             if source_stage == "done" and target_stage == "archive":
                 self._t7_evidence(request)
-            return self._recover(*exact[0], existing=True)
+            operation_id = exact[0][1]["operation_id"]
+            if (
+                source_stage in {"inbox", "active"}
+                and operation_id in self.creation._returned_unprotected_operations
+            ):
+                raise fail(
+                    _V4Code.INVALID_TRANSITION,
+                    "T2/T3 are not externally replayable operations",
+                    subject=task_id,
+                )
+            result = self._recover(*exact[0], existing=True)
+            if source_stage in {"inbox", "active"}:
+                self.creation._returned_unprotected_operations.add(operation_id)
+            return result
 
         authorized = source_stage in {"review", "done"}
         if authorized:
@@ -410,7 +435,7 @@ class Lifecycle:
         updated = dict(fields)
         updated["transitions"] = [*fields["transitions"], event]
         target_bytes = rewritten_envelope_bytes(source, updated)
-        operation_id = uuid4().urn
+        operation_id = request.get("internal_operation_id") or uuid4().urn
         receipt = {
             "contract": RECEIPT_CONTRACT,
             "version": 1,
@@ -448,7 +473,13 @@ class Lifecycle:
                 }
             )
         receipt_path = publish_prepared(self.root, receipt)
-        return self._finish(receipt_path, receipt, source, target, target_bytes, existing=False)
+        self.creation._trigger_fault("transition", "PREPARED")
+        result = self._finish(
+            receipt_path, receipt, source, target, target_bytes, existing=False
+        )
+        if source_stage in {"inbox", "active"}:
+            self.creation._returned_unprotected_operations.add(operation_id)
+        return result
 
     def _t7_evidence(
         self, request: Mapping[str, Any]
@@ -590,9 +621,13 @@ class Lifecycle:
         self._verify_evidence(receipt, source_fields)
         publish(target, target_bytes)
         receipt = set_stage(self.root, receipt_path, receipt, "TARGET_DURABLE")
+        self.creation._trigger_fault("transition", "TARGET_DURABLE")
         remove_authoritative(source)
         receipt = set_stage(self.root, receipt_path, receipt, "COMMITTED")
-        return self._result(receipt_path, receipt, target, existing=existing)
+        self.creation._trigger_fault("transition", "COMMITTED")
+        result = self._result(receipt_path, receipt, target, existing=existing)
+        self.creation._trigger_fault("transition", "RESPONSE_LOST")
+        return result
 
     def _result(
         self,

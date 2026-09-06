@@ -270,8 +270,15 @@ def test_c6_r02(
     assert snapshot_tree(workspace.root) == before
 
 
-def test_c6_x01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
+def test_c6_x01(workspace: WorkspaceFixture) -> None:
     # Arrange: authorized T7 and a fault after commit but before response.
+    trusted_driver = V4ConformanceDriver(
+        workspace.root,
+        trusted_profiles={
+            "profile:test": DeterministicProfileEvaluator("AUTHORIZED")
+        },
+        test_id="C6-X01",
+    )
     workspace.task("TASK-C6-X01", stage="done", attempt_id=ATTEMPT_A)
     authorization_fixture(
         workspace, "REVIEW-C6-X01", task_id="TASK-C6-X01",
@@ -281,17 +288,19 @@ def test_c6_x01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
         "TASK-C6-X01", "done", "archive", tool="archive_task",
         authorization_ref="REVIEW-C6-X01",
     )
-    v4_driver.inject_fault(
+    trusted_driver.inject_fault(
         test_id="C6-X01", clause="F4.7.3; F4.9.11",
         operation="transition", stage="RESPONSE_LOST", once=True,
     )
 
     # Act: first call loses response; exact retry uses the same authorization/ref/digests.
     capture_error(
-        lambda: v4_driver.transition(test_id="C6-X01", clause="F4.7.3; F4.9.11", **kwargs)
+        lambda: trusted_driver.transition(
+            test_id="C6-X01", clause="F4.7.3; F4.9.11", **kwargs
+        )
     )
     after_commit = snapshot_tree(workspace.root)
-    retried = v4_driver.transition(
+    retried = trusted_driver.transition(
         test_id="C6-X01", clause="F4.7.3; F4.9.11", **kwargs
     )
 

@@ -713,6 +713,23 @@
         ],
         "return": "pathlib.Path"
       },
+      "export_archive": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "task_id"
+          }
+        ],
+        "return": "dict[str, Any]"
+      },
       "family_digest": {
         "params": [
           {
@@ -899,6 +916,35 @@
           }
         ],
         "return": "ProjectStatus"
+      },
+      "inject_fault": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "operation"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "stage"
+          },
+          {
+            "annotation": "bool",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "once"
+          }
+        ],
+        "return": "None"
       },
       "inspect_state": {
         "params": [
@@ -1292,6 +1338,47 @@
           }
         ],
         "return": "Task"
+      },
+      "recover_operation": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "operation_id"
+          },
+          {
+            "annotation": "pathlib.Path | str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "source_path"
+          },
+          {
+            "annotation": "pathlib.Path | str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "target_path"
+          },
+          {
+            "annotation": "pathlib.Path | str | None",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "receipt_path"
+          },
+          {
+            "annotation": "str",
+            "has_default": true,
+            "kind": "KEYWORD_ONLY",
+            "name": "filesystem"
+          }
+        ],
+        "return": "dict[str, Any]"
       },
       "recover_session": {
         "params": [

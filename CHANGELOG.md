@@ -12,6 +12,11 @@ versioning strategy.
 
 ### Added — `fcop`
 
+- **`Project.recover_operation(...)`**, **`Project.inject_fault(...)`** 与
+  **`Project.export_archive(...)`** — WP3E 新增三个受限 FCoP 4.0 Toolkit
+  入口，分别用于显式本地证据的五状态机械恢复、实例内存中的确定性故障测试，
+  以及不参与 NOW 的 archive 冷副本导出。三者不增加 Runtime、后台组件、
+  authoritative store、Base error code、MCP surface 或 v3 行为。
 - **`Project.family_digest(*, root_task_id: str) -> str`** — 新增 FCoP 4.0
   declared workspace 的 canonical Root-family digest 公共读取入口；该接口由
   WP3D 明确授权。本条仅记录候选实现阶段的附加性公共 API 变化，不表示

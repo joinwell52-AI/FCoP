@@ -590,6 +590,21 @@ def test_response_loss_after_source_delete_does_not_repeat_event(
     assert result["status"] == "COMMITTED" and len(task["transitions"]) == 1
 
 
+def test_successful_t2_is_not_an_external_replay_contract(
+    workspace: WorkspaceFixture,
+) -> None:
+    task_id = "TASK-WP3E-CREATE-ONLY-IDEMPOTENCY"
+    workspace.task(task_id, stage="inbox")
+    request = transition_request(task_id, "inbox", "active", tool="claim_task")
+    project = Project(workspace.root)
+    project.transition(**request)
+    before = snapshot_tree(workspace.root)
+    with pytest.raises(V4ProtocolError) as caught:
+        project.transition(**request)
+    assert caught.value.code == "INVALID_TRANSITION"
+    assert snapshot_tree(workspace.root) == before
+
+
 def test_receipt_survives_project_relocation(workspace: WorkspaceFixture) -> None:
     request, _, _, receipt_path, _ = _committed_t2(workspace, "TASK-WP3B-MOVED")
     destination = workspace.root.parent / "moved-workspace"

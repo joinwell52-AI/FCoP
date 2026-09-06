@@ -125,6 +125,8 @@ class _Creation:
         self.manifest = manifest
         self.invalid = invalid
         self.trusted_profiles = MappingProxyType(dict(trusted_profiles or {}))
+        self._fault_plans: dict[str, tuple[str, bool]] = {}
+        self._returned_unprotected_operations: set[str] = set()
 
     @classmethod
     def open_if_declared(
@@ -250,6 +252,9 @@ class _Creation:
             "inspect_state": self.inspect_state,
             "transition": self.transition,
             "family_digest": self.family_digest,
+            "recover_operation": self.recover_operation,
+            "inject_fault": self.inject_fault,
+            "export_archive": self.export_archive,
             "finish_task": self.finish_task,
         }
         return handlers.get(name)
@@ -285,6 +290,80 @@ class _Creation:
             self._check()
             family = snapshot(self, root_task_id)
             return family.digest
+
+    def recover_operation(
+        self,
+        *,
+        operation_id: str,
+        source_path: Path | str,
+        target_path: Path | str,
+        receipt_path: Path | str | None = None,
+        filesystem: str = "local",
+    ) -> dict[str, Any]:
+        from fcop.v4.recovery import recover_operation
+
+        return recover_operation(
+            self,
+            operation_id=operation_id,
+            source_path=source_path,
+            target_path=target_path,
+            receipt_path=receipt_path,
+            filesystem=filesystem,
+        )
+
+    def inject_fault(self, *, operation: str, stage: str, once: bool = True) -> None:
+        self._check()
+        if (
+            operation not in {"transition", "export_archive"}
+            or stage not in {"PREPARED", "TARGET_DURABLE", "COMMITTED", "RESPONSE_LOST"}
+            or not isinstance(once, bool)
+        ):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid fault boundary")
+        self._fault_plans[operation] = (stage, once)
+
+    def _has_fault(self, operation: str) -> bool:
+        return operation in self._fault_plans
+
+    def _trigger_fault(self, operation: str, stage: str) -> None:
+        plan = self._fault_plans.get(operation)
+        if plan is None or plan[0] != stage:
+            return
+        if plan[1]:
+            del self._fault_plans[operation]
+        raise fail(
+            _V4Code.RECOVERY_REQUIRED,
+            f"Injected fault at durable {stage} boundary",
+            operation=operation,
+        )
+
+    def export_archive(self, *, task_id: str) -> dict[str, Any]:
+        self._check()
+        if not isinstance(task_id, str) or not task_id.startswith("TASK-"):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid TASK identity")
+        source, fields = self._resolve(task_id)
+        if fields["type"] != "TASK" or source.parent.name != "archive":
+            raise fail(
+                _V4Code.INVALID_TRANSITION,
+                "Cold export requires one archived TASK",
+                subject=task_id,
+            )
+        target = safe_path(self.root, f"fcop/cold/{task_id}.md")
+        data = source.read_bytes()
+        if target.exists() or target.is_symlink():
+            if not target.is_file() or target.read_bytes() != data:
+                raise fail(
+                    _V4Code.TARGET_ALREADY_EXISTS_DIFFERENT,
+                    "Cold target already contains different bytes",
+                    subject=task_id,
+                )
+            return {"task_id": task_id, "path": str(target), "existing": True}
+        self._trigger_fault("export_archive", "PREPARED")
+        publish(target, data)
+        self._trigger_fault("export_archive", "TARGET_DURABLE")
+        self._trigger_fault("export_archive", "COMMITTED")
+        result = {"task_id": task_id, "path": str(target), "existing": False}
+        self._trigger_fault("export_archive", "RESPONSE_LOST")
+        return result
 
     def _check(self, workspace_id: str | None = None) -> None:
         current = _manifest(read_json(safe_path(self.root, "fcop/fcop.json")))
@@ -522,6 +601,7 @@ class _Creation:
             "references",
             "thread_key",
             "risk_level",
+            "references_required_by_gate",
         }
         request = _request(kwargs, allowed, required)
         self._check(request["workspace_id"])
@@ -535,6 +615,9 @@ class _Creation:
                 raise fail(
                     _V4Code.RELATION_INVALID, "Strong relation must be a single ID", operation=opid
                 )
+        gate_required = request.get("references_required_by_gate", False)
+        if not isinstance(gate_required, bool):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid Gate reference requirement")
         normalized = {
             "contract": "fcop-create-task-v1",
             "workspace_id": request["workspace_id"],
@@ -549,7 +632,16 @@ class _Creation:
             else None,
             "references": request.get("references", []),
         }
+        if gate_required:
+            normalized["references_required_by_gate"] = True
         warnings = self._relations(normalized)
+        if gate_required and warnings:
+            raise fail(
+                _V4Code.REFERENCE_UNRESOLVED,
+                "Gate-required reference is unresolved",
+                operation=opid,
+                subject=warnings[0]["subject_ref"],
+            )
         if normalized["priority"] not in {"P0", "P1", "P2", "P3"} or not all(
             normalized[key] for key in ("subject", "sender", "recipient")
         ):
