@@ -1,0 +1,2 @@
+spec/schemas/v4/*.schema.json text eol=lf
+src/fcop/_data/schemas/v4/*.schema.json text eol=lf
