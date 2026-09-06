@@ -1,3 +1,169 @@
+# Current WP4B.2 directed baseline check — BLOCKED
+
+```yaml
+WP4B_STATUS: BLOCKED
+STOP_CODE: REPORT_ZERO_HEAD_ERROR_CONTRACT_CONFLICT
+AUTHORIZED_SCOPE: WP4B_RESUME_ONLY
+REPORTER: ME
+TASKBOOK_COMMIT: 9359de1f9268dd13c8c393ee403c8837130a0960
+TASKBOOK_SHA256: a7dc53f17d676e787ffb6b89c8305bb59e3e9b54f06f28bc75d8d737a554b060
+INPUT_HEAD: 1434d409925bec233d6b246ebb081bdf5bc12f08
+PARENT_GATE_COMMIT: 982fcb24d9093e01c5ba4fdb87e710acd57e6d54
+FROZEN_CONTRACT_COMMIT: aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6
+WP4B_2_PUBLIC_QUERY_DESIGN_ACCEPTED: true
+PUBLIC_QUERY_IMPLEMENTED: false
+BACKUP_RESTORED: false
+REQUESTED_GATE: NONE
+```
+
+## U1. The previous capability decision is resolved
+
+WP4B.2 explicitly authorizes enabling the two existing public Project readers
+and a shared internal head resolver. The previous public-query authorization
+gap is resolved. This report does not request those permissions again.
+
+The new taskbook was retrieved from the fixed GitHub contents API. Its decoded
+bytes equal `git show 9359de1:<taskbook-path>` and have the exact published
+SHA-256 above. The independent, clean WP4B worktree was fast-forwarded to
+`9359de1f9268dd13c8c393ee403c8837130a0960`; the intervening change was solely
+the new taskbook. The original `D:/FCoP` workspace was not touched.
+
+Before restoring the unfinished adapter, the taskbook's directed zero-head
+case was exercised against the unchanged accepted Core. It exposes a narrow
+contradiction between preserving the baseline T3 error and the required
+cycle result. There is no production edit or restored ZIP content in this
+delivery; only this report changes.
+
+## U2. Exact conflict
+
+| Fixed source | Requirement or actual behavior |
+|---|---|
+| WP4B.2 section 2.1 | Extracting the shared resolver must preserve **all** T3 success/failure behavior and error codes. |
+| WP4B.2 section 7.2 | A replacement cycle producing zero heads must return `REPORT_REQUIRED`. |
+| WP4B.2 section 7.3 | Public queries and T3 must return the same `REPORT_REQUIRED` for the same zero-head fixture. |
+| WP4B.2 section 11 | Stop if the frozen head algorithm must change to provide queries. |
+| Frozen `spec/fcop-4.0-spec.md`, F4.3.4 | Zero heads returns `REPORT_REQUIRED`; multiple heads returns `REPORT_HEAD_AMBIGUOUS`. No specification edit is requested. |
+| `src/fcop/v4/lifecycle.py:109–126` at `9359de1` | No candidate REPORTs return `REPORT_REQUIRED`, but after traversal **every** `len(heads) != 1`, including a nonempty cycle with zero heads, returns `REPORT_HEAD_AMBIGUOUS`. |
+
+This is not a theoretical guess based on code text. Both cycle envelopes pass
+public `inspect_state` Encoding/Schema/relation validation; public T3 then
+returns the baseline `REPORT_HEAD_AMBIGUOUS`. The complete workspace file-byte
+map remains unchanged by validation and the failed transition.
+
+```text
+SCHEMA_VALID_REPLACEMENT_CYCLE 2/2
+BASELINE_T3_CODE REPORT_HEAD_AMBIGUOUS
+TASKBOOK_7_2_AND_7_3_EXPECT REPORT_REQUIRED
+ZERO_FILE_CHANGES True
+```
+
+The absent-REPORT case and the cyclic nonempty graph are different baseline
+branches. Testing only an empty directory would conceal this conflict.
+
+## U3. Reproduction on the fixed commit
+
+Environment: Windows, CPython 3.12, repository `src` on `sys.path`. The program
+uses only a fresh temporary fixture. It creates a legitimate final/replacement
+chain with public writers, then introduces a cycle by corrupting the fixture's
+first REPORT. It does not modify a real workspace or a production source file.
+
+```python
+import tempfile
+from pathlib import Path
+
+import yaml
+from examples.v4.application import Application
+from fcop.errors import V4ProtocolError
+
+with tempfile.TemporaryDirectory(prefix="fcop-wp4b2-cycle-") as temporary:
+    root = Path(temporary).resolve()
+    app = Application(root)
+    task = app.task("Cycle error-code baseline")
+    attempt = app.project.inspect_state(task_id=task)["current_attempt_id"]
+    request = dict(workspace_id=app.workspace_id, sender="ME", recipient="ME",
+                   subject_ref=task, body="Test evidence", attempt_id=attempt,
+                   result="done")
+    first = app.project.write_report(**request, report_kind="final")
+    second = app.project.write_report(**request, report_kind="replacement",
+                                      references=[first["report_id"]])
+    path = Path(first["path"])
+    _, front, body = path.read_text(encoding="utf-8").split("---", 2)
+    fields = yaml.safe_load(front)
+    fields["report_kind"] = "replacement"
+    fields["references"] = [second["report_id"]]
+    path.write_bytes(("---\n" + yaml.safe_dump(fields, sort_keys=False,
+                     allow_unicode=True) + "---" + body).encode("utf-8"))
+    def files():
+        return {p.relative_to(root).as_posix(): p.read_bytes()
+                for p in root.rglob("*") if p.is_file()}
+    before = files()
+    for item in (first, second):
+        checked = app.project.inspect_state(
+            envelope_path=Path(item["path"]).relative_to(root).as_posix())
+        assert checked["report_kind"] == "replacement"
+    try:
+        app.move(task, "active", "review", "submit_task",
+                 report_ref=second["report_id"])
+    except V4ProtocolError as error:
+        assert error.code == "REPORT_HEAD_AMBIGUOUS", error.code
+    else:
+        raise AssertionError("Baseline unexpectedly accepted a cycle")
+    assert before == files()
+```
+
+## U4. Narrow clarification needed; no second algorithm
+
+The implementation choices cannot simultaneously satisfy all three explicit
+requirements:
+
+- Keeping the existing shared resolver unchanged preserves T3, but fails the
+  mandated cycle result in sections 7.2 and 7.3.
+- Mapping the code only in readers creates query-versus-T3 disagreement and a
+  second interpretation; it is prohibited.
+- Correcting the shared resolver's zero-head branch to `REPORT_REQUIRED`
+  aligns the explicit test and frozen F4.3.4, but changes a demonstrated T3
+  error code, contrary to section 2.1's unconditional preservation clause.
+
+The narrow recommended ADMIN clarification is to explicitly authorize this
+**shared implementation error-code correction** as an exception to section
+2.1, retaining `REPORT_HEAD_AMBIGUOUS` for multiple heads and keeping the
+frozen specification unchanged. This recommendation is not self-authorization
+and has not been implemented. No new method name, error code, lock system or
+algorithm copy is needed merely to resolve this discrepancy.
+
+## U5. Delivery status
+
+WP4B.2 section 11 requires report-only delivery upon this conflict. The old
+14-file backup remains untouched and recoverable at its previously recorded
+path/hash. Its restoration is intentionally not claimed; directed query tests
+have not yet passed, which is the taskbook's prerequisite for restoration.
+
+No full regression/build or implementation CI result is claimed for this
+attempt. The earlier 102 passing MCP tests were measured before the prior
+withdrawal and do not describe this clean baseline. The report commit and
+remote SHA-256 are returned after GitHub readback. Historical reports below
+are preserved verbatim under historical headings.
+
+```yaml
+DELIVERY_KIND: BLOCKED_REPORT_ONLY
+FILES_CHANGED: 1
+PRODUCTION_FILES_MODIFIED: 0
+TEST_FILES_MODIFIED: 0
+FROZEN_CONFORMANCE_FILES_MODIFIED: 0
+SCHEMA_FILES_MODIFIED: 0
+CODEFLOWMU_FILES_MODIFIED: 0
+MAIN_MODIFIED: false
+RELEASE_CREATED: false
+WP4C_STARTED: false
+WP4D_STARTED: false
+MANIFEST_COMMIT: NOT_CREATED_WP4B_2_SECTION_11
+REQUESTED_GATE: NONE
+```
+
+---
+
+# Historical report accepted at 1434d409 — public query scope resolved by WP4B.2
+
 # Current WP4B.1 implementation audit — BLOCKED
 
 ```yaml
