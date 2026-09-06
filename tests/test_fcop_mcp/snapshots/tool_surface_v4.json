@@ -1,0 +1,1356 @@
+{
+  "resources": {
+    "static": [
+      {
+        "mime_type": "application/json",
+        "uri": "fcop://config"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://letter/en"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://letter/zh"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://prompt/install"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://prompt/install/en"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://protocol"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://rules"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://spec"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://spec/en"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri": "fcop://status"
+      },
+      {
+        "mime_type": "application/json",
+        "uri": "fcop://teams"
+      }
+    ],
+    "templates": [
+      {
+        "mime_type": "text/markdown",
+        "uri_template": "fcop://teams/{team}"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri_template": "fcop://teams/{team}/{role}"
+      },
+      {
+        "mime_type": "text/markdown",
+        "uri_template": "fcop://teams/{team}/{role}/en"
+      }
+    ]
+  },
+  "tools": [
+    {
+      "name": "approve_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "authorization_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "note",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profile_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "report_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "review_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "archive_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "authorization_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "family_digest",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profile_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "review_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "archive_to_history",
+      "params": [
+        {
+          "name": "done_date",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "bulk_archive_to_history",
+      "params": [
+        {
+          "name": "done_date",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "check_update",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "claim_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_custom_team",
+      "params": [
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "leader",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "profiles",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "protocol_version",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "roles",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "team_name",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_task",
+      "params": [
+        {
+          "name": "body",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "branch_of",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "operation_id",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "parent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "risk_level",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "sender",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "thread_key",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "workspace_id",
+          "required": false,
+          "type": null
+        }
+      ]
+    },
+    {
+      "name": "deploy_role_templates",
+      "params": [
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "team",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "drop_suggestion",
+      "params": [
+        {
+          "name": "content",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "context",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fcop_audit",
+      "params": [
+        {
+          "name": "output",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "project_path",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "scope",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fcop_check",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fcop_create_alert",
+      "params": [
+        {
+          "name": "alert_type",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "severity",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "suggestion",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "summary",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fcop_list_alerts",
+      "params": [
+        {
+          "name": "last_n",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "severity",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "fcop_report",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "finish_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "get_available_teams",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "get_governance_summary",
+      "params": []
+    },
+    {
+      "name": "get_team_status",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_project",
+      "params": [
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profiles",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "protocol_version",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "team",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_solo",
+      "params": [
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profiles",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "protocol_version",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "role_code",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "role_label",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "inspect_task",
+      "params": [
+        {
+          "name": "filename",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "include_family_digest",
+          "required": false,
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "list_governance_events",
+      "params": [
+        {
+          "name": "last_n",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "risk",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "tag",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_history",
+      "params": [
+        {
+          "name": "date",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_issues",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "offset",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "reporter",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "severity",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_reports",
+      "params": [
+        {
+          "name": "attempt_id",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "head_only",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "offset",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "reporter",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_reviews",
+      "params": [
+        {
+          "name": "attempt_id",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "authorization_ref",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "decision",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "offset",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "profile_ref",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "review_kind",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "reviewer_role",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "subject_ref",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "subject_type",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_tasks",
+      "params": [
+        {
+          "name": "branch_of",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "date",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "offset",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "parent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "sender",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "stage",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "list_workspaces",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "mark_human_approved",
+      "params": [
+        {
+          "name": "approver",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attempt_id",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "channel",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "comment",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "decision",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "expires_at",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "family_digest",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "from_stage",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "issued_at",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "issuer_proof",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "profile_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "review_id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "to_stage",
+          "required": false,
+          "type": null
+        }
+      ]
+    },
+    {
+      "name": "new_workspace",
+      "params": [
+        {
+          "name": "description",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profiles",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "protocol_version",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "slug",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "read_history_task",
+      "params": [
+        {
+          "name": "date",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "read_report",
+      "params": [
+        {
+          "name": "filename",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "read_review",
+      "params": [
+        {
+          "name": "filename",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "read_task",
+      "params": [
+        {
+          "name": "filename",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "redeploy_rules",
+      "params": [
+        {
+          "name": "archive",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "reject_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "authorization_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "note",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profile_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "report_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "review_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "reopen_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "authorization_ref",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "profile_ref",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "review_ref",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "set_project_dir",
+      "params": [
+        {
+          "name": "path",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "submit_task",
+      "params": [
+        {
+          "name": "actor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "report_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "upgrade_fcop",
+      "params": [
+        {
+          "name": "lang",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "validate_team_config",
+      "params": [
+        {
+          "name": "leader",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "roles",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "write_issue",
+      "params": [
+        {
+          "name": "body",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "reporter",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "severity",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "subject_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "summary",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "workspace_id",
+          "required": false,
+          "type": null
+        }
+      ]
+    },
+    {
+      "name": "write_report",
+      "params": [
+        {
+          "name": "attempt_id",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "body",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "report_kind",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "reporter",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "result",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "status",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "task_id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "workspace_id",
+          "required": false,
+          "type": null
+        }
+      ]
+    },
+    {
+      "name": "write_review",
+      "params": [
+        {
+          "name": "attempt_id",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "authorization_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "authorization_scope",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "body",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "decision",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "expires_at",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "family_digest",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "issued_at",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "issuer_proof",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "operation_kind",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "profile_ref",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "rationale",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "required_changes",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "review_kind",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "reviewer_agent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "reviewer_role",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject_ref",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject_short",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "subject_type",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "transition",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "workspace_id",
+          "required": false,
+          "type": null
+        }
+      ]
+    },
+    {
+      "name": "write_task",
+      "params": [
+        {
+          "name": "body",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "branch_of",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "operation_id",
+          "required": false,
+          "type": null
+        },
+        {
+          "name": "parent",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "priority",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "recipient",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "references",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "risk_level",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "sender",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "subject",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "thread_key",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "workspace_id",
+          "required": false,
+          "type": null
+        }
+      ]
+    }
+  ],
+  "version": "1"
+}

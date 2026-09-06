@@ -1,4 +1,4 @@
-"""Private WP3A creation plane. No lifecycle moves or authorization decisions."""
+"""Private creation/append plane; trusted issuer validation is shared with consumption."""
 
 from __future__ import annotations
 
@@ -35,6 +35,8 @@ from fcop.v4.encoding import (
     supported_local,
     sync_directory,
 )
+
+_UNSET = object()
 
 
 def _uuid(value: Any) -> bool:
@@ -237,6 +239,8 @@ class _Creation:
         return cls(root, value, trusted_profiles=trusted_profiles)
 
     def handler(self, name: str) -> Callable[..., Any] | None:
+        from fcop.v4.reports import ReportQueries
+
         if self.invalid:
             if name == "is_initialized":
                 return lambda: (self.root / "fcop/fcop.json").is_file()
@@ -252,6 +256,8 @@ class _Creation:
             "write_review": self.write_review,
             "mark_human_approved": self.mark_human_approved,
             "read_task": self.read_task,
+            "list_reports": ReportQueries(self).list_reports,
+            "read_report": ReportQueries(self).read_report,
             "inspect_state": self.inspect_state,
             "transition": self.transition,
             "family_digest": self.family_digest,
@@ -954,23 +960,75 @@ class _Creation:
             return self._append("REVIEW", kwargs)
 
     def mark_human_approved(
-        self, *, review_id: str, decision: str, approver: str, profile_ref: str, comment: str = ""
+        self, *, review_id: str, decision: str, approver: str, profile_ref: str,
+        from_stage: str | None = None, to_stage: str | None = None,
+        attempt_id: str | None = None, family_digest: str | None = None,
+        issued_at: str | None = None, expires_at: Any = _UNSET,
+        issuer_proof: Any = None, comment: str = "", **extra: Any,
     ) -> dict[str, Any]:
+        from fcop.v4 import authorization
+        from fcop.v4.authorization import _review, _time, validate_profile_issuer
+        from fcop.v4.convergence import snapshot
+        from fcop.v4.lifecycle import current_attempt, family_root_for
+        from fcop.v4.linearization import family_boundary
+
         self._check()
-        _, old = self._resolve(review_id)
-        if old["type"] != "REVIEW":
-            raise fail(_V4Code.INVALID_ENVELOPE, "Expected REVIEW", subject=review_id)
-        return self.write_review(
-            workspace_id=self.manifest["workspace_id"],
-            sender=approver,
-            recipient=old["recipient"],
-            body=comment,
-            subject_ref=old["subject_ref"],
-            review_kind="assessment",
-            decision=decision,
-            profile_ref=profile_ref,
-            references=[review_id],
-        )
+        if extra or decision not in {"authorize", "approve", "approved"}:
+            raise fail(_V4Code.AUTHORIZATION_INVALID, "Unexpected fields or non-affirmative decision")
+        edge = (from_stage, to_stage)
+        if edge not in {("review", "done"), ("review", "active"), ("done", "active"), ("done", "archive")}:
+            raise fail(_V4Code.AUTHORIZATION_INVALID, "Invalid authorized edge")
+        _, initial, _ = _review(self, review_id)
+        subject = initial["subject_ref"]
+        root_id = family_root_for(self, subject)
+        with family_boundary(self.root, self.manifest["workspace_id"], root_id):
+            self._check()
+            old_path, old, old_digest = _review(self, review_id)
+            if old["subject_ref"] != subject or family_root_for(self, subject) != root_id:
+                raise fail(_V4Code.RECOVERY_REQUIRED, "Authorization subject changed across lock")
+            task_path, task = self._resolve(subject)
+            if task["type"] != "TASK" or task_path.parent.name != from_stage:
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization source does not match TASK")
+            self._relations(task)
+            task_digest = digest(task_path.read_bytes())
+            family_bound = False
+            if edge == ("done", "archive") and subject == root_id:
+                family = snapshot(self, root_id, require_terminal=True)
+                family_bound = bool(family.branches)
+                if family_bound and family_digest != family.digest:
+                    raise fail(_V4Code.FAMILY_CONVERGENCE_MISMATCH, "Invalid authorization family digest")
+            if not family_bound and family_digest is not None:
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Unexpected family binding")
+            current = current_attempt(task)
+            if (attempt_id != current and not (family_bound and attempt_id is None)) or (
+                old.get("attempt_id") is not None and old["attempt_id"] != current
+            ):
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization attempt mismatch")
+            issued = _time(issued_at, field="issued_at")
+            expires = _time(expires_at, field="expires_at") if expires_at is not None else None
+            if expires is not None and expires < issued:
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization time range is invalid")
+            if expires is not None and expires < authorization._utc_now():
+                raise fail(_V4Code.AUTHORIZATION_EXPIRED, "Authorization already expired")
+            candidate = self._common("REVIEW", approver, old["recipient"])
+            candidate.update(
+                subject_ref=subject, review_kind="authorization", decision="authorize",
+                profile_ref=profile_ref, references=[review_id], attempt_id=attempt_id,
+                family_digest=family_digest, transition={"from": from_stage, "to": to_stage},
+                issued_at=issued_at, expires_at=expires_at, issuer_proof=issuer_proof,
+                operation_kind="lifecycle_transition", authorization_scope="single_use",
+            )
+            path = safe_path(self.root, f"fcop/reviews/{candidate['review_id']}.md")
+            self._validate(candidate, path)
+            warnings = self._relations(candidate)
+            data = envelope_bytes(candidate, comment)
+            validate_profile_issuer(self, candidate)
+            if expires is not None and expires < authorization._utc_now():
+                raise fail(_V4Code.AUTHORIZATION_EXPIRED, "Authorization expired before publication")
+            if digest(old_path.read_bytes()) != old_digest or digest(task_path.read_bytes()) != task_digest:
+                raise fail(_V4Code.EVIDENCE_DIGEST_MISMATCH, "Authorization inputs changed before publication")
+            publish(path, data)
+            return {"review_id": candidate["review_id"], "path": str(path), "warnings": warnings}
 
     def read_task(
         self, filename_or_id: str | None = None, *, task_id: str | None = None

@@ -7,7 +7,7 @@ name = "fcop-mcp"
 dynamic = ["version"]
 # Not the same as the `fcop` wheel: that package is the library + PyYAML only.
 # This package is the optional IDE bridge. Protocol definition: same repo, see project_urls.
-description = "stdio MCP server for the FCoP Python library: exposes the fcop package's Project, task, report, issue, GAL alert, and audit APIs to MCP clients (Cursor, Claude Desktop, …). Optional bridge, not a second protocol; depends on fcop 3.x, FastMCP, websockets."
+description = "Version-routed stdio MCP adapter for the FCoP Python Project API. Explicit optional Relay extra; no second protocol or automatic workspace migration."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -53,20 +53,20 @@ classifiers = [
 #   `fcop 0.6.x`); see `docs/releases/0.7.1.md` for the post-mortem.
 #
 # * `fastmcp` is the MCP SDK that provides the @tool / @resource
-#   decorators and the stdio transport. Pinned >= 3.2 because
-#   FastMCP's sync tool-dispatch semantics stabilized in 3.2.
+#   decorators and the stdio transport. The tested 3.2.4 SDK is fixed
+#   for this development adapter; do not silently resolve a new SDK major.
 #
-# * `websockets` is needed when the relay bridge mode is active
-#   (FCOP_ROOM_KEY / FCOP_RELAY_WS_URL env vars — see server.py).
-#   Kept as a runtime dep because the relay bridge is a first-class
-#   feature, not an optional extra.
+# WP4B uses one exact development package pair; WP4D owns release versions.
+# FCoP's direct websocket dependency belongs to the explicit Relay extra.
+# FastMCP can independently install websockets transitively; that never
+# activates FCoP Relay. No relay environment variable is read by base stdio.
 dependencies = [
-    "fcop>=3.0.0,<4.0",
-    "fastmcp>=3.2.0",
-    "websockets>=12.0",
+    "fcop>=3.2.5,<4.0",
+    "fastmcp==3.2.4",
 ]
 
 [project.optional-dependencies]
+relay = ["websockets>=12.0"]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",

@@ -399,11 +399,13 @@ def test_append_only_all_three_fact_types(tmp_path: Path) -> None:
         **{**report_request, "report_kind": "replacement", "references": [report["report_id"]]}
     )
     second_issue = project.write_issue(**common, severity="medium", references=[issue["issue_id"]])
-    approval = project.mark_human_approved(
-        review_id=review["review_id"],
-        approver="human:test",
+    # Generic fact append does not assert issuer authority. WP4B.3's separate
+    # validated mark boundary is exercised in test_v4_authorization_append.py.
+    approval = project.write_review(
+        **common,
+        review_kind="assessment",
         decision="approved",
-        profile_ref="profile:test",
+        references=[review["review_id"]],
     )
     after = snapshot(tmp_path)
     assert all(after[key] == value for key, value in before.items())

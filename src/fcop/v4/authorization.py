@@ -96,6 +96,49 @@ def find_consumptions(
     return found
 
 
+def validate_profile_issuer(creation: _Creation, authorization: Mapping[str, Any]) -> str:
+    """One trusted issuer decision for publication and later consumption."""
+    from fcop.v4.creation import _request
+
+    # Stored Profile extensions are inert, not caller request arguments.
+    # Examine only the actual issuer input; never promote extension claims
+    # to authority or let them override the trusted evaluator (SB-06).
+    issuer_input = {key: authorization.get(key) for key in ("profile_ref", "sender", "issuer_proof")}
+    _request(issuer_input, set(issuer_input), set())
+
+    def reject_judges(value: Any) -> None:
+        if isinstance(value, Mapping):
+            if any(key in value for key in ("registry", "authorization_result", "AUTHORIZED")):
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Caller authority is forbidden")
+            for nested in value.values():
+                reject_judges(nested)
+        elif isinstance(value, (list, tuple)):
+            for nested in value:
+                reject_judges(nested)
+
+    reject_judges(issuer_input)
+    if not usable_profiles(creation):
+        raise fail(_V4Code.AUTHORIZATION_PROFILE_UNAVAILABLE, "No usable adopted Profile")
+    profile_ref = authorization.get("profile_ref")
+    if not isinstance(profile_ref, str) or profile_ref not in creation.manifest["profiles"]:
+        raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile is not adopted")
+    evaluator = creation.trusted_profiles.get(profile_ref)
+    if not callable(evaluator):
+        raise fail(_V4Code.AUTHORIZATION_INVALID, "Adopted Profile has no trusted evaluator")
+    if authorization.get("issuer_proof") is None:
+        raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization lacks issuer proof")
+    try:
+        decision = evaluator(
+            profile_ref=profile_ref, issuer=authorization["sender"],
+            proof=authorization["issuer_proof"],
+        )
+    except Exception as exc:
+        raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile evaluation failed") from exc
+    if decision != "AUTHORIZED":
+        raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile did not authorize issuer proof")
+    return profile_ref
+
+
 def _current_t3(
     fields: Mapping[str, Any], report_ref: str, report_digest: str
 ) -> None:
@@ -275,25 +318,7 @@ def validate_gate(
     profile_ref = authorization.get("profile_ref")
     if request.get("profile_ref") not in {None, profile_ref}:
         raise fail(_V4Code.AUTHORIZATION_INVALID, "Requested Profile differs from REVIEW")
-    if not isinstance(profile_ref, str) or not profile_ref:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization Profile is invalid")
-    if profile_ref not in creation.manifest["profiles"]:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile is not adopted")
-    evaluator = creation.trusted_profiles.get(profile_ref)
-    if not callable(evaluator):
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Adopted Profile has no trusted evaluator")
-    if "issuer_proof" not in authorization:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization lacks issuer proof")
-    try:
-        decision = evaluator(
-            profile_ref=profile_ref,
-            issuer=authorization["sender"],
-            proof=authorization["issuer_proof"],
-        )
-    except Exception as exc:
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile evaluation failed") from exc
-    if decision != "AUTHORIZED":
-        raise fail(_V4Code.AUTHORIZATION_INVALID, "Profile did not authorize issuer proof")
+    profile_ref = validate_profile_issuer(creation, authorization)
     if expires is not None and expires < _utc_now():
         raise fail(
             _V4Code.AUTHORIZATION_EXPIRED,

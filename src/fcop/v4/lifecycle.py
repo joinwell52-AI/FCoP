@@ -121,6 +121,12 @@ def report_head(
             )
         referenced.add(prior[0])
     heads = [entry for report_id, entry in by_id.items() if report_id not in referenced]
+    if not heads:
+        raise fail(
+            _V4Code.REPORT_REQUIRED,
+            "Current attempt REPORT graph has no head",
+            subject=task_id,
+        )
     if len(heads) != 1:
         raise fail(
             _V4Code.REPORT_HEAD_AMBIGUOUS,

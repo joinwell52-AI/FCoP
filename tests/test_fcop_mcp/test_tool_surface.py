@@ -35,6 +35,7 @@ import pytest
 from fcop_mcp.server import mcp
 
 SNAPSHOT_PATH = Path(__file__).parent / "snapshots" / "tool_surface.json"
+V4_SNAPSHOT_PATH = Path(__file__).parent / "snapshots" / "tool_surface_v4.json"
 
 
 class _ParamSpec(TypedDict):
@@ -103,22 +104,22 @@ def _collect_surface() -> dict[str, object]:
 
 
 def test_tool_surface_matches_snapshot(pytestconfig: pytest.Config) -> None:
-    """Fail if any tool / resource drifted from the locked snapshot."""
+    """WP4B.1: current surface matches v4; historical compatibility stays separate."""
     observed = _collect_surface()
 
     if pytestconfig.getoption("--snapshot-update", default=False):
-        SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        SNAPSHOT_PATH.write_text(
+        V4_SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        V4_SNAPSHOT_PATH.write_text(
             json.dumps(observed, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         pytest.skip("Snapshot updated; rerun without --snapshot-update to verify.")
 
-    assert SNAPSHOT_PATH.exists(), (
-        f"Snapshot missing: {SNAPSHOT_PATH}. "
+    assert V4_SNAPSHOT_PATH.exists(), (
+        f"Snapshot missing: {V4_SNAPSHOT_PATH}. "
         "Run `pytest --snapshot-update` to create it."
     )
-    expected = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+    expected = json.loads(V4_SNAPSHOT_PATH.read_text(encoding="utf-8"))
     if observed != expected:
         import difflib
 

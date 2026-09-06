@@ -10,6 +10,31 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Added — fcop-mcp
+
+- Unreleased WP4B development adapter: 46 canonical tools (the historical 45
+  plus `reopen_task` for T6), 11 version-routed resources and three read-only
+  Profile resource templates. Trusted Profile evaluators are supplied only at
+  server construction; requests cannot install evaluators. Core errors retain
+  structured MCP error results and v4 never falls back to a legacy writer.
+- v4 REPORT list/read delegate to the public Project readers. Specification
+  projections include source commit and byte digest; v4 rules remain explicitly
+  unavailable pending WP4C. Base CLI is stdio; `--relay-url` explicitly selects
+  the optional `[relay]` transport. No package version or release is changed.
+
+### Changed — fcop
+
+- Complete the existing v4 `Project.mark_human_approved` as a validated,
+  append-only authorization fact boundary. Publication and later transition
+  consumption share one trusted Profile issuer validator and independently
+  recheck authorization; publication never moves a TASK. Legacy v3 behavior
+  and generic `write_review` semantics remain unchanged (WP4B.3).
+- Enable existing `Project.list_reports` and `Project.read_report` for v4 with
+  replacement/head metadata, stable per-family reads and no workspace writes.
+  They share the existing T3 head resolver. WP4B.2a corrects only the nonempty
+  zero-head graph error to `REPORT_REQUIRED`; multiple heads remain
+  `REPORT_HEAD_AMBIGUOUS`. Legacy reader signatures and behavior are unchanged.
+
 ### Added — `fcop`
 
 - **`Project.recover_operation(...)`**, **`Project.inject_fault(...)`** 与

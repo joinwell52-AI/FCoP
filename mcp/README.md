@@ -16,7 +16,94 @@ a second “FCoP product” and does not replace the protocol text.
 
 **Upgrading from older lines (`0.6.x` / `0.7.x` / `1.x` / `2.x`)?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) — install in the MCP venv (`pip install -U fcop fcop-mcp`), restart IDE, then run `redeploy_rules()` once to refresh on-disk rule files.
 
-**What can the server actually do?** The current surface is **45 MCP tools** plus read-only resources; see [**`docs/mcp-tools.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md). Authoritative behavior stays in source docstrings ([`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)).
+**Surface:** the released 3.2.5 baseline has **45 tools**. This unreleased WP4B
+review tree has **46**, adding only `reopen_task`; no release or migration is
+implied. Both retain 11 static resources and three read-only Profile templates.
+
+### Unreleased WP4B v4 adapter
+
+Build/install `fcop` and `fcop-mcp` from the same review checkout into an isolated
+environment. Both development distributions still identify as `3.2.5`; the
+startup compatibility table accepts only that exact development pair. Do not
+install this tree into an existing production workspace or assume that the
+released PyPI 3.2.5 library contains the unreleased v4 implementation.
+
+`fcop-mcp` defaults to stdio. `fcop-mcp --relay-url wss://<explicit-endpoint>`
+selects a foreground standard-MCP JSON-RPC WebSocket transport; its direct
+dependency is in `fcop-mcp[relay]`. FastMCP itself may install `websockets`
+transitively. Presence of that package, `FCOP_ROOM_KEY` or `FCOP_RELAY_WS_URL`
+does **not** enable FCoP Relay. No connection is made by base stdio startup.
+
+Trusted application startup can use:
+
+```python
+from fcop_mcp.server import create_server
+
+server = create_server(workspace_path, trusted_profiles={profile_ref: evaluator})
+server.run(transport="stdio")
+```
+
+The registry is copied at construction and defaults to empty. It is never
+populated by tool requests, manifest fields, Profile documents or actor names.
+v4 T4–T7 without a trusted adopted evaluator fail in Core.
+
+For v4, `init_solo` / `init_project` require explicit `protocol_version="4.0"`
+to create a new workspace without legacy rule deployment. TASK creation requires
+`workspace_id` and `operation_id`; Branch uses the optional `branch_of` field.
+REPORT/ISSUE/REVIEW writers require the corresponding v4 fields, including
+`workspace_id`, formal subject and (for REPORT) current `attempt_id`.
+`write_review` appends evidence, not a transition.
+
+In v4, `mark_human_approved` delegates exclusively to the existing public
+Project method. Supply `review_id`, `approver`, affirmative `decision`,
+`profile_ref`, `from_stage`, `to_stage`, the edge's `attempt_id` and (for a
+Root T7 with Branches) `family_digest`, `issued_at`, explicit `expires_at`
+(which may be null), and `issuer_proof`; `comment` is optional. The Project
+derives workspace, subject, recipient and references from existing facts and
+stores a new authorization REVIEW with decision `authorize`. A trusted
+evaluator must authorize before publication. DENIED/UNKNOWN, invalid binding
+or expiry fail with zero writes. The old REVIEW is never edited and no TASK
+moves until a separate transition revalidates and consumes the authorization.
+`approve`/`approved` are accepted affirmative spellings; rejection never
+creates an authorization. v3 retains its original approve/reject behavior.
+
+```json
+{
+  "name": "reopen_task",
+  "arguments": {
+    "task_id": "TASK-...",
+    "review_ref": "REVIEW-reopen-...",
+    "authorization_ref": "REVIEW-independent-authorization-...",
+    "profile_ref": "profile:adopted-by-trusted-startup",
+    "actor": "ME",
+    "lang": "en"
+  }
+}
+```
+
+This requests only `done -> active`; Core validates evidence and single-use
+authorization and creates the next attempt. An exact retry returns the existing
+result. No `operation_id`, attempt, report, family digest, transition selector
+or evaluator is accepted by `reopen_task`. The tool rejects v3 workspaces.
+
+`list_reports(task_id=..., attempt_id=..., head_only=True)` and
+`read_report(filename=...)` return the requested immutable facts with `is_head`,
+`head_ref` and `head_digest`. All graph validation belongs to public Project
+readers; pagination cannot hide an ambiguous group. `status="archived"` is
+legacy-only, not v4 history authority. Base failures are standard MCP error
+results (`isError=true`) with structured `code`, `operation_ref`, `subject_ref`.
+
+`fcop://spec` and `/en` are version-routed projections with source SHA-256.
+v4 rules/protocol and host guidance are explicitly unavailable until WP4C.
+Profile resources remain read-only catalog documents and never grant authority.
+Existing product-only rule deployment/GAL/governance extensions are not
+relabelled as v4 Core; unsupported v4 projections return typed unavailability.
+
+中文：本 review 版本尚未发布；历史 45 项工具保留，仅新增 T6 `reopen_task`，
+合计 46 项。可信 Profile 只能在 server 初始化时注册。v4 查询委托公共
+Project，零 head／多 head 分别返回 `REPORT_REQUIRED`／
+`REPORT_HEAD_AMBIGUOUS`；旧 REPORT 可读取，但明确显示并非当前 head。
+不得把历史安装说明中的升级、规则重部署步骤用于本轮现有工作区。
 
 **0.6.3 ships [ADR-0006](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0006-host-neutral-rule-distribution.md)** — host-neutral protocol-rule distribution. New tool **`fcop_report`** is now the canonical session/init report (its header carries a `[Versions]` block that flags drift between the wheel-bundled rules and the project-local `.cursor/rules/` copy). New ADMIN-only tool **`redeploy_rules`** writes the four protocol-rule targets — `.cursor/rules/fcop-rules.mdc`, `.cursor/rules/fcop-protocol.mdc`, `AGENTS.md`, `CLAUDE.md` — so Cursor, Claude Code CLI, and Codex CLI all see the same rules. Legacy **`unbound_report`** stays as a deprecated alias of `fcop_report` (emits `DeprecationWarning`, removed in 0.7.0). See [`docs/releases/0.6.3.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/0.6.3.md) for the full migration story.
 

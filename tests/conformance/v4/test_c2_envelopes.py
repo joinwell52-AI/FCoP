@@ -70,15 +70,24 @@ def test_c2_r01(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
 
 
 def test_c2_r02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> None:
+    from .fixtures import ISSUER_PROOF, DeterministicProfileEvaluator, bind_t3
+
     # Arrange: landed REPORT and REVIEW facts whose bytes must never change.
-    workspace.task("TASK-C2-R02", stage="active", attempt_id=ATTEMPT_A)
+    task_path = workspace.task("TASK-C2-R02", stage="review", attempt_id=ATTEMPT_A)
     old_report = workspace.report("REPORT-C2-OLD", task_id="TASK-C2-R02", attempt_id=ATTEMPT_A)
+    bind_t3(workspace, "TASK-C2-R02", "REPORT-C2-OLD")
     old_review = workspace.review(
         "REVIEW-C2-OLD", task_id="TASK-C2-R02", review_kind="assessment",
-        decision="needs_human", references=["REPORT-C2-OLD"],
+        decision="needs_human", references=["REPORT-C2-OLD"], attempt_id=ATTEMPT_A,
     )
     report_bytes = old_report.read_bytes()
     review_bytes = old_review.read_bytes()
+    task_bytes = task_path.read_bytes()
+    evaluator = DeterministicProfileEvaluator("AUTHORIZED")
+    local_driver = V4ConformanceDriver(
+        workspace.root, trusted_profiles={"profile:test": evaluator}, test_id="C2-R02",
+    )
+    issued_at = "2026-09-03T00:03:00+08:00"
 
     # Act: append a replacement REPORT and an approval REVIEW referencing old facts.
     replacement = v4_driver.write_report(
@@ -87,10 +96,12 @@ def test_c2_r02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
         result="done", sender="ME", recipient="ME", body="replacement\n",
         references=["REPORT-C2-OLD"],
     )
-    approval = v4_driver.mark_human_approved(
+    approval = local_driver.mark_human_approved(
         test_id="C2-R02", clause="F4.3.3; F4.3.5", review_id="REVIEW-C2-OLD",
         decision="approved", approver="human:test", profile_ref="profile:test",
         comment="append, do not edit",
+        from_stage="review", to_stage="done", attempt_id=ATTEMPT_A, family_digest=None,
+        issued_at=issued_at, expires_at=None, issuer_proof=ISSUER_PROOF,
     )
 
     # Assert: new IDs/files exist, reference old facts, and old bytes are identical.
@@ -102,3 +113,18 @@ def test_c2_r02(workspace: WorkspaceFixture, v4_driver: V4ConformanceDriver) -> 
     assert approval_id != "REVIEW-C2-OLD"
     assert "REPORT-C2-OLD" in read_frontmatter(workspace.envelope_paths(replacement_id)[0])["references"]
     assert "REVIEW-C2-OLD" in read_frontmatter(workspace.envelope_paths(approval_id)[0])["references"]
+    assert evaluator.calls == [{"profile_ref": "profile:test", "issuer": "human:test", "proof": ISSUER_PROOF}]
+    assert evaluator.result == "AUTHORIZED"
+    authorization = read_frontmatter(workspace.envelope_paths(approval_id)[0])
+    assert authorization["review_kind"] == "authorization"
+    assert authorization["decision"] == "authorize"
+    assert authorization["profile_ref"] == "profile:test"
+    assert authorization["transition"] == {"from": "review", "to": "done"}
+    assert authorization["attempt_id"] == ATTEMPT_A
+    assert authorization["family_digest"] is None
+    assert authorization["issued_at"] == issued_at
+    assert authorization["expires_at"] is None
+    assert authorization["references"] == ["REVIEW-C2-OLD"]
+    assert task_path.read_bytes() == task_bytes
+    assert workspace.task_paths("TASK-C2-R02") == [task_path]
+    assert task_path.parent.name == "review"

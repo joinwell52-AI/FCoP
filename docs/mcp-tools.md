@@ -1,5 +1,30 @@
 # FCoP MCP 工具清单（fcop-mcp 3.x）<!-- 45 tools — v3.2.4 release -->
 
+## 未发布 WP4B review 增量：45 + 1
+
+下方 45 项表格是历史 v3 工具说明，不是 v4 行为合同。本 review 开发树保留
+全部名字，唯一新增 `reopen_task`，合计 46；`close_issue` 与通用 `transition`
+工具不加入。v3 工作区保持旧行为，v4 按 manifest 显式分派，不自动迁移。
+
+`reopen_task(task_id, review_ref, authorization_ref, profile_ref, actor, lang="")`
+只请求 T6 `done -> active`。必须提供独立 reopen REVIEW 与 Authorization；
+可信 evaluator 由 server 初始化注册，actor／角色文档不产生权限。同一正式
+请求的响应丢失重试不再生成 attempt 或事件。v3 调用明确拒绝。
+
+v4 `list_reports` 新增可选 `attempt_id`、`head_only`，`task_id` 和 `reporter`
+映射为公共 Project 的 subject 与 sender；`limit=0` 表示不分页。
+`read_report` 精确读取给定 REPORT，返回 `is_head/head_ref/head_digest`，不把
+被替代的旧文件静默换成 head。零／多 head 错误由同一个 Core resolver 返回。
+
+v4 `finish_task`、四个 history 工具拒绝；`archive_task` 仅 T7。
+v4 `mark_human_approved` 只委托公共 Project 授权追加入口：必需明确的
+`profile_ref`、`from_stage/to_stage`、对应 attempt/family、`issued_at`、
+显式 `expires_at`（可为 null）和 `issuer_proof`。可信 evaluator 在发布前
+通过才追加 authorization REVIEW；不改旧文件、不移动 TASK。迁移时仍独立
+重新验证并单次消费；`approve/approved` 规范化为 `authorize`，拒绝不产生授权。
+资源为 11 + 3，三个 template 仍是只读 Profile 文档而非信封生成器。
+完整开发安装与可信启动说明见 [MCP README](../mcp/README.md)。
+
 > 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组。
 >
 > 稳定承诺：**整个 `3.x` 周期工具「只增不改」**。新增工具/参数允许；改名、删除、改语义不允许。
