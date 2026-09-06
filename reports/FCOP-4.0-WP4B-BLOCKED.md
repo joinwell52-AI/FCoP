@@ -1,3 +1,169 @@
+# Current WP4B.0 resume audit — BLOCKED
+
+```yaml
+WP4B_STATUS: BLOCKED
+STOP_CODE: MCP_T6_TOOL_MAPPING_UNDERDETERMINED
+AUTHORIZED_SCOPE: WP4B_RESUME_ONLY
+WP4B_0_DECISION_APPLIED: true
+TASKBOOK_COMMIT: b2453202686d08bd6584302072e0be814a059be4
+TASKBOOK_SHA256: 10118bcc63df3b8334c9eca4137493164f1c0d329f86dd572b0c9ee9af758c59
+BLOCKED_INPUT_HEAD: 9558a267333f245e5d4aa8c32aee4d1a90210639
+PARENT_GATE_COMMIT: 982fcb24d9093e01c5ba4fdb87e710acd57e6d54
+FROZEN_CONTRACT_COMMIT: aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6
+BRANCH: review/fcop-4.0-wp4b-mcp-adapter
+WORKTREE: D:/FCoP-wp4b-mcp-adapter
+IMPLEMENTATION_STARTED: false
+REQUESTED_GATE: NONE
+```
+
+## R1. Previous blockers resolved; fixed input verified
+
+The complete WP4B.0 taskbook was fetched at its fixed commit, read, and
+independently retrieved using the GitHub contents API. Base64-decoded remote
+bytes match `git show` bytes, and their SHA-256 is exactly
+`10118bcc63df3b8334c9eca4137493164f1c0d329f86dd572b0c9ee9af758c59`.
+The clean, independent WP4B worktree was fast-forwarded from `9558a267...` to
+`b2453202...`; the only intervening file is the correction taskbook.
+
+The ADMIN decisions are accepted without qualification:
+
+- All three resource templates remain read-only Profile documents, not business
+  envelope generators. Their document `version: 1` does not classify a workspace.
+- FastMCP's transitive websockets dependency is allowed. Relay optionality is
+  an activation and direct-dependency boundary, not environment purity.
+
+Neither point remains a blocker. The earlier report is retained verbatim in
+the historical section below and remains independently accessible at its
+accepted commit. Its former stop code is **not** the current decision.
+
+## R2. Remaining decision: which canonical tool requests T6?
+
+Original WP4B section 5.2 requires reopening operations, section 8.3 requires
+real T1–T7 delegation, and the canonical name set must remain exactly 45.
+WP4B.0 keeps these obligations and the WP1 disposition in force. However,
+the retained tool mapping does not assign a request entry to T6, and it
+explicitly rules out the natural but unsafe `claim_task` shortcut.
+
+| Fixed source | Constraint |
+|---|---|
+| `reports/FCOP-4.0-WP1-COMPATIBILITY-AND-MCP.md:28` | `claim_task` is T2; explicitly not expanded to T6; non-inbox state is `INVALID_TRANSITION`. |
+| Same file, section 2 rows 1/2/37/39 | `approve_task`, `archive_task`, `reject_task`, `submit_task` respectively map to T4/T7/T5/T3. |
+| Same file, row 16; frozen F4.4.4 | `finish_task` rejects v4 with `LEGACY_TRANSITION_NOT_ALLOWED`. |
+| Same file, row 30; frozen F4.3.3–F4.3.5 | `mark_human_approved` appends an authorization REVIEW; writing authorization is not consuming it by moving a TASK. |
+| Same file, row 44 | `write_review` creates an append-only typed REVIEW, not an implicit lifecycle transition. |
+| Same file, section 6, line 115 | T6 has no dedicated name in the 45; do not reinterpret `claim_task`; future authorized Adapter exposure must preserve the reopen/authorization/Profile/new-attempt contract. |
+| Original WP4B lines 148–154 | Preserve the exact 45 names and disposition; necessary new v4 input fields are backward-compatible optional extensions. |
+| Original WP4B lines 162–163, section 8.3 | Reopen and real T1–T7 paths must be delivered. |
+
+The later-exposure clause permits a future compliant T6 Adapter, but neither
+taskbook identifies **which retained tool and explicit operation selector**
+should request that new side effect while retaining the above meanings.
+An optional input may transport a reference, but adding an input that changes
+which operation a tool performs also defines public behavioral semantics.
+
+This is not a claim that T6 is missing from Core: `Project.transition` exists
+and is the correct owner. It is a missing MCP operation-to-tool contract.
+The following alternatives were considered and not silently adopted:
+
+1. A new `reopen_task`/`transition` tool would violate the exact canonical set.
+2. Allowing `claim_task` on done explicitly conflicts with the WP1 prohibition.
+3. Having `reject_task` choose T5 or T6 from current state changes its defined
+   rejection behavior; an explicit `operation=reopen` variant still needs an
+   approved mapping and documentation of the T5/T6 distinction.
+4. Moving a TASK as part of `write_review` or `mark_human_approved` conflates
+   creation of authorization evidence with its consumption.
+5. Hiding the transition under a read/inspect/audit tool changes its side-effect
+   boundary; WP1 row 11 specifically says audit must not repair for the user.
+6. Calling Project directly only from a test would prove Core behavior, not
+   delivery through a production MCP entry point.
+
+Family digest and recovery routing were also inspected. Their public Python
+methods exist, but the absence of equally named MCP tools alone is **not**
+reported as another blocker: derived read projection and internal recovery
+may cover parts of that requirement. This stop is specifically the mandatory
+T6 write entry and its unresolved public tool meaning.
+
+## R3. Reproducible read-only audit
+
+At `b2453202686d08bd6584302072e0be814a059be4`, a Python audit decoded
+`tests/test_fcop_mcp/snapshots/tool_surface.json` and inspected the Project AST:
+
+```text
+CANONICAL_TOOLS 45
+DIRECT_V4_OPERATION_NAMES_PRESENT []
+  (checked names: transition, reopen_task, recover_operation, family_digest)
+approve_task ['actor', 'note', 'task_id']
+archive_task ['lang', 'task_id']
+claim_task ['actor', 'task_id']
+finish_task ['actor', 'task_id']
+reject_task ['actor', 'note', 'task_id']
+submit_task ['actor', 'task_id']
+inspect_task ['filename']
+fcop_audit ['output', 'project_path', 'scope']
+PROJECT_PUBLIC_OPERATIONS ['family_digest', 'recover_operation', 'transition']
+```
+
+Reproduce the inventory with `json.loads(Path(snapshot).read_text())`, selecting
+`tools[*].name` and `tools[*].params[*].name`. Inspect
+`src/fcop/project.py` with `ast.parse` and select public `FunctionDef` nodes
+under `ClassDef(name='Project')`. Read the cited WP1 rows to distinguish the
+missing name observation from the actual behavioral-contract conflict.
+
+This audit did not call a business writer or modify a test. It is not a new
+conformance pass claim. Once this contract issue was confirmed, original
+WP4B section 13 and WP4B.0 section 9 required stopping; the planned new
+contract tests, implementation and full regression matrix were not started.
+
+## R4. Narrow ADMIN clarification requested
+
+Specify one explicit MCP mapping for T6: retained tool name, optional selector
+and input fields, its default behavior, and the distinction from the tool's
+existing operation. Alternatively, explicitly revise the surface policy.
+In either case retain the frozen Core T6 evidence, trusted Profile,
+single-use authorization, new-attempt and retry contracts. No Core or Schema
+change is requested or needed merely to define the Adapter entry.
+
+No mapping has been adopted here. No extra tool, fourth template, hidden
+transition or special test-only route has been created.
+
+## R5. Current delivery status
+
+Only this blocked report is updated, as permitted by WP4B.0 section 8 and
+required by the hard-stop clauses. The accepted historical report is preserved
+below. The same review branch and Draft PR #15 carry this report-only update;
+commit and remote SHA-256 verification are returned in the execution receipt.
+No success Manifest or implementation acceptance request is made.
+
+```yaml
+RESOURCE_TEMPLATE_CLASSIFICATION: PROFILE_RESOURCE_3_OF_3_ACCEPTED_CONTRACT
+RESOURCE_TEMPLATE_AUTHORIZATION_EFFECT: NONE_BY_CONTRACT_NOT_NEWLY_TESTED
+BUSINESS_ENVELOPE_GENERATION_BY_TEMPLATES: false
+BUSINESS_ENVELOPE_TOOLS: NOT_IMPLEMENTED
+FCOP_DIRECT_BASE_RELAY_DEPENDENCY: PRESENT_BASELINE_UNCHANGED
+FASTMCP_TRANSITIVE_WEBSOCKETS: RECORDED_IF_PRESENT_ALLOWED
+BASE_STDIO_NO_RELAY_ACTIVATION: NOT_NEWLY_TESTED
+BASE_STDIO_NO_NETWORK_CONNECT: NOT_NEWLY_TESTED
+RELAY_REQUIRES_EXPLICIT_ENABLEMENT: ACCEPTED_CONTRACT_NOT_IMPLEMENTED
+RELAY_OPTIONAL_EXTRA_METADATA: NOT_IMPLEMENTED
+FULL_REGRESSION_BUILD_CLEAN_INSTALL: NOT_RUN
+GITHUB_CI: NOT_AN_IMPLEMENTATION_ACCEPTANCE_CLAIM
+PRODUCTION_FILES_MODIFIED: 0
+TEST_FILES_MODIFIED: 0
+SCHEMA_FILES_MODIFIED: 0
+FROZEN_CONFORMANCE_FILES_MODIFIED: 0
+CODEFLOWMU_FILES_MODIFIED: 0
+MAIN_MODIFIED: false
+RELEASE_CREATED: false
+WORKSPACE_MIGRATION: false
+WP4C_STARTED: false
+WP4D_STARTED: false
+REQUESTED_GATE: NONE
+```
+
+---
+
+# Historical report accepted at 9558a267 — former blockers resolved by WP4B.0
+
 # WP4B pre-implementation contract audit — BLOCKED
 
 ```yaml
