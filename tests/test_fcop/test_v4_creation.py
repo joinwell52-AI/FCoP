@@ -185,6 +185,47 @@ def test_gate_required_weak_reference_rejects_without_writes(tmp_path: Path) -> 
     assert accepted["warnings"] == []
 
 
+@pytest.mark.parametrize("gate_first", [True, False])
+def test_gate_context_does_not_change_create_digest_or_retry(
+    tmp_path: Path, gate_first: bool
+) -> None:
+    project, request = workspace(tmp_path)
+    target = project.create_task(
+        **{**request, "operation_id": f"gate-context-target-{gate_first}"}
+    )
+    formal_request = {
+        **request,
+        "operation_id": f"gate-context-create-{gate_first}",
+        "references": [target["task_id"]],
+    }
+    with_gate = {**formal_request, "references_required_by_gate": True}
+    first_request, retry_request = (
+        (with_gate, formal_request) if gate_first else (formal_request, with_gate)
+    )
+
+    first = project.create_task(**first_request)
+    task = fields(first["path"])
+    fact_path = next(
+        path
+        for path in (tmp_path / "fcop/operations").glob("*.json")
+        if json.loads(path.read_bytes()).get("operation_id") == formal_request["operation_id"]
+    )
+    assert "references_required_by_gate" not in task
+    durable_records = [fact_path, *(tmp_path / "fcop/receipts").glob("*.json")]
+    assert all(
+        b"references_required_by_gate" not in path.read_bytes()
+        for path in durable_records
+    )
+
+    before = snapshot(tmp_path)
+    retried = project.create_task(**retry_request)
+
+    assert retried["existing"] is True
+    for name in ("task_id", "path", "digest"):
+        assert retried[name] == first[name]
+    assert snapshot(tmp_path) == before
+
+
 @pytest.mark.parametrize(
     "change,code",
     [
@@ -199,6 +240,7 @@ def test_gate_required_weak_reference_rejects_without_writes(tmp_path: Path) -> 
         ({"parent": ["TASK-one", "TASK-two"]}, "RELATION_INVALID"),
         ({"branch_of": "../outside"}, "RELATION_INVALID"),
         ({"references": ["../outside"]}, "RELATION_INVALID"),
+        ({"references_required_by_gate": "true"}, "INVALID_ENVELOPE"),
         ({"sender": ""}, "INVALID_ENVELOPE"),
         ({"body": None}, "INVALID_ENVELOPE"),
         ({"body": "invalid\ud800"}, "INVALID_ENVELOPE"),

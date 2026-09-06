@@ -632,8 +632,6 @@ class _Creation:
             else None,
             "references": request.get("references", []),
         }
-        if gate_required:
-            normalized["references_required_by_gate"] = True
         warnings = self._relations(normalized)
         if gate_required and warnings:
             raise fail(
