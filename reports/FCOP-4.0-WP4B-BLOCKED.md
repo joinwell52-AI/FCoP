@@ -1,3 +1,200 @@
+# Current WP4B.2a resumed adapter check — BLOCKED
+
+```yaml
+WP4B_STATUS: BLOCKED
+STOP_CODE: MCP_AUTHORIZATION_APPEND_VALIDATION_UNAVAILABLE
+AUTHORIZED_SCOPE: WP4B_RESUME_ONLY
+REPORTER: ME
+EVIDENCE_DATE: 2026-09-07
+TASKBOOK_COMMIT: ed8212cefeccf2e0d2a49b8802386758fd17475a
+TASKBOOK_SHA256: 97a1ffe5def18d90199255adce718e00ffa22f74653ea575eb060ec4c9a33b0e
+WORKTREE: D:/FCoP-wp4b-mcp-adapter
+BRANCH: review/fcop-4.0-wp4b-mcp-adapter
+DRAFT_PR: 15
+WORKTREE_STATUS: DIRTY_PRESERVED
+IMPLEMENTATION_COMMITTED: false
+IMPLEMENTATION_PUSHED: false
+REQUESTED_GATE: NONE
+WP4B_MCP_ADAPTER_ACCEPTED: false
+```
+
+## V1. Resolved decisions are not being reopened
+
+The fixed WP4B.2a taskbook was read from GitHub's contents API at the
+commit above and its decoded SHA-256 was verified again on 2026-09-07.
+WP4B.2's public REPORT readers and WP4B.2a's nonempty zero-head exception
+have been implemented locally. T3 and both readers call the same existing
+`report_head` resolver. Zero heads produce `REPORT_REQUIRED`; multiple
+heads retain `REPORT_HEAD_AMBIGUOUS`. The older reports below are preserved
+as historical evidence, not current unresolved decisions.
+
+The existing 14-entry backup was verified before restoration:
+
+```text
+D:/FCoP-wp4b-evidence/wp4b1-unfinished-e246ecc148534c73a1eae34b3ae3b628.zip
+SHA256: 27d636ec70dc675bf90e533b2951e679e9adb62abbf892b5efb1fc40271e1d87
+```
+
+ZIP integrity, entry names, traversal/symlink exclusions and all 14 entry
+hashes were checked. Text was restored using patches with LF normalization;
+archive-entry byte hashes are not claims of byte-identical checkout files.
+The restored MCP implementation and the new query work remain uncommitted
+in the independent worktree. No original dogfood workspace was migrated.
+
+## V2. One remaining public-boundary prerequisite
+
+The accepted disposition at
+`reports/FCOP-4.0-WP1-COMPATIBILITY-AND-MCP.md:52`, row 30, requires
+`mark_human_approved` to append a completely bound authorization REVIEW,
+reference the old fact, never modify the old REVIEW, and reject Profile
+`DENIED`/`UNKNOWN` or insufficient binding.
+
+The real accepted public paths cannot jointly provide that behavior:
+
+- `src/fcop/v4/creation.py` at taskbook HEAD, `mark_human_approved`
+  (line 956), appends `review_kind="assessment"`. It exposes no complete
+  authorization binding/issuer-proof input and never calls the evaluator.
+- The same file's `write_review` (line 933) sends non-convergence reviews
+  to `_append` (line 828). That path checks workspace, relations and Schema,
+  then publishes bytes, without trusted issuer/Profile evaluation.
+- `src/fcop/v4/authorization.py:validate_gate` performs the actual trusted
+  evaluation as part of transition validation, after resolving an existing
+  authorization REVIEW. It is private, not an authorized public read-only
+  preflight for append. `Project.transition` is a moving/consuming operation,
+  not an acceptable append-validation substitute.
+
+These Core paths were not changed by the local query correction:
+`git diff -- src/fcop/v4/creation.py` contains only the ReportQueries import
+and two reader handler registrations. Authorization implementation is unchanged.
+
+The unfinished adapter's APPEND_AUTHORIZATION projection reads the old
+REVIEW through public `Project.inspect_state`, then calls public
+`Project.write_review` with authorization fields and the old reference.
+That avoids in-place mutation and private Core imports, but **does not pass
+row 30's Profile rejection requirement**. This is a failed adapter design,
+not a completed tool implementation.
+
+## V3. Real entry-point reproduction
+
+The following three cases were executed using disposable temporary
+workspaces and the real shipped `examples/v4/application.py` helper. Each
+case creates a TASK, completes T2/T3/T4, and records an approved reopen
+REVIEW bound to the current attempt. A fresh public Project/server is then
+constructed with the adopted example Profile registered to a counting
+evaluator that always returns `DENIED`.
+
+The authorization request contains the real workspace, subject and attempt;
+`transition={"from":"done","to":"active"}`, `decision="authorize"`,
+`operation_kind="lifecycle_transition"`, `authorization_scope="single_use"`,
+timezone-aware `issued_at`, `issuer_proof="invalid-proof"`, and a reference
+to the old REVIEW. No caller-supplied evaluator field is used.
+
+| Actual entry point | Evaluator calls at append | New files | Stored kind | Old bytes unchanged | TASK stage |
+|---|---:|---:|---|---|---|
+| Public `Project.mark_human_approved`, decision approved | 0 | 1 | assessment | true | done |
+| Public `Project.write_review`, complete authorization fields | 0 | 1 | authorization | true | done |
+| FastMCP Client → `mark_human_approved` → public write | 0 | 1 | authorization | true | done |
+
+The real Client used `raise_on_error=False`; its result was
+`MCP_IS_ERROR False`, not a structured rejection. Full pre-existing file
+byte maps, rather than only task paths, were compared.
+
+Both created authorization records were subsequently passed to real public
+T6 with the same trusted DENIED registry. Actual output in each case:
+
+```text
+TRANSITION_CODE AUTHORIZATION_INVALID
+ZERO_WRITES True
+EVALUATOR_CALLS 1
+```
+
+Thus the existing transition authorization boundary still rejects the
+issuer and leaves bytes unchanged. **This finding is not a demonstrated
+lifecycle authorization bypass.** It is the inability to enforce the
+specific mark tool's pre-append Profile rejection contract using the
+currently available public append paths.
+
+Reproduction uses `Application`, `PROFILE`, `Project`, `create_server` and
+`fastmcp.Client`; it does not monkeypatch the production evaluator or invoke
+a private Core validator. The sequence is:
+
+```python
+app = Application(root)
+task = app.task("Authorization append probe")
+app.complete(task)
+attempt = app.project.inspect_state(task_id=task)["current_attempt_id"]
+old = app.review(task, "reopen", "approved", attempt_id=attempt)
+calls = []
+def denied(**kwargs):
+    calls.append(kwargs)
+    return "DENIED"
+project = Project(root, trusted_profiles={PROFILE: denied})
+# Run each append entry above in its own fresh temporary workspace.
+# For the MCP case, pass the full authorization request described above to:
+async with Client(create_server(root, trusted_profiles={PROFILE: denied})) as client:
+    result = await client.call_tool("mark_human_approved", request, raise_on_error=False)
+# Inspect the new REVIEW using Project.inspect_state(envelope_path=...).
+# For either authorization record, call Project.transition with T6,
+# review_ref=old and authorization_ref=new_review_id, then compare all bytes.
+```
+
+## V4. Verification actually completed; no final-green claim
+
+| Check | Observed result and limitation |
+|---|---|
+| Initial public-reader directed run | 9 failed / 7 passed, before enabling readers |
+| Reader implementation directed run | 16 passed |
+| Reader tests including four races + lifecycle suite | 68 passed |
+| FCoP + frozen v4 combined regression | 1328 passed / 1 failed; the one failure was the historical dependency-range format check |
+| Range-format correction and public-surface targeted rerun | 6 passed; not a substitute for a fresh combined run |
+| Full MCP regression | 122 passed / 1 failed; sole failure was the new query-parameter snapshot not yet regenerated |
+| Regenerated snapshot targeted rerun | 4 passed; not a fresh full MCP run |
+| Real Client four-envelope / T1–T7 integration test | 1 passed |
+| Local lint/type checks during implementation | Ruff passed; MCP mypy 25 files passed; reader mypy passed before final delivery freeze |
+| Wheel/sdist builds | Preliminary builds succeeded; artifacts are not final-tree delivery evidence |
+| Clean installation / final artifact proof | Incomplete; two preliminary pip installs were stopped when the semantic blocker was confirmed |
+| Authorization append contract | FAIL as reproduced in V3 |
+| Final implementation HEAD CI | NOT_RUN: there is no implementation/Manifest delivery HEAD |
+
+The preliminary clean install exposed an unconstrained FastMCP upgrade;
+the preserved local metadata was adjusted to the tested SDK. That packaging
+work is unfinished and not asserted accepted. No complete packaging/Relay
+acceptance, five-report completion, 46-tool behavioral completion or final
+CI success is claimed by this blocker report.
+
+## V5. Scope decision required; implementation preserved
+
+WP4B sections 2.1/5.1 require public Project operations and prohibit MCP
+from recreating authorization judgment. Section 13 requires a stop if Core
+judgment would need duplication. WP4B.2 section 8 permits only the two
+REPORT reader registrations and related shared-reader implementation in
+Core; WP4B.2a does not extend that permission to authorization append.
+
+Consequently this execution does not call the evaluator from MCP, import
+private `validate_gate`, simulate a transition and roll it back, always
+deny the tool as a substitute for implementation, or silently redefine
+the accepted disposition. A Core append-boundary change is outside the
+currently granted exception, even though `creation.py` is listed for the
+specific reader-handler registration purpose.
+
+ADMIN direction is needed to authorize a narrow public Core append path
+that validates the adopted trusted Profile/issuer and complete binding
+before publication, then have the MCP tool delegate to it; alternatively
+ADMIN must explicitly adjudicate the tool disposition. This report makes
+neither decision and requests no Gate. It does not propose changing
+general write_review storage semantics or transition consumption silently.
+
+Per WP4B.2a section 8, all unfinished implementation is preserved in the
+independent worktree. Only this blocker report is staged for the remote
+delivery; the previous historical report content follows unchanged. The
+old backup is retained. There is no Content/Manifest success pair, no
+implementation push, no main merge, no release, no CodeFlowMu change and
+no WP4C/WP4D execution.
+
+---
+
+Historical report below: its zero-head conflict was resolved by WP4B.2a.
+
 # Current WP4B.2 directed baseline check — BLOCKED
 
 ```yaml
