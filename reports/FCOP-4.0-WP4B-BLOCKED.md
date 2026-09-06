@@ -1,3 +1,264 @@
+# Current WP4B.1 implementation audit — BLOCKED
+
+```yaml
+WP4B_STATUS: BLOCKED
+STOP_CODE: MCP_PUBLIC_REPORT_HEAD_QUERY_UNAVAILABLE
+AUTHORIZED_SCOPE: WP4B_RESUME_ONLY
+REPORTER: ME
+WP4B_0_DECISION_APPLIED: true
+WP4B_1_DECISION_APPLIED: true
+TASKBOOK_COMMIT: e885135f4b074845944a7b8b799de879549fbc33
+TASKBOOK_SHA256: 0695cd68237a5a13eb438935d8741512476f977878938afd8864165345b694df
+INPUT_HEAD: 72e26fd214849922369e9135c8be0cb1fd260da8
+IMPLEMENTATION_BASE: e885135f4b074845944a7b8b799de879549fbc33
+PARENT_GATE_COMMIT: 982fcb24d9093e01c5ba4fdb87e710acd57e6d54
+FROZEN_CONTRACT_COMMIT: aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6
+BRANCH: review/fcop-4.0-wp4b-mcp-adapter
+DRAFT_PR: 15
+IMPLEMENTATION_STARTED: true
+UNFINISHED_IMPLEMENTATION_WITHDRAWN: true
+REQUESTED_GATE: NONE
+```
+
+## S1. Decision: a missing public read capability, not missing execution permission
+
+WP4B.1 resolved the T6 mapping. The accepted Profile-template and Relay
+clarifications also remain resolved. No repeat authorization is requested for
+that work. The implementation was resumed, not merely researched.
+
+During completion of the required per-tool behavioral disposition, a separate
+public-library capability gap was demonstrated: v4 `list_reports` and
+`read_report` must report ambiguous REPORT heads, but neither accepted public
+Project method is available on v4. The public single-envelope reader does not
+validate the subject/attempt replacement graph. The actual Core T3 gate does
+detect the same ambiguity correctly.
+
+Original WP4B sections 2.1, 3, 5.2 and 13 require the WP1 dispositions while
+restricting the adapter to public Project operations, prohibiting duplicated
+Core judgments, and requiring unfinished production changes to be withdrawn
+when that boundary cannot be satisfied. WP4B.1 sections 8–10 retain these
+restrictions. Returning a successful unvalidated list, calling private Core
+helpers, or adding a second head resolver would not constitute completion.
+
+This is not evidence that Core's lifecycle gate is broken, nor a request to
+change the frozen head rule. It is evidence that the accepted **public read
+surface** does not expose the required judgment. The implementation and full
+delivery matrix are incomplete; the passing MCP subset is not acceptance.
+
+## S2. Fixed-source evidence
+
+All source line numbers below refer to `e885135f4b074845944a7b8b799de879549fbc33`.
+No production, frozen specification, Schema or Conformance file was changed in
+the report-only delivery.
+
+| Source | Evidence |
+|---|---|
+| `reports/FCOP-4.0-WP1-COMPATIBILITY-AND-MCP.md:48` | `list_reports` must support subject/attempt/head queries, not decide validity itself, and return `REPORT_HEAD_AMBIGUOUS` for multiple heads. |
+| Same file, line 55 | `read_report` must expose attempt/head metadata and explicitly reject invalid or ambiguous heads. |
+| `spec/fcop-4.0-spec.md:72` (F4.3.4) | The valid REPORT is the unique unreferenced head of the subject/attempt replacement graph. Multiple heads return `REPORT_HEAD_AMBIGUOUS`. |
+| `src/fcop/v4/boundary.py`, `_METHOD_POLICIES` | `list_reports` and `read_report` are `V4_READ_UNAVAILABLE`; dispatch raises `toolkit:OPERATION_NOT_IMPLEMENTED`. |
+| `src/fcop/v4/lifecycle.py:651`, `inspect_state` | `envelope_path` validates one envelope and its relations; TASK mode returns stage, digest, last transition and current attempt. Neither path calls the head resolver. |
+| `src/fcop/v4/lifecycle.py:104`, `report_head` | The existing resolver validates the replacement graph and rejects multiple heads, but takes private `_Creation`, not a public Project request. |
+| `src/fcop/v4/convergence.py`, `snapshot` | Public `family_digest` computes Branch report-head entries; an ordinary Root with no Branches does not cause its own REPORT heads to be validated. |
+| `src/fcop/project.py:313`, `inspect_state` | The public API promises envelope inspection without lifecycle recovery; it has no head-query selector. |
+
+The fixed WP4B.1 taskbook was retrieved again using GitHub's contents API.
+Base64-decoded API bytes equal `git show <commit>:<path>` bytes, with SHA-256
+`0695cd68237a5a13eb438935d8741512476f977878938afd8864165345b694df`.
+The remote review branch was still at the fixed taskbook commit before this
+report was prepared; `main` remained `68dbeb15f4e7f84e1d03f907be9fa66c2265843e`.
+
+## S3. Executed reproduction and observed results
+
+Environment: Windows, CPython 3.12, FastMCP 3.2.4. The probe prepended the
+independent worktree's `src` and `mcp/src` to `sys.path`. It used a fresh
+temporary workspace, not `D:/FCoP` or a dogfood workspace.
+
+Arrange: create and claim an ordinary Root TASK through public Project calls;
+write a valid final REPORT. Simulate external filesystem corruption **only in
+the temporary test fixture** by copying that REPORT with a new valid REPORT
+ID and matching filename. This produces two individually Schema-valid final
+heads for the same subject and attempt. This is not a second writer API.
+
+Act: call public envelope inspection, the public query methods, public family
+digest, the unfinished real MCP query handlers via `fastmcp.Client`, then the
+actual public T3 transition. Assert the complete file-byte map is unchanged
+after fixture construction.
+
+Observed output (random REPORT IDs abbreviated only here):
+
+```text
+PUBLIC_INSPECT_ACCEPTED REPORT-<first-id> final
+PUBLIC_INSPECT_ACCEPTED REPORT-<second-id> final
+PUBLIC_QUERY list_reports toolkit:OPERATION_NOT_IMPLEMENTED
+PUBLIC_QUERY read_report toolkit:OPERATION_NOT_IMPLEMENTED
+PUBLIC_FAMILY_DIGEST_SUCCEEDED True
+LOCAL_ADAPTER_QUERY list_reports is_error False code None items 2
+LOCAL_ADAPTER_QUERY read_report is_error False code None items 0
+CORE_GATE REPORT_HEAD_AMBIGUOUS
+ZERO_FILE_CHANGES_AFTER_FIXTURE True
+```
+
+`items 0` for `read_report` means its structured object had no `items` array;
+it returned a successful single envelope. It does not mean the file was absent.
+Both local adapter results violate the retained head-query disposition; they
+are recorded as failures, not accepted behavior. Those handlers are withdrawn.
+
+The Core-only part is reproducible directly on the fixed input commit without
+the withdrawn MCP implementation. Run this from that checkout using Python
+with the repository `src` on its import path:
+
+```python
+import tempfile
+from pathlib import Path
+from uuid import uuid4
+
+from examples.v4.application import Application
+from fcop.errors import V4ProtocolError
+
+with tempfile.TemporaryDirectory(prefix="fcop-wp4b-query-proof-") as temporary:
+    root = Path(temporary).resolve()
+    app = Application(root)
+    task = app.task("Two individually valid REPORT heads")
+    attempt = app.project.inspect_state(task_id=task)["current_attempt_id"]
+    first = app.project.write_report(
+        workspace_id=app.workspace_id, sender="ME", recipient="ME",
+        subject_ref=task, body="Evidence", attempt_id=attempt,
+        report_kind="final", result="done",
+    )
+    first_path = Path(first["path"])
+    second_id = "REPORT-" + uuid4().hex
+    second_path = first_path.with_name(second_id + ".md")
+    second_path.write_bytes(first_path.read_bytes().replace(
+        first["report_id"].encode(), second_id.encode(),
+    ))  # Test-only damaged-state fixture, not production mutation.
+    def files():
+        return {p.relative_to(root).as_posix(): p.read_bytes()
+                for p in root.rglob("*") if p.is_file()}
+    before = files()
+    for path in (first_path, second_path):
+        assert app.project.inspect_state(
+            envelope_path=path.relative_to(root).as_posix(),
+        )["report_kind"] == "final"
+    for method, kwargs in (
+        ("list_reports", {}),
+        ("read_report", {"filename_or_id": first["report_id"]}),
+    ):
+        try:
+            getattr(app.project, method)(**kwargs)
+        except V4ProtocolError as error:
+            assert error.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
+        else:
+            raise AssertionError("Expected unavailable public query")
+    assert app.project.family_digest(root_task_id=task)
+    try:
+        app.move(task, "active", "review", "submit_task",
+                 report_ref=first["report_id"])
+    except V4ProtocolError as error:
+        assert error.code == "REPORT_HEAD_AMBIGUOUS"
+    else:
+        raise AssertionError("Expected Core ambiguity rejection")
+    assert files() == before
+```
+
+## S4. Alternatives checked, not silently adopted
+
+1. **Public `list_reports` / `read_report`:** demonstrated unavailable on v4.
+2. **Public `inspect_state(envelope_path=...)`:** demonstrated successful on
+   each conflicting head; individual Schema validity is not head uniqueness.
+3. **Public `inspect_state(task_id=...)` / `read_task`:** exposes TASK facts,
+   not a head query or replacement-graph verdict.
+4. **Public `family_digest`:** demonstrated successful on the ordinary Root
+   despite the conflicting Root REPORTs; its Branch-family scope is different.
+5. **Private `report_head` plus `project._v4_creation`:** would reuse the
+   algorithm but violate the taskbook's public-Project-only boundary. It was
+   not imported by the adapter.
+6. **Compute heads in MCP from inspected envelopes:** would duplicate the
+   Core head-validity judgment; counting files would also wrongly reject
+   legitimate final/replacement chains. Not implemented.
+7. **Invoke transition/write-report/convergence as a query probe:** these are
+   business writers, not read-only validation. Success can mutate the task or
+   append facts. Deliberately malformed writer requests are not a public
+   read contract and may fail before the desired validation. Not adopted.
+8. **Change the accepted Project or weaken the disposition:** outside the
+   current authorized write set. Not performed.
+
+A narrow continuation needs an ADMIN decision for a public, read-only Toolkit
+REPORT-head query boundary (implemented under an explicit permitted write
+scope), or an explicit revision of the MCP query disposition. The frozen
+head algorithm itself already exists and need not be duplicated or changed.
+This report does not choose a new public API or a relaxed query contract.
+
+## S5. Work performed and preserved; no false completion counters
+
+- T6 was implemented locally using the exact public transition mapping.
+  Actual MCP transport tests covered new attempt, exact retry, old REPORT
+  rejection, empty/DENIED/UNKNOWN trusted registries and forbidden inputs.
+- A separate v4 46-tool snapshot was added locally; historical 45-tool snapshot
+  was left untouched. Resource routing and explicit Relay transport were in
+  progress, not fully verified.
+- Latest local MCP command before withdrawal:
+  `python -m pytest tests/test_fcop_mcp -q`, with `PYTHONPATH` set to this
+  worktree's `src;mcp/src`: **102 passed, 3 warnings in 68.82 seconds**.
+  This included 22 new tests. It did not cover every WP4B obligation; the
+  later two-head probe demonstrated a missing required behavioral assertion.
+- Earlier resource-registration collection errors were fixed before that
+  successful run. They are not the stop code.
+- Ruff and mypy were also run; implementation lint/type work remained. A
+  corrected-source-path mypy run reported 15 errors in two new modules.
+  These are unfinished implementation checks, not a claim of a Core defect.
+- Full FCoP/v4 regression, build, clean base/Relay install, remaining race
+  tests and final implementation CI were **not completed** before the
+  hard stop. Their results are not inferred from prior phases.
+
+Before withdrawal, all 14 modified/new implementation, test, snapshot and plan
+files were preserved in an external local ZIP. Every ZIP entry was read back
+and its SHA-256 compared to its source file: **14/14 matched**.
+
+```text
+D:/FCoP-wp4b-evidence/wp4b1-unfinished-e246ecc148534c73a1eae34b3ae3b628.zip
+SHA256: 27d636ec70dc675bf90e533b2951e679e9adb62abbf892b5efb1fc40271e1d87
+```
+
+This is recoverable, unfinished local evidence, **not an approved package or
+GitHub implementation delivery**. The temporary probe and the code above
+provide the remote reviewer with the independently reproducible reason for
+the stop; the ZIP is not required to reproduce the missing Core read surface.
+Only this report is committed. The accepted historical blocker reports below
+are retained verbatim, with their former current-status headings explicitly
+placed under a historical section.
+
+## S6. Report-only delivery and stop
+
+Original WP4B section 13 mandates report-only delivery on a hard stop. Thus
+no success Content/Manifest pair is fabricated and no implementation Gate is
+requested. Draft PR #15 is updated to distinguish this new stop from the
+resolved T6 mapping. Report commit SHA and remote byte hash are returned in
+the execution receipt after push/refetch verification.
+
+```yaml
+DELIVERY_KIND: BLOCKED_REPORT_ONLY
+FILES_CHANGED: 1
+PRODUCTION_FILES_MODIFIED: 0
+TEST_FILES_MODIFIED: 0
+FROZEN_CONFORMANCE_FILES_MODIFIED: 0
+SCHEMA_FILES_MODIFIED: 0
+CODEFLOWMU_FILES_MODIFIED: 0
+MAIN_MODIFIED: false
+RELEASE_CREATED: false
+WORKSPACE_MIGRATION: false
+WP4C_STARTED: false
+WP4D_STARTED: false
+LOCAL_MCP_BEFORE_WITHDRAWAL: 102_PASSED_NOT_FULL_ACCEPTANCE
+FINAL_IMPLEMENTATION_CI: NOT_APPLICABLE_NO_IMPLEMENTATION_DELIVERED
+MANIFEST_COMMIT: NOT_CREATED_HARD_STOP_SECTION_13
+REQUESTED_GATE: NONE
+```
+
+---
+
+# Historical report accepted at 72e26fd2 — T6 mapping resolved by WP4B.1
+
 # Current WP4B.0 resume audit — BLOCKED
 
 ```yaml
