@@ -74,6 +74,9 @@ def snapshot(
         "root_task_id": root_task_id,
         "branches": entries,
     }
+    from fcop.v4.schema import _validate
+
+    _validate("family-canonical", dict(value))
     return FamilySnapshot(
         root_task_id, root_path, root_fields, branches, tuple(entries), value,
         digest(canonical(value)),

@@ -109,6 +109,12 @@ def _compact_receipt(
 ) -> dict[str, Any] | None:
     if set(value) != {"operation_id", "source", "target", "stage", "content_digest"}:
         return None
+    from fcop.v4.schema import _validate
+
+    try:
+        _validate("recovery-observation", value, code=_V4Code.RECOVERY_REQUIRED)
+    except V4ProtocolError:
+        return None
     if (
         value.get("operation_id") != operation_id
         or value.get("source") != source_relative
@@ -195,6 +201,9 @@ def _complete_receipt(
     if value.get("stage") != "COMMITTED":
         updated = dict(value)
         updated["stage"] = "COMMITTED"
+        from fcop.v4.schema import _validate
+
+        _validate("recovery-observation", updated, code=_V4Code.RECOVERY_REQUIRED)
         replace_durable(path, canonical(updated) + b"\n")
 
 

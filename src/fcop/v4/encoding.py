@@ -117,7 +117,14 @@ _UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _m
 
 def parse_envelope(path: Path) -> dict[str, Any]:
     try:
-        text = strict_text(path.read_bytes())
+        return _parse_envelope_bytes(path.read_bytes())
+    except OSError as exc:
+        raise fail(_V4Code.INVALID_ENVELOPE, "Unreadable envelope", subject=str(path)) from exc
+
+
+def _parse_envelope_bytes(data: bytes) -> dict[str, Any]:
+    try:
+        text = strict_text(data)
         if not text.startswith("---\n") or "\n---\n" not in text[3:]:
             raise ValueError("Missing frontmatter delimiters")
         fields = yaml.load(text.split("---\n", 2)[1], Loader=_UniqueLoader)
@@ -125,15 +132,19 @@ def parse_envelope(path: Path) -> dict[str, Any]:
             raise ValueError("Expected YAML mapping")
         return fields
     except (OSError, ValueError, yaml.YAMLError) as exc:
-        raise fail(_V4Code.INVALID_ENVELOPE, "Invalid envelope", subject=str(path)) from exc
+        raise fail(_V4Code.INVALID_ENVELOPE, "Invalid envelope") from exc
 
 
 def envelope_bytes(fields: dict[str, Any], body: str) -> bytes:
+    from fcop.v4.schema import _validate
+
     header = yaml.safe_dump(fields, allow_unicode=True, sort_keys=False)
     try:
-        return ("---\n" + header + "---\n\n" + normalize(body).rstrip("\n") + "\n").encode("utf-8")
+        data = ("---\n" + header + "---\n\n" + normalize(body).rstrip("\n") + "\n").encode("utf-8")
     except UnicodeEncodeError as exc:
         raise fail(_V4Code.INVALID_ENVELOPE, "Envelope is not valid UTF-8") from exc
+    _validate(fields["type"].lower(), _parse_envelope_bytes(data))
+    return data
 
 
 def rewritten_envelope_bytes(path: Path, fields: dict[str, Any]) -> bytes:
@@ -143,7 +154,11 @@ def rewritten_envelope_bytes(path: Path, fields: dict[str, Any]) -> bytes:
         raise fail(_V4Code.INVALID_ENVELOPE, "Invalid envelope", subject=path.stem)
     suffix = text.split("---\n", 2)[2]
     header = yaml.safe_dump(fields, allow_unicode=True, sort_keys=False)
-    return ("---\n" + header + "---\n" + suffix).encode("utf-8")
+    data = ("---\n" + header + "---\n" + suffix).encode("utf-8")
+    from fcop.v4.schema import _validate
+
+    _validate(fields["type"].lower(), _parse_envelope_bytes(data))
+    return data
 
 
 def safe_path(root: Path, relative: str) -> Path:

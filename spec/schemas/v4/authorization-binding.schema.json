@@ -1,0 +1,32 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/authorization-binding.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "from": {
+      "enum": [
+        "inbox",
+        "active",
+        "review",
+        "done",
+        "archive"
+      ]
+    },
+    "to": {
+      "enum": [
+        "inbox",
+        "active",
+        "review",
+        "done",
+        "archive"
+      ]
+    }
+  },
+  "required": [
+    "from",
+    "to"
+  ],
+  "title": "FCoP 4.0 authorization-binding",
+  "type": "object",
+  "version": "4.0.0"
+}

@@ -63,6 +63,9 @@ def _relative_path(value: Any, *, task_id: str, stage: str) -> str:
 
 
 def validate_receipt(root: Path, path: Path, value: dict[str, Any]) -> dict[str, Any]:
+    from fcop.v4.schema import _validate
+
+    _validate("lifecycle-receipt", value, code=_V4Code.RECOVERY_REQUIRED)
     base_required = {
         "contract", "version", "operation_id", "workspace_id", "task_id",
         "operation_kind", "from_stage", "to_stage", "tool", "actor",

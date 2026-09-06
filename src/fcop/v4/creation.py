@@ -73,6 +73,9 @@ def _manifest(value: dict[str, Any]) -> dict[str, Any]:
             "Invalid workspace identity or adopted Profile set",
             operation="open_workspace",
         )
+    from fcop.v4.schema import _validate
+
+    _validate("workspace", value)
     return value
 
 
@@ -494,23 +497,6 @@ class _Creation:
                 raise ValueError("Timezone required")
         except (ValueError, TypeError) as exc:
             raise fail(_V4Code.INVALID_ENVELOPE, "Invalid created_at", subject=path.stem) from exc
-        required = {
-            "TASK": ("subject", "transitions"),
-            "REPORT": ("subject_ref", "attempt_id", "report_kind", "result"),
-            "ISSUE": ("subject_ref", "severity"),
-            "REVIEW": ("subject_ref", "review_kind", "decision"),
-        }[kind]
-        for key in required:
-            if key == "transitions":
-                valid = isinstance(fields.get(key), list)
-            else:
-                valid = isinstance(fields.get(key), str) and bool(fields[key])
-            if not valid:
-                raise fail(_V4Code.INVALID_ENVELOPE, f"Missing/invalid {key}", subject=path.stem)
-        if kind == "REPORT" and (
-            not _uuid(fields["attempt_id"]) or fields["report_kind"] not in {"final", "replacement"}
-        ):
-            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid REPORT structure", subject=path.stem)
         refs = fields.get("references", [])
         if not isinstance(refs, list) or not all(isinstance(ref, str) and ref for ref in refs):
             raise fail(
@@ -518,6 +504,9 @@ class _Creation:
                 "references must be an array of strings",
                 subject=path.stem,
             )
+        from fcop.v4.schema import _validate
+
+        _validate(kind.lower(), fields)
         return fields
 
     def _resolve(
@@ -644,6 +633,9 @@ class _Creation:
             normalized[key] for key in ("subject", "sender", "recipient")
         ):
             raise fail(_V4Code.INVALID_ENVELOPE, "Invalid TASK fields", operation=opid)
+        from fcop.v4.schema import _validate
+
+        _validate("create-request-canonical", normalized)
         request_digest = digest(canonical(normalized))
         key = digest(
             canonical(
@@ -692,6 +684,7 @@ class _Creation:
             "digest": request_digest,
             "content_digest": digest(data),
         }
+        _validate("create-operation", parse_json(canonical(fact)))
         return {
             "fact": fact,
             "data": data,
@@ -748,6 +741,9 @@ class _Creation:
                 raise fail(_V4Code.RECOVERY_REQUIRED, "Duplicate operation facts", operation=opid)
             if fact_path.exists():
                 fact = read_json(fact_path)
+                from fcop.v4.schema import _validate
+
+                _validate("create-operation", fact, code=_V4Code.RECOVERY_REQUIRED)
                 if (
                     not matching
                     or fact.get("operation_id") != opid

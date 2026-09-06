@@ -1,0 +1,110 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/task.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "branch_of": {
+      "anyOf": [
+        {
+          "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "normalized_request_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "operation_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "type": "string"
+    },
+    "operation_kind": {
+      "const": "create_task"
+    },
+    "parent": {
+      "anyOf": [
+        {
+          "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "priority": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ]
+    },
+    "protocol": {
+      "const": "fcop"
+    },
+    "recipient": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "references": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "sender": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "subject": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "task_id": {
+      "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "type": "string"
+    },
+    "transitions": {
+      "items": {
+        "$ref": "https://fcop.dev/schemas/v4/transition.schema.json"
+      },
+      "type": "array"
+    },
+    "type": {
+      "const": "TASK"
+    },
+    "version": {
+      "const": 4,
+      "type": "integer"
+    },
+    "workspace_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocol",
+    "version",
+    "workspace_id",
+    "sender",
+    "recipient",
+    "created_at",
+    "type",
+    "task_id",
+    "subject",
+    "transitions"
+  ],
+  "title": "FCoP 4.0 task",
+  "type": "object",
+  "version": "4.0.0"
+}
