@@ -99,6 +99,8 @@ packages = ["src/fcop"]
 include = [
     "src/fcop/rules/_data/*.mdc",
     "src/fcop/rules/_data/*.md",
+    "src/fcop/rules/_data/v4/*.md",
+    "src/fcop/rules/_data/v4/*.json",
     "src/fcop/teams/_data/**/*.md",
     "src/fcop/teams/_data/**/*.json",
     "src/fcop/_data/schemas/*.schema.json",

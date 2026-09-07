@@ -10,6 +10,16 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Added — fcop
+
+- Candidate WP4C.3 rule distribution: nine newly authored bilingual guidance
+  modules, an offline raw-byte Manifest loader and the sole new public entry
+  `Project.rule_distribution(*, action, request)`. Explicit sequential,
+  parallel and pinned repository-development selection is read-only; it grants
+  no lifecycle, adoption, Host deployment or release authority. Legacy rule
+  bytes and deployment paths are unchanged. Future distribution operations
+  remain unavailable except for typed negative preflight checks.
+
 ### Added — fcop-mcp
 
 - Unreleased WP4B development adapter: 46 canonical tools (the historical 45

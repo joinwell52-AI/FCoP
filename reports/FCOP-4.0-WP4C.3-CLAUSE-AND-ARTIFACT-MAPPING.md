@@ -1,4 +1,16 @@
-# WP4C.3 clause and artifact mapping — WP4C.3b authored package
+# WP4C.3 clause and artifact mapping — WP4C.3c closeout
+
+## Current WP4C.3c mapping verification
+
+Authority is ec2e43cd87ce264da1b77365558a182736ccb24f, SHA-256 c81c883c6ccf4f132ed12f511684eed93fc455fc37125b85ed4c15d8fbaeee80. The public-method historical test is aligned in 96ad2ae812c60a6362d9c360dbb815621a0cbe1a. The 31 candidate identities, including all nineteen package files, are unchanged from PR #23 and are eligible for Content delivery only after all required checks pass.
+
+Independent raw-byte validation in WP4C.3c re-read every artifact and Manifest: nine modules, eighteen Markdown files, four exact top-level fields, eleven exact artifact fields including conflicts_with, 73 unique owned clause IDs equal the fixed Core Git Blob, identical per-language owned headings and metadata, frozen ownership schedule equality, dependency-valid order, hashes/sizes, strict UTF-8/LF and no reserved markers all PASS. Fourteen legacy data files remain byte-identical to c19808f4. The eighteen artifact identities and complete 73-row schedule below remain current and unchanged.
+
+Local wheel and sdist include the exact nineteen source paths; each corresponding member also matches source bytes. This is the required local WP4C.3c inclusion/identity check only, not WP4C.6 cross-platform/RC acceptance. No Host output, receipt, constitution or development manual was added. The previous 147-unit legacy dispositions remain frozen, not re-authored as v4 rules.
+
+The precise ten target function paths passed 56/56 in 199.09s during WP4C.3c. The final conformance report distinguishes these targets from all 86 future-owner nodes. Final delivery identities are in the new Manifest; the narrative below labelled WP4C.3b/3a is preserved historical evidence, not the current submission status.
+
+## Preserved WP4C.3b delivery qualification (historical)
 
 Delivery qualification: all authored artifact identities and implementation passes below describe LOCAL_ONLY preserved working bytes. The existing public-method count regression blocks implementation submission; this GitHub delivery contains facts and the passed fixture, not the 19 candidate package files. See RESULT for the independent stop evidence.
 

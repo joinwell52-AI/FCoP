@@ -831,12 +831,35 @@ def test_closeout_boundary_reflection_binding_and_subclass(tmp_path: Path) -> No
 
     legacy = Project(tmp_path / "legacy")
     legacy.init_solo(role_code="ME")
-    original_names = set(_METHOD_POLICIES) - {
+    v4_only_names = {
             "create_workspace", "create_task", "derive_workspace", "inspect_state",
             "transition", "finish_task", "family_digest", "recover_operation",
-            "inject_fault", "export_archive",
+            "inject_fault", "export_archive", "rule_distribution",
         }
+    original_names = set(_METHOD_POLICIES) - v4_only_names
+    # Exact historical set read from c19808f4bc07948729bb841ec569627cb672fde7,
+    # src/fcop/v4/boundary.py, excluding its ten pre-existing v4-only methods.
+    historical_names = {
+        "apply_recovery", "archive_review", "archive_task", "archive_to_history",
+        "assert_boundary", "audit", "audit_drift", "boundary_violations",
+        "deploy_protocol_rules", "deploy_role_templates", "drop_suggestion",
+        "init", "init_custom", "init_solo", "inspect_task", "is_initialized",
+        "list_history", "list_issues", "list_reports", "list_reviews", "list_tasks",
+        "mark_human_approved", "poll_once", "read_history_task", "read_issue",
+        "read_report", "read_review", "read_task", "recover_session",
+        "report_failure", "role_occupancy", "status", "subscribe_events",
+        "validate_team", "write_issue", "write_report", "write_review", "write_task",
+    }
     assert len(original_names) == 38
+    assert original_names == historical_names
+    assert len(v4_only_names) == 11
+    assert "rule_distribution" in _METHOD_POLICIES
+    assert "rule_distribution" not in original_names
+    assert original_names.isdisjoint(v4_only_names)
+    assert set(_METHOD_POLICIES) == original_names | v4_only_names
+    historical_policies = historical_names | (v4_only_names - {"rule_distribution"})
+    assert set(_METHOD_POLICIES) - historical_policies == {"rule_distribution"}
+    assert historical_policies <= set(_METHOD_POLICIES)
     assert isinstance(vars(Project)["validate_team"], staticmethod)
     assert Project.validate_team(roles=["ME"], leader="ME") == []
     assert legacy.validate_team(roles=["ME"], leader="ME") == []

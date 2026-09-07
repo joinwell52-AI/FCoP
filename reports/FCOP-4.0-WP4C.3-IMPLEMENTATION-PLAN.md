@@ -1,6 +1,18 @@
-# WP4C.3 implementation plan — WP4C.3b authorized resume
+# WP4C.3 implementation plan — WP4C.3c authorized closeout
 
-Current status: BLOCKED at the existing historical public-method count assertion in tests/test_fcop/test_v4_creation.py:839 (39 vs 38, sole addition rule_distribution). This file is outside the authorized write set. Production changes and candidate data are preserved LOCAL_ONLY, not committed with the factual report delivery. See the RESULT report for exact evidence, the 31-file preservation inventory and proposed ADMIN disposition. No implementation changes followed confirmation of this blocker.
+## WP4C.3c governing continuation
+
+Fixed taskbook ec2e43cd87ce264da1b77365558a182736ccb24f (13805 bytes, SHA-256 c81c883c6ccf4f132ed12f511684eed93fc455fc37125b85ed4c15d8fbaeee80) and [ADMIN approval](https://github.com/joinwell52-AI/FCoP/pull/23#issuecomment-5572037831) now authorize the exact historical method-set correction and reuse of all 31 preserved candidate files. Scope is WP4C_3C_LEGACY_PUBLIC_METHOD_SET_ALIGNMENT_AND_WP4C_3_RESUME, not WP4C.4.
+
+The fixed taskbook is a direct single-file child of c19808f4bc07948729bb841ec569627cb672fde7. The authorized dirty-worktree fast-forward preserved 31/31 raw identities and no unknown files were present. No candidate implementation change was needed. Branch is now review/fcop-4.0-wp4c.3c-public-method-closeout in the same independent worktree. Original D:/FCoP and PRs #21/#22/#23 remain untouched.
+
+Alignment commit 96ad2ae812c60a6362d9c360dbb815621a0cbe1a changes only the authorized function in test_v4_creation.py. It pins the historical 38-name identity, explicitly separates eleven v4-only names, proves a disjoint exhaustive union and the sole rule_distribution addition, and retains all twelve original assertions. All 110 pre-existing Project method ASTs and all original policy values remain unchanged. The exact function passes; the full creation/public-surface test run passes 102/102. See FCOP-4.0-WP4C.3C-PUBLIC-METHOD-SET-ALIGNMENT.md for independent identity and assertion evidence.
+
+Closeout sequence: full FCoP/Core/MCP and distribution validation; verify all future nodes and package inclusion; Content commit of exactly the preserved 31 candidates plus current reports; Manifest-only commit; new Draft PR with taskbook/fcop-4.0-wp4c.3c-public-method-set as base; fixed-HEAD GitHub/Git/fresh-LF readback. Absent branch-filtered CI is NOT_TRIGGERED_BRANCH_FILTER, not a pass. Only after actual completion request WP4C_3_RULE_PACKAGE_ACCEPTED and stop. Test results and delivery outcome are maintained in the current CONFORMANCE-RESULT and RESULT, not inferred from this plan.
+
+## Preserved WP4C.3b stop and pre-code plan (historical)
+
+Historical WP4C.3b status: BLOCKED at the existing historical public-method count assertion in tests/test_fcop/test_v4_creation.py:839 (39 vs 38, sole addition rule_distribution). That file was outside the then-authorized write set. Production changes and candidate data were preserved LOCAL_ONLY, not committed with the factual report delivery. See the RESULT report for the retained evidence and inventory; WP4C.3c above records the subsequent ADMIN authorization. No implementation changes followed confirmation of that blocker.
 
 ## Current authority and pre-code decision
 

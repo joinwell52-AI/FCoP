@@ -1,4 +1,153 @@
-# WP4C.3 conformance result — WP4C.3b implementation verification
+# WP4C.3 conformance result — WP4C.3c closeout
+
+## Current WP4C.3c validation
+
+Authority: ec2e43cd87ce264da1b77365558a182736ccb24f; raw SHA-256 c81c883c6ccf4f132ed12f511684eed93fc455fc37125b85ed4c15d8fbaeee80. Isolated alignment commit: 96ad2ae812c60a6362d9c360dbb815621a0cbe1a. Candidate implementation remains byte-identical to the 31-file PR #23 inventory. No Conformance, production candidate or behavioral expectation was edited during this closeout.
+
+Current local validation result: PASS. Full tests/test_fcop completed with 1297 passed / 0 failed / 0 errors / 0 skipped. The historical 39-versus-38 blocker is resolved by the authorized test-only alignment, not by changing candidate code. All current target and regression requirements pass; UNEXPECTED_FAILURES=0. Remote delivery verification follows the later Manifest commit; only then request the unsigned Gate.
+
+Environment: Windows / Python 3.12.9 / pytest 9.0.3. PYTHONDONTWRITEBYTECODE=1, PYTHONPATH includes this independent worktree's src, mcp/src and root. All pytest invocations use -q -p no:cacheprovider; MCP additionally uses --import-mode=importlib. No skip/xfail, fixture timeout, dependency declaration or workflow change.
+
+| Current invocation/check | Actual result | Exit |
+| --- | --- | ---: |
+| test_v4_creation.py::test_closeout_boundary_reflection_binding_and_subclass | 1 passed, 3 warnings, 7.10s | 0 |
+| test_v4_creation.py + test_public_surface.py | 102 passed, 3 warnings, 76.28s | 0 |
+| tests/test_fcop full regression | 1297 passed, 3 warnings, 1127.73s | 0 |
+| tests/conformance/v4 | 119 passed, 3 warnings, 110.80s | 0 |
+| tests/test_fcop_mcp, isolated importlib | 134 passed, 3 warnings, 367.37s | 0 |
+| Distribution test_dist_00_meta.py + exact test_dist_30 | 34 passed (33 Meta + 1 control), 1 warning, 18.04s | 0 |
+| Distribution --collect-only | 176 collected, 0.23s | 0 |
+| Precise ten current file::function paths | 56 passed, 3 warnings, 199.09s | 0 |
+| Complete tests/conformance/rule_distribution_v4 | 99 passed / 77 deferred failed, 176 total, 3 warnings, 548.28s | 1 (classified future red baseline) |
+| tests/test_fcop/test_v4_rule_distribution.py | 41 passed, 3 warnings, 187.94s | 0 |
+| Ruff src/fcop tests/test_fcop tests/conformance/rule_distribution_v4 | PASS | 0 |
+| mypy --cache-dir nul | PASS, 46 source files | 0 |
+| python -B -m build --wheel --sdist --outdir temporary/packages | fcop-3.2.5 wheel and sdist built | 0 |
+| Source / wheel / sdist local v4 data check | 19/19 paths and bytes equal in each archive | 0 |
+| Raw candidate hashes before/after import and alignment | 31/31 unchanged | 0 |
+| Historical public set / v4-only set | Exact 38 / 11; sole addition rule_distribution | 0 |
+| Existing Project method ASTs and public snapshot | 110 old ASTs unchanged; exactly one additive snapshot entry | 0 |
+| Legacy data / frozen contracts / Conformance / allowed write set | 14/14 legacy bytes unchanged; protected paths unchanged; scope PASS | 0 |
+
+The exact targets are test_dist_01–07, test_dist_21, test_dist_22, test_dist_25, using file::function paths; no filename-matching -k shortcut. Full collection independently reproduces all 56 current nodes. The 41 standalone new units are also included in the full FCoP run and must not be double-counted as additional full-suite nodes.
+
+## Current exhaustive future-node disposition
+
+The complete 176-node JUnit file was independently parsed: Meta=33 pass, current=56 pass, DIST-30=1 pass, future=9 negative-overlap pass +77 deferred failures. Every current node passed. No errors or skips. The same 86 future node identities are present in the prior WP4C.3b report; they are listed again below with this run's actual observations.
+
+Each negative-overlap pass has operation_evidence with changed_paths=[] and zero_write_verified=true, and a structured rejection, not positive Host inspection, projection, adoption, deployment or recovery. These nine are permitted read-only preflight overlap under original taskbook section 11.3, not later-stage acceptance. The failed real two-process apply test returned no success (assert []), not a queue timeout; its future deployment race remains unaccepted. Shadow did not access downstream files. Core workspace/version errors are not rewritten to mimic future Toolkit adoption handling.
+
+| Future node | Current disposition | Observed boundary |
+| --- | --- | --- |
+| test_dist_08[valid] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_08[file-without-adoption] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_08[wrong-workspace] | DEFERRED_RED | WORKSPACE_ID_MISMATCH |
+| test_dist_08[v3] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_08[broken-previous] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_08[actor-only] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_09[success] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_09[before-drift] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_09[receipt-tamper] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_10[success] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_10[missing-backup] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_10[modified-backup] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_10[modified-target] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_10[arbitrary-version] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_11[codex] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_11[cursor] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_11[claude-code] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_11[unknown-host] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_HOST_UNAVAILABLE |
+| test_dist_11[unknown-profile] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_HOST_UNAVAILABLE |
+| test_dist_11[evaluator] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_HOST_UNAVAILABLE |
+| test_dist_11[model-probe] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_HOST_UNAVAILABLE |
+| test_dist_11[duplicate-key] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_HOST_UNAVAILABLE |
+| test_dist_12[support-only] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_12[adoption-only] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_12[generated] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_12[consumption-only] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_13[False-codex] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_13[False-cursor] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_13[False-claude-code] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_13[True-codex] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_13[True-cursor] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_13[True-claude-code] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_14 | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_15[preserve] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_15[nested] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_15[duplicate] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_15[missing] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_15[oversized-user-region] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_16[reference] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_16[stale-snapshot] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_16[missing-snapshot] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_16[escaping-reference] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_17[exact] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_17[unadopted-multilingual] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_SELECTION_INVALID |
+| test_dist_17[overflow] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_PROJECTION_LIMIT |
+| test_dist_17[broken-source-link] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_18[False] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_18[True] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_OWNERSHIP_CONFLICT |
+| test_dist_19[stale-plan] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_19[two-processes] | DEFERRED_RED | No apply success; real two-process future success assertion fails |
+| test_dist_20[before_stage_durable] | DEFERRED_RED | toolkit:RULE_ADOPTION_REQUIRED |
+| test_dist_20[between_replacements] | DEFERRED_RED | toolkit:RULE_ADOPTION_REQUIRED |
+| test_dist_20[before_success_receipt] | DEFERRED_RED | toolkit:RULE_ADOPTION_REQUIRED |
+| test_dist_23[unversioned-v3] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_23[explicit-v4-on-v3] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_23[v4-no-adoption] | NEGATIVE_OVERLAP_PASS | toolkit:RULE_ADOPTION_REQUIRED |
+| test_dist_24[3.0-fcop://rules] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_24[3.0-fcop://protocol] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_24[3.0-fcop://guidance/sequential/en] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_24[3.0-fcop://team] | DEFERRED_RED | UNSUPPORTED_WORKSPACE_VERSION |
+| test_dist_24[4.0-fcop://rules] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_24[4.0-fcop://protocol] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_24[4.0-fcop://guidance/sequential/en] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_24[4.0-fcop://team] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_26 | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_27[wheel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_27[sdist] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages0-codex-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages0-codex-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages0-cursor-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages0-cursor-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages0-claude-code-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages0-claude-code-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages1-codex-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages1-codex-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages1-cursor-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages1-cursor-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages1-claude-code-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages1-claude-code-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages2-codex-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages2-codex-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages2-cursor-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages2-cursor-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages2-claude-code-sequential] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_28[languages2-claude-code-parallel] | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED |
+| test_dist_29 | DEFERRED_RED | toolkit:OPERATION_NOT_IMPLEMENTED (assertion output); no downstream access |
+
+UNEXPLAINED_FUTURE_PASSES=0. The raw full distribution process remains exit 1; neither 176/176 green nor 86/86 failures is claimed. Future stage ownership is unchanged. No Host output, receipt or future positive API was created.
+
+## Reproducible evidence identities and package scope
+
+After final report updates, Meta + DIST-30 were rerun: 34 passed, 1 warning, 12.59s. Ruff again passed and mypy again reported no issues in 46 source files. Final scope/UTF-8/LF/AST audits passed, the candidate hashes remained 31/31 unchanged and original assertions removed remained zero. Only report prose changed after the full implementation test runs.
+
+Temporary test output directory: C:/Users/ADMINI~1/AppData/Local/Temp/fcop-wp4c3c-validation-62260999804748d5a5c0dd3fae11595c. It is not an extra repository delivery path. Each report hashes complete JUnit bytes, with no normalization:
+
+- distribution.xml: 57d1910d0658ac341c9f8ae0db67b51249b49d16043ee72ac8a7c3ab12a1271e
+- core.xml: f371ace2e62e18f03a6a5db00e44a1ef8e55f5310ff4dce9f7e362c163a4a8c9
+- mcp.xml: 1612bc0df85e00e7fcef0b066a309ff0f81311ce62686d97e6125434ac2d2baa
+- meta-control.xml: b0773b62e22f529b3271a40ed7f4cf519df30b21963dfbf2b9e359e34fea53a4
+- targets.xml: 11aed675e4e71a22c0e6444f6c500e2536a810b353b057a3ef6cb465ff6000be
+- units.xml: 021ac02097a7a9e3d8d7ddea0186c5abaece23a4a76bd07f828875ee51d3c7a2
+- fcop.xml: 99a7f00d50776f663addbf8481fbe2df852d1cc993d2a11f03b2ae222b4aa3c7
+
+Local built archive identities: fcop-3.2.5-py3-none-any.whl SHA-256 6413f8ba3eb728f59beb95b80126ce85bf2987d698a12d673ccb71a60c54be95; fcop-3.2.5.tar.gz SHA-256 bcc1efe10a8a9b676178e94a99231da064015b01fa6ac088fca91e35bb41dffa. Declared hatchling>=1.21 was installed only in the normal isolated build environment. Package checks establish this local build's inclusion/identity; they do NOT establish WP4C.6 cross-platform, installed-host consumption, RC or publication. Library version remains 3.2.5; rule-data version remains the preserved 4.0.0-candidate.1.
+
+The following sections preserve the exact earlier failures and historical results. Their BLOCKED/current wording describes their named historical stage, not the WP4C.3c result above.
+
+## Preserved WP4C.3b validation (historical)
+
 
 Current verdict: BLOCKED. Full FCoP result: 1296 passed / 1 failed / 3 warnings in 966.26 s, exit 1. The sole failure is the historical method-count assertion outside the write scope; isolated rerun is 1 failed (39 != 38) in 1.48 s. All 41 new distribution unit nodes passed within that complete run. Existing Project methods are unchanged; rule_distribution is the sole authorized addition. UNEXPECTED_REGRESSION_FAILURES=1; the earlier zero-failure checkpoint below is superseded. Implementation results refer to preserved LOCAL_ONLY bytes, not the report-only remote tree.
 
