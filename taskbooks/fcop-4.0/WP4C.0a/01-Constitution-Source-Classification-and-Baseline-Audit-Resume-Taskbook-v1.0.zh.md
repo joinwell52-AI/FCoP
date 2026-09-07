@@ -41,17 +41,18 @@ WP4C.0 因缺少《Agent 原生软件工程宪法》的固定来源而停止，�
 
 ## 1. 唯一固定输入
 
-执行者必须从下列提交创建独立 worktree，不得从本地目录、PR 浮动 HEAD、main 或其他分支猜测输入：
+执行者必须从 ADMIN 下发的本任务书冻结提交创建独立 worktree。该提交必须包含本文、固定讨论稿，并在父链中包含下列两个提交。不得从本地目录、PR 浮动 HEAD、main 或其他分支猜测输入：
 
 ```yaml
 REPOSITORY: joinwell52-AI/FCoP
-INPUT_HEAD: 0c61f7d3108777adb7aaf375324616c004fcaf7d
+TASKBOOK_COMMIT: <以 ADMIN 下发的固定 commit 为准>
+CONSTITUTION_SOURCE_COMMIT: 0c61f7d3108777adb7aaf375324616c004fcaf7d
 PARENT_BLOCKED_HEAD: 4420bf6cdd456e328230015bcffef4fdabf615a8
 PARENT_PR: 16
 AUTHORIZED_SCOPE: WP4C_0A_ONLY
 ```
 
-执行开始前必须验证提交父链包含 `4420bf6cdd456e328230015bcffef4fdabf615a8`，并核验以下来源文件：
+执行开始前必须验证冻结任务书提交的父链同时包含 `0c61f7d3108777adb7aaf375324616c004fcaf7d` 与 `4420bf6cdd456e328230015bcffef4fdabf615a8`，并核验以下来源文件：
 
 ```text
 taskbooks/fcop-4.0/WP4C.0a/sources/Agent-Native-Engineering-Constitution-v0.1-discussion-draft.zh.md
@@ -259,7 +260,9 @@ WP4C_1_STARTED: false
 ```yaml
 WP4C_0A_STATUS: COMPLETE | BLOCKED
 AUTHORIZED_SCOPE: WP4C_0A_ONLY
-INPUT_HEAD: 0c61f7d3108777adb7aaf375324616c004fcaf7d
+TASKBOOK_COMMIT: ""
+INPUT_HEAD: ""
+CONSTITUTION_SOURCE_COMMIT: 0c61f7d3108777adb7aaf375324616c004fcaf7d
 PARENT_BLOCKED_HEAD: 4420bf6cdd456e328230015bcffef4fdabf615a8
 CONSTITUTION_SOURCE_SHA256: 25e70e221d6b54072503a8ec7224df33000fa63c0b12a64c148d86a0081b6762
 CONSTITUTION_SOURCE_STATUS: DISCUSSION_DRAFT_FIXED_REVIEW_INPUT
