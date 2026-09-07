@@ -3,11 +3,11 @@ title: "FCoP 4.0 WP4C.0b：Agent 原生软件工程宪法 v1.0 收口与冻结�
 document_id: "FCOP-4.0-WP4C.0B-TASKBOOK"
 version: "1.0"
 date: "2026-09-07"
-status: "AUTHORIZED_FOR_WP4C_0B_ONLY"
+status: "REVOKED_SCOPE_MISMATCH"
 document_role: "EXECUTION_TASKBOOK"
 authority: "ADMIN"
-execution_authorized: true
-authorized_scope: "WP4C_0B_ONLY"
+execution_authorized: false
+authorized_scope: "NONE"
 implementation_authorized: false
 rule_package_authorized: false
 host_generation_authorized: false
@@ -19,8 +19,10 @@ wp4c_0a_head: "59a6654dbb5387201056004c06068f8afcafb9ed"
 candidate_source_commit: "176ed6fa1b44a9c98528f06b08fd89899f914248"
 candidate_source_sha256: "87cf212d1cb75cefd0da6da7e5f0f4c7eaedbc231c784b985c3e2e51856abc4c"
 candidate_source_size_bytes: 25871
-requested_gate: "ENGINEERING_CONSTITUTION_V1_FROZEN"
+requested_gate: "NONE"
 ---
+
+> **撤销通知（2026-09-07）**：本文执行权已由 ADMIN 撤销。固定的 `v1.0-rc.1` 文件仅用于 CodeFlowMu 当前开发的过渡准入，不是 FCoP 4.0、组织级或通用工程宪法的采用候选。任何执行者必须停止，不得依据本文生成双语 canonical 文本、采用回执或请求 Gate。文件保留仅用于审计历史。
 
 # FCoP 4.0 WP4C.0b：Agent 原生软件工程宪法 v1.0 收口与冻结候选任务书
 
