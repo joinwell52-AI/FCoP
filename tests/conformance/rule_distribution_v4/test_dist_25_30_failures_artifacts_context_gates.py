@@ -16,9 +16,12 @@ from .conftest import (
     INPUT_HEAD,
     MODULES,
     SEQUENTIAL,
+    WP4C_2_ACCEPTED_HEAD,
+    WP4C_2_INPUT_HEAD,
     Scenario,
     field,
     git,
+    historical_delivery_paths,
     input_blob,
     sha,
     snapshot,
@@ -290,10 +293,10 @@ def test_dist_30(request):
                 facts.get("authorized_scope") == "WP4C_3_ONLY"
                 and facts.get("execution_authorized") is True
             )
-    changed = set(git("diff", "--name-only", INPUT_HEAD).decode().splitlines())
-    changed |= set(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
-    assert changed <= ALLOWLIST
-    assert not git("rev-list", "--merges", f"{INPUT_HEAD}..HEAD").strip()
+    assert historical_delivery_paths() == ALLOWLIST
+    assert not git(
+        "rev-list", "--merges", f"{WP4C_2_INPUT_HEAD}..{WP4C_2_ACCEPTED_HEAD}"
+    ).strip()
     # Signed/frozen, test authorization, implementation, merge and release are
     # independently observed fields, not inferred from one signed Gate.
     assert book["conformance_implementation_authorized"] is True

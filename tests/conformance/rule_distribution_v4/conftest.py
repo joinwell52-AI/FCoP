@@ -19,7 +19,9 @@ import pytest
 
 from .driver import PUBLIC_ENTRY, DistributionNotImplementedError, RuleDistributionConformanceDriver
 
-INPUT_HEAD = "921be62c32ccccece53be74e7e565b1b37731fbe"
+WP4C_2_INPUT_HEAD = "921be62c32ccccece53be74e7e565b1b37731fbe"
+WP4C_2_ACCEPTED_HEAD = "1f4df9cc650f63b9e842d806340eb31b768f708e"
+INPUT_HEAD = WP4C_2_INPUT_HEAD
 REPO = Path(__file__).resolve().parents[3]
 BEGIN = b"<!-- fcop:v4:begin -->\n"
 END = b"<!-- fcop:v4:end -->\n"
@@ -144,6 +146,20 @@ def git(*args):
 
 def input_blob(path):
     return git("show", f"{INPUT_HEAD}:{path}")
+
+
+def historical_delivery_paths():
+    """Read only the immutable, accepted WP4C.2 delivery interval."""
+    return set(
+        git("diff", "--name-only", WP4C_2_INPUT_HEAD, WP4C_2_ACCEPTED_HEAD)
+        .decode("utf-8")
+        .splitlines()
+    )
+
+
+def assert_historical_allowlist(paths):
+    """Exact equality also rejects a fourteenth historical delivery path."""
+    assert paths == ALLOWLIST
 
 
 class Scenario:

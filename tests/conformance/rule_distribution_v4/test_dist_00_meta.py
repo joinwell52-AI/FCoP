@@ -12,8 +12,12 @@ from .conftest import (
     OWNED,
     REPO,
     SUITE_FILES,
+    WP4C_2_ACCEPTED_HEAD,
+    WP4C_2_INPUT_HEAD,
+    assert_historical_allowlist,
     field,
     git,
+    historical_delivery_paths,
     input_blob,
     sha,
     snapshot,
@@ -313,10 +317,41 @@ def test_meta_input_fixture_is_not_success_output(case):
 
 
 def test_meta_allowlist_and_no_stage_advance():
-    changes = set(git("diff", "--name-only", INPUT_HEAD).decode().splitlines())
-    changes |= set(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
-    assert changes <= ALLOWLIST
-    assert not git("rev-list", "--merges", f"{INPUT_HEAD}..HEAD").strip()
+    assert INPUT_HEAD == WP4C_2_INPUT_HEAD == "921be62c32ccccece53be74e7e565b1b37731fbe"
+    assert WP4C_2_ACCEPTED_HEAD == "1f4df9cc650f63b9e842d806340eb31b768f708e"
+    assert all(re.fullmatch(r"[0-9a-f]{40}", ref) for ref in (
+        INPUT_HEAD, WP4C_2_INPUT_HEAD, WP4C_2_ACCEPTED_HEAD
+    ))
+    changes = historical_delivery_paths()
+    assert len(changes) == 13
+    assert changes == ALLOWLIST
+    assert_historical_allowlist(changes)
+    with pytest.raises(AssertionError):
+        assert_historical_allowlist(changes | {"src/unapproved-fourteenth-path.py"})
+    assert not git(
+        "rev-list", "--merges", f"{WP4C_2_INPUT_HEAD}..{WP4C_2_ACCEPTED_HEAD}"
+    ).strip()
+    assert git("merge-base", "--is-ancestor", WP4C_2_ACCEPTED_HEAD, "HEAD") == b""
+    later = "de213ec0f74f8976283a24986d4eb7de77c67142"
+    assert git("merge-base", "--is-ancestor", later, "HEAD") == b""
+    later_paths = set(git("diff", "--name-only", WP4C_2_ACCEPTED_HEAD, later).decode().splitlines())
+    assert later_paths == {
+        "taskbooks/fcop-4.0/WP4C.3/01-Canonical-Rule-Package-Manifest-Loader-and-Assemblies-Taskbook-v1.0.zh.md"
+    }
+    assert not changes & later_paths
+    # Current untracked paths are not inputs to the history-only function.
+    # Current-stage cleanliness/allowlist remain executor and Manifest checks.
+    tree = ast.parse(sources()["conftest.py"])
+    helper = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                  and n.name == "historical_delivery_paths")
+    assert not helper.args.args and not helper.args.kwonlyargs
+    calls = [n for n in ast.walk(helper) if isinstance(n, ast.Call)
+             and isinstance(n.func, ast.Name) and n.func.id == "git"]
+    assert len(calls) == 1
+    assert [ast.unparse(a) for a in calls[0].args] == [
+        "'diff'", "'--name-only'", "WP4C_2_INPUT_HEAD", "WP4C_2_ACCEPTED_HEAD"
+    ]
+    assert historical_delivery_paths() == changes
 
 
 def test_meta_projection_oracle_never_writes():
