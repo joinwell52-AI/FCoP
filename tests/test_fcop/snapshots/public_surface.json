@@ -1467,6 +1467,29 @@
         ],
         "return": "tuple[RoleOccupancy, ...]"
       },
+      "rule_distribution": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "action"
+          },
+          {
+            "annotation": "Mapping[str, Any]",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "request"
+          }
+        ],
+        "return": "Mapping[str, Any]"
+      },
       "status": {
         "params": [
           {

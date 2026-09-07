@@ -240,6 +240,7 @@ class _Creation:
 
     def handler(self, name: str) -> Callable[..., Any] | None:
         from fcop.v4.reports import ReportQueries
+        from fcop.v4.rule_distribution import _bind
 
         if self.invalid:
             if name == "is_initialized":
@@ -261,6 +262,7 @@ class _Creation:
             "inspect_state": self.inspect_state,
             "transition": self.transition,
             "family_digest": self.family_digest,
+            "rule_distribution": _bind(self),
             "recover_operation": self.recover_operation,
             "inject_fault": self.inject_fault,
             "export_archive": self.export_archive,

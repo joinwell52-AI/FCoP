@@ -1,6 +1,106 @@
-# WP4C.3 result — BLOCKED: historical public-method count
+# WP4C.3 result — WP4C.3c validated rule-package closeout
 
-## Current blocking decision
+## Current result and authority
+
+All authorized local implementation and regression requirements are satisfied. The historical legacy-method classification blocker is resolved solely by the authorized existing-test alignment. The 31 candidate implementation/support files are unchanged from PR #23; they are now eligible for Content delivery. Final immutable commit IDs, remote readback and actual CI state must be recorded in the later Manifest and external Draft PR receipt; this pre-Manifest report does not predict remote success.
+
+```yaml
+AUTHORIZED_SCOPE: WP4C_3C_LEGACY_PUBLIC_METHOD_SET_ALIGNMENT_AND_WP4C_3_RESUME
+TASKBOOK_COMMIT: ec2e43cd87ce264da1b77365558a182736ccb24f
+TASKBOOK_SHA256: c81c883c6ccf4f132ed12f511684eed93fc455fc37125b85ed4c15d8fbaeee80
+TASKBOOK_BYTES: 13805
+INPUT_HEAD: c19808f4bc07948729bb841ec569627cb672fde7
+TEST_ALIGNMENT_COMMIT: 96ad2ae812c60a6362d9c360dbb815621a0cbe1a
+WORKTREE: D:/FCoP-wp4c3b-development-fixture-and-rule-package
+BRANCH: review/fcop-4.0-wp4c.3c-public-method-closeout
+PR_BASE: taskbook/fcop-4.0-wp4c.3c-public-method-set
+LOCAL_VALIDATION: PASS
+HISTORICAL_TEST_FILES_MODIFIED: 1
+LEGACY_METHODS: 38/38
+V4_ONLY_METHODS: 11/11
+PUBLIC_API_ADDITIONS: 1
+PUBLIC_API_ADDITION: Project.rule_distribution
+OTHER_PUBLIC_ADDITIONS: 0
+ORIGINAL_ASSERTIONS_REMOVED: 0
+LOCAL_CANDIDATE_FILES: 31/31
+LOCAL_CANDIDATE_BYTES_CHANGED: 0
+CANONICAL_MODULES: 9/9
+CANONICAL_ARTIFACTS: 18/18
+MANIFEST_FILES: 1/1
+ARTIFACT_FIELDS: 11/11
+CLAUSE_OWNERSHIP: 73/73
+SPEC_EN_ZH_PARITY: PASS
+WP4C_3_TARGET_IDS: 10/10
+WP4C_3_TARGET_NODES: 56/56
+DIST_30_CONTROL: 1/1
+TEST_FCOP: 1297/1297
+V4_CORE_CONFORMANCE: 119/119
+MCP_REGRESSION: 134/134
+NEW_UNIT_NODES: 41/41
+RULE_DISTRIBUTION_META: 33/33
+RULE_DISTRIBUTION_COLLECT_ONLY: 176
+RULE_DISTRIBUTION_FULL: 99_PASS_77_DEFERRED_FAIL
+FUTURE_OWNER_NODES: 86
+FUTURE_NEGATIVE_OVERLAP_PASSES: 9
+FUTURE_DEFERRED_FAILURES: 77
+UNEXPECTED_FAILURES: 0
+UNEXPLAINED_FUTURE_PASSES: 0
+RUFF: PASS
+MYPY: PASS
+LEGACY_RULE_BYTES_UNCHANGED: 14/14
+LOCAL_WHEEL_SDIST_INCLUSION: 19/19_EACH
+LOCAL_ARCHIVE_MEMBER_BYTES: 19/19_EACH
+NEW_RUNTIME_DEPENDENCIES: 0
+NEW_BACKGROUND_COMPONENTS: 0
+NEW_AUTHORITATIVE_STORES: 0
+NEW_STATE_MACHINES: 0
+NEW_LOCK_SYSTEMS: 0
+NEW_BASE_ERROR_CODES: 0
+HOST_PROJECTION_IMPLEMENTED: false
+ADOPTION_DEPLOYMENT_IMPLEMENTED: false
+FROZEN_CONFORMANCE_MODIFIED: 0
+MCP_FILES_MODIFIED: 0
+CODEFLOWMU_FILES_MODIFIED: 0
+MAIN_MODIFIED: false
+RELEASE_CREATED: false
+WP4C_3_RULE_PACKAGE_ACCEPTED: false
+WP4C_4_STARTED: false
+DELIVERY_CHECKPOINT: CONTENT_READY_REMOTE_READBACK_PENDING
+GATE_TO_REQUEST_AFTER_REMOTE_VERIFICATION: WP4C_3_RULE_PACKAGE_ACCEPTED
+```
+
+[Fixed taskbook](https://github.com/joinwell52-AI/FCoP/blob/ec2e43cd87ce264da1b77365558a182736ccb24f/taskbooks/fcop-4.0/WP4C.3c/01-Legacy-Public-Method-Set-Alignment-and-WP4C.3-Closeout-Taskbook-v1.0.zh.md), [ADMIN authorization](https://github.com/joinwell52-AI/FCoP/pull/23#issuecomment-5572037831). Scope permits the test-only correction and unchanged candidate resumption, not WP4C.4.
+
+## What changed, and what did not
+
+The fixed taskbook was a direct single-file child of the input. Before and after the authorized fast-forward, the exact expanded dirty set was the 31 known candidates and every raw identity matched. Branch rename did not rewrite history. No stash, reset, cleanup, re-deployment or original workspace change occurred.
+
+The isolated historical test now separates eleven v4-only methods from exactly the pinned 38 original methods; original count remains 38, all twelve original assertions remain, and eight set assertions were added. All other existing tests are unchanged. Every one of 110 existing Project method ASTs and all original policy values remain unchanged. Public snapshot's only addition is rule_distribution. Full FCoP subsequently passed 1297/1297, replacing the previous 1296/1 result only for this newly authorized run.
+
+The preserved implementation is five private modules: contract tables, typed errors, strict raw loader, explicit selection and thin dispatch. Existing production edits are only the public method, one policy and handler wiring. Nine new bilingual business modules have 73 unique owned clause headings. Manifest has eleven artifact fields including conflicts_with, exactly as frozen RD-07 and ADMIN correction require. All eighteen artifacts are verified before selection, including unselected language bytes; dependency selection never silently loads a missing module.
+
+Only validate, select and validate_operation_scope may succeed. Guidance grants no lifecycle authority. Future actions reject at read-only preflight or return the existing unavailable code. The nine passing future test nodes each prove a structured zero-write rejection, not Host/adoption/deployment/recovery success. The remaining 77 are actual red failures preserved with specific observations; no skip/xfail or future-stage implementation was added.
+
+All 18 bilingual texts were re-read with frozen Core during closeout; their bytes, clause owners, identity and semantics remain the previously reviewed candidate. No legacy text was used as a drafting base. Development requires four explicit fixed local references; no guessed source, external constitution, Host entry or CodeFlowMu source entered the package. The 147-unit legacy disposition remains the frozen WP4C.1 schedule.
+
+## Validation and evidence
+
+See [current conformance results](FCOP-4.0-WP4C.3-CONFORMANCE-RESULT.md) for exact commands/timings, full 86-row future-node classification and seven raw JUnit identities. See [historical method alignment](FCOP-4.0-WP4C.3C-PUBLIC-METHOD-SET-ALIGNMENT.md) for all 31 before/after hashes, explicit 38/11 names and AST/statement-preservation checks. See [clause/artifact mapping](FCOP-4.0-WP4C.3-CLAUSE-AND-ARTIFACT-MAPPING.md) for 73 rows and 18 raw artifact identities. The [implementation plan](FCOP-4.0-WP4C.3-IMPLEMENTATION-PLAN.md) retains staged decisions and prior stop evidence.
+
+Full FCoP took 1127.73s, Core 110.80s, MCP 367.37s, exact targets 199.09s, complete distribution 548.28s and standalone units 187.94s. Existing deprecation warnings remain. Wheel/sdist local inclusion/member comparison is not cross-platform, Host consumption or WP4C.6 acceptance; no release was made. The library remains 3.2.5.
+
+## Delivery and stop contract
+
+Required sequence is Taskbook → Test alignment → Content → Manifest with direct parents and no merge. Content consists of exactly the 31 preserved candidates plus five current reports; the isolated test is inherited from its prior commit; Manifest changes only reviews/fcop-4.0/wp4c.3/MANIFEST.md. This yields 38 cumulative delivery paths relative to the taskbook. The final Git blobs must match the candidate hashes and the Manifest inventory.
+
+Push the new review branch and open a NEW Draft PR against the taskbook branch, leaving PRs #21/#22/#23 unchanged. Refetch and validate direct parents, per-commit sets, all GitHub/Git/fresh-LF bytes, original main identities and scope. No reviewer requests, auto-merge, base switch, main merge or publication. Branch-filtered absence of CI must be NOT_TRIGGERED_BRANCH_FILTER, never PASS. After actual verification, publish the final receipt with concrete Content/Manifest SHA, PR URL, hash count and CI outcome, request only WP4C_3_RULE_PACKAGE_ACCEPTED, and stop.
+
+## Historical WP4C.3b blocker record — retained, resolved only by WP4C.3c
+
+The remainder is preserved evidence of the earlier blocked delivery at c19808f4. Its LOCAL_ONLY, BLOCKED and NONE gate statements describe that historical checkpoint, not this current validated result. The historical 31-file table is also the unchanged provenance inventory for the present Content.
+
+
+## Historical blocking decision
 
 WP4C.3b fixture alignment is complete. Resumed WP4C.3 is BLOCKED; no Gate is requested. The implementation and 19 canonical package files remain LOCAL_ONLY, uncommitted and preserved in this independent worktree. Only the passed isolated fixture commit and factual reports/Manifest are eligible for this blocked GitHub delivery. All reported implementation test passes refer to these preserved local bytes, NOT the report-only remote HEAD.
 
