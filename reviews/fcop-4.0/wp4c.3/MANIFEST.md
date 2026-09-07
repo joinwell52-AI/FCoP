@@ -1,76 +1,77 @@
-# WP4C.3a delivery Manifest — audit correction and BLOCKED resume evidence
+# WP4C.3b delivery Manifest — FIXTURE + BLOCKER FACTS ONLY
 
-This is NOT a completed rule-package implementation and requests NO acceptance Gate.
-
-## Fixed authority and direct parent chain
+## Status and authority
 
 ```yaml
-TASKBOOK_COMMIT: 0559e0fdf5390aa830f98a38d83f96f1cd475ab1
-TASKBOOK_BYTES: 15954
-TASKBOOK_SHA256: 903c5f0f249598ab3b5aaf7e947af8ed36fbc23928eff9b5db11e305acb21ba6
-TASKBOOK_PARENT: 78ea6b89a1ef0df0e504a3cfa34cecddeb7dda24
-AUDIT_CORRECTION_COMMIT: e1ed85e4ba5aba212ddf3cc4f880c0abecc2bfab
-CONTENT_COMMIT: 67bf7a08915024fa5d88b5e66eb6396b68d1c6c8
-MANIFEST_COMMIT: SELF_COMMIT_CONTAINING_THIS_MANIFEST
-AUTHORIZED_SCOPE: WP4C_3A_AUDIT_SCOPE_ALIGNMENT_AND_WP4C_3_RESUME
-BRANCH: review/fcop-4.0-wp4c.3a-audit-scope-and-rule-package
-PR_BASE: taskbook/fcop-4.0-wp4c.3a-audit-scope-alignment
-WP4C_3A_STATUS: BLOCKED
-AUDIT_SCOPE_CORRECTION: PASS
+WP4C_3B_FIXTURE_STATUS: COMPLETE
+WP4C_3B_STATUS: BLOCKED
 WP4C_3_STATUS: BLOCKED
-STOP_REASON: DIST_02_DEVELOPMENT_REFERENCE_FIXTURE_INPUT_MISSING
+AUTHORIZED_SCOPE: WP4C_3B_DIST_02_FIXTURE_ALIGNMENT_AND_WP4C_3_RESUME
+TASKBOOK_COMMIT: 3a11498c0d4aff736628e781f34516950cb34be8
+TASKBOOK_SHA256: 5c4cb2506a6d987dea705a2c5d1b28108b01a3d2b68cbf7b0047dbb8d3d4dbcb
+TASKBOOK_BYTES: 13446
+INPUT_HEAD: ec81dc5ed80ff2a4492fd0d1611aad234949bfb5
+FIXTURE_COMMIT: 115751b4c24a1924062a81a21e0d655e8cb5fedc
+CONTENT_COMMIT: 29ceaed54d63bbdff5057621b7dc0329535b1f98
+MANIFEST_PARENT: 29ceaed54d63bbdff5057621b7dc0329535b1f98
+REVIEW_BRANCH: review/fcop-4.0-wp4c.3b-development-fixture-and-rule-package
+PR_BASE: taskbook/fcop-4.0-wp4c.3b-development-reference-fixture
+BLOCKER: HISTORICAL_PUBLIC_METHOD_COUNT_NOT_SCOPED
+DELIVERY_KIND: FIXTURE_AND_BLOCKER_FACTS_ONLY
+IMPLEMENTATION_COMMITTED: false
+IMPLEMENTATION_PUSHED: false
+LOCAL_IMPLEMENTATION_FILES_PRESERVED: 31
+LOCAL_WORKTREE_STATUS: DIRTY_PRESERVED
+WP4C_3_RULE_PACKAGE_ACCEPTED: false
+WP4C_4_STARTED: false
 REQUESTED_GATE: NONE_BLOCKED
+MAIN_MERGE_AUTHORIZED: false
+RELEASE_AUTHORIZED: false
 ```
 
-[Taskbook](https://github.com/joinwell52-AI/FCoP/blob/0559e0fdf5390aa830f98a38d83f96f1cd475ab1/taskbooks/fcop-4.0/WP4C.3a/01-Historical-Audit-Scope-Alignment-and-WP4C.3-Resume-Taskbook-v1.0.zh.md), [ADMIN authorization](https://github.com/joinwell52-AI/FCoP/pull/21#issuecomment-5567383721), [corrected-hash erratum](https://github.com/joinwell52-AI/FCoP/pull/21#issuecomment-5567650164). Old a61c4159... hash is revoked.
+[Fixed taskbook](https://github.com/joinwell52-AI/FCoP/blob/3a11498c0d4aff736628e781f34516950cb34be8/taskbooks/fcop-4.0/WP4C.3b/01-DIST-02-Development-Reference-Fixture-and-WP4C.3-Resume-Taskbook-v1.0.zh.md) and [ADMIN authorization](https://github.com/joinwell52-AI/FCoP/pull/22#issuecomment-5568219764) were verified from GitHub. PRs #21 and #22 remain unchanged historical blockers.
 
-The audit commit changes exactly three authorized Conformance files. Content changes exactly five reports, not production. This Manifest-only commit directly follows Content, which directly follows Audit, which directly follows Taskbook. PR #21's blocker commits remain in the ancestor chain and its PR is preserved.
+## Exact sequential commits
 
-## Exact cumulative delivery inventory
+1. Taskbook 3a11498c0d4aff736628e781f34516950cb34be8, direct parent ec81dc5ed80ff2a4492fd0d1611aad234949bfb5.
+2. Fixture 115751b4c24a1924062a81a21e0d655e8cb5fedc, direct child of taskbook: only test_dist_01_06_manifest.py; preserves ID/parameters/assertions and adds explicit local four-reference inputs.
+3. Content 29ceaed54d63bbdff5057621b7dc0329535b1f98, direct child of Fixture: exactly the five reports listed below; NO implementation files.
+4. This Manifest's commit is a direct child of Content and changes only reviews/fcop-4.0/wp4c.3/MANIFEST.md. Its actual HEAD/hash is established externally by the GitHub readback receipt, not self-embedded.
 
-All values below hash complete raw Git blobs at Content. No newline normalization is used for these identities. The eight paths include the three prior Audit-commit files and all five Content reports.
+No merge, amend, force push, source cherry-pick or failed implementation commit is part of this chain.
 
-| Path | Bytes | SHA-256 |
+## Six content/fixture raw identities
+
+SHA-256 below hashes Git Blob bytes at the Content commit. Final readback compares these against GitHub at the Manifest HEAD and a fresh LF checkout. Manifest itself is the seventh changed file, hashed externally to avoid self-reference.
+
+| Exact delivered path | Bytes | Raw SHA-256 |
 | --- | ---: | --- |
-| reports/FCOP-4.0-WP4C.3-CLAUSE-AND-ARTIFACT-MAPPING.md | 5360 | d54235d9c917c609c9c72e045fd45b3d390ec8b62f0f5d0efeb963717572e2a3 |
-| reports/FCOP-4.0-WP4C.3-CONFORMANCE-RESULT.md | 6013 | 1dac8aa17332abf69d1070de23d9efa71a0aca336cc595a9dc69dcb5e03cb59e |
-| reports/FCOP-4.0-WP4C.3-IMPLEMENTATION-PLAN.md | 9260 | 389864d2c7a1c4e3ccedb17a52f65db9dc12752b674c6f569eddb02f765a49d5 |
-| reports/FCOP-4.0-WP4C.3-RESULT.md | 7253 | b80e48c8978de16e51e7d324db00d94afc115c9898d5191f60df90c36607d086 |
-| reports/FCOP-4.0-WP4C.3A-AUDIT-SCOPE-CORRECTION.md | 8795 | 7b8ed6fe4322c7c508ef789ab011149259deb4435c7c241dc854b21181b0837c |
-| tests/conformance/rule_distribution_v4/conftest.py | 16826 | e9571f4d0051e04cbc0e63ef9a8e2cdc9d5facd427afafb6c4934c305d835a67 |
-| tests/conformance/rule_distribution_v4/test_dist_00_meta.py | 14382 | 816d739dd4eed73c545ee75947c893eba44f5a9f944dbc37ef978b582746c9d6 |
-| tests/conformance/rule_distribution_v4/test_dist_25_30_failures_artifacts_context_gates.py | 13044 | be6a3fe99b19da82f1c14b964c96d02160812b169d5ad10b4d5cd5203a64839c |
+| reports/FCOP-4.0-WP4C.3-CLAUSE-AND-ARTIFACT-MAPPING.md | 9925 | 7c28b4973525f2ea0e76639446dac7cb549224a56f70d4908de86490c0abfd7f |
+| reports/FCOP-4.0-WP4C.3-CONFORMANCE-RESULT.md | 18861 | 58bc50ac03bcd9065312673e32b17db1310c3fb2755278ef4d641e7de0987a67 |
+| reports/FCOP-4.0-WP4C.3-IMPLEMENTATION-PLAN.md | 14349 | 14e91d74e13eed7f6435945d689f4747528d7c94be4f47be09b0f7a2f220380f |
+| reports/FCOP-4.0-WP4C.3-RESULT.md | 17312 | ca5e14fd8e8231264e4cbce3ba4466983c51fea092e17f9a5148eb754666b82f |
+| reports/FCOP-4.0-WP4C.3B-DIST-02-FIXTURE-ALIGNMENT.md | 4669 | 82b2b41a33744afc5290e9cc6ba22bf47b193aef51991aa386190de8eb16ff64 |
+| tests/conformance/rule_distribution_v4/test_dist_01_06_manifest.py | 10075 | dafac52d52a9c8568dd9d360b58cbba6676446cf62b3a498701a19cbb0697d78 |
 
-The ninth and only additional path is `reviews/fcop-4.0/wp4c.3/MANIFEST.md`. Its final SHA-256 and immutable Manifest HEAD cannot be embedded recursively here; they are verified from the commit containing this file and included in the post-push Draft PR receipt. No other path is authorized by this blocked delivery.
+The actual taskbook-to-final diff is exactly these six paths plus this Manifest. The inherited WP4C.3a audit-scope report and prior audit test corrections remain in the parent history, not modified or counted as new delivery files.
 
-## Validation and boundary
+## Local implementation evidence — not remote capability claims
 
-- Historical WP4C.2 diff remains exactly its original 13 paths, no historical merge.
-- Meta 33/33 + DIST-30 1/1 pass; collection remains 176 (33 + 56 + 86 + 1).
-- Standard-entry behavior baseline: 142 expected missing-production reds / 1 control pass, 364.12s. Earlier queue timeout and reruns are preserved in the report.
-- FCoP 1256/1256; frozen v4 Core 119/119; MCP 134/134; Ruff and mypy PASS.
-- DIST-01-29 ASTs unchanged; DIST-30 has 18 Assert nodes before/after; no skip/xfail or renamed IDs.
-- No production, package rules, frozen spec/contract, public snapshot, Schema, Host, MCP, CodeFlowMu, main, version or release changes.
-- New unresolved fixture: DIST-02 requests four development references without providing their identities/files. The fourth Conformance file needed for a local fixture correction is not authorized. See the plan and result reports.
-- Canonical artifacts 0/18; package Manifest 0/1; new API 0. No implementation Gate requested.
+- Precise target run: 56/56 passed; full suite independently confirms 56 target, 33 Meta, 1 control passes.
+- Full distribution: 99 passed / 77 failed. Future 86 nodes are 77 deferred reds plus 9 explained zero-write negative-preflight overlaps; reports enumerate all 86.
+- Core: 119 passed. MCP: 134 passed. Full FCoP: 1296 passed / 1 failed; all 41 new unit nodes passed.
+- Blocker: tests/test_fcop/test_v4_creation.py:839 computes the historical legacy set from all policies minus ten known v4-only methods. Adding the authorized rule_distribution yields 39 instead of 38. The sole set delta is that method. The existing test is outside this task's write set and has not been changed.
+- Isolated blocker rerun: 1 failed, 1.48 s. Final Meta/control rerun: 34 passed, 13.26 s.
+- Existing Project methods have identical ASTs; the candidate snapshot adds only rule_distribution. Legacy data bytes are 14/14 unchanged. Candidate package is 18 Markdown + 1 Manifest, 73 unique owners, eleven fields/record; wheel/sdist data inclusion is 19/19 (not WP4C.6 acceptance).
+- The candidate implementation, package, new units, snapshot, package-data and CHANGELOG edits remain in D:/FCoP-wp4c3b-development-fixture-and-rule-package. The RESULT report lists all 31 local raw hashes. None is in this remote diff.
+- No production or existing test change was made after the blocker was confirmed. No Host, MCP, CodeFlowMu, main, version or release mutation occurred.
 
-## Raw local-byte verification method and preserved Windows checkout
+The fixture-only committed tree still has no distribution public entry. Never use this report-only branch's CI, package file claims or local test counts as implementation acceptance.
 
-The execution worktree is `D:/FCoP-wp4c3a-audit-scope-and-rule-package`.
-Its five report files match raw Git bytes. The three Audit files retain pre-existing Windows checkout CRLF lines (417, 325 and 304 respectively); their Git blobs contain no CRLF. Diagnostic newline normalization matches, but that diagnostic is NOT counted as raw-byte proof. The original three files were not rewritten after their independent commit.
+## Remote verification procedure and stop
 
-Final raw local proof uses a new, detached verification-only checkout at the immutable Manifest HEAD:
+After push, refetch the exact review branch; require its HEAD to equal this Manifest commit. Validate every direct parent and exact per-commit file set. Read all seven changed files through GitHub's fixed-ref raw Contents API and compare complete bytes with local Git Blobs and a newly created LF checkout. Recheck local main and remote main against the observed baselines; preserve the dirty implementation worktree. Record final HEAD, 7/7 hashes, Draft PR URL and actual CI state in the external PR receipt.
 
-```text
-git -c core.autocrlf=false worktree add --detach D:/FCoP-wp4c3a-delivery-byte-check <MANIFEST_HEAD>
-```
+Workflow filters target main/feat pushes and PRs to main; the prescribed review/base pair is outside them. If no run exists, report NOT_TRIGGERED_BRANCH_FILTER, not PASS. Do not change PR base or trigger release to manufacture green evidence.
 
-No repository attributes/config or original working bytes are changed. At this fresh checkout, compare all nine raw filesystem byte strings with Git blobs and GitHub Contents API raw responses pinned to the SAME final SHA. Check SHA-256 and size independently; do not normalize any side. The final receipt must distinguish this verified local checkout from the preserved execution checkout.
-
-## Required remote readback
-
-After push, refetch only the new review branch; resolve its HEAD; verify the direct three-commit chain, exact per-commit path sets, no merge, preserved PR #21 and unchanged main. Read all nine paths from GitHub at that immutable HEAD and perform the raw three-way comparisons described above. Until that actual check completes, remote delivery is PENDING; the Draft PR receipt records actual outcomes rather than forecasting PASS.
-
-Create a NEW Draft PR against the taskbook branch; do not target main, reuse PR #21, request reviewers, enable auto-merge or merge. Workflows filter push main/feat and PR base main; no CI is expected for this review/taskbook combination. Actual runs must be checked: no runs means NOT_TRIGGERED_BRANCH_FILTER, not green.
-
-Stop for ADMIN fixture disposition. WP4C.4, main merge and publishing remain unauthorized.
+Execution stops after factual delivery. ADMIN may authorize a narrow historical-test exclusion alignment, preserving the assertion of 38 original methods and all other compatibility checks. No such correction, WP4C.4 advance or Gate signature is performed here.
