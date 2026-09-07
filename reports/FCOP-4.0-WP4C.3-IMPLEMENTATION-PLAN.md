@@ -1,4 +1,30 @@
-# WP4C.3 resumed preflight — audit corrected; development fixture BLOCKED
+# WP4C.3 implementation plan — WP4C.3b authorized resume
+
+Current status: BLOCKED at the existing historical public-method count assertion in tests/test_fcop/test_v4_creation.py:839 (39 vs 38, sole addition rule_distribution). This file is outside the authorized write set. Production changes and candidate data are preserved LOCAL_ONLY, not committed with the factual report delivery. See the RESULT report for exact evidence, the 31-file preservation inventory and proposed ADMIN disposition. No implementation changes followed confirmation of this blocker.
+
+## Current authority and pre-code decision
+
+The historical blocker below is preserved, now resolved by ADMIN's WP4C.3b taskbook `3a11498c0d4aff736628e781f34516950cb34be8` (13446 raw bytes, SHA-256 `5c4cb2506a6d987dea705a2c5d1b28108b01a3d2b68cbf7b0047dbb8d3d4dbcb`) and [PR #22 approval](https://github.com/joinwell52-AI/FCoP/pull/22#issuecomment-5568219764). GitHub raw Blob and fetched Git Blob were equal. The direct parent is `ec81dc5ed80ff2a4492fd0d1611aad234949bfb5`.
+
+Fixture commit `115751b4c24a1924062a81a21e0d655e8cb5fedc` changes only DIST-02's development variant in one file; six original assertions remain, with three added assertion statements. No subsequent Conformance edits are authorized. Pre-code validation: FCoP 1256 passed; Core 119 passed; MCP 134 passed; Meta 33 and control 1 passed; collect 176; behavioral 142 expected missing-capability failures (56 current, 86 future), no unexpected error; Ruff and mypy passed. A transient Ruff UP012 on the fixture's redundant encoding argument was corrected before the isolated commit, without byte-semantic change.
+
+Execution directory: `D:\FCoP-wp4c3b-development-fixture-and-rule-package`; review branch: `review/fcop-4.0-wp4c.3b-development-fixture-and-rule-package`. Original workspace and historical PRs #21/#22 are preserved. Scope remains WP4C.3b fixture alignment plus WP4C.3 only.
+
+### Implementation sequence and budget
+
+1. Author exactly nine new business modules in English and Chinese, plus one Manifest. Use the 73-row primary ownership schedule in the mapping report; EN/ZH have identical primary IDs, graph and audience. Verify raw UTF-8/LF, exactly one final LF, 18 identities, all hashes/sizes, 73 unique owners and bilingual parity before wiring any public entry.
+2. Add a small private package under `src/fcop/v4/rule_distribution/`: fixed contract tables, structured errors, strict offline loader, explicit selector, and thin dispatch/read-only preflight. No persistent cache, dependency framework, network, database, lock or second state machine.
+3. Add only `Project.rule_distribution(*, action: str, request: Mapping[str, Any]) -> Mapping[str, Any]`; register one handler and one version policy. Legacy calls reject without migration. The private binder reuses `_manifest`, `read_json` and `safe_path` to revalidate the declaration and cached workspace identity. It deliberately does not call `_Creation._check`, whose mutation-layout prerequisites require lifecycle directories: pure package reads need only the valid declaration and must never create those directories. Existing Core algorithms remain unchanged.
+4. Only validate/select/validate_operation_scope may succeed. Future inspect_profile/plan/apply/rollback perform negative, read-only preflight where facts prove a typed failure; otherwise return existing toolkit:OPERATION_NOT_IMPLEMENTED. No projection bytes, Host writes, adoption, receipts, deployment or rollback success.
+5. Add only v4 data patterns to package inclusion, focused unit tests, the single-method public snapshot addition and an additive Unreleased entry. Run all 56 target nodes, Meta/control, classify all 86 future nodes, regress FCoP/Core/MCP, Ruff/mypy, public surface, wheel/sdist inclusion and raw legacy byte comparison.
+
+Manifest records contain all ELEVEN RD-07 fields, including conflicts_with; package identity is a candidate data version, not a library version bump. All artifacts are validated on every request before selection; no cache keyed only by version. Development selection requires four explicit fixed local references under the reserved namespace, checks real raw hashes and returns the same ordered identities; no defaults, Git discovery, network or business-content substitution. Constitution remains absent.
+
+The production file budget is five small private modules initially; a sixth is permitted only to keep preflight distinct from positive selection. Existing-file edits are confined to project.py's thin entry, creation.py's registry, boundary.py's policy, package-data patterns, public snapshot and CHANGELOG. No source outside the taskbook allowlist is needed. The 14 legacy data hashes and pre-addition public snapshot baseline below remain the comparison authority.
+
+Delivery sequence is fixed Taskbook -> Fixture -> Content -> Manifest, with the last commit containing only the delivery Manifest. New Draft PR targets the taskbook branch. Final remote Blob/Git/fresh LF checkout parity is required; branch-filtered absent CI must be reported honestly. Only ADMIN may sign WP4C_3_RULE_PACKAGE_ACCEPTED.
+
+## Preserved WP4C.3a preflight record
 
 Taskbook: `0559e0fdf5390aa830f98a38d83f96f1cd475ab1`, path `taskbooks/fcop-4.0/WP4C.3a/01-Historical-Audit-Scope-Alignment-and-WP4C.3-Resume-Taskbook-v1.0.zh.md`.
 Raw bytes: 15954; SHA-256: `903c5f0f249598ab3b5aaf7e947af8ed36fbc23928eff9b5db11e305acb21ba6`.

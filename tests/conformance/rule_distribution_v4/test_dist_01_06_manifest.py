@@ -59,6 +59,21 @@ def test_dist_02(case, variant):
             else "sequential",
             constitution_ref=None,
         )
+        if variant == "development-no-constitution":
+            references = []
+            for name, purpose in [
+                ("entry", "FCoP repository development entry"),
+                ("manual", "FCoP development guidance/manual"),
+                ("contracts", "Fixed FCoP contract input"),
+                ("task-scope", "Current TASK, authorized scope and Gate input"),
+            ]:
+                raw = f"Non-normative test input: {purpose}.\n".encode()
+                path = f"docs/fcop-4.0/development/{name}.md"
+                case.put(case.root / path, raw)
+                references.append({"path": path, "revision": "1" * 40, "sha256": sha(raw)})
+                assert (case.root / path).resolve().is_relative_to(case.root.resolve())
+                assert sha((case.root / path).read_bytes()) == references[-1]["sha256"]
+            request["development_references"] = references
         result = case.invoke("select", request, readonly=True)
         assert EXCLUDED_RC not in str(result)
         if variant == "ordinary":
@@ -70,6 +85,7 @@ def test_dist_02(case, variant):
             assert all(
                 {"path", "revision", "sha256"} <= ref.keys() for ref in field(result, "references")
             )
+            assert field(result, "references") == request["development_references"]
 
 
 @pytest.mark.parametrize(
