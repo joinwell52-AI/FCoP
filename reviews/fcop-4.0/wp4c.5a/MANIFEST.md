@@ -1,0 +1,64 @@
+# WP4C.5a 阻断事实交付 Manifest
+
+```yaml
+WP4C_5A_STATUS: FROZEN_COMPATIBILITY_CONTRACT_CONFLICT
+AUTHORIZED_SCOPE: WP4C_5A_ONLY
+RESUMED_SCOPE: FULL_WP4C_5
+TASKBOOK_COMMIT: c7986fb618b2f66c4ad2b157917f64a00bccf1c3
+TASKBOOK_SHA256: cbc7a3be0f641bc782715d13bb6b774dfad002d8a1002896e629404e3e40ae47
+TASKBOOK_BYTES: 10686
+INPUT_HEAD: d29e4d41ad4e1fc74e6d3513faa6b95d97ba0dfb
+BLOCKED_DELIVERY_HEAD: df395c7e221f850352d907933ccaab0937706c8f
+ORIGIN_CONFORMANCE_REF: 1f4df9cc650f63b9e842d806340eb31b768f708e
+AUTHORIZED_CONFORMANCE_CORRECTIONS: 2/2
+EFFECTIVE_CONFORMANCE_REF: d29e4d41ad4e1fc74e6d3513faa6b95d97ba0dfb
+EFFECTIVE_CONFORMANCE_TREE: 1134d730e4c5ab23aa7b3ec91138da6981c2f009
+EFFECTIVE_CONFORMANCE_FILES: 9/9
+INPUT_INTEGRITY: PASS
+PR26_BLOCKER_PRESERVED: true
+CONTENT_PARENT: c7986fb618b2f66c4ad2b157917f64a00bccf1c3
+CONTENT_COMMIT: 3955849b116420bf61009760c4f724b94bca83e4
+MANIFEST_PARENT: 3955849b116420bf61009760c4f724b94bca83e4
+MANIFEST_COMMIT: SELF_COMMIT_CONTAINING_THIS_MANIFEST
+BRANCH: review/fcop-4.0-wp4c.5a-compatibility-resume
+PR_BASE: taskbook/fcop-4.0-wp4c.5a-conformance-baseline
+PR_KIND: NEW_DRAFT
+CONTENT_FILES: 2
+MANIFEST_FILES: 1
+TOTAL_DELIVERY_FILES: 3
+PRODUCTION_IMPLEMENTATION_STARTED: false
+CONFORMANCE_FILES_MODIFIED_THIS_RUN: 0
+CODEFLOWMU_FILES_MODIFIED: 0
+MAIN_MODIFIED: false
+RELEASE_CREATED: false
+WP4C_6_STARTED: false
+WP4C_5_COMPATIBILITY_ACCEPTED: false
+REQUESTED_GATE: NONE
+REMOTE_READBACK: PENDING_POST_PUSH_RECEIPT
+CI_STATUS: PENDING_FINAL_HEAD_INSPECTION
+```
+
+## 内容提交原始字节
+
+| 路径 | bytes | SHA-256 |
+| --- | ---: | --- |
+| reports/FCOP-4.0-WP4C.5A-IMPLEMENTABILITY-PROOF.md | 10439 | 2e009d28bdb6e4d46907934a047721e2dc842707c2ee66b0049a98f751660ea1 |
+| reports/FCOP-4.0-WP4C.5A-RESULT.md | 3343 | 500fd3f20514c22fb2f9b8fdc21d4bc2a31c43eb1059ac36fc00225070f4c632 |
+
+第二提交仅新增本文件；自身提交 SHA 和原始文件摘要由提交后 PR 回执记录，避免自哈希循环。远端核验集合为以上两份报告及本 Manifest，共 3 份。没有实现、测试、snapshot 或 CHANGELOG 变更；按任务书停止条款只交付新的事实报告。
+
+## 已验证与未完成的区别
+
+- 有效基线问题已由 ADMIN 解决：完整 tree、9 Blob/字节和4摘要一致，历史两次修正原样保留。
+- 本轮目标实测 1 passed / 12 failed，32.98 秒；JUnit SHA-256 40254c6f2ad35d713319addd28db6b683b3c4122c7dbd57e41aea2937375cf02。
+- 现有 MCP snapshot 与 v3 静态资源专项 5 passed，2.84 秒；JUnit SHA-256 8265361578ed229d5353ede90496a075780669137674752af18a8c422a0b1e71。
+- FastMCP 实际注册表 46/11/3；真实 v3 protocol 为 legacy Markdown str，117608 字节、SHA-256 8ac413b1c39238df82a175d108c166c58c27fbe833b202470e140755780250d3，与 getter 相同，读取零写入。
+- 新阻断为 v3 protocol 字符串合同与 DIST-24 无版本限制的身份对象断言冲突。详见开工报告 §3；不是重报 origin/effective 的差异。
+- 未开始生产实现，完整 Implementability Proof、13/13 目标完成、全回归和真实授权 CodeFlowMu Shadow 均不声明完成。
+- PR #26 三份文件和旧工作树保留；新 PR 指向新任务书分支，不改写历史 PR。
+
+## 提交后核验
+
+按任务书核对最终 review HEAD、两提交父链及 2/1 文件集合，从 GitHub Contents API 固定 HEAD 回读 3/3 大小与 SHA-256；建立新的 detached LF checkout 验证 tracked 字节、干净状态和冻结树。核对 remote main 仍为 68dbeb15f4e7f84e1d03f907be9fa66c2265843e。
+
+实际 CI/check 状态在提交后回执记录；若受分支过滤未触发，写 NOT_TRIGGERED_BRANCH_FILTER，不把文档 CI 或未运行测试写成实现 PASS。完成证据交付后停止，REQUESTED_GATE=NONE，等待 ADMIN 固定 v3 protocol 返回形态裁定，不进入 WP4C.6。
