@@ -65,16 +65,18 @@ RESOURCES = MappingProxyType({
     "fcop://letter/zh": "GUIDANCE",
     "fcop://prompt/install": "GUIDANCE",
     "fcop://prompt/install/en": "GUIDANCE",
-    "fcop://protocol": "RULES_PENDING_WP4C",
-    "fcop://rules": "RULES_PENDING_WP4C",
+    "fcop://protocol": "DISTRIBUTION",
+    "fcop://rules": "DISTRIBUTION",
     "fcop://spec": "VERSIONED_SPEC",
     "fcop://spec/en": "VERSIONED_SPEC",
     "fcop://status": "WORKSPACE_VIEW",
     "fcop://teams": "PROFILE_CATALOG",
+    "fcop://team": "DISTRIBUTION",
 })
 
 TEMPLATES = MappingProxyType({
     "fcop://teams/{team}": "PROFILE_RESOURCE",
     "fcop://teams/{team}/{role}": "PROFILE_RESOURCE",
     "fcop://teams/{team}/{role}/en": "PROFILE_RESOURCE",
+    "fcop://guidance/{assembly}/{language}": "DISTRIBUTION",
 })

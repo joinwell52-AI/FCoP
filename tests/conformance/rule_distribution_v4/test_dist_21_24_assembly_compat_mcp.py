@@ -124,7 +124,7 @@ def test_dist_24(case, resource, version):
     if version == "4.0" and resource == "fcop://rules":
         assert field(direct, "content") == case.manifest
         assert field(direct, "sha256") == sha((case.package / "manifest.json").read_bytes())
-    elif resource == "fcop://protocol":
+    elif version == "4.0" and resource == "fcop://protocol":
         assert {"path", "revision", "sha256"} <= field(direct, "content").keys()
         assert "entry_generated" not in field(direct, "content")
     elif resource == "fcop://team" and version == "4.0":

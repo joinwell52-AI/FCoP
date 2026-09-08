@@ -14,6 +14,7 @@ from typing import Any
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from mcp.types import TextResourceContents
 from pydantic import AnyUrl
 
 
@@ -46,12 +47,29 @@ async def base() -> None:
         async with stdio_client(parameters) as streams, ClientSession(*streams) as session:
             await session.initialize()
             assert len((await session.list_tools()).tools) == 46
-            assert len((await session.list_resources()).resources) == 11
-            assert len((await session.list_resource_templates()).resourceTemplates) == 3
+            assert len((await session.list_resources()).resources) == 12
+            assert len((await session.list_resource_templates()).resourceTemplates) == 4
             initialized = await session.call_tool("init_solo", {
                 "role_code": "ME", "protocol_version": "4.0", "profiles": [],
             })
             assert not initialized.isError and initialized.structuredContent
+            root = Path(temporary)
+            before = {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+            for uri in ("fcop://rules", "fcop://protocol", "fcop://team", "fcop://guidance/sequential/en", "fcop://guidance/parallel/zh"):
+                semantic = fcop.Project(root).rule_distribution(action="read_resource", request={"resource_uri": uri})
+                resource = (await session.read_resource(AnyUrl(uri))).contents[0]
+                assert resource.mimeType == semantic["mime_type"]
+                assert isinstance(resource, TextResourceContents)
+                text = resource.text
+                if uri == "fcop://rules":
+                    assert json.loads(text.split("```json\n", 1)[1].split("```", 1)[0]) == semantic["content"]
+                elif uri == "fcop://protocol":
+                    assert all(f"- {key}: {semantic['content'][key]}\n" in text for key in ("path", "revision", "sha256"))
+                elif uri == "fcop://team":
+                    assert json.loads(text) == semantic["content"]
+                else:
+                    assert text == semantic["content"]
+            assert {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()} == before
             request = dict(workspace_id=initialized.structuredContent["workspace_id"],
                            operation_id="installed-wheel-request", sender="ME", recipient="ME",
                            subject="Installed wheel smoke", body="Real stdio operation")
@@ -68,7 +86,8 @@ async def base() -> None:
             })
             assert rejected.isError and rejected.structuredContent
             assert rejected.structuredContent["code"] == "LEGACY_TRANSITION_NOT_ALLOWED"
-    print("REAL_STDIO: 46/11/3; create/retry/spec/structured-error PASS", flush=True)
+    print("REAL_STDIO: 46/12/4; create/retry/spec/structured-error PASS", flush=True)
+    print("WP4C5_PACKAGED_RESOURCE_PROJECT_STDIO_PARITY_ZERO_WRITE: 5/5", flush=True)
     print("RESOLVED", {name: version(name) for name in ("fcop", "fcop-mcp", "fastmcp", "mcp", "websockets")})
     print("DIRECT_REQUIREMENTS", requires("fcop-mcp"))
 

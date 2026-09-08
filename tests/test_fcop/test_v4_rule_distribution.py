@@ -171,7 +171,7 @@ def test_development_reference_hashes_are_real(distribution):
     assert exc.value.code == "toolkit:RULE_SELECTION_INVALID"
 
 
-@pytest.mark.parametrize("action", ["measure_context", "build_artifacts", "shadow"])
+@pytest.mark.parametrize("action", ["measure_context", "build_artifacts"])
 def test_future_positive_capability_is_absent(distribution, action):
     with pytest.raises(V4ProtocolError) as exc:
         call(distribution, action)

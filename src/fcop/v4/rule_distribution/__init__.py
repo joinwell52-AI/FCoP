@@ -38,6 +38,20 @@ def _receipt_preflight(root: Path, ref: Any, kind: str, code: str, action: str) 
 
 
 def _dispatch(root: Path, action: str, request: Mapping[str, Any]) -> Mapping[str, Any]:
+    if action == "read_resource":
+        from ._read import read_resource
+
+        return read_resource(root, "4.0", request)
+    if action == "inspect_layers":
+        from ._read import inspect_layers
+
+        return inspect_layers(root, request)
+    if action == "shadow":
+        from ._shadow import shadow
+
+        return shadow(request)
+    if action == "redeploy":
+        reject("RULE_ADOPTION_REQUIRED", action, "v4 requires explicit adoption and deployment")
     if action in {"inspect_profile", "status", "adopt", "plan", "apply", "verify_deployment", "rollback", "inspect_failure", "rollback_partial"}:
         from ._deployment import dispatch
 

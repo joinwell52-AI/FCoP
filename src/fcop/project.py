@@ -331,17 +331,10 @@ class Project:
     def rule_distribution(
         self, *, action: str, request: Mapping[str, Any],
     ) -> Mapping[str, Any]:
-        """Read declared v4 rule packages; selection grants no deployment authority."""
-        from fcop.errors import V4ProtocolError, _V4Code
+        """Version-selected distribution; reading never adopts or deploys."""
+        from fcop.v4.rule_distribution._read import legacy
 
-        if action == "adopt":
-            from fcop.v4.rule_distribution._errors import reject
-
-            reject("RULE_ADOPTION_REQUIRED", action, "Adoption requires a declared 4.0 workspace")
-        raise V4ProtocolError(
-            _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
-            operation_ref=action,
-        )
+        return legacy(self, action, request)
 
     def family_digest(self, *, root_task_id: str) -> str:
         """Compute the canonical digest of a declared v4 Root family."""
