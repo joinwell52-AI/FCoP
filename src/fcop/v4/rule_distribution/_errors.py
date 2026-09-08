@@ -1,6 +1,6 @@
 """Private Toolkit failures, independent of the frozen Base error registry."""
 
-from typing import NoReturn
+from typing import Any, NoReturn
 
 from fcop.errors import FcopError
 
@@ -18,7 +18,7 @@ class _DistributionError(FcopError):
         self.code = f"toolkit:{code}"
         self.operation = operation
         self.subject_ref = "fcop:rule-distribution"
-        self.details = {"reason": reason}
+        self.details: dict[str, Any] = {"reason": reason}
         super().__init__(f"{self.code}: {reason}")
 
 

@@ -12,6 +12,12 @@ versioning strategy.
 
 ### Added — fcop
 
+- Candidate WP4C.4 static Host projection through `Project.rule_distribution`:
+  explicit adoption, zero-write plans, deterministic bounded/reference entries,
+  immutable deployment evidence, and explicit rollback/partial-failure recovery.
+  Codex, Cursor and Claude Code profiles do not probe Hosts or establish runtime
+  consumption. No automatic adoption, network, background worker or release.
+
 - Candidate WP4C.3 rule distribution: nine newly authored bilingual guidance
   modules, an offline raw-byte Manifest loader and the sole new public entry
   `Project.rule_distribution(*, action, request)`. Explicit sequential,
