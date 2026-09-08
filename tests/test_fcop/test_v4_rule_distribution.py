@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 from fcop import Project
-from fcop.errors import V4ProtocolError
+from fcop.errors import FcopError, V4ProtocolError
 
 DATA = Path(__file__).resolve().parents[2] / "src/fcop/rules/_data/v4"
 MODULES = ["workspace", "envelopes", "relations", "authorization", "idempotency", "recovery", "lifecycle", "compatibility"]
@@ -171,11 +171,22 @@ def test_development_reference_hashes_are_real(distribution):
     assert exc.value.code == "toolkit:RULE_SELECTION_INVALID"
 
 
-@pytest.mark.parametrize("action", ["plan", "inspect_profile", "adopt", "status", "measure_context", "build_artifacts", "shadow"])
+@pytest.mark.parametrize("action", ["measure_context", "build_artifacts", "shadow"])
 def test_future_positive_capability_is_absent(distribution, action):
     with pytest.raises(V4ProtocolError) as exc:
         call(distribution, action)
     assert exc.value.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
+
+
+@pytest.mark.parametrize("action", ["plan", "inspect_profile", "status"])
+def test_readonly_host_capability_has_no_effects(distribution, action):
+    assert call(distribution, action)
+
+
+def test_adoption_still_requires_explicit_authority(distribution):
+    with pytest.raises(FcopError) as exc:
+        call(distribution, "adopt")
+    assert exc.value.code == "toolkit:RULE_ADOPTION_REQUIRED"
 
 
 @pytest.mark.parametrize("action,kind,key", [("apply", "adoptions", "adoption_receipt_ref"), ("rollback", "deployments", "deployment_receipt_ref")])
@@ -186,9 +197,9 @@ def test_hash_matching_receipt_is_not_trusted(distribution, action, kind, key):
     target = distribution[3] / path
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(raw)
-    with pytest.raises(V4ProtocolError) as exc:
+    with pytest.raises(FcopError) as exc:
         call(distribution, action, **{key: {"path": path, "sha256": digest}})
-    assert exc.value.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
+    assert exc.value.code == ("toolkit:RULE_ADOPTION_REQUIRED" if action == "apply" else "toolkit:RULE_DEPLOYMENT_RECOVERY_REQUIRED")
 
 
 def test_workspace_rechecked_before_package_read(distribution):

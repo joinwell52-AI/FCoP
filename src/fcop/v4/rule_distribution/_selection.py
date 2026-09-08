@@ -78,7 +78,8 @@ def development(root: Path, request: Mapping[str, Any], action: str) -> dict[str
     }
 
 
-def select(root: Path, package: _Package, request: Mapping[str, Any], action: str) -> dict[str, Any]:
+def select(root: Path, package: _Package, request: Mapping[str, Any], action: str,
+           *, validated_profile: dict[str, Any] | None = None) -> dict[str, Any]:
     if request.get("source_dependencies"):
         reject(_SELECTION, action, "Unadopted source dependency")
     assembly = request.get("assembly_id")
@@ -95,7 +96,7 @@ def select(root: Path, package: _Package, request: Mapping[str, Any], action: st
         or request.get("relation_fields", RELATIONS) != RELATIONS
     ):
         reject(_SELECTION, action, "Explicit closed modules, language and relations required")
-    host = profile(request, action)
+    host = profile(request, action) if validated_profile is None else validated_profile
     if languages != host["languages"]:
         reject(_SELECTION, action, "Language is not adopted by the selected profile")
     artifacts = [a for a in package.artifacts if a["module_id"] in expected and a["language"] in languages]

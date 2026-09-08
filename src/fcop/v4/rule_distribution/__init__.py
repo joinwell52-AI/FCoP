@@ -38,6 +38,10 @@ def _receipt_preflight(root: Path, ref: Any, kind: str, code: str, action: str) 
 
 
 def _dispatch(root: Path, action: str, request: Mapping[str, Any]) -> Mapping[str, Any]:
+    if action in {"inspect_profile", "status", "adopt", "plan", "apply", "verify_deployment", "rollback", "inspect_failure", "rollback_partial"}:
+        from ._deployment import dispatch
+
+        return dispatch(root, action, request)
     if action not in {"validate", "select", "validate_operation_scope", "inspect_profile", "plan", "apply", "rollback"}:
         _unavailable(action)
     if action == "apply":
@@ -74,10 +78,19 @@ def _bind(creation: _Creation) -> Callable[..., Mapping[str, Any]]:
 
         if not isinstance(action, str) or not isinstance(request, Mapping):
             reject("RULE_SELECTION_INVALID", "rule_distribution", "Invalid request shape")
-        current = _manifest(read_json(safe_path(creation.root, "fcop/fcop.json")))
+        try:
+            current = _manifest(read_json(safe_path(creation.root, "fcop/fcop.json")))
+        except V4ProtocolError as exc:
+            if action == "adopt" and exc.code == "UNSUPPORTED_WORKSPACE_VERSION":
+                reject("RULE_ADOPTION_REQUIRED", action, "Adoption requires a current 4.0 declaration")
+            raise
         if current != creation.manifest or request.get("workspace_id", current["workspace_id"]) != current["workspace_id"]:
+            if action == "adopt":
+                reject("RULE_ADOPTION_REQUIRED", action, "Adoption workspace identity mismatch")
             raise V4ProtocolError(_V4Code.WORKSPACE_ID_MISMATCH, "Workspace declaration changed", operation_ref=action)
         if request.get("protocol_version", "4.0") != "4.0":
+            if action == "adopt":
+                reject("RULE_ADOPTION_REQUIRED", action, "Adoption requires the declared 4.0 version")
             raise V4ProtocolError(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Rule package requires 4.0", operation_ref=action)
         return _dispatch(creation.root, action, request)
 

@@ -334,6 +334,10 @@ class Project:
         """Read declared v4 rule packages; selection grants no deployment authority."""
         from fcop.errors import V4ProtocolError, _V4Code
 
+        if action == "adopt":
+            from fcop.v4.rule_distribution._errors import reject
+
+            reject("RULE_ADOPTION_REQUIRED", action, "Adoption requires a declared 4.0 workspace")
         raise V4ProtocolError(
             _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A declared 4.0 workspace is required",
             operation_ref=action,
