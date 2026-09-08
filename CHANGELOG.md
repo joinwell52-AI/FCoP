@@ -12,6 +12,12 @@ versioning strategy.
 
 ### Added — fcop
 
+- Candidate WP4C.5b version-selected read resources, uncached five-layer
+  inspection and explicitly authorized, bounded downstream read-only shadow,
+  through the existing `Project.rule_distribution` entry. Legacy redeploy
+  delegates the existing writer without overwriting Host entries. No automatic
+  adoption, migration, consumer update, runtime-consumption claim or release.
+
 - Candidate WP4C.4 static Host projection through `Project.rule_distribution`:
   explicit adoption, zero-write plans, deterministic bounded/reference entries,
   immutable deployment evidence, and explicit rollback/partial-failure recovery.
@@ -27,6 +33,13 @@ versioning strategy.
   remain unavailable except for typed negative preflight checks.
 
 ### Added — fcop-mcp
+
+- Candidate WP4C.5b additive resource surface: `fcop://team` and
+  `fcop://guidance/{assembly}/{language}` give 46 tools / 12 static resources /
+  4 templates. v3 rules/protocol retain their exact legacy Markdown bytes and
+  MIME; v4 Project Manifest/specification identity objects receive deterministic
+  Markdown representations. Resource semantics remain solely owned by Project;
+  existing tools and unrelated resources are unchanged.
 
 - Unreleased WP4B development adapter: 46 canonical tools (the historical 45
   plus `reopen_task` for T6), 11 version-routed resources and three read-only

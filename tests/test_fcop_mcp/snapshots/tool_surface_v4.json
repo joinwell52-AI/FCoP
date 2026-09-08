@@ -43,10 +43,18 @@
       },
       {
         "mime_type": "application/json",
+        "uri": "fcop://team"
+      },
+      {
+        "mime_type": "application/json",
         "uri": "fcop://teams"
       }
     ],
     "templates": [
+      {
+        "mime_type": "text/markdown",
+        "uri_template": "fcop://guidance/{assembly}/{language}"
+      },
       {
         "mime_type": "text/markdown",
         "uri_template": "fcop://teams/{team}"

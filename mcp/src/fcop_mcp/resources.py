@@ -10,7 +10,11 @@ from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ResourceError
-from fcop.errors import V4ProtocolError
+from fastmcp.resources import ResourceContent, ResourceResult
+from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
+from fcop import Project
+from fcop.errors import FcopError, V4ProtocolError
+from mcp.types import ReadResourceRequest, ReadResourceRequestParams
 
 from fcop_mcp.disposition import RESOURCES
 from fcop_mcp.projection import invoke_v4
@@ -25,6 +29,51 @@ _HANDLERS = {
     "fcop://prompt/install/en": "resource_install_prompt_en",
     "fcop://teams": "resource_teams_index",
 }
+
+
+def _read_parameters(params: ReadResourceRequestParams) -> None:
+    uri = str(params.uri)
+    base = uri.split("?", 1)[0].split("#", 1)[0]
+    distribution = base in {"fcop://rules", "fcop://protocol", "fcop://team"} or base.startswith("fcop://guidance/")
+    if distribution and (uri != base or params.model_extra):
+        raise ResourceError(json.dumps({"code": "toolkit:RULE_SELECTION_INVALID", "reason": "Resource reads accept only the canonical URI, not query or action fields"}))
+
+
+class _DistributionReadParameters(Middleware):
+    """Direct-call guard before URI-template matching discards query fields."""
+
+    async def on_read_resource(
+        self, context: MiddlewareContext[ReadResourceRequestParams],
+        call_next: CallNext[ReadResourceRequestParams, ResourceResult],
+    ) -> ResourceResult:
+        _read_parameters(context.message)
+        return await call_next(context)
+
+
+def _render(result: dict[str, Any]) -> str:
+    """Pure WP4C.5b representation; identity and source reads belong to Project."""
+    content = result["content"]
+    if isinstance(content, str):
+        return content
+    if result["resource_uri"] == "fcop://protocol":
+        return "# FCoP specification identity\n\n" + "".join(
+            f"- {key}: {content[key]}\n" for key in ("path", "revision", "sha256")
+        )
+    serialized = json.dumps(content, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + "\n"
+    if result["resource_uri"] == "fcop://rules":
+        return "# FCoP rule package Manifest\n\n```json\n" + serialized + "```\n"
+    return serialized
+
+
+def _distribution(root: Any, uri: str) -> str:
+    try:
+        result = Project(root).rule_distribution(action="read_resource", request={"resource_uri": uri})
+        return _render(dict(result))
+    except FcopError as exc:
+        raise ResourceError(json.dumps({
+            "code": getattr(exc, "code", "toolkit:RULE_SELECTION_INVALID"),
+            "resource": uri,
+        })) from exc
 
 
 def spec_projection(declared: str, lang: str) -> str:
@@ -44,8 +93,18 @@ def register_resources(
     mcp: FastMCP, legacy: Any, router_factory: Callable[[], WorkspaceRouter],
     *, replace: bool = False,
 ) -> None:
+    mcp.add_middleware(_DistributionReadParameters())
+    # The SDK passes only req.params.uri to FastMCP, dropping extra RPC fields
+    # before middleware. Validate them first, then delegate the same handler.
+    read_handler = mcp._mcp_server.request_handlers[ReadResourceRequest]
+
+    async def checked_read(request: ReadResourceRequest) -> Any:
+        _read_parameters(request.params)
+        return await read_handler(request)
+
+    mcp._mcp_server.request_handlers[ReadResourceRequest] = checked_read
     for uri, policy in RESOURCES.items():
-        original = getattr(legacy, _HANDLERS[uri])
+        original = getattr(legacy, _HANDLERS.get(uri, "resource_teams_index"))
 
         def build(uri: str, policy: str, original: Any) -> Callable[[], str]:
             def read() -> str:
@@ -54,6 +113,8 @@ def register_resources(
                 if policy == "PROFILE_CATALOG":
                     return str(original())
                 router = router_factory()
+                if policy == "DISTRIBUTION":
+                    return _distribution(router.root, uri)
                 token = CURRENT_ROUTER.set(router)
                 try:
                     if uri in {"fcop://config", "fcop://status"} and not (router.root / "fcop/fcop.json").exists():
@@ -84,7 +145,13 @@ def register_resources(
             read.__doc__ = f"Read-only {policy} projection. Profile content is not authorization."
             return read
 
-        if replace:
+        if replace and uri != "fcop://team":
             mcp.local_provider.remove_resource(uri)
-        mime = "application/json" if uri in {"fcop://config", "fcop://teams"} else "text/markdown"
+        mime = "application/json" if uri in {"fcop://config", "fcop://teams", "fcop://team"} else "text/markdown"
         mcp.resource(uri, mime_type=mime)(build(uri, policy, original))
+
+    @mcp.resource("fcop://guidance/{assembly}/{language}", mime_type="text/markdown")
+    def guidance(assembly: str, language: str) -> ResourceResult:
+        """Explicit version-selected read-only guidance, never Host adoption."""
+        text = _distribution(router_factory().root, f"fcop://guidance/{assembly}/{language}")
+        return ResourceResult([ResourceContent(text, mime_type="text/markdown")])
