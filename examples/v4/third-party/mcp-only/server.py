@@ -7,12 +7,19 @@ from pathlib import Path
 
 PROFILE = "profile:wp4d-offline-demo"
 
+_SOCKETPAIR_CODES = frozenset(
+    fn.__code__
+    for name in ("socketpair", "_fallback_socketpair")
+    if (fn := getattr(socket, name, None)) is not None
+    and hasattr(fn, "__code__")
+)
+
 
 def offline(event, args):
     if event not in {"socket.connect", "socket.bind", "socket.getaddrinfo", "socket.sendto"}:
         return
     caller = sys._getframe(1).f_code
-    if caller.co_filename == socket.__file__ and caller.co_name == "_fallback_socketpair":
+    if any(caller is code for code in _SOCKETPAIR_CODES):
         return
     raise RuntimeError("WP4D server network access forbidden: " + event)
 
