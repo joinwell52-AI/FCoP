@@ -54,7 +54,7 @@ Core defines eight shared contracts; conformance checks their implementation. Py
 In the current v3 protocol, **files carry the work, paths address its state, and events record transitions**.
 
 ```mermaid
-flowchart LR
+flowchart TD
     I["inbox<br/>Task created"] -->|claim_task| A["active<br/>Work in progress"]
     A -->|submit_task| R["review<br/>Awaiting review"]
     R -->|approve_task| D["done<br/>Lifecycle complete"]

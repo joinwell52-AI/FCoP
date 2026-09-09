@@ -54,7 +54,7 @@ Core 定义八项共同契约，一致性检查验证实现。Python SDK 和 MCP
 在当前 v3 协议中，**文件承载工作，路径表示状态，事件记录迁移。**
 
 ```mermaid
-flowchart LR
+flowchart TD
     I["inbox<br/>任务已创建"] -->|claim_task| A["active<br/>正在执行"]
     A -->|submit_task| R["review<br/>等待审查"]
     R -->|approve_task| D["done<br/>生命周期完成"]
