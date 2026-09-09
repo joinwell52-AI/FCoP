@@ -1,0 +1,134 @@
+name: rc-candidate
+
+on:
+  push:
+    branches: [feat/fcop-4.0-wp4d-rc-candidate]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wp4d-rc-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source:
+    name: RC full source regression and public example parity
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Frozen files, public behavior and authorized write set
+        run: python -B scripts/wp4d_verify_scope.py
+      - name: Install source test dependencies
+        run: |
+          python -m pip install -e '.[dev]' -e './mcp[dev]'
+      - name: All original and RC tests, no unexpected skip
+        run: |
+          python -B -m pytest tests/test_fcop tests/conformance/v4 tests/test_fcop_mcp tests/conformance/rule_distribution_v4 -q --junitxml="$RUNNER_TEMP/full.xml"
+          python -c "import os,pathlib,xml.etree.ElementTree as E; s=E.parse(pathlib.Path(os.environ['RUNNER_TEMP'])/'full.xml').getroot().find('testsuite'); assert int(s.get('tests')) >= 1931; assert all(int(s.get(k))==0 for k in ('failures','errors','skipped'))"
+      - name: Source parity (not clean room)
+        run: python -B scripts/wp4d_source.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wp4d-source-evidence-${{ matrix.os }}
+          path: ${{ runner.temp }}/full.xml
+          retention-days: 90
+
+  build:
+    name: Fixed four RC artifacts, independent reproducibility
+    runs-on: ubuntu-latest
+    outputs:
+      candidate_hash: ${{ steps.identity.outputs.candidate_hash }}
+      historical_hash: ${{ steps.identity.outputs.historical_hash }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fixed build tooling (no publish tooling invocation)
+        run: python -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==7.0.0 packaging==26.3
+      - name: Two fresh source directories, four raw byte equalities
+        run: python -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build" > "$RUNNER_TEMP/wp4d-build.log" 2>&1
+      - name: Separate accepted 3.2.5 fixture, not an RC candidate
+        run: python -B scripts/wp4d_legacy.py "$RUNNER_TEMP/legacy-build" > "$RUNNER_TEMP/wp4d-legacy-build.log" 2>&1
+      - name: Bind both manifest identities
+        id: identity
+        run: |
+          echo "candidate_hash=$(sha256sum "$RUNNER_TEMP/rc-build/artifacts-1/candidate-manifest.json" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "historical_hash=$(sha256sum "$RUNNER_TEMP/legacy-build/artifact/historical-manifest.json" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp4d-candidates-first-set
+          path: ${{ runner.temp }}/rc-build/artifacts-1/
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp4d-historical-fixture
+          path: ${{ runner.temp }}/legacy-build/artifact/
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wp4d-build-logs
+          path: |
+            ${{ runner.temp }}/wp4d-build.log
+            ${{ runner.temp }}/wp4d-legacy-build.log
+          retention-days: 90
+
+  consumer:
+    name: RC consumer ${{ matrix.os }} / ${{ matrix.python }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: wp4d-candidates-first-set
+          path: ${{ runner.temp }}/candidate-input
+      - uses: actions/download-artifact@v4
+        with:
+          name: wp4d-historical-fixture
+          path: ${{ runner.temp }}/historical-input
+      - name: Verify identical artifacts, install outside checkout, run real public clients
+        env:
+          CANDIDATE_HASH: ${{ needs.build.outputs.candidate_hash }}
+          HISTORICAL_HASH: ${{ needs.build.outputs.historical_hash }}
+        run: >-
+          python -B scripts/wp4d_consume.py
+          "${{ runner.temp }}/candidate-input"
+          "${{ env.CANDIDATE_HASH }}"
+          "${{ runner.temp }}/historical-input"
+          "${{ env.HISTORICAL_HASH }}"
+          "${{ runner.temp }}/consumer-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wp4d-consumer-${{ matrix.os }}-${{ matrix.python }}
+          path: ${{ runner.temp }}/consumer-evidence/
+          retention-days: 90

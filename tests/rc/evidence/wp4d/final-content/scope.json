@@ -1,0 +1,34 @@
+{
+  "allowed_scope": true,
+  "audit_test_id_fixture_assertion_preserved": true,
+  "canonical_files": 19,
+  "changed_files": 61,
+  "commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+  "conformance_trees": {
+    "tests/conformance/rule_distribution_v4": "4f99c7261b63b6db81c500604a231defaca9f14b",
+    "tests/conformance/v4": "24ab264c6bca9a3183ee270becb552f22a4c4f9e"
+  },
+  "frozen_bytes": {
+    "spec/fcop-4.0-spec.md": "0c5005ec754ee71d735e02c9ea403adbc35e8dff9ce98c13d8a42040cacbc8e9",
+    "spec/fcop-4.0-spec.zh.md": "7302983e8a6e2225470d3da8f2e768abd4dfcc1c7adbe17116a64dda7e357c19",
+    "src/fcop/rules/_data/v4/authorization.en.md": "96c1c18bab3a879b51a1e2d0041f1f08eeae685185ad9489f13ed0a999f9a00b",
+    "src/fcop/rules/_data/v4/authorization.zh.md": "13b82fdeb7c577a68a70d94303bf090eac42ce44c137c1a166b23f7014c1b854",
+    "src/fcop/rules/_data/v4/compatibility.en.md": "a65385a3a2e68d043c65f9b8c34c6ac311bb7f9b2ea1e9f4c162886f858a64d8",
+    "src/fcop/rules/_data/v4/compatibility.zh.md": "d6ce267c8216a2d6df2e5e601f4d237d941778a36687eae1d310616f6170585e",
+    "src/fcop/rules/_data/v4/convergence.en.md": "ec3cf38b6dba4d3eb8447cc7cd25e947c06abed228c37c9d651f873662edc70e",
+    "src/fcop/rules/_data/v4/convergence.zh.md": "2b5c2a52c33bc38e8c3c85fdd75d5de3c837cc483a29941ec02a61a059c1701a",
+    "src/fcop/rules/_data/v4/envelopes.en.md": "0405885cbe3fe791c0e1a6c76da004d093d58cd55159ffeb3ca8c89e4ec045a3",
+    "src/fcop/rules/_data/v4/envelopes.zh.md": "0a69c9196e95185cf9e98b71af8c564be5797e26a71c5a9b7dc32d0735a08fef",
+    "src/fcop/rules/_data/v4/idempotency.en.md": "1b100010d36342e6d98e9031429b3e11aad5657dfa953031e43bc4c99772a16a",
+    "src/fcop/rules/_data/v4/idempotency.zh.md": "51c53931e02b1f39950f4a2f16b5e8e9a5f9d10b77f5ea1ad6b07c3e96385f08",
+    "src/fcop/rules/_data/v4/lifecycle.en.md": "b6356c078ab00b893379f0b4f558616444ef4a4aa0e17432460719a9be362b2b",
+    "src/fcop/rules/_data/v4/lifecycle.zh.md": "26b338914cffe2ea076f0e88133fc69617c91ecb149b3e40217baeef708cffef",
+    "src/fcop/rules/_data/v4/manifest.json": "7efb1ba14df4d1ffbe164b8ec85dbf4316e7da4c0f367f3a506c78e4e29862d4",
+    "src/fcop/rules/_data/v4/recovery.en.md": "aad4861efa59df69742c4bf577d57a553cbb170f6f92d61f6df74ec3ec503908",
+    "src/fcop/rules/_data/v4/recovery.zh.md": "b19226071498f6414e11379b9d67cee36e4a79d65510fffefd14a021cd829000",
+    "src/fcop/rules/_data/v4/relations.en.md": "1b706c4ff76efb6edad40ab7985a0693eb9466da483d7024eb1f29668e022789",
+    "src/fcop/rules/_data/v4/relations.zh.md": "fa51c77a568dae7f7cf41242b612ae2b2963075004aaebef533334a0466d3d42",
+    "src/fcop/rules/_data/v4/workspace.en.md": "06d4a9604fbab50ade36369f8f1d2950f099a241d659613cc78f1dd7e93555b3",
+    "src/fcop/rules/_data/v4/workspace.zh.md": "617009dc95cf4bedd252491334f45cf61fa1fe8ccf935f2127e2a1da9a49e30b"
+  }
+}

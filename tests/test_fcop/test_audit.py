@@ -243,9 +243,9 @@ def test_scan_outdated_role_docs_far_behind(tmp_path: Path) -> None:
     """Role doc referencing v1.0 only while installed fcop is ≥ 1.2 → P1."""
     from fcop._version import __version__ as pkg_ver  # type: ignore[attr-defined]
 
-    pkg_minor = int(pkg_ver.split(".")[1])
-    if pkg_minor < 2:  # can only test gap > 1 if package is >= 1.2
-        pytest.skip("Installed fcop minor version < 2; gap cannot be > 1")
+    pkg_major, pkg_minor = (int(part) for part in pkg_ver.split(".")[:2])
+    if (pkg_major, pkg_minor) < (1, 2):
+        pytest.skip("Installed fcop version < 1.2; gap cannot be > 1")
 
     roles_dir = tmp_path / "fcop" / "shared" / "roles"
     roles_dir.mkdir(parents=True)

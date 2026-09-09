@@ -1,0 +1,3 @@
+{"disk_reopen": true, "exact_retry": true, "host_rollback": true, "import_path": "D:\\FCoP-wp4d-rc-candidate\\src\\fcop\\__init__.py", "mode": "SOURCE_ONLY", "rules": 19, "states": ["archive", "archive", "done", "inbox"], "transitions": 15}
+
+STDERR
