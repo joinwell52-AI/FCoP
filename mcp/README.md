@@ -2,12 +2,18 @@
 
 mcp-name: io.github.joinwell52-AI/fcop
 
+> Unpublished WP4D candidate: both packages target `4.0.0rc1` (Beta).
+> Candidate installation must use the exact WP4D Actions artifacts and hashes,
+> in a fresh external venv. No PyPI, Registry, GitHub Release, main merge,
+> existing-workspace upgrade or rule redeployment is authorized.
+> The historical public-install instructions below are not candidate instructions.
+
 **MCP (stdio) server** — the optional **IDE bridge** for the same FCoP stack. It
 wraps the official [`fcop`](https://pypi.org/project/fcop/) library; it is **not**
 a second “FCoP product” and does not replace the protocol text.
 
 - **What FCoP is (protocol only, product-agnostic):** [`docs/getting-started.en.md`](../docs/getting-started.en.md) (中文 [`getting-started.md`](../docs/getting-started.md))  
-- **Pure Python lib / `pip install fcop`:** filesystem + Project API, PyYAML only — [PyPI `fcop`](https://pypi.org/project/fcop/) (see that package’s `description` and **Documentation**).  
+- **Pure Python lib / `pip install fcop`:** filesystem + Project API, PyYAML and jsonschema — [PyPI `fcop`](https://pypi.org/project/fcop/) (see that package’s `description` and **Documentation**).
 - **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
 - **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
 
@@ -16,17 +22,19 @@ a second “FCoP product” and does not replace the protocol text.
 
 **Upgrading from older lines (`0.6.x` / `0.7.x` / `1.x` / `2.x`)?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) — install in the MCP venv (`pip install -U fcop fcop-mcp`), restart IDE, then run `redeploy_rules()` once to refresh on-disk rule files.
 
-**Surface:** the released 3.2.5 baseline has **45 tools**. This unreleased WP4B
-review tree has **46**, adding only `reopen_task`; no release or migration is
-implied. Both retain 11 static resources and three read-only Profile templates.
+**Surface:** the historical released 3.2.5 baseline has **45 tools**. This
+unpublished candidate has **46 tools / 12 static resources / 4 templates**:
+`reopen_task` is the sole additional tool; WP4C adds version-selected guidance
+and team resources. Discovery is checked through stdio by the external sample.
 
-### Unreleased WP4B v4 adapter
+### Unpublished 4.0.0rc1 v4 adapter
 
-Build/install `fcop` and `fcop-mcp` from the same review checkout into an isolated
-environment. Both development distributions still identify as `3.2.5`; the
-startup compatibility table accepts only that exact development pair. Do not
-install this tree into an existing production workspace or assume that the
-released PyPI 3.2.5 library contains the unreleased v4 implementation.
+The candidate requires `fcop>=4.0.0rc1,<4.1.0` and accepts the exact installed
+`4.0.0rc1 / 4.0.0rc1` pair. The historical `3.2.5 / 3.2.5` pair remains solely
+for legacy/source compatibility checks; mixed installed pairs fail closed.
+The copied stdio-only sample under `examples/v4/third-party/mcp-only/` has no
+client-side FCoP imports and configures its educational Profile at trusted
+server startup. It does not establish a production credential policy.
 
 `fcop-mcp` defaults to stdio. `fcop-mcp --relay-url wss://<explicit-endpoint>`
 selects a foreground standard-MCP JSON-RPC WebSocket transport; its direct
@@ -94,7 +102,10 @@ legacy-only, not v4 history authority. Base failures are standard MCP error
 results (`isError=true`) with structured `code`, `operation_ref`, `subject_ref`.
 
 `fcop://spec` and `/en` are version-routed projections with source SHA-256.
-v4 rules/protocol and host guidance are explicitly unavailable until WP4C.
+v4 rule Manifest and protocol identity objects are deterministically projected
+as Markdown, and sequential/parallel guidance is read-only. Legacy v3 protocol
+Markdown bytes and MIME remain unchanged. File projection does not prove Runtime
+consumption; Host adoption/deployment remain explicit Project operations.
 Profile resources remain read-only catalog documents and never grant authority.
 Existing product-only rule deployment/GAL/governance extensions are not
 relabelled as v4 Core; unsupported v4 projections return typed unavailability.
@@ -110,6 +121,11 @@ Project，零 head／多 head 分别返回 `REPORT_REQUIRED`／
 > The **`fcop`** on PyPI **must** be the **FCoP library** (summary mentions *File-based Coordination Protocol*, `pyyaml`, no `fastmcp` inside `fcop`). If `pip show fcop` says *MCP toolbox* or `from fcop import Issue` fails, you have a **wrong** distribution — fix with a clean venv and reinstall (see *Verify* below).
 
 ---
+
+## Historical published 3.x guide — not WP4D candidate installation
+
+The following public-index and upgrade instructions describe the released line.
+Do not execute them as part of WP4D or against an existing development workspace.
 
 ## TL;DR — Have an agent install fcop-mcp for you
 

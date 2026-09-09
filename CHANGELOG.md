@@ -12,6 +12,12 @@ versioning strategy.
 
 ### Added — fcop
 
+- Unpublished WP4D `4.0.0rc1` candidate identity (Beta), strict matching-minor
+  prerelease pin validation, isolated artifact reproducibility and external
+  wheel/sdist adoption proof scripts. These are verification surfaces, not
+  protocol changes or a release announcement. No main merge, tag, registry,
+  public package upload or existing-workspace migration is authorized.
+
 - Candidate WP4C.6 offline canonical rule-data exports and exact UTF-8 context
   byte measurements through the existing `Project.rule_distribution` entry.
   Exports preserve all 19 input files; measurement reuses deterministic Host
@@ -39,6 +45,10 @@ versioning strategy.
   remain unavailable except for typed negative preflight checks.
 
 ### Added — fcop-mcp
+
+- Unpublished WP4D `4.0.0rc1 / 4.0.0rc1` compatibility pair and dependency
+  `fcop>=4.0.0rc1,<4.1.0`. Mixed installed candidate/3.2.5 pairs fail closed;
+  the canonical surface remains 46 tools / 12 resources / 4 templates.
 
 - Candidate WP4C.5b additive resource surface: `fcop://team` and
   `fcop://guidance/{assembly}/{language}` give 46 tools / 12 static resources /
