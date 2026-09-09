@@ -1,160 +1,180 @@
-# WP4D Manifest — BLOCKED after authorized audit-guard resumption
+# WP4D Manifest — toolchain resumed; Windows sample boundary BLOCKED
 
 ## Current receipt
 
 ```yaml
-WP4D_STATUS: BLOCKED
-AUTHORIZED_SCOPE: WP4D_AUDIT_GUARD_ONLY_AND_WP4D_RESUME
-BLOCKER: RC_TWINE_6_2_METADATA_2_5_REJECTION
-BASE_COMMIT: 167c5fd4ca4c9603c392bae3a4a055963e7b7ed6
-TASKBOOK_COMMIT: cbdc60a92a02b9e2eb0c1c6e2e93f74c335407f9
-TASKBOOK_SHA256: bfc93f595800efe5185588ff92b612c9ca66e1622118e76c805d5fd908a1e290
-ERRATUM_COMMIT: 22db1377163bb0b1e74c4b94fa1f594b3e762a9d
-ERRATUM_SHA256: 0e8926c282516dd10e2c1506243ccf33ab7798a8cd0744bcbccf078d5f344767
-ERRATUM_BYTES: 5642
-RESUME_BASE: 893e5c55f9f7ea433c6c518c76534218a4cf9570
-AUDIT_GUARD_FIX_COMMIT: fad3a2d2cdcee490f8a86ae3d1254439089d5427
-CONTENT_COMMIT: dd8138684006432c6bb62c952909a59cda20adaf
-EVIDENCE_COMMIT: b4edae38f070c9c65ffa92a9c8b287b60f188f34
-MANIFEST_COMMIT: SELF
-MANIFEST_PARENT: b4edae38f070c9c65ffa92a9c8b287b60f188f34
-TARGET_FCOP: 4.0.0rc1
-TARGET_FCOP_MCP: 4.0.0rc1
-OLD_AUDIT_BLOCKER: RESOLVED
-AUDIT_GUARD: 1/1
-AUDIT_UNEXPECTED_SKIP: 0
-AUDIT_TEST_ID_FIXTURE_ASSERTION: PRESERVED
-NATIVE_FULL_REGRESSION: 1924/1924
-UBUNTU_CONTENT_FULL_REGRESSION: 1924/1924
-FULL_FAILURE_ERROR_SKIP: 0/0/0
-NATIVE_DOC_AND_IDENTITY: 25/25
-SOURCE_PUBLIC_CLIENTS: 2/2
-SOURCE_MCP_SURFACE: 46/12/4
-CONTENT_EXISTING_CI: 27/27
-CONTENT_WINDOWS_CI: 8/8
-CONTENT_PR_ONLY_JOBS: 2_NOT_APPLICABLE
-RC_BUILD: FAILED
-RC_REPRODUCIBILITY: NOT_RUN
-RC_CONSUMER_MATRIX: NOT_RUN_0_OF_12_VALIDATED
-INSTALLED_ADOPTION: NOT_RUN
-INSTALLED_LEGACY_COMPATIBILITY: NOT_RUN
-CODEFLOWMU_SHADOW: NOT_RUN
-FINAL_MANIFEST_CI: NOT_CLAIMED_GREEN
-CANONICAL_FILES: 19/19
-AUTHORITATIVE_BYTES: 21/21
-FROZEN_CORE_CONFORMANCE_TREE: 24ab264c6bca9a3183ee270becb552f22a4c4f9e
-FROZEN_DISTRIBUTION_CONFORMANCE_TREE: 4f99c7261b63b6db81c500604a231defaca9f14b
-CONTENT_EVIDENCE_REMOTE_READBACK: 48/48
-CONTENT_EVIDENCE_READBACK_HEAD: b4edae38f070c9c65ffa92a9c8b287b60f188f34
-CONTENT_EVIDENCE_READBACK_UTC: 2026-09-09T14:45:46.575619+00:00
-DELIVERY_FILES_INCLUDING_MANIFEST: 49
-FINAL_REMOTE_READBACK_RECEIPT: PR_31_COMMENT_AFTER_PUSH
-DRAFT_PR: 31
-PR_BASE: task/fcop-4.0-wp4d-rc-candidate
-PR_HEAD: feat/fcop-4.0-wp4d-rc-candidate
-MAIN_MERGE_AUTHORIZED: false
-TAG_AUTHORIZED: false
-RC_PUBLISH_AUTHORIZED: false
-STABLE_RELEASE_AUTHORIZED: false
-PYPI_PUBLISH_AUTHORIZED: false
-GITHUB_RELEASE_AUTHORIZED: false
-MCP_REGISTRY_PUBLISH_AUTHORIZED: false
-ZENODO_PUBLISH_AUTHORIZED: false
-CODEFLOWMU_WRITE_AUTHORIZED: false
-REQUESTED_GATE: NONE
+wp4d_status: BLOCKED
+authorized_scope: WP4D_TWINE_METADATA_2_5_TOOLCHAIN_ONLY_AND_WP4D_RESUME
+blocker: WINDOWS_310_311_MCP_SAMPLE_OFFLINE_GUARD_REJECTS_STDLIB_SOCKETPAIR
+base_commit: 167c5fd4ca4c9603c392bae3a4a055963e7b7ed6
+taskbook_commit: cbdc60a92a02b9e2eb0c1c6e2e93f74c335407f9
+taskbook_sha256: bfc93f595800efe5185588ff92b612c9ca66e1622118e76c805d5fd908a1e290
+prior_erratum_commit: 22db1377163bb0b1e74c4b94fa1f594b3e762a9d
+toolchain_erratum_commit: 086c358f4c96e21aa31890d147eacae4a359a11a
+toolchain_erratum_sha256: 03da08ed72ffe438d49a65bb8f87e5b9b2e2e6a917fb8d9cfb945dade02eb2e4
+toolchain_erratum_bytes: 7224
+toolchain_resume_base: 700e9e1ecb3eb02e5860094175ba7f8099141695
+toolchain_fix_commit: b472be32a2623de77d0fb9b2c301960620383e27
+candidate_commit: b472be32a2623de77d0fb9b2c301960620383e27
+evidence_commit: bbc43524b62046d5c3bb181b4233579bb08cac57
+manifest_commit: SELF
+manifest_parent: bbc43524b62046d5c3bb181b4233579bb08cac57
+target_versions:
+  fcop: 4.0.0rc1
+  fcop-mcp: 4.0.0rc1
+twine_version: 7.0.0
+packaging_version: 26.3
+metadata_version_observed: "2.5"
+twine_checks: 2/2
+artifact_reproducibility: 4/4
+failed_run_artifacts_reused: false
+candidate_manifest_sha256: f8bdcdbd1d39278a8ab481ab6e41157525ddcd52bcb9c37ab4e91e5dac3c4ad5
+candidate_actions_run: 34367862396
+candidate_artifact_id: 10110629085
+source_date_epoch: 1788940367
+ubuntu_candidate_full_regression: 1924/1924
+ubuntu_failures_errors_skips: 0/0/0
+windows_candidate_local_full_regression: INTERRUPTED_NOT_ACCEPTED
+legacy_regression: NOT_ACCEPTED_FULL_STAGE
+wp4d_tests: INCLUDED_IN_1924_UBUNTU_FULL
+existing_ci_applicable: 27/27_AT_CANDIDATE_COMMIT
+windows_existing_ci: 8/8_AT_CANDIDATE_COMMIT
+pr_only_jobs: 2_NOT_APPLICABLE_NOT_PASSED
+rc_consumer_matrix: 10/12
+rc_consumer_failures: 2
+rc_consumer_skips: 0
+rc_windows_consumer_matrix: 2/4
+completed_installed_origin_paths: 20/24
+mcp_surface: 46/12/4_IN_TEN_SUCCESSFUL_MATRIX_CELLS
+canonical_files: 19/19
+frozen_bytes: 21/21
+frozen_core_conformance_tree: 24ab264c6bca9a3183ee270becb552f22a4c4f9e
+frozen_distribution_conformance_tree: 4f99c7261b63b6db81c500604a231defaca9f14b
+codeflowmu_shadow: NOT_RUN_THIS_RESUMPTION
+final_manifest_head_ci: NOT_CLAIMED_GREEN
+content_evidence_remote_readback: 56/56
+content_evidence_readback_head: bbc43524b62046d5c3bb181b4233579bb08cac57
+content_evidence_readback_utc: 2026-09-09T15:15:41.799061+00:00
+delivery_files_including_manifest: 57
+final_head_readback_receipt: PR_31_COMMENT_AFTER_PUSH
+draft_pr: 31
+pr_base: task/fcop-4.0-wp4d-rc-candidate
+pr_head: feat/fcop-4.0-wp4d-rc-candidate
+main_merge_authorized: false
+tag_authorized: false
+rc_publish_authorized: false
+stable_release_authorized: false
+pypi_publish_authorized: false
+github_release_authorized: false
+mcp_registry_publish_authorized: false
+zenodo_publish_authorized: false
+codeflowmu_write_authorized: false
+requested_gate: NONE
 ```
 
-## Stop reason and evidence boundary
+## Stop reason
 
-The ADMIN-authorized guard correction now compares (major, minor) against (1, 2),
-so 4.0.0rc1 no longer skips the existing audit assertion. The test ID, fixture,
-binding and original final assertion are preserved. Six reports retain the old
-BLOCKED reports verbatim below explicitly marked historical sections; the old
-skip JUnit and [old Manifest](https://github.com/joinwell52-AI/FCoP/blob/893e5c55f9f7ea433c6c518c76534218a4cf9570/reviews/fcop-4.0/wp4d/MANIFEST.md)
-remain historical evidence, not the current result.
+The two-file toolchain correction succeeded: two fresh build directories each
+produced four artifacts; Twine passed both sets and all four raw SHA-256 pairs
+matched. The downloaded manifest records six exact tool identities including
+Twine 7.0.0 and packaging 26.3. Core wheel metadata is valid version 2.5.
+No failed-run artifact was reused and no metadata or validation was weakened.
 
-The executor selected twine==6.2.0 in the newly added RC workflow. Its metadata
-validation overrides the supported metadata versions through 2.4 and rejects
-Metadata-Version 2.5 emitted by the pinned build stack. The exact first failure is
-`InvalidDistribution: Invalid distribution metadata: '2.5' is not a valid metadata version`.
-This is an executor tooling-pin defect, not a frozen Core/Schema failure or an
-ADMIN taskbook error.
+The next failure is in the executor-written MCP adoption sample's offline
+audit hook. On Windows Python 3.10 and 3.11, asyncio creates its internal
+Proactor self-pipe using stdlib socket.socketpair. That implementation calls
+socket.bind from a function named socketpair, while the sample server only
+exempts _fallback_socketpair at examples/v4/third-party/mcp-only/server.py:15.
+The hook raises at line 17 before MCP initialize completes. This evidence
+identifies a sample cross-version isolation boundary defect, not a demonstrated
+Core/MCP protocol failure.
 
-Original taskbook section 13.2 requires BLOCKED after an applicable CI failure.
-No candidate content was changed after that failure. Only failure evidence,
-reports and this Manifest were added. Twine 7.0.0 was inspected read-only as a
-possible future pin, not installed or validated as a fix. Request ADMIN's
-targeted tooling-pin resumption decision; do not request FCOP_4_RC_ACCEPTED.
+The original taskbook section 13.2 and current erratum section 8 require
+stopping on an applicable matrix failure or a change outside the two-file
+allowlist. No sample/network-guard fix was made, no Core/MCP/Conformance/Schema
+was modified, and network access was not relaxed. Request ADMIN's targeted
+ruling for a narrowly safe standard-library socketpair compatibility fix.
+Do not sign or request FCOP_4_RC_ACCEPTED.
 
-## Fixed content CI
+## Fixed results and limitations
 
-All following runs are tied to CONTENT_COMMIT, not SELF:
+| Workflow at candidate commit | Result |
+|---|---|
+| [Core 34367862474](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862474) | 14 applicable jobs passed |
+| [MCP 34367862401](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862401) | 13 applicable jobs passed |
+| [RC 34367862396](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862396) | Build/source passed; consumers 10 passed, 2 failed |
 
-| Workflow | Run | Result |
-|---|---|---|
-| Core | [34363703057](https://github.com/joinwell52-AI/FCoP/actions/runs/34363703057) | 14 applicable jobs passed |
-| MCP | [34363702991](https://github.com/joinwell52-AI/FCoP/actions/runs/34363702991) | 13 applicable jobs passed |
-| RC candidate | [34363703047](https://github.com/joinwell52-AI/FCoP/actions/runs/34363703047) | Failed at Twine check; source job passed |
+Ubuntu full JUnit records 1924 tests, zero failures/errors/skips, 103.370 seconds
+starting 2026-09-09T15:05:18.595592+00:00. Both public source clients also passed.
+The 27 existing applicable jobs and 8 existing Windows jobs are results of the
+new candidate commit, not the old blocked head and not SELF. Two PR-only skips
+are N/A, never counted as passed.
 
-The existing Windows jobs passed 8/8. Two existing PR-only jobs were not
-applicable to the push event and were not counted as passing. The RC consumer
-dependency was skipped after its build failed: its 12 intended matrix cells
-were NOT_RUN, not exempt and not passing. Ubuntu source full regression passed
-1924/1924; native Windows full regression passed 1924/1924. Source-only public
-Python and real stdio MCP samples passed, including process reopen, but do not
-substitute for installed-artifact verification. Final Manifest HEAD CI is not
-claimed green and cannot inherit RC acceptance from any earlier run.
+The ten complete consumer cells cover all four Ubuntu versions, all four macOS
+versions, and Windows 3.12/3.13. Each ran both wheel and sdist installation
+outside checkout, both public clients, process reopen/retry, Host operations,
+legacy zero-drift and mismatch checks against identical first-set artifacts.
+Their twenty origin paths are complete. Windows 3.10/3.11 fail in wheel MCP
+startup; downstream checks and sdist paths in those cells were not completed.
+Do not infer 24/24 from 20/24.
 
-## Candidate artifact identity — not delivered as validated artifacts
+Native Windows full regression was started against b472be3, then the verified
+pytest process was stopped at 2026-09-09T23:09:34.2242519+08:00 after the matrix
+blocker. Exit 1 was executor termination, not an observed assertion failure.
+No final full JUnit was produced; previous blocked-head 1924/1924 is not reused.
+This resumption's CodeFlowMu shadow was not executed. All these incomplete
+requirements remain explicit. Final Manifest HEAD CI is not claimed green.
 
-| Expected artifact | First build | Delivered candidate SHA-256 |
-|---|---|---|
-| fcop-4.0.0rc1-py3-none-any.whl | Built; validation failed | UNVERIFIED_NOT_UPLOADED |
-| fcop-4.0.0rc1.tar.gz | Built; validation not accepted | UNVERIFIED_NOT_UPLOADED |
-| fcop_mcp-4.0.0rc1-py3-none-any.whl | Built; validation not accepted | UNVERIFIED_NOT_UPLOADED |
-| fcop_mcp-4.0.0rc1.tar.gz | Built; validation not accepted | UNVERIFIED_NOT_UPLOADED |
+## Verified first-set artifacts
 
-The second build, 4/4 reproducibility, canonical candidate hash manifest, wheel/
-sdist installation, 12 consumer combinations and this stage's CodeFlowMu shadow
-were not completed. Log artifact digests are not candidate artifact digests.
-Full commands, timestamps, JUnit totals and log transformations are in
-[RESULT](../../../../reports/FCOP-4.0-WP4D-RESULT.md); the five companion reports
-appear in the hash table below.
+Build Python 3.12.14, Ubuntu; build interval
+2026-09-09T15:05:05.613250+00:00 to 2026-09-09T15:05:10.914881+00:00.
+Tools: build 1.4.2, hatchling 1.32.0, setuptools 82.0.1, wheel 0.45.1,
+twine 7.0.0, packaging 26.3. Both Twine groups exit 0; raw equality 4/4.
 
-## Additive commit chain
+| File | Bytes | Remote first-set SHA-256 |
+|---|---:|---|
+| fcop-4.0.0rc1-py3-none-any.whl | 726280 | b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9 |
+| fcop-4.0.0rc1.tar.gz | 647881 | 43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4 |
+| fcop_mcp-4.0.0rc1-py3-none-any.whl | 117937 | 20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a |
+| fcop_mcp-4.0.0rc1.tar.gz | 109420 | eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b |
+
+[Actions candidate artifact](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862396/artifacts/10110629085)
+ZIP digest: 334c8b7293c22857e258075766228733394029833e949e01b192fb4b831ca8f9.
+Expires 2026-12-08T15:04:47Z. This validation attachment is not a Release or
+public RC. The ZIP digest is not a substitute for the four hashes above.
+
+## Additive chain and preserved history
+
+The [previous Manifest at 700e9e1](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/reviews/fcop-4.0/wp4d/MANIFEST.md)
+preserves the full earlier chain and both historical blocker facts.
 
 ```text
-167c5fd4ca4c9603c392bae3a4a055963e7b7ed6 accepted WP4C.6 content
- -> cbdc60a92a02b9e2eb0c1c6e2e93f74c335407f9 original WP4D taskbook
- -> f5a07a1c56dfc2a4bcd8bd258cd8db5d50b080d4 initial identity content
- -> 4160fc5d216f784bee6b35902b507fff8e0ba6f6 authorized-file LF correction
- -> 112a69b2fd9a3cdfdf3e72b7ea1e5ca9de208c07 original BLOCKED evidence
- -> 893e5c55f9f7ea433c6c518c76534218a4cf9570 original Manifest
- -> fad3a2d2cdcee490f8a86ae3d1254439089d5427 authorized audit guard only
- -> dd8138684006432c6bb62c952909a59cda20adaf candidate content
- -> b4edae38f070c9c65ffa92a9c8b287b60f188f34 six reports + eleven evidence files
+700e9e1ecb3eb02e5860094175ba7f8099141695 previous blocked delivery
+ -> b472be32a2623de77d0fb9b2c301960620383e27 two-file toolchain fix only
+ -> bbc43524b62046d5c3bb181b4233579bb08cac57 six reports + eight evidence files
  -> SELF Manifest only
 ```
 
-Erratum 22db1377 is a fixed authority child of the original taskbook. It is not
-merged into the implementation parent chain: its explicit RESUME_BASE is used.
-No force push, main merge, tag, publication, workspace migration or CodeFlowMu
-write was performed. The source scope guard preserves frozen Conformance,
-19 canonical distribution files and 21 authoritative byte sequences.
+The fixed erratum is authority, not a merged implementation branch. No history
+was rewritten. All six prior reports are retained verbatim under history
+headings, including old JUnit, Twine failure and original audit-guard blocker.
+The original D:/FCoP worktree, existing workspaces, main and CodeFlowMu were not
+modified; no tag, registry upload or release action was performed.
 
-## Delivery hashes
+## Remote delivery hashes
 
-The following 48 files were individually re-read from GitHub Git Blob API at
-EVIDENCE_COMMIT and byte-compared to their local committed blobs; every SHA-256
-matched. Taskbook authority is listed separately above, not counted as a newly
-delivered implementation file. SELF changes only this Manifest, preserving all
-48 files. A final GitHub readback of all 49 files, parent chain and this
-Manifest's own SHA-256 is recorded in PR #31 after pushing SELF, avoiding a
-self-referential Manifest hash.
+The following 56 files were individually read via GitHub Git Blob API at
+evidence commit bbc43524b62046d5c3bb181b4233579bb08cac57. Their complete bytes
+matched local committed blobs; these are the observed remote SHA-256 values.
+The authority taskbook is listed above and not counted as candidate delivery.
+SELF changes only this Manifest. After push, all 57 files, parent chain and
+Manifest self-hash are verified again at final HEAD and recorded in PR #31.
+The six reports provide detailed commands, timestamps and evidence sources.
 
-| File | Bytes | SHA-256 |
+| File | Bytes | Remote SHA-256 |
 |---|---:|---|
-| .github/workflows/rc-candidate.yml | 4883 | 3ebd90df68f4fe389765366effc08b64e6b851b20efaf7700c426f6b6ca4e854 |
+| .github/workflows/rc-candidate.yml | 4899 | f1f8982697e955d4d8eaca9ca004e41b1522c58ad88af008bc9a7ca819af29f4 |
 | CHANGELOG.md | 132901 | 08d02ddc0509b723b51c58003fe11bf7a8cd45b25d64a57b1188b37fd2986f12 |
 | docs/fcop-4.0/rc-candidate-boundary.md | 1469 | 8cf4906f96fc7b74096a77bba6b2bd4355e8ae72eb4d7fa64747ce514d3e06bb |
 | docs/releases/4.0.0rc1.md | 1421 | fd4e62bc39d89c17701f6781bcffbf9b50a95e750689231053185c9563a5eef9 |
@@ -169,14 +189,14 @@ self-referential Manifest hash.
 | mcp/src/fcop_mcp/_version.py | 610 | 310a8df396e097eeb5d3d8a0c83e3e2bc8803539ea94f7ecad7efad070a68339 |
 | mcp/src/fcop_mcp/routing.py | 3760 | 6f054a99e2b2807b813d0e43e644e8b950a2f63c2d0159d519c6c89bb35fcb8b |
 | pyproject.toml | 6077 | c9faa4f794b30ed52fdfc7093e0f0b30f7d8965ec8c8139c94f04eb732c346dc |
-| reports/FCOP-4.0-WP4D-ARTIFACT-REPRODUCIBILITY.md | 6922 | 092fa24cc299ef81d0388dbfbdcdaafdbd0629f7b7093a610131c5fd43c78f49 |
-| reports/FCOP-4.0-WP4D-CI-AND-RELEASE-READINESS.md | 7966 | 632b1f16e13879359eaaa598e2295b451e2eaed4539ab6745a6d44091789116f |
-| reports/FCOP-4.0-WP4D-RC-IDENTITY-AND-VERSION.md | 7332 | 2d06437864803cd037a953f37b5d941fdf0acc1e892ebf2852b4cdd45ff9ff9c |
-| reports/FCOP-4.0-WP4D-RESILIENCE-AND-COMPATIBILITY.md | 9719 | f1238a0830d2526448ba3d7219c7968068760e4aac485df97201f70c73a448d0 |
-| reports/FCOP-4.0-WP4D-RESULT.md | 17432 | 29c329cb5c048ee76be8014d4beb636c98899e8133eebd436f61c3833e1a1f24 |
-| reports/FCOP-4.0-WP4D-THIRD-PARTY-ADOPTION.md | 6752 | 55584c18082cfdfcebac187eb8ad58f64092e5a472b334d2c636f30e736e54d3 |
+| reports/FCOP-4.0-WP4D-ARTIFACT-REPRODUCIBILITY.md | 11648 | 896ea1110b84b58ab2891cefaf8cf9ae54b8100c63c258aa7dfca794d9c40461 |
+| reports/FCOP-4.0-WP4D-CI-AND-RELEASE-READINESS.md | 12251 | 0009a8b9d29947c0fd1b1526a80293fa4a4573ebba1145bec4612eccca6d0e85 |
+| reports/FCOP-4.0-WP4D-RC-IDENTITY-AND-VERSION.md | 11445 | cdf1b11104e53fd8a8a2f0211f86e7716fd1e5bbac7398b44ed082a70139c3ce |
+| reports/FCOP-4.0-WP4D-RESILIENCE-AND-COMPATIBILITY.md | 14076 | 77ae52dfa90ac03da8422cf366647bdabb91af7de5661b6060cd476fc5beac04 |
+| reports/FCOP-4.0-WP4D-RESULT.md | 25524 | b8e5bfc59c5727c9a51579b9f8e8c32744fb0ec1f05037b116a4fcfc026f03ce |
+| reports/FCOP-4.0-WP4D-THIRD-PARTY-ADOPTION.md | 11034 | f7055ced07a008d873518fe9a619e1a46d94a6a63911dd33ebbd9d68f18e4ca2 |
 | scripts/fcop_rc_candidate_check.py | 3243 | 0a284ca78f5e36d46bbd73ef2113186d90194917a31c33a12a29818b4c8b144c |
-| scripts/wp4d_build.py | 6643 | 6468447a61ffbf6bf75342c57dee3c395b25287de4e0c2eeb78aa24b1a347dd6 |
+| scripts/wp4d_build.py | 6656 | 061217a3690ffec52da90f6168744b4d6a9112583e7032cfa7d892be91c22a29 |
 | scripts/wp4d_consume.py | 9066 | 6965a8c5878adf744bcacd6c9dfb451e3dca59159c1cf8e5059015859774ad72 |
 | scripts/wp4d_legacy.py | 2191 | 4d3c824b87b19821a56e9579ca035af083ddf5277fb6c95d333abab227d579d1 |
 | scripts/wp4d_shadow.py | 4569 | 8fd9ffebb6f1d69a60d44939bc0fc9f10ce3d1b4af9f5e627087a93642f8f0b6 |
@@ -196,6 +216,14 @@ self-referential Manifest hash.
 | tests/rc/evidence/wp4d/resume-full-1924.xml | 454799 | d6b39e5a35e52bc0d2d03dd32206cbb7693aaeba0cdd9134d7f7a19ce0602474 |
 | tests/rc/evidence/wp4d/resume-identity-14.xml | 2293 | 1e4633939df9206c6edeb9504aae94eb57dc88ec3bcc70acf91f4988cdd44d9d |
 | tests/rc/evidence/wp4d/toolchain-diagnosis.json | 2105 | df2ff21f27f27c6343306ea90037a5e8f2606f7f3938896e0e6f55eab48f4f19 |
+| tests/rc/evidence/wp4d/toolchain-resume/actions-artifacts.json | 14166 | 9d4072741abcbf095347af28416c509fe97a81021da836f1e72766ec3fd49bd3 |
+| tests/rc/evidence/wp4d/toolchain-resume/build.log | 7097 | f377bbef5d3ae8a9797706ef883d476f1b2fdee14565df58d97ce45f324c496e |
+| tests/rc/evidence/wp4d/toolchain-resume/candidate-manifest.json | 6782 | f8bdcdbd1d39278a8ab481ab6e41157525ddcd52bcb9c37ab4e91e5dac3c4ad5 |
+| tests/rc/evidence/wp4d/toolchain-resume/ci-jobs.json | 167772 | 58a2c35758b5e659d47fcae357d82da4a6eb157f4cc52ad01d5ff077fa074ffc |
+| tests/rc/evidence/wp4d/toolchain-resume/consumer-results.json | 67450 | 782a00cc2551d2114ec1517508ab6ec189ee29639de81537b4ab52e53d591707 |
+| tests/rc/evidence/wp4d/toolchain-resume/ubuntu-full-1924.xml | 454732 | 9afb9d7742075450b09bfc5b7edd8a571a61d7a43c6e64eb90016db08c5bd92f |
+| tests/rc/evidence/wp4d/toolchain-resume/windows-310-server.log | 2729 | de66e0b3a39e5535edcda3bc5fb22bbfcd7dc78f14573214cddc878a3a3d6daa |
+| tests/rc/evidence/wp4d/toolchain-resume/windows-311-server.log | 2877 | 0314719025a2c91ff44c1e228fc26226d3ac432309ddab2fd8c9213dfe7ccc6e |
 | tests/rc/evidence/wp4d/ubuntu-content-full-1924.xml | 454732 | 023552fc2549a3c340064a2e215bd898bbf0b3f11ca0304ed23e86bc9822b172 |
 | tests/rc/installed_identity.py | 1109 | 6417053c91d55151b6c634fa6254c4e761d4076632141bcd5d7de81454cf2e03 |
 | tests/rc/legacy_fixture.py | 3747 | 2971c5311994960e248d766054e8bc74f0c63aeed032bf80638f7f00c405b93c |
