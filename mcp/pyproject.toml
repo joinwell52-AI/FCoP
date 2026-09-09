@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "fcop-mcp"
 dynamic = ["version"]
-# Not the same as the `fcop` wheel: that package is the library + PyYAML only.
+# Not the same as the `fcop` wheel: that library uses PyYAML and jsonschema.
 # This package is the optional IDE bridge. Protocol definition: same repo, see project_urls.
 description = "Version-routed stdio MCP adapter for the FCoP Python Project API. Explicit optional Relay extra; no second protocol or automatic workspace migration."
 readme = "README.md"
@@ -26,7 +26,7 @@ keywords = [
     "llm-tools",
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
@@ -61,7 +61,7 @@ classifiers = [
 # FastMCP can independently install websockets transitively; that never
 # activates FCoP Relay. No relay environment variable is read by base stdio.
 dependencies = [
-    "fcop>=3.2.5,<4.0",
+    "fcop>=4.0.0rc1,<4.1.0",
     "fastmcp==3.2.4",
 ]
 

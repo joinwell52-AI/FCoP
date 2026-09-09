@@ -14,7 +14,7 @@ from typing import Any
 from fcop import Project
 from fcop.errors import V4ProtocolError, _V4Code
 
-PACKAGE_COMPATIBILITY = frozenset({("3.2.5", "3.2.5")})
+PACKAGE_COMPATIBILITY = frozenset({("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1")})
 
 
 def check_package_compatibility() -> None:
