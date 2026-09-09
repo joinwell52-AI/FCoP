@@ -1,3 +1,99 @@
+# WP4D 工具链勘误续作：RESULT — BLOCKED
+
+## 当前裁定后的续作结果（2026-09-09；以下历史原文保持不动）
+
+```yaml
+WP4D_STATUS: BLOCKED
+AUTHORIZED_SCOPE: WP4D_TWINE_METADATA_2_5_TOOLCHAIN_ONLY_AND_WP4D_RESUME
+TOOLCHAIN_ERRATUM_COMMIT: 086c358f4c96e21aa31890d147eacae4a359a11a
+TOOLCHAIN_ERRATUM_SHA256: 03da08ed72ffe438d49a65bb8f87e5b9b2e2e6a917fb8d9cfb945dade02eb2e4
+TOOLCHAIN_ERRATUM_BYTES: 7224
+TOOLCHAIN_RESUME_BASE: 700e9e1ecb3eb02e5860094175ba7f8099141695
+TOOLCHAIN_FIX_COMMIT: b472be32a2623de77d0fb9b2c301960620383e27
+TWINE_VERSION: 7.0.0
+PACKAGING_VERSION: 26.3
+METADATA_VERSION_OBSERVED: "2.5"
+TWINE_CHECKS: 2/2
+ARTIFACT_REPRODUCIBILITY: 4/4
+FAILED_RUN_ARTIFACTS_REUSED: false
+NEW_BLOCKER: WINDOWS_310_311_MCP_SAMPLE_OFFLINE_GUARD_REJECTS_STDLIB_SOCKETPAIR
+RC_CONSUMER_MATRIX: 10 passed / 2 failed / 12 total
+REQUESTED_GATE: NONE
+```
+
+任务书已从 GitHub 固定提交获取并核验字节和摘要；PR #31 的 [ADMIN 裁定](https://github.com/joinwell52-AI/FCoP/pull/31#issuecomment-5603988787) 与两文件范围一致。b472be3 是 RESUME_BASE 的直接子提交，只修改 workflow 的 Twine/packaging 精确 pin，以及 build 脚本工具身份记录列表；每文件各一行，无其他逻辑变化，Ruff 和 diff --check 通过。
+
+Twine 阻断已关闭，新构建的四制品已上传 Actions artifact 并下载回读核验。两组各四次 Twine 检查均通过（2/2 组、8/8 文件检查）；六个工具身份精确匹配、合法 Metadata 2.5 未修改。新问题来自此前由执行人编写的第三方样例网络隔离守卫，不是 Twine 再次失败，也不能据此断言 FCoP Core 有缺陷。
+
+Windows 3.10/3.11 的真实 stdio server 在 asyncio Proactor 建立内部 self-pipe 时，标准库 socket.socketpair 调用 socket.bind。样例 server.py:15 只放行 _fallback_socketpair，因函数名不匹配在第 17 行拒绝，尚未完成 MCP initialize。两份服务端 traceback 固定在 tests/rc/evidence/wp4d/toolchain-resume/。其余十组 wheel 和 sdist 安装态均通过，但两失败组的 sdist 路径没有执行，不能报 12/12。
+
+按原任务书 §13.2 和本勘误 §8，发现适用矩阵失败后停止候选内容修改。未修改样例、网络守卫、Core/MCP、冻结 Conformance、Schema、规则或任何发布配置；未放宽网络边界。只收口报告、证据、Manifest。请求 ADMIN 对样例中标准库内部 socketpair 的跨 Python 兼容边界作定点裁定，继续保持真实网络访问禁用；本轮不执行该修正。
+
+本轮固定内容 CI：[Core 34367862474](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862474)、[MCP 34367862401](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862401)、[RC 34367862396](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862396)。27/27 既有适用 Job 与 8/8 既有 Windows Job 通过；两项 PR-only skipped 为不适用，不计通过。RC source/build 通过，但 2 个 consumer 失败，因此整体失败。上述结果均绑定 b472be3，不能冒充之后 Manifest HEAD 全绿。
+
+## 完整回执与可复核证据
+
+```yaml
+TOOLCHAIN_CORRECTION: PASS
+TOOLS_IDENTITY: 6/6
+TWINE_CHECKS: 2/2
+REPRODUCIBILITY: 4/4
+UBUNTU_NEW_HEAD_FULL: 1924/1924
+UBUNTU_FAILURE_ERROR_SKIP: 0/0/0
+WINDOWS_LOCAL_NEW_HEAD_FULL: INTERRUPTED_NOT_ACCEPTED
+EXISTING_CI: 27/27
+EXISTING_WINDOWS_CI: 8/8
+RC_CONSUMERS: 10/12
+RC_CONSUMER_FAILURES: 2
+RC_CONSUMER_SKIPS: 0
+RC_WINDOWS_CONSUMERS: 2/4
+INSTALLED_ORIGIN_PATHS_COMPLETE: 20/24
+CODEFLOWMU_SHADOW: NOT_RUN
+CANONICAL_FILES: 19/19
+FROZEN_BYTES: 21/21
+FROZEN_CONFORMANCE_MODIFIED: 0
+FINAL_MANIFEST_CI: NOT_CLAIMED_GREEN
+REQUESTED_GATE: NONE
+```
+
+命令与执行边界：
+- python -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==7.0.0 packaging==26.3：实际 build Job 成功。
+- python -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build"：UTC 15:05:05.613250–15:05:10.914881，退出 0，2 组/4 制品可复现，8 次文件 Twine PASSED。
+- python -B -m pytest tests/test_fcop tests/conformance/v4 tests/test_fcop_mcp tests/conformance/rule_distribution_v4 -q --junitxml="$RUNNER_TEMP/full.xml"：Ubuntu 1924/1924，无失败/错误/skip，suite 103.370s。
+- python -B scripts/wp4d_consume.py <candidate-input> <manifest-sha> <historical-input> <historical-sha> <consumer-evidence>：12 组同制品执行；10 组退出 0，Windows 3.10/3.11 退出 1。各组实际命令、runner 版本和开始/结束在固定 Actions Job 与 ci-jobs.json；成功安装结果含自身 UTC 时间。
+- 本地 Windows 命令使用相同四套测试路径，附 -x -p no:cacheprovider --basetemp=D:/fcop-wp4d-twine7-full-01 --junitxml=C:/Users/Administrator/AppData/Local/Temp/fcop-wp4d-twine7-full-01.xml。本次 full 在新阻断后停止，不宣称 1924 完成，不引用旧头的通过数。
+- python -B -m ruff check scripts/wp4d_build.py、git diff --check 通过；最终提交范围只两文件各一行，旧 guard/assertions 未变。
+
+| 制品 | bytes | 远端第一组 SHA-256 |
+|---|---:|---|
+| fcop-4.0.0rc1-py3-none-any.whl | 726280 | b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9 |
+| fcop-4.0.0rc1.tar.gz | 647881 | 43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4 |
+| fcop_mcp-4.0.0rc1-py3-none-any.whl | 117937 | 20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a |
+| fcop_mcp-4.0.0rc1.tar.gz | 109420 | eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b |
+
+| 证据副本 | bytes | SHA-256 |
+|---|---:|---|
+| tests/rc/evidence/wp4d/toolchain-resume/actions-artifacts.json | 14166 | 9d4072741abcbf095347af28416c509fe97a81021da836f1e72766ec3fd49bd3 |
+| tests/rc/evidence/wp4d/toolchain-resume/build.log | 7097 | f377bbef5d3ae8a9797706ef883d476f1b2fdee14565df58d97ce45f324c496e |
+| tests/rc/evidence/wp4d/toolchain-resume/candidate-manifest.json | 6782 | f8bdcdbd1d39278a8ab481ab6e41157525ddcd52bcb9c37ab4e91e5dac3c4ad5 |
+| tests/rc/evidence/wp4d/toolchain-resume/ci-jobs.json | 167772 | 58a2c35758b5e659d47fcae357d82da4a6eb157f4cc52ad01d5ff077fa074ffc |
+| tests/rc/evidence/wp4d/toolchain-resume/consumer-results.json | 67450 | 782a00cc2551d2114ec1517508ab6ec189ee29639de81537b4ab52e53d591707 |
+| tests/rc/evidence/wp4d/toolchain-resume/ubuntu-full-1924.xml | 454732 | 9afb9d7742075450b09bfc5b7edd8a571a61d7a43c6e64eb90016db08c5bd92f |
+| tests/rc/evidence/wp4d/toolchain-resume/windows-310-server.log | 2729 | de66e0b3a39e5535edcda3bc5fb22bbfcd7dc78f14573214cddc878a3a3d6daa |
+| tests/rc/evidence/wp4d/toolchain-resume/windows-311-server.log | 2877 | 0314719025a2c91ff44c1e228fc26226d3ac432309ddab2fd8c9213dfe7ccc6e |
+
+证据来源：GitHub run 34367862396 的 artifacts、GitHub Jobs API，以及本机读取到的固定下载字节。candidate-manifest.json 保持远端原始字节；consumer-results.json 是十份原始 result.json 的 JSON 数组汇总，字段和值未改；CI/artifact JSON 是 API 响应格式化。展示日志只统一 LF、去掉 BOM/行尾空格，错误内容未变；XML 仅补最终 LF。原下载均保留在 Temp/wp4d-b472be3-*，不删除旧失败证据。表中证据副本摘要将在 Manifest 最终远端逐项复核，制品摘要已由远端下载核验。
+
+新阻断事实：Windows stdlib socket.py 的 socketpair 名称与样例只识别 _fallback_socketpair 不一致；见 windows-310-server.log、windows-311-server.log。已有源码/3.12 检查未覆盖旧 Python 的名称差异，这是执行人候选证明样例的跨版本缺口。没有认定生产协议错误，也不提议放行任意 loopback 流量。请 ADMIN 定点授权安全收窄的样例兼容修正后再恢复全部最终 HEAD 验收。
+
+所有历史 BLOCKED 文本保留如下。原 D:/FCoP、旧 worktree、dogfood、main 及 CodeFlowMu 未修改。当前只交付证据与 Manifest，PR #31 保持 Draft；不请求或签署 Gate。
+
+---
+
+## 历史快照：截至 700e9e1 的原报告（全部保留）
+
+以下包含前两次 BLOCKED 的事实，其状态仅适用于历史提交；当前状态以本报告顶部为准。
+
 # WP4D 勘误续作：RESULT — BLOCKED
 
 ## 当前续作结论（覆盖本报告的历史状态说明）

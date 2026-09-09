@@ -1,0 +1,325 @@
+{
+  "total_count": 16,
+  "artifacts": [
+    {
+      "id": 10110805883,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDgwNTg4Mw==",
+      "name": "wp4d-consumer-windows-latest-3.13",
+      "size_in_bytes": 8723,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110805883",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110805883/zip",
+      "expired": false,
+      "digest": "sha256:c34b1eab8a098bd18fcbdd4bb2abd008035618dc4695a85d4d5c5620056f8065",
+      "created_at": "2026-09-09T15:09:12Z",
+      "updated_at": "2026-09-09T15:09:12Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110797053,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDc5NzA1Mw==",
+      "name": "wp4d-consumer-windows-latest-3.12",
+      "size_in_bytes": 8337,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110797053",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110797053/zip",
+      "expired": false,
+      "digest": "sha256:89c2af528097e43aed12962ec60b3fa148dae442faefe27b3701821bad8b7fa0",
+      "created_at": "2026-09-09T15:09:01Z",
+      "updated_at": "2026-09-09T15:09:01Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110781472,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDc4MTQ3Mg==",
+      "name": "wp4d-consumer-ubuntu-latest-3.10",
+      "size_in_bytes": 7915,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110781472",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110781472/zip",
+      "expired": false,
+      "digest": "sha256:93a77694a279b0916ee4d0f7931cb9dcffe2b4d9d31200c21b0657ae531735c3",
+      "created_at": "2026-09-09T15:08:41Z",
+      "updated_at": "2026-09-09T15:08:41Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110776986,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDc3Njk4Ng==",
+      "name": "wp4d-consumer-macos-latest-3.12",
+      "size_in_bytes": 8405,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110776986",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110776986/zip",
+      "expired": false,
+      "digest": "sha256:fca91bbab2b01dffdc093bf5eee4d167f1ec1e939a0300020d10614e006bcbc5",
+      "created_at": "2026-09-09T15:08:35Z",
+      "updated_at": "2026-09-09T15:08:35Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110763527,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDc2MzUyNw==",
+      "name": "wp4d-consumer-macos-latest-3.11",
+      "size_in_bytes": 8404,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110763527",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110763527/zip",
+      "expired": false,
+      "digest": "sha256:5aebde26a421360accbbf775767789e8e26fd1ac4fb71e1ce3d4c2ddd491abff",
+      "created_at": "2026-09-09T15:08:17Z",
+      "updated_at": "2026-09-09T15:08:17Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110762941,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDc2Mjk0MQ==",
+      "name": "wp4d-consumer-macos-latest-3.10",
+      "size_in_bytes": 8393,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110762941",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110762941/zip",
+      "expired": false,
+      "digest": "sha256:a95f698559b2f7395c740861f4d288d2c747b8223c9b42386b6e95c2b184b59e",
+      "created_at": "2026-09-09T15:08:16Z",
+      "updated_at": "2026-09-09T15:08:16Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110731641,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDczMTY0MQ==",
+      "name": "wp4d-consumer-windows-latest-3.10",
+      "size_in_bytes": 2311,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110731641",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110731641/zip",
+      "expired": false,
+      "digest": "sha256:97f0d5c3e9f50846787f301532159c5db4163fdee912fb577753ff86bf23686f",
+      "created_at": "2026-09-09T15:07:35Z",
+      "updated_at": "2026-09-09T15:07:35Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110723520,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDcyMzUyMA==",
+      "name": "wp4d-consumer-ubuntu-latest-3.11",
+      "size_in_bytes": 7913,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110723520",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110723520/zip",
+      "expired": false,
+      "digest": "sha256:8fe485ecb1b942207f3132757d9f20ff1beb41154d8e7d19166d75c8eabc1229",
+      "created_at": "2026-09-09T15:07:24Z",
+      "updated_at": "2026-09-09T15:07:24Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110722383,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDcyMjM4Mw==",
+      "name": "wp4d-consumer-macos-latest-3.13",
+      "size_in_bytes": 8786,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110722383",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110722383/zip",
+      "expired": false,
+      "digest": "sha256:609b56c33318a7cd763dd5a574c2d389dd0f9d52aeaa25f3a88020954ab934e1",
+      "created_at": "2026-09-09T15:07:22Z",
+      "updated_at": "2026-09-09T15:07:22Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110714143,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDcxNDE0Mw==",
+      "name": "wp4d-consumer-ubuntu-latest-3.12",
+      "size_in_bytes": 7921,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110714143",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110714143/zip",
+      "expired": false,
+      "digest": "sha256:e8cf9f7571de2ee3ff5f9783e63fdbd5295ec1eca5773d2e311ff54bfde1a342",
+      "created_at": "2026-09-09T15:07:11Z",
+      "updated_at": "2026-09-09T15:07:11Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110713100,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDcxMzEwMA==",
+      "name": "wp4d-source-evidence",
+      "size_in_bytes": 34244,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110713100",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110713100/zip",
+      "expired": false,
+      "digest": "sha256:10eafb947ca030b9c040d0922eb02a08bf7f733339e973a307c85da5fcf9774d",
+      "created_at": "2026-09-09T15:07:10Z",
+      "updated_at": "2026-09-09T15:07:10Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110705199,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDcwNTE5OQ==",
+      "name": "wp4d-consumer-windows-latest-3.11",
+      "size_in_bytes": 2361,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110705199",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110705199/zip",
+      "expired": false,
+      "digest": "sha256:a83ebbde3d87b39843dbcabd73fbef526a3ae2a0fd4068ea8c64420c6bbd6347",
+      "created_at": "2026-09-09T15:07:00Z",
+      "updated_at": "2026-09-09T15:07:00Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110696993,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDY5Njk5Mw==",
+      "name": "wp4d-consumer-ubuntu-latest-3.13",
+      "size_in_bytes": 8309,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110696993",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110696993/zip",
+      "expired": false,
+      "digest": "sha256:65102a69b190df55d3897f366f852459e045f90a31d8a41f7fd5f24d26749b03",
+      "created_at": "2026-09-09T15:06:49Z",
+      "updated_at": "2026-09-09T15:06:49Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110631381,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDYzMTM4MQ==",
+      "name": "wp4d-build-logs",
+      "size_in_bytes": 2624,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110631381",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110631381/zip",
+      "expired": false,
+      "digest": "sha256:66a6479e57cfa76c283a5433089e73e10a4eb53666799a3225ea9a87eaea4b56",
+      "created_at": "2026-09-09T15:05:22Z",
+      "updated_at": "2026-09-09T15:05:22Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110630405,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDYzMDQwNQ==",
+      "name": "wp4d-historical-fixture",
+      "size_in_bytes": 848308,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110630405",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110630405/zip",
+      "expired": false,
+      "digest": "sha256:cea5dfe94e31eae6df8fde0b079e1b7239697aa601fc07b26edb004e3dd51305",
+      "created_at": "2026-09-09T15:05:20Z",
+      "updated_at": "2026-09-09T15:05:20Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    },
+    {
+      "id": 10110629085,
+      "node_id": "MDg6QXJ0aWZhY3QxMDExMDYyOTA4NQ==",
+      "name": "wp4d-candidates-first-set",
+      "size_in_bytes": 1585748,
+      "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110629085",
+      "archive_download_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/artifacts/10110629085/zip",
+      "expired": false,
+      "digest": "sha256:334c8b7293c22857e258075766228733394029833e949e01b192fb4b831ca8f9",
+      "created_at": "2026-09-09T15:05:19Z",
+      "updated_at": "2026-09-09T15:05:19Z",
+      "expires_at": "2026-12-08T15:04:47Z",
+      "workflow_run": {
+        "id": 34367862396,
+        "repository_id": 1215177967,
+        "head_repository_id": 1215177967,
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "head_sha": "b472be32a2623de77d0fb9b2c301960620383e27"
+      }
+    }
+  ]
+}

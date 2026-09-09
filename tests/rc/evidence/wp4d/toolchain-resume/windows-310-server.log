@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\applications\mcp-only\server.py", line 29, in <module>
+    server.run(transport="stdio", show_banner=False)
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\venv\lib\site-packages\fastmcp\server\mixins\transport.py", line 91, in run
+    anyio.run(
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\venv\lib\site-packages\anyio\_core\_eventloop.py", line 83, in run
+    return async_backend.run(func, args, {}, backend_options)
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\venv\lib\site-packages\anyio\_backends\_asyncio.py", line 2547, in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\venv\lib\site-packages\anyio\_backends\_asyncio.py", line 147, in __enter__
+    self._lazy_init()
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\venv\lib\site-packages\anyio\_backends\_asyncio.py", line 236, in _lazy_init
+    self._loop = events.new_event_loop()
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\events.py", line 783, in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\events.py", line 673, in new_event_loop
+    return self._loop_factory()
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\windows_events.py", line 315, in __init__
+    super().__init__(proactor)
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\proactor_events.py", line 636, in __init__
+    self._make_self_pipe()
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\proactor_events.py", line 767, in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\socket.py", line 632, in socketpair
+    lsock.bind((host, 0))
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\wp4d-wheel-cp0zipm0\applications\mcp-only\server.py", line 17, in offline
+    raise RuntimeError("WP4D server network access forbidden: " + event)
+RuntimeError: WP4D server network access forbidden: socket.bind
+Exception ignored in: <function BaseEventLoop.__del__ at 0x000001A69BE29480>
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\base_events.py", line 690, in __del__
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\proactor_events.py", line 691, in close
+  File "C:\hostedtoolcache\windows\Python\3.10.11\x64\lib\asyncio\proactor_events.py", line 759, in _close_self_pipe
+AttributeError: 'ProactorEventLoop' object has no attribute '_ssock'

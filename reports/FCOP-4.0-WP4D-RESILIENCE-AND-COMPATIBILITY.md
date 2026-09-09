@@ -1,3 +1,50 @@
+# WP4D 工具链勘误续作：RESILIENCE-AND-COMPATIBILITY — BLOCKED
+
+## 当前裁定后的续作结果（2026-09-09；以下历史原文保持不动）
+
+```yaml
+WP4D_STATUS: BLOCKED
+AUTHORIZED_SCOPE: WP4D_TWINE_METADATA_2_5_TOOLCHAIN_ONLY_AND_WP4D_RESUME
+TOOLCHAIN_ERRATUM_COMMIT: 086c358f4c96e21aa31890d147eacae4a359a11a
+TOOLCHAIN_ERRATUM_SHA256: 03da08ed72ffe438d49a65bb8f87e5b9b2e2e6a917fb8d9cfb945dade02eb2e4
+TOOLCHAIN_ERRATUM_BYTES: 7224
+TOOLCHAIN_RESUME_BASE: 700e9e1ecb3eb02e5860094175ba7f8099141695
+TOOLCHAIN_FIX_COMMIT: b472be32a2623de77d0fb9b2c301960620383e27
+TWINE_VERSION: 7.0.0
+PACKAGING_VERSION: 26.3
+METADATA_VERSION_OBSERVED: "2.5"
+TWINE_CHECKS: 2/2
+ARTIFACT_REPRODUCIBILITY: 4/4
+FAILED_RUN_ARTIFACTS_REUSED: false
+NEW_BLOCKER: WINDOWS_310_311_MCP_SAMPLE_OFFLINE_GUARD_REJECTS_STDLIB_SOCKETPAIR
+RC_CONSUMER_MATRIX: 10 passed / 2 failed / 12 total
+REQUESTED_GATE: NONE
+```
+
+任务书已从 GitHub 固定提交获取并核验字节和摘要；PR #31 的 [ADMIN 裁定](https://github.com/joinwell52-AI/FCoP/pull/31#issuecomment-5603988787) 与两文件范围一致。b472be3 是 RESUME_BASE 的直接子提交，只修改 workflow 的 Twine/packaging 精确 pin，以及 build 脚本工具身份记录列表；每文件各一行，无其他逻辑变化，Ruff 和 diff --check 通过。
+
+Twine 阻断已关闭，新构建的四制品已上传 Actions artifact 并下载回读核验。两组各四次 Twine 检查均通过（2/2 组、8/8 文件检查）；六个工具身份精确匹配、合法 Metadata 2.5 未修改。新问题来自此前由执行人编写的第三方样例网络隔离守卫，不是 Twine 再次失败，也不能据此断言 FCoP Core 有缺陷。
+
+Windows 3.10/3.11 的真实 stdio server 在 asyncio Proactor 建立内部 self-pipe 时，标准库 socket.socketpair 调用 socket.bind。样例 server.py:15 只放行 _fallback_socketpair，因函数名不匹配在第 17 行拒绝，尚未完成 MCP initialize。两份服务端 traceback 固定在 tests/rc/evidence/wp4d/toolchain-resume/。其余十组 wheel 和 sdist 安装态均通过，但两失败组的 sdist 路径没有执行，不能报 12/12。
+
+按原任务书 §13.2 和本勘误 §8，发现适用矩阵失败后停止候选内容修改。未修改样例、网络守卫、Core/MCP、冻结 Conformance、Schema、规则或任何发布配置；未放宽网络边界。只收口报告、证据、Manifest。请求 ADMIN 对样例中标准库内部 socketpair 的跨 Python 兼容边界作定点裁定，继续保持真实网络访问禁用；本轮不执行该修正。
+
+本轮固定内容 CI：[Core 34367862474](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862474)、[MCP 34367862401](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862401)、[RC 34367862396](https://github.com/joinwell52-AI/FCoP/actions/runs/34367862396)。27/27 既有适用 Job 与 8/8 既有 Windows Job 通过；两项 PR-only skipped 为不适用，不计通过。RC source/build 通过，但 2 个 consumer 失败，因此整体失败。上述结果均绑定 b472be3，不能冒充之后 Manifest HEAD 全绿。
+
+## 恢复与零副作用证据的适用范围
+
+十组成功 consumer 的 wheel/sdist 结果包含真实进程 kill/reopen、幂等重试、15 次迁移、Branch/convergence、Host 选择/拒绝/deploy/rollback、固定 legacy fixture 零漂移和包错配零副作用检查；逐组原始摘要见 consumer-results.json，不能用十组结果填补另外两组。
+
+CodeFlowMu shadow 本轮尚未运行：已只读检查历史授权文件及历史报告以准备执行，但在安装矩阵失败后停止，未调用 shadow、运行产品、升级依赖或写 CodeFlowMu。因此本轮 14/14 为 NOT_RUN，不借用 WP4C.5B 结果。原历史 shadow 授权和快照未改。
+
+Windows 本地完整回归启动于本次 b472be3 工作树，随后在新矩阵阻断确认后于 2026-09-09T23:09:34.2242519+08:00 停止了经命令行核验的本次 pytest 进程（PID 4620）。退出 1 为执行人终止，不是测试断言失败；未生成最终完整 JUnit，结果为 INTERRUPTED_NOT_ACCEPTED。原阻断 HEAD 的 1924/1924 不计本轮通过。
+
+---
+
+## 历史快照：截至 700e9e1 的原报告（全部保留）
+
+以下包含前两次 BLOCKED 的事实，其状态仅适用于历史提交；当前状态以本报告顶部为准。
+
 # WP4D 勘误续作：RESILIENCE-AND-COMPATIBILITY — BLOCKED
 
 ## 当前续作结论（覆盖本报告的历史状态说明）
