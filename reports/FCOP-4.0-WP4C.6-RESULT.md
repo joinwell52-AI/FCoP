@@ -1,4 +1,128 @@
-# WP4C.6b exception alignment and resumed closeout result
+# WP4C.6c Windows materialization closeout result
+
+## WP4C.6c continuation (supersedes status, preserves all history below)
+
+ADMIN taskbook: commit `7b61d4ce1a1f5c4f69bca77dfea959d06e3c763c`,
+`taskbooks/fcop-4.0/WP4C.6c/01-Windows-LF-Materialization-Policy-and-WP4C.6-Resume-v1.0.zh.md`.
+GitHub Contents API raw Blob: 5202 bytes; SHA-256
+`b9063ec71228fcfd3dfd59e920ce56f0e5b21bdd55096ee05773f096f7e60698`.
+The full taskbook was read before editing. Its parent is the preserved blocked final
+implementation HEAD `34841330604e32c473a538afb634a81334eca8ad`.
+
+The old final-HEAD runs remain failed historical evidence:
+FCoP [34310336551](https://github.com/joinwell52-AI/FCoP/actions/runs/34310336551)
+and MCP [34310336555](https://github.com/joinwell52-AI/FCoP/actions/runs/34310336555).
+Their eight Windows failures and skipped downstream package jobs were not relabelled
+or used to request a Gate. ADMIN authorized only the materialization policy correction.
+
+Policy-only commit `a46a51b4cf6b2711ab0c1e526019c6d7ea284fad` has the taskbook
+as its sole parent and changes only `.gitattributes`: the existing two Schema lines
+are retained and exactly the four taskbook lines appended. No source, test, workflow,
+Schema, frozen specification, canonical rule text, dependency or release file changed.
+The previous FcopError alignment is retained. No renormalization, configuration change,
+force push, main merge or CodeFlowMu write was performed.
+
+### Native Windows checkout proof
+
+Command: `git worktree add --detach D:/FCoP-wp4c6c-windows-policy-readback HEAD`
+from the policy commit. No `-c core.autocrlf=false`, checkout override, global or local
+Git configuration change was used. `git config --show-origin --get core.autocrlf`
+returned `file:D:/Git/etc/gitconfig true`. Windows Python is 3.12.9.
+
+For every path below, `git check-attr text eol -- <path>` returned `text: set` and
+`eol: lf`. Direct `Path.read_bytes()` equals both the policy HEAD's `git show HEAD:path`
+and the blocked baseline's raw Git Blob. All 21 files are strict UTF-8 without BOM or
+CR, with unchanged SHA-256 and byte length. The fresh checkout was clean after this check.
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| spec/fcop-4.0-spec.md | 26218 | 0c5005ec754ee71d735e02c9ea403adbc35e8dff9ce98c13d8a42040cacbc8e9 |
+| spec/fcop-4.0-spec.zh.md | 24341 | 7302983e8a6e2225470d3da8f2e768abd4dfcc1c7adbe17116a64dda7e357c19 |
+| src/fcop/rules/_data/v4/authorization.en.md | 2128 | 96c1c18bab3a879b51a1e2d0041f1f08eeae685185ad9489f13ed0a999f9a00b |
+| src/fcop/rules/_data/v4/authorization.zh.md | 2033 | 13b82fdeb7c577a68a70d94303bf090eac42ce44c137c1a166b23f7014c1b854 |
+| src/fcop/rules/_data/v4/compatibility.en.md | 3521 | a65385a3a2e68d043c65f9b8c34c6ac311bb7f9b2ea1e9f4c162886f858a64d8 |
+| src/fcop/rules/_data/v4/compatibility.zh.md | 3024 | d6ce267c8216a2d6df2e5e601f4d237d941778a36687eae1d310616f6170585e |
+| src/fcop/rules/_data/v4/convergence.en.md | 2283 | ec3cf38b6dba4d3eb8447cc7cd25e947c06abed228c37c9d651f873662edc70e |
+| src/fcop/rules/_data/v4/convergence.zh.md | 2114 | 2b5c2a52c33bc38e8c3c85fdd75d5de3c837cc483a29941ec02a61a059c1701a |
+| src/fcop/rules/_data/v4/envelopes.en.md | 1743 | 0405885cbe3fe791c0e1a6c76da004d093d58cd55159ffeb3ca8c89e4ec045a3 |
+| src/fcop/rules/_data/v4/envelopes.zh.md | 1672 | 0a69c9196e95185cf9e98b71af8c564be5797e26a71c5a9b7dc32d0735a08fef |
+| src/fcop/rules/_data/v4/idempotency.en.md | 1720 | 1b100010d36342e6d98e9031429b3e11aad5657dfa953031e43bc4c99772a16a |
+| src/fcop/rules/_data/v4/idempotency.zh.md | 1591 | 51c53931e02b1f39950f4a2f16b5e8e9a5f9d10b77f5ea1ad6b07c3e96385f08 |
+| src/fcop/rules/_data/v4/lifecycle.en.md | 3041 | b6356c078ab00b893379f0b4f558616444ef4a4aa0e17432460719a9be362b2b |
+| src/fcop/rules/_data/v4/lifecycle.zh.md | 2787 | 26b338914cffe2ea076f0e88133fc69617c91ecb149b3e40217baeef708cffef |
+| src/fcop/rules/_data/v4/manifest.json | 11221 | 7efb1ba14df4d1ffbe164b8ec85dbf4316e7da4c0f367f3a506c78e4e29862d4 |
+| src/fcop/rules/_data/v4/recovery.en.md | 3534 | aad4861efa59df69742c4bf577d57a553cbb170f6f92d61f6df74ec3ec503908 |
+| src/fcop/rules/_data/v4/recovery.zh.md | 3099 | b19226071498f6414e11379b9d67cee36e4a79d65510fffefd14a021cd829000 |
+| src/fcop/rules/_data/v4/relations.en.md | 1106 | 1b706c4ff76efb6edad40ab7985a0693eb9466da483d7024eb1f29668e022789 |
+| src/fcop/rules/_data/v4/relations.zh.md | 1057 | fa51c77a568dae7f7cf41242b612ae2b2963075004aaebef533334a0466d3d42 |
+| src/fcop/rules/_data/v4/workspace.en.md | 1920 | 06d4a9604fbab50ade36369f8f1d2950f099a241d659613cc78f1dd7e93555b3 |
+| src/fcop/rules/_data/v4/workspace.zh.md | 1723 | 617009dc95cf4bedd252491334f45cf61fa1fe8ccf935f2127e2a1da9a49e30b |
+
+Only these authoritative inputs and the existing Schema paths acquire the targeted LF
+policy. Unrelated checkout files can still materialize as CRLF; that is not described
+as raw LF parity. Normal wheel/sdist hashes may consequently differ from the previous
+all-LF checkout, while canonical member bytes must remain exactly equal.
+
+### WP4C.6c validation evidence
+
+Validation is running in the fresh default Windows checkout, not the earlier all-LF
+execution worktree. `PYTHONDONTWRITEBYTECODE=1`; PYTHONPATH explicitly points to that
+checkout, its src and mcp/src. Alignment passed 2/2. The single full native run selects
+`tests/conformance/rule_distribution_v4 tests/test_fcop tests/conformance/v4 tests/test_fcop_mcp`
+with `-q -x -p no:cacheprovider`, fresh basetemp `D:/fcop-wp4c6c-full-native-01`, and
+JUnit `C:/Users/Administrator/AppData/Local/Temp/fcop-wp4c6c-full-native-01.xml`.
+It includes all 176 Distribution nodes (including the 20 targets), 119 Core nodes,
+1459 FCoP nodes and 158 MCP nodes; its completion is not preclaimed here.
+
+Both canonical Ruff commands passed. Mypy passed for FCoP source (55 files), MCP
+source (18), and MCP tests (11). Frozen Core and Distribution tree identities remain
+`24ab264c6bca9a3183ee270becb552f22a4c4f9e` and
+`4f99c7261b63b6db81c500604a231defaca9f14b` respectively.
+
+Native source builds completed using the existing build environment and unchanged
+`python -B -m build --no-isolation --wheel --sdist` commands. They are local validation
+artifacts, not published packages; development versions remain 3.2.5.
+
+| Native checkout artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| fcop-3.2.5-py3-none-any.whl | 730867 | b1ddb309828feef995a42bb71ef4ae48d0b71663c94483aa2219f9ab0ef8cd71 |
+| fcop-3.2.5.tar.gz | 651800 | 05995816e102fd93ed39eed56c01eae1c03a1a5ca277fac7411e291884932714 |
+| fcop_mcp-3.2.5-py3-none-any.whl | 117966 | e490041d80b8f82e07bd1fd8f5e2f6d0c96bfb92921387328353e7e5192e14a9 |
+| fcop_mcp-3.2.5.tar.gz | 110043 | 8a7d9d2c6ba521d1af443a833e476a2ffd4dbe39f3b3cbd467f9b41049e10720 |
+
+A new isolated environment `D:/fcop-wp4c6c-clean-install01` was created with
+`include-system-site-packages=false`; installation uses the two newly built wheels
+and the existing relay extra without changing dependency constraints. Installation
+completed and `pip --python <new-env-python> check` reported no broken requirements.
+The unchanged installed artifact probe passed raw source/wheel/sdist/install parity
+19/19 and the real installed public export. `artifact_probe.py base` passed real
+stdio 46/12/4, create/retry/spec/structured-error and versioned resource parity with
+zero writes 5/5. `artifact_probe.py relay` passed initialization/tool listing and the
+missing-dependency diagnostic. Imports were verified inside the new isolated environment.
+
+The actual public fixed-ref read-only Shadow passed 14/14 and zero effects again.
+Authorized ref and authorization hash are unchanged from the historical report below.
+This invocation observed CodeFlowMu HEAD `cb590ce35686cb1980e3c89a7d68bd0cfbeb825a`,
+tracked-status SHA-256 `acbc2da1fb5d105b4d8b97a2bdcbac1b67624af7801f59242b3cc28253082ec9`;
+its own before/after caller, snapshot, authorization, product HEAD and tracked status
+matched. No live downstream execution or write occurred.
+
+Policy HEAD CI completed successfully in both workflows: FCoP
+[34313100034](https://github.com/joinwell52-AI/FCoP/actions/runs/34313100034)
+and MCP [34313099999](https://github.com/joinwell52-AI/FCoP/actions/runs/34313099999).
+All eight Windows matrix items and sixteen Ubuntu/macOS matrix items passed;
+Coverage and both downstream package jobs actually ran and passed (27 applicable jobs).
+The two pull-request-event-only charter jobs were skipped by their unchanged event
+conditions on this push; they are disclosed as NOT_RUN_EVENT_INAPPLICABLE, not PASS.
+This intermediate evidence demonstrates the four-line policy correction but does not
+replace the mandatory repeat CI at final Manifest HEAD.
+
+Final Manifest HEAD, pending full local run, and final CI conclusions must be recorded in the post-push receipt.
+The policy commit's intermediate CI is not final delivery acceptance. Pending, skipped,
+cancelled and untriggered jobs are not PASS. Gate remains unsigned and unrequested
+until all applicable final-head checks complete.
+
+## Preserved WP4C.6b result (historical)
 
 Execution role: ME / solo. ADMIN owns authorization and Gate signature. This report records current stable candidate evidence; it does not self-sign acceptance.
 
