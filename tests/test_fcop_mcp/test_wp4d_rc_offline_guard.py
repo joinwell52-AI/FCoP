@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 
-def test_wp4d_rc_offline_guard_stdlib_identity_and_network_denials():
+def test_wp4d_rc_offline_guard_stdlib_identity_and_network_denials() -> None:
     server = Path(__file__).resolve().parents[2] / "examples/v4/third-party/mcp-only/server.py"
     code = r'''
 import json
