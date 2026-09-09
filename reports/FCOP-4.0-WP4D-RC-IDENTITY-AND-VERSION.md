@@ -1,3 +1,50 @@
+# WP4D 勘误续作：RC-IDENTITY-AND-VERSION — BLOCKED
+
+## 当前续作结论（覆盖本报告的历史状态说明）
+
+```yaml
+WP4D_STATUS: BLOCKED
+AUTHORIZED_SCOPE: WP4D_AUDIT_GUARD_ONLY_AND_WP4D_RESUME
+ERRATUM_COMMIT: 22db1377163bb0b1e74c4b94fa1f594b3e762a9d
+ERRATUM_SHA256: 0e8926c282516dd10e2c1506243ccf33ab7798a8cd0744bcbccf078d5f344767
+RESUME_BASE: 893e5c55f9f7ea433c6c518c76534218a4cf9570
+AUDIT_GUARD_FIX_COMMIT: fad3a2d2cdcee490f8a86ae3d1254439089d5427
+CANDIDATE_CONTENT_COMMIT: dd8138684006432c6bb62c952909a59cda20adaf
+AUDIT_GUARD_FIX: PASS
+AUDIT_TEST_ID_FIXTURE_ASSERTION_PRESERVED: true
+TARGETED_AUDIT: 1/1
+TARGETED_AUDIT_SKIPPED: 0
+NEW_BLOCKER: RC_TWINE_6_2_METADATA_2_5_REJECTION
+REQUESTED_GATE: NONE
+```
+
+唯一原任务书为 `cbdc60a92a02b9e2eb0c1c6e2e93f74c335407f9` 的 WP4D 01 号任务书；本次 02 号勘误已按原始 Blob 核验 5642 bytes 与上列 SHA-256。勘误分支相对原任务书仅多一个文件提交；按其要求从 RESUME_BASE 继续同一独立工作树、原 feat 分支及 Draft PR #31，没有把任务书分支改写接入实现父链。
+
+旧审计 guard 的真实 skip 已解除，不删除或追改原始 BLOCKED 事实。当前新阻断是执行人新增构建 workflow 中选择的旧 Twine pin；不是将旧问题归咎于 ADMIN 任务书。原任务书 §13.2 要求适用 CI 失败即停止，因此未在失败后擅自调整候选工具 pin、降级制品元数据或放宽检查。
+
+当前制品身份仍为未发布 `fcop==4.0.0rc1 / fcop-mcp==4.0.0rc1`。四个首轮文件虽由构建器生成，但未通过 Twine、未计算并交付候选哈希清单；其 SHA-256 均为 **UNVERIFIED_NOT_UPLOADED**。第二轮构建、4/4 复现、wheel/sdist 安装态证明、12 组合 consumer 和本轮 CodeFlowMu shadow 均未验收。不得以源码成功、既有 package job 或旧 Gate 替代。
+
+完整命令、UTC 时间、退出码、计数、日志及交付字节说明集中列于本轮 [RESULT](FCOP-4.0-WP4D-RESULT.md)。候选内容提交的固定远端运行是 [Core CI](https://github.com/joinwell52-AI/FCoP/actions/runs/34363703057)、[MCP CI](https://github.com/joinwell52-AI/FCoP/actions/runs/34363702991) 和 [RC CI（FAIL）](https://github.com/joinwell52-AI/FCoP/actions/runs/34363703047)。所有证据必须按这里的提交读取；后续 Manifest HEAD 不能凭这些结果声称全绿。
+
+main 合并、tag、公开 RC、PyPI、GitHub Release、MCP Registry、Zenodo 及 CodeFlowMu 写入仍未授权，均未执行。新证据提交只包含这六份报告与测试证据，最后另作 Manifest-only 提交；内容、证据、Manifest 父链及远端逐文件 SHA-256 由 Manifest 和远端回读回执固定。
+
+## 本轮身份与 guard 复核
+
+- 首先仅修改旧测试的前置版本判断：比较 `(major, minor) < (1, 2)`；单文件提交 `fad3a2d…`。未改变 DEV.md/v1.0 夹具、Project 调用、审计调用或最终断言。
+- AST 比较删除双方仅有的旧/新 guard 两个节点后，整份 `test_audit.py` 的 AST 相等；原 Test ID、fixture 和断言保留。
+- 原生 Windows 定向 guard 为 1 passed / 0 skipped；身份及 pin 为 14 passed；候选文档与相关节点为 25 passed（均含 12 个新增身份节点、2 个既有 pin 节点）。
+- 双版本为 4.0.0rc1；MCP pin 为 `fcop>=4.0.0rc1,<4.1.0`；候选精确对与历史 3.2.5 对保留，未加入稳定版 4.0.0 对，Beta classifier 保持。
+- 新增的验证脚本没有导入私有 FCoP 生产接口；`Project`、`FcopError` 和可信 `create_server` 启动边界用于样例。没有新增公共 API 或运行时依赖。
+- `scripts/wp4d_verify_scope.py` 在内容提交上通过：routing 除兼容集合以外、两个版本模块除版本赋值以外，AST 均与固定基线相等；21/21 权威字节、19/19 canonical 文件与两棵冻结 Conformance tree 一致。
+
+本文件的身份通过不等于制品/安装态验收，当前 REQUESTED_GATE 仍为 NONE。
+
+---
+
+## 历史快照：原 BLOCKED 报告原文保留
+
+以下原文固定在 893e5c55f9f7ea433c6c518c76534218a4cf9570；其中“未运行”和旧 skip 仅描述该历史提交，不是上述续作后的当前结论。
+
 # WP4D RC 身份与版本：局部通过，阶段阻断
 
 双包源码身份为未发布 `4.0.0rc1`，两处 classifier 为 Beta。

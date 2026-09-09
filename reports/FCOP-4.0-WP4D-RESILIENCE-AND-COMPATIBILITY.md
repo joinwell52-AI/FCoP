@@ -1,3 +1,49 @@
+# WP4D 勘误续作：RESILIENCE-AND-COMPATIBILITY — BLOCKED
+
+## 当前续作结论（覆盖本报告的历史状态说明）
+
+```yaml
+WP4D_STATUS: BLOCKED
+AUTHORIZED_SCOPE: WP4D_AUDIT_GUARD_ONLY_AND_WP4D_RESUME
+ERRATUM_COMMIT: 22db1377163bb0b1e74c4b94fa1f594b3e762a9d
+ERRATUM_SHA256: 0e8926c282516dd10e2c1506243ccf33ab7798a8cd0744bcbccf078d5f344767
+RESUME_BASE: 893e5c55f9f7ea433c6c518c76534218a4cf9570
+AUDIT_GUARD_FIX_COMMIT: fad3a2d2cdcee490f8a86ae3d1254439089d5427
+CANDIDATE_CONTENT_COMMIT: dd8138684006432c6bb62c952909a59cda20adaf
+AUDIT_GUARD_FIX: PASS
+AUDIT_TEST_ID_FIXTURE_ASSERTION_PRESERVED: true
+TARGETED_AUDIT: 1/1
+TARGETED_AUDIT_SKIPPED: 0
+NEW_BLOCKER: RC_TWINE_6_2_METADATA_2_5_REJECTION
+REQUESTED_GATE: NONE
+```
+
+唯一原任务书为 `cbdc60a92a02b9e2eb0c1c6e2e93f74c335407f9` 的 WP4D 01 号任务书；本次 02 号勘误已按原始 Blob 核验 5642 bytes 与上列 SHA-256。勘误分支相对原任务书仅多一个文件提交；按其要求从 RESUME_BASE 继续同一独立工作树、原 feat 分支及 Draft PR #31，没有把任务书分支改写接入实现父链。
+
+旧审计 guard 的真实 skip 已解除，不删除或追改原始 BLOCKED 事实。当前新阻断是执行人新增构建 workflow 中选择的旧 Twine pin；不是将旧问题归咎于 ADMIN 任务书。原任务书 §13.2 要求适用 CI 失败即停止，因此未在失败后擅自调整候选工具 pin、降级制品元数据或放宽检查。
+
+当前制品身份仍为未发布 `fcop==4.0.0rc1 / fcop-mcp==4.0.0rc1`。四个首轮文件虽由构建器生成，但未通过 Twine、未计算并交付候选哈希清单；其 SHA-256 均为 **UNVERIFIED_NOT_UPLOADED**。第二轮构建、4/4 复现、wheel/sdist 安装态证明、12 组合 consumer 和本轮 CodeFlowMu shadow 均未验收。不得以源码成功、既有 package job 或旧 Gate 替代。
+
+完整命令、UTC 时间、退出码、计数、日志及交付字节说明集中列于本轮 [RESULT](FCOP-4.0-WP4D-RESULT.md)。候选内容提交的固定远端运行是 [Core CI](https://github.com/joinwell52-AI/FCoP/actions/runs/34363703057)、[MCP CI](https://github.com/joinwell52-AI/FCoP/actions/runs/34363702991) 和 [RC CI（FAIL）](https://github.com/joinwell52-AI/FCoP/actions/runs/34363703047)。所有证据必须按这里的提交读取；后续 Manifest HEAD 不能凭这些结果声称全绿。
+
+main 合并、tag、公开 RC、PyPI、GitHub Release、MCP Registry、Zenodo 及 CodeFlowMu 写入仍未授权，均未执行。新证据提交只包含这六份报告与测试证据，最后另作 Manifest-only 提交；内容、证据、Manifest 父链及远端逐文件 SHA-256 由 Manifest 和远端回读回执固定。
+
+## 当前恢复与兼容证据边界
+
+原生及 Ubuntu 源码样例通过以下真实调用：在已持久化边界外部 kill 进程，新进程从磁盘读取 TASK/transition/family digest/锁定规则上下文；响应丢失的创建请求返回 Existing，TASK 与事件不重复；不同摘要返回结构化 OPERATION_ID_CONFLICT 且整树快照不变。不是 parallel_surface_probe 或仅检查方法名。
+
+Python 源码样例还通过临时目录内的 canonical 规则读取/选择、零写入计划、显式采用、Host deploy、精确 deploy retry、verify_deployment、rollback 与再次 rollback。版本冲突、规则缺失、字节 digest 冲突及 context overflow 分别拒绝且零副作用；runtime_consumption_verified 始终为 null。上述属于源码验证，日志、命令和起止时间见 THIRD-PARTY-ADOPTION/RESULT。
+
+安装态仍未运行：四候选文件未通过 Twine，不能在本轮自行替换一组不同制品。3.2.5 固定历史 fixture producer、安装态双向版本错配、同一 wheel/sdist 的恢复/Host 证明和 14/14 CodeFlowMu shadow 均 NOT_RUN。没有修改、升级或部署 CodeFlowMu，也没有用父阶段 shadow 结果充当本轮结果。
+
+固定内容提交本地及 Ubuntu scope guard 均通过：19/19 canonical 文件、21/21 规范/规则权威字节未变；Core Conformance tree 为 `24ab264c6bca9a3183ee270becb552f22a4c4f9e`，Distribution Conformance tree 为 `4f99c7261b63b6db81c500604a231defaca9f14b`。21 个 SHA-256 与下面历史权威字节表一致；两棵冻结测试树没有改写。
+
+---
+
+## 历史快照：原 BLOCKED 报告原文保留
+
+以下原文固定在 893e5c55f9f7ea433c6c518c76534218a4cf9570；其中“未运行”和旧 skip 仅描述该历史提交，不是上述续作后的当前结论。
+
 # WP4D 恢复与兼容性：守卫阻断，安装态验证未运行
 
 修改前 1912 个现有节点完整通过，但未发布 RC 身份触发一个旧测试的提前 skip。不能把基线通过数移作候选恢复/兼容证据。

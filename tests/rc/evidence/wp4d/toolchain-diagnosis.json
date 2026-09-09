@@ -1,0 +1,65 @@
+{
+  "candidate_commit": "dd8138684006432c6bb62c952909a59cda20adaf",
+  "captured_at": "2026-09-09T14:33:17.496949+00:00",
+  "failure_job": 102506905065,
+  "packages": [
+    {
+      "package": "twine",
+      "source": "twine/package.py",
+      "source_url": "https://files.pythonhosted.org/packages/3a/7a/882d99539b19b1490cac5d77c67338d126e4122c8276bf640e411650c830/twine-6.2.0-py3-none-any.whl",
+      "version": "6.2.0",
+      "version_lists": [
+        {
+          "line": 32,
+          "versions": [
+            "1.0",
+            "1.1",
+            "1.2",
+            "2.0",
+            "2.1",
+            "2.2",
+            "2.3",
+            "2.4"
+          ]
+        }
+      ],
+      "wheel": "twine-6.2.0-py3-none-any.whl",
+      "wheel_sha256": "418ebf08ccda9a8caaebe414433b0ba5e25eb5e4a927667122fbe8f829f985d8"
+    },
+    {
+      "package": "twine",
+      "source": "twine/package.py",
+      "source_url": "https://files.pythonhosted.org/packages/96/08/ddcdc06225eaad6de0e48e1002b06d919dbde20582d0662c7af51308e5d6/twine-7.0.0-py3-none-any.whl",
+      "version": "7.0.0",
+      "version_lists": [],
+      "wheel": "twine-7.0.0-py3-none-any.whl",
+      "wheel_sha256": "b854164df26db268af05f49aa5c0344b10e27a494343ff05b1e0bad3b135f5a7"
+    },
+    {
+      "package": "packaging",
+      "source": "packaging/metadata.py",
+      "source_url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+      "version": "26.3",
+      "version_lists": [
+        {
+          "line": 545,
+          "versions": [
+            "1.0",
+            "1.1",
+            "1.2",
+            "2.1",
+            "2.2",
+            "2.3",
+            "2.4",
+            "2.5",
+            "2.6"
+          ]
+        }
+      ],
+      "wheel": "packaging-26.3-py3-none-any.whl",
+      "wheel_sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    }
+  ],
+  "proof_class": "READ_ONLY_TOOL_SOURCE_INSPECTION",
+  "twine_7_candidate_check": "NOT_RUN; source compatibility observation only, no tool pin was changed"
+}
