@@ -18,15 +18,22 @@ HOST_ERROR = "RULE_HOST_UNAVAILABLE"
 
 
 def inspect_profile(request: Mapping[str, Any], action: str,
-                    *, adopted_reference: bool = False) -> tuple[dict[str, Any], bytes]:
+                    *, adopted_reference: bool = False,
+                    measurement_only: bool = False) -> tuple[dict[str, Any], bytes]:
     raw = external_file(request.get("host_profile_path"), HOST_ERROR, action)
     value = parse(raw, HOST_ERROR, action)
     host = value.get("host_id")
     if not isinstance(host, str) or host not in HOSTS or set(value) != _PROFILE_FIELDS:
         reject(HOST_ERROR, action, "Unknown static Host profile")
     reference = value["profile_version"] == "reference-fixture.1"
+    # The reviewed bilingual input is evidence for byte measurement only.
+    # It does not extend candidate profile admission in any effectful caller.
+    bilingual = measurement_only and value["profile_version"] == "explicit-bilingual-fixture.1"
+    version = "explicit-bilingual-fixture.1" if bilingual else (
+        "reference-fixture.1" if reference else "1.0-candidate.1"
+    )
     if (
-        value["profile_version"] != ("reference-fixture.1" if reference else "1.0-candidate.1")
+        value["profile_version"] != version
         or value["projection_mode"] != ("reference" if reference else "bounded_embed")
         or value["reference_mode"] != ("relative-path" if reference else "none")
         or value["target_paths"] != [HOSTS[host]]
@@ -35,7 +42,7 @@ def inspect_profile(request: Mapping[str, Any], action: str,
         or type(value["max_projection_bytes"]) is not int
         or value["max_projection_bytes"] != (8192 if reference else 65536)
         or value["encoding"] != "UTF-8-no-BOM" or value["newline"] != "LF"
-        or value["languages"] not in (["en"], ["zh"])
+        or value["languages"] not in ((["en", "zh"],) if bilingual else (["en"], ["zh"]))
     ):
         reject(HOST_ERROR, action, "Unproven static Host contract")
     if reference and not adopted_reference:

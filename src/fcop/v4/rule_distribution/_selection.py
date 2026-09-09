@@ -79,7 +79,8 @@ def development(root: Path, request: Mapping[str, Any], action: str) -> dict[str
 
 
 def select(root: Path, package: _Package, request: Mapping[str, Any], action: str,
-           *, validated_profile: dict[str, Any] | None = None) -> dict[str, Any]:
+           *, validated_profile: dict[str, Any] | None = None,
+           measurement_only: bool = False) -> dict[str, Any]:
     if request.get("source_dependencies"):
         reject(_SELECTION, action, "Unadopted source dependency")
     assembly = request.get("assembly_id")
@@ -92,7 +93,7 @@ def select(root: Path, package: _Package, request: Mapping[str, Any], action: st
     if (
         not isinstance(modules, list) or not all(isinstance(m, str) for m in modules)
         or len(modules) != len(expected) or set(modules) != set(expected)
-        or languages not in (["en"], ["zh"])
+        or languages not in ((["en"], ["zh"], ["en", "zh"]) if measurement_only else (["en"], ["zh"]))
         or request.get("relation_fields", RELATIONS) != RELATIONS
     ):
         reject(_SELECTION, action, "Explicit closed modules, language and relations required")
