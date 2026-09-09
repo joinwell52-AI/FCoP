@@ -13,7 +13,6 @@
   <a href="https://pypi.org/project/fcop/3.2.5/"><img src="https://img.shields.io/badge/Python_SDK-3.2.5-blue" alt="fcop Python SDK 3.2.5" /></a>
   <a href="https://pypi.org/project/fcop-mcp/3.2.5/"><img src="https://img.shields.io/badge/MCP_server-3.2.5-purple" alt="fcop-mcp 3.2.5" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license" /></a>
-  <a href="docs/fcop-4.0-progress.md"><img src="https://img.shields.io/badge/4.0-in_development-orange" alt="FCoP 4.0 is in development" /></a>
 </p>
 
 <p align="center">
@@ -28,26 +27,7 @@
 
 Files are the current reference carrier. This repository provides the protocol, the `fcop` Python library and the optional `fcop-mcp` server. TASK records an assignment, REPORT records a delivery, ISSUE preserves a problem, and REVIEW records a review decision. Submitting a report alone does not establish acceptance.
 
-**Public release: [3.2.5](https://github.com/joinwell52-AI/FCoP/releases/tag/v3.2.5). [4.0 is under development](#v4), including an unpublished RC candidate.** The examples below use the published 3.2.5 packages.
-
-<a id="v4"></a>
-
-## 4.0: a small Core for durable work
-
-The 4.0 upgrade separates a small, language-independent Core from implementation tools, team policies and agent Runtimes. Its specification and conformance work define the observable behavior that compatible implementations must preserve:
-
-| What needs to hold | 4.0 contract |
-|---|---|
-| The evidence belongs to this execution | Each attempt has its own REPORT; reaching `done` requires acceptance and authorization tied to current evidence. |
-| Approval covers this operation | A durable REVIEW records the authorization. An explicitly adopted Profile checks the issuer's authority. |
-| The whole task family is ready to close | Root archival checks completed Branches, their current reports and a matching convergence record. Changed evidence invalidates old convergence. |
-| A retry or crash leaves explainable state | Creating a task uses a durable operation key and digest. Recovery classifies persisted facts, rejects conflicting writes and preserves ambiguous evidence. |
-
-Independent tasks and Branches can progress in parallel, each through its own ordered lifecycle. Closing a task family requires explicit convergence over its current evidence. This model keeps related state commits consistent while allowing agents to work concurrently.
-
-Core defines eight shared contracts; conformance checks their implementation. Python SDK and MCP operations belong to the Toolkit, Profiles supply organizational policy, and the host Runtime executes work.
-
-**4.0 is not a published installation target.** Read the [upgrade overview, Core map and review sources](docs/fcop-4.0-progress.md). Existing 3.x workspaces keep their version's behavior until explicit migration.
+**Public release: [3.2.5](https://github.com/joinwell52-AI/FCoP/releases/tag/v3.2.5).** The examples and installation instructions below use the published 3.2.5 packages.
 
 ## See a handoff
 
@@ -174,6 +154,10 @@ Use the record matching the version you studied. These existing identifiers do n
 | Read experiments and historical tutorials | [Complete field-report index](essays/README.md) |
 
 The field-report index preserves the articles, external publication links and evidence archives. Historical examples describe the version used at the time.
+
+<a id="v4"></a>
+
+> **Development note:** FCoP 4.0 is still in progress. Its [design and candidate-review notes](docs/fcop-4.0-progress.md) describe unfinished work; they are not a release announcement or a claim of completed functionality.
 
 ## Three repositories, three entry points
 

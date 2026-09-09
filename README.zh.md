@@ -13,7 +13,6 @@
   <a href="https://pypi.org/project/fcop/3.2.5/"><img src="https://img.shields.io/badge/Python_SDK-3.2.5-blue" alt="fcop Python SDK 3.2.5" /></a>
   <a href="https://pypi.org/project/fcop-mcp/3.2.5/"><img src="https://img.shields.io/badge/MCP_server-3.2.5-purple" alt="fcop-mcp 3.2.5" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT 许可证" /></a>
-  <a href="docs/fcop-4.0-progress.md"><img src="https://img.shields.io/badge/4.0-in_development-orange" alt="FCoP 4.0 开发中" /></a>
 </p>
 
 <p align="center">
@@ -28,26 +27,7 @@
 
 文件系统是当前参考实现的载体。本仓库提供协议、`fcop` Python 库和可选的 `fcop-mcp` 服务器。TASK 记录任务，REPORT 记录交付，ISSUE 留下问题，REVIEW 记录审查决定。提交报告本身不代表交付已被接受。
 
-**当前公开版本：[3.2.5](https://github.com/joinwell52-AI/FCoP/releases/tag/v3.2.5)。[4.0 正在升级](#v4)，包含尚未发布的 RC 候选版本。** 下方示例使用已经公开的 3.2.5 安装包。
-
-<a id="v4"></a>
-
-## 4.0：为持久工作定义小而稳定的 Core
-
-这次升级将与实现语言无关的 Core，与实现工具、团队策略、Agent Runtime 分层。规范和一致性验证共同明确兼容实现应保持的可观察行为：
-
-| 需要确认的事 | 4.0 契约 |
-|---|---|
-| 证据属于这一次执行 | 每轮执行有自己的 REPORT；进入 `done` 需要与当前证据对应的接受审查和授权。 |
-| 批准的就是这次操作 | 授权由持久化的 REVIEW 记录；显式采纳的 Profile 核验签发者权限。 |
-| 整个任务分支集合可以收尾 | Root 归档检查 Branch 完成情况、当前报告与汇合记录；证据变化后，旧汇合结论失效。 |
-| 重试或崩溃后仍有事实可查 | 创建任务使用持久操作键与摘要；恢复按落盘事实分类，拒绝冲突写入，保留有歧义的证据。 |
-
-独立任务和 Branch 可以并行推进，每条工作流按自己的生命周期顺序执行。任务分支集合收尾时，必须基于当前证据明确汇合结论；相关状态提交保持一致，Agent 的实际工作可以并发进行。
-
-Core 定义八项共同契约，一致性检查验证实现。Python SDK 和 MCP 操作属于 Toolkit，Profile 承载组织策略，宿主 Runtime 执行工作。
-
-**4.0 目前还不能作为已发布版本安装。** 详见[升级概览、Core 分工与审查来源](docs/fcop-4.0-progress.md)。已有 3.x 工作区在显式迁移前继续保持原版本行为。
+**当前公开版本：[3.2.5](https://github.com/joinwell52-AI/FCoP/releases/tag/v3.2.5)。** 下方示例和安装说明使用已经公开的 3.2.5 安装包。
 
 ## 先看一次任务交接
 
@@ -174,6 +154,10 @@ Recorded transitions: 2
 | 阅读实验与历史教程 | [完整现场报告索引](essays/README.zh.md) |
 
 文章、外部发布链接与证据档案均保留在索引中。历史案例描述的是当时使用的版本。
+
+<a id="v4"></a>
+
+> **开发说明：** FCoP 4.0 仍在开发。[设计与候选审查记录](docs/fcop-4.0-progress.md)描述的是尚未完成的工作，不代表功能已经交付或版本已经发布。
 
 ## 三个仓库，三个入口
 

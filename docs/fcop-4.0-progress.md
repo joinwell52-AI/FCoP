@@ -1,6 +1,10 @@
-# FCoP 4.0 upgrade overview / 升级概览
+# FCoP 4.0 development notes / 开发记录（草稿）
 
 [README](../README.md) · [中文 README](../README.zh.md)
+
+**FCoP 4.0 is unfinished.** This page is a design and candidate-review snapshot. Contract descriptions and document coverage do not establish completed functionality, engineering acceptance or release readiness.
+
+**FCoP 4.0 尚未完成。** 本页保存设计与候选审查记录；契约描述、文档覆盖度或 README 分支的检查通过，都不能作为 4.0 功能完成、工程验收或发布就绪的证明。
 
 Checked 2026-09-09. This page separates the public installation path from the ongoing 4.0 work. The pinned sources below describe a review candidate; they are not a release announcement.
 
