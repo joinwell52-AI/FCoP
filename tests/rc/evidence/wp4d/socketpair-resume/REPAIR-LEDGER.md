@@ -1,5 +1,14 @@
 # WP4D incremental verification repair ledger
 
+Current correction: the later timed rechecks did not invalidate the earlier
+valid 14/14 and before/after byte-equality proof at unchanged content d1a86f3.
+Requiring a live downstream quiet window was an executor judgment error;
+that escalation is withdrawn. The user clarified that only FCoP is being
+upgraded, while CodeFlowMu remains below 4.0. No further live downstream
+inspection, coordination or action is performed. All unsuccessful rechecks
+and historical wording below remain as evidence, not as current requirements.
+Final FCoP delivery and final-HEAD CI must still be completed independently.
+
 Authority: ba8830c1871f6516fec1e2779d21c09b9a5e96ea,
 SHA-256 badc8a597a01407dec012d1085a5cac5815f8608e8afec742688846beb11c625,
 7652 bytes. This ledger is not a Gate or final COMPLETE report.
