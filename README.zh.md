@@ -145,7 +145,9 @@ Recorded transitions: 2
 
 连接成功后，用 `set_project_dir` 明确选择项目目录，用 `fcop_report` 检查状态，再为新项目选择需要的初始化模式。安装服务器本身不会创建 Agent 团队或开始执行任务。
 
-[客户端配置与首次连接排查](mcp/README.md) · [工具参考](docs/mcp-tools.md) · [让 Agent 协助安装的提示词](src/fcop/rules/_data/agent-install-prompt.zh.md)
+[客户端配置与首次连接排查](mcp/README.md) · [工具参考](docs/mcp-tools.md)
+
+让 Agent 协助安装时，可以使用[中文安装提示词](src/fcop/rules/_data/agent-install-prompt.zh.md)或[英文安装提示词](src/fcop/rules/_data/agent-install-prompt.en.md)。已连接的 MCP 客户端也可以读取对应资源：`fcop://prompt/install`（中文）、`fcop://prompt/install/en`（英文）。
 
 目录收录：[MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop)（`io.github.joinwell52-AI/fcop`）· [Glama](https://glama.ai/mcp/servers/joinwell52-AI/FCoP)。
 

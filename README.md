@@ -145,7 +145,9 @@ The separate [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) package exposes FC
 
 After the server connects, explicitly select the project directory with `set_project_dir`, inspect it with `fcop_report`, and choose the intended initialization mode for a new project. Installing a server does not create an agent team or start work.
 
-[Client setup and cold-start troubleshooting](mcp/README.md) · [Tool reference](docs/mcp-tools.md) · [Agent-assisted installation prompt](src/fcop/rules/_data/agent-install-prompt.en.md)
+[Client setup and cold-start troubleshooting](mcp/README.md) · [Tool reference](docs/mcp-tools.md)
+
+For agent-assisted setup, use the installation prompt in [English](src/fcop/rules/_data/agent-install-prompt.en.md) or [简体中文](src/fcop/rules/_data/agent-install-prompt.zh.md). A connected MCP client can also read the `fcop://prompt/install/en` and `fcop://prompt/install` resources respectively.
 
 Directory listings: [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop) (`io.github.joinwell52-AI/fcop`) · [Glama](https://glama.ai/mcp/servers/joinwell52-AI/FCoP).
 
