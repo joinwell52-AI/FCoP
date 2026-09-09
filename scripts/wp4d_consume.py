@@ -15,6 +15,8 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
+from wp4d_candidate_ref import candidate_ref
+
 NAMES = ["fcop-4.0.0rc1-py3-none-any.whl", "fcop-4.0.0rc1.tar.gz",
          "fcop_mcp-4.0.0rc1-py3-none-any.whl", "fcop_mcp-4.0.0rc1.tar.gz"]
 
@@ -118,7 +120,9 @@ def main():
     assert sorted(r["filename"] for r in manifest["files"]) == sorted(NAMES)
     assert manifest["raw_reproducibility"] == "4/4"
     assert manifest["repository"] == "joinwell52-AI/FCoP"
-    assert manifest["commit"] == subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    execution_head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    assert manifest["commit"] == candidate_ref(repo)
+    assert manifest["execution_head"] == execution_head
     historical = verify_set(legacy, "historical-manifest.json", args.historical_manifest_sha256)
     assert historical["commit"] == "167c5fd4ca4c9603c392bae3a4a055963e7b7ed6"
     evidence = args.evidence.resolve()
@@ -169,7 +173,7 @@ def main():
         results.append(dict(origin=origin, identity=identity, python=adoption, mcp=mcp,
                             legacy=legacy_read, mismatches=negative))
     final = dict(schema="wp4d-consumer/v1", os=platform.system(), python=platform.python_version(),
-                 candidate_commit=manifest["commit"], started=started,
+                 candidate_commit=manifest["commit"], execution_head=execution_head, started=started,
                  finished=datetime.now(timezone.utc).isoformat(),
                  candidate_manifest_sha256=args.candidate_manifest_sha256,
                  artifact_sha256={r["filename"]: r["sha256"] for r in manifest["files"]},

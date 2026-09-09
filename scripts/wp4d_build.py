@@ -16,6 +16,8 @@ from email.parser import BytesParser
 from importlib.metadata import version
 from pathlib import Path
 
+from wp4d_candidate_ref import candidate_ref
+
 TARGET = "4.0.0rc1"
 NAMES = ["fcop-4.0.0rc1-py3-none-any.whl", "fcop-4.0.0rc1.tar.gz",
          "fcop_mcp-4.0.0rc1-py3-none-any.whl", "fcop_mcp-4.0.0rc1.tar.gz"]
@@ -79,7 +81,8 @@ def inspect_archive(path, canonical):
             embedded[name.split(prefix, 1)[1]] = sha(raw)
     if distribution == "fcop":
         assert embedded == canonical and len(embedded) == 19
-    return dict(distribution=distribution, version=meta["Version"], members=len(members),
+    return dict(distribution=distribution, version=meta["Version"], metadata_version=meta["Metadata-Version"],
+                members=len(members),
                 canonical_sha256=embedded, requirements=meta.get_all("Requires-Dist", []))
 
 
@@ -91,8 +94,12 @@ def main():
     output = args.output.resolve()
     assert not output.exists() and not output.is_relative_to(repo)
     assert platform.system() == "Linux" and sys.version_info[:2] == (3, 12)
+    tools = {n: version(n) for n in ("build", "hatchling", "setuptools", "wheel", "twine", "packaging")}
+    assert tools == {"build": "1.4.2", "hatchling": "1.32.0", "setuptools": "82.0.1",
+                     "wheel": "0.45.1", "twine": "7.0.0", "packaging": "26.3"}, tools
     output.mkdir(parents=True)
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    execution_head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    commit = candidate_ref(repo)
     assert not subprocess.check_output(["git", "status", "--porcelain"])
     canonical = {}
     names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", BASE,
@@ -125,8 +132,8 @@ def main():
         sets.append(records)
     assert sets[0] == sets[1], "Non-reproducible candidate; do not mix sets"
     document = dict(schema="wp4d-candidates/v1", repository="joinwell52-AI/FCoP",
-                    commit=commit, python=platform.python_version(),
-                    tools={n: version(n) for n in ("build", "hatchling", "setuptools", "wheel", "twine", "packaging")},
+                    commit=commit, execution_head=execution_head, python=platform.python_version(),
+                    tools=tools,
                     source_date_epoch=int(EPOCH), started=started,
                     finished=datetime.now(timezone.utc).isoformat(), run_id=os.getenv("GITHUB_RUN_ID"),
                     raw_reproducibility="4/4", files=sets[0])

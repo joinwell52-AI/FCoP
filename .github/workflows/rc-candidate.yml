@@ -38,7 +38,7 @@ jobs:
       - name: All original and RC tests, no unexpected skip
         run: |
           python -B -m pytest tests/test_fcop tests/conformance/v4 tests/test_fcop_mcp tests/conformance/rule_distribution_v4 -q --junitxml="$RUNNER_TEMP/full.xml"
-          python -c "import os,pathlib,xml.etree.ElementTree as E; s=E.parse(pathlib.Path(os.environ['RUNNER_TEMP'])/'full.xml').getroot().find('testsuite'); assert int(s.get('tests')) >= 1925; assert all(int(s.get(k))==0 for k in ('failures','errors','skipped'))"
+          python -c "import os,pathlib,xml.etree.ElementTree as E; s=E.parse(pathlib.Path(os.environ['RUNNER_TEMP'])/'full.xml').getroot().find('testsuite'); assert int(s.get('tests')) >= 1931; assert all(int(s.get(k))==0 for k in ('failures','errors','skipped'))"
       - name: Source parity (not clean room)
         run: python -B scripts/wp4d_source.py
       - uses: actions/upload-artifact@v4
