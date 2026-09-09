@@ -55,7 +55,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Fixed build tooling (no publish tooling invocation)
-        run: python -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==6.2.0
+        run: python -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==7.0.0 packaging==26.3
       - name: Two fresh source directories, four raw byte equalities
         run: python -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build" > "$RUNNER_TEMP/wp4d-build.log" 2>&1
       - name: Separate accepted 3.2.5 fixture, not an RC candidate

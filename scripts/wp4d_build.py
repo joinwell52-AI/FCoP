@@ -126,7 +126,7 @@ def main():
     assert sets[0] == sets[1], "Non-reproducible candidate; do not mix sets"
     document = dict(schema="wp4d-candidates/v1", repository="joinwell52-AI/FCoP",
                     commit=commit, python=platform.python_version(),
-                    tools={n: version(n) for n in ("build", "hatchling", "setuptools", "wheel", "twine")},
+                    tools={n: version(n) for n in ("build", "hatchling", "setuptools", "wheel", "twine", "packaging")},
                     source_date_epoch=int(EPOCH), started=started,
                     finished=datetime.now(timezone.utc).isoformat(), run_id=os.getenv("GITHUB_RUN_ID"),
                     raw_reproducibility="4/4", files=sets[0])
