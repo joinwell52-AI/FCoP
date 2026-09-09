@@ -1,0 +1,141 @@
+{
+  "commit": "7002fb5c1893d153acdcd07b29391cc6ddb9f533",
+  "files": [
+    {
+      "bytes": 726280,
+      "canonical_sha256": {
+        "authorization.en.md": "96c1c18bab3a879b51a1e2d0041f1f08eeae685185ad9489f13ed0a999f9a00b",
+        "authorization.zh.md": "13b82fdeb7c577a68a70d94303bf090eac42ce44c137c1a166b23f7014c1b854",
+        "compatibility.en.md": "a65385a3a2e68d043c65f9b8c34c6ac311bb7f9b2ea1e9f4c162886f858a64d8",
+        "compatibility.zh.md": "d6ce267c8216a2d6df2e5e601f4d237d941778a36687eae1d310616f6170585e",
+        "convergence.en.md": "ec3cf38b6dba4d3eb8447cc7cd25e947c06abed228c37c9d651f873662edc70e",
+        "convergence.zh.md": "2b5c2a52c33bc38e8c3c85fdd75d5de3c837cc483a29941ec02a61a059c1701a",
+        "envelopes.en.md": "0405885cbe3fe791c0e1a6c76da004d093d58cd55159ffeb3ca8c89e4ec045a3",
+        "envelopes.zh.md": "0a69c9196e95185cf9e98b71af8c564be5797e26a71c5a9b7dc32d0735a08fef",
+        "idempotency.en.md": "1b100010d36342e6d98e9031429b3e11aad5657dfa953031e43bc4c99772a16a",
+        "idempotency.zh.md": "51c53931e02b1f39950f4a2f16b5e8e9a5f9d10b77f5ea1ad6b07c3e96385f08",
+        "lifecycle.en.md": "b6356c078ab00b893379f0b4f558616444ef4a4aa0e17432460719a9be362b2b",
+        "lifecycle.zh.md": "26b338914cffe2ea076f0e88133fc69617c91ecb149b3e40217baeef708cffef",
+        "manifest.json": "7efb1ba14df4d1ffbe164b8ec85dbf4316e7da4c0f367f3a506c78e4e29862d4",
+        "recovery.en.md": "aad4861efa59df69742c4bf577d57a553cbb170f6f92d61f6df74ec3ec503908",
+        "recovery.zh.md": "b19226071498f6414e11379b9d67cee36e4a79d65510fffefd14a021cd829000",
+        "relations.en.md": "1b706c4ff76efb6edad40ab7985a0693eb9466da483d7024eb1f29668e022789",
+        "relations.zh.md": "fa51c77a568dae7f7cf41242b612ae2b2963075004aaebef533334a0466d3d42",
+        "workspace.en.md": "06d4a9604fbab50ade36369f8f1d2950f099a241d659613cc78f1dd7e93555b3",
+        "workspace.zh.md": "617009dc95cf4bedd252491334f45cf61fa1fe8ccf935f2127e2a1da9a49e30b"
+      },
+      "distribution": "fcop",
+      "filename": "fcop-4.0.0rc1-py3-none-any.whl",
+      "members": 182,
+      "requirements": [
+        "jsonschema<5.0,>=4.0",
+        "pyyaml<7.0,>=6.0",
+        "build>=1.2; extra == 'dev'",
+        "mypy>=1.10; extra == 'dev'",
+        "pytest-cov>=5.0; extra == 'dev'",
+        "pytest>=8.0; extra == 'dev'",
+        "ruff>=0.5; extra == 'dev'",
+        "twine>=5.0; extra == 'dev'",
+        "types-pyyaml; extra == 'dev'"
+      ],
+      "sha256": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "version": "4.0.0rc1"
+    },
+    {
+      "bytes": 647881,
+      "canonical_sha256": {
+        "authorization.en.md": "96c1c18bab3a879b51a1e2d0041f1f08eeae685185ad9489f13ed0a999f9a00b",
+        "authorization.zh.md": "13b82fdeb7c577a68a70d94303bf090eac42ce44c137c1a166b23f7014c1b854",
+        "compatibility.en.md": "a65385a3a2e68d043c65f9b8c34c6ac311bb7f9b2ea1e9f4c162886f858a64d8",
+        "compatibility.zh.md": "d6ce267c8216a2d6df2e5e601f4d237d941778a36687eae1d310616f6170585e",
+        "convergence.en.md": "ec3cf38b6dba4d3eb8447cc7cd25e947c06abed228c37c9d651f873662edc70e",
+        "convergence.zh.md": "2b5c2a52c33bc38e8c3c85fdd75d5de3c837cc483a29941ec02a61a059c1701a",
+        "envelopes.en.md": "0405885cbe3fe791c0e1a6c76da004d093d58cd55159ffeb3ca8c89e4ec045a3",
+        "envelopes.zh.md": "0a69c9196e95185cf9e98b71af8c564be5797e26a71c5a9b7dc32d0735a08fef",
+        "idempotency.en.md": "1b100010d36342e6d98e9031429b3e11aad5657dfa953031e43bc4c99772a16a",
+        "idempotency.zh.md": "51c53931e02b1f39950f4a2f16b5e8e9a5f9d10b77f5ea1ad6b07c3e96385f08",
+        "lifecycle.en.md": "b6356c078ab00b893379f0b4f558616444ef4a4aa0e17432460719a9be362b2b",
+        "lifecycle.zh.md": "26b338914cffe2ea076f0e88133fc69617c91ecb149b3e40217baeef708cffef",
+        "manifest.json": "7efb1ba14df4d1ffbe164b8ec85dbf4316e7da4c0f367f3a506c78e4e29862d4",
+        "recovery.en.md": "aad4861efa59df69742c4bf577d57a553cbb170f6f92d61f6df74ec3ec503908",
+        "recovery.zh.md": "b19226071498f6414e11379b9d67cee36e4a79d65510fffefd14a021cd829000",
+        "relations.en.md": "1b706c4ff76efb6edad40ab7985a0693eb9466da483d7024eb1f29668e022789",
+        "relations.zh.md": "fa51c77a568dae7f7cf41242b612ae2b2963075004aaebef533334a0466d3d42",
+        "workspace.en.md": "06d4a9604fbab50ade36369f8f1d2950f099a241d659613cc78f1dd7e93555b3",
+        "workspace.zh.md": "617009dc95cf4bedd252491334f45cf61fa1fe8ccf935f2127e2a1da9a49e30b"
+      },
+      "distribution": "fcop",
+      "filename": "fcop-4.0.0rc1.tar.gz",
+      "members": 193,
+      "requirements": [
+        "jsonschema<5.0,>=4.0",
+        "pyyaml<7.0,>=6.0",
+        "build>=1.2; extra == 'dev'",
+        "mypy>=1.10; extra == 'dev'",
+        "pytest-cov>=5.0; extra == 'dev'",
+        "pytest>=8.0; extra == 'dev'",
+        "ruff>=0.5; extra == 'dev'",
+        "twine>=5.0; extra == 'dev'",
+        "types-pyyaml; extra == 'dev'"
+      ],
+      "sha256": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "version": "4.0.0rc1"
+    },
+    {
+      "bytes": 117937,
+      "canonical_sha256": {},
+      "distribution": "fcop-mcp",
+      "filename": "fcop_mcp-4.0.0rc1-py3-none-any.whl",
+      "members": 25,
+      "requirements": [
+        "fastmcp==3.2.4",
+        "fcop<4.1.0,>=4.0.0rc1",
+        "build>=1.2; extra == 'dev'",
+        "mypy>=1.10; extra == 'dev'",
+        "pytest-cov>=5.0; extra == 'dev'",
+        "pytest>=8.0; extra == 'dev'",
+        "ruff>=0.5; extra == 'dev'",
+        "twine>=5.0; extra == 'dev'",
+        "websockets>=12.0; extra == 'relay'"
+      ],
+      "sha256": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "version": "4.0.0rc1"
+    },
+    {
+      "bytes": 109420,
+      "canonical_sha256": {},
+      "distribution": "fcop-mcp",
+      "filename": "fcop_mcp-4.0.0rc1.tar.gz",
+      "members": 25,
+      "requirements": [
+        "fastmcp==3.2.4",
+        "fcop<4.1.0,>=4.0.0rc1",
+        "build>=1.2; extra == 'dev'",
+        "mypy>=1.10; extra == 'dev'",
+        "pytest-cov>=5.0; extra == 'dev'",
+        "pytest>=8.0; extra == 'dev'",
+        "ruff>=0.5; extra == 'dev'",
+        "twine>=5.0; extra == 'dev'",
+        "websockets>=12.0; extra == 'relay'"
+      ],
+      "sha256": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b",
+      "version": "4.0.0rc1"
+    }
+  ],
+  "finished": "2026-09-09T16:20:10.459215+00:00",
+  "python": "3.12.14",
+  "raw_reproducibility": "4/4",
+  "repository": "joinwell52-AI/FCoP",
+  "run_id": "34376024984",
+  "schema": "wp4d-candidates/v1",
+  "source_date_epoch": 1788940367,
+  "started": "2026-09-09T16:20:05.081384+00:00",
+  "tools": {
+    "build": "1.4.2",
+    "hatchling": "1.32.0",
+    "packaging": "26.3",
+    "setuptools": "82.0.1",
+    "twine": "7.0.0",
+    "wheel": "0.45.1"
+  }
+}

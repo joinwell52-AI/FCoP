@@ -1,0 +1,4770 @@
+[
+  {
+    "run_id": 34377729431,
+    "total_count": 15,
+    "jobs": [
+      {
+        "id": 102554652295,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvOhw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652295",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652295",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:38:10Z",
+        "name": "Coverage (Ubuntu / 3.12)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:03Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:03Z",
+            "completed_at": "2026-09-09T16:36:06Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:06Z",
+            "completed_at": "2026-09-09T16:36:19Z"
+          },
+          {
+            "name": "Measure coverage",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:19Z",
+            "completed_at": "2026-09-09T16:38:07Z"
+          },
+          {
+            "name": "Upload coverage report",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:07Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652295",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022404,
+        "runner_name": "GitHub Actions 1000022404",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652577,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvPoQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652577",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652577",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:37:23Z",
+        "name": "ubuntu-latest / Python 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:04Z"
+          },
+          {
+            "name": "Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:04Z",
+            "completed_at": "2026-09-09T16:36:09Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:09Z",
+            "completed_at": "2026-09-09T16:36:22Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:22Z",
+            "completed_at": "2026-09-09T16:36:22Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:22Z",
+            "completed_at": "2026-09-09T16:36:24Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:24Z",
+            "completed_at": "2026-09-09T16:37:18Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:37:18Z",
+            "completed_at": "2026-09-09T16:37:19Z"
+          },
+          {
+            "name": "Post Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:19Z",
+            "completed_at": "2026-09-09T16:37:19Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:37:19Z",
+            "completed_at": "2026-09-09T16:37:20Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:37:20Z",
+            "completed_at": "2026-09-09T16:37:20Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652577",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022414,
+        "runner_name": "GitHub Actions 1000022414",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652811,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQiw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652811",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652811",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:39:33Z",
+        "name": "windows-latest / Python 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:08Z"
+          },
+          {
+            "name": "Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:08Z",
+            "completed_at": "2026-09-09T16:36:13Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:13Z",
+            "completed_at": "2026-09-09T16:36:42Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:42Z",
+            "completed_at": "2026-09-09T16:36:42Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:42Z",
+            "completed_at": "2026-09-09T16:36:46Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:46Z",
+            "completed_at": "2026-09-09T16:39:26Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:39:26Z",
+            "completed_at": "2026-09-09T16:39:29Z"
+          },
+          {
+            "name": "Post Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:29Z",
+            "completed_at": "2026-09-09T16:39:29Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:39:29Z",
+            "completed_at": "2026-09-09T16:39:31Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:39:31Z",
+            "completed_at": "2026-09-09T16:39:31Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652811",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022406,
+        "runner_name": "GitHub Actions 1000022406",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652832,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQoA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652832",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652832",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:40:39Z",
+        "name": "windows-latest / Python 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:06Z"
+          },
+          {
+            "name": "Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:06Z",
+            "completed_at": "2026-09-09T16:36:10Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:10Z",
+            "completed_at": "2026-09-09T16:36:56Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:56Z",
+            "completed_at": "2026-09-09T16:36:57Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:57Z",
+            "completed_at": "2026-09-09T16:37:00Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:00Z",
+            "completed_at": "2026-09-09T16:40:31Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:40:31Z",
+            "completed_at": "2026-09-09T16:40:35Z"
+          },
+          {
+            "name": "Post Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:35Z",
+            "completed_at": "2026-09-09T16:40:35Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:40:35Z",
+            "completed_at": "2026-09-09T16:40:37Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:40:37Z",
+            "completed_at": "2026-09-09T16:40:37Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652832",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022408,
+        "runner_name": "GitHub Actions 1000022408",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652862,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQvg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652862",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652862",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:57Z",
+        "completed_at": "2026-09-09T16:39:15Z",
+        "name": "windows-latest / Python 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:06Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:06Z",
+            "completed_at": "2026-09-09T16:36:10Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:10Z",
+            "completed_at": "2026-09-09T16:36:38Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:38Z",
+            "completed_at": "2026-09-09T16:36:38Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:38Z",
+            "completed_at": "2026-09-09T16:36:42Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:42Z",
+            "completed_at": "2026-09-09T16:39:08Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:39:08Z",
+            "completed_at": "2026-09-09T16:39:11Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:11Z",
+            "completed_at": "2026-09-09T16:39:11Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:39:11Z",
+            "completed_at": "2026-09-09T16:39:14Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:39:14Z",
+            "completed_at": "2026-09-09T16:39:14Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652862",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022407,
+        "runner_name": "GitHub Actions 1000022407",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652864,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQwA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652864",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652864",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:57Z",
+        "completed_at": "2026-09-09T16:37:21Z",
+        "name": "ubuntu-latest / Python 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:02Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:02Z",
+            "completed_at": "2026-09-09T16:36:03Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:03Z",
+            "completed_at": "2026-09-09T16:36:13Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:13Z",
+            "completed_at": "2026-09-09T16:36:13Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:13Z",
+            "completed_at": "2026-09-09T16:36:15Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:15Z",
+            "completed_at": "2026-09-09T16:37:18Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:37:18Z",
+            "completed_at": "2026-09-09T16:37:19Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:19Z",
+            "completed_at": "2026-09-09T16:37:20Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:37:20Z",
+            "completed_at": "2026-09-09T16:37:20Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:37:20Z",
+            "completed_at": "2026-09-09T16:37:20Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652864",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022415,
+        "runner_name": "GitHub Actions 1000022415",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652877,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQzQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652877",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652877",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:37:29Z",
+        "name": "ubuntu-latest / Python 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:08Z"
+          },
+          {
+            "name": "Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:08Z",
+            "completed_at": "2026-09-09T16:36:11Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:11Z",
+            "completed_at": "2026-09-09T16:36:22Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:22Z",
+            "completed_at": "2026-09-09T16:36:22Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:22Z",
+            "completed_at": "2026-09-09T16:36:25Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:25Z",
+            "completed_at": "2026-09-09T16:37:25Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:37:25Z",
+            "completed_at": "2026-09-09T16:37:26Z"
+          },
+          {
+            "name": "Post Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:26Z",
+            "completed_at": "2026-09-09T16:37:26Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:37:26Z",
+            "completed_at": "2026-09-09T16:37:26Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:37:26Z",
+            "completed_at": "2026-09-09T16:37:26Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652877",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022417,
+        "runner_name": "GitHub Actions 1000022417",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652965,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvRJQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652965",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652965",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:36:49Z",
+        "completed_at": "2026-09-09T16:37:53Z",
+        "name": "macos-latest / Python 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:36:50Z",
+            "completed_at": "2026-09-09T16:36:50Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:50Z",
+            "completed_at": "2026-09-09T16:36:54Z"
+          },
+          {
+            "name": "Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:54Z",
+            "completed_at": "2026-09-09T16:36:56Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:56Z",
+            "completed_at": "2026-09-09T16:37:05Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:05Z",
+            "completed_at": "2026-09-09T16:37:05Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:05Z",
+            "completed_at": "2026-09-09T16:37:06Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:06Z",
+            "completed_at": "2026-09-09T16:37:49Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:37:49Z",
+            "completed_at": "2026-09-09T16:37:50Z"
+          },
+          {
+            "name": "Post Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:50Z",
+            "completed_at": "2026-09-09T16:37:50Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:37:50Z",
+            "completed_at": "2026-09-09T16:37:51Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:37:51Z",
+            "completed_at": "2026-09-09T16:37:51Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652965",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022421,
+        "runner_name": "GitHub Actions 1000022421",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652984,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvROA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652984",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652984",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:38:20Z",
+        "completed_at": "2026-09-09T16:39:43Z",
+        "name": "macos-latest / Python 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:21Z",
+            "completed_at": "2026-09-09T16:38:21Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:21Z",
+            "completed_at": "2026-09-09T16:38:34Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:34Z",
+            "completed_at": "2026-09-09T16:38:36Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:38:36Z",
+            "completed_at": "2026-09-09T16:38:46Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:46Z",
+            "completed_at": "2026-09-09T16:38:46Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:46Z",
+            "completed_at": "2026-09-09T16:38:48Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:48Z",
+            "completed_at": "2026-09-09T16:39:39Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:39:39Z",
+            "completed_at": "2026-09-09T16:39:40Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:40Z",
+            "completed_at": "2026-09-09T16:39:40Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:39:40Z",
+            "completed_at": "2026-09-09T16:39:41Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:39:41Z",
+            "completed_at": "2026-09-09T16:39:41Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652984",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022435,
+        "runner_name": "GitHub Actions 1000022435",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652986,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvROg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652986",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554652986",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:37:42Z",
+        "name": "ubuntu-latest / Python 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:04Z"
+          },
+          {
+            "name": "Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:04Z",
+            "completed_at": "2026-09-09T16:36:12Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:12Z",
+            "completed_at": "2026-09-09T16:36:26Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:26Z",
+            "completed_at": "2026-09-09T16:36:26Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:26Z",
+            "completed_at": "2026-09-09T16:36:29Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:29Z",
+            "completed_at": "2026-09-09T16:37:37Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:37:37Z",
+            "completed_at": "2026-09-09T16:37:38Z"
+          },
+          {
+            "name": "Post Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:38Z",
+            "completed_at": "2026-09-09T16:37:38Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:37:38Z",
+            "completed_at": "2026-09-09T16:37:39Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:37:39Z",
+            "completed_at": "2026-09-09T16:37:39Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652986",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022416,
+        "runner_name": "GitHub Actions 1000022416",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554653059,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvRgw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554653059",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554653059",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:37:13Z",
+        "completed_at": "2026-09-09T16:38:12Z",
+        "name": "macos-latest / Python 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:14Z",
+            "completed_at": "2026-09-09T16:37:14Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:14Z",
+            "completed_at": "2026-09-09T16:37:18Z"
+          },
+          {
+            "name": "Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:18Z",
+            "completed_at": "2026-09-09T16:37:21Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:21Z",
+            "completed_at": "2026-09-09T16:37:29Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:29Z",
+            "completed_at": "2026-09-09T16:37:29Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:29Z",
+            "completed_at": "2026-09-09T16:37:31Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:31Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:09Z"
+          },
+          {
+            "name": "Post Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:09Z",
+            "completed_at": "2026-09-09T16:38:09Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:38:09Z",
+            "completed_at": "2026-09-09T16:38:09Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:38:09Z",
+            "completed_at": "2026-09-09T16:38:10Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554653059",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022425,
+        "runner_name": "GitHub Actions 1000022425",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554653153,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvR4Q",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554653153",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554653153",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:38:27Z",
+        "completed_at": "2026-09-09T16:40:09Z",
+        "name": "macos-latest / Python 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:28Z",
+            "completed_at": "2026-09-09T16:38:29Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:29Z",
+            "completed_at": "2026-09-09T16:38:34Z"
+          },
+          {
+            "name": "Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:34Z",
+            "completed_at": "2026-09-09T16:39:01Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:39:01Z",
+            "completed_at": "2026-09-09T16:39:11Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:39:11Z",
+            "completed_at": "2026-09-09T16:39:12Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:39:12Z",
+            "completed_at": "2026-09-09T16:39:13Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:39:13Z",
+            "completed_at": "2026-09-09T16:40:05Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:40:05Z",
+            "completed_at": "2026-09-09T16:40:06Z"
+          },
+          {
+            "name": "Post Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:06Z",
+            "completed_at": "2026-09-09T16:40:07Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:40:07Z",
+            "completed_at": "2026-09-09T16:40:07Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:40:07Z",
+            "completed_at": "2026-09-09T16:40:08Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554653153",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022436,
+        "runner_name": "GitHub Actions 1000022436",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554653346,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvSog",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554653346",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554653346",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:57Z",
+        "completed_at": "2026-09-09T16:39:10Z",
+        "name": "windows-latest / Python 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:11Z"
+          },
+          {
+            "name": "Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:11Z",
+            "completed_at": "2026-09-09T16:36:17Z"
+          },
+          {
+            "name": "Install fcop + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:17Z",
+            "completed_at": "2026-09-09T16:36:44Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:44Z",
+            "completed_at": "2026-09-09T16:36:45Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:45Z",
+            "completed_at": "2026-09-09T16:36:47Z"
+          },
+          {
+            "name": "Test (pytest)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:47Z",
+            "completed_at": "2026-09-09T16:39:04Z"
+          },
+          {
+            "name": "WP4C.6 frozen artifact and context conformance (native)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:39:04Z",
+            "completed_at": "2026-09-09T16:39:06Z"
+          },
+          {
+            "name": "Post Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:06Z",
+            "completed_at": "2026-09-09T16:39:06Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:39:06Z",
+            "completed_at": "2026-09-09T16:39:08Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:39:08Z",
+            "completed_at": "2026-09-09T16:39:08Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554653346",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022409,
+        "runner_name": "GitHub Actions 1000022409",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554653779,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvUUw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554653779",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102554653779",
+        "status": "completed",
+        "conclusion": "skipped",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:55Z",
+        "completed_at": "2026-09-09T16:35:55Z",
+        "name": "Stability charter (API surface + CHANGELOG)",
+        "steps": [],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554653779",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": null,
+        "runner_name": null,
+        "runner_group_id": null,
+        "runner_group_name": null
+      },
+      {
+        "id": 102556271962,
+        "run_id": 34377729431,
+        "workflow_name": "test-fcop",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729431",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4NSFWg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102556271962",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729431/job/102556271962",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:40:40Z",
+        "started_at": "2026-09-09T16:40:42Z",
+        "completed_at": "2026-09-09T16:41:23Z",
+        "name": "Build + install smoke + pip-audit",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:40:43Z",
+            "completed_at": "2026-09-09T16:40:44Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:40:44Z",
+            "completed_at": "2026-09-09T16:40:47Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:40:47Z",
+            "completed_at": "2026-09-09T16:40:49Z"
+          },
+          {
+            "name": "Install build + audit tooling",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:40:49Z",
+            "completed_at": "2026-09-09T16:40:55Z"
+          },
+          {
+            "name": "Build wheel and sdist",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:40:55Z",
+            "completed_at": "2026-09-09T16:40:58Z"
+          },
+          {
+            "name": "Verify wheel contents",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:40:58Z",
+            "completed_at": "2026-09-09T16:40:58Z"
+          },
+          {
+            "name": "Smoke-install wheel in a clean venv",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:58Z",
+            "completed_at": "2026-09-09T16:41:04Z"
+          },
+          {
+            "name": "Canonical source archive and clean-install parity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:41:04Z",
+            "completed_at": "2026-09-09T16:41:04Z"
+          },
+          {
+            "name": "Audit runtime dependencies (pip-audit)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-09-09T16:41:04Z",
+            "completed_at": "2026-09-09T16:41:19Z"
+          },
+          {
+            "name": "Upload built artifacts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-09-09T16:41:19Z",
+            "completed_at": "2026-09-09T16:41:20Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-09-09T16:41:20Z",
+            "completed_at": "2026-09-09T16:41:21Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-09-09T16:41:21Z",
+            "completed_at": "2026-09-09T16:41:21Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-09-09T16:41:21Z",
+            "completed_at": "2026-09-09T16:41:21Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102556271962",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022442,
+        "runner_name": "GitHub Actions 1000022442",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  },
+  {
+    "run_id": 34377729147,
+    "total_count": 14,
+    "jobs": [
+      {
+        "id": 102554652482,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvPQg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652482",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652482",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:57Z",
+        "completed_at": "2026-09-09T16:37:08Z",
+        "name": "ubuntu-latest / Python 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:58Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:36:01Z"
+          },
+          {
+            "name": "Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:01Z",
+            "completed_at": "2026-09-09T16:36:05Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:05Z",
+            "completed_at": "2026-09-09T16:36:28Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:28Z",
+            "completed_at": "2026-09-09T16:36:28Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:28Z",
+            "completed_at": "2026-09-09T16:36:39Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:39Z",
+            "completed_at": "2026-09-09T16:37:05Z"
+          },
+          {
+            "name": "Post Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:37:05Z",
+            "completed_at": "2026-09-09T16:37:05Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:37:05Z",
+            "completed_at": "2026-09-09T16:37:06Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:06Z",
+            "completed_at": "2026-09-09T16:37:06Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652482",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022403,
+        "runner_name": "GitHub Actions 1000022403",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652594,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvPsg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652594",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652594",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:37:34Z",
+        "completed_at": "2026-09-09T16:38:20Z",
+        "name": "macos-latest / Python 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:34Z",
+            "completed_at": "2026-09-09T16:37:35Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:35Z",
+            "completed_at": "2026-09-09T16:37:41Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:41Z",
+            "completed_at": "2026-09-09T16:37:43Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:43Z",
+            "completed_at": "2026-09-09T16:37:55Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:55Z",
+            "completed_at": "2026-09-09T16:37:55Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:55Z",
+            "completed_at": "2026-09-09T16:38:01Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:01Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:17Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:17Z",
+            "completed_at": "2026-09-09T16:38:18Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:18Z",
+            "completed_at": "2026-09-09T16:38:18Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652594",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022428,
+        "runner_name": "GitHub Actions 1000022428",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652626,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvP0g",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652626",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652626",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:37:29Z",
+        "completed_at": "2026-09-09T16:38:37Z",
+        "name": "macos-latest / Python 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:30Z",
+            "completed_at": "2026-09-09T16:37:31Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:31Z",
+            "completed_at": "2026-09-09T16:37:36Z"
+          },
+          {
+            "name": "Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:36Z",
+            "completed_at": "2026-09-09T16:37:39Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:39Z",
+            "completed_at": "2026-09-09T16:38:01Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:01Z",
+            "completed_at": "2026-09-09T16:38:02Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:02Z",
+            "completed_at": "2026-09-09T16:38:11Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:11Z",
+            "completed_at": "2026-09-09T16:38:34Z"
+          },
+          {
+            "name": "Post Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:34Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:35Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:35Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652626",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022426,
+        "runner_name": "GitHub Actions 1000022426",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652687,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQDw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652687",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652687",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:37:49Z",
+        "completed_at": "2026-09-09T16:38:51Z",
+        "name": "macos-latest / Python 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:49Z",
+            "completed_at": "2026-09-09T16:37:50Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:50Z",
+            "completed_at": "2026-09-09T16:37:54Z"
+          },
+          {
+            "name": "Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:54Z",
+            "completed_at": "2026-09-09T16:37:56Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:56Z",
+            "completed_at": "2026-09-09T16:38:16Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:16Z",
+            "completed_at": "2026-09-09T16:38:16Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:16Z",
+            "completed_at": "2026-09-09T16:38:27Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:27Z",
+            "completed_at": "2026-09-09T16:38:48Z"
+          },
+          {
+            "name": "Post Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:48Z",
+            "completed_at": "2026-09-09T16:38:48Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:48Z",
+            "completed_at": "2026-09-09T16:38:49Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:49Z",
+            "completed_at": "2026-09-09T16:38:50Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652687",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022429,
+        "runner_name": "GitHub Actions 1000022429",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652731,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQOw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652731",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652731",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:59Z",
+        "completed_at": "2026-09-09T16:38:26Z",
+        "name": "windows-latest / Python 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:01Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:01Z",
+            "completed_at": "2026-09-09T16:36:10Z"
+          },
+          {
+            "name": "Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:10Z",
+            "completed_at": "2026-09-09T16:36:18Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:18Z",
+            "completed_at": "2026-09-09T16:37:12Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:12Z",
+            "completed_at": "2026-09-09T16:37:13Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:13Z",
+            "completed_at": "2026-09-09T16:37:27Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:27Z",
+            "completed_at": "2026-09-09T16:38:15Z"
+          },
+          {
+            "name": "Post Set up Python 3.11",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:15Z",
+            "completed_at": "2026-09-09T16:38:15Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:15Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:17Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652731",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022411,
+        "runner_name": "GitHub Actions 1000022411",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652744,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQSA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652744",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652744",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:38:04Z",
+        "name": "windows-latest / Python 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:07Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:07Z",
+            "completed_at": "2026-09-09T16:36:12Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:12Z",
+            "completed_at": "2026-09-09T16:37:00Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:00Z",
+            "completed_at": "2026-09-09T16:37:00Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:00Z",
+            "completed_at": "2026-09-09T16:37:16Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:16Z",
+            "completed_at": "2026-09-09T16:38:00Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:00Z",
+            "completed_at": "2026-09-09T16:38:00Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:00Z",
+            "completed_at": "2026-09-09T16:38:02Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:02Z",
+            "completed_at": "2026-09-09T16:38:02Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652744",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022410,
+        "runner_name": "GitHub Actions 1000022410",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652828,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQnA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652828",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652828",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:38:12Z",
+        "completed_at": "2026-09-09T16:39:42Z",
+        "name": "macos-latest / Python 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:12Z",
+            "completed_at": "2026-09-09T16:38:14Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:14Z",
+            "completed_at": "2026-09-09T16:38:19Z"
+          },
+          {
+            "name": "Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:19Z",
+            "completed_at": "2026-09-09T16:38:48Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:38:48Z",
+            "completed_at": "2026-09-09T16:39:06Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:39:07Z",
+            "completed_at": "2026-09-09T16:39:07Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:39:07Z",
+            "completed_at": "2026-09-09T16:39:15Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:39:15Z",
+            "completed_at": "2026-09-09T16:39:37Z"
+          },
+          {
+            "name": "Post Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:39:37Z",
+            "completed_at": "2026-09-09T16:39:38Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:39:38Z",
+            "completed_at": "2026-09-09T16:39:38Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:38Z",
+            "completed_at": "2026-09-09T16:39:38Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652828",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022431,
+        "runner_name": "GitHub Actions 1000022431",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652838,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQpg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652838",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652838",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:37:04Z",
+        "name": "ubuntu-latest / Python 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:05Z"
+          },
+          {
+            "name": "Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:05Z",
+            "completed_at": "2026-09-09T16:36:07Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:07Z",
+            "completed_at": "2026-09-09T16:36:24Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:24Z",
+            "completed_at": "2026-09-09T16:36:24Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:24Z",
+            "completed_at": "2026-09-09T16:36:35Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:35Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          },
+          {
+            "name": "Post Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:37:02Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:37:02Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:02Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652838",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022419,
+        "runner_name": "GitHub Actions 1000022419",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652860,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQvA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652860",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652860",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:59Z",
+        "completed_at": "2026-09-09T16:38:22Z",
+        "name": "windows-latest / Python 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:36:01Z",
+            "completed_at": "2026-09-09T16:36:02Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:02Z",
+            "completed_at": "2026-09-09T16:36:15Z"
+          },
+          {
+            "name": "Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:15Z",
+            "completed_at": "2026-09-09T16:36:21Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:21Z",
+            "completed_at": "2026-09-09T16:37:10Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:10Z",
+            "completed_at": "2026-09-09T16:37:11Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:11Z",
+            "completed_at": "2026-09-09T16:37:27Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:27Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          },
+          {
+            "name": "Post Set up Python 3.13",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:17Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:17Z",
+            "completed_at": "2026-09-09T16:38:19Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:19Z",
+            "completed_at": "2026-09-09T16:38:19Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652860",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022412,
+        "runner_name": "GitHub Actions 1000022412",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652871,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQxw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652871",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652871",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:37:04Z",
+        "name": "ubuntu-latest / Python 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:02Z"
+          },
+          {
+            "name": "Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:02Z",
+            "completed_at": "2026-09-09T16:36:06Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:06Z",
+            "completed_at": "2026-09-09T16:36:25Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:25Z",
+            "completed_at": "2026-09-09T16:36:25Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:25Z",
+            "completed_at": "2026-09-09T16:36:35Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:35Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          },
+          {
+            "name": "Post Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:37:02Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:37:02Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:02Z",
+            "completed_at": "2026-09-09T16:37:02Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652871",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022418,
+        "runner_name": "GitHub Actions 1000022418",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652886,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQ1g",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652886",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652886",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:38:03Z",
+        "name": "windows-latest / Python 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:07Z"
+          },
+          {
+            "name": "Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:07Z",
+            "completed_at": "2026-09-09T16:36:12Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:12Z",
+            "completed_at": "2026-09-09T16:36:57Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:57Z",
+            "completed_at": "2026-09-09T16:36:58Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:58Z",
+            "completed_at": "2026-09-09T16:37:12Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:37:12Z",
+            "completed_at": "2026-09-09T16:38:00Z"
+          },
+          {
+            "name": "Post Set up Python 3.10",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:00Z",
+            "completed_at": "2026-09-09T16:38:00Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:00Z",
+            "completed_at": "2026-09-09T16:38:02Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:02Z",
+            "completed_at": "2026-09-09T16:38:02Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652886",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022413,
+        "runner_name": "GitHub Actions 1000022413",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554652892,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvQ3A",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554652892",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554652892",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:37:07Z",
+        "name": "ubuntu-latest / Python 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:04Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:04Z",
+            "completed_at": "2026-09-09T16:36:07Z"
+          },
+          {
+            "name": "Install fcop (library) + fcop-mcp + dev deps",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:07Z",
+            "completed_at": "2026-09-09T16:36:26Z"
+          },
+          {
+            "name": "Lint (ruff)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:26Z",
+            "completed_at": "2026-09-09T16:36:26Z"
+          },
+          {
+            "name": "Type check (mypy)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:26Z",
+            "completed_at": "2026-09-09T16:36:38Z"
+          },
+          {
+            "name": "Test (pytest) — contract + smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:38Z",
+            "completed_at": "2026-09-09T16:37:04Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:37:04Z",
+            "completed_at": "2026-09-09T16:37:04Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:37:04Z",
+            "completed_at": "2026-09-09T16:37:04Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:37:04Z",
+            "completed_at": "2026-09-09T16:37:04Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554652892",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022420,
+        "runner_name": "GitHub Actions 1000022420",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554654256,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvWMA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554654256",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102554654256",
+        "status": "completed",
+        "conclusion": "skipped",
+        "created_at": "2026-09-09T16:35:56Z",
+        "started_at": "2026-09-09T16:35:56Z",
+        "completed_at": "2026-09-09T16:35:55Z",
+        "name": "Tool contract (snapshot + CHANGELOG)",
+        "steps": [],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554654256",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": null,
+        "runner_name": null,
+        "runner_group_id": null,
+        "runner_group_name": null
+      },
+      {
+        "id": 102555944020,
+        "run_id": 34377729147,
+        "workflow_name": "test-fcop-mcp",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729147",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4M-EVA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102555944020",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729147/job/102555944020",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:39:42Z",
+        "started_at": "2026-09-09T16:39:45Z",
+        "completed_at": "2026-09-09T16:40:19Z",
+        "name": "Build + install smoke (fcop-mcp)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:39:45Z",
+            "completed_at": "2026-09-09T16:39:46Z"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:39:46Z",
+            "completed_at": "2026-09-09T16:39:49Z"
+          },
+          {
+            "name": "Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:39:49Z",
+            "completed_at": "2026-09-09T16:39:53Z"
+          },
+          {
+            "name": "Install build tooling",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:39:53Z",
+            "completed_at": "2026-09-09T16:39:55Z"
+          },
+          {
+            "name": "Build wheel and sdist (fcop + fcop-mcp)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:39:55Z",
+            "completed_at": "2026-09-09T16:39:59Z"
+          },
+          {
+            "name": "Smoke-install fcop-mcp wheel in a clean venv",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:39:59Z",
+            "completed_at": "2026-09-09T16:40:13Z"
+          },
+          {
+            "name": "Installed real stdio MCP and versioned resources",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:13Z",
+            "completed_at": "2026-09-09T16:40:16Z"
+          },
+          {
+            "name": "Upload built artifacts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:40:16Z",
+            "completed_at": "2026-09-09T16:40:17Z"
+          },
+          {
+            "name": "Post Set up Python 3.12",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:17Z",
+            "completed_at": "2026-09-09T16:40:17Z"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:40:17Z",
+            "completed_at": "2026-09-09T16:40:17Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:40:17Z",
+            "completed_at": "2026-09-09T16:40:17Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102555944020",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022441,
+        "runner_name": "GitHub Actions 1000022441",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  },
+  {
+    "run_id": 34377729223,
+    "total_count": 15,
+    "jobs": [
+      {
+        "id": 102554651438,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvLLg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554651438",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554651438",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:58Z",
+        "completed_at": "2026-09-09T16:36:44Z",
+        "name": "Fixed four RC artifacts, independent reproducibility",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:00Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:36:00Z",
+            "completed_at": "2026-09-09T16:36:05Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:05Z",
+            "completed_at": "2026-09-09T16:36:05Z"
+          },
+          {
+            "name": "Fixed build tooling (no publish tooling invocation)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:05Z",
+            "completed_at": "2026-09-09T16:36:16Z"
+          },
+          {
+            "name": "Two fresh source directories, four raw byte equalities",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:16Z",
+            "completed_at": "2026-09-09T16:36:21Z"
+          },
+          {
+            "name": "Separate accepted 3.2.5 fixture, not an RC candidate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:21Z",
+            "completed_at": "2026-09-09T16:36:29Z"
+          },
+          {
+            "name": "Bind both manifest identities",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:36:29Z",
+            "completed_at": "2026-09-09T16:36:29Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:36:29Z",
+            "completed_at": "2026-09-09T16:36:33Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-09-09T16:36:33Z",
+            "completed_at": "2026-09-09T16:36:35Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-09-09T16:36:35Z",
+            "completed_at": "2026-09-09T16:36:36Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-09-09T16:36:36Z",
+            "completed_at": "2026-09-09T16:36:36Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-09-09T16:36:36Z",
+            "completed_at": "2026-09-09T16:36:36Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-09-09T16:36:36Z",
+            "completed_at": "2026-09-09T16:36:36Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554651438",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022401,
+        "runner_name": "GitHub Actions 1000022401",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554651706,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvMOg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554651706",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554651706",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:57Z",
+        "completed_at": "2026-09-09T16:38:19Z",
+        "name": "RC full source regression and public example parity (ubuntu-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:58Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:36:01Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:01Z",
+            "completed_at": "2026-09-09T16:36:01Z"
+          },
+          {
+            "name": "Frozen files, public behavior and authorized write set",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:01Z",
+            "completed_at": "2026-09-09T16:36:02Z"
+          },
+          {
+            "name": "Install source test dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:02Z",
+            "completed_at": "2026-09-09T16:36:24Z"
+          },
+          {
+            "name": "All original and RC tests, no unexpected skip",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:36:24Z",
+            "completed_at": "2026-09-09T16:38:10Z"
+          },
+          {
+            "name": "Source parity (not clean room)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:10Z",
+            "completed_at": "2026-09-09T16:38:17Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:38:17Z",
+            "completed_at": "2026-09-09T16:38:18Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:18Z",
+            "completed_at": "2026-09-09T16:38:18Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:38:18Z",
+            "completed_at": "2026-09-09T16:38:18Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:38:18Z",
+            "completed_at": "2026-09-09T16:38:18Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554651706",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022402,
+        "runner_name": "GitHub Actions 1000022402",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554651725,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4LvMTQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554651725",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554651725",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:35:55Z",
+        "started_at": "2026-09-09T16:35:57Z",
+        "completed_at": "2026-09-09T16:41:56Z",
+        "name": "RC full source regression and public example parity (windows-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:35:58Z",
+            "completed_at": "2026-09-09T16:35:59Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:35:59Z",
+            "completed_at": "2026-09-09T16:36:06Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:36:06Z",
+            "completed_at": "2026-09-09T16:36:06Z"
+          },
+          {
+            "name": "Frozen files, public behavior and authorized write set",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:36:06Z",
+            "completed_at": "2026-09-09T16:36:09Z"
+          },
+          {
+            "name": "Install source test dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:36:09Z",
+            "completed_at": "2026-09-09T16:37:06Z"
+          },
+          {
+            "name": "All original and RC tests, no unexpected skip",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:06Z",
+            "completed_at": "2026-09-09T16:41:40Z"
+          },
+          {
+            "name": "Source parity (not clean room)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:41:40Z",
+            "completed_at": "2026-09-09T16:41:52Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-09T16:41:52Z",
+            "completed_at": "2026-09-09T16:41:52Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:41:52Z",
+            "completed_at": "2026-09-09T16:41:52Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-09-09T16:41:52Z",
+            "completed_at": "2026-09-09T16:41:54Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-09-09T16:41:55Z",
+            "completed_at": "2026-09-09T16:41:55Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554651725",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022405,
+        "runner_name": "GitHub Actions 1000022405",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934042,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbGg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934042",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934042",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:37:06Z",
+        "completed_at": "2026-09-09T16:40:10Z",
+        "name": "RC consumer windows-latest / 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:07Z",
+            "completed_at": "2026-09-09T16:37:09Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:09Z",
+            "completed_at": "2026-09-09T16:37:16Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:16Z",
+            "completed_at": "2026-09-09T16:37:16Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:16Z",
+            "completed_at": "2026-09-09T16:37:17Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:17Z",
+            "completed_at": "2026-09-09T16:37:18Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:18Z",
+            "completed_at": "2026-09-09T16:40:06Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:06Z",
+            "completed_at": "2026-09-09T16:40:07Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:40:07Z",
+            "completed_at": "2026-09-09T16:40:07Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:40:07Z",
+            "completed_at": "2026-09-09T16:40:08Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:08Z",
+            "completed_at": "2026-09-09T16:40:08Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934042",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022422,
+        "runner_name": "GitHub Actions 1000022422",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934059,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbKw",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934059",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934059",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:37:25Z",
+        "completed_at": "2026-09-09T16:38:36Z",
+        "name": "RC consumer ubuntu-latest / 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:25Z",
+            "completed_at": "2026-09-09T16:37:26Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:26Z",
+            "completed_at": "2026-09-09T16:37:29Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:29Z",
+            "completed_at": "2026-09-09T16:37:29Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:29Z",
+            "completed_at": "2026-09-09T16:37:30Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:30Z",
+            "completed_at": "2026-09-09T16:37:30Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:30Z",
+            "completed_at": "2026-09-09T16:38:34Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:34Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:35Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:35Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:35Z",
+            "completed_at": "2026-09-09T16:38:35Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934059",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022427,
+        "runner_name": "GitHub Actions 1000022427",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934100,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbVA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934100",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934100",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:37:09Z",
+        "completed_at": "2026-09-09T16:38:10Z",
+        "name": "RC consumer ubuntu-latest / 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:09Z",
+            "completed_at": "2026-09-09T16:37:11Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:11Z",
+            "completed_at": "2026-09-09T16:37:14Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:14Z",
+            "completed_at": "2026-09-09T16:37:14Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:14Z",
+            "completed_at": "2026-09-09T16:37:15Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:15Z",
+            "completed_at": "2026-09-09T16:37:15Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:15Z",
+            "completed_at": "2026-09-09T16:38:07Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:07Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934100",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022424,
+        "runner_name": "GitHub Actions 1000022424",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934125,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbbQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934125",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934125",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:38:45Z",
+        "completed_at": "2026-09-09T16:40:01Z",
+        "name": "RC consumer macos-latest / 3.11",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:46Z",
+            "completed_at": "2026-09-09T16:38:47Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:47Z",
+            "completed_at": "2026-09-09T16:38:52Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:52Z",
+            "completed_at": "2026-09-09T16:38:53Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:38:53Z",
+            "completed_at": "2026-09-09T16:38:55Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:55Z",
+            "completed_at": "2026-09-09T16:38:58Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:58Z",
+            "completed_at": "2026-09-09T16:39:55Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:39:55Z",
+            "completed_at": "2026-09-09T16:39:57Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:39:57Z",
+            "completed_at": "2026-09-09T16:39:57Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:39:57Z",
+            "completed_at": "2026-09-09T16:39:57Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:57Z",
+            "completed_at": "2026-09-09T16:39:57Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934125",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022437,
+        "runner_name": "GitHub Actions 1000022437",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934154,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbig",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934154",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934154",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:38:13Z",
+        "completed_at": "2026-09-09T16:40:26Z",
+        "name": "RC consumer windows-latest / 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:14Z",
+            "completed_at": "2026-09-09T16:38:16Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:16Z",
+            "completed_at": "2026-09-09T16:38:23Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:23Z",
+            "completed_at": "2026-09-09T16:38:23Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:38:23Z",
+            "completed_at": "2026-09-09T16:38:24Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:24Z",
+            "completed_at": "2026-09-09T16:38:24Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:24Z",
+            "completed_at": "2026-09-09T16:40:21Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:21Z",
+            "completed_at": "2026-09-09T16:40:22Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:40:22Z",
+            "completed_at": "2026-09-09T16:40:22Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:40:22Z",
+            "completed_at": "2026-09-09T16:40:24Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:24Z",
+            "completed_at": "2026-09-09T16:40:24Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934154",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022433,
+        "runner_name": "GitHub Actions 1000022433",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934164,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAblA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934164",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934164",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:37:06Z",
+        "completed_at": "2026-09-09T16:39:26Z",
+        "name": "RC consumer windows-latest / 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:07Z",
+            "completed_at": "2026-09-09T16:37:09Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:09Z",
+            "completed_at": "2026-09-09T16:37:18Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:18Z",
+            "completed_at": "2026-09-09T16:37:18Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:18Z",
+            "completed_at": "2026-09-09T16:37:20Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:20Z",
+            "completed_at": "2026-09-09T16:37:21Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:37:21Z",
+            "completed_at": "2026-09-09T16:39:21Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:39:21Z",
+            "completed_at": "2026-09-09T16:39:22Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:39:22Z",
+            "completed_at": "2026-09-09T16:39:22Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:39:22Z",
+            "completed_at": "2026-09-09T16:39:24Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:24Z",
+            "completed_at": "2026-09-09T16:39:24Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934164",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022423,
+        "runner_name": "GitHub Actions 1000022423",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934201,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbuQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934201",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934201",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:38:12Z",
+        "completed_at": "2026-09-09T16:40:31Z",
+        "name": "RC consumer windows-latest / 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:13Z",
+            "completed_at": "2026-09-09T16:38:14Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:14Z",
+            "completed_at": "2026-09-09T16:38:21Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:21Z",
+            "completed_at": "2026-09-09T16:38:21Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:38:21Z",
+            "completed_at": "2026-09-09T16:38:22Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:22Z",
+            "completed_at": "2026-09-09T16:38:23Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:23Z",
+            "completed_at": "2026-09-09T16:40:27Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:27Z",
+            "completed_at": "2026-09-09T16:40:27Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:40:27Z",
+            "completed_at": "2026-09-09T16:40:28Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:40:28Z",
+            "completed_at": "2026-09-09T16:40:30Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:30Z",
+            "completed_at": "2026-09-09T16:40:30Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934201",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000022434,
+        "runner_name": "GitHub Actions 1000022434",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934210,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAbwg",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934210",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934210",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:37:55Z",
+        "completed_at": "2026-09-09T16:38:58Z",
+        "name": "RC consumer ubuntu-latest / 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:37:55Z",
+            "completed_at": "2026-09-09T16:37:56Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:37:56Z",
+            "completed_at": "2026-09-09T16:37:59Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:37:59Z",
+            "completed_at": "2026-09-09T16:37:59Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:37:59Z",
+            "completed_at": "2026-09-09T16:37:59Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:37:59Z",
+            "completed_at": "2026-09-09T16:38:00Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:00Z",
+            "completed_at": "2026-09-09T16:38:56Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:38:56Z",
+            "completed_at": "2026-09-09T16:38:57Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:38:57Z",
+            "completed_at": "2026-09-09T16:38:57Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:38:57Z",
+            "completed_at": "2026-09-09T16:38:57Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:38:57Z",
+            "completed_at": "2026-09-09T16:38:57Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934210",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022430,
+        "runner_name": "GitHub Actions 1000022430",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934228,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAb1A",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934228",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934228",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:39:49Z",
+        "completed_at": "2026-09-09T16:41:02Z",
+        "name": "RC consumer macos-latest / 3.12",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:39:49Z",
+            "completed_at": "2026-09-09T16:39:51Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:39:51Z",
+            "completed_at": "2026-09-09T16:39:55Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:39:55Z",
+            "completed_at": "2026-09-09T16:39:56Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:39:56Z",
+            "completed_at": "2026-09-09T16:39:57Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:39:57Z",
+            "completed_at": "2026-09-09T16:39:58Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:39:58Z",
+            "completed_at": "2026-09-09T16:40:57Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:57Z",
+            "completed_at": "2026-09-09T16:40:59Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:40:59Z",
+            "completed_at": "2026-09-09T16:40:59Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:40:59Z",
+            "completed_at": "2026-09-09T16:41:00Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:41:00Z",
+            "completed_at": "2026-09-09T16:41:00Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934228",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022439,
+        "runner_name": "GitHub Actions 1000022439",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934242,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAb4g",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934242",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934242",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:39:48Z",
+        "completed_at": "2026-09-09T16:41:18Z",
+        "name": "RC consumer macos-latest / 3.10",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:39:49Z",
+            "completed_at": "2026-09-09T16:39:51Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:39:51Z",
+            "completed_at": "2026-09-09T16:40:15Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:40:15Z",
+            "completed_at": "2026-09-09T16:40:33Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:40:33Z",
+            "completed_at": "2026-09-09T16:40:33Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:40:33Z",
+            "completed_at": "2026-09-09T16:40:34Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:40:34Z",
+            "completed_at": "2026-09-09T16:41:15Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:41:15Z",
+            "completed_at": "2026-09-09T16:41:16Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:41:16Z",
+            "completed_at": "2026-09-09T16:41:16Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:41:16Z",
+            "completed_at": "2026-09-09T16:41:16Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:41:16Z",
+            "completed_at": "2026-09-09T16:41:17Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934242",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022440,
+        "runner_name": "GitHub Actions 1000022440",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934277,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAcBQ",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934277",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934277",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:38:06Z",
+        "completed_at": "2026-09-09T16:39:17Z",
+        "name": "RC consumer ubuntu-latest / 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:07Z",
+            "completed_at": "2026-09-09T16:38:08Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:38:08Z",
+            "completed_at": "2026-09-09T16:38:12Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:38:12Z",
+            "completed_at": "2026-09-09T16:38:12Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:38:12Z",
+            "completed_at": "2026-09-09T16:38:14Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:38:14Z",
+            "completed_at": "2026-09-09T16:38:16Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:38:16Z",
+            "completed_at": "2026-09-09T16:39:12Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:39:12Z",
+            "completed_at": "2026-09-09T16:39:14Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:39:14Z",
+            "completed_at": "2026-09-09T16:39:14Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:39:14Z",
+            "completed_at": "2026-09-09T16:39:15Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:39:15Z",
+            "completed_at": "2026-09-09T16:39:15Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934277",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000022432,
+        "runner_name": "GitHub Actions 1000022432",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 102554934400,
+        "run_id": 34377729223,
+        "workflow_name": "rc-candidate",
+        "head_branch": "feat/fcop-4.0-wp4d-rc-candidate",
+        "run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/runs/34377729223",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSG4k788AAAAX4MAcgA",
+        "head_sha": "d1a86f32d87f000fe0aec444563decdc892dc142",
+        "url": "https://api.github.com/repos/joinwell52-AI/FCoP/actions/jobs/102554934400",
+        "html_url": "https://github.com/joinwell52-AI/FCoP/actions/runs/34377729223/job/102554934400",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-09T16:36:44Z",
+        "started_at": "2026-09-09T16:38:58Z",
+        "completed_at": "2026-09-09T16:40:13Z",
+        "name": "RC consumer macos-latest / 3.13",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-09T16:38:59Z",
+            "completed_at": "2026-09-09T16:39:00Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-09T16:39:00Z",
+            "completed_at": "2026-09-09T16:39:05Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-09T16:39:05Z",
+            "completed_at": "2026-09-09T16:39:05Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-09T16:39:05Z",
+            "completed_at": "2026-09-09T16:39:06Z"
+          },
+          {
+            "name": "Run actions/download-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-09T16:39:06Z",
+            "completed_at": "2026-09-09T16:39:07Z"
+          },
+          {
+            "name": "Verify identical artifacts, install outside checkout, run real public clients",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-09T16:39:07Z",
+            "completed_at": "2026-09-09T16:40:05Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-09T16:40:05Z",
+            "completed_at": "2026-09-09T16:40:06Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-09T16:40:06Z",
+            "completed_at": "2026-09-09T16:40:06Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-09T16:40:06Z",
+            "completed_at": "2026-09-09T16:40:06Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-09-09T16:40:06Z",
+            "completed_at": "2026-09-09T16:40:07Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/joinwell52-AI/FCoP/check-runs/102554934400",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000022438,
+        "runner_name": "GitHub Actions 1000022438",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  }
+]

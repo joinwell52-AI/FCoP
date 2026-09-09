@@ -1,0 +1,62 @@
+[
+  {
+    "job": 102554652482,
+    "platform": "ubuntu-latest / Python 3.11",
+    "raw_selected_lines": "2026-09-09T16:37:05.3356549Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652594,
+    "platform": "macos-latest / Python 3.12",
+    "raw_selected_lines": "2026-09-09T16:38:17.2039700Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652626,
+    "platform": "macos-latest / Python 3.13",
+    "raw_selected_lines": "2026-09-09T16:38:33.8368190Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652687,
+    "platform": "macos-latest / Python 3.11",
+    "raw_selected_lines": "2026-09-09T16:38:47.6839810Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652731,
+    "platform": "windows-latest / Python 3.11",
+    "raw_selected_lines": "2026-09-09T16:38:14.3735719Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652744,
+    "platform": "windows-latest / Python 3.12",
+    "raw_selected_lines": "2026-09-09T16:37:59.5215697Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652828,
+    "platform": "macos-latest / Python 3.10",
+    "raw_selected_lines": "2026-09-09T16:39:37.0469690Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652838,
+    "platform": "ubuntu-latest / Python 3.13",
+    "raw_selected_lines": "2026-09-09T16:37:01.3385839Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652860,
+    "platform": "windows-latest / Python 3.13",
+    "raw_selected_lines": "2026-09-09T16:38:16.8543097Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652871,
+    "platform": "ubuntu-latest / Python 3.10",
+    "raw_selected_lines": "2026-09-09T16:37:01.8106679Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652886,
+    "platform": "windows-latest / Python 3.10",
+    "raw_selected_lines": "2026-09-09T16:37:59.1239972Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  },
+  {
+    "job": 102554652892,
+    "platform": "ubuntu-latest / Python 3.12",
+    "raw_selected_lines": "2026-09-09T16:37:03.6658884Z tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py::test_wp4d_rc_offline_guard_stdlib_ident\r\nity_and_network_denials PASSED [100%]"
+  }
+]

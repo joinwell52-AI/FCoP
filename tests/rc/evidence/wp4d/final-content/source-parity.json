@@ -1,0 +1,10 @@
+[
+  {
+    "job": 102554651706,
+    "raw_selected_lines": "2026-09-09T16:38:09.7750520Z 1931 passed, 3 warnings in 102.92s (0:01:42)\r\n2026-09-09T16:38:17.2050313Z {\"evidence\": \"/tmp/wp4d-source-0lymdd5a/logs\", \"mcp\": {\"convergence\": true, \"exact_retry\":\r\n true, \"mode\": \"SOURCE_ONLY\", \"resources\": 12, \"service_processes\": 2, \"states\": [\"archive\", \"archive\", \"done\", \"inbox\"\r\n], \"templates\": 4, \"tools\": 46, \"transitions\": 15, \"transport\": \"stdio-json-rpc\", \"zero_conflict_effects\": true}, \"proo\r\nf_class\": \"SOURCE_ONLY\", \"python\": {\"disk_reopen\": true, \"exact_retry\": true, \"host_rollback\": true, \"import_path\": \"/h\r\nome/runner/work/FCoP/FCoP/src/fcop/__init__.py\", \"mode\": \"SOURCE_ONLY\", \"rules\": 19, \"states\": [\"archive\", \"archive\", \"\r\ndone\", \"inbox\"], \"transitions\": 15}}"
+  },
+  {
+    "job": 102554651725,
+    "raw_selected_lines": "2026-09-09T16:41:39.0837774Z 1931 passed, 3 warnings in 270.90s (0:04:30)\r\n2026-09-09T16:41:52.0377810Z {\"evidence\": \"C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\wp4d-source-dg5m8n5b\\\\logs\", \"mcp\r\n\": {\"convergence\": true, \"exact_retry\": true, \"mode\": \"SOURCE_ONLY\", \"resources\": 12, \"service_processes\": 2, \"states\":\r\n [\"archive\", \"archive\", \"done\", \"inbox\"], \"templates\": 4, \"tools\": 46, \"transitions\": 15, \"transport\": \"stdio-json-rpc\"\r\n, \"zero_conflict_effects\": true}, \"proof_class\": \"SOURCE_ONLY\", \"python\": {\"disk_reopen\": true, \"exact_retry\": true, \"h\r\nost_rollback\": true, \"import_path\": \"D:\\\\a\\\\FCoP\\\\FCoP\\\\src\\\\fcop\\\\__init__.py\", \"mode\": \"SOURCE_ONLY\", \"rules\": 19, \"s\r\ntates\": [\"archive\", \"archive\", \"done\", \"inbox\"], \"transitions\": 15}}"
+  }
+]
