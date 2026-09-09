@@ -72,6 +72,12 @@ jobs:
         # a red CI square pinpoints which package regressed.
         run: python -m pytest tests/test_fcop -v
 
+      - name: WP4C.6 frozen artifact and context conformance (native)
+        run: >-
+          python -m pytest
+          tests/conformance/rule_distribution_v4/test_dist_25_30_failures_artifacts_context_gates.py
+          -k "test_dist_27 or test_dist_28" -v
+
   coverage:
     name: Coverage (Ubuntu / 3.12)
     runs-on: ubuntu-latest
@@ -205,6 +211,9 @@ jobs:
           assert set(tmpl.roles) == {'PM', 'DEV', 'QA', 'OPS'}
           print('Smoke test OK.')
           "
+
+      - name: Canonical source archive and clean-install parity
+        run: /tmp/smoke-venv/bin/python -I -B tests/test_fcop/rule_distribution_artifact_probe.py . dist --installed
 
       - name: Audit runtime dependencies (pip-audit)
         # Check *runtime* deps against the PyPI Advisory DB. We audit

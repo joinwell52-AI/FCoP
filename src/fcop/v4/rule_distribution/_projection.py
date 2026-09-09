@@ -44,6 +44,11 @@ def framed(package: _Package, host: dict[str, Any], selected: dict[str, Any], ta
     return b"".join(chunks)
 
 
+def new_entry(host: dict[str, Any], block: bytes) -> bytes:
+    """The complete new-file bytes shared by planning and read-only measurement."""
+    return (CURSOR if host["host_id"] == "cursor" else b"") + block
+
+
 def plan(root: Path, workspace: str, request: Mapping[str, Any], action: str = "plan") -> dict[str, Any]:
     package, host, profile_raw, selected = selected_inputs(root, workspace, request, action)
     targets: list[dict[str, Any]] = []
@@ -65,7 +70,7 @@ def plan(root: Path, workspace: str, request: Mapping[str, Any], action: str = "
         if before is None:
             if old is not None and any(t["after_sha256"] is not None for t in old[1]["targets"] if t["path"] == relative):
                 reject(OWNERSHIP, action, "Previously owned target is missing")
-            after = (CURSOR if host["host_id"] == "cursor" else b"") + block
+            after = new_entry(host, block)
         else:
             if old is None:
                 reject(OWNERSHIP, action, "Existing target has no proven ownership")

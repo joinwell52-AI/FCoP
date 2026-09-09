@@ -172,10 +172,10 @@ def test_development_reference_hashes_are_real(distribution):
 
 
 @pytest.mark.parametrize("action", ["measure_context", "build_artifacts"])
-def test_future_positive_capability_is_absent(distribution, action):
-    with pytest.raises(V4ProtocolError) as exc:
+def test_wp4c6_positive_capability_requires_complete_request(distribution, action):
+    with pytest.raises(FcopError) as exc:
         call(distribution, action)
-    assert exc.value.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
+    assert exc.value.code == "toolkit:RULE_SELECTION_INVALID"
 
 
 @pytest.mark.parametrize("action", ["plan", "inspect_profile", "status"])

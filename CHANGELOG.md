@@ -12,6 +12,12 @@ versioning strategy.
 
 ### Added — fcop
 
+- Candidate WP4C.6 offline canonical rule-data exports and exact UTF-8 context
+  byte measurements through the existing `Project.rule_distribution` entry.
+  Exports preserve all 19 input files; measurement reuses deterministic Host
+  framing without adoption, deployment or runtime-consumption claims. No new
+  facade, runtime dependency, automatic update or release is introduced.
+
 - Candidate WP4C.5b version-selected read resources, uncached five-layer
   inspection and explicitly authorized, bounded downstream read-only shadow,
   through the existing `Project.rule_distribution` entry. Legacy redeploy

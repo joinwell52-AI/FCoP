@@ -38,6 +38,14 @@ def _receipt_preflight(root: Path, ref: Any, kind: str, code: str, action: str) 
 
 
 def _dispatch(root: Path, action: str, request: Mapping[str, Any]) -> Mapping[str, Any]:
+    if action == "build_artifacts":
+        from ._artifacts import build_artifacts
+
+        return build_artifacts(root, request)
+    if action == "measure_context":
+        from ._measurement import measure_context
+
+        return measure_context(root, request)
     if action == "read_resource":
         from ._read import read_resource
 
