@@ -1,4 +1,105 @@
-# WP4C.6b resumed implementation delivery Manifest
+# WP4C.6c Windows LF policy and resumed implementation Manifest
+
+## Current continuation identity
+
+```yaml
+AUTHORIZED_SCOPE: WP4C_6C_GITATTRIBUTES_ONLY_AND_WP4C_6_RESUME
+ERRATUM_COMMIT: 7b61d4ce1a1f5c4f69bca77dfea959d06e3c763c
+ERRATUM_SHA256: b9063ec71228fcfd3dfd59e920ce56f0e5b21bdd55096ee05773f096f7e60698
+ERRATUM_BYTES: 5202
+BLOCKED_IMPLEMENTATION_HEAD: 34841330604e32c473a538afb634a81334eca8ad
+POLICY_COMMIT: a46a51b4cf6b2711ab0c1e526019c6d7ea284fad
+POLICY_PARENT: 7b61d4ce1a1f5c4f69bca77dfea959d06e3c763c
+POLICY_FILES: 1
+CONTENT_COMMIT: 2a209cb97520e3b97ba6cc34541234262102a6a3
+CONTENT_PARENT: a46a51b4cf6b2711ab0c1e526019c6d7ea284fad
+CONTENT_FILES: 1_REPORT_ONLY
+MANIFEST_COMMIT: SELF
+MANIFEST_PARENT: 2a209cb97520e3b97ba6cc34541234262102a6a3
+MANIFEST_FILES: 1
+BRANCH: feat/fcop-4.0-wp4c.6a-distribution-resume
+DRAFT_PR: 30
+PR_BASE: taskbook/fcop-4.0-wp4c.6-closeout
+EXECUTION_WORKTREE: D:/FCoP-wp4c6a-distribution-resume
+NATIVE_CHECKOUT: D:/FCoP-wp4c6c-windows-policy-readback
+NATIVE_CHECKOUT_POLICY_HEAD: a46a51b4cf6b2711ab0c1e526019c6d7ea284fad
+NATIVE_CORE_AUTOCRLF: true
+CHECKOUT_OVERRIDES: NONE
+AUTHORITATIVE_BLOB_SIZE_AND_SHA_UNCHANGED: 21/21
+ATTRIBUTES_TEXT_SET_EOL_LF: 21/21
+NATIVE_WORKTREE_RAW_EQUALS_GIT_BLOB: 21/21
+INSTALLED_CANONICAL_PARITY: 19/19
+INSTALLED_REAL_STDIO: 46/12/4
+INSTALLED_RESOURCE_ZERO_WRITE: 5/5
+INSTALLED_RELAY: PASS
+SHADOW_READ_ONLY: 14/14
+POLICY_HEAD_APPLICABLE_CI: 27/27
+POLICY_HEAD_WINDOWS: 8/8
+FINAL_MANIFEST_HEAD_CI: PENDING_POST_PUSH
+FRESH_FULL_NATIVE_RUN: IN_PROGRESS_AT_MANIFEST_PREPARATION
+PRODUCTION_TEST_WORKFLOW_SPEC_CHANGE_THIS_CONTINUATION: 0
+MAIN_MERGE_AUTHORIZED: false
+RELEASE_AUTHORIZED: false
+CODEFLOWMU_WRITE_AUTHORIZED: false
+WP4C_RULE_DISTRIBUTION_ACCEPTED: false
+REQUESTED_GATE: NONE
+```
+
+SELF is this Manifest's introducing commit. Exact HEAD and independent Manifest
+SHA-256 belong to the post-push receipt, avoiding self-hash circularity. The receipt
+must also supply the completed full native run and final-head CI before requesting Gate.
+Nothing in the historical Manifest below overrides this continuation's identity.
+
+### Current full delivery inventory
+
+Seventeen content paths below plus this Manifest are the eighteen agent-delivered
+paths across the preserved 6b implementation and 6c correction. Relative to the 6c
+ADMIN erratum, only `.gitattributes`, RESULT and this Manifest changed. The historical
+workflow/test/implementation changes below are inherited, not repeated 6c edits.
+The separate ADMIN taskbook is upstream authorization, not an agent content change.
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| .gitattributes | 256 | ee2a9e2aec9c273a2e01eb5af6815d85f09216663ddb73eff3f1ec11a0d1f351 |
+| .github/workflows/test-fcop-mcp.yml | 9106 | f709b11b870012aac468fde079b3a6b0f2a3a599fbc5dbd3cc59c31d14fbb067 |
+| .github/workflows/test-fcop.yml | 12763 | caa2d77983c52530049d9e171b19258df0724aaa484374e289d77e12cfeeb1f1 |
+| CHANGELOG.md | 132298 | 886207904c7d42caaf822f509ca2c65c911efa652ea81f22dcacf743c9f44318 |
+| reports/FCOP-4.0-WP4C.6-ARTIFACT-PARITY.md | 7660 | 1849121f3e431d0a83f5f76fb8efe217b2d5e8f337ddf3486128307205f4c55e |
+| reports/FCOP-4.0-WP4C.6-CONTEXT-MEASUREMENT.md | 5231 | 0de12d5329c2f22a865824b6d306cb3634b388b509d41250b0f3959d89172d0c |
+| reports/FCOP-4.0-WP4C.6-IMPLEMENTABILITY-PROOF.md | 5367 | fde4182cfeb84c226fd211929cf609b8a6c85bae8f1d8e5eb08ae8753403ffc7 |
+| reports/FCOP-4.0-WP4C.6-RESULT.md | 23732 | 98218627cd112530f766725bc3eeb9a5cbff240ae3ef08d9bd8e6748f957d17b |
+| src/fcop/v4/rule_distribution/__init__.py | 5595 | 9566f6deac89bafed304957150d4585e8ed8ac9838e2fae28b0cebb19d6c398d |
+| src/fcop/v4/rule_distribution/_artifacts.py | 7902 | 405aaac145415302326bb68762a7861a162c81211cf9e9f4622dbf6054b52e0e |
+| src/fcop/v4/rule_distribution/_measurement.py | 3672 | 5da4ba521c8ea07b0a584dcf1323c3ecc3ec76d3046711025bc7ecd03700391a |
+| src/fcop/v4/rule_distribution/_profiles.py | 3232 | c999662959d5dd94518711db3ec007333943a5101608973cb096d36af3b37784 |
+| src/fcop/v4/rule_distribution/_projection.py | 6467 | b24ebd30e563d24f3947ca8b9f0b46becc5eea9d53ce1bc0ec085aeb45b33ffd |
+| src/fcop/v4/rule_distribution/_selection.py | 6736 | 16b6ce8025f265c76a86b62c15451a83a656608c3c7a00aaab2b3a20bcc1f056 |
+| tests/test_fcop/rule_distribution_artifact_probe.py | 3092 | 3bb3ce4f5bef9d1881a198efa118cbf3f61a07de5a0113e51a0099a1a611fbfc |
+| tests/test_fcop/test_v4_rule_distribution.py | 9598 | 1905cc752c455b41d77defb41a4dd7a21d1fba3a1d51850dd74d7390e0b97bc2 |
+| tests/test_fcop/test_v4_rule_distribution_closeout.py | 12883 | e2bbff2de538b06faa8c41b333ec9e6afd86c44dbd18bf67b6fdd661cf06fc9d |
+
+Eighteenth path: `reviews/fcop-4.0/wp4c.6a/MANIFEST.md`. All raw GitHub delivery
+bytes must match their committed Blobs and the execution worktree. Native checkout
+raw-LF parity is asserted specifically for the 21 authoritative inputs enumerated
+in RESULT, not for unrelated CRLF-capable files. This corrects the broader historical
+all-LF-checkout wording below without broadening the four-line policy.
+
+### Final verification and stopping rule
+
+Intermediate policy runs 34313100034 (FCoP) and 34313099999 (MCP) passed all
+24 platform matrix jobs, Coverage and both downstream package jobs. Their two
+pull-request-event-only jobs were skipped on push: NOT_RUN_EVENT_INAPPLICABLE,
+never PASS. The same distinction must be retained at final HEAD; downstream
+package skipping is not acceptable. These runs do not replace final HEAD CI.
+
+After pushing this Manifest, refetch the branch, verify parent chain and raw delivery
+18/18 plus canonical 21/21 from GitHub. Complete the pending fresh native 1912-node
+combined selection and inspect both workflows at exactly SELF. Preserve original
+main, workspaces and all blocked history. Post the exact final-HEAD evidence to PR #30,
+then stop. Only complete success permits requesting `WP4C_RULE_DISTRIBUTION_ACCEPTED`;
+any need for a second non-report correction requires BLOCKED / REQUESTED_GATE NONE.
+
+## Preserved WP4C.6b Manifest (historical; not current status)
 
 Local verification passed. Final remote/native CI is deliberately not preclaimed in this commit. The fixed-head post-push receipt in Draft PR #30 must supply remote hashes and actual CI conclusions before any Gate request.
 
