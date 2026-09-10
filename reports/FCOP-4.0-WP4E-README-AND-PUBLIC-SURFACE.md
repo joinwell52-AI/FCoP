@@ -6,7 +6,7 @@ recipient: ADMIN
 stage: WP4E_PHASE_A
 taskbook_commit: 793b5eef808cecc55437c8c2dc43e737b56b1300
 baseline: 64a24295d6c1fa53a182a819d39b295c2ba8d2d0
-status: FINAL_HEAD_VERIFICATION_PENDING
+status: CONTENT_VERIFIED_FINAL_RECEIPT_REQUIRED
 ---
 
 # WP4E bilingual public entry closeout
@@ -63,3 +63,31 @@ the first edit; restored without changing the existing tests or prompt bytes.
 
 No public documentation claims a stable 4.0 release, new DOI or Registry publication.
 
+## Content verification closeout (not a self-signed Gate)
+
+Fixed candidate content: `18f8d1ba3d0744bc4501e347312c3f97e2a4fede`.
+Evidence observed at 2026-09-10T02:07:22.060075+00:00.
+[Machine evidence](../tests/rc/evidence/wp4e/content-verification.json) retains
+GitHub job/step timestamps, JUnit counts/hashes, every consumer result, build metadata,
+dry-run result, 21 authoritative hashes and the 29/29 content-commit blob readback.
+
+Windows and Ubuntu each passed 1973/1973 (1519 FCoP, 159 MCP, 295 frozen Conformance),
+including 42/42 new WP4E tests; zero failures/errors/skips. 44/44 CI jobs and 2/2 actual
+PR-only gates passed. Twelve consumers and 24 wheel/sdist origins passed the installed
+MCP-only 24-transition / two-Branch / two-real-writer / three-process proof.
+The separate release workflow dry-run passed its verification job; its publish job was
+not applicable and was NOT counted as a passing job. Thus 45 applicable successful jobs.
+
+Only the subsequent evidence and Manifest commits remain outside this verified content.
+The executor must re-run all CI and release dry-run on the Manifest commit, read back all
+final files, and post a fixed-head completion receipt on [PR #33](https://github.com/joinwell52-AI/FCoP/pull/33).
+That later receipt is mandatory: these content-head results alone do not finish Phase A.
+No source, test, example, workflow or README may be changed in the evidence suffix.
+
+### Additional public-entry checks
+
+A read-only local-link walk across both READMEs, MCP reference/README and the two RC
+guides resolved 55/55 local links. The committed parity test verifies the two README
+code fences and link targets exactly; the Python example executed successfully.
+The content-head 24 installed origins execute the candidate commands and actual
+MCP stdio examples; no unpublished PyPI install is represented as successful.
