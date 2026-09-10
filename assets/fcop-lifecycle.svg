@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="590" viewBox="0 0 960 590" role="img" aria-labelledby="title desc">
+  <title id="title">FCoP 4.0 task lifecycle</title>
+  <desc id="desc">A created task starts in inbox. Claim moves it to active, submission with a current report moves it to review, and authorized acceptance moves it to done. Authorized rejection and reopening start a new attempt in active. Authorized archival is terminal and checks branch evidence when applicable.</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#506781" stroke-width="1.5"/></marker></defs>
+  <rect width="960" height="590" rx="20" fill="#f2f6fa"/>
+  <g font-family="Segoe UI,Arial,sans-serif" fill="#152b43">
+    <text x="30" y="42" font-size="28" font-weight="700">Submission, acceptance and archival are separate steps.</text>
+    <g fill="none" stroke="#506781" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M505 118V155"/><path d="M505 213V250"/><path d="M505 308V345"/><path d="M505 403V475"/>
+      <path d="M633 280H760V185H640"/><path d="M377 375H158V185H370"/>
+    </g>
+    <rect x="380" y="65" width="250" height="50" rx="9" fill="#fff" stroke="#a9bfd3"/>
+    <text x="505" y="97" text-anchor="middle" font-size="22" font-weight="700">inbox · assigned</text>
+    <rect x="380" y="160" width="250" height="50" rx="9" fill="#e4edff" stroke="#b9cfea"/>
+    <text x="505" y="192" text-anchor="middle" font-size="22" font-weight="700">active · attempt</text>
+    <rect x="380" y="255" width="250" height="50" rx="9" fill="#fff0db" stroke="#e3caa9"/>
+    <text x="505" y="287" text-anchor="middle" font-size="22" font-weight="700">review · submitted</text>
+    <rect x="380" y="350" width="250" height="50" rx="9" fill="#e4f3ee" stroke="#b9ddcf"/>
+    <text x="505" y="382" text-anchor="middle" font-size="22" font-weight="700">done · accepted</text>
+    <rect x="380" y="480" width="250" height="50" rx="9" fill="#152b43"/>
+    <text x="505" y="512" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">archive · terminal</text>
+    <text x="526" y="143" font-size="19">claim_task</text>
+    <text x="486" y="238" text-anchor="end" font-size="19">submit_task + REPORT</text>
+    <text x="526" y="333" font-size="19">approve_task + authorized REVIEW</text>
+    <text x="526" y="433" font-size="19">archive_task + authorization</text>
+    <text x="526" y="459" font-size="18" fill="#506781">+ Branch family checks, when applicable</text>
+    <rect x="31" y="241" width="292" height="68" rx="9" fill="#f2f6fa"/>
+    <text x="177" y="266" text-anchor="middle" font-size="20" font-weight="700">reopen_task</text>
+    <text x="177" y="295" text-anchor="middle" font-size="18">authorization · new attempt</text>
+    <rect x="714" y="207" width="223" height="58" rx="9" fill="#f2f6fa"/>
+    <text x="826" y="229" text-anchor="middle" font-size="20" font-weight="700">reject_task</text>
+    <text x="826" y="255" text-anchor="middle" font-size="17">authorized REVIEW</text>
+    <text x="30" y="565" font-size="19" fill="#506781">Every entry into active creates a new attempt. Reports bind to that attempt.</text>
+  </g>
+</svg>

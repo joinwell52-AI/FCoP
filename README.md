@@ -1,64 +1,101 @@
+<p align="center"><a href="docs/architecture.en.md"><img src="assets/fcop-logo-256.png" alt="FCoP architecture" width="88" /></a></p>
+
 # FCoP — File-based Coordination Protocol
 
-[English](README.md) · [简体中文](README.zh.md) · [Homepage](https://joinwell52-ai.github.io/FCoP/)
+[English](README.md) · [简体中文](README.zh.md)
 
-FCoP governs collaboration through TASK / REPORT / ISSUE / REVIEW files. It is a protocol, not a scheduler, Agent Runtime, broker or database.
+**Keep agent work beyond the conversation.**
 
-- **Stable version: 4.0.0** — release distribution; publication is gated by WP4F.
-- **Release candidate: 4.0.0rc1** — published historical prerelease, retained unchanged.
-- **4.0 MCP: 46 tools / 12 resources / 4 resource templates**.
+Tasks, deliveries, issues and review decisions become durable files that people, tools and the next agent can inspect. A session can end without taking the work record with it.
 
-## Protocol-level Major upgrade
+<p>
+  <a href="https://pypi.org/project/fcop/4.0.0/"><img src="https://img.shields.io/badge/Python-4.0.0-245ac4" alt="fcop on PyPI: 4.0.0" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.0/"><img src="https://img.shields.io/badge/MCP-4.0.0-7055a2" alt="fcop-mcp on PyPI: 4.0.0" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
+</p>
 
-Python Core (`fcop`) owns validation and filesystem behavior. The optional MCP Adapter (`fcop-mcp`) routes public calls to Core, without independently interpreting or implementing the protocol.
+**[Try Python](#try-it) · [Connect MCP](#mcp) · [Architecture](#architecture) · [Papers & citation](#research)**
 
-4.0 provides workspace identity, four typed envelopes, Branch, explicit convergence, authorization binding, durable idempotency, concurrent linearization, crash recovery and versioned rule distribution. The eight testable contracts are C1 workspace identity, C2 envelopes, C3 lifecycle, C4 relations, C5 convergence, C6 authorization, C7 idempotency, C8 atomic recovery. The seven historical architecture concepts do not replace C1–C8.
+<a href="docs/architecture.en.md"><img src="assets/fcop-work-records.svg" alt="Agent work is persisted as TASK, REPORT, ISSUE and REVIEW files, then read by people, tools and another session." width="960" /></a>
 
-The existing **45 MCP tool names acquire 4.0 version routing and protocol semantics**; the new name is **T6 `reopen_task`**, bringing the total to **46**. T6 is `done → active`, **not a Branch-only tool**. Discovery does not mean every legacy action supports v4: `finish_task` and history tools reject v4; `close_issue` is not added.
+**Stable version: 4.0.0** — [released September 10, 2026](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
 
-Concurrency is a shared write contract, not a standalone tool: atomic writes, linearization, durable `operation_id`, exact retry, conflict rejection, zero-side-effect failure, recovery and consistent `family_digest`. Locks and receipts are required mechanisms; neither an actor field nor a single rename grants authority.
+## Why put work outside the model?
 
-## Stable installation
+“I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.
 
-Use a fresh virtual environment; activate it in your shell before installing:
+FCoP gives formal work a shared representation: Markdown files with structured metadata, stable identities, explicit relationships and recorded state transitions. An agent can write them, a human can open them, and a script can validate them. The filesystem reference implementation needs no database or message broker.
 
-```bash
-python -m venv .venv
-python -m pip install fcop==4.0.0 fcop-mcp==4.0.0
+| Record | What it preserves | Why it matters |
+|---|---|---|
+| **TASK** | Assignment, participants and lifecycle | The next worker can locate the work and its current state. |
+| **REPORT** | Delivery claim and evidence for an attempt | “Submitted” remains distinguishable from “accepted.” |
+| **ISSUE** | A problem and its context | A blocker survives the session that discovered it. |
+| **REVIEW** | Review, acceptance or authorization facts | Decisions can be checked against the work and evidence they concern. |
+
+Persistence makes a claim inspectable; it does not make the claim true. FCoP checks protocol relationships and gates. Reviewers evaluate the substance of the delivered work, and the host Runtime supplies execution, scheduling and permissions.
+
+<a id="try-it"></a>
+
+## Try it: create once, read from another client
+
+In an activated **Python 3.10+ virtual environment**, install the published library:
+
+```sh
+python -m pip install "fcop==4.0.0"
 ```
 
-## Candidate installation
-
-Before Stable publication, obtain the exact artifacts and SHA-256 hashes from the WP4F Manifest and install into a **separate new virtual environment**. The published historical RC remains available separately:
-
-```bash
-python -m pip install ./candidate/fcop-4.0.0-py3-none-any.whl ./candidate/fcop_mcp-4.0.0-py3-none-any.whl
-python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
-```
-
-The exact Stable pair is `fcop==4.0.0 / fcop-mcp==4.0.0`; the adapter declares `fcop>=4.0.0,<4.1.0`. Do not mix release lines. Existing 3.x workspaces keep their original semantics; installing does not authorize migration, rule redeployment or downstream upgrades.
-
-## Minimal Python entry (verified 4.0)
+Save this as `demo.py` and run `python demo.py`. It writes a real TASK, opens the workspace through a fresh `Project` instance, then retries the original request.
 
 ```python
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
 from fcop import Project
 
 with TemporaryDirectory(prefix="fcop-demo-") as directory:
-    project = Project(Path(directory) / "workspace")
+    root = Path(directory) / "workspace"
+    project = Project(root)
     workspace = project.create_workspace(protocol_version="4.0")
     request = dict(
-        workspace_id=workspace["workspace_id"], operation_id="demo-create-1",
-        sender="ME", recipient="ME", subject="First task", body="Read-only research",
+        workspace_id=workspace["workspace_id"],
+        operation_id="demo-create-1",
+        sender="ME", recipient="ME",
+        subject="Inspect this handoff",
+        body="Read the task and check the evidence before accepting delivery.",
     )
     first = project.create_task(**request)
-    again = project.create_task(**request)
-    assert again["existing"] and again["task_id"] == first["task_id"]
-    print(first["task_id"])
+
+    next_client = Project(root)
+    state = next_client.inspect_state(task_id=first["task_id"])
+    retry = next_client.create_task(**request)
+
+    assert Path(state["path"]).is_file()
+    assert retry["existing"] and retry["task_id"] == first["task_id"]
+    print("State read from disk:", state["stage"])
+    print("Same task after retry:", retry["task_id"] == first["task_id"])
 ```
 
-## Minimal MCP entry (verified 4.0)
+```text
+State read from disk: inbox
+Same task after retry: True
+```
+
+The example cleans up its temporary directory when it exits. Use your own project directory to retain the files. Retrying `create_task` with the same `operation_id` and normalized payload reuses its durable result; changing the payload is a conflict. This guarantee is specifically for task creation.
+
+**Continue with the [4.0 setup and version guide](docs/fcop-4.0-progress.md)** for a lasting workspace, lifecycle operations and the authorization needed to complete a task.
+
+<a id="mcp"></a>
+
+## Give your agent the same operations through MCP
+
+The optional adapter exposes FCoP to an MCP-capable client over stdio. Install it in the same activated environment:
+
+```sh
+python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
+```
+
+Add this entry to the client's MCP configuration. Replace both absolute paths; on Windows the command ends in `.venv/Scripts/fcop-mcp.exe`.
 
 ```json
 {
@@ -71,41 +108,77 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
 }
 ```
 
-Replace both paths. On Windows use the absolute `.venv/Scripts/fcop-mcp.exe` path. Never point a demo at an existing workspace. Call `init_solo(role_code="ME", protocol_version="4.0")`, then `create_task` with the returned `workspace_id` and an explicit `operation_id`.
+Once connected, initialize a **new** workspace with `init_solo(role_code="ME", protocol_version="4.0")`. Use its workspace identity when calling `create_task`, then inspect the TASK with `inspect_task(filename=task_id)`. Installing an MCP server alone does not initialize a workspace or start an agent team.
 
-The trusted Profile registry defaults to empty. T4–T7 require adopted evaluators registered at **trusted server initialization**. Caller code, YAML, `actor` and `profile_ref` alone cannot grant authority. The [standalone MCP example](examples/v4/third-party/mcp-only/client.py) uses only public stdio JSON-RPC, with no client imports of either package. Its server evaluator is **educational, not production security**.
+**46 tools / 12 resources / 4 resource templates.** The adapter routes to the same Python Core. Default initialization has no trusted authorization Profile: creation, claim and submission are available, but acceptance, rejection, reopening and archival need an explicitly adopted Profile and an issuer evaluator registered by the trusted host. A role name typed into a request cannot supply that authority.
 
-## Branch and explicit convergence
+[MCP tool reference](docs/mcp-tools.md) · [Stable external Python example](tests/stable/third-party/python-only/app.py) · [Stable external MCP example](tests/stable/third-party/mcp-only/client.py). The full examples include an educational Profile; a real deployment must supply its own trust policy.
 
-This is a parameter map, not runnable code that omits required evidence:
+## From a delivery claim to an accepted result
 
-```text
-create_task(branch_of=...)
-inspect_task(include_family_digest=true)
-write_report(attempt_id=...)
-write_review(review_kind="convergence", family_digest=..., references=...)
-archive_task(review_ref=..., family_digest=...)
-```
+Each TASK follows an ordered lifecycle. In 4.0, entering `active` starts a new attempt, and submission links that attempt's REPORT. Acceptance then binds the review and authorization to the current evidence.
 
-Create a Root and two Branches. Complete each Branch with its current `attempt_id` REPORT and acceptance authorization, then complete the Root. Query the canonical family digest, append a convergence REVIEW referencing Branch REPORT heads, and archive the Root with convergence evidence and a separate digest-bound T7 authorization. Core revalidates under the family lock. Changed digest or reused authorization is rejected. REPORT/REVIEW remain immutable.
+<a href="spec/fcop-4.0-spec.md"><img src="assets/fcop-lifecycle.svg" alt="FCoP 4.0 lifecycle: inbox, active, review, done and archive; authorized rejection and reopening return to a new active attempt." width="960" /></a>
 
-## Versioned rules and compatibility
+`active → done` is absent from 4.0. Reopening through `reopen_task` creates a new attempt for ordinary tasks as well as Branches. An old REPORT cannot satisfy a new attempt's submission gate. See the [complete lifecycle and C1–C8 contracts](spec/fcop-4.0-spec.md) · [中文规范](spec/fcop-4.0-spec.zh.md).
 
-Nine bilingual modules form 18 canonical rule files and one Manifest. Assemblies: `sequential`, `parallel`, `repository-development`. Business-agent rules and repository-development rules are separate. Static Host profiles select deterministic `reference` / `bounded_embed` projections. Adoption, zero-write plan, deployment receipt and rollback are explicit. No Host probing, automatic migration or background service. Disk, index, adoption, Host entry and Runtime consumption are separate facts.
+## Parallel work, with an explicit way to finish
 
-## Documentation and history
+Multiple ordered workflows can advance concurrently. A Branch is an ordinary TASK linked to one Root by `branch_of`; sibling Branches keep their own attempts, reports and reviews. Your Runtime decides who runs them and when.
 
-- [4.0 EN](spec/fcop-4.0-spec.md) / [4.0 ZH](spec/fcop-4.0-spec.zh.md)
-- [3.x EN](spec/fcop-v3-spec.md) / [3.x ZH](spec/fcop-v3-spec.zh.md)
-- [MCP tools](docs/mcp-tools.md) / [MCP Adapter](mcp/README.md)
-- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](tests/stable/third-party/python-only/app.py)
-- [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
-- [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
-- [License](LICENSE) / [Citation](CITATION.cff)
-- Legacy installation prompts only: [EN](src/fcop/rules/_data/agent-install-prompt.en.md) / [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md), also discoverable at `fcop://prompt/install`. These historical prompts do not authorize RC installation or migration.
+<a href="docs/architecture.en.md#parallel-work"><img src="assets/fcop-parallel-work.svg" alt="Two sibling Branch tasks proceed independently through work, report and review; Root closure checks current evidence, convergence and archive authorization." width="960" /></a>
 
-Historical tutorials describe their stated versions, not automatic 4.0 upgrades. The historical 3.2.5 archive is [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285), registered at [OSF 92nwm](https://osf.io/92nwm/). Neither identifies 4.0.0; no new DOI or Registry record is created here.
+Before a Root with Branches can be archived, FCoP checks completed Branches, their current REPORTs, a matching `family_digest`, a convergence REVIEW and separate Root archive authorization. A reopened Branch or changed REPORT invalidates stale convergence. Related writes share a short commit boundary; agents do not hold that lock while doing their work. This closes an evidence set; code integration remains the application's responsibility.
 
-## Release boundary
+<a id="architecture"></a>
 
-WP4F promotes the accepted RC without new protocol or business behavior. Phase A verifies reproducible Stable artifacts and real clients. Publication and the specifically authorized local MCP upgrade require ADMIN's `FCOP_4_STABLE_RELEASE_READY` Gate. The RC is retained; no observation period, automatic workspace migration, Registry or Zenodo update is introduced. See [4.0.0 release notes](docs/releases/4.0.0.md).
+## A small protocol inside a larger agent system
+
+Another implementation should be able to preserve the same work semantics without copying a particular Python library, MCP tool list or product.
+
+| Layer | Responsibility |
+|---|---|
+| **Core** | C1–C8: identity, envelopes, lifecycle, relations, convergence, authorization, create idempotency and atomic recovery. |
+| **Specification** | Define the fields, state transitions, errors and observable behavior. |
+| **Conformance** | Check implementations against those contracts using fixtures, vectors and behavioral tests. |
+| **Toolkit** | Implement and expose the protocol; this repository supplies Python and the MCP adapter. |
+| **Profile** | Supply organizational policy and issuer authority; fixed PM/DEV/QA roles are not universal Core rules. |
+| **Runtime** | Run models and tools, manage sessions, schedule work and provide the user interface. |
+
+**Read the design explanation: [English](docs/architecture.en.md) · [简体中文](docs/architecture.zh.md).** It develops the reasoning behind files, separate delivery and acceptance, parallel work, and the boundaries between FCoP, MCP and a Runtime.
+
+4.0 also distributes **nine bilingual rule modules** with versioned manifests and `sequential`, `parallel` and `repository-development` assemblies. Adoption, deployment planning, receipts and rollback are explicit. Host projections use `reference` or `bounded_embed`; installing a package does not silently rewrite host rules. [Rule distribution contract](docs/fcop-4.0/rule-distribution-contract.md) · [中文契约](docs/fcop-4.0/rule-distribution-contract.zh.md).
+
+<a id="research"></a>
+
+## Papers, evidence and citation
+
+These resources are directly accessible; reading the essay collection is optional.
+
+| Resource | Read or cite |
+|---|---|
+| **Architecture whitepaper** | [English](essays/from-coordination-to-governance.en.md) · [中文](essays/from-coordination-to-governance.md) — historical research context |
+| **3.2.5 archive** | [Zenodo DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285) · [OSF DOI 10.17605/OSF.IO/92NWM](https://doi.org/10.17605/OSF.IO/92NWM) |
+| **April 2026 research snapshot** | [Zenodo DOI 10.5281/zenodo.19886036](https://doi.org/10.5281/zenodo.19886036) · [Citation metadata](CITATION.cff) |
+| **17 field reports and design essays** | [Complete index](essays/README.md) · [中文目录](essays/README.zh.md), including original publication and evidence links |
+
+Choose the archive matching the version you studied. The historical DOIs above are not identifiers for 4.0.0; use the versioned release and specification when discussing current behavior.
+
+## Three repositories, three entry points
+
+| Repository | Start here for |
+|---|---|
+| **[FCoP](https://github.com/joinwell52-AI/FCoP)** | **Flagship open-source project:** protocol, Python library and MCP server; use, implement or contribute to the coordination layer. |
+| **[joinwell52](https://github.com/joinwell52-AI/joinwell52)** | **Research and communication:** AI Agents, digital employees and engineering studies. |
+| **[CodeflowMu-Distribution](https://github.com/joinwell52-AI/CodeflowMu-Distribution)** | **Product experience:** packaged application and [downloads](https://github.com/joinwell52-AI/CodeflowMu-Distribution/releases); check its release notes for supported versions. |
+
+FCoP is independently usable under the [MIT license](LICENSE). The product distribution has its own licensing and release schedule.
+
+**Star FCoP to bookmark the protocol and its implementation.** To help it improve, share a reproducible integration issue, an example from your host, or a test of the protocol's public behavior through [Issues](https://github.com/joinwell52-AI/FCoP/issues) or a pull request.
+
+## Versions and existing installations
+
+- **4.0.0:** [Release notes](docs/releases/4.0.0.md) · [Changelog](CHANGELOG.md) · [Architecture decisions](adr/README.md). Publication followed the recorded `FCOP_4_STABLE_RELEASE_READY` gate; users install the stable PyPI pair above.
+- **Release candidate: 4.0.0rc1** — retained as a [historical prerelease](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0rc1).
+- **3.x workspaces:** retain their original semantics until explicit migration. [Legacy specification EN](spec/fcop-v3-spec.md) · [ZH](spec/fcop-v3-spec.zh.md). `finish_task` and legacy history tools remain discoverable but reject v4 workspaces.
+- **Legacy installation prompts:** [EN](src/fcop/rules/_data/agent-install-prompt.en.md) · [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md), also available at `fcop://prompt/install`. These are historical setup material; use the 4.0 guide above for the current version.
