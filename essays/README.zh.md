@@ -4,7 +4,13 @@
 
 这里集中保留原 README 的现场报告、教程、设计文章，以及外部发布和证据档案链接。
 
-**历史范围：** 各篇文章描述的是当时使用的版本和环境。现场观察与 Agent 访谈不能替代符合性测试。当前安装请参考 [README 示例](../README.zh.md#try-it)、[4.0 接入指南](../docs/fcop-4.0-progress.md)和 [4.0 规范](../spec/fcop-4.0-spec.zh.md)。
+**历史范围：** 下方 17 篇现场文章描述的是当时使用的版本和环境。现场观察与 Agent 访谈不能替代符合性测试。当前安装请参考 [README 示例](../README.zh.md#try-it)、[4.0 接入指南](../docs/fcop-4.0-progress.md)和 [4.0 规范](../spec/fcop-4.0-spec.zh.md)。
+
+## 新发布：FCoP 架构原理系列
+
+2026-09-10 发布五篇全文，按 4.0 契约修订：工作外化、最小 Core、系统分层、并行汇合，以及 FCoP/MCP/A2A/CodeFlowMu 的关系。
+
+**[五篇目录与全文](../docs/fcop-architecture-series/README.md) · [连续阅读合集](../docs/fcop-architecture-series/collected.zh.md)**
 
 ## 按主题查找
 

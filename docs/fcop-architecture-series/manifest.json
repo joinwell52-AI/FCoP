@@ -1,0 +1,43 @@
+{
+  "series": "FCoP 架构原理系列：让 Agent 的工作站到模型之外",
+  "original_date": "2026-09-01",
+  "published_at": "2026-09-10",
+  "updated_at": "2026-09-10",
+  "status": "published",
+  "publication_authorized": true,
+  "protocol_version": "4.0",
+  "reference_release": "4.0.0",
+  "publication_revision": 1,
+  "language": "zh-CN",
+  "index": "README.md",
+  "collection": "collected.zh.md",
+  "articles": [
+    {
+      "order": 1,
+      "title": "Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统",
+      "file": "01-work-beyond-context.zh.md"
+    },
+    {
+      "order": 2,
+      "title": "FCoP Core 到底是什么：从工具箱中提炼最小工作内核",
+      "file": "02-minimal-core.zh.md"
+    },
+    {
+      "order": 3,
+      "title": "FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层",
+      "file": "03-architecture-layers.zh.md"
+    },
+    {
+      "order": 4,
+      "title": "单机多 Agent 为什么不追求高并发：从共享写入到“多串行形成并行”",
+      "file": "04-parallel-work.zh.md"
+    },
+    {
+      "order": 5,
+      "title": "从单机到联网：FCoP、MCP、A2A 与 CodeFlowMu 各自负责什么",
+      "file": "05-mcp-a2a-runtime.zh.md"
+    }
+  ],
+  "source": "FCoP-4.0-WP0-Audit-Package-v2.1/docs/fcop-architecture-series",
+  "note": "公开修订版；原始归档不变。A2A 映射等设计方向不表示已交付。"
+}
