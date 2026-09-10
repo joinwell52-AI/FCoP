@@ -1,0 +1,92 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/create-request-canonical.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "body": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "branch_of": {
+      "anyOf": [
+        {
+          "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "contract": {
+      "const": "fcop-create-task-v1"
+    },
+    "operation_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "type": "string"
+    },
+    "operation_kind": {
+      "const": "create_task"
+    },
+    "parent": {
+      "anyOf": [
+        {
+          "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "priority": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ]
+    },
+    "recipient": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "references": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "sender": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "subject": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "workspace_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "workspace_id",
+    "operation_kind",
+    "operation_id",
+    "sender",
+    "recipient",
+    "subject",
+    "body",
+    "priority",
+    "parent",
+    "branch_of",
+    "references"
+  ],
+  "title": "FCoP 4.0 create-request-canonical",
+  "type": "object",
+  "version": "4.0.0"
+}

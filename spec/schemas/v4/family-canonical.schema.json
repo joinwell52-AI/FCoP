@@ -1,0 +1,53 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/family-canonical.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "branches": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "branch_task_id": {
+            "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+            "type": "string"
+          },
+          "report_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "report_id": {
+            "pattern": "^REPORT-[A-Za-z0-9][A-Za-z0-9._-]*$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "branch_task_id",
+          "attempt_id",
+          "report_id",
+          "report_digest"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "contract": {
+      "const": "fcop-family-v1"
+    },
+    "root_task_id": {
+      "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "root_task_id",
+    "branches"
+  ],
+  "title": "FCoP 4.0 family-canonical",
+  "type": "object",
+  "version": "4.0.0"
+}

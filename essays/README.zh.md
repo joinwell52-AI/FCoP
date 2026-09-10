@@ -4,7 +4,7 @@
 
 这里集中保留原 README 的现场报告、教程、设计文章，以及外部发布和证据档案链接。
 
-**历史范围：** 各篇文章描述的是当时使用的版本和环境。现场观察与 Agent 访谈不能替代符合性测试。当前安装请参考 [README 示例](../README.zh.md#try-it)、[入门指南](../docs/getting-started.md)和 [v3 规范](../spec/fcop-v3-spec.zh.md)。
+**历史范围：** 各篇文章描述的是当时使用的版本和环境。现场观察与 Agent 访谈不能替代符合性测试。当前安装请参考 [README 示例](../README.zh.md#try-it)、[4.0 接入指南](../docs/fcop-4.0-progress.md)和 [4.0 规范](../spec/fcop-4.0-spec.zh.md)。
 
 ## 按主题查找
 

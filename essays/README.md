@@ -4,7 +4,7 @@
 
 This index collects field reports, tutorials, design essays and their publication/evidence links. It preserves the former README article catalog. Titles and summaries retain their original publication languages.
 
-**Historical scope:** each article describes the version and environment used at the time. Field observations and agent interviews are not conformance tests. For current setup, use the [README demo](../README.md#try-it), [getting-started guide](../docs/getting-started.en.md) and [v3 specification](../spec/fcop-v3-spec.md).
+**Historical scope:** each article describes the version and environment used at the time. Field observations and agent interviews are not conformance tests. For current setup, use the [README demo](../README.md#try-it), [4.0 setup guide](../docs/fcop-4.0-progress.md) and [4.0 specification](../spec/fcop-4.0-spec.md).
 
 ## Choose a topic
 

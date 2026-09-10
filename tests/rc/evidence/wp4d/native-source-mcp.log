@@ -1,0 +1,3 @@
+{"convergence": true, "exact_retry": true, "mode": "SOURCE_ONLY", "resources": 12, "service_processes": 2, "states": ["archive", "archive", "done", "inbox"], "templates": 4, "tools": 46, "transitions": 15, "transport": "stdio-json-rpc", "zero_conflict_effects": true}
+
+STDERR

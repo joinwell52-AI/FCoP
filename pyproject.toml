@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "fcop"
 dynamic = ["version"]
-description = "FCoP protocol: official Python library — Project API, task/report/issue files, filename parsing, bundled rules. PyYAML only; not an MCP server."
+description = "FCoP protocol: official Python library — Project API, task/report/issue files, filename parsing, bundled rules. Uses PyYAML and jsonschema; not an MCP server."
 # PyPI long text must be library-only. Root README.md is the monorepo tour + MCP;
 # see fcop-README.pypi.md (MCP is the separate fcop-mcp distribution).
 readme = "fcop-README.pypi.md"
@@ -99,9 +99,12 @@ packages = ["src/fcop"]
 include = [
     "src/fcop/rules/_data/*.mdc",
     "src/fcop/rules/_data/*.md",
+    "src/fcop/rules/_data/v4/*.md",
+    "src/fcop/rules/_data/v4/*.json",
     "src/fcop/teams/_data/**/*.md",
     "src/fcop/teams/_data/**/*.json",
     "src/fcop/_data/schemas/*.schema.json",
+    "src/fcop/_data/schemas/v4/*.schema.json",
 ]
 
 [tool.hatch.build.targets.sdist]

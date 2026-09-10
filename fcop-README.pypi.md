@@ -9,13 +9,21 @@ library. It is **not** the MCP server; the optional IDE bridge is the **separate
 - **This repository (specs, essays, source):**  
   <https://github.com/joinwell52-AI/FCoP>
 
-## What you install
+## FCoP 4.0.0 Stable
+
+4.0.0 promotes the accepted RC without new protocol or tool business behavior.
+Workspace identity, four envelopes, Branch, explicit convergence, authorization,
+durable idempotency, atomic recovery and rule distribution are provided by Core.
+Existing 3.x workspaces retain legacy semantics; installing does not migrate,
+redeploy rules or modify other applications. Historical RC 4.0.0rc1 is retained.
+
+## Installation
 
 ```bash
-pip install fcop
+python -m pip install fcop==4.0.0
 ```
 
-Runtime: **Python 3.10+** and **PyYAML** only — no `fastmcp`, no `websockets`, no LLM SDK.
+Runtime: **Python 3.10+**, **PyYAML** and **jsonschema** — no `fastmcp`, no `websockets`, no LLM SDK.
 
 `fcop` gives you a **`Project` API** for creating and maintaining
 `fcop/` (tasks, reports, issues, `fcop.json`, team templates) and
@@ -28,7 +36,13 @@ package and can be written into a repo by `init` / `deploy` flows.
 ```python
 from fcop import Project
 
-Project(".").init()  # e.g. dev-team; or .init_solo() for single role
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory(prefix="fcop-demo-") as directory:
+    project = Project(Path(directory) / "workspace")
+    workspace = project.create_workspace(protocol_version="4.0")
+    print(workspace["workspace_id"])
 ```
 
 ## 0.5.x → 0.6.x

@@ -1,89 +1,86 @@
-# FCoP 4.0 development notes / 开发记录（草稿）
+# FCoP 4.0 setup and version guide / 接入与版本指南
 
-[README](../README.md) · [中文 README](../README.zh.md)
+[English README](../README.md) · [中文 README](../README.zh.md) · [Architecture](architecture.en.md) · [架构说明](architecture.zh.md)
 
-**FCoP 4.0 is unfinished.** This page is a design and candidate-review snapshot. Contract descriptions and document coverage do not establish completed functionality, engineering acceptance or release readiness.
+**4.0.0 is published / 4.0.0 已发布。** Updated September 10, 2026. This page supersedes the pre-release development note formerly at this address.
 
-**FCoP 4.0 尚未完成。** 本页保存设计与候选审查记录；契约描述、文档覆盖度或 README 分支的检查通过，都不能作为 4.0 功能完成、工程验收或发布就绪的证明。
+Official distribution: [GitHub v4.0.0](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0) · [PyPI fcop 4.0.0](https://pypi.org/project/fcop/4.0.0/) · [PyPI fcop-mcp 4.0.0](https://pypi.org/project/fcop-mcp/4.0.0/).
 
-Checked 2026-09-09. This page separates the public installation path from the ongoing 4.0 work. The pinned sources below describe a review candidate; they are not a release announcement.
+## Start in a fresh environment / 从新环境开始
 
-## Public version
+Python 3.10+ is required. Create an environment in the directory where you want to install the tools:
 
-**Use the published `fcop==3.2.5` and `fcop-mcp==3.2.5` packages for the README examples.** See [GitHub Releases](https://github.com/joinwell52-AI/FCoP/releases), [PyPI library](https://pypi.org/project/fcop/3.2.5/) and [PyPI MCP server](https://pypi.org/project/fcop-mcp/3.2.5/).
+需要 Python 3.10+。在准备安装工具的目录创建虚拟环境：
 
-The 4.0 work includes a `4.0.0rc1` candidate identity. It has not been published as an installable public release. The [candidate boundary](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/docs/fcop-4.0/rc-candidate-boundary.md) explicitly distinguishes candidate verification from release readiness and publication.
+```sh
+python -m venv .venv
+```
 
-## Work persists outside model context
+Activate it using the command for your shell / 根据所用终端激活环境：
 
-FCoP externalizes formal work into durable, attributable and inspectable records. TASK, REPORT, ISSUE and REVIEW retain assignments, deliveries, problems and review decisions across session boundaries. References and lifecycle history let another person, agent or tool examine the same work. A REPORT records a delivery claim; accepting that delivery requires a separate decision and evidence.
-
-The filesystem is the current reference carrier. The Core contract defines what compatible implementations must preserve; this does not imply that alternative storage adapters have been implemented or certified. Continuing agent execution requires a Runtime.
-
-## Core, Specification, Toolkit, Profile and Runtime
-
-| Layer | Responsibility |
+| Shell / 终端 | Command / 命令 |
 |---|---|
-| Core | Eight invariants shared by conforming implementations: workspace identity; four envelopes; lifecycle; four relations; evidence/convergence; durable authorization; create idempotency; recoverable atomic semantics. |
-| Specification | The authoritative definition of those fields, states, errors and observable behaviors. |
-| Toolkit | Validation, query, migration, recovery and convenience APIs; `fcop` is the reference Toolkit. |
-| Profile | Roles, issuer authority, organizational rules and product policy. |
-| Runtime | Host, model/tool calls, sessions, scheduling, UI, networking and process management. |
+| Windows Command Prompt | `.venv\Scripts\activate.bat` |
+| Windows PowerShell | `.\.venv\Scripts\Activate.ps1` |
+| macOS / Linux bash or zsh | `source .venv/bin/activate` |
 
-**Conformance is the verification layer:** test vectors, fixtures and observable outcomes check whether an implementation follows the Specification. The Python implementation and MCP tool names do not define Core compatibility by themselves.
+Install the exact stable pair. Python-only users can omit `fcop-mcp`:
 
-Fixed PM/DEV/QA roles are not Core requirements. A Branch is an ordinary TASK related through `branch_of`; Git branch/merge and automatic agent scheduling remain outside Core. In 4.0, `active → done` is removed, authorized `done → active` creates a new attempt, and `archive` is terminal.
+安装一致的稳定版组合；只通过 Python 使用时可省略 `fcop-mcp`：
 
-## Parallel work and integration boundaries
+```sh
+python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
+python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
+```
 
-Independent TASK and Branch workflows can progress concurrently, with ordered transitions inside each workflow. Related changes use a short family commit boundary; it does not lock the duration of agent execution or unrelated tasks. Root archival then checks the current completed Branch evidence, its convergence record and separate archive authorization. This is work-evidence convergence, not automatic Git merging.
+Expected / 预期输出：`4.0.0 4.0.0`.
 
-MCP is an optional way for an agent to access FCoP operations. Model calls, sessions, scheduling and execution recovery belong to the host Runtime. Cross-system networking belongs to an integration outside Core; an architectural mapping to A2A is not a claim that this release provides an A2A adapter. CodeFlowMu is a separate product Runtime; use the [CodeflowMu-Distribution release notes](https://github.com/joinwell52-AI/CodeflowMu-Distribution/releases) to check actual product capabilities and version support.
+The adapter's dependency is `fcop>=4.0.0,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
 
-## Contract history: WP1 to WP1.1
+适配器的依赖范围是 `fcop>=4.0.0,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
 
-The original [WP1 contract package](https://github.com/joinwell52-AI/FCoP/blob/1b50f9e1fd4d2d21002bb1b98e14fd903a050f07/reports/FCOP-4.0-WP1-RESULT.md) contains six documents: English/Chinese specification, 30 conflict decisions, a future conformance matrix, compatibility/MCP mapping and the result report. Its contract identity is `4.0.0-candidate.1`. Its reported `COMPLETE` means the contract package was delivered; its test matrix describes expected checks and is not a test execution result.
+## Create and inspect work / 创建并检查工作
 
-The later specification pinned on this page is `4.0.0-candidate.2`. It clarifies that Profile array order conveys no priority; issuer evaluation is `AUTHORIZED / DENIED / UNKNOWN`; evidence and authorization are bound to file-byte digests; Root convergence and Root archive authorization are distinct; and create idempotency, internal crash recovery and authorized lost-response retry have different scopes. Do not copy WP1-only wording over those revisions.
+The [Python demo](../README.md#try-it) writes an actual TASK and reads it through a new client. For a retained workspace, replace the temporary root with a new directory you control, then call `Project(root).create_workspace(protocol_version="4.0")`. Use the returned `workspace_id` with `create_task`; keep a stable `operation_id` when retrying that creation request. Read the state through `inspect_state(task_id=...)`.
 
-## What the upgrade covers
+[Python 示例](../README.zh.md#try-it)会写入真实 TASK 并通过新客户端读取。需要保留工作区时，把临时根目录换成自己管理的新目录，再调用 `Project(root).create_workspace(protocol_version="4.0")`。创建任务时使用返回的 `workspace_id`；重试同一创建请求时保留 `operation_id`，通过 `inspect_state(task_id=...)` 读取状态。
 
-| Area | Contract being developed | Source |
-|---|---|---|
-| Workspace and evidence identity | Stable workspace IDs, four formal envelopes, explicit relations and evidence references | [Core specification, C1–C5](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/spec/fcop-4.0-spec.md) |
-| Durable authorization | Persisted authorization tied to evidence digests and an explicitly adopted Profile | [Core specification, C6](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/spec/fcop-4.0-spec.md) |
-| Retry and recovery | Operation identity, conflicting retry rejection and observable recovery states | [Core specification, C7–C8](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/spec/fcop-4.0-spec.md) |
-| Task families | Branch relationships, evidence coverage and explicit Root convergence; Branch is a task relationship | [Core specification, C4–C5](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/spec/fcop-4.0-spec.md) |
-| Rule delivery | Versioned bilingual modules, selection, explicit adoption, deployment planning and rollback | [Rule distribution contract](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/docs/fcop-4.0/rule-distribution-contract.md) |
-| Python and MCP consumption | Machine-readable contracts and examples that consume candidate artifacts outside the source checkout | [Python example](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/examples/v4/third-party/python-only/README.md) · [MCP example](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/examples/v4/third-party/mcp-only/README.md) |
+For MCP, use the [README configuration](../README.md#mcp) with absolute executable and project paths. Initialize a new workspace with `init_solo(role_code="ME", protocol_version="4.0")`; the returned workspace identity is used by `create_task`. Inspect through `inspect_task(filename=task_id)`. Parameters are documented in the [tool reference](mcp-tools.md).
 
-These are descriptions of the upgrade's scope. Check the [candidate PR #31](https://github.com/joinwell52-AI/FCoP/pull/31), its [Manifest](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/reviews/fcop-4.0/wp4d/MANIFEST.md) and [verification report](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/reports/FCOP-4.0-WP4D-RESULT.md) for the completed checks, limitations and subsequent review.
+MCP 使用 [README 配置](../README.zh.md#mcp)中的可执行文件和项目绝对路径。通过 `init_solo(role_code="ME", protocol_version="4.0")` 初始化新工作区，使用返回的身份创建任务，再通过 `inspect_task(filename=task_id)` 检查。参数见[工具参考](mcp-tools.md)。
 
-A source demo or passing CI job alone does not establish a published release, production credential verification or adoption by an agent host. Existing 3.x workspaces retain 3.x semantics until explicit migration. Current citation identifiers and downstream product versions are not changed by this README.
+## Complete work with explicit authority / 配置授权后完成工作
 
-## 中文说明
+Default `profiles: []` permits Base operations without authorization gates, including creation, claim and submission. Acceptance, rejection, reopening and archival require a usable adopted authorization Profile. Supply an issuer evaluator through the Python `Project(..., trusted_profiles=...)` boundary or the MCP host's `create_server(..., trusted_profiles=...)` initialization, and explicitly adopt the matching Profile in the workspace. Request payloads cannot register trust policies.
 
-**现在可安装的是公开的 3.2.5；4.0 属于正在验证的升级候选。** 候选版本号为 `4.0.0rc1`，不能据此宣称它已经发布到 PyPI，或要求新用户直接从公开包目录安装该候选。
+默认 `profiles: []` 可进行创建、领取、提交等不受授权门槛约束的 Base 操作。验收、退回、重开、归档需要可用且已采纳的授权 Profile。Python 通过 `Project(..., trusted_profiles=...)`、MCP 宿主通过 `create_server(..., trusted_profiles=...)` 的可信初始化入口提供签发者评估器，并在工作区显式采纳对应 Profile；请求载荷不能自行注册信任策略。
 
-WP1 契约包共六份文件，版本为 `4.0.0-candidate.1`；它的 COMPLETE 指候选材料完成。上方审查来源中的后续规范为 `candidate.2`，已补充 Profile 权限、证据字节摘要、完整迁移条件、汇合与归档授权的区别，以及三类不同的幂等/恢复保证。
+Working reference consumers / 完整参考使用方：
 
-Core 的八项契约是：工作区身份、四类信封、生命周期、四种关系、证据与汇合、持久授权、创建幂等、可恢复原子语义。固定角色属于 Profile，Python 实现属于 Toolkit，MCP 属于适配器，模型调用与调度属于 Runtime。
+- [Python application](../tests/stable/third-party/python-only/app.py): lifecycle, evidence, authority, retry and branch scenarios.
+- [MCP client](../tests/stable/third-party/mcp-only/client.py) and its [server](../tests/stable/third-party/mcp-only/server.py): the same boundaries through an external stdio client.
 
-这些契约服务于同一个目的：让 Agent 的正式工作站到模型上下文之外。任务、交付、问题和审查保留为可持续检查与交接的工作记录。文件系统是当前参考载体；工作记录可以保留，Agent 持续执行则需要 Runtime。Specification 规定公开行为，Conformance 用测试向量、样例与可观察结果验证实现是否符合规范。
+These samples deliberately use an educational issuer proof. Read their evaluator before adapting them; a production host must verify authority according to its own policy. The default CLI server does not invent that policy for you.
 
-并行方式是多条有序工作流共同推进：每个 TASK 或 Branch 保持自己的生命周期，相关状态变更只在短暂提交期间协调。任务分支集合收尾要核对当前证据、汇合记录和独立归档授权；这不等于自动合并 Git 代码。MCP 接入、宿主持续执行与跨系统联网各有边界，架构中的 A2A 映射也不能直接当作已交付的适配器。
+这些示例刻意采用教学用签发证明。改编前应阅读评估器，实际宿主需按自身策略验证权限；默认命令行服务不会代替你建立这种策略。
 
-这次升级重点是：
+## Rules and existing workspaces / 规则与已有工作区
 
-1. 明确工作区身份、文件之间的关系，以及交付和审查对应的证据。
-2. 将授权与具体证据、已采纳的 Profile 绑定并持久保存。
-3. 为重试保留操作身份，拒绝冲突，区分可观察的恢复状态。
-4. 明确任务分支的关系、完成证据与汇合条件。
-5. 按版本分发中英文规则，通过显式采纳、部署计划和回滚处理宿主文件。
-6. 验证 Python 与 MCP 使用方如何消费候选安装包。
+4.0 rules have versioned manifests, explicit adoption, zero-write deployment planning, receipts and rollback. Select an assembly and host projection using the [rule distribution contract](fcop-4.0/rule-distribution-contract.md) / [中文契约](fcop-4.0/rule-distribution-contract.zh.md). Files on disk and rules actually consumed by a host are separate facts.
 
-对应[中文 Core 规范](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/spec/fcop-4.0-spec.zh.md)与[中文规则分发契约](https://github.com/joinwell52-AI/FCoP/blob/700e9e1ecb3eb02e5860094175ba7f8099141695/docs/fcop-4.0/rule-distribution-contract.zh.md)。上表说明的是升级范围；实际完成了哪些验证，应查看 PR、Manifest 和报告。新版本发布、既有工作区迁移、产品接入、宿主实际消费规则，各自需要相应证据。
+4.0 规则提供版本化清单、显式采纳、零写入部署计划、回执与回滚。根据上方契约选择规则组合与宿主投影；磁盘上有文件，不代表宿主已经消费规则。
 
-## Updating the landing page after release
+**Installing packages does not migrate a workspace.** Existing 3.x workspaces retain 3.x semantics. Do not use a fresh-workspace example to overwrite an existing workspace or treat old installation prompts as a 4.0 migration procedure. Retain backups and inspect the version-specific rules before planning a migration.
 
-Once a public release exists, update the README package versions and commands from the actual published artifacts, rerun the local demo and MCP connection check, link the version-specific migration instructions, and update citation links only if corresponding records exist. Keep the 3.x documentation accessible to existing users.
+**安装包不会迁移工作区。** 已有 3.x 工作区保持 3.x 语义。不要用新建示例覆盖已有工作区，也不要把旧版安装提示词当成 4.0 迁移流程。规划迁移前保留备份并核对对应版本规则。
+
+Legacy references / 历史资料：[3.x specification](../spec/fcop-v3-spec.md) · [中文规范](../spec/fcop-v3-spec.zh.md) · [3.x getting started](getting-started.en.md) · [中文入门](getting-started.md).
+
+## Release and design history / 发布与设计记录
+
+- **Current release:** [v4.0.0](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0), with accepted commit, artifact run and hashes. The [4.0.0 release document](releases/4.0.0.md) records the promotion procedure; the public release establishes publication.
+- **Historical candidate:** [v4.0.0rc1](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0rc1) is retained. Candidate guides and WP reports describe their original stages.
+- **Current contracts:** [4.0 specification EN](../spec/fcop-4.0-spec.md) / [ZH](../spec/fcop-4.0-spec.zh.md). C1–C8, rather than a historical concept count, define Core compatibility.
+- **Research:** [Complete index EN](../essays/README.md) / [中文](../essays/README.zh.md). The existing 3.2.5 and April 2026 citation archives retain their historical versions; they do not identify 4.0.0.
+
+当前发布页列出验收提交、构建与产物摘要。WP 报告和候选指南保留其原始阶段含义；当前 Core 兼容性以 C1–C8 为准。3.2.5 和 2026 年 4 月研究 DOI 保持原有版本含义，不能改写为 4.0.0 的引用凭证。

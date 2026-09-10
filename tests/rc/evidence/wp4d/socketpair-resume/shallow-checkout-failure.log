@@ -1,0 +1,16 @@
+2026-09-09T16:30:08.9232121Z Traceback (most recent call last):
+2026-09-09T16:30:08.9241867Z   File "/home/runner/work/FCoP/FCoP/scripts/wp4d_consume.py", line 186, in <module>
+2026-09-09T16:30:08.9242621Z     main()
+2026-09-09T16:30:08.9243204Z   File "/home/runner/work/FCoP/FCoP/scripts/wp4d_consume.py", line 124, in main
+2026-09-09T16:30:08.9243994Z     assert manifest["commit"] == candidate_ref(repo)
+2026-09-09T16:30:08.9244496Z                                  ^^^^^^^^^^^^^^^^^^^
+2026-09-09T16:30:08.9245239Z   File "/home/runner/work/FCoP/FCoP/scripts/wp4d_candidate_ref.py", line 15, in candidate_ref
+2026-09-09T16:30:08.9246149Z     assert len(parents) == 2, "Candidate delivery requires an unambiguous parent chain"
+2026-09-09T16:30:08.9246778Z            ^^^^^^^^^^^^^^^^^
+2026-09-09T16:30:08.9247328Z AssertionError: Candidate delivery requires an unambiguous parent chain
+2026-09-09T16:30:08.9338463Z ##[error]Process completed with exit code 1.
+2026-09-09T16:30:08.9432794Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-09T16:30:08.9434198Z ##[group]Run actions/upload-artifact@v4
+2026-09-09T16:30:08.9434487Z with:
+2026-09-09T16:30:08.9434732Z   name: wp4d-consumer-ubuntu-latest-3.12
+2026-09-09T16:30:08.9435076Z   path: /home/runner/work/_temp/consumer-evidence/

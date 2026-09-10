@@ -1,0 +1,2294 @@
+[
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:41:15.207947+00:00",
+    "os": "Darwin",
+    "python": "3.10.11",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-urrt54mi/venv/lib/python3.10/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-urrt54mi/venv/lib/python3.10/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-urrt54mi/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-urrt54mi/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l53jq75z/venv/lib/python3.10/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l53jq75z/venv/lib/python3.10/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l53jq75z/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l53jq75z/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:40:34.468731+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:39:55.299638+00:00",
+    "os": "Darwin",
+    "python": "3.11.9",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-gqtakvyr/venv/lib/python3.11/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-gqtakvyr/venv/lib/python3.11/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-gqtakvyr/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-gqtakvyr/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-vwtxc5bn/venv/lib/python3.11/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-vwtxc5bn/venv/lib/python3.11/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-vwtxc5bn/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-vwtxc5bn/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:38:58.948466+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:40:57.913471+00:00",
+    "os": "Darwin",
+    "python": "3.12.10",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-41z7vom5/venv/lib/python3.12/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-41z7vom5/venv/lib/python3.12/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-41z7vom5/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-41z7vom5/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-qb6phw9o/venv/lib/python3.12/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-qb6phw9o/venv/lib/python3.12/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-qb6phw9o/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-qb6phw9o/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:39:59.179399+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:40:05.111297+00:00",
+    "os": "Darwin",
+    "python": "3.13.15",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-6xa9owsk/venv/lib/python3.13/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-6xa9owsk/venv/lib/python3.13/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-6xa9owsk/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-wheel-6xa9owsk/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l_uwsh2h/venv/lib/python3.13/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l_uwsh2h/venv/lib/python3.13/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l_uwsh2h/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/private/var/folders/d8/hvxvltxn0fl4rmnd52sncbth0000gn/T/wp4d-sdist-l_uwsh2h/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:39:08.418417+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:38:34.324012+00:00",
+    "os": "Linux",
+    "python": "3.10.21",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-wheel-z9bn6nip/venv/lib/python3.10/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-wheel-z9bn6nip/venv/lib/python3.10/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-wheel-z9bn6nip/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-wheel-z9bn6nip/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-sdist-mm7eg8_p/venv/lib/python3.10/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-sdist-mm7eg8_p/venv/lib/python3.10/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-sdist-mm7eg8_p/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-sdist-mm7eg8_p/venv/lib/python3.10/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:37:31.209352+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:38:07.169558+00:00",
+    "os": "Linux",
+    "python": "3.11.16",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-wheel-evtbbea_/venv/lib/python3.11/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-wheel-evtbbea_/venv/lib/python3.11/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-wheel-evtbbea_/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-wheel-evtbbea_/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-sdist-8cc3zf36/venv/lib/python3.11/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-sdist-8cc3zf36/venv/lib/python3.11/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-sdist-8cc3zf36/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-sdist-8cc3zf36/venv/lib/python3.11/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:37:15.908713+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:38:56.557729+00:00",
+    "os": "Linux",
+    "python": "3.12.14",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-wheel-68rn80vt/venv/lib/python3.12/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-wheel-68rn80vt/venv/lib/python3.12/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-wheel-68rn80vt/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-wheel-68rn80vt/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-sdist-6fqdwcq4/venv/lib/python3.12/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-sdist-6fqdwcq4/venv/lib/python3.12/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-sdist-6fqdwcq4/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-sdist-6fqdwcq4/venv/lib/python3.12/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:38:00.417757+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:39:12.547452+00:00",
+    "os": "Linux",
+    "python": "3.13.15",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-wheel-3k7h27w7/venv/lib/python3.13/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-wheel-3k7h27w7/venv/lib/python3.13/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-wheel-3k7h27w7/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-wheel-3k7h27w7/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "/tmp/wp4d-sdist-sw_17uu8/venv/lib/python3.13/site-packages/fcop/__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "/tmp/wp4d-sdist-sw_17uu8/venv/lib/python3.13/site-packages/fcop_mcp/__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "/tmp/wp4d-sdist-sw_17uu8/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "/tmp/wp4d-sdist-sw_17uu8/venv/lib/python3.13/site-packages/fcop/__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:38:16.191604+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:40:26.986754+00:00",
+    "os": "Windows",
+    "python": "3.10.11",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-es0zt0cq\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-es0zt0cq\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-es0zt0cq\\venv\\lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-es0zt0cq\\venv\\lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-kminvcad\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-kminvcad\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-kminvcad\\venv\\lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-kminvcad\\venv\\lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:38:26.829145+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:40:05.967216+00:00",
+    "os": "Windows",
+    "python": "3.11.9",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-c4kqt9cb\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-c4kqt9cb\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-c4kqt9cb\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-c4kqt9cb\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-rdqmm3x8\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-rdqmm3x8\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-rdqmm3x8\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-rdqmm3x8\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:37:23.337017+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:39:21.128622+00:00",
+    "os": "Windows",
+    "python": "3.12.10",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-c065u7us\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-c065u7us\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-c065u7us\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-c065u7us\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-2y_7l7k1\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-2y_7l7k1\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-2y_7l7k1\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-2y_7l7k1\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:37:24.188678+00:00",
+    "status": "PASS"
+  },
+  {
+    "artifact_sha256": {
+      "fcop-4.0.0rc1-py3-none-any.whl": "b539fdd496d52ea608b5f42abd270c2ed04e8f011242d932ddedac48f8d7cee9",
+      "fcop-4.0.0rc1.tar.gz": "43e4488af52bffac3e400c14f442136f955ee0477ddf0e94386481e6ec682bb4",
+      "fcop_mcp-4.0.0rc1-py3-none-any.whl": "20167b314de1a90093b74cf42c7039edceddc1458e1b37ce3e9e6f31697c773a",
+      "fcop_mcp-4.0.0rc1.tar.gz": "eefde60b6d156f5ef2184186f5f5a355837f0fc9e0244b3e2d8077dbed51000b"
+    },
+    "candidate_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+    "execution_head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "finished": "2026-09-09T16:40:21.300496+00:00",
+    "os": "Windows",
+    "python": "3.13.15",
+    "results": [
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-1n96srm6\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-wheel-1n96srm6\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-1n96srm6\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "wheel",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-wheel-1n96srm6\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      },
+      {
+        "identity": {
+          "fcop": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-v6rv5boy\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+            "requirements": [
+              "jsonschema<5.0,>=4.0",
+              "pyyaml<7.0,>=6.0",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "types-pyyaml; extra == 'dev'"
+            ],
+            "version": "4.0.0rc1"
+          },
+          "fcop-mcp": {
+            "path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\wp4d-sdist-v6rv5boy\\venv\\Lib\\site-packages\\fcop_mcp\\__init__.py",
+            "requirements": [
+              "fastmcp==3.2.4",
+              "fcop<4.1.0,>=4.0.0rc1",
+              "build>=1.2; extra == 'dev'",
+              "mypy>=1.10; extra == 'dev'",
+              "pytest-cov>=5.0; extra == 'dev'",
+              "pytest>=8.0; extra == 'dev'",
+              "ruff>=0.5; extra == 'dev'",
+              "twine>=5.0; extra == 'dev'",
+              "websockets>=12.0; extra == 'relay'"
+            ],
+            "version": "4.0.0rc1"
+          }
+        },
+        "legacy": {
+          "files": 4,
+          "fixture_sha256": "1b9d0d298d0dd037e32cd78247f3e0940f7500fd9d3aea6ab647d477f81c2ee3",
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-v6rv5boy\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "legacy_read_only": true
+        },
+        "mcp": {
+          "convergence": true,
+          "exact_retry": true,
+          "mode": "INSTALLED",
+          "resources": 12,
+          "service_processes": 2,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "templates": 4,
+          "tools": 46,
+          "transitions": 15,
+          "transport": "stdio-json-rpc",
+          "zero_conflict_effects": true
+        },
+        "mismatches": [
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "3.2.5 4.0.0rc1",
+            "zero_workspace_effects": true
+          },
+          {
+            "diagnostic": "toolkit:MCP_PACKAGE_INCOMPATIBLE",
+            "pair": "4.0.0rc1 3.2.5",
+            "zero_workspace_effects": true
+          }
+        ],
+        "origin": "sdist",
+        "python": {
+          "disk_reopen": true,
+          "exact_retry": true,
+          "host_rollback": true,
+          "import_path": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wp4d-sdist-v6rv5boy\\venv\\Lib\\site-packages\\fcop\\__init__.py",
+          "mode": "INSTALLED",
+          "rules": 19,
+          "states": [
+            "archive",
+            "archive",
+            "done",
+            "inbox"
+          ],
+          "transitions": 15
+        }
+      }
+    ],
+    "schema": "wp4d-consumer/v1",
+    "started": "2026-09-09T16:38:26.882084+00:00",
+    "status": "PASS"
+  }
+]

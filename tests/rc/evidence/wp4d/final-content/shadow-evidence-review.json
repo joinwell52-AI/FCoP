@@ -1,0 +1,20 @@
+{
+  "review_kind": "EXISTING_EVIDENCE_ONLY_NO_LIVE_DOWNSTREAM_ACCESS",
+  "candidate_content_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+  "candidate_content_unchanged": true,
+  "raw_evidence_sha256": "d0e293c19bd5297659cd67f71ae32dc607d2172fee08e447108788d834b8a6f8",
+  "raw_evidence_bytes": 3832169,
+  "raw_result_matches_summary": true,
+  "inventory_sha256": "c2ef5998d3646e340dcd7196ff60c20c6986c92a233f43547e6434c8ef96e0ea",
+  "tracked": 14851,
+  "untracked": 10406,
+  "initial_shadow": "14/14",
+  "initial_byte_identity": "MATCH",
+  "initial_exact_timestamps": "NOT_SEPARATELY_CAPTURED",
+  "later_rechecks": "FAILED_CONCURRENT_EXTERNAL_WRITES_PRESERVED",
+  "quiet_window_escalation": "WITHDRAWN_EXECUTOR_JUDGMENT_ERROR",
+  "codeflowmu_adopted_version_policy": "<4.0",
+  "codeflowmu_upgrade": false,
+  "codeflowmu_runtime_consumption_verified": null,
+  "further_live_codeflowmu_access": false
+}

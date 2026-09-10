@@ -1,0 +1,333 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/lifecycle-receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "attempt_id": {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "contract": {
+          "const": "fcop-lifecycle-receipt-v1"
+        },
+        "evidence_digest": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "evidence_ref": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "from_stage": {
+          "enum": [
+            "inbox",
+            "active"
+          ]
+        },
+        "normalized_transition_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "operation_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "operation_kind": {
+          "const": "lifecycle_transition"
+        },
+        "report_ref": {
+          "anyOf": [
+            {
+              "pattern": "^REPORT-[A-Za-z0-9][A-Za-z0-9._-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_path": {
+          "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "PREPARED",
+            "TARGET_DURABLE",
+            "COMMITTED"
+          ]
+        },
+        "target_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "target_path": {
+          "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        "to_stage": {
+          "enum": [
+            "inbox",
+            "active",
+            "review",
+            "done",
+            "archive"
+          ]
+        },
+        "tool": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "transition": {
+          "$ref": "https://fcop.dev/schemas/v4/transition.schema.json"
+        },
+        "version": {
+          "const": 1
+        },
+        "workspace_id": {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract",
+        "version",
+        "operation_id",
+        "workspace_id",
+        "task_id",
+        "operation_kind",
+        "from_stage",
+        "to_stage",
+        "tool",
+        "actor",
+        "report_ref",
+        "source_path",
+        "target_path",
+        "source_digest",
+        "target_digest",
+        "normalized_transition_digest",
+        "evidence_ref",
+        "evidence_digest",
+        "attempt_id",
+        "transition",
+        "stage"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "attempt_id": {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "authorization_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "authorization_ref": {
+          "pattern": "^REVIEW-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        "contract": {
+          "const": "fcop-lifecycle-receipt-v1"
+        },
+        "evidence_digest": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "evidence_ref": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "from_stage": {
+          "enum": [
+            "review",
+            "done"
+          ]
+        },
+        "normalized_transition_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "operation_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "operation_kind": {
+          "const": "lifecycle_transition"
+        },
+        "profile_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "report_ref": {
+          "anyOf": [
+            {
+              "pattern": "^REPORT-[A-Za-z0-9][A-Za-z0-9._-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "request_profile_ref": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "review_ref": {
+          "anyOf": [
+            {
+              "pattern": "^REVIEW-[A-Za-z0-9][A-Za-z0-9._-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_attempt_id": {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "source_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_path": {
+          "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "PREPARED",
+            "TARGET_DURABLE",
+            "COMMITTED"
+          ]
+        },
+        "target_attempt_id": {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "target_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "target_path": {
+          "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+          "type": "string"
+        },
+        "task_id": {
+          "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        "to_stage": {
+          "enum": [
+            "inbox",
+            "active",
+            "review",
+            "done",
+            "archive"
+          ]
+        },
+        "tool": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "transition": {
+          "$ref": "https://fcop.dev/schemas/v4/transition.schema.json"
+        },
+        "version": {
+          "const": 1
+        },
+        "workspace_id": {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract",
+        "version",
+        "operation_id",
+        "workspace_id",
+        "task_id",
+        "operation_kind",
+        "from_stage",
+        "to_stage",
+        "tool",
+        "actor",
+        "report_ref",
+        "source_path",
+        "target_path",
+        "source_digest",
+        "target_digest",
+        "normalized_transition_digest",
+        "evidence_ref",
+        "evidence_digest",
+        "attempt_id",
+        "transition",
+        "stage",
+        "review_ref",
+        "authorization_ref",
+        "authorization_digest",
+        "profile_ref",
+        "request_profile_ref",
+        "source_attempt_id",
+        "target_attempt_id",
+        "family_digest"
+      ],
+      "type": "object"
+    }
+  ],
+  "title": "FCoP 4.0 lifecycle-receipt",
+  "version": "4.0.0"
+}

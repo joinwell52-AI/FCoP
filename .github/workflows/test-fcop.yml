@@ -42,6 +42,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -72,6 +74,12 @@ jobs:
         # a red CI square pinpoints which package regressed.
         run: python -m pytest tests/test_fcop -v
 
+      - name: WP4C.6 frozen artifact and context conformance (native)
+        run: >-
+          python -m pytest
+          tests/conformance/rule_distribution_v4/test_dist_25_30_failures_artifacts_context_gates.py
+          -k "test_dist_27 or test_dist_28" -v
+
   coverage:
     name: Coverage (Ubuntu / 3.12)
     runs-on: ubuntu-latest
@@ -81,6 +89,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -137,6 +147,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -206,6 +218,9 @@ jobs:
           print('Smoke test OK.')
           "
 
+      - name: Canonical source archive and clean-install parity
+        run: /tmp/smoke-venv/bin/python -I -B tests/test_fcop/rule_distribution_artifact_probe.py . dist --installed
+
       - name: Audit runtime dependencies (pip-audit)
         # Check *runtime* deps against the PyPI Advisory DB. We audit
         # fcop's declared runtime deps rather than the smoke venv's
@@ -268,6 +283,7 @@ jobs:
       - name: Checkout (full history for diff)
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Check for snapshot / CHANGELOG consistency
@@ -288,7 +304,7 @@ jobs:
             # Fetch the Unreleased section and ensure it mentions either 'Added',
             # 'Deprecated', or 'Changed' — these are the headings Keep a
             # Changelog uses and the only ones relevant to an API shift.
-            SECTION=$(awk '/^## \[Unreleased\]/,/^## \[/' CHANGELOG.md | head -n 200)
+            SECTION=$(awk '/^## \[Unreleased\]$/ { capture=1; next } capture && /^## \[/ { exit } capture { print }' CHANGELOG.md | head -n 200)
             if ! echo "$SECTION" | grep -qE "^### (Added|Changed|Deprecated|Removed)"; then
               echo "::error::[Unreleased] section has no Added / Changed / Deprecated heading."
               echo "Public API drifted (snapshot file changed) but the CHANGELOG does"

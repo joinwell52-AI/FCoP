@@ -9,6 +9,7 @@ See adr/ADR-0001-library-api.md ("异常体系") for the full contract.
 
 from __future__ import annotations
 
+from enum import Enum as _Enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -34,6 +35,56 @@ class FcopError(Exception):
 
     Catch this to handle any fcop-originated failure uniformly.
     """
+
+
+class _V4Code(str, _Enum):
+    """Frozen Base codes plus one explicitly namespaced Toolkit extension."""
+
+    WORKSPACE_ID_MISMATCH = "WORKSPACE_ID_MISMATCH"
+    WORKSPACE_ID_CLONE_CONFLICT = "WORKSPACE_ID_CLONE_CONFLICT"
+    UNSUPPORTED_PROTOCOL = "UNSUPPORTED_PROTOCOL"
+    UNSUPPORTED_WORKSPACE_VERSION = "UNSUPPORTED_WORKSPACE_VERSION"
+    UNSUPPORTED_ENCODING = "UNSUPPORTED_ENCODING"
+    INVALID_ENVELOPE = "INVALID_ENVELOPE"
+    RELATION_INVALID = "RELATION_INVALID"
+    REFERENCE_UNRESOLVED = "REFERENCE_UNRESOLVED"
+    BRANCH_DEPTH_EXCEEDED = "BRANCH_DEPTH_EXCEEDED"
+    ROOT_NOT_ACTIVE = "ROOT_NOT_ACTIVE"
+    REPORT_REQUIRED = "REPORT_REQUIRED"
+    REPORT_HEAD_AMBIGUOUS = "REPORT_HEAD_AMBIGUOUS"
+    ATTEMPT_MISMATCH = "ATTEMPT_MISMATCH"
+    REVIEW_REQUIRED = "REVIEW_REQUIRED"
+    FAMILY_CONVERGENCE_REQUIRED = "FAMILY_CONVERGENCE_REQUIRED"
+    FAMILY_CONVERGENCE_MISMATCH = "FAMILY_CONVERGENCE_MISMATCH"
+    EVIDENCE_DIGEST_MISMATCH = "EVIDENCE_DIGEST_MISMATCH"
+    AUTHORIZATION_REQUIRED = "AUTHORIZATION_REQUIRED"
+    AUTHORIZATION_INVALID = "AUTHORIZATION_INVALID"
+    AUTHORIZATION_EXPIRED = "AUTHORIZATION_EXPIRED"
+    AUTHORIZATION_REUSED = "AUTHORIZATION_REUSED"
+    AUTHORIZATION_PROFILE_UNAVAILABLE = "AUTHORIZATION_PROFILE_UNAVAILABLE"
+    OPERATION_ID_CONFLICT = "OPERATION_ID_CONFLICT"
+    INVALID_TRANSITION = "INVALID_TRANSITION"
+    BRANCH_NOT_TERMINAL = "BRANCH_NOT_TERMINAL"
+    LEGACY_TRANSITION_NOT_ALLOWED = "LEGACY_TRANSITION_NOT_ALLOWED"
+    TARGET_ALREADY_EXISTS_DIFFERENT = "TARGET_ALREADY_EXISTS_DIFFERENT"
+    STATE_AMBIGUOUS = "STATE_AMBIGUOUS"
+    RECOVERY_REQUIRED = "RECOVERY_REQUIRED"
+    LOCK_RECOVERY_REQUIRED = "LOCK_RECOVERY_REQUIRED"
+    UNSUPPORTED_FILESYSTEM = "UNSUPPORTED_FILESYSTEM"
+    OPERATION_NOT_IMPLEMENTED = "toolkit:OPERATION_NOT_IMPLEMENTED"
+
+
+class V4ProtocolError(FcopError):
+    """Machine-readable 4.0 failure; no changes to the legacy hierarchy."""
+
+    def __init__(
+        self, code: _V4Code, message: str, *, operation_ref: str | None = None,
+        subject_ref: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.code = code.value
+        self.operation_ref = operation_ref
+        self.subject_ref = subject_ref
 
 
 class ProtocolViolation(FcopError):  # noqa: N818 — "Violation" names the

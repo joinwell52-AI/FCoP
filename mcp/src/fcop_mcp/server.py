@@ -36,12 +36,17 @@ from typing import Any, Literal
 
 import fcop
 from fastmcp import FastMCP
+from fastmcp.exceptions import ResourceError
 from fcop import Issue, Project, Report, Task, ValidationIssue
 
+from fcop_mcp.adapter import CURRENT_ROUTER, register_legacy_routes, register_reopen
+from fcop_mcp.adapter import create_server as create_server
 from fcop_mcp.gal import create_alert, list_alerts
 from fcop_mcp.gal._drift import run_drift_scan
 from fcop_mcp.governance import FCoPGovernanceMiddleware
 from fcop_mcp.governance._tools import impl_get_governance_summary, impl_list_governance_events
+from fcop_mcp.resources import register_resources
+from fcop_mcp.routing import WorkspaceRouter, check_package_compatibility
 
 # ─── Project path resolution ─────────────────────────────────────────
 
@@ -297,6 +302,10 @@ def _resolve_project_dir() -> tuple[Path, str]:
     """
     global _LEGACY_ENV_WARNED
 
+    active_router = CURRENT_ROUTER.get()
+    if active_router is not None:
+        return active_router.root, active_router.binding_source
+
     with _STATE_LOCK:
         pinned = _SESSION_PROJECT_PATH
     if pinned is not None:
@@ -352,13 +361,24 @@ def _get_project() -> tuple[Project, str]:
 
 # ─── FastMCP instance ────────────────────────────────────────────────
 
+check_package_compatibility()
 mcp = FastMCP("fcop")
 
 # Layer 1 governance middleware (ADR-0030-bis).
 # Intercepts every tools/call, resolves risk level from Skill registry,
 # applies deterministic policy, and emits an append-only audit event
 # before returning any execution decision.
-mcp.add_middleware(FCoPGovernanceMiddleware())
+def _legacy_audit_enabled() -> bool:
+    from fcop.errors import V4ProtocolError
+
+    try:
+        path, source = _resolve_project_dir()
+        return WorkspaceRouter(path, binding_source=source).route().declared_protocol == "v3"
+    except V4ProtocolError:
+        return False
+
+
+mcp.add_middleware(FCoPGovernanceMiddleware(audit_enabled=_legacy_audit_enabled))
 
 
 # ─── Tools ───────────────────────────────────────────────────────────
@@ -3855,47 +3875,41 @@ def resource_teams_index() -> str:
 
 @mcp.resource("fcop://teams/{team}", mime_type="text/markdown")
 def resource_team_readme(team: str) -> str:
-    """Team-level README (Chinese variant)."""
+    """Read-only Team Profile README, not workspace version or authorization."""
     try:
         template = fcop.teams.get_template(team, "zh")
     except fcop.TeamNotFoundError as exc:
-        return f"# Team not found: {team}\n\n{exc}"
+        raise ResourceError(f"Unknown registered team: {team}") from exc
     return template.readme
 
 
 @mcp.resource("fcop://teams/{team}/{role}", mime_type="text/markdown")
 def resource_team_role_zh(team: str, role: str) -> str:
-    """Role-level bio for one team member (Chinese variant)."""
+    """Read-only Chinese role Profile; reading does not adopt a Profile."""
     try:
         template = fcop.teams.get_template(team, "zh")
     except fcop.TeamNotFoundError as exc:
-        return f"# Team not found: {team}\n\n{exc}"
+        raise ResourceError(f"Unknown registered team: {team}") from exc
     role_up = role.upper()
     text = template.roles.get(role_up)
     if text is None:
         known = ", ".join(sorted(template.roles)) or "(none)"
-        return (
-            f"# Role not found: {role_up} in team {team}\n\n"
-            f"Known roles: {known}"
-        )
+        raise ResourceError(f"Unknown role {role_up} in {team}; known roles: {known}")
     return text
 
 
 @mcp.resource("fcop://teams/{team}/{role}/en", mime_type="text/markdown")
 def resource_team_role_en(team: str, role: str) -> str:
-    """Role-level bio for one team member (English variant)."""
+    """Read-only English role Profile; no Core identity or authority is granted."""
     try:
         template = fcop.teams.get_template(team, "en")
     except fcop.TeamNotFoundError as exc:
-        return f"# Team not found: {team}\n\n{exc}"
+        raise ResourceError(f"Unknown registered team: {team}") from exc
     role_up = role.upper()
     text = template.roles.get(role_up)
     if text is None:
         known = ", ".join(sorted(template.roles)) or "(none)"
-        return (
-            f"# Role not found: {role_up} in team {team}\n\n"
-            f"Known roles: {known}"
-        )
+        raise ResourceError(f"Unknown role {role_up} in {team}; known roles: {known}")
     return text
 
 
@@ -4007,3 +4021,13 @@ def fcop_create_alert(
         f"文件：fcop/alerts/{alert_id}.md\n\n"
         f"运行 `fcop_list_alerts` 查看所有待处理告警。"
     )
+
+
+def _request_router() -> WorkspaceRouter:
+    path, source = _resolve_project_dir()
+    return WorkspaceRouter(path, binding_source=source)
+
+
+register_reopen(mcp, _request_router)
+register_legacy_routes(mcp, sys.modules[__name__], _request_router, replace=True)
+register_resources(mcp, sys.modules[__name__], _request_router, replace=True)

@@ -1,0 +1,51 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/workspace.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "encoding": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "fcop-filesystem"
+        },
+        "version": {
+          "const": "4.0"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    },
+    "profiles": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "protocol": {
+      "const": "fcop"
+    },
+    "protocol_version": {
+      "const": "4.0"
+    },
+    "workspace_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocol",
+    "protocol_version",
+    "workspace_id",
+    "profiles",
+    "encoding"
+  ],
+  "title": "FCoP 4.0 workspace",
+  "type": "object",
+  "version": "4.0.0"
+}
