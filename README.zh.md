@@ -16,7 +16,7 @@
 
 **[运行 Python 示例](#try-it) · [接入 MCP](#mcp) · [了解架构](#architecture) · [论文与引用](#research)**
 
-<a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
+<a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.zh.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
 
 **Stable version: 4.0.0** — 已于 [2026 年 9 月 10 日发布](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
@@ -118,7 +118,7 @@ python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
 
 每项 TASK 沿有序生命周期前进。4.0 中，每次进入 `active` 都会生成新的尝试身份，提交时关联该次尝试的 REPORT；验收再把审查与授权绑定到当前证据。
 
-<a href="spec/fcop-4.0-spec.zh.md"><img src="assets/fcop-lifecycle.svg" alt="FCoP 4.0 生命周期：待领取、执行、审查、完成、归档；经授权的退回和重开进入新的执行尝试。" width="960" /></a>
+<a href="spec/fcop-4.0-spec.zh.md"><img src="assets/fcop-lifecycle.zh.svg" alt="FCoP 4.0 生命周期：待领取、执行、审查、完成、归档；经授权的退回和重开进入新的执行尝试。" width="960" /></a>
 
 4.0 移除了 `active → done` 的直接跳转。普通任务和 Branch 都可通过 `reopen_task` 重开并生成新尝试；旧 REPORT 不能满足新尝试的提交门槛。完整迁移条件见 [C1–C8 英文规范](spec/fcop-4.0-spec.md) · [中文规范](spec/fcop-4.0-spec.zh.md)。
 
@@ -126,7 +126,7 @@ python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
 
 多项工作可以同时推进。Branch 是通过 `branch_of` 关联到同一 Root 的普通 TASK；同级 Branch 各自保留尝试、报告和审查。由谁执行、何时调度，交给 Runtime 决定。
 
-<a href="docs/architecture.zh.md#parallel-work"><img src="assets/fcop-parallel-work.svg" alt="两个同级 Branch 分别执行、提交报告并接受审查；Root 收尾检查当前证据、汇合记录和归档授权。" width="960" /></a>
+<a href="docs/architecture.zh.md#parallel-work"><img src="assets/fcop-parallel-work.zh.svg" alt="两个同级 Branch 分别执行、提交报告并接受审查；Root 收尾检查当前证据、汇合记录和归档授权。" width="960" /></a>
 
 带 Branch 的 Root 归档前，FCoP 会检查分支完成状态、各自当前 REPORT、匹配的 `family_digest`、汇合 REVIEW，以及独立的 Root 归档授权。分支重开或报告变化会使旧汇合失效。相关写入只在短暂提交时协调，Agent 执行工作期间不持有这把锁。这里汇合的是工作证据，代码集成仍由应用负责。
 

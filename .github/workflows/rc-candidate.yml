@@ -1,10 +1,11 @@
 name: stable-candidate
 
+# Historical 4.0.0 promotion audit, pinned to the accepted RC file/member set.
+# After Stable publication, normal documentation PRs must not be evaluated as
+# another RC-to-4.0.0 promotion. Keep this audit available explicitly; ordinary
+# pushes/PRs still run test-fcop and test-fcop-mcp. The release guard continues
+# to require this workflow to succeed for the exact accepted publication HEAD.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
