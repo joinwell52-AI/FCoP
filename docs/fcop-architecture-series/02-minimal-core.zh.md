@@ -1,18 +1,3 @@
----
-title: "FCoP Core 到底是什么：从工具箱中提炼最小工作内核"
-date: "2026-09-01"
-series: "FCoP 架构原理系列：让 Agent 的工作站到模型之外"
-series_no: 2
-article_type: engineering-architecture
-status: published
-publication_authorized: true
-published_at: "2026-09-10"
-updated_at: "2026-09-10"
-protocol_version: "4.0"
-publication_revision: "1"
-summary: "FCoP 已经拥有 Library、MCP、生命周期、审查、恢复和大量工具，但这些都不等于 FCoP Core。真正的 Core 必须回答一个更严格的问题：如果第三方完全不用官方 Python、MCP 和 CodeFlowMu，只根据规范自行实现，哪些语义仍然必须一致？"
----
-
 # FCoP Core 到底是什么：从工具箱中提炼最小工作内核
 
 [系列目录](README.md) · 第 2 / 5 篇 · [上一篇](01-work-beyond-context.zh.md) · [下一篇](03-architecture-layers.zh.md) · [五篇合集](collected.zh.md)

@@ -1,18 +1,3 @@
----
-title: "从单机到联网：FCoP、MCP、A2A 与 CodeFlowMu 各自负责什么"
-date: "2026-09-01"
-series: "FCoP 架构原理系列：让 Agent 的工作站到模型之外"
-series_no: 5
-article_type: engineering-architecture
-status: published
-publication_authorized: true
-published_at: "2026-09-10"
-updated_at: "2026-09-10"
-protocol_version: "4.0"
-publication_revision: "1"
-summary: "MCP 提供工具与上下文访问，FCoP 保存正式工作事实，Runtime 组织执行，A2A 提供跨 Agent 系统交互。本文讨论四者的组合设计，区分 FCoP 4.0 已交付能力与尚需实现的网络映射。"
----
-
 # 从单机到联网：FCoP、MCP、A2A 与 CodeFlowMu 各自负责什么
 
 [系列目录](README.md) · 第 5 / 5 篇 · [上一篇](04-parallel-work.zh.md) · [五篇合集](collected.zh.md)

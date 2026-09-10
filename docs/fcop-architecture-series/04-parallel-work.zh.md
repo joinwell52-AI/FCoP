@@ -1,18 +1,3 @@
----
-title: "单机多 Agent 为什么不追求高并发：从共享写入到“多串行形成并行”"
-date: "2026-09-01"
-series: "FCoP 架构原理系列：让 Agent 的工作站到模型之外"
-series_no: 4
-article_type: engineering-architecture
-status: published
-publication_authorized: true
-published_at: "2026-09-10"
-updated_at: "2026-09-10"
-protocol_version: "4.0"
-publication_revision: "1"
-summary: "单机多 Agent 并不意味着只能串行，也不意味着应该把文件系统改造成高并发数据库。更适合 FCoP 的并行模型，是多个独立、可归属的串行工作流同时推进，并在需要时进行显式收敛。本文解释为什么共享可变状态是危险的，以及 Branch 如何成为行为外化层中的并行原语。"
----
-
 # 单机多 Agent 为什么不追求高并发：从共享写入到“多串行形成并行”
 
 [系列目录](README.md) · 第 4 / 5 篇 · [上一篇](03-architecture-layers.zh.md) · [下一篇](05-mcp-a2a-runtime.zh.md) · [五篇合集](collected.zh.md)

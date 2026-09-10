@@ -1,18 +1,3 @@
----
-title: "FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层"
-date: "2026-09-01"
-series: "FCoP 架构原理系列：让 Agent 的工作站到模型之外"
-series_no: 3
-article_type: engineering-architecture
-status: published
-publication_authorized: true
-published_at: "2026-09-10"
-updated_at: "2026-09-10"
-protocol_version: "4.0"
-publication_revision: "1"
-summary: "一个基础系统可以拥有大量 SDK、命令和工具，但这些并不等于它的内核。本文解释 FCoP 4.0 如何区分 Core、规范、符合性验证、工具、组织策略与 Runtime，使功能增长保持清楚的边界。"
----
-
 # FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层
 
 [系列目录](README.md) · 第 3 / 5 篇 · [上一篇](02-minimal-core.zh.md) · [下一篇](04-parallel-work.zh.md) · [五篇合集](collected.zh.md)

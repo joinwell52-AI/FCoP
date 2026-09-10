@@ -1,18 +1,3 @@
----
-title: "Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统"
-date: "2026-09-01"
-series: "FCoP 架构原理系列：让 Agent 的工作站到模型之外"
-series_no: 1
-article_type: engineering-architecture
-status: published
-publication_authorized: true
-published_at: "2026-09-10"
-updated_at: "2026-09-10"
-protocol_version: "4.0"
-publication_revision: "1"
-summary: "Agent 能推理、调用工具和生成结果，却不拥有自己的操作系统，也没有天然持久的工作事实。FCoP 的核心选择不是再造一个 Agent OS，而是借用单机操作系统最成熟的持久化界面——文件系统——把任务、交付、问题和审查从模型上下文中外化出来。"
----
-
 # Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统
 
 [系列目录](README.md) · 第 1 / 5 篇 · [下一篇](02-minimal-core.zh.md) · [五篇合集](collected.zh.md)
