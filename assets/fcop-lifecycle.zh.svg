@@ -20,7 +20,7 @@
     <rect x="380" y="480" width="250" height="50" rx="9" fill="#152b43"/>
     <text x="505" y="512" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">archive · 终态</text>
     <text x="526" y="143" font-size="19">claim_task</text>
-    <text x="526" y="238" font-size="19">submit_task + 当前 REPORT</text>
+    <text x="486" y="238" text-anchor="end" font-size="19">submit_task + 当前 REPORT</text>
     <text x="526" y="333" font-size="19">approve_task + 授权 REVIEW</text>
     <text x="526" y="433" font-size="19">archive_task + 归档授权</text>
     <text x="526" y="459" font-size="18" fill="#506781">有 Branch 时，还要检查任务族</text>
