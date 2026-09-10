@@ -24,6 +24,7 @@ def test_all_46_existing_tool_signatures_unchanged() -> None:
         (Path(__file__).parent / "snapshots/tool_surface_4_0_0.json").read_text(encoding="utf-8")
     )
     current = _collect_surface()
+    assert isinstance(current["tools"], list)
     old = {row["name"]: row for row in frozen["tools"]}
     new = {row["name"]: row for row in current["tools"]}
     assert len(old) == 46 and len(new) == 49
@@ -83,6 +84,7 @@ def test_real_stdio_branch_merge_and_restart(tmp_path: Path) -> None:
                 branches.append(result.structuredContent["branch_task_id"])
             assert len(set(branches)) == 2
             retried = await session.call_tool("create_branch", requests[0])
+            assert retried.structuredContent is not None
             assert not retried.isError and retried.structuredContent["existing"]
             heads = {}
             for task_id in branches:
@@ -91,6 +93,7 @@ def test_real_stdio_branch_merge_and_restart(tmp_path: Path) -> None:
             app.complete(root_id)
             before = snapshot_tree(tmp_path)
             inspected = await session.call_tool("inspect_family", {"root_task_id": root_id})
+            assert inspected.structuredContent is not None
             assert not inspected.isError and inspected.structuredContent["merge_ready"]
             assert snapshot_tree(tmp_path) == before
             family = inspected.structuredContent
@@ -108,9 +111,11 @@ def test_real_stdio_branch_merge_and_restart(tmp_path: Path) -> None:
             bad = await session.call_tool(
                 "merge_branches", {**req, "expected_family_digest": "0" * 64}
             )
+            assert bad.structuredContent is not None
             assert bad.isError and bad.structuredContent["code"] == "FAMILY_CONVERGENCE_MISMATCH"
             assert snapshot_tree(tmp_path) == before
             result = await session.call_tool("merge_branches", req)
+            assert result.structuredContent is not None
             assert not result.isError and not result.structuredContent["existing"]
             review_id = result.structuredContent["review_id"]
             assert app.p.inspect_state(task_id=root_id)["stage"] == "done"
@@ -123,9 +128,11 @@ def test_real_stdio_branch_merge_and_restart(tmp_path: Path) -> None:
         async with stdio_client(parameters) as streams, ClientSession(*streams) as session:
             await session.initialize()
             replay = await session.call_tool("merge_branches", req)
+            assert replay.structuredContent is not None
             assert not replay.isError and replay.structuredContent["existing"]
             assert replay.structuredContent["review_id"] == review_id
             conflict = await session.call_tool("merge_branches", {**req, "conclusion": "Different"})
+            assert conflict.structuredContent is not None
             assert (
                 conflict.isError and conflict.structuredContent["code"] == "OPERATION_ID_CONFLICT"
             )
