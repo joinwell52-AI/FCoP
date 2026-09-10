@@ -125,7 +125,7 @@ class Application:
                            authorization_scope="single_use", operation_kind="lifecycle_transition",
                            family_digest=family)
 
-    def complete(self, task):
+    def submit(self, task):
         report = self.c.call(
             "write_report", task_id=task, reporter="ME", recipient="ME", body="Finished",
             workspace_id=self.workspace_id,
@@ -133,10 +133,22 @@ class Application:
             report_kind="final", result="done",
         )["report_id"]
         self.c.call("submit_task", task_id=task, actor="ME", report_ref=report)
+        return report
+
+    def complete(self, task):
+        report = self.submit(task)
         auth = self.authorize(task, "review", "done", report=report)
         self.c.call("approve_task", task_id=task, actor="ME", report_ref=report,
                     review_ref=auth, authorization_ref=auth, profile_ref=PROFILE)
         return report
+
+    def controlled_review(self, task, kind, decision, source, target, references):
+        return self.review(task, kind, decision,
+                           attempt_id=self.c.call("inspect_task", filename=task)["current_attempt_id"],
+                           transition={"from": source, "to": target}, references=references,
+                           profile_ref=PROFILE, issuer_proof="demo-only", expires_at=None,
+                           issued_at=datetime.now(timezone.utc).isoformat(),
+                           authorization_scope="single_use", operation_kind="lifecycle_transition")
 
     def archive(self, task, convergence=None, family=None):
         auth = self.authorize(task, "done", "archive", family=family)
@@ -159,6 +171,21 @@ def main():
         workspace = c.call("init_solo", role_code="ME", protocol_version="4.0", profiles=[PROFILE])
         app = Application(c, workspace["workspace_id"])
         seq = app.start("sequential")
+        report = app.submit(seq)
+        old_attempt = c.call("inspect_task", filename=seq)["current_attempt_id"]
+        rejection = app.controlled_review(seq, "rejection", "rejected", "review", "active", [report])
+        c.call("reject_task", task_id=seq, actor="ME", report_ref=report, review_ref=rejection,
+               authorization_ref=rejection, profile_ref=PROFILE)
+        assert c.call("inspect_task", filename=seq)["current_attempt_id"] != old_attempt
+        app.complete(seq)
+        reopen = app.controlled_review(seq, "reopen", "approved", "done", "active", [])
+        authorization = app.controlled_review(seq, "authorization", "authorize", "done", "active", [reopen])
+        reopen_request = dict(task_id=seq, actor="ME", review_ref=reopen,
+                              authorization_ref=authorization, profile_ref=PROFILE)
+        c.call("reopen_task", **reopen_request)
+        reopen_snapshot = snapshot(root)
+        assert c.call("reopen_task", **reopen_request)["existing"] is True
+        assert snapshot(root) == reopen_snapshot
         app.complete(seq)
         app.archive(seq)
         parent = app.start("family-root")
@@ -228,13 +255,17 @@ def main():
         assert snapshot(root) == before
         states = [c.call("inspect_task", filename=t)["stage"] for t in tasks]
         assert states == ["archive", "archive", "done", "done", "inbox"]
-        assert sum(len(v["transitions"]) for v in observed) == 19
+        assert sum(len(v["transitions"]) for v in observed) == 24
+        assert {event["tool"] for event in observed[0]["transitions"]} == {
+            "create_task", "claim_task", "submit_task", "reject_task", "approve_task",
+            "reopen_task", "archive_task",
+        }
         race_retry = c.call("create_task", **request)
         assert race_retry["existing"] and race_retry["task_id"] == raced[0]["task_id"]
         assert snapshot(root) == before
         print(json.dumps(dict(mode="SOURCE_ONLY" if args.source else "INSTALLED",
                               transport="stdio-json-rpc", tools=46, resources=12, templates=4,
-                              states=states, transitions=19, service_processes=3,
+                              states=states, transitions=24, lifecycle_edges="T2-T7", service_processes=3,
                               branches=2, concurrent_real_writes=2, same_operation_one_result=True,
                               exact_retry=True, convergence=True, zero_conflict_effects=True),
                          sort_keys=True))

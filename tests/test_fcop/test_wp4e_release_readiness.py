@@ -151,6 +151,31 @@ def test_wp4e_metadata_description_retains_utf8_bytes():
         delta.compare({name: header + b"old"}, {name: header + b"wrong description"})
 
 
+@pytest.mark.parametrize("case", ["complete", "missing-workflow", "pending", "failed", "skipped", "missing-pr-only"])
+def test_wp4e_final_head_ci_must_include_pr_only_checks(case):
+    guard = load_script("wp4e_release_guard")
+    paths = ["test-fcop.yml", "test-fcop-mcp.yml", "rc-candidate.yml"]
+    names = ["Stability charter (API surface + CHANGELOG)", "Tool contract (snapshot + CHANGELOG)", "consumer"]
+    runs = [dict(id=i, path=".github/workflows/" + path, status="completed", conclusion="success")
+            for i, path in enumerate(paths)]
+    jobs = {str(i): [dict(name=names[i], status="completed", conclusion="success")] for i in range(3)}
+    if case == "complete":
+        guard.validate_ci(runs, jobs)
+        return
+    if case == "missing-workflow":
+        runs.pop()
+    elif case == "pending":
+        runs[0]["status"] = "in_progress"
+    elif case == "failed":
+        runs[0]["conclusion"] = "failure"
+    elif case == "skipped":
+        jobs["0"][0]["conclusion"] = "skipped"
+    else:
+        jobs["0"][0]["name"] = "not-the-required-pr-gate"
+    with pytest.raises(AssertionError):
+        guard.validate_ci(runs, jobs)
+
+
 @pytest.mark.parametrize(("changed", "evidence"), [
     ("reports/FCOP-4.0-WP4E-RESULT.md", True), ("reviews/fcop-4.0/wp4e/MANIFEST.md", True),
     ("README.md", False), ("scripts/wp4e_release_guard.py", False),

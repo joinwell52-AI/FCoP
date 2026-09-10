@@ -74,6 +74,23 @@ def validate_publication(comment, environment, run, manifest, manifest_sha, tag)
     return gate
 
 
+def validate_ci(runs, jobs):
+    expected = {".github/workflows/test-fcop.yml", ".github/workflows/test-fcop-mcp.yml",
+                ".github/workflows/rc-candidate.yml"}
+    latest = {}
+    for run in sorted(runs, key=lambda r: r["id"], reverse=True):
+        if run["path"] in expected:
+            latest.setdefault(run["path"], run)
+    assert latest.keys() == expected, "All three final-head CI workflows must actually run"
+    names = set()
+    for run in latest.values():
+        assert run["status"] == "completed" and run["conclusion"] == "success"
+        rows = jobs[str(run["id"])]
+        assert rows and all(j["status"] == "completed" and j["conclusion"] == "success" for j in rows)
+        names.update(j["name"] for j in rows)
+    assert {"Stability charter (API surface + CHANGELOG)", "Tool contract (snapshot + CHANGELOG)"} <= names
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifacts", type=Path)
@@ -94,6 +111,17 @@ def main():
         environment = api("environments/" + ENVIRONMENT)
         run = api("actions/runs/" + str(manifest["run_id"]))
         validate_publication(comment, environment, run, manifest, a.manifest_sha256, a.tag)
+        runs = api("actions/runs?head_sha=" + a.head + "&per_page=100")["workflow_runs"]
+        selected = [r for r in runs if r["path"] in {
+            ".github/workflows/test-fcop.yml", ".github/workflows/test-fcop-mcp.yml",
+            ".github/workflows/rc-candidate.yml",
+        }]
+        jobs = {}
+        for r in selected:
+            response = api("actions/runs/" + str(r["id"]) + "/jobs?per_page=100")
+            assert response["total_count"] == len(response["jobs"])
+            jobs[str(r["id"])] = response["jobs"]
+        validate_ci(selected, jobs)
         # The tag must already exist at the accepted commit; no implicit tag creation.
         ref = api("git/ref/tags/" + a.tag)["object"]
         while ref["type"] == "tag":
