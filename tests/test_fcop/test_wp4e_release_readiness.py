@@ -60,12 +60,14 @@ def fixtures(tmp_path):
                 accepted_head=head, candidate_content=content, candidate_manifest_sha256=digest,
                 version=guard.TARGET, tag="v4.0.0rc1", artifacts={r["filename"]: r["sha256"] for r in rows},
                 phase_b_authorized=True, tag_authorized=True, pypi_publish_authorized=True,
-                github_release_authorized=True, stable_release_authorized=False, artifact_run_id="123")
+                github_release_authorized=True, stable_release_authorized=False, artifact_run_id="123",
+                independent_reviewer_required=False, environment_prevent_self_review=False,
+                environment_self_approval_authorized=True)
     comment = dict(user=dict(login=guard.OWNER), author_association="OWNER",
                    issue_url="https://api.github.com/repos/" + guard.REPOSITORY + "/issues/1",
                    body="TEST FIXTURE ONLY\n```json\n" + json.dumps(gate) + "\n```")
     environment = dict(name="fcop-pypi", protection_rules=[dict(type="required_reviewers",
-        reviewers=[{"type": "User", "reviewer": {"login": "independent-test-reviewer"}}], prevent_self_review=True)],
+        reviewers=[{"type": "User", "reviewer": {"login": guard.OWNER}}], prevent_self_review=False)],
         deployment_branch_policy=dict(protected_branches=False, custom_branch_policies=True))
     run = dict(head_sha=head, status="completed", conclusion="success", id=123,
                path=".github/workflows/rc-candidate.yml", repository=dict(full_name=guard.REPOSITORY))
@@ -101,7 +103,7 @@ def test_wp4e_rejects_untrusted_context(tmp_path, case):
     elif case == "no-reviewer":
         environment["protection_rules"] = []
     elif case == "self-review":
-        environment["protection_rules"][0]["prevent_self_review"] = False
+        environment["protection_rules"][0]["prevent_self_review"] = True
     elif case == "branch-policy":
         environment["deployment_branch_policy"] = None
     elif case == "run-head":
@@ -114,6 +116,60 @@ def test_wp4e_rejects_untrusted_context(tmp_path, case):
         comment["body"] += '\n```json\n{}\n```'
     else:
         comment["body"] = comment["body"].replace("FCOP_4_RC_RELEASE_READY", "FCOP_4_RC_ACCEPTED")
+    with pytest.raises(AssertionError):
+        guard.validate_publication(comment, environment, run, manifest, digest, "v4.0.0rc1")
+
+
+def test_wp4e_explicit_same_account_admin_review_is_accepted(tmp_path):
+    guard, manifest, digest, gate, comment, environment, run = fixtures(tmp_path)
+    reviewer = environment["protection_rules"][0]["reviewers"][0]
+    assert reviewer["reviewer"]["login"] == comment["user"]["login"] == "joinwell52-AI"
+    assert environment["protection_rules"][0]["prevent_self_review"] is False
+    assert guard.validate_publication(comment, environment, run, manifest, digest, "v4.0.0rc1") == gate
+
+
+@pytest.mark.parametrize("field", ["independent_reviewer_required", "environment_prevent_self_review",
+                                  "environment_self_approval_authorized"])
+@pytest.mark.parametrize("case", ["missing", "opposite", "string", "integer"])
+def test_wp4e_same_account_policy_requires_explicit_gate(tmp_path, field, case):
+    guard, manifest, digest, gate, comment, environment, run = fixtures(tmp_path)
+    if case == "missing":
+        del gate[field]
+    elif case == "opposite":
+        gate[field] = not gate[field]
+    elif case == "string":
+        gate[field] = str(gate[field]).lower()
+    else:
+        gate[field] = int(gate[field])
+    comment["body"] = "```json\n" + json.dumps(gate) + "\n```"
+    with pytest.raises(AssertionError):
+        guard.validate_publication(comment, environment, run, manifest, digest, "v4.0.0rc1")
+
+
+@pytest.mark.parametrize("case", ["wrong-reviewer", "team", "empty-reviewers", "missing-reviewers",
+                                 "missing-policy", "string-policy", "integer-policy", "split-rules"])
+def test_wp4e_environment_requires_admin_and_exact_same_account_policy(tmp_path, case):
+    guard, manifest, digest, _, comment, environment, run = fixtures(tmp_path)
+    rule = environment["protection_rules"][0]
+    if case == "wrong-reviewer":
+        rule["reviewers"][0]["reviewer"]["login"] = "another-user"
+    elif case == "team":
+        rule["reviewers"][0]["type"] = "Team"
+    elif case == "empty-reviewers":
+        rule["reviewers"] = []
+    elif case == "missing-reviewers":
+        del rule["reviewers"]
+    elif case == "missing-policy":
+        del rule["prevent_self_review"]
+    elif case == "string-policy":
+        rule["prevent_self_review"] = "false"
+    elif case == "integer-policy":
+        rule["prevent_self_review"] = 0
+    else:
+        other_rule = copy.deepcopy(rule)
+        other_rule["reviewers"][0]["reviewer"]["login"] = "another-user"
+        rule["prevent_self_review"] = True
+        environment["protection_rules"].append(other_rule)
     with pytest.raises(AssertionError):
         guard.validate_publication(comment, environment, run, manifest, digest, "v4.0.0rc1")
 

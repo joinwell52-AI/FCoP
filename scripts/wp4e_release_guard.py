@@ -60,10 +60,15 @@ def validate_publication(comment, environment, run, manifest, manifest_sha, tag)
     for key in ("phase_b_authorized", "tag_authorized", "pypi_publish_authorized", "github_release_authorized"):
         assert gate[key] is True, key
     assert gate["stable_release_authorized"] is False
+    assert gate.get("independent_reviewer_required") is False
+    assert gate.get("environment_prevent_self_review") is False
+    assert gate.get("environment_self_approval_authorized") is True
     assert environment["name"] == ENVIRONMENT
     rules = environment["protection_rules"]
-    assert any(r["type"] == "required_reviewers" and r.get("reviewers")
-               and r.get("prevent_self_review") is True for r in rules), "Protected independent approval required"
+    assert any(r["type"] == "required_reviewers" and r.get("prevent_self_review") is False
+               and any(reviewer.get("type") == "User" and reviewer.get("reviewer", {}).get("login") == OWNER
+                       for reviewer in r.get("reviewers", []))
+               for r in rules), "Protected ADMIN approval with authorized same-account review required"
     policy = environment.get("deployment_branch_policy")
     assert policy and (policy.get("protected_branches") or policy.get("custom_branch_policies"))
     assert run["head_sha"] == manifest["execution_head"]
