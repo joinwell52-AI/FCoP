@@ -46,7 +46,7 @@ async def base() -> None:
         )
         async with stdio_client(parameters) as streams, ClientSession(*streams) as session:
             await session.initialize()
-            assert len((await session.list_tools()).tools) == 46
+            assert len((await session.list_tools()).tools) == 49
             assert len((await session.list_resources()).resources) == 12
             assert len((await session.list_resource_templates()).resourceTemplates) == 4
             initialized = await session.call_tool("init_solo", {
@@ -86,7 +86,7 @@ async def base() -> None:
             })
             assert rejected.isError and rejected.structuredContent
             assert rejected.structuredContent["code"] == "LEGACY_TRANSITION_NOT_ALLOWED"
-    print("REAL_STDIO: 46/12/4; create/retry/spec/structured-error PASS", flush=True)
+    print("REAL_STDIO: 49/12/4; create/retry/spec/structured-error PASS", flush=True)
     print("WP4C5_PACKAGED_RESOURCE_PROJECT_STDIO_PARITY_ZERO_WRITE: 5/5", flush=True)
     print("RESOLVED", {name: version(name) for name in ("fcop", "fcop-mcp", "fastmcp", "mcp", "websockets")})
     print("DIRECT_REQUIREMENTS", requires("fcop-mcp"))
@@ -106,7 +106,7 @@ async def relay() -> None:
         assert response["id"] == 1 and "result" in response
         await socket.send(json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}))
         await socket.send(json.dumps({"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}))
-        assert len(json.loads(await socket.recv())["result"]["tools"]) == 46
+        assert len(json.loads(await socket.recv())["result"]["tools"]) == 49
         completed.set()
     async with serve(peer, "127.0.0.1", 0) as endpoint:
         port = next(iter(endpoint.sockets)).getsockname()[1]
