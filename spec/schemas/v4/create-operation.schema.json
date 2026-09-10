@@ -1,0 +1,55 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/create-operation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "content_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "contract": {
+      "const": "fcop-create-task-v1"
+    },
+    "digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "key": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "operation_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "type": "string"
+    },
+    "operation_kind": {
+      "const": "create_task"
+    },
+    "path": {
+      "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+      "type": "string"
+    },
+    "task_id": {
+      "pattern": "^TASK-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "type": "string"
+    },
+    "workspace_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "key",
+    "workspace_id",
+    "operation_kind",
+    "operation_id",
+    "task_id",
+    "path",
+    "digest",
+    "content_digest"
+  ],
+  "title": "FCoP 4.0 create-operation",
+  "type": "object",
+  "version": "4.0.0"
+}

@@ -1,0 +1,79 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "attempt_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "protocol": {
+      "const": "fcop"
+    },
+    "recipient": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "references": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "report_id": {
+      "pattern": "^REPORT-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "type": "string"
+    },
+    "report_kind": {
+      "enum": [
+        "final",
+        "replacement"
+      ]
+    },
+    "result": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "sender": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "subject_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "type": {
+      "const": "REPORT"
+    },
+    "version": {
+      "const": 4,
+      "type": "integer"
+    },
+    "workspace_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocol",
+    "version",
+    "workspace_id",
+    "sender",
+    "recipient",
+    "created_at",
+    "type",
+    "report_id",
+    "subject_ref",
+    "attempt_id",
+    "report_kind",
+    "result"
+  ],
+  "title": "FCoP 4.0 report",
+  "type": "object",
+  "version": "4.0.0"
+}

@@ -1,0 +1,126 @@
+{
+  "candidate": "4.0.0rc1",
+  "candidate_content_commit": "d1a86f32d87f000fe0aec444563decdc892dc142",
+  "candidate_manifest_sha256": "148915cde716d63284950ed46f9250e55b182885b23209cb56ac7d70d5b7dc8c",
+  "codeflowmu_files_written": 0,
+  "evidence_note": "Full unrelated downstream filename inventory remains local; counts and digest are derived without altering the fixed 14-file shadow result.",
+  "fixed_ref": "b961b16dd0c8863ead6995d963fe0ca576a8abaa",
+  "import_path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\wp4d-8fa9c3c-shadow-venv\\Lib\\site-packages\\fcop\\__init__.py",
+  "product_inventory": {
+    "canonical_inventory_sha256": "c2ef5998d3646e340dcd7196ff60c20c6986c92a233f43547e6434c8ef96e0ea",
+    "head": "cb590ce35686cb1980e3c89a7d68bd0cfbeb825a",
+    "status_sha256": "51f76ee6643cb3b9b7befb66c20e2a5efaa839c278217e9e6904c72074fe0fa0",
+    "tracked": 14851,
+    "untracked": 10406
+  },
+  "raw_local_evidence": {
+    "bytes": 3832169,
+    "path": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\wp4d-d1a86f3-shadow.json",
+    "sha256": "d0e293c19bd5297659cd67f71ae32dc607d2172fee08e447108788d834b8a6f8"
+  },
+  "result": {
+    "deployed": false,
+    "files": [
+      {
+        "detected_pins": [],
+        "path": "START-CODEFLOWMU.ps1",
+        "sha256": "4188a1d4ffdfd5777ec735785fe3f684a52c8aff302ed2c829e31afc3a7eee9b",
+        "size_bytes": 821
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-installer/install-codeflowmu.bat",
+        "sha256": "97b4f12b9843f76e4144fe0d22897b8baa3e85f54b1d15ea3161e8400637fbcc",
+        "size_bytes": 9265
+      },
+      {
+        "detected_pins": [
+          "fcop-mcp==3.2.5",
+          "fcop==3.2.5"
+        ],
+        "path": "codeflowmu-installer/install-codeflowmu.sh",
+        "sha256": "6e642139bb19ac9a1b65bde3fa5313df6e65d86c3a6eda8a7a60a8ddea175da5",
+        "size_bytes": 2127
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-installer/start-codeflowmu.bat",
+        "sha256": "999de5b0dd3e2b42b7035f086c8cf97725b71c1acc99a49453501dcbce1f2d12",
+        "size_bytes": 487
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-installer/start-codeflowmu.sh",
+        "sha256": "556a5381f22da68c000d10c019ec3495d38ac9aee05baca97a3c99d05c52906d",
+        "size_bytes": 400
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-shell/package.json",
+        "sha256": "cd28c113310999330170f4763c4ec9a161b2ae6bc3a1c27e9705d6bfa87c4552",
+        "size_bytes": 2118
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-shell/scripts/runtime-preflight.cjs",
+        "sha256": "d46869cc449989531e8be2b7e286e85e2ac849589fe5c48f9534b7d5b7294be3",
+        "size_bytes": 9513
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-shell/src/fcop-adopted-bootstrap.ts",
+        "sha256": "5c2c5fba8aac79b594b9064644f84be8d701c9aa9cf637be710d9abee6d9db52",
+        "size_bytes": 4453
+      },
+      {
+        "detected_pins": [],
+        "path": "codeflowmu-shell/src/fcop-env-probe.ts",
+        "sha256": "e9aa5a6f4ebca7f352ecb20faceb30a42fc17bbb130e16134a36cece70457874",
+        "size_bytes": 24608
+      },
+      {
+        "detected_pins": [
+          "fcop-mcp==3.2.5",
+          "fcop==3.2.5"
+        ],
+        "path": "docs/governance/AGENT-NATIVE-ENGINEERING-CONSTITUTION.md",
+        "sha256": "87cf212d1cb75cefd0da6da7e5f0f4c7eaedbc231c784b985c3e2e51856abc4c",
+        "size_bytes": 25871
+      },
+      {
+        "detected_pins": [],
+        "path": "docs/governance/CODEFLOWMU-CONSTITUTION-ADOPTION.yaml",
+        "sha256": "2a7a39ca6fd5a9aaa13ab0efe05ee3c87c22b5ba79e35d7aa53f333a2f044add",
+        "size_bytes": 761
+      },
+      {
+        "detected_pins": [],
+        "path": "package.json",
+        "sha256": "db53f4511f8d2021c00dba5b925bea51b583320d55b3b694dcb0cffeeb67b84a",
+        "size_bytes": 3226
+      },
+      {
+        "detected_pins": [
+          "fcop-mcp==3.2.5",
+          "fcop==3.2.5"
+        ],
+        "path": "packages/codeflowmu-runtime/src/_external/fcop-client.ts",
+        "sha256": "0a2343c8fdc921a58aaf11216ff2473f5442d54fd76d257cec100b3842e41c01",
+        "size_bytes": 59840
+      },
+      {
+        "detected_pins": [
+          "fcop-mcp==3.2.5",
+          "fcop==3.2.5"
+        ],
+        "path": "research/evidence/changes/CFM-20260902-FCOP3-VERSION-ISOLATION/conclusion.md",
+        "sha256": "b646b4a6aa7630fcb62b814ecc0df35ea1cb4038d9dfa03513b7206d17c94db7",
+        "size_bytes": 2979
+      }
+    ],
+    "runtime_consumption_verified": null,
+    "scope": "read-only"
+  },
+  "shadow": "14/14",
+  "tracked_untracked_byte_identity": "MATCH"
+}

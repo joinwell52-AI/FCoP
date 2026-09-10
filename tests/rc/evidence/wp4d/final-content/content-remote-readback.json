@@ -1,0 +1,313 @@
+{
+  "records": [
+    {
+      "path": ".github/workflows/rc-candidate.yml",
+      "bytes": 5136,
+      "sha256": "5b391585a27d650df8997f54d48150cfafe66ac23295e8097b987e3a356797aa"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 132901,
+      "sha256": "08d02ddc0509b723b51c58003fe11bf7a8cd45b25d64a57b1188b37fd2986f12"
+    },
+    {
+      "path": "docs/fcop-4.0/rc-candidate-boundary.md",
+      "bytes": 1469,
+      "sha256": "8cf4906f96fc7b74096a77bba6b2bd4355e8ae72eb4d7fa64747ce514d3e06bb"
+    },
+    {
+      "path": "docs/releases/4.0.0rc1.md",
+      "bytes": 1421,
+      "sha256": "fd4e62bc39d89c17701f6781bcffbf9b50a95e750689231053185c9563a5eef9"
+    },
+    {
+      "path": "examples/v4/third-party/mcp-only/README.md",
+      "bytes": 1615,
+      "sha256": "83c82a93afee5da73c639bc8542a8b26a0016d7f66e142001c720e5cff8f2c8d"
+    },
+    {
+      "path": "examples/v4/third-party/mcp-only/client.py",
+      "bytes": 9547,
+      "sha256": "3675a4ab5c8351352fae27fd1a6353c389f8d3faa69be896e2f5a458a4d3d3f9"
+    },
+    {
+      "path": "examples/v4/third-party/mcp-only/server.py",
+      "bytes": 1192,
+      "sha256": "a86c374839944b44d87a157bfa9aea950540a0c5dab2bc14e952057191bf1579"
+    },
+    {
+      "path": "examples/v4/third-party/python-only/README.md",
+      "bytes": 1707,
+      "sha256": "94fe1a0a05808d5265e9646bed6c8b8c6c27c20a0ae49d2e58fd0234f2af957a"
+    },
+    {
+      "path": "examples/v4/third-party/python-only/app.py",
+      "bytes": 12980,
+      "sha256": "c458bb0a4495b26791adfff10f82a853844ccddd9983b9cd0231ea3170b55902"
+    },
+    {
+      "path": "fcop-README.pypi.md",
+      "bytes": 2323,
+      "sha256": "019dd8c11420e7d9b4e301dacdac42e45246169543bbae6fa785cc7e8b3dbf64"
+    },
+    {
+      "path": "mcp/README.md",
+      "bytes": 15929,
+      "sha256": "2fa393329148df9079a35d17de345b8d43f653fc5d535eb67aa261b64eff57a8"
+    },
+    {
+      "path": "mcp/pyproject.toml",
+      "bytes": 4861,
+      "sha256": "86628c2f21270758a51abac4fc375673d2c6a0c4c4806cf141fa270babff85c8"
+    },
+    {
+      "path": "mcp/src/fcop_mcp/_version.py",
+      "bytes": 610,
+      "sha256": "310a8df396e097eeb5d3d8a0c83e3e2bc8803539ea94f7ecad7efad070a68339"
+    },
+    {
+      "path": "mcp/src/fcop_mcp/routing.py",
+      "bytes": 3760,
+      "sha256": "6f054a99e2b2807b813d0e43e644e8b950a2f63c2d0159d519c6c89bb35fcb8b"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 6077,
+      "sha256": "c9faa4f794b30ed52fdfc7093e0f0b30f7d8965ec8c8139c94f04eb732c346dc"
+    },
+    {
+      "path": "reports/FCOP-4.0-WP4D-ARTIFACT-REPRODUCIBILITY.md",
+      "bytes": 11648,
+      "sha256": "896ea1110b84b58ab2891cefaf8cf9ae54b8100c63c258aa7dfca794d9c40461"
+    },
+    {
+      "path": "reports/FCOP-4.0-WP4D-CI-AND-RELEASE-READINESS.md",
+      "bytes": 12251,
+      "sha256": "0009a8b9d29947c0fd1b1526a80293fa4a4573ebba1145bec4612eccca6d0e85"
+    },
+    {
+      "path": "reports/FCOP-4.0-WP4D-RC-IDENTITY-AND-VERSION.md",
+      "bytes": 11445,
+      "sha256": "cdf1b11104e53fd8a8a2f0211f86e7716fd1e5bbac7398b44ed082a70139c3ce"
+    },
+    {
+      "path": "reports/FCOP-4.0-WP4D-RESILIENCE-AND-COMPATIBILITY.md",
+      "bytes": 14076,
+      "sha256": "77ae52dfa90ac03da8422cf366647bdabb91af7de5661b6060cd476fc5beac04"
+    },
+    {
+      "path": "reports/FCOP-4.0-WP4D-RESULT.md",
+      "bytes": 25524,
+      "sha256": "b8e5bfc59c5727c9a51579b9f8e8c32744fb0ec1f05037b116a4fcfc026f03ce"
+    },
+    {
+      "path": "reports/FCOP-4.0-WP4D-THIRD-PARTY-ADOPTION.md",
+      "bytes": 11034,
+      "sha256": "f7055ced07a008d873518fe9a619e1a46d94a6a63911dd33ebbd9d68f18e4ca2"
+    },
+    {
+      "path": "scripts/fcop_rc_candidate_check.py",
+      "bytes": 3243,
+      "sha256": "0a284ca78f5e36d46bbd73ef2113186d90194917a31c33a12a29818b4c8b144c"
+    },
+    {
+      "path": "scripts/wp4d_build.py",
+      "bytes": 7023,
+      "sha256": "24264dc82bb9bc44866702d3a48b4294b7d4bab1e6f3f3353eea8bb91ea85483"
+    },
+    {
+      "path": "scripts/wp4d_candidate_ref.py",
+      "bytes": 1086,
+      "sha256": "1205d8a9e960fb7cf5a3347b8f01d508147f6a854004845d6d2ed2b53d836357"
+    },
+    {
+      "path": "scripts/wp4d_consume.py",
+      "bytes": 9240,
+      "sha256": "fb6ecfb62b0f7f794f2c792ea21c1e4590a6f0177eb9f4ac05a1a18ca6a1dafe"
+    },
+    {
+      "path": "scripts/wp4d_legacy.py",
+      "bytes": 2191,
+      "sha256": "4d3c824b87b19821a56e9579ca035af083ddf5277fb6c95d333abab227d579d1"
+    },
+    {
+      "path": "scripts/wp4d_shadow.py",
+      "bytes": 4569,
+      "sha256": "8fd9ffebb6f1d69a60d44939bc0fc9f10ce3d1b4af9f5e627087a93642f8f0b6"
+    },
+    {
+      "path": "scripts/wp4d_source.py",
+      "bytes": 1193,
+      "sha256": "e2ad8fe4d54a6539b40b134fd15e71347274299bdc4280c85e91d7f40aac404b"
+    },
+    {
+      "path": "scripts/wp4d_verify_scope.py",
+      "bytes": 3830,
+      "sha256": "79a1f158a6d983f075145bdf4f696c5769bea26276d347cd625be7eb63079217"
+    },
+    {
+      "path": "src/fcop/_version.py",
+      "bytes": 564,
+      "sha256": "14ffc70e19c78e318a2b65b2331dd21ccd3e84913493b1dca5a64079a6b0f3b9"
+    },
+    {
+      "path": "taskbooks/fcop-4.0/WP4D/01-Release-Candidate-and-Third-Party-Adoption-Proof-Taskbook-v1.0.zh.md",
+      "bytes": 18471,
+      "sha256": "bfc93f595800efe5185588ff92b612c9ca66e1622118e76c805d5fd908a1e290"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/baseline-1912.xml",
+      "bytes": 453008,
+      "sha256": "54c07dd75b3208ee41bc51d2b0e1bf7ff4d6cadda0977042ad8ffbf3ccc48f33"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/content-ci-snapshot.json",
+      "bytes": 95357,
+      "sha256": "51f1bd1cb6ee817530dfa8eb1e0f85c6c284a43be6d75e1f62c77cfb33deb478"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/identity-14.xml",
+      "bytes": 2293,
+      "sha256": "4cfa47c3bdff3f4b7700872a1ed8ae2b51a5b4c731b1942ced3a425352b2a052"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/native-source-mcp.log",
+      "bytes": 276,
+      "sha256": "6bc9c14ae833862c97a897050b4c1bca6b34f0e0d26ecba061faaf5b769b5a5d"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/native-source-python.log",
+      "bytes": 249,
+      "sha256": "a874564d1776a3f1af5b37e094c3eccaf07f9f5b2de56d903e0cd90760f89a35"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/rc-audit-guard.xml",
+      "bytes": 596,
+      "sha256": "6c03b6d5710cc90c1275b97d18e9b683f25bfff88c0c4777a9ca0af22f02934b"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/rc-build-job.log",
+      "bytes": 43060,
+      "sha256": "791dbf0506aaf6e6af5b6b155d040ff0be94182adce7a254524da019e6360893"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/rc-build-metadata-failure.log",
+      "bytes": 1634,
+      "sha256": "8b9797bec3145685ed2c2589aa178f01c148f19529cd0dec586a82416c0d1e7d"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/resume-audit-1.xml",
+      "bytes": 363,
+      "sha256": "2a9c6a64553153a53f6f69e74be2062a41a57cef31a287fdec1a15329bafe3fd"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/resume-doc-identity-25.xml",
+      "bytes": 4031,
+      "sha256": "3049719aca165a1ab073893a4c8de366b1ddf092bc876d819b9e43e8b27ff323"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/resume-full-1924.xml",
+      "bytes": 454799,
+      "sha256": "d6b39e5a35e52bc0d2d03dd32206cbb7693aaeba0cdd9134d7f7a19ce0602474"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/resume-identity-14.xml",
+      "bytes": 2293,
+      "sha256": "1e4633939df9206c6edeb9504aae94eb57dc88ec3bcc70acf91f4988cdd44d9d"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-diagnosis.json",
+      "bytes": 2105,
+      "sha256": "df2ff21f27f27c6343306ea90037a5e8f2606f7f3938896e0e6f55eab48f4f19"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/actions-artifacts.json",
+      "bytes": 14166,
+      "sha256": "9d4072741abcbf095347af28416c509fe97a81021da836f1e72766ec3fd49bd3"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/build.log",
+      "bytes": 7097,
+      "sha256": "f377bbef5d3ae8a9797706ef883d476f1b2fdee14565df58d97ce45f324c496e"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/candidate-manifest.json",
+      "bytes": 6782,
+      "sha256": "f8bdcdbd1d39278a8ab481ab6e41157525ddcd52bcb9c37ab4e91e5dac3c4ad5"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/ci-jobs.json",
+      "bytes": 167772,
+      "sha256": "58a2c35758b5e659d47fcae357d82da4a6eb157f4cc52ad01d5ff077fa074ffc"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/consumer-results.json",
+      "bytes": 67450,
+      "sha256": "782a00cc2551d2114ec1517508ab6ec189ee29639de81537b4ab52e53d591707"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/ubuntu-full-1924.xml",
+      "bytes": 454732,
+      "sha256": "9afb9d7742075450b09bfc5b7edd8a571a61d7a43c6e64eb90016db08c5bd92f"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/windows-310-server.log",
+      "bytes": 2729,
+      "sha256": "de66e0b3a39e5535edcda3bc5fb22bbfcd7dc78f14573214cddc878a3a3d6daa"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/toolchain-resume/windows-311-server.log",
+      "bytes": 2877,
+      "sha256": "0314719025a2c91ff44c1e228fc26226d3ac432309ddab2fd8c9213dfe7ccc6e"
+    },
+    {
+      "path": "tests/rc/evidence/wp4d/ubuntu-content-full-1924.xml",
+      "bytes": 454732,
+      "sha256": "023552fc2549a3c340064a2e215bd898bbf0b3f11ca0304ed23e86bc9822b172"
+    },
+    {
+      "path": "tests/rc/installed_identity.py",
+      "bytes": 1109,
+      "sha256": "6417053c91d55151b6c634fa6254c4e761d4076632141bcd5d7de81454cf2e03"
+    },
+    {
+      "path": "tests/rc/legacy_fixture.py",
+      "bytes": 3747,
+      "sha256": "2971c5311994960e248d766054e8bc74f0c63aeed032bf80638f7f00c405b93c"
+    },
+    {
+      "path": "tests/test_fcop/test_audit.py",
+      "bytes": 12271,
+      "sha256": "c5ee2802c01085ec6706aa99eec83b510e8a2871d489b0aed8e3ebeedc205c02"
+    },
+    {
+      "path": "tests/test_fcop/test_pyproject_pins.py",
+      "bytes": 1283,
+      "sha256": "45cafdb7f125355d66cb503a3248c0b255e8826343e44894f98d4d1c3462cfc3"
+    },
+    {
+      "path": "tests/test_fcop/test_wp4d_rc_candidate_ref.py",
+      "bytes": 1928,
+      "sha256": "9fff409545b2c4dcb77df3fe9bc12baf057ff4ecd64977d6a1ad65d94401224e"
+    },
+    {
+      "path": "tests/test_fcop/test_wp4d_rc_identity.py",
+      "bytes": 1586,
+      "sha256": "a5876542335a04a05d7ed315cfd239e14bf58986e90bf5bca479cc2b0a7473f8"
+    },
+    {
+      "path": "tests/test_fcop_mcp/test_wp4d_rc_offline_guard.py",
+      "bytes": 3092,
+      "sha256": "0553db016440ac5ba1bf7dcd88ad6ae9b1782167b6e7dd6636093a20cd902a62"
+    }
+  ],
+  "receipt": {
+    "count": 60,
+    "status": "PASS",
+    "head": "d1a86f32d87f000fe0aec444563decdc892dc142",
+    "parents": [
+      "8fa9c3ccd0365afbc0a94b1c2cda5aa7ccf797ec"
+    ],
+    "at": "2026-09-09T16:52:02.285439+00:00"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "started": "2026-09-09T16:52:35.678352+00:00",
+  "command": [
+    "C:\\Users\\Administrator\\AppData\\Local\\Temp\\wp4d-8fa9c3c-shadow-venv\\Scripts\\python.exe",
+    "-I",
+    "-B",
+    "D:/FCoP-wp4d-rc-candidate/scripts/wp4d_shadow.py",
+    "C:/Users/Administrator/AppData/Local/Temp/fcop-wp4c5b-shadow-authorization.json",
+    "D:/codeflowmu",
+    "C:/Users/Administrator/AppData/Local/Temp/wp4d-d1a86f3-shadow-observed.json"
+  ],
+  "returncode": 1,
+  "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\wp4d-shadow-observe.py\", line 17, in <module>\n    runpy.run_path(script, run_name='__main__')\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"D:/FCoP-wp4d-rc-candidate/scripts/wp4d_shadow.py\", line 105, in <module>\n    main()\n  File \"D:/FCoP-wp4d-rc-candidate/scripts/wp4d_shadow.py\", line 91, in main\n    assert before == after, \"Product changed during read-only shadow; cannot claim zero drift\"\n           ^^^^^^^^^^^^^^^\nAssertionError: Product changed during read-only shadow; cannot claim zero drift\n",
+  "inventory_changes": {
+    "tracked": {},
+    "untracked": {
+      "research/evidence/changes/CFM-INDEPENDENT-UPDATER-20260910/runs/05-shell-regression.txt": {
+        "before": "ffbd97cad9eacbef0057d7a44f505e832120c3509538035bd7db0b6fa026a656",
+        "after": "dfdddb5e03e12c7620089610e46f95ad7645573e7bb4f247513d1e21e95d6829"
+      }
+    }
+  },
+  "head": [
+    "cb590ce35686cb1980e3c89a7d68bd0cfbeb825a",
+    "cb590ce35686cb1980e3c89a7d68bd0cfbeb825a"
+  ],
+  "status_sha256": [
+    "5b0ac48723354c7618e27693f02f88377d74d57a9d381bb8aa26a5338ef77020",
+    "759c7cf262ae10b017e8f703ea10a9f94c219eafc9fc5d6ef8a0e6ccfa63463c"
+  ],
+  "stdout": "",
+  "finished": "2026-09-09T16:54:02.437892+00:00"
+}

@@ -1,280 +1,133 @@
 name: release
 
-# Trigger: when a version tag (v*) is pushed, build and publish both
-# fcop and fcop-mcp to PyPI, then draft a GitHub Release.
-#
-# Flow:
-#   1. Local developer bumps versions in src/fcop/_version.py and
-#      mcp/src/fcop_mcp/_version.py, promotes CHANGELOG [Unreleased]
-#      to [X.Y.Z], commits.
-#   2. git tag -a vX.Y.Z -m "Release X.Y.Z" && git push origin vX.Y.Z
-#   3. This workflow runs. If anything fails the tag stays but nothing
-#      is published — fix and re-tag vX.Y.(Z+1).
-#
-# Security notes:
-#   - The two PyPI secrets are project-scoped tokens (not account
-#     tokens), so worst-case compromise is limited to republishing
-#     fcop / fcop-mcp under already-claimed version numbers, which
-#     PyPI rejects.
-#   - Future hardening: migrate to PyPI Trusted Publishing (OIDC)
-#     so secrets disappear entirely — tracked in release-process.md.
-
+# Phase A only exercises dry-run. No tag push automatically uploads.
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Build + twine check only (skip PyPI upload and GitHub Release)"
-        type: boolean
-        default: true
+      mode:
+        type: choice
+        options: [dry-run, publish-preflight]
+        default: dry-run
+        required: true
+      accepted_head:
+        type: string
+        required: true
+      candidate_content:
+        type: string
+        required: true
+      artifact_run_id:
+        type: string
+        required: true
+      candidate_manifest_sha256:
+        type: string
+        required: true
+      gate_comment_id:
+        description: "OWNER-signed structured Phase B authorization; never inferred from RC acceptance"
+        type: string
+        required: false
 
 permissions:
-  contents: write  # needed for gh release create
+  contents: read
+  actions: read
 
 jobs:
   verify:
-    name: Verify tag matches package versions
+    name: Verify accepted artifacts and explicit publication authority
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.extract.outputs.version }}
+      authorized: ${{ steps.guard.outputs.authorized }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Extract version from tag or dispatch
-        id: extract
-        run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-            VERSION="${TAG#v}"
-          else
-            # workflow_dispatch: read __version__ (first "..." in file is often not the version
-            # — e.g. docstring "semver 承诺" in _version.py).
-            VERSION=$(
-              grep -E '^__version__[[:space:]]*=' src/fcop/_version.py \
-                | head -1 \
-                | sed -E 's/^__version__[[:space:]]*=[[:space:]]*['\''\"]([^'\''\"]+)['\''\"].*/\1/'
-            )
-            TAG="v${VERSION}"
-          fi
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Release target: ${TAG} (version ${VERSION})"
-
-      - name: Compute previous version (--old)
-        id: prev
-        env:
-          NEW: ${{ steps.extract.outputs.version }}
-        run: |
-          # Pick the previous "## [X.Y.Z]" header in CHANGELOG.md, after
-          # the new one. Fallback to NEW itself if no prior section
-          # exists yet (first-ever release).
-          PREV=$(awk -v new="${NEW}" '
-            $0 ~ "^## \\["new"\\]" { seen=1; next }
-            seen && match($0, /^## \[([0-9]+\.[0-9]+\.[0-9]+)\]/, m) {
-              print m[1]; exit
-            }
-          ' CHANGELOG.md)
-          if [[ -z "${PREV}" ]]; then PREV="${NEW}"; fi
-          echo "old=${PREV}" >> "$GITHUB_OUTPUT"
-          echo "Previous version: ${PREV}"
-
-      - name: Setup Python (for release_audit.py)
-        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-
-      - name: Run release audit (R1..R13)
-        env:
-          NEW: ${{ steps.extract.outputs.version }}
-          OLD: ${{ steps.prev.outputs.old }}
-        run: |
-          # release_audit.py covers R1 (version pair) + R2 (mcp/server.json)
-          # + R3 (CHANGELOG section/date) + R4 (stale --old in public docs)
-          # + R5 (README release table row) + R6 (CITATION.cff) + R7
-          # (letter-to-admin) + R8 (hardcoded vX.Y.Z) + R9 (no Proposed
-          # ADRs) + R10 (backup remote, P1 — local-dev concern, skipped
-          # on CI) + R11 (mcp pyproject pin) + R12 (bilingual pairing)
-          # + R13 (bundled rule UTF-8 / mojibake).
-          # --ci => exit 1 on any P0 fail; P1 fails are warnings only.
-          # Skip R10 (backup-remote): the GitHub runner clones with a
-          # single `origin` remote and never has a backup remote. R10
-          # is verified locally by the maintainer before tagging.
-          python scripts/release_audit.py \
-            --new "${NEW}" \
-            --old "${OLD}" \
-            --ci \
-            --only versions,mcp-server,changelog,public-docs,readme-pair,citation,letter,hardcoded,adr,pin,bilingual,encoding
-
-  build:
-    name: Build both wheels
-    needs: verify
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+          ref: ${{ inputs.accepted_head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-
-      - name: Install build tools
-        run: python -m pip install --upgrade pip build twine
-
-      - name: Build fcop
-        run: python -m build
-
-      - name: Build fcop-mcp
-        working-directory: mcp
-        run: python -m build
-
-      - name: Twine check (fcop)
-        run: python -m twine check dist/*
-
-      - name: Twine check (fcop-mcp)
-        run: python -m twine check mcp/dist/*
-
-      - name: Smoke install both wheels in clean venv
-        run: |
-          python -m venv /tmp/smoke
-          /tmp/smoke/bin/pip install --upgrade pip --quiet
-          /tmp/smoke/bin/pip install dist/fcop-*.whl
-          /tmp/smoke/bin/pip install mcp/dist/fcop_mcp-*.whl
-          /tmp/smoke/bin/python -c "
-          import fcop, fcop_mcp
-          from pathlib import Path
-          import fcop.rules as rules_pkg
-          proto = Path(rules_pkg.__file__).parent / '_data' / 'fcop-protocol.mdc'
-          text = proto.read_text(encoding='utf-8')
-          assert '协议解释' in text, 'missing 协议解释 in installed fcop-protocol.mdc'
-          assert '鍗忚' not in text, 'mojibake detected in fcop-protocol.mdc'
-          print('fcop:', fcop.__version__)
-          print('fcop-mcp:', fcop_mcp.__version__)
-          print('bundled protocol OK:', proto)
-          "
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels
-          path: |
-            dist/*
-            mcp/dist/*
-          retention-days: 30
-
-  publish-fcop:
-    name: Publish fcop to PyPI
-    needs: build
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
-    steps:
+          python-version: "3.12"
       - uses: actions/download-artifact@v4
         with:
-          name: wheels
+          name: wp4e-candidates-first-set
           path: artifacts
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify bytes, Gate, tag and protected environment; never build
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MODE: ${{ inputs.mode }}
+          HEAD: ${{ inputs.accepted_head }}
+          CONTENT: ${{ inputs.candidate_content }}
+          MANIFEST_SHA: ${{ inputs.candidate_manifest_sha256 }}
+          COMMENT: ${{ inputs.gate_comment_id }}
+          RUN_ID: ${{ inputs.artifact_run_id }}
+        run: |
+          python -c "import json,os; m=json.load(open('artifacts/candidate-manifest.json')); assert str(m['run_id'])==os.environ['RUN_ID']"
+          python -B scripts/wp4e_release_guard.py artifacts --mode "$MODE" --head "$HEAD" --content "$CONTENT" --manifest-sha256 "$MANIFEST_SHA" --gate-comment "$COMMENT" | tee preflight.json
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          python-version: "3.10"
+          name: wp4e-release-preflight
+          path: preflight.json
 
-      - name: Install twine
-        run: python -m pip install --upgrade pip twine
-
-      - name: Upload fcop to PyPI
+  publish:
+    name: Publish the same accepted bytes (Phase B only)
+    needs: verify
+    if: inputs.mode == 'publish-preflight' && needs.verify.outputs.authorized == 'true'
+    environment: fcop-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.accepted_head }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          name: wp4e-candidates-first-set
+          path: artifacts
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+      - name: Revalidate after independent environment approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD: ${{ inputs.accepted_head }}
+          CONTENT: ${{ inputs.candidate_content }}
+          MANIFEST_SHA: ${{ inputs.candidate_manifest_sha256 }}
+          COMMENT: ${{ inputs.gate_comment_id }}
+        run: |
+          python -B scripts/wp4e_release_guard.py artifacts --mode publish-preflight --head "$HEAD" --content "$CONTENT" --manifest-sha256 "$MANIFEST_SHA" --gate-comment "$COMMENT"
+      - name: Pinned upload tools, no rebuild
+        run: python -m pip install twine==7.0.0 packaging==26.3
+      - name: Upload fcop (no skip-existing)
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_FCOP }}
-        run: |
-          # Build job arranges the artifacts as dist/* and mcp/dist/*,
-          # so after download-artifact we get artifacts/dist/* and artifacts/mcp/dist/*
-          python -m twine upload artifacts/dist/*
-
-  publish-fcop-mcp:
-    name: Publish fcop-mcp to PyPI
-    needs: publish-fcop
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels
-          path: artifacts
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Install twine
-        run: python -m pip install --upgrade pip twine
-
-      - name: Upload fcop-mcp to PyPI
+        run: python -m twine upload artifacts/fcop-4.0.0rc1-py3-none-any.whl artifacts/fcop-4.0.0rc1.tar.gz
+      - name: Upload fcop-mcp (no skip-existing)
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_FCOP_MCP }}
-        run: python -m twine upload artifacts/mcp/dist/*
-
-  github-release:
-    name: Create GitHub Release
-    needs: [verify, publish-fcop-mcp]
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels
-          path: artifacts
-
-      - name: Extract CHANGELOG section for this version
-        id: changelog
-        env:
-          VERSION: ${{ needs.verify.outputs.version }}
-        run: |
-          # Pull lines between "## [VERSION]" and the next "## [" header.
-          awk -v ver="${VERSION}" '
-            $0 ~ "^## \\["ver"\\]" { found=1; next }
-            found && /^## \[/ { exit }
-            found { print }
-          ' CHANGELOG.md > release-notes.md
-          echo "--- release-notes.md ---"
-          cat release-notes.md
-
-      - name: Create or update GitHub Release
+        run: python -m twine upload artifacts/fcop_mcp-4.0.0rc1-py3-none-any.whl artifacts/fcop_mcp-4.0.0rc1.tar.gz
+      - name: Verify all public PyPI bytes and fresh installed identity
+        run: python -B scripts/wp4e_public_reinstall.py artifacts/candidate-manifest.json | tee public-reinstall.log
+      - name: Create RC as Pre-release, never infer or create its tag
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.verify.outputs.version }}
+          HEAD: ${{ inputs.accepted_head }}
+          COMMENT: ${{ inputs.gate_comment_id }}
+          RUN_ID: ${{ inputs.artifact_run_id }}
         run: |
-          TAG="v${VERSION}"
-          # Prepend a header with install instructions and CHANGELOG link.
-          {
-            echo "## fcop & fcop-mcp ${VERSION}"
-            echo ""
-            echo "### Install"
-            echo ""
-            echo '```bash'
-            echo "pip install fcop==${VERSION}"
-            echo "pip install fcop-mcp==${VERSION}"
-            echo '```'
-            echo ""
-            echo "### Changes"
-            echo ""
-            cat release-notes.md
-            echo ""
-            echo "See the full [CHANGELOG](https://github.com/${{ github.repository }}/blob/${TAG}/CHANGELOG.md)."
-          } > full-notes.md
-
-          if gh release view "${TAG}" >/dev/null 2>&1; then
-            gh release edit "${TAG}" --notes-file full-notes.md
-          else
-            gh release create "${TAG}" \
-              --title "fcop & fcop-mcp ${VERSION}" \
-              --notes-file full-notes.md \
-              artifacts/dist/*.whl \
-              artifacts/dist/*.tar.gz \
-              artifacts/mcp/dist/*.whl \
-              artifacts/mcp/dist/*.tar.gz
-          fi
+          gh release create v4.0.0rc1 --verify-tag --prerelease --title "FCoP 4.0.0rc1" --notes "Accepted HEAD $HEAD; ADMIN authorization comment $COMMENT; artifact run $RUN_ID. Unpublished stable line remains 3.2.5." artifacts/*.whl artifacts/*.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wp4e-publication-evidence
+          path: |
+            public-reinstall.log
+            artifacts/candidate-manifest.json

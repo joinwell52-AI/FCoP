@@ -1,0 +1,424 @@
+2026-09-09T14:27:21.1704711Z Current runner version: '2.337.0'
+2026-09-09T14:27:21.1740274Z ##[group]Runner Image Provisioner
+2026-09-09T14:27:21.1741919Z Hosted Compute Agent
+2026-09-09T14:27:21.1743004Z Version: 20260828.587
+2026-09-09T14:27:21.1744259Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-09T14:27:21.1745743Z Build Date: 2026-08-28T16:44:25Z
+2026-09-09T14:27:21.1746928Z Worker ID: {869d9cfa-a8a1-4daa-80d7-a83254c37684}
+2026-09-09T14:27:21.1748330Z Azure Region: eastus
+2026-09-09T14:27:21.1749352Z ##[endgroup]
+2026-09-09T14:27:21.1752058Z ##[group]Operating System
+2026-09-09T14:27:21.1753342Z Ubuntu
+2026-09-09T14:27:21.1754252Z 24.04.4
+2026-09-09T14:27:21.1755225Z LTS
+2026-09-09T14:27:21.1756154Z ##[endgroup]
+2026-09-09T14:27:21.1757201Z ##[group]Runner Image
+2026-09-09T14:27:21.1758288Z Image: ubuntu-24.04
+2026-09-09T14:27:21.1759258Z Version: 20260831.293.1
+2026-09-09T14:27:21.1761871Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260831.293/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-09T14:27:21.1764981Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260831.293
+2026-09-09T14:27:21.1766786Z ##[endgroup]
+2026-09-09T14:27:21.1768844Z ##[group]GITHUB_TOKEN Permissions
+2026-09-09T14:27:21.1772119Z Contents: read
+2026-09-09T14:27:21.1773245Z Metadata: read
+2026-09-09T14:27:21.1774216Z ##[endgroup]
+2026-09-09T14:27:21.1777110Z Secret source: Actions
+2026-09-09T14:27:21.1779048Z Prepare workflow directory
+2026-09-09T14:27:21.2260975Z Prepare all required actions
+2026-09-09T14:27:21.2333221Z Getting action download info
+2026-09-09T14:27:21.3948876Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-09T14:27:21.4960596Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-09T14:27:21.5710190Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-09-09T14:27:21.7962967Z Complete job name: Fixed four RC artifacts, independent reproducibility
+2026-09-09T14:27:21.8797804Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-09T14:27:21.8806166Z ##[group]Run actions/checkout@v4
+2026-09-09T14:27:21.8807113Z with:
+2026-09-09T14:27:21.8807600Z   fetch-depth: 0
+2026-09-09T14:27:21.8808078Z   repository: joinwell52-AI/FCoP
+2026-09-09T14:27:21.8812126Z   token: ***
+2026-09-09T14:27:21.8812583Z   ssh-strict: true
+2026-09-09T14:27:21.8813028Z   ssh-user: git
+2026-09-09T14:27:21.8813477Z   persist-credentials: true
+2026-09-09T14:27:21.8814055Z   clean: true
+2026-09-09T14:27:21.8814660Z   sparse-checkout-cone-mode: true
+2026-09-09T14:27:21.8815188Z   fetch-tags: false
+2026-09-09T14:27:21.8815632Z   show-progress: true
+2026-09-09T14:27:21.8816073Z   lfs: false
+2026-09-09T14:27:21.8816536Z   submodules: false
+2026-09-09T14:27:21.8816982Z   set-safe-directory: true
+2026-09-09T14:27:21.8817481Z   allow-unsafe-pr-checkout: false
+2026-09-09T14:27:21.8818356Z ##[endgroup]
+2026-09-09T14:27:21.9834638Z Syncing repository: joinwell52-AI/FCoP
+2026-09-09T14:27:21.9837098Z ##[group]Getting Git version info
+2026-09-09T14:27:21.9838219Z Working directory is '/home/runner/work/FCoP/FCoP'
+2026-09-09T14:27:21.9839812Z [command]/usr/bin/git version
+2026-09-09T14:27:21.9903674Z git version 2.55.0
+2026-09-09T14:27:21.9924596Z ##[endgroup]
+2026-09-09T14:27:21.9939274Z Temporarily overriding HOME='/home/runner/work/_temp/69883ad2-bde7-48b5-be31-152b8e8fe884' before making global git config changes
+2026-09-09T14:27:21.9941928Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-09T14:27:21.9948864Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/FCoP/FCoP
+2026-09-09T14:27:21.9994547Z Deleting the contents of '/home/runner/work/FCoP/FCoP'
+2026-09-09T14:27:21.9998333Z ##[group]Initializing the repository
+2026-09-09T14:27:22.0003569Z [command]/usr/bin/git init /home/runner/work/FCoP/FCoP
+2026-09-09T14:27:22.0167444Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-09T14:27:22.0169268Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-09T14:27:22.0170882Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-09T14:27:22.0173086Z hint: call:
+2026-09-09T14:27:22.0173939Z hint:
+2026-09-09T14:27:22.0174933Z hint: 	git config --global init.defaultBranch <name>
+2026-09-09T14:27:22.0176156Z hint:
+2026-09-09T14:27:22.0177483Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-09T14:27:22.0179263Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-09T14:27:22.0180656Z hint:
+2026-09-09T14:27:22.0181973Z hint: 	git branch -m <name>
+2026-09-09T14:27:22.0183126Z hint:
+2026-09-09T14:27:22.0184406Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-09T14:27:22.0186299Z Initialized empty Git repository in /home/runner/work/FCoP/FCoP/.git/
+2026-09-09T14:27:22.0189482Z [command]/usr/bin/git remote add origin https://github.com/joinwell52-AI/FCoP
+2026-09-09T14:27:22.0273158Z ##[endgroup]
+2026-09-09T14:27:22.0274509Z ##[group]Disabling automatic garbage collection
+2026-09-09T14:27:22.0281935Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-09T14:27:22.0308861Z ##[endgroup]
+2026-09-09T14:27:22.0310222Z ##[group]Setting up auth
+2026-09-09T14:27:22.0316978Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-09T14:27:22.0354252Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-09T14:27:22.0749474Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-09T14:27:22.0786681Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-09T14:27:22.1005711Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-09T14:27:22.1040580Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-09T14:27:22.1275633Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-09T14:27:22.1325383Z ##[endgroup]
+2026-09-09T14:27:22.1326828Z ##[group]Fetching the repository
+2026-09-09T14:27:22.1336552Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-09-09T14:27:23.6546439Z From https://github.com/joinwell52-AI/FCoP
+2026-09-09T14:27:23.6548142Z  * [new branch]      agent/readme-multi-repo-links -> origin/agent/readme-multi-repo-links
+2026-09-09T14:27:23.6551256Z  * [new branch]      docs/readme-metadata-sync-20260825 -> origin/docs/readme-metadata-sync-20260825
+2026-09-09T14:27:23.6553630Z  * [new branch]      feat/0.6-library-split -> origin/feat/0.6-library-split
+2026-09-09T14:27:23.6556179Z  * [new branch]      feat/fcop-4.0-wp4c.6-distribution-closeout -> origin/feat/fcop-4.0-wp4c.6-distribution-closeout
+2026-09-09T14:27:23.6559195Z  * [new branch]      feat/fcop-4.0-wp4c.6a-distribution-resume -> origin/feat/fcop-4.0-wp4c.6a-distribution-resume
+2026-09-09T14:27:23.6562188Z  * [new branch]      feat/fcop-4.0-wp4d-rc-candidate -> origin/feat/fcop-4.0-wp4d-rc-candidate
+2026-09-09T14:27:23.6564754Z  * [new branch]      gate/fcop-4.0-core-implementation-accepted -> origin/gate/fcop-4.0-core-implementation-accepted
+2026-09-09T14:27:23.6567587Z  * [new branch]      gate/fcop-4.0-wp3c-authorization-accepted -> origin/gate/fcop-4.0-wp3c-authorization-accepted
+2026-09-09T14:27:23.6570397Z  * [new branch]      gate/fcop-4.0-wp3d-convergence-accepted -> origin/gate/fcop-4.0-wp3d-convergence-accepted
+2026-09-09T14:27:23.6573109Z  * [new branch]      gate/fcop-4.0-wp3d-fixture-alignment-accepted -> origin/gate/fcop-4.0-wp3d-fixture-alignment-accepted
+2026-09-09T14:27:23.6575878Z  * [new branch]      gate/fcop-4.0-wp4c.1-rule-distribution-contract-frozen -> origin/gate/fcop-4.0-wp4c.1-rule-distribution-contract-frozen
+2026-09-09T14:27:23.6578265Z  * [new branch]      main                   -> origin/main
+2026-09-09T14:27:23.6579657Z  * [new branch]      review/fcop-4.0-rule-package-taskbook -> origin/review/fcop-4.0-rule-package-taskbook
+2026-09-09T14:27:23.6580924Z  * [new branch]      review/fcop-4.0-wp1.1-contract -> origin/review/fcop-4.0-wp1.1-contract
+2026-09-09T14:27:23.6582369Z  * [new branch]      review/fcop-4.0-wp2-conformance -> origin/review/fcop-4.0-wp2-conformance
+2026-09-09T14:27:23.6583654Z  * [new branch]      review/fcop-4.0-wp2.1-behavioral-conformance -> origin/review/fcop-4.0-wp2.1-behavioral-conformance
+2026-09-09T14:27:23.6585112Z  * [new branch]      review/fcop-4.0-wp2.1a-conformance-closeout -> origin/review/fcop-4.0-wp2.1a-conformance-closeout
+2026-09-09T14:27:23.6586503Z  * [new branch]      review/fcop-4.0-wp2.1b-profile-trust-boundary -> origin/review/fcop-4.0-wp2.1b-profile-trust-boundary
+2026-09-09T14:27:23.6587813Z  * [new branch]      review/fcop-4.0-wp3a-creation-plane -> origin/review/fcop-4.0-wp3a-creation-plane
+2026-09-09T14:27:23.6589958Z  * [new branch]      review/fcop-4.0-wp3a.1-boundary-initialization -> origin/review/fcop-4.0-wp3a.1-boundary-initialization
+2026-09-09T14:27:23.6592171Z  * [new branch]      review/fcop-4.0-wp3b-lifecycle-plane -> origin/review/fcop-4.0-wp3b-lifecycle-plane
+2026-09-09T14:27:23.6673601Z  * [new branch]      review/fcop-4.0-wp3b.1-lifecycle-round-correction -> origin/review/fcop-4.0-wp3b.1-lifecycle-round-correction
+2026-09-09T14:27:23.6677383Z  * [new branch]      review/fcop-4.0-wp3c-authorization-transitions -> origin/review/fcop-4.0-wp3c-authorization-transitions
+2026-09-09T14:27:23.6680244Z  * [new branch]      review/fcop-4.0-wp3c.1-authorization-closeout -> origin/review/fcop-4.0-wp3c.1-authorization-closeout
+2026-09-09T14:27:23.6683078Z  * [new branch]      review/fcop-4.0-wp3c.2-conformance-alignment -> origin/review/fcop-4.0-wp3c.2-conformance-alignment
+2026-09-09T14:27:23.6685477Z  * [new branch]      review/fcop-4.0-wp3d-convergence-t7-v1.1 -> origin/review/fcop-4.0-wp3d-convergence-t7-v1.1
+2026-09-09T14:27:23.6689036Z  * [new branch]      review/fcop-4.0-wp3d.0-profile-fixture-alignment -> origin/review/fcop-4.0-wp3d.0-profile-fixture-alignment
+2026-09-09T14:27:23.6692540Z  * [new branch]      review/fcop-4.0-wp3d.1-public-surface-closeout -> origin/review/fcop-4.0-wp3d.1-public-surface-closeout
+2026-09-09T14:27:23.6694150Z  * [new branch]      review/fcop-4.0-wp3e.0-core-closeout -> origin/review/fcop-4.0-wp3e.0-core-closeout
+2026-09-09T14:27:23.6695640Z  * [new branch]      review/fcop-4.0-wp3e.1-create-digest-closeout -> origin/review/fcop-4.0-wp3e.1-create-digest-closeout
+2026-09-09T14:27:23.6697423Z  * [new branch]      review/fcop-4.0-wp4a.1-machine-contract -> origin/review/fcop-4.0-wp4a.1-machine-contract
+2026-09-09T14:27:23.6699114Z  * [new branch]      review/fcop-4.0-wp4b-gate -> origin/review/fcop-4.0-wp4b-gate
+2026-09-09T14:27:23.6700191Z  * [new branch]      review/fcop-4.0-wp4b-mcp-adapter -> origin/review/fcop-4.0-wp4b-mcp-adapter
+2026-09-09T14:27:23.6701722Z  * [new branch]      review/fcop-4.0-wp4c.0-distribution-audit -> origin/review/fcop-4.0-wp4c.0-distribution-audit
+2026-09-09T14:27:23.6702960Z  * [new branch]      review/fcop-4.0-wp4c.0-taskbook -> origin/review/fcop-4.0-wp4c.0-taskbook
+2026-09-09T14:27:23.6704127Z  * [new branch]      review/fcop-4.0-wp4c.0a-baseline-resume -> origin/review/fcop-4.0-wp4c.0a-baseline-resume
+2026-09-09T14:27:23.6705491Z  * [new branch]      review/fcop-4.0-wp4c.0a-constitution-source -> origin/review/fcop-4.0-wp4c.0a-constitution-source
+2026-09-09T14:27:23.6707159Z  * [new branch]      review/fcop-4.0-wp4c.1-rule-distribution-contract -> origin/review/fcop-4.0-wp4c.1-rule-distribution-contract
+2026-09-09T14:27:23.6708692Z  * [new branch]      review/fcop-4.0-wp4c.1a-rule-distribution-contract -> origin/review/fcop-4.0-wp4c.1a-rule-distribution-contract
+2026-09-09T14:27:23.6710199Z  * [new branch]      review/fcop-4.0-wp4c.2a-distribution-conformance -> origin/review/fcop-4.0-wp4c.2a-distribution-conformance
+2026-09-09T14:27:23.6711876Z  * [new branch]      review/fcop-4.0-wp4c.3-rule-package-core -> origin/review/fcop-4.0-wp4c.3-rule-package-core
+2026-09-09T14:27:23.6713321Z  * [new branch]      review/fcop-4.0-wp4c.3a-audit-scope-and-rule-package -> origin/review/fcop-4.0-wp4c.3a-audit-scope-and-rule-package
+2026-09-09T14:27:23.6715020Z  * [new branch]      review/fcop-4.0-wp4c.3b-development-fixture-and-rule-package -> origin/review/fcop-4.0-wp4c.3b-development-fixture-and-rule-package
+2026-09-09T14:27:23.6716673Z  * [new branch]      review/fcop-4.0-wp4c.3c-public-method-closeout -> origin/review/fcop-4.0-wp4c.3c-public-method-closeout
+2026-09-09T14:27:23.6718028Z  * [new branch]      review/fcop-4.0-wp4c.4-host-projection -> origin/review/fcop-4.0-wp4c.4-host-projection
+2026-09-09T14:27:23.6719422Z  * [new branch]      review/fcop-4.0-wp4c.5-compatibility -> origin/review/fcop-4.0-wp4c.5-compatibility
+2026-09-09T14:27:23.6720726Z  * [new branch]      review/fcop-4.0-wp4c.5a-compatibility-resume -> origin/review/fcop-4.0-wp4c.5a-compatibility-resume
+2026-09-09T14:27:23.6722449Z  * [new branch]      review/fcop-4.0-wp4c.5b-protocol-resume -> origin/review/fcop-4.0-wp4c.5b-protocol-resume
+2026-09-09T14:27:23.6723793Z  * [new branch]      task/fcop-4.0-program-roadmap-v1 -> origin/task/fcop-4.0-program-roadmap-v1
+2026-09-09T14:27:23.6726152Z  * [new branch]      task/fcop-4.0-wp3b.1-lifecycle-round-correction -> origin/task/fcop-4.0-wp3b.1-lifecycle-round-correction
+2026-09-09T14:27:23.6729400Z  * [new branch]      task/fcop-4.0-wp3c-authorization-transitions -> origin/task/fcop-4.0-wp3c-authorization-transitions
+2026-09-09T14:27:23.6732391Z  * [new branch]      task/fcop-4.0-wp3c.1-authorization-closeout -> origin/task/fcop-4.0-wp3c.1-authorization-closeout
+2026-09-09T14:27:23.6735100Z  * [new branch]      task/fcop-4.0-wp3c.2-conformance-alignment -> origin/task/fcop-4.0-wp3c.2-conformance-alignment
+2026-09-09T14:27:23.6737387Z  * [new branch]      task/fcop-4.0-wp3d-convergence-t7 -> origin/task/fcop-4.0-wp3d-convergence-t7
+2026-09-09T14:27:23.6739529Z  * [new branch]      task/fcop-4.0-wp3d-convergence-t7-v1.1 -> origin/task/fcop-4.0-wp3d-convergence-t7-v1.1
+2026-09-09T14:27:23.6742153Z  * [new branch]      task/fcop-4.0-wp3d.0-profile-fixture-alignment -> origin/task/fcop-4.0-wp3d.0-profile-fixture-alignment
+2026-09-09T14:27:23.6744291Z  * [new branch]      task/fcop-4.0-wp3d.1-public-surface-closeout-v1 -> origin/task/fcop-4.0-wp3d.1-public-surface-closeout-v1
+2026-09-09T14:27:23.6745672Z  * [new branch]      task/fcop-4.0-wp3e-core-closeout-v1 -> origin/task/fcop-4.0-wp3e-core-closeout-v1
+2026-09-09T14:27:23.6747015Z  * [new branch]      task/fcop-4.0-wp3e.0-c6-fixture-and-core-resume -> origin/task/fcop-4.0-wp3e.0-c6-fixture-and-core-resume
+2026-09-09T14:27:23.6748409Z  * [new branch]      task/fcop-4.0-wp3e.1-create-digest-closeout -> origin/task/fcop-4.0-wp3e.1-create-digest-closeout
+2026-09-09T14:27:23.6749611Z  * [new branch]      task/fcop-4.0-wp4d-rc-candidate -> origin/task/fcop-4.0-wp4d-rc-candidate
+2026-09-09T14:27:23.6751583Z  * [new branch]      taskbook/fcop-4.0-wp4-public-adapters-distribution -> origin/taskbook/fcop-4.0-wp4-public-adapters-distribution
+2026-09-09T14:27:23.6754009Z  * [new branch]      taskbook/fcop-4.0-wp4a.1-schema-policy-resume -> origin/taskbook/fcop-4.0-wp4a.1-schema-policy-resume
+2026-09-09T14:27:23.6755466Z  * [new branch]      taskbook/fcop-4.0-wp4c.0b-constitution-freeze -> origin/taskbook/fcop-4.0-wp4c.0b-constitution-freeze
+2026-09-09T14:27:23.6757024Z  * [new branch]      taskbook/fcop-4.0-wp4c.1-rule-distribution-contract -> origin/taskbook/fcop-4.0-wp4c.1-rule-distribution-contract
+2026-09-09T14:27:23.6758726Z  * [new branch]      taskbook/fcop-4.0-wp4c.1a-relation-correction -> origin/taskbook/fcop-4.0-wp4c.1a-relation-correction
+2026-09-09T14:27:23.6760101Z  * [new branch]      taskbook/fcop-4.0-wp4c.2-conformance-first -> origin/taskbook/fcop-4.0-wp4c.2-conformance-first
+2026-09-09T14:27:23.6761853Z  * [new branch]      taskbook/fcop-4.0-wp4c.2a-dist30-control-boundary -> origin/taskbook/fcop-4.0-wp4c.2a-dist30-control-boundary
+2026-09-09T14:27:23.6764055Z  * [new branch]      taskbook/fcop-4.0-wp4c.3-rule-package-core -> origin/taskbook/fcop-4.0-wp4c.3-rule-package-core
+2026-09-09T14:27:23.6766875Z  * [new branch]      taskbook/fcop-4.0-wp4c.3a-audit-scope-alignment -> origin/taskbook/fcop-4.0-wp4c.3a-audit-scope-alignment
+2026-09-09T14:27:23.6769948Z  * [new branch]      taskbook/fcop-4.0-wp4c.3b-development-reference-fixture -> origin/taskbook/fcop-4.0-wp4c.3b-development-reference-fixture
+2026-09-09T14:27:23.6773330Z  * [new branch]      taskbook/fcop-4.0-wp4c.3c-public-method-set -> origin/taskbook/fcop-4.0-wp4c.3c-public-method-set
+2026-09-09T14:27:23.6775788Z  * [new branch]      taskbook/fcop-4.0-wp4c.4-host-projection -> origin/taskbook/fcop-4.0-wp4c.4-host-projection
+2026-09-09T14:27:23.6778028Z  * [new branch]      taskbook/fcop-4.0-wp4c.5-compatibility -> origin/taskbook/fcop-4.0-wp4c.5-compatibility
+2026-09-09T14:27:23.6780651Z  * [new branch]      taskbook/fcop-4.0-wp4c.5a-conformance-baseline -> origin/taskbook/fcop-4.0-wp4c.5a-conformance-baseline
+2026-09-09T14:27:23.6782717Z  * [new branch]      taskbook/fcop-4.0-wp4c.5b-protocol-representation -> origin/taskbook/fcop-4.0-wp4c.5b-protocol-representation
+2026-09-09T14:27:23.6784074Z  * [new branch]      taskbook/fcop-4.0-wp4c.6-closeout -> origin/taskbook/fcop-4.0-wp4c.6-closeout
+2026-09-09T14:27:23.6785100Z  * [new tag]         research-snapshot-2026-04-29 -> research-snapshot-2026-04-29
+2026-09-09T14:27:23.6786086Z  * [new tag]         v0.6.0                 -> v0.6.0
+2026-09-09T14:27:23.6786746Z  * [new tag]         v0.6.2                 -> v0.6.2
+2026-09-09T14:27:23.6787372Z  * [new tag]         v0.6.3                 -> v0.6.3
+2026-09-09T14:27:23.6788001Z  * [new tag]         v0.6.4                 -> v0.6.4
+2026-09-09T14:27:23.6788832Z  * [new tag]         v0.6.5                 -> v0.6.5
+2026-09-09T14:27:23.6789968Z  * [new tag]         v0.7.0                 -> v0.7.0
+2026-09-09T14:27:23.6791253Z  * [new tag]         v0.7.1                 -> v0.7.1
+2026-09-09T14:27:23.6791936Z  * [new tag]         v0.7.2                 -> v0.7.2
+2026-09-09T14:27:23.6792561Z  * [new tag]         v1.0.0                 -> v1.0.0
+2026-09-09T14:27:23.6793199Z  * [new tag]         v1.0.0-rc.1            -> v1.0.0-rc.1
+2026-09-09T14:27:23.6793849Z  * [new tag]         v1.0.1                 -> v1.0.1
+2026-09-09T14:27:23.6794476Z  * [new tag]         v1.1.0                 -> v1.1.0
+2026-09-09T14:27:23.6795122Z  * [new tag]         v1.2.1                 -> v1.2.1
+2026-09-09T14:27:23.6795737Z  * [new tag]         v1.3.0                 -> v1.3.0
+2026-09-09T14:27:23.6796360Z  * [new tag]         v1.3.1                 -> v1.3.1
+2026-09-09T14:27:23.6796978Z  * [new tag]         v1.4.0                 -> v1.4.0
+2026-09-09T14:27:23.6797589Z  * [new tag]         v1.5.0                 -> v1.5.0
+2026-09-09T14:27:23.6798205Z  * [new tag]         v1.5.1                 -> v1.5.1
+2026-09-09T14:27:23.6798819Z  * [new tag]         v1.6.0                 -> v1.6.0
+2026-09-09T14:27:23.6799434Z  * [new tag]         v2.0.0                 -> v2.0.0
+2026-09-09T14:27:23.6800050Z  * [new tag]         v2.0.2                 -> v2.0.2
+2026-09-09T14:27:23.6800666Z  * [new tag]         v3.0.0                 -> v3.0.0
+2026-09-09T14:27:23.6801512Z  * [new tag]         v3.0.1                 -> v3.0.1
+2026-09-09T14:27:23.6802151Z  * [new tag]         v3.0.2                 -> v3.0.2
+2026-09-09T14:27:23.6802767Z  * [new tag]         v3.0.3                 -> v3.0.3
+2026-09-09T14:27:23.6803578Z  * [new tag]         v3.2.0                 -> v3.2.0
+2026-09-09T14:27:23.6804195Z  * [new tag]         v3.2.3                 -> v3.2.3
+2026-09-09T14:27:23.6804813Z  * [new tag]         v3.2.4                 -> v3.2.4
+2026-09-09T14:27:23.6805426Z  * [new tag]         v3.2.5                 -> v3.2.5
+2026-09-09T14:27:23.6807080Z [command]/usr/bin/git branch --list --remote origin/feat/fcop-4.0-wp4d-rc-candidate
+2026-09-09T14:27:23.6807893Z   origin/feat/fcop-4.0-wp4d-rc-candidate
+2026-09-09T14:27:23.6809242Z [command]/usr/bin/git rev-parse refs/remotes/origin/feat/fcop-4.0-wp4d-rc-candidate
+2026-09-09T14:27:23.6810033Z dd8138684006432c6bb62c952909a59cda20adaf
+2026-09-09T14:27:23.6811624Z ##[endgroup]
+2026-09-09T14:27:23.6812359Z ##[group]Determining the checkout info
+2026-09-09T14:27:23.6813162Z ##[endgroup]
+2026-09-09T14:27:23.6813667Z [command]/usr/bin/git sparse-checkout disable
+2026-09-09T14:27:23.6815099Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-09T14:27:23.6816651Z ##[group]Checking out the ref
+2026-09-09T14:27:23.6817701Z [command]/usr/bin/git checkout --progress --force -B feat/fcop-4.0-wp4d-rc-candidate refs/remotes/origin/feat/fcop-4.0-wp4d-rc-candidate
+2026-09-09T14:27:24.0412387Z Switched to a new branch 'feat/fcop-4.0-wp4d-rc-candidate'
+2026-09-09T14:27:24.0418127Z branch 'feat/fcop-4.0-wp4d-rc-candidate' set up to track 'origin/feat/fcop-4.0-wp4d-rc-candidate'.
+2026-09-09T14:27:24.0437768Z ##[endgroup]
+2026-09-09T14:27:24.0485859Z [command]/usr/bin/git log -1 --format=%H
+2026-09-09T14:27:24.0514238Z dd8138684006432c6bb62c952909a59cda20adaf
+2026-09-09T14:27:24.0812778Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-09T14:27:24.0816357Z ##[group]Run actions/setup-python@v5
+2026-09-09T14:27:24.0816961Z with:
+2026-09-09T14:27:24.0817399Z   python-version: 3.12
+2026-09-09T14:27:24.0817907Z   check-latest: false
+2026-09-09T14:27:24.0822889Z   token: ***
+2026-09-09T14:27:24.0823365Z   update-environment: true
+2026-09-09T14:27:24.0823928Z   allow-prereleases: false
+2026-09-09T14:27:24.0824472Z   freethreaded: false
+2026-09-09T14:27:24.0824969Z ##[endgroup]
+2026-09-09T14:27:24.2113259Z ##[group]Installed versions
+2026-09-09T14:27:24.2214957Z (node:2228) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-09T14:27:24.2218000Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-09T14:27:24.2219621Z Successfully set up CPython (3.12.14)
+2026-09-09T14:27:24.2221443Z ##[endgroup]
+2026-09-09T14:27:24.2394446Z ##[group]Run python -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==6.2.0
+2026-09-09T14:27:24.2396277Z [36;1mpython -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==6.2.0[0m
+2026-09-09T14:27:24.2453885Z shell: /usr/bin/bash -e {0}
+2026-09-09T14:27:24.2454778Z env:
+2026-09-09T14:27:24.2455641Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:24.2456722Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-09T14:27:24.2457742Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:24.2459334Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:24.2461598Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:24.2463192Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-09T14:27:24.2464482Z ##[endgroup]
+2026-09-09T14:27:25.1385316Z Collecting build==1.4.2
+2026-09-09T14:27:25.1870459Z   Downloading build-1.4.2-py3-none-any.whl.metadata (5.8 kB)
+2026-09-09T14:27:25.2127170Z Collecting hatchling==1.32.0
+2026-09-09T14:27:25.2162533Z   Downloading hatchling-1.32.0-py3-none-any.whl.metadata (3.9 kB)
+2026-09-09T14:27:25.2980358Z Collecting setuptools==82.0.1
+2026-09-09T14:27:25.3023808Z   Downloading setuptools-82.0.1-py3-none-any.whl.metadata (6.5 kB)
+2026-09-09T14:27:25.3356926Z Collecting wheel==0.45.1
+2026-09-09T14:27:25.3392940Z   Downloading wheel-0.45.1-py3-none-any.whl.metadata (2.3 kB)
+2026-09-09T14:27:25.3555721Z Collecting twine==6.2.0
+2026-09-09T14:27:25.3602418Z   Downloading twine-6.2.0-py3-none-any.whl.metadata (3.6 kB)
+2026-09-09T14:27:25.3933722Z Collecting packaging>=24.0 (from build==1.4.2)
+2026-09-09T14:27:25.3976426Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-09-09T14:27:25.4110141Z Collecting pyproject_hooks (from build==1.4.2)
+2026-09-09T14:27:25.4236573Z   Downloading pyproject_hooks-1.2.0-py3-none-any.whl.metadata (1.3 kB)
+2026-09-09T14:27:25.4386893Z Collecting pathspec>=0.10.1 (from hatchling==1.32.0)
+2026-09-09T14:27:25.4423791Z   Downloading pathspec-1.1.1-py3-none-any.whl.metadata (14 kB)
+2026-09-09T14:27:25.4590487Z Collecting pluggy>=1.0.0 (from hatchling==1.32.0)
+2026-09-09T14:27:25.4625893Z   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-09-09T14:27:25.4817087Z Collecting tomlkit>=0.11.1 (from hatchling==1.32.0)
+2026-09-09T14:27:25.4854824Z   Downloading tomlkit-0.15.1-py3-none-any.whl.metadata (3.3 kB)
+2026-09-09T14:27:25.5132123Z Collecting trove-classifiers (from hatchling==1.32.0)
+2026-09-09T14:27:25.5170800Z   Downloading trove_classifiers-2026.6.1.19-py3-none-any.whl.metadata (2.3 kB)
+2026-09-09T14:27:25.5330875Z Collecting readme-renderer>=35.0 (from twine==6.2.0)
+2026-09-09T14:27:25.5367555Z   Downloading readme_renderer-46.0-py3-none-any.whl.metadata (3.0 kB)
+2026-09-09T14:27:25.5577398Z Collecting requests>=2.20 (from twine==6.2.0)
+2026-09-09T14:27:25.5617416Z   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+2026-09-09T14:27:25.5755658Z Collecting requests-toolbelt!=0.9.0,>=0.8.0 (from twine==6.2.0)
+2026-09-09T14:27:25.5792085Z   Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+2026-09-09T14:27:25.6043454Z Collecting urllib3>=1.26.0 (from twine==6.2.0)
+2026-09-09T14:27:25.6080445Z   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+2026-09-09T14:27:25.6393783Z Collecting keyring>=21.2.0 (from twine==6.2.0)
+2026-09-09T14:27:25.6432904Z   Downloading keyring-25.7.0-py3-none-any.whl.metadata (21 kB)
+2026-09-09T14:27:25.6581642Z Collecting rfc3986>=1.4.0 (from twine==6.2.0)
+2026-09-09T14:27:25.6680090Z   Downloading rfc3986-2.0.0-py2.py3-none-any.whl.metadata (6.6 kB)
+2026-09-09T14:27:25.6983455Z Collecting rich>=12.0.0 (from twine==6.2.0)
+2026-09-09T14:27:25.7027000Z   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+2026-09-09T14:27:25.7160996Z Collecting id (from twine==6.2.0)
+2026-09-09T14:27:25.7196284Z   Downloading id-1.6.1-py3-none-any.whl.metadata (5.1 kB)
+2026-09-09T14:27:25.7338035Z Collecting SecretStorage>=3.2 (from keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:25.7377991Z   Downloading secretstorage-3.5.0-py3-none-any.whl.metadata (4.0 kB)
+2026-09-09T14:27:25.7501471Z Collecting jeepney>=0.4.2 (from keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:25.7537472Z   Downloading jeepney-0.9.0-py3-none-any.whl.metadata (1.2 kB)
+2026-09-09T14:27:25.7695371Z Collecting jaraco.classes (from keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:25.7731369Z   Downloading jaraco.classes-3.4.0-py3-none-any.whl.metadata (2.6 kB)
+2026-09-09T14:27:25.7902506Z Collecting jaraco.functools (from keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:25.7940009Z   Downloading jaraco_functools-4.6.0-py3-none-any.whl.metadata (2.9 kB)
+2026-09-09T14:27:25.8085687Z Collecting jaraco.context (from keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:25.8124454Z   Downloading jaraco_context-6.1.2-py3-none-any.whl.metadata (4.2 kB)
+2026-09-09T14:27:25.8534221Z Collecting nh3>=0.2.14 (from readme-renderer>=35.0->twine==6.2.0)
+2026-09-09T14:27:25.8577649Z   Downloading nh3-0.3.7-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.0 kB)
+2026-09-09T14:27:25.8751962Z Collecting docutils>=0.21.2 (from readme-renderer>=35.0->twine==6.2.0)
+2026-09-09T14:27:25.8820716Z   Downloading docutils-0.23-py3-none-any.whl.metadata (15 kB)
+2026-09-09T14:27:25.9110888Z Collecting Pygments>=2.5.1 (from readme-renderer>=35.0->twine==6.2.0)
+2026-09-09T14:27:25.9148012Z   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+2026-09-09T14:27:26.0302031Z Collecting charset_normalizer<4,>=2 (from requests>=2.20->twine==6.2.0)
+2026-09-09T14:27:26.0356864Z   Downloading charset_normalizer-3.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (45 kB)
+2026-09-09T14:27:26.0529082Z Collecting idna<4,>=2.5 (from requests>=2.20->twine==6.2.0)
+2026-09-09T14:27:26.0573115Z   Downloading idna-3.19-py3-none-any.whl.metadata (9.2 kB)
+2026-09-09T14:27:26.0786069Z Collecting certifi>=2023.5.7 (from requests>=2.20->twine==6.2.0)
+2026-09-09T14:27:26.0829736Z   Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+2026-09-09T14:27:26.1054217Z Collecting markdown-it-py>=2.2.0 (from rich>=12.0.0->twine==6.2.0)
+2026-09-09T14:27:26.1093587Z   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+2026-09-09T14:27:26.1239970Z Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=12.0.0->twine==6.2.0)
+2026-09-09T14:27:26.1276647Z   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+2026-09-09T14:27:26.3074861Z Collecting cryptography>=2.0 (from SecretStorage>=3.2->keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:26.3114774Z   Downloading cryptography-50.0.1-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.3 kB)
+2026-09-09T14:27:26.4318378Z Collecting cffi>=2.0.0 (from cryptography>=2.0->SecretStorage>=3.2->keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:26.4367238Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-09-09T14:27:26.4507020Z Collecting pycparser (from cffi>=2.0.0->cryptography>=2.0->SecretStorage>=3.2->keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:26.4545366Z   Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+2026-09-09T14:27:26.4744586Z Collecting more-itertools (from jaraco.classes->keyring>=21.2.0->twine==6.2.0)
+2026-09-09T14:27:26.4813980Z   Downloading more_itertools-11.1.0-py3-none-any.whl.metadata (41 kB)
+2026-09-09T14:27:26.4936502Z Downloading build-1.4.2-py3-none-any.whl (24 kB)
+2026-09-09T14:27:26.4998805Z Downloading hatchling-1.32.0-py3-none-any.whl (78 kB)
+2026-09-09T14:27:26.5062409Z Downloading setuptools-82.0.1-py3-none-any.whl (1.0 MB)
+2026-09-09T14:27:26.5201823Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.0/1.0 MB 82.9 MB/s  0:00:00
+2026-09-09T14:27:26.5237072Z Downloading wheel-0.45.1-py3-none-any.whl (72 kB)
+2026-09-09T14:27:26.5303214Z Downloading twine-6.2.0-py3-none-any.whl (42 kB)
+2026-09-09T14:27:26.5363998Z Downloading keyring-25.7.0-py3-none-any.whl (39 kB)
+2026-09-09T14:27:26.5425945Z Downloading jeepney-0.9.0-py3-none-any.whl (49 kB)
+2026-09-09T14:27:26.5498579Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-09-09T14:27:26.5563648Z Downloading pathspec-1.1.1-py3-none-any.whl (57 kB)
+2026-09-09T14:27:26.5627036Z Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-09-09T14:27:26.5687320Z Downloading readme_renderer-46.0-py3-none-any.whl (14 kB)
+2026-09-09T14:27:26.5750832Z Downloading docutils-0.23-py3-none-any.whl (634 kB)
+2026-09-09T14:27:26.5831934Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 634.7/634.7 kB 63.0 MB/s  0:00:00
+2026-09-09T14:27:26.5868817Z Downloading nh3-0.3.7-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (832 kB)
+2026-09-09T14:27:26.5941356Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 832.2/832.2 kB 108.2 MB/s  0:00:00
+2026-09-09T14:27:26.5976479Z Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+2026-09-09T14:27:26.6058805Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 161.4 MB/s  0:00:00
+2026-09-09T14:27:26.6098459Z Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+2026-09-09T14:27:26.6167010Z Downloading charset_normalizer-3.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (248 kB)
+2026-09-09T14:27:26.6236267Z Downloading idna-3.19-py3-none-any.whl (68 kB)
+2026-09-09T14:27:26.6303831Z Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+2026-09-09T14:27:26.6371649Z Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+2026-09-09T14:27:26.6431397Z Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+2026-09-09T14:27:26.6666569Z Downloading rfc3986-2.0.0-py2.py3-none-any.whl (31 kB)
+2026-09-09T14:27:26.6726392Z Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+2026-09-09T14:27:26.6792724Z Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+2026-09-09T14:27:26.6854518Z Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+2026-09-09T14:27:26.6912665Z Downloading secretstorage-3.5.0-py3-none-any.whl (15 kB)
+2026-09-09T14:27:26.7018389Z Downloading cryptography-50.0.1-cp311-abi3-manylinux_2_34_x86_64.whl (4.7 MB)
+2026-09-09T14:27:26.7234888Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 238.4 MB/s  0:00:00
+2026-09-09T14:27:26.7273661Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-09-09T14:27:26.7337622Z Downloading tomlkit-0.15.1-py3-none-any.whl (49 kB)
+2026-09-09T14:27:26.7727857Z Downloading id-1.6.1-py3-none-any.whl (14 kB)
+2026-09-09T14:27:26.7785719Z Downloading jaraco.classes-3.4.0-py3-none-any.whl (6.8 kB)
+2026-09-09T14:27:26.7841904Z Downloading jaraco_context-6.1.2-py3-none-any.whl (7.9 kB)
+2026-09-09T14:27:26.7899967Z Downloading jaraco_functools-4.6.0-py3-none-any.whl (11 kB)
+2026-09-09T14:27:26.7962824Z Downloading more_itertools-11.1.0-py3-none-any.whl (72 kB)
+2026-09-09T14:27:26.8020838Z Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+2026-09-09T14:27:26.8120948Z Downloading pyproject_hooks-1.2.0-py3-none-any.whl (10 kB)
+2026-09-09T14:27:26.8180040Z Downloading trove_classifiers-2026.6.1.19-py3-none-any.whl (14 kB)
+2026-09-09T14:27:27.0001917Z Installing collected packages: trove-classifiers, wheel, urllib3, tomlkit, setuptools, rfc3986, pyproject_hooks, Pygments, pycparser, pluggy, pathspec, packaging, nh3, more-itertools, mdurl, jeepney, jaraco.context, idna, docutils, charset_normalizer, certifi, requests, readme-renderer, markdown-it-py, jaraco.functools, jaraco.classes, id, hatchling, cffi, build, rich, requests-toolbelt, cryptography, SecretStorage, keyring, twine
+2026-09-09T14:27:30.1071556Z
+2026-09-09T14:27:30.1106235Z Successfully installed Pygments-2.21.0 SecretStorage-3.5.0 build-1.4.2 certifi-2026.7.22 cffi-2.1.1 charset_normalizer-3.5.1 cryptography-50.0.1 docutils-0.23 hatchling-1.32.0 id-1.6.1 idna-3.19 jaraco.classes-3.4.0 jaraco.context-6.1.2 jaraco.functools-4.6.0 jeepney-0.9.0 keyring-25.7.0 markdown-it-py-4.2.0 mdurl-0.1.2 more-itertools-11.1.0 nh3-0.3.7 packaging-26.3 pathspec-1.1.1 pluggy-1.6.0 pycparser-3.0 pyproject_hooks-1.2.0 readme-renderer-46.0 requests-2.34.2 requests-toolbelt-1.0.0 rfc3986-2.0.0 rich-15.0.0 setuptools-82.0.1 tomlkit-0.15.1 trove-classifiers-2026.6.1.19 twine-6.2.0 urllib3-2.7.0 wheel-0.45.1
+2026-09-09T14:27:30.1961939Z ##[group]Run python -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build" > "$RUNNER_TEMP/wp4d-build.log" 2>&1
+2026-09-09T14:27:30.1962737Z [36;1mpython -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build" > "$RUNNER_TEMP/wp4d-build.log" 2>&1[0m
+2026-09-09T14:27:30.2001586Z shell: /usr/bin/bash -e {0}
+2026-09-09T14:27:30.2001846Z env:
+2026-09-09T14:27:30.2002116Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:30.2002559Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-09T14:27:30.2002981Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:30.2003375Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:30.2003767Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:30.2004150Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-09T14:27:30.2004470Z ##[endgroup]
+2026-09-09T14:27:32.9853447Z ##[error]Process completed with exit code 1.
+2026-09-09T14:27:32.9994114Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-09T14:27:32.9995440Z ##[group]Run actions/upload-artifact@v4
+2026-09-09T14:27:32.9995718Z with:
+2026-09-09T14:27:32.9995913Z   name: wp4d-build-logs
+2026-09-09T14:27:32.9996331Z   path: /home/runner/work/_temp/wp4d-build.log
+/home/runner/work/_temp/wp4d-legacy-build.log
+
+2026-09-09T14:27:32.9996788Z   retention-days: 90
+2026-09-09T14:27:32.9997015Z   if-no-files-found: warn
+2026-09-09T14:27:32.9997239Z   compression-level: 6
+2026-09-09T14:27:32.9997449Z   overwrite: false
+2026-09-09T14:27:32.9997661Z   include-hidden-files: false
+2026-09-09T14:27:32.9997889Z env:
+2026-09-09T14:27:32.9998136Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:32.9998613Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-09T14:27:32.9999042Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:32.9999424Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:32.9999805Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-09T14:27:33.0000192Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-09T14:27:33.0000516Z ##[endgroup]
+2026-09-09T14:27:33.1654522Z (node:2357) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-09T14:27:33.1655429Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-09T14:27:33.1752729Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-09-09T14:27:33.1762913Z The least common ancestor is /home/runner/work/_temp. This will be the root directory of the artifact
+2026-09-09T14:27:33.1763889Z With the provided path, there will be 1 file uploaded
+2026-09-09T14:27:33.1764686Z Artifact name is valid!
+2026-09-09T14:27:33.1765071Z Root directory input is valid!
+2026-09-09T14:27:33.3889698Z Beginning upload of artifact content to blob storage
+2026-09-09T14:27:33.4079211Z (node:2357) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-09T14:27:33.4381796Z Uploaded bytes 720
+2026-09-09T14:27:33.4550324Z Finished uploading artifact content to blob storage!
+2026-09-09T14:27:33.4551680Z SHA256 digest of uploaded artifact zip is 0d08b29a3302243ca93bbb75abedd58c55adfa5a78eba1b59fe559dcaf35ab65
+2026-09-09T14:27:33.4553407Z Finalizing artifact upload
+2026-09-09T14:27:33.7004609Z Artifact wp4d-build-logs.zip successfully finalized. Artifact ID 10108917968
+2026-09-09T14:27:33.7005548Z Artifact wp4d-build-logs has been successfully uploaded! Final size is 720 bytes. Artifact ID is 10108917968
+2026-09-09T14:27:33.7012178Z Artifact download URL: https://github.com/joinwell52-AI/FCoP/actions/runs/34363703047/artifacts/10108917968
+2026-09-09T14:27:33.7203174Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-09T14:27:33.7204411Z Post job cleanup.
+2026-09-09T14:27:33.8085573Z [command]/usr/bin/git version
+2026-09-09T14:27:33.8130198Z git version 2.55.0
+2026-09-09T14:27:33.8176727Z Temporarily overriding HOME='/home/runner/work/_temp/3101c763-f155-434f-9b97-1c37a3a54ad6' before making global git config changes
+2026-09-09T14:27:33.8184846Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-09T14:27:33.8186002Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/FCoP/FCoP
+2026-09-09T14:27:33.8229544Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-09T14:27:33.8273874Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-09T14:27:33.8522845Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-09T14:27:33.8708258Z http.https://github.com/.extraheader
+2026-09-09T14:27:33.8720942Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-09T14:27:33.8777714Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-09T14:27:33.9059719Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-09T14:27:33.9100633Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-09T14:27:33.9538864Z Evaluate and set job outputs
+2026-09-09T14:27:33.9546097Z Cleaning up orphan processes
+2026-09-09T14:27:34.0048363Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,193 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/review.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "review_kind": {
+            "const": "authorization"
+          }
+        },
+        "required": [
+          "review_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authorization_scope": {
+            "const": "single_use"
+          },
+          "decision": {
+            "const": "authorize"
+          },
+          "profile_ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "transition": {
+            "$ref": "https://fcop.dev/schemas/v4/authorization-binding.schema.json"
+          }
+        },
+        "required": [
+          "operation_kind",
+          "transition",
+          "authorization_scope",
+          "issued_at",
+          "references",
+          "profile_ref"
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "attempt_id": {
+      "anyOf": [
+        {
+          "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authorization_ref": {
+      "anyOf": [
+        {
+          "pattern": "^REVIEW-[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authorization_scope": {
+      "anyOf": [
+        {
+          "const": "single_use"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "decision": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "family_digest": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "issued_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "operation_kind": {
+      "const": "lifecycle_transition"
+    },
+    "profile_ref": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "protocol": {
+      "const": "fcop"
+    },
+    "recipient": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "references": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "review_id": {
+      "pattern": "^REVIEW-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "type": "string"
+    },
+    "review_kind": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "sender": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "subject_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "transition": {
+      "anyOf": [
+        {
+          "$ref": "https://fcop.dev/schemas/v4/authorization-binding.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "type": {
+      "const": "REVIEW"
+    },
+    "version": {
+      "const": 4,
+      "type": "integer"
+    },
+    "workspace_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocol",
+    "version",
+    "workspace_id",
+    "sender",
+    "recipient",
+    "created_at",
+    "type",
+    "review_id",
+    "subject_ref",
+    "review_kind",
+    "decision"
+  ],
+  "title": "FCoP 4.0 review",
+  "type": "object",
+  "version": "4.0.0"
+}

@@ -9,13 +9,24 @@ library. It is **not** the MCP server; the optional IDE bridge is the **separate
 - **This repository (specs, essays, source):**  
   <https://github.com/joinwell52-AI/FCoP>
 
-## What you install
+## Unpublished 4.0.0rc1 candidate
+
+This review tree targets `fcop==4.0.0rc1`, classified Beta, not Stable.
+It has not been published to PyPI, merged to main, or registered as a release.
+Candidate verification installs only the four fixed GitHub Actions artifacts
+identified by the WP4D Manifest; do not request this candidate from an index
+or upgrade an existing workspace. The copied Python-only sample under
+`examples/v4/third-party/python-only/` explicitly creates a fresh 4.0 workspace.
+Legacy workspace reads do not migrate or relabel files. Acceptance evidence
+and any unresolved checks are recorded in `reports/FCOP-4.0-WP4D-*.md`.
+
+## Published 3.x installation (not candidate installation)
 
 ```bash
 pip install fcop
 ```
 
-Runtime: **Python 3.10+** and **PyYAML** only — no `fastmcp`, no `websockets`, no LLM SDK.
+Runtime: **Python 3.10+**, **PyYAML** and **jsonschema** — no `fastmcp`, no `websockets`, no LLM SDK.
 
 `fcop` gives you a **`Project` API** for creating and maintaining
 `fcop/` (tasks, reports, issues, `fcop.json`, team templates) and

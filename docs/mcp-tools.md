@@ -1,10 +1,73 @@
-# FCoP MCP 工具清单（fcop-mcp 3.x）<!-- 45 tools — v3.2.4 release -->
+# FCoP MCP · 4.0.0rc1 capability map / 能力映射
 
-> 本页是 [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) 暴露给 Cursor / Claude Desktop 等 MCP 客户端的**工具**索引。**权威说明**仍在源码 docstring（[`mcp/src/fcop_mcp/server.py`](https://github.com/joinwell52-AI/FCoP/blob/main/mcp/src/fcop_mcp/server.py)）；本页是**导航与速查**，按类别分组。
->
-> 稳定承诺：**整个 `3.x` 周期工具「只增不改」**。新增工具/参数允许；改名、删除、改语义不允许。
+Latest stable: **3.2.5**. Release candidate: **4.0.0rc1**, unpublished.
+4.0 discovery: **46 tools / 12 resources / 4 resource templates**.
+原有 45 个工具获得版本路由与 4.0 协议语义；唯一新增名称为 T6
+`reopen_task`，并非“仅新增一个能力”，也不是 Branch 专用工具。
 
----
+| Capability / 能力 | Public MCP entry / 入口 | v4 behavior / 行为 |
+|---|---|---|
+| Workspace | `init_solo`, `init_project` | Explicit `protocol_version="4.0"`; returns `workspace_id`; no legacy rules redeployment |
+| TASK / Branch | `create_task`, `write_task` | `workspace_id`, durable `operation_id`; optional `branch_of` |
+| T2 / T3 | `claim_task`, `submit_task` | inbox → active; active → review with current REPORT head |
+| T4 / T5 | `approve_task`, `reject_task` | review → done / active; edge-specific REVIEW, REPORT and single-use authorization |
+| T6 | `reopen_task` | done → active; separate reopen REVIEW and authorization; new attempt |
+| T7 | `archive_task` | done → archive; Root with Branches also needs current digest and convergence REVIEW |
+| REPORT | `write_report`, `list_reports`, `read_report` | current `attempt_id`; immutable append; `head_only` query; `is_head/head_ref/head_digest` |
+| Authorization | `write_review`, `mark_human_approved` | append authorized facts; trusted evaluator registered at server initialization, never supplied in a tool request |
+| Family | `inspect_task(include_family_digest=true)` | canonical `family_digest`, not a client-computed substitute |
+| Convergence | `write_review(review_kind="convergence")` | `family_digest` and `references` to Branch REPORT heads; does not move a TASK |
+| Rule discovery | `resources/list`, `resources/templates/list`, `resources/read` | version-selected read-only representations; discovery ≠ adoption ≠ Runtime consumption |
+| Explicit deployment | `redeploy_rules`, `deploy_role_templates` | version routing; v4 delegates to public rule distribution with explicit selection/adoption; no automatic migration |
+| Errors / retry | relevant write calls | structured `code`; same `operation_id` exact retry; different digest `OPERATION_ID_CONFLICT`; zero effects on rejection |
+
+`reopen_task(task_id, review_ref, authorization_ref, profile_ref, actor, lang="")`
+requests only T6. It does not accept `operation_id`, evaluator or an arbitrary edge.
+`finish_task` and the four history tools reject v4; `close_issue` and a generic
+`transition` tool are not added. Listing tools is not a promise that every old
+operation applies to every workspace version.
+
+并发不是独立工具：相关写入共享原子性、family lock 线性化、持久幂等、
+精确重试、冲突拒绝、零副作用和恢复合同。MCP 不拥有第二套恢复状态机，
+不增加公共 recovery MCP 工具；Core 恢复面与已提交请求重试须明确区分。
+
+## Versioned resources / 版本化只读资源
+
+The installed candidate exposes 12 concrete resources and 4 templates.
+Use discovery, not hard-coded old counts. `fcop://protocol` keeps Markdown
+for v3; for v4, Core returns `{path, revision, sha256}` and MCP projects this
+identity deterministically as Markdown, without rereading or interpreting the spec.
+`fcop://guidance/{assembly}/{language}` is versioned guidance. Templates are
+read-only views, not envelope generators or authorization issuers.
+
+## Real Branch loop / 真实 Branch 闭环
+
+```text
+create_task(branch_of=...)
+inspect_task(include_family_digest=true)
+write_report(attempt_id=...)
+write_review(review_kind="convergence", family_digest=..., references=...)
+archive_task(review_ref=..., family_digest=...)
+```
+
+This is a parameter map; a real call must also supply the workspace, subject,
+current attempt and transition evidence required by its tool schema.
+[Public stdio client](../examples/v4/third-party/mcp-only/client.py) exercises a
+sequential TASK, Root plus two Branches, both completions, convergence, Root T7,
+two processes racing on one operation ID, restart, exact retry and conflict
+zero-effects. The client never imports `fcop` or `fcop_mcp`.
+[Trusted startup](../examples/v4/third-party/mcp-only/server.py) uses a demo-only
+evaluator, not production issuer verification.
+
+[Candidate installation](fcop-4.0/rc-candidate-guide.md) ·
+[MCP adapter reference](../mcp/README.md) · [English README](../README.md) ·
+[中文 README](../README.zh.md).
+
+## Historical 3.x reference / 以下仅为历史 3.x 工具说明
+
+The following tables describe the released legacy interface, not the v4 contract.
+Counts, migration instructions and binding conventions below apply only to their
+stated legacy versions. 上方 v4 能力表不更改下面的历史语义。
 
 ## 总览
 

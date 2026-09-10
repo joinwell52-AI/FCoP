@@ -49,6 +49,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -108,6 +110,7 @@ jobs:
       - name: Checkout (full history for diff)
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Check for snapshot / CHANGELOG consistency
@@ -130,7 +133,7 @@ jobs:
             # Removed). Keep a Changelog headings + the package tag keep
             # library-side and MCP-side notes visually separate in the
             # combined CHANGELOG.
-            SECTION=$(awk '/^## \[Unreleased\]/,/^## \[/' CHANGELOG.md | head -n 400)
+            SECTION=$(awk '/^## \[Unreleased\]$/ { capture=1; next } capture && /^## \[/ { exit } capture { print }' CHANGELOG.md | head -n 400)
             if ! echo "$SECTION" | grep -qE "^### (Added|Changed|Deprecated|Removed).*(fcop-mcp|MCP)"; then
               echo "::error::[Unreleased] does not mention fcop-mcp / MCP in a Keep-a-Changelog heading."
               echo "MCP tool contract drifted (tool_surface.json changed) but the"
@@ -150,6 +153,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -206,6 +211,9 @@ jobs:
           # 2. Console script must be wired up and importable.
           test -x /tmp/mcp-smoke-venv/bin/fcop-mcp
           /tmp/mcp-smoke-venv/bin/fcop-mcp --help 2>&1 | head -n 5 || true
+
+      - name: Installed real stdio MCP and versioned resources
+        run: /tmp/mcp-smoke-venv/bin/python -I -B tests/test_fcop_mcp/artifact_probe.py base
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4

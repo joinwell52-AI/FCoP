@@ -1,0 +1,40 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/recovery-observation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "content_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "operation_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "type": "string"
+    },
+    "source": {
+      "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "PREPARED",
+        "TARGET_DURABLE",
+        "COMMITTED"
+      ]
+    },
+    "target": {
+      "pattern": "^fcop/_lifecycle/(inbox|active|review|done|archive)/TASK-[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "operation_id",
+    "source",
+    "target",
+    "stage",
+    "content_digest"
+  ],
+  "title": "FCoP 4.0 recovery-observation",
+  "type": "object",
+  "version": "4.0.0"
+}

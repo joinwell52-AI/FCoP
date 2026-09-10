@@ -8,6 +8,91 @@ This file tracks both packages together because they release in lockstep.
 See [adr/ADR-0002](./adr/ADR-0002-package-split-and-migration.md) for the
 versioning strategy.
 
+## [Unreleased]
+
+### Added — fcop
+
+- Unpublished WP4D `4.0.0rc1` candidate identity (Beta), strict matching-minor
+  prerelease pin validation, isolated artifact reproducibility and external
+  wheel/sdist adoption proof scripts. These are verification surfaces, not
+  protocol changes or a release announcement. No main merge, tag, registry,
+  public package upload or existing-workspace migration is authorized.
+
+- Candidate WP4C.6 offline canonical rule-data exports and exact UTF-8 context
+  byte measurements through the existing `Project.rule_distribution` entry.
+  Exports preserve all 19 input files; measurement reuses deterministic Host
+  framing without adoption, deployment or runtime-consumption claims. No new
+  facade, runtime dependency, automatic update or release is introduced.
+
+- Candidate WP4C.5b version-selected read resources, uncached five-layer
+  inspection and explicitly authorized, bounded downstream read-only shadow,
+  through the existing `Project.rule_distribution` entry. Legacy redeploy
+  delegates the existing writer without overwriting Host entries. No automatic
+  adoption, migration, consumer update, runtime-consumption claim or release.
+
+- Candidate WP4C.4 static Host projection through `Project.rule_distribution`:
+  explicit adoption, zero-write plans, deterministic bounded/reference entries,
+  immutable deployment evidence, and explicit rollback/partial-failure recovery.
+  Codex, Cursor and Claude Code profiles do not probe Hosts or establish runtime
+  consumption. No automatic adoption, network, background worker or release.
+
+- Candidate WP4C.3 rule distribution: nine newly authored bilingual guidance
+  modules, an offline raw-byte Manifest loader and the sole new public entry
+  `Project.rule_distribution(*, action, request)`. Explicit sequential,
+  parallel and pinned repository-development selection is read-only; it grants
+  no lifecycle, adoption, Host deployment or release authority. Legacy rule
+  bytes and deployment paths are unchanged. Future distribution operations
+  remain unavailable except for typed negative preflight checks.
+
+### Added — fcop-mcp
+
+- Unpublished WP4D `4.0.0rc1 / 4.0.0rc1` compatibility pair and dependency
+  `fcop>=4.0.0rc1,<4.1.0`. Mixed installed candidate/3.2.5 pairs fail closed;
+  the canonical surface remains 46 tools / 12 resources / 4 templates.
+
+- Candidate WP4C.5b additive resource surface: `fcop://team` and
+  `fcop://guidance/{assembly}/{language}` give 46 tools / 12 static resources /
+  4 templates. v3 rules/protocol retain their exact legacy Markdown bytes and
+  MIME; v4 Project Manifest/specification identity objects receive deterministic
+  Markdown representations. Resource semantics remain solely owned by Project;
+  existing tools and unrelated resources are unchanged.
+
+- Unreleased WP4B development adapter: 46 canonical tools (the historical 45
+  plus `reopen_task` for T6), 11 version-routed resources and three read-only
+  Profile resource templates. Trusted Profile evaluators are supplied only at
+  server construction; requests cannot install evaluators. Core errors retain
+  structured MCP error results and v4 never falls back to a legacy writer.
+- v4 REPORT list/read delegate to the public Project readers. Specification
+  projections include source commit and byte digest; v4 rules remain explicitly
+  unavailable pending WP4C. Base CLI is stdio; `--relay-url` explicitly selects
+  the optional `[relay]` transport. No package version or release is changed.
+
+### Changed — fcop
+
+- Complete the existing v4 `Project.mark_human_approved` as a validated,
+  append-only authorization fact boundary. Publication and later transition
+  consumption share one trusted Profile issuer validator and independently
+  recheck authorization; publication never moves a TASK. Legacy v3 behavior
+  and generic `write_review` semantics remain unchanged (WP4B.3).
+- Enable existing `Project.list_reports` and `Project.read_report` for v4 with
+  replacement/head metadata, stable per-family reads and no workspace writes.
+  They share the existing T3 head resolver. WP4B.2a corrects only the nonempty
+  zero-head graph error to `REPORT_REQUIRED`; multiple heads remain
+  `REPORT_HEAD_AMBIGUOUS`. Legacy reader signatures and behavior are unchanged.
+
+### Added — `fcop`
+
+- **`Project.recover_operation(...)`**, **`Project.inject_fault(...)`** 与
+  **`Project.export_archive(...)`** — WP3E 新增三个受限 FCoP 4.0 Toolkit
+  入口，分别用于显式本地证据的五状态机械恢复、实例内存中的确定性故障测试，
+  以及不参与 NOW 的 archive 冷副本导出。三者不增加 Runtime、后台组件、
+  authoritative store、Base error code、MCP surface 或 v3 行为。
+- **`Project.family_digest(*, root_task_id: str) -> str`** — 新增 FCoP 4.0
+  declared workspace 的 canonical Root-family digest 公共读取入口；该接口由
+  WP3D 明确授权。本条仅记录候选实现阶段的附加性公共 API 变化，不表示
+  FCoP 4.0 已发布，也不改变 FCoP 3.2.5 行为、MCP surface 或 CodeFlowMu
+  固定版本。
+
 ## [3.2.5] — 2026-05-30 (Rule 0.a.1 collaboration cycle · Hot/Cold Path)
 
 ### Changed — `fcop`

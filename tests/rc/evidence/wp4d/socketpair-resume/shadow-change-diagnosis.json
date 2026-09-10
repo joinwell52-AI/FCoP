@@ -1,0 +1,20 @@
+{
+  "started": "2026-09-09T16:50:42.817716+00:00",
+  "finished": "2026-09-09T16:51:36.749765+00:00",
+  "returncode": 1,
+  "assertion": "Product changed during read-only shadow; cannot claim zero drift",
+  "observation_method": "runpy invokes the unchanged installed-mode shadow script; on exception only, reads original traceback frame before/after inventories. No function or result is patched.",
+  "inventory_changes": {
+    "tracked": {},
+    "untracked": {
+      "research/evidence/changes/CFM-INDEPENDENT-UPDATER-20260910/runs/03-target.txt": {
+        "before": null,
+        "after": "179ba366627fe41429de95e6fa72014dca07fa313ae97e7413363c3841238531"
+      }
+    }
+  },
+  "head_before_after": [
+    "cb590ce35686cb1980e3c89a7d68bd0cfbeb825a",
+    "cb590ce35686cb1980e3c89a7d68bd0cfbeb825a"
+  ]
+}

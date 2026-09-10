@@ -1,0 +1,9 @@
+{
+  "started": "2026-09-09T16:44:30.239835+00:00",
+  "finished": "2026-09-09T16:46:17.212501+00:00",
+  "returncode": 1,
+  "assertion": "Product changed during read-only shadow; cannot claim zero drift",
+  "command": "Installed venv python -I -B scripts/wp4d_shadow.py <fixed authorization> D:/codeflowmu <external timed output>",
+  "classification": "READ_ONLY_SNAPSHOT_RECHECK_FAILED_CONCURRENT_DOWNSTREAM_CHANGE",
+  "first_success_preserved": "final-content/shadow.json"
+}

@@ -1,0 +1,467 @@
+{
+  "manifest_schema": "fcop-rule-distribution/v1",
+  "protocol_version": "4.0",
+  "package_version": "4.0.0-candidate.1",
+  "artifacts": [
+    {
+      "module_id": "workspace",
+      "source_path": "workspace.en.md",
+      "language": "en",
+      "sha256": "06d4a9604fbab50ade36369f8f1d2950f099a241d659613cc78f1dd7e93555b3",
+      "size_bytes": 1920,
+      "normative_clause_refs": [
+        "F4.1.1",
+        "F4.2.1",
+        "F4.2.2",
+        "F4.2.3",
+        "F4.2.4",
+        "F4.2.5",
+        "F4.2.6",
+        "F4.12.1"
+      ],
+      "depends_on": [],
+      "load_order": 10,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "workspace",
+      "source_path": "workspace.zh.md",
+      "language": "zh",
+      "sha256": "617009dc95cf4bedd252491334f45cf61fa1fe8ccf935f2127e2a1da9a49e30b",
+      "size_bytes": 1723,
+      "normative_clause_refs": [
+        "F4.1.1",
+        "F4.2.1",
+        "F4.2.2",
+        "F4.2.3",
+        "F4.2.4",
+        "F4.2.5",
+        "F4.2.6",
+        "F4.12.1"
+      ],
+      "depends_on": [],
+      "load_order": 10,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "envelopes",
+      "source_path": "envelopes.en.md",
+      "language": "en",
+      "sha256": "0405885cbe3fe791c0e1a6c76da004d093d58cd55159ffeb3ca8c89e4ec045a3",
+      "size_bytes": 1743,
+      "normative_clause_refs": [
+        "F4.3.1",
+        "F4.3.2",
+        "F4.3.3",
+        "F4.3.4",
+        "F4.3.5"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 20,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "envelopes",
+      "source_path": "envelopes.zh.md",
+      "language": "zh",
+      "sha256": "0a69c9196e95185cf9e98b71af8c564be5797e26a71c5a9b7dc32d0735a08fef",
+      "size_bytes": 1672,
+      "normative_clause_refs": [
+        "F4.3.1",
+        "F4.3.2",
+        "F4.3.3",
+        "F4.3.4",
+        "F4.3.5"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 20,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "relations",
+      "source_path": "relations.en.md",
+      "language": "en",
+      "sha256": "1b706c4ff76efb6edad40ab7985a0693eb9466da483d7024eb1f29668e022789",
+      "size_bytes": 1106,
+      "normative_clause_refs": [
+        "F4.5.1",
+        "F4.5.2",
+        "F4.5.5"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes"
+      ],
+      "load_order": 30,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "relations",
+      "source_path": "relations.zh.md",
+      "language": "zh",
+      "sha256": "fa51c77a568dae7f7cf41242b612ae2b2963075004aaebef533334a0466d3d42",
+      "size_bytes": 1057,
+      "normative_clause_refs": [
+        "F4.5.1",
+        "F4.5.2",
+        "F4.5.5"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes"
+      ],
+      "load_order": 30,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "authorization",
+      "source_path": "authorization.en.md",
+      "language": "en",
+      "sha256": "96c1c18bab3a879b51a1e2d0041f1f08eeae685185ad9489f13ed0a999f9a00b",
+      "size_bytes": 2128,
+      "normative_clause_refs": [
+        "F4.7.1",
+        "F4.7.2",
+        "F4.7.3",
+        "F4.7.4",
+        "F4.7.5",
+        "F4.7.6",
+        "F4.7.7"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes",
+        "relations"
+      ],
+      "load_order": 40,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "authorization",
+      "source_path": "authorization.zh.md",
+      "language": "zh",
+      "sha256": "13b82fdeb7c577a68a70d94303bf090eac42ce44c137c1a166b23f7014c1b854",
+      "size_bytes": 2033,
+      "normative_clause_refs": [
+        "F4.7.1",
+        "F4.7.2",
+        "F4.7.3",
+        "F4.7.4",
+        "F4.7.5",
+        "F4.7.6",
+        "F4.7.7"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes",
+        "relations"
+      ],
+      "load_order": 40,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "idempotency",
+      "source_path": "idempotency.en.md",
+      "language": "en",
+      "sha256": "1b100010d36342e6d98e9031429b3e11aad5657dfa953031e43bc4c99772a16a",
+      "size_bytes": 1720,
+      "normative_clause_refs": [
+        "F4.8.1",
+        "F4.8.2",
+        "F4.8.3",
+        "F4.8.4",
+        "F4.8.5"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 50,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "idempotency",
+      "source_path": "idempotency.zh.md",
+      "language": "zh",
+      "sha256": "51c53931e02b1f39950f4a2f16b5e8e9a5f9d10b77f5ea1ad6b07c3e96385f08",
+      "size_bytes": 1591,
+      "normative_clause_refs": [
+        "F4.8.1",
+        "F4.8.2",
+        "F4.8.3",
+        "F4.8.4",
+        "F4.8.5"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 50,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "recovery",
+      "source_path": "recovery.en.md",
+      "language": "en",
+      "sha256": "aad4861efa59df69742c4bf577d57a553cbb170f6f92d61f6df74ec3ec503908",
+      "size_bytes": 3534,
+      "normative_clause_refs": [
+        "F4.9.1",
+        "F4.9.2",
+        "F4.9.3",
+        "F4.9.4",
+        "F4.9.5",
+        "F4.9.6",
+        "F4.9.7",
+        "F4.9.8",
+        "F4.9.9",
+        "F4.9.10",
+        "F4.9.11"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 60,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "recovery",
+      "source_path": "recovery.zh.md",
+      "language": "zh",
+      "sha256": "b19226071498f6414e11379b9d67cee36e4a79d65510fffefd14a021cd829000",
+      "size_bytes": 3099,
+      "normative_clause_refs": [
+        "F4.9.1",
+        "F4.9.2",
+        "F4.9.3",
+        "F4.9.4",
+        "F4.9.5",
+        "F4.9.6",
+        "F4.9.7",
+        "F4.9.8",
+        "F4.9.9",
+        "F4.9.10",
+        "F4.9.11"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 60,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "lifecycle",
+      "source_path": "lifecycle.en.md",
+      "language": "en",
+      "sha256": "b6356c078ab00b893379f0b4f558616444ef4a4aa0e17432460719a9be362b2b",
+      "size_bytes": 3041,
+      "normative_clause_refs": [
+        "F4.4.1",
+        "F4.4.2",
+        "F4.4.3",
+        "F4.4.4",
+        "F4.4.5",
+        "F4.4.6",
+        "F4.4.7",
+        "F4.6.1",
+        "F4.6.2",
+        "F4.6.3",
+        "F4.6.4"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes",
+        "relations",
+        "authorization",
+        "idempotency",
+        "recovery"
+      ],
+      "load_order": 70,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "lifecycle",
+      "source_path": "lifecycle.zh.md",
+      "language": "zh",
+      "sha256": "26b338914cffe2ea076f0e88133fc69617c91ecb149b3e40217baeef708cffef",
+      "size_bytes": 2787,
+      "normative_clause_refs": [
+        "F4.4.1",
+        "F4.4.2",
+        "F4.4.3",
+        "F4.4.4",
+        "F4.4.5",
+        "F4.4.6",
+        "F4.4.7",
+        "F4.6.1",
+        "F4.6.2",
+        "F4.6.3",
+        "F4.6.4"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes",
+        "relations",
+        "authorization",
+        "idempotency",
+        "recovery"
+      ],
+      "load_order": 70,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "compatibility",
+      "source_path": "compatibility.en.md",
+      "language": "en",
+      "sha256": "a65385a3a2e68d043c65f9b8c34c6ac311bb7f9b2ea1e9f4c162886f858a64d8",
+      "size_bytes": 3521,
+      "normative_clause_refs": [
+        "F4.0.1",
+        "F4.0.2",
+        "F4.0.3",
+        "F4.1.2",
+        "F4.1.3",
+        "F4.1.4",
+        "F4.10.1",
+        "F4.10.2",
+        "F4.10.3",
+        "F4.11.1",
+        "F4.11.2",
+        "F4.11.3",
+        "F4.11.4",
+        "F4.11.5",
+        "F4.12.2",
+        "F4.12.3",
+        "F4.12.4"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 80,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "compatibility",
+      "source_path": "compatibility.zh.md",
+      "language": "zh",
+      "sha256": "d6ce267c8216a2d6df2e5e601f4d237d941778a36687eae1d310616f6170585e",
+      "size_bytes": 3024,
+      "normative_clause_refs": [
+        "F4.0.1",
+        "F4.0.2",
+        "F4.0.3",
+        "F4.1.2",
+        "F4.1.3",
+        "F4.1.4",
+        "F4.10.1",
+        "F4.10.2",
+        "F4.10.3",
+        "F4.11.1",
+        "F4.11.2",
+        "F4.11.3",
+        "F4.11.4",
+        "F4.11.5",
+        "F4.12.2",
+        "F4.12.3",
+        "F4.12.4"
+      ],
+      "depends_on": [
+        "workspace"
+      ],
+      "load_order": 80,
+      "audience": "business-agent",
+      "required_when": "common",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "convergence",
+      "source_path": "convergence.en.md",
+      "language": "en",
+      "sha256": "ec3cf38b6dba4d3eb8447cc7cd25e947c06abed228c37c9d651f873662edc70e",
+      "size_bytes": 2283,
+      "normative_clause_refs": [
+        "F4.5.3",
+        "F4.5.4",
+        "F4.6.5",
+        "F4.6.6",
+        "F4.6.7",
+        "F4.6.8"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes",
+        "relations",
+        "authorization",
+        "idempotency",
+        "recovery",
+        "lifecycle",
+        "compatibility"
+      ],
+      "load_order": 90,
+      "audience": "business-agent",
+      "required_when": "branch-family",
+      "conflicts_with": []
+    },
+    {
+      "module_id": "convergence",
+      "source_path": "convergence.zh.md",
+      "language": "zh",
+      "sha256": "2b5c2a52c33bc38e8c3c85fdd75d5de3c837cc483a29941ec02a61a059c1701a",
+      "size_bytes": 2114,
+      "normative_clause_refs": [
+        "F4.5.3",
+        "F4.5.4",
+        "F4.6.5",
+        "F4.6.6",
+        "F4.6.7",
+        "F4.6.8"
+      ],
+      "depends_on": [
+        "workspace",
+        "envelopes",
+        "relations",
+        "authorization",
+        "idempotency",
+        "recovery",
+        "lifecycle",
+        "compatibility"
+      ],
+      "load_order": 90,
+      "audience": "business-agent",
+      "required_when": "branch-family",
+      "conflicts_with": []
+    }
+  ]
+}

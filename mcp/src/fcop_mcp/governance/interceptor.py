@@ -27,6 +27,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+from collections.abc import Callable
 from typing import Any
 
 import mcp.types as mt
@@ -61,11 +62,16 @@ def _session_id(context: MiddlewareContext[Any]) -> str | None:
 class FCoPGovernanceMiddleware(Middleware):
     """Stateless audit middleware — find skill, tag risk, write log, allow."""
 
+    def __init__(self, audit_enabled: Callable[[], bool] | None = None) -> None:
+        self.audit_enabled = audit_enabled
+
     async def on_call_tool(
         self,
         context: MiddlewareContext[mt.CallToolRequestParams],
         call_next: CallNext,
     ) -> Any:
+        if self.audit_enabled is not None and not self.audit_enabled():
+            return await call_next(context)
         params = context.message
         tool_name: str = params.name
         args: dict[str, Any] = params.arguments or {}

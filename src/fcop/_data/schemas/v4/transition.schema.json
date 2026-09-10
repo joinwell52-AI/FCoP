@@ -1,0 +1,74 @@
+{
+  "$id": "https://fcop.dev/schemas/v4/transition.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "attempt_id": {
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "authorization_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "authorization_ref": {
+      "pattern": "^REVIEW-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "type": "string"
+    },
+    "by": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "evidence_digest": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "evidence_ref": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "family_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "from": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "to": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "tool": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "at",
+    "from",
+    "to",
+    "by",
+    "tool"
+  ],
+  "title": "FCoP 4.0 transition",
+  "type": "object",
+  "version": "4.0.0"
+}

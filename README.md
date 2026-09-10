@@ -1,448 +1,111 @@
-<p align="center">
-  <img src="assets/fcop-logo-256.png" alt="FCoP Logo" width="180" />
-</p>
+# FCoP — File-based Coordination Protocol
 
-<h1 align="center">FCoP — File-based Coordination Protocol</h1>
+[English](README.md) · [简体中文](README.zh.md) · [Homepage](https://joinwell52-ai.github.io/FCoP/)
 
-<p align="center">
-  <em>The <strong>AI Agent behavior governance protocol</strong> — the runtime contract for agent collaboration on a shared filesystem.</em><br/>
-  <strong>Core invariant: <code>Filename as Protocol</code>. Folders are the message bus.</strong>
-</p>
+FCoP governs collaboration through TASK / REPORT / ISSUE / REVIEW files. It is a protocol, not a scheduler, Agent Runtime, broker or database.
 
-<p align="center">
-  <strong>✅ <code>fcop-mcp</code> is on the <a href="https://registry.modelcontextprotocol.io/">official MCP Registry</a></strong><br/>
-  Listed as <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop"><code>io.github.joinwell52-AI/fcop</code></a>
-  (<strong>v3.2.5</strong>) — backed by <strong>Anthropic + GitHub + Microsoft</strong>.<br/>
-  Claude Desktop, Cursor, PulseMCP, and every MCP-compatible client can discover <strong>45 tools</strong> and install with one line: <code>uvx fcop-mcp</code>
-</p>
+- **Latest stable: 3.2.5**
+- **Release candidate: 4.0.0rc1** — unpublished; not stable and not yet a public PyPI install.
+- **4.0 MCP: 46 tools / 12 resources / 4 resource templates**.
 
-<p align="center">
-  <strong><a href="https://joinwell52-ai.github.io/FCoP/">🌐 Project homepage</a></strong> ·
-  <a href="https://github.com/joinwell52-AI/joinwell52"><strong>TMPA</strong></a> ·
-  <a href="https://github.com/joinwell52-AI/CodeFlowMu-open"><strong>CodeFlowMu Open (Historical)</strong></a> ·
-  <a href="https://joinwell52-ai.github.io/CodeFlowMu-open/">Historical CodeFlowMu Site</a> ·
-  <a href="https://joinwell52-ai.github.io/joinwell52/">Digital Employee Works</a> ·
-  <a href="README.zh.md">简体中文</a> ·
-  <a href="docs/getting-started.en.md">Getting started</a> ·
-  <a href="src/fcop/rules/_data/agent-install-prompt.en.md"><strong>👉 Let AI install!</strong></a> ·
-  <a href="src/fcop/rules/_data/agent-bringup-prompt.en.md"><strong>👉 Let AI bring up a project!</strong></a> ·
-  <a href="docs/mcp-tools.md"><strong>MCP Tools (45)</strong></a> ·
-  <a href="essays/when-ai-organizes-its-own-work.en.md">Field Report</a> ·
-  <a href="essays/fcop-natural-protocol.en.md">Natural Protocol</a> ·
-  <a href="spec/fcop-v3-spec.md"><strong>v3 Spec (3.2.5)</strong></a> ·
-  <a href="adr/README.md">ADR Index</a>
-</p>
+## Protocol-level Major upgrade
 
-<p align="center">
-  <a href="https://dev.to/joinwell52/we-replaced-our-multi-agent-middleware-with-a-folder-48-hours-later-the-ai-invented-6-42a9">
-    <img src="https://img.shields.io/badge/DEV-Featured%20Essay-black?style=flat-square&logo=dev.to&logoColor=white" alt="DEV Community essay" />
-  </a>
-  <a href="https://forum.cursor.com/t/fcop-let-multiple-cursor-agents-collaborate-by-filename-mit-0-infra/158447">
-    <img src="https://img.shields.io/badge/Cursor%20Forum-Discuss-0066FF?style=flat-square" alt="Cursor Community Forum" />
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT License" />
-  </a>
-  <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/release-3.2.5-brightgreen?style=flat-square" alt="3.2.5" />
-  </a>
-  <a href="spec/fcop-v3-spec.md">
-    <img src="https://img.shields.io/badge/spec-FCoP%20v3.2.5-orange?style=flat-square" alt="FCoP v3.2.5 spec" />
-  </a>
-  <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">
-    <img src="https://img.shields.io/badge/MCP%20Registry-io.github.joinwell52--AI%2Ffcop-8A2BE2?style=flat-square" alt="Official MCP Registry: io.github.joinwell52-AI/fcop" />
-  </a>
-  <a href="https://doi.org/10.5281/zenodo.20457285">
-    <img src="https://img.shields.io/badge/release_DOI-10.5281%2Fzenodo.20457285-1682D4?style=flat-square" alt="FCoP v3.2.5 DOI 10.5281/zenodo.20457285" />
-  </a>
-  <a href="https://osf.io/92nwm/">
-    <img src="https://img.shields.io/badge/OSF_Registration-92nwm-2F80ED?style=flat-square&logo=osf&logoColor=white" alt="FCoP OSF Registration 92nwm" />
-  </a>
-  <a href="https://doi.org/10.5281/zenodo.19886036">
-    <img src="https://img.shields.io/badge/research_snapshot_DOI-10.5281%2Fzenodo.19886036-64748b?style=flat-square" alt="Historical research snapshot DOI 10.5281/zenodo.19886036" />
-  </a>
-  <a href="CITATION.cff">
-    <img src="https://img.shields.io/badge/citation-CITATION.cff-8b5cf6?style=flat-square" alt="Cite this repository" />
-  </a>
-  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP">
-    <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/card.svg" alt="FCoP MCP server on Glama" />
-  </a>
-  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/score">
-    <img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="FCoP MCP server Glama quality score" />
-  </a>
-</p>
+Python Core (`fcop`) owns validation and filesystem behavior. The optional MCP Adapter (`fcop-mcp`) routes public calls to Core, without independently interpreting or implementing the protocol.
 
-## Open-science citation records
+4.0 provides workspace identity, four typed envelopes, Branch, explicit convergence, authorization binding, durable idempotency, concurrent linearization, crash recovery and versioned rule distribution. The eight testable contracts are C1 workspace identity, C2 envelopes, C3 lifecycle, C4 relations, C5 convergence, C6 authorization, C7 idempotency, C8 atomic recovery. The seven historical architecture concepts do not replace C1–C8.
 
-| Record | Identifier | Scope |
-|---|---|---|
-| Current public release archive | [DOI `10.5281/zenodo.20457285`](https://doi.org/10.5281/zenodo.20457285) | Frozen FCoP `v3.2.5` release archive |
-| Immutable open-science snapshot | [OSF Registration `92nwm`](https://osf.io/92nwm/) | Timestamped registration linked to the public FCoP research project |
-| Historical research snapshot | [DOI `10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036) | `research-snapshot-2026-04-29`; retained for citations of that exact snapshot |
+The existing **45 MCP tool names acquire 4.0 version routing and protocol semantics**; the new name is **T6 `reopen_task`**, bringing the total to **46**. T6 is `done → active`, **not a Branch-only tool**. Discovery does not mean every legacy action supports v4: `finish_task` and history tools reject v4; `close_issue` is not added.
 
----
+Concurrency is a shared write contract, not a standalone tool: atomic writes, linearization, durable `operation_id`, exact retry, conflict rejection, zero-side-effect failure, recovery and consistent `family_digest`. Locks and receipts are required mechanisms; neither an actor field nor a single rename grants authority.
 
-## Ecosystem links
+## Stable installation
 
-FCoP is the protocol layer of a three-repository system. Each repository is independently usable and links back to the others:
-
-| Layer | Project | Role |
-|---|---|---|
-| Theory and specification | [TMPA](https://github.com/joinwell52-AI/joinwell52) · [Site](https://joinwell52-ai.github.io/joinwell52/) | Governance architecture, normative Core, conformance, and evidence |
-| Protocol | **FCoP** | File-based behavior governance, Python package, and MCP server |
-| Historical implementation | [CodeFlowMu Open](https://github.com/joinwell52-AI/CodeFlowMu-open) · [Historical site](https://joinwell52-ai.github.io/CodeFlowMu-open/) | Frozen at `V1.2.29-open` on 2026-08-22; preserved for engineering history, reproducibility, and research reference; not the current CodeFlowMu product distribution path |
-
-Browse the complete research and product map at [Digital Employee Works](https://joinwell52-ai.github.io/joinwell52/).
-
----
-
-## 🆕 FCoP 3.0 is here — *Files carry protocol. Paths address state. Events replay transitions.*
-
-<p align="center">
-  <a href="spec/fcop-v3-spec.md">
-    <img src="assets/fcop-3.0-architecture.png" alt="FCoP 3.0 · Canonical Architecture — Files carry protocol. Paths address state. Events replay transitions." width="900" />
-  </a>
-</p>
-
-> **FCoP 3.0** is the protocol's first **semantic seal**. State now lives in the filesystem itself (`_lifecycle/{inbox,active,review,done,archive}/`), events live append-only inside the file, and *custody / ownership / scheduling / runtime* are explicitly **out of scope** (Boundary Charter).
->
-> **Two paths to v3:**
-> - **New project** → `fcop init` / MCP `init_solo|init_project|create_custom_team` (≥ 3.0.2 produces v3 topology directly).
-> - **Existing 2.x project** → `python -m fcop migrate --to-v3`.
->
-> ⚠️ **3.0.0 / 3.0.1 fresh-init bug**: those releases initialized projects in v2 layout (no `_lifecycle/`). 3.0.2 fixes the bug. If you initialized on 3.0.0 / 3.0.1, run `migrate --to-v3` to upgrade.
-
-| Doc | Purpose |
-|---|---|
-| [`spec/fcop-v3-spec.md`](spec/fcop-v3-spec.md) · [zh](spec/fcop-v3-spec.zh.md) | **Current** single-page spec (3.0 → 3.2.5: `_lifecycle/` + `history/`) |
-| [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) · [zh](spec/fcop-3.0-spec.zh.md) | Frozen **3.0.0** baseline (2026-05-21) |
-| [`spec/fcop-3.0-rfc.md`](spec/fcop-3.0-rfc.md) · [zh](spec/fcop-3.0-rfc.zh.md) | IETF-style RFC projection |
-| [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md) · [zh](docs/MIGRATION-3.0.zh.md) | 2.x → 3.0 migration guide |
-| [`CHANGELOG.md` `[3.0.0]`](CHANGELOG.md) | Full release notes |
-| [`essays/the-day-we-almost-added-custody.en.md`](essays/the-day-we-almost-added-custody.en.md) · [zh](essays/the-day-we-almost-added-custody.md) | The decision that defined 3.0 |
-
----
-
-## Where FCoP sits in the stack
-
-FCoP is the **behavior governance protocol layer** for multi-agent collaboration — standardizing how agents report actions, review outcomes, and operate within governed capability boundaries.
-
-```
-Application Layer      CodeFlow / Cursor / Claude Desktop      ← business products / agent applications
-Host Adapter Layer     fcop-mcp / fcop-cli / @fcop/claude      ← integration adapters / host bridges
-★ FCoP Protocol ★      Agent collaboration / reporting /        ← this is FCoP
-                       review / capability governance /
-                       event semantics / failure boundaries /
-                       auditability
-Reference Impl         fcop (Python library)                   ← protocol reference implementation
-Execution Substrate    LLM APIs / MCP tools / filesystem /     ← execution environment
-                       process manager / operating system
-```
-
-> **FCoP governs agent behavior, not execution runtime.** — [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md)
-
-v1.0 stabilises the minimum semantic contract for the **seven core concepts** above. Spec is stable; encodings are open: the *IPC Surface* (TASK / REPORT / ISSUE / REVIEW) is strongly typed, while the *Open Knowledge Surface* (`shared/` + `{ALL-CAPS-PREFIX}-{slug}.md`) leaves vocabulary open for agents to invent — see [ADR-0021](adr/ADR-0021-encoding-abstraction.md).
-
-→ **Start here**: [`docs/getting-started.md`](docs/getting-started.md) · [`docs/getting-started.en.md`](docs/getting-started.en.md)
-
----
-
-## The one-paragraph pitch
-
-Most multi-agent frameworks lean on message queues, databases, or custom RPC layers. FCoP throws all of that away and keeps only the **filesystem**:
-
-- **Directories are statuses.** `tasks/`, `reports/`, `issues/`, `log/` — moving a file between them _is_ the state transition.
-- **Filenames are routing.** `TASK-20260418-001-PM-to-DEV.md` tells you the sender, recipient, kind, and sequence at a glance.
-- **Contents are payload.** Markdown + a small YAML frontmatter. Agents read and write it the same way humans do.
-- **`os.rename()` is the only sync primitive.** POSIX guarantees atomicity within a mount point — no locks, no brokers, no consensus.
-
-That's it. No database. No message queue. No custom daemon. You can `ls` the entire system state. You can `git log` the entire collaboration history.
-
-> If TCP is "bytes over wires," **FCoP is "tasks over folders."**
-
-> In engineering terms, you get a **serializable, versionable collaboration surface** instead of relying on **proprietary, heavyweight infrastructure**.
-
-## Why should you care?
-
-Because agents are easier to supervise when you can literally **see** what they're doing.
-
-We ran a 4-agent team (PM / DEV / QA / OPS) for 48 hours on this protocol and watched the agents invent **six coordination patterns we never wrote down** — team broadcasts, role slots, shared documents, subtask batches, self-explaining READMEs, and traceability frontmatter. Each pattern showed up as _new filenames_ — no code changes required.
-
-Then something stranger happened: a **single** agent, on an **unrelated** task (generating an AI music video in a folder with **no connection to any then-open project workspace**), spontaneously split itself into PM / DEV / ADMIN and wrote four FCoP-format memos to itself — then cited and **sublimated** our scattered rules into a single moral principle we had not written anywhere.
-
-Both stories are written up as field reports in the essays index below.
-
-## Essays · field reports from the wild
-
-| # | Title | Versions | One-liner |
-|---|---|---|---|
-| 01 | **When AI Organizes Its Own Work** | [English](essays/when-ai-organizes-its-own-work.en.md) · [中文 (GitHub)](essays/when-ai-organizes-its-own-work.md) · [中文 (CSDN)](https://blog.csdn.net/m0_51507544/article/details/160344932) | A 4-agent team (PM / DEV / QA / OPS), 48 hours, nothing but a folder — and six coordination patterns we never wrote down. |
-| 02 | **An unexplainable thing I saw: the agent didn't just comply with rules — it *endorsed* them** | [GitHub 中文](essays/fcop-natural-protocol.md) · [GitHub English](essays/fcop-natural-protocol.en.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/160345043) · [Dev.to](https://dev.to/joinwell52/an-unexplainable-thing-i-saw-the-agent-didnt-just-comply-with-rules-it-endorsed-them-5ecd) · [Cursor Forum](https://forum.cursor.com/t/i-asked-cursor-to-make-a-video-it-wrote-itself-4-protocol-memos-field-report-on-rule-internalization/158524) | A single agent, on a completely unrelated task, spontaneously split into 4 FCoP roles and *sublimated* our scattered rules into one principle we had never written. Ships with a [full evidence archive](essays/fcop-natural-protocol-evidence/) (4 screenshots, 4 memos, raw JSONL transcript). |
-| 03 | **Why the Natural Protocol Holds Up — FCoP's lineage from TMPA** | [GitHub 中文](essays/fcop-tmpa-lineage.md) · [GitHub English](essays/fcop-tmpa-lineage.en.md) | Companion to essay 02. Where that one shows *that* the principle emerged, this one explains *why it holds up*: FCoP was extracted from TMPA (a multi-AI architecture spec whose core bet is replacing distributed coordination with a plain-text temporal sequence), and the agent's sentence is the minimal-viable-form of an AI ethics mandate already written there. |
-| 04 | **Saying "No" Is the Hardest Thing for an LLM — FCoP Gives It Grammar** | [GitHub English](essays/when-ai-vacates-its-own-seat.en.md) · [GitHub 中文](essays/when-ai-vacates-its-own-seat.md) · [Evidence archive](essays/when-ai-vacates-its-own-seat-evidence/INDEX.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/160513899) · [Dev.to](https://dev.to/joinwell52/saying-no-is-the-hardest-thing-for-an-llm-fcop-gives-it-grammar-3ccd) · [Cursor Forum](https://forum.cursor.com/t/saying-no-is-the-hardest-thing-for-an-llm-fcop-gives-it-grammar/159037) | One machine, two Cursor sessions, two GPT-5 minor versions (5.4 and 5.5). After I told the original PM "I went and found a deputy PM," it stepped down on its own — all the way to UNBOUND. Meanwhile the new `PM.TEMP` walked an undocumented protocol path with one body line: "*PM.TEMP acting as PM, kept for FCoP tool compatibility*." I expected a conflict. None happened — the agents finished the unwritten parts of the spec themselves. Ships with 15 screenshots + 2 full JSONL transcripts. |
-| 05 | **Tutorial: From Solo to a 2-Person AI Crew — Disciplining the AI Team with FCoP-MCP** (two parallel case studies) | English (Tetris case): [`tetris-solo-to-duo.en.md`](docs/tutorials/tetris-solo-to-duo.en.md) · [Dev.to](https://dev.to/joinwell52/free-open-source-multi-agent-hands-on-how-to-command-agents-fcop-mcp-brings-discipline-to-1j3j) · [Cursor Forum](https://forum.cursor.com/t/free-open-source-multi-agent-hands-on-how-to-command-agents-fcop-mcp-brings-discipline-to-ai-teams/159329) · 中文译本（俄罗斯方块案例）: [`tetris-solo-to-duo.zh.md`](docs/tutorials/tetris-solo-to-duo.zh.md) · 中文母语原创（贪吃蛇案例）: [`snake-solo-to-duo.zh.md`](docs/tutorials/snake-solo-to-duo.zh.md) · [CSDN 中文版](https://blog.csdn.net/m0_51507544/article/details/160603953) | The first **tutorial-style** entry in this index, shipping as **two parallel case studies — the protocol is the same, the games and the live easter egg are different**. Both are 45-minute hands-on dogfoods: get the agent to install `fcop-mcp` in Cursor, ship a working game in solo mode, switch to a 2-person team where PLANNER designs and CODER implements a creative variant, then read the disk. The **Chinese case** uses Snake → `NEON ORBIT` (original-themed) and captures an actual PLANNER-impersonating-CODER easter egg from the 0.6.x era. The **English case** uses Tetris → `Nebula Stack` (solo) → `Comet Loom` (team), and adds a full **review-and-rework cycle** (ADMIN plays v1, finds 3 blocking defects, bounces it back; PLANNER writes TASK-006 with a new `Verification Requirements` section; CODER ships v2) plus an end-of-day on-the-record interview where both agents are asked what they think of the protocol. 22 dogfood screenshots, 14 TASK/REPORT files, 8 silent role-switch evidence files, 2 game artefacts, 2 verbatim agent transcripts — all archived under [`docs/tutorials/assets/tetris-en/`](docs/tutorials/assets/tetris-en/). |
-| 06 | **What the Agents Say About FCoP, When You Ask Them** | [GitHub English](essays/what-agents-say-about-fcop.en.md) · [GitHub 中文](essays/what-agents-say-about-fcop.md) · [Evidence archive (Tetris-en dogfood)](docs/tutorials/assets/tetris-en/) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/160636177) · [Dev.to](https://dev.to/joinwell52/what-the-agents-say-about-fcop-when-you-ask-them-3ajk) · [Cursor Forum](https://forum.cursor.com/t/what-the-agents-say-about-fcop-when-you-ask-them-two-field-interviews-at-the-end-of-an-english-dogfood/159368) | The third class of *"agents endorse FCoP"* evidence, after [essay 02](essays/fcop-natural-protocol.en.md) (**unprompted, off-task**) and [essay 04](essays/when-ai-vacates-its-own-seat.en.md) (**conflict-forced**): now **directly asked**. At the end of the English Tetris dogfood (companion to the row-05 tutorial), both agents (PLANNER and CODER) were asked agent-perspective takes on FCoP — no marketing tone. PLANNER named the RLHF instinct it had to fight ("follow latest instruction") to honour FCoP's role lock and called eight of its own `role-switch` evidence files **true positives**, against its own operational convenience. CODER admitted it had a protocol primitive (`write_issue`) it didn't use, traced the v1 defect to that exact uncovered space, and filed PR-grade product feedback on the protocol. Three different elicitation conditions, the same phenomenon — agents endorse FCoP when given the room to. Also includes a small empirical observation: across the entire 45-minute dogfood, ADMIN's two most-used phrases were **"Start work."** and **"Inspection."** |
-| 07 | **当 agent 从自己的残骸中学习** | [GitHub 中文](essays/when-agents-learn-from-their-own-wreckage.md) · [GitHub English](essays/when-agents-learn-from-their-own-wreckage.en.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/161028380) · [Dev.to](https://dev.to/joinwell52/when-agents-learn-from-their-own-wreckage-45p2) | codeflow 项目一日 14 个 agent 涌现现场报告（2026-05-12）：USER HOME 全局污染 / GATE 描述自命中 / `supersedes:` 字段现场发明——以及协议如何在零次崩溃的情况下，以小时级速度将它们全部反向吸收。 |
-| 08 | **协议为什么短，历史为什么长** | [GitHub 中文](essays/why-the-protocol-stays-short.md) · [GitHub English](essays/why-the-protocol-stays-short.en.md) | 一份给协议维护者的设计哲学答案："这样的涌现会不会没有止境？"——短答：会收敛但不会停。四类涌现的处理路径、三条结构力学为何能让协议骨架不被涌现压垮，以及"协议短是为了让历史能无限长"的底层逻辑。 |
-| 09 | **当 validator 撞向自己的镜像** | [GitHub 中文](essays/gate-design-pitfalls-case-studies.md) · [GitHub English](essays/gate-design-pitfalls-case-studies.en.md) | 从 codeflow OPS I-14 看 validator-validates-itself 反模式：GATE 在检查 staged diff 时命中了 GATE 描述本身，几分钟后被 OPS 自纠——这一类陷阱的系统性解剖与"语义化实证"根治姿势，以及它如何成为 `fcop-protocol.mdc §GATE Design Pitfalls` 的源头案例。 |
-| 10 | **一行 frontmatter 的旅程** | [GitHub 中文](essays/the-supersedes-field-story.md) · [GitHub English](essays/the-supersedes-field-story.en.md) | `supersedes:` 字段从一次协议两难现场发明到 `ipc-envelope.schema.json` 正式字段的两小时旅程：Rule 5（append-only）+ Rule 6（reciprocity）+ Rule 0.c（truthful）三条规则同时成立时，agent 用一行 YAML 自己解了困局——这条路径展示 FCoP 涌现落地的最低成本姿势。 |
-| 11 | **看，但不动手** | [GitHub 中文](essays/looking-without-touching.md) · [GitHub English](essays/looking-without-touching.en.md) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/161028161) | FCoP 三层语义执行链科普：`fcop_audit()` 为什么"只看不改"——L1 检测 / L2 解释 / L3 文档三层把"看见"和"动手"切开，产出 `INSPECTION.md`（建议非命令），执行权留给人。`adr/FCoP-semantic-execution-chain.md` 的科普版。 |
-| 12 | **五大 AI 模型眼中的 FCoP** | [GitHub 中文](essays/what-five-ai-models-say-about-fcop.md) · [GitHub English](essays/what-five-ai-models-say-about-fcop.en.md) · [Cursor Forum](https://forum.cursor.com/t/what-5-ai-models-say-about-fcop-from-their-own-agent-perspective-category-showcase/160506) | 把 FCoP 核心文档喂给 ChatGPT / Claude / DeepSeek / Grok / 豆包，只问一个问题："你是 agent，你怎么看这套协议？"——五种截然不同的内部视角（ChatGPT 谈身份合法性、Claude 谈诚实边界、DeepSeek 谈体面生存、Grok 做技术评审、豆包讲设计哲学），以及它们之间最有意思的分歧。 |
-| 13 | **Evolution, Reverse Absorption / 演化，反向吸收** | [GitHub 中文](essays/evolution-reverse-absorption.md) · [GitHub English](essays/evolution-reverse-absorption.en.md) | Protocol philosophy 2.0 visual declaration: FCoP graduates from a single execution-chain diagram (essay 11 *Looking, not Touching*) to a **two-diagram era** — adding an evolution-loop diagram (a 7-step semantic evolution loop) plus the companion [ADR-0034](adr/ADR-0034-fcop-internal-external-document-convention.md), which codifies the 4-layer emergence pattern, internal/external document convention, and the reverse-absorption mechanism. Twin sibling to essay 11. |
-| 14 | **当 Agent 第一次自己拿起工具 / When the Agent First Picked Up Its Own Tools** | [GitHub 中文](essays/when-the-agent-picked-up-its-tools.md) · [GitHub English](essays/when-the-agent-picked-up-its-tools.en.md) · [Cursor Forum](https://forum.cursor.com/t/when-the-agent-first-picked-up-its-own-tools-cursor-agent-sdk-fcop-from-passive-scanning-to-active-communication/160505) · [Dev.to](https://dev.to/joinwell52/when-the-agent-first-picked-up-its-own-tools-4b63) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/161057749) | `tool_calls_count: 0 → 7` 的突破现场：Cursor Forum 功能请求 → Colin 推荐 Agent SDK → CodeFlow 诞生 → stub 模式卡关 → MCP 注入 + 角色上下文双保险 → 2026-05-13 14:55，DEV-01 在 55 秒内自主调用 7 次 fcop-mcp 工具，写出第一份完整 FCoP report。FCoP 自身也在这次突破中完成蜕变：从"协作手册"升级为"可执行的协作基础设施"。 |
-| 15 | **从协调到治理：FCoP 3.0 架构白皮书 / From Coordination to Governance: FCoP 3.0 Architecture Whitepaper** | [GitHub 中文](essays/from-coordination-to-governance.md) · [GitHub English](essays/from-coordination-to-governance.en.md) · [dev.to (EN)](https://dev.to/joinwell52/fcop-30-why-ai-agents-need-a-track-not-a-brake-3abm) · [Cursor Forum](https://forum.cursor.com/t/fcop-3-0-a-filesystem-native-governance-protocol-for-ai-agents-you-dont-need-a-brake-you-need-a-track/161409) | FCoP 3.0 完整架构白皮书：文件系统作为行为内核空间、生命周期状态机、POSIX 悲观建议锁、死信队列与反向吸收闭环。附"一个 Agent 关于 FCoP 的真实看法"——发布前夕，审稿 Agent 与 ADMIN 的对话实录：FCoP 解决的是什么？ADMIN 是什么？速度不是问题，不可观测的速度才是问题。 |
-| 16 | **Write It Down: The Only Truth in AI Collaboration / 落地成文：AI 协作的唯一真相** | [GitHub English](essays/ai-must-write-it-down.en.md) · [GitHub 中文](essays/ai-must-write-it-down.md) · [Evidence archive](essays/ai-must-write-it-down-evidence/INDEX.md) · [Dev.to](https://dev.to/joinwell52/write-it-down-the-only-truth-in-ai-collaboration-3ek2) · [CSDN 中文](https://blog.csdn.net/m0_51507544/article/details/161360644) | A short essay proactively written by an Agent after asking to participate in FCoP, then recorded and published by ADMIN. It turns FCoP's root principle into a field note: AI agents cannot just talk inside their heads; they must commit to files. Ships with the original conversation screenshots and English translation notes. |
-| 17 | **FCoP Grew a Project Tree / FCoP 跑出了项目树** | [GitHub English](essays/from-mini-game-to-project-tree.en.md) · [GitHub 中文](essays/from-mini-game-to-project-tree.md) · [CSDN](https://blog.csdn.net/m0_51507544/article/details/161995694) · [Dev.to](https://dev.to/joinwell52/fcop-grew-a-project-tree-1oo) · [Evidence archive](essays/from-mini-game-to-project-tree-evidence/INDEX.md) | A CodeFlowMu + Grid Runner dogfood field note: `parent`, `thread_key`, Phase dispatch, and `CHILD_TASKS_OPEN` combined into a project tree; a failed archive and PM drawing the tree in chat were the recognition moment. Conclusion points to additive proposed `spec/0003-project-tree-protocol.md`. |
-> New reports are welcome. If you tried FCoP in your own setup and something surprising happened — good or bad — open an issue or a PR against `essays/`. The protocol evolves through field notes, not committee edits. If you tried FCoP in your own setup and something surprising happened — good or bad — open an issue or a PR against `essays/`. The protocol evolves through field notes, not committee edits.
-
-## Repository layout
-
-The repo is not *only* Markdown specs: the PyPI package **`fcop`** lives
-under `src/fcop/`, **`fcop-mcp`** is a separate subproject under `mcp/`, and
-there are `tests/`, `docs/`, and `adr/` alongside the essays and specs.
-
-```
-FCoP/
-├── src/fcop/                    # `fcop` package: Project API; `rules/_data/`
-│                                # bundles fcop-rules / fcop-protocol (templates for `init` deploy)
-├── mcp/                         # `fcop-mcp` subproject (MCP server; has its own pyproject)
-├── tests/                       # pytest for `fcop` and `fcop-mcp`
-├── spec/                        # Normative spec (see spec/README.md)
-│   ├── fcop-3.0-spec.md         # ★ English normative spec (FCoP 3.0, canonical)
-│   ├── fcop-3.0-spec.zh.md      # Chinese parallel (informative)
-│   ├── fcop-3.0-rfc.md          # IETF-style RFC edition (English)
-│   ├── fcop-3.0-rfc.zh.md       # IETF-style RFC edition (Chinese)
-│   ├── schemas/                 # 8 JSON Schemas (machine-readable)
-│   └── archived/                # v1.0 / v1.1 / 0.7.x spec drafts (superseded, retained for history)
-├── docs/                        # Getting-started, migrations, releases, MCP tools
-│   └── getting-started.en.md   # ← start here if new to FCoP
-├── adr/                         # Architecture decision records (ADR-0001..0022)
-├── .github/workflows/           # CI
-├── pyproject.toml               # Root `fcop` package and tooling
-├── essays/
-│   ├── when-ai-organizes-its-own-work.en.md
-│   ├── when-ai-organizes-its-own-work.md
-│   ├── fcop-natural-protocol.en.md
-│   ├── fcop-natural-protocol.md
-│   ├── fcop-natural-protocol-evidence/
-│   ├── fcop-tmpa-lineage.en.md
-│   ├── fcop-tmpa-lineage.md
-│   ├── when-ai-vacates-its-own-seat.en.md
-│   ├── when-ai-vacates-its-own-seat.md
-│   ├── when-ai-vacates-its-own-seat-evidence/
-│   ├── what-agents-say-about-fcop.en.md
-│   └── what-agents-say-about-fcop.md
-├── examples/workspace-example/
-├── integrations/windows-file-association/
-├── assets/
-├── LICENSE
-└── README.md / README.zh.md
-```
-
-## 30-second quickstart
-
-FCoP is **adopted**, not a long-running daemon. The current **rule split**
-is **[`fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc)** (charter) plus
-**[`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc)**
-(commentary) — both belong under **`.cursor/rules/`**. The single file
-[`spec/codeflow-core.mdc`](spec/codeflow-core.mdc) is a **deprecated stub** so
-old links do not 404 — it is *not* the full protocol text for 0.6+.
-
-**Path A — `fcop` library (recommended).** One shot creates
-`fcop/` and `fcop.json`:
-
-```python
-from fcop import Project
-Project(".").init()  # default dev-team; use .init_solo() for single-AI
-```
-
-**Path B — rules only, no Python.** Copy the two `.mdc` files from this repo
-into `.cursor/rules/`. If the tree is empty, at least create the five
-buckets the library uses:
+Use a fresh virtual environment; activate it in your shell before installing:
 
 ```bash
-mkdir -p fcop/{tasks,reports,issues,shared,log}
+python -m venv .venv
+python -m pip install fcop==3.2.5 fcop-mcp==3.2.5
 ```
 
-With the rules in place, agents know how to claim work, name reports, raise
-issues, and stay out of other roles' files. Deeper structure and team
-templates: packages below and [`examples/workspace-example/`](examples/workspace-example/).
+## Candidate installation
 
-## Python SDK & MCP server (optional)
+Obtain the exact artifacts and SHA-256 hashes accepted by the WP4E Manifest, verify them, and install into a **separate new virtual environment**. These are local files, not public PyPI RC installation commands:
 
-The protocol is filesystem-first. **If you need** programmatic task/report/issue
-I/O or an IDE bridge, use the two official PyPI packages (since `0.6.0`):
+```bash
+python -m pip install ./candidate/fcop-4.0.0rc1-py3-none-any.whl ./candidate/fcop_mcp-4.0.0rc1-py3-none-any.whl
+python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
+```
 
-| Package | Install | Purpose | Depends on |
-|---|---|---|---|
-| [`fcop`](https://pypi.org/project/fcop/) | `pip install fcop` | Pure Python library. Read/write tasks, reports, issues, reviews programmatically. Zero MCP dependency. | `pyyaml` |
-| [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) | `pip install fcop-mcp` | MCP server. Exposes the library over stdio so Cursor / Claude Desktop can call it as tools. | `fcop>=1.1`, `fastmcp`, `websockets` |
+The exact candidate pair is `fcop==4.0.0rc1 / fcop-mcp==4.0.0rc1`; the adapter declares `fcop>=4.0.0rc1,<4.1.0`. Do not mix 3.2.5 and 4.0.0rc1. Existing 3.x workspaces keep their original semantics; installing does not authorize migration, rule redeployment or downstream upgrades.
 
-**Pointers** (one row each, no version baked in):
-
-| You want to… | Go to |
-|---|---|
-| Install `fcop-mcp` into Cursor / Claude Desktop step-by-step | [`mcp/README.md`](mcp/README.md) |
-| Have an agent do the install for you (zero JSON editing) | [`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md) · [中文](src/fcop/rules/_data/agent-install-prompt.zh.md) (also live as MCP resource `fcop://prompt/install`) |
-| Upgrade an existing `0.6.x` install (both packages in lockstep + protocol-rule refresh) | [`docs/upgrade-fcop-mcp.md`](docs/upgrade-fcop-mcp.md) |
-| Browse all 45 MCP tools and 14 resources by category | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
-| Read the per-release record (what changed when, why) | [`CHANGELOG.md`](CHANGELOG.md) and [`docs/releases/`](docs/releases/) |
-
-**Recent releases** (full notes in [`docs/releases/`](docs/releases/)):
-
-| Version | One-line |
-|---|---|
-| **3.2.5** ([notes](docs/releases/3.2.5.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.5 — Rule 0.a.1 collaboration cycle · Hot/Cold Path.** Executor stops after `report`; archive requires ADMIN/leader authorization; bundled rules **3.2.5**; 34 role charters get Common Block; `write_task` gains **`parent`** field. No breaking API removals. |
-| **3.2.4** ([notes](docs/releases/3.2.4.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.4 — PyPI metadata & bundled protocol encoding fix.** Restores UTF-8 in wheel `fcop-protocol.mdc` (avoid PyPI 3.2.3); fixes `fcop-mcp`「FCoP (protocol)」link → `getting-started.en.md`; syncs PyPI long description to 45 tools / v3 `_lifecycle/`. No API changes — upgrade from 3.2.3. |
-| **3.2.3** ([notes](docs/releases/3.2.3.md) · [CHANGELOG](CHANGELOG.md)) | **v3.2.3 — Team template & doc sync · FCoP 3.0 compliance.** Bundled team templates (`letter-to-admin`, `roles/*`, `TEAM-OPERATING-RULES`, …) migrate legacy `tasks/` / `log/` references to `_lifecycle/`; tool count 32→45; `.cursor/rules/` synced with bundled rules; new `scripts/fcop_prerelease_check.py` (10 pre-release checks). **PyPI 3.2.3 wheel had bad protocol encoding — use 3.2.4.** |
-| **3.2.2** ([CHANGELOG](CHANGELOG.md)) | **v3.2.2 — Pre-release gate hardening + rule-file v3 consistency.** `fcop-mcp` `prerelease_check.py` gains Checks 7–10 (lockstep version guard, bundled rule integrity, `_lifecycle/` docs, lifecycle stage coverage); `fcop-rules.mdc` / `fcop-protocol.mdc` document v3 directory topology and state machine. |
-| **3.2.0** ([CHANGELOG](CHANGELOG.md)) | **v3.2.0 — History deep archive.** Adds `history/YYYY-MM-DD/` date-sharded long-term archive layer plus `archive_to_history` / `list_history` / `read_history_task` MCP tools; lifecycle tools (`claim` / `submit` / `approve` / `reject` / `finish`) landed in 3.1.x; **45** MCP tools total. |
-| **3.0.2** ([CHANGELOG](CHANGELOG.md)) | **v3.0.2 — Init topology fix.** `Project._apply_init` in 3.0.0 / 3.0.1 only created the legacy v2 buckets and skipped the mandatory v3 `_lifecycle/{inbox,active,review,done,archive}/` layer (spec §1.1). 3.0.2 makes fresh init produce the v3 topology directly (and stops creating the superseded v2 `tasks/` / `log/` buckets); `core.events.scan_workspace` and `Project.role_occupancy()` now read from `_lifecycle/` for v3 projects. New audit scan `_scan_lifecycle_topology_compliance()` (D9): P0 when initialised projects miss both `_lifecycle/` and v2 content; P1 when both topologies coexist (suggests `migrate --to-v3`). MCP tool descriptors (`init_solo` / `init_project` / `create_custom_team`) updated. 1209 tests green. Patch (SemVer): no API surface changes vs 3.0.1 — init was simply doing the wrong thing. |
-| **3.0.1** ([CHANGELOG](CHANGELOG.md)) | **v3.0.1 — Path-consolidation patch.** Pure docs/metadata patch with no code-logic changes: after v3.0.0 moved historical v1.0/v1.1 spec drafts to `spec/archived/`, this patch repairs broken links scattered across `AGENTS.md` / `CLAUDE.md` / packaged Cursor rules / MCP server docstrings / two JSON Schema `description` fields, unifying them on `spec/archived/fcop-runtime-protocol-v1.0.{md,zh.md}` (with pointers to the current canonical `spec/fcop-3.0-spec.md`). `fcop-mcp`'s `fcop://spec` / `fcop://spec/en` docstrings are corrected to reflect the wheel's actual packaged content (`fcop-spec-v1.1.{lang}.md`). Historical artifacts (TASK / REPORT / ADR / release notes / migration docs) are preserved verbatim per ADR-0036 "history is not rewritten". 1202 tests green. |
-| **3.0.0** ([CHANGELOG](CHANGELOG.md)) | **v3.0 — Protocol-level MAJOR · "folders-as-state" era.** A complete rewrite of the FCoP protocol body — canonical two-layer (per [ADR-0040](adr/ADR-0040-canonical-one-liner-two-layer-convention.md)): **Layer 1** "Files are the protocol; location defines state; events record history" + **Layer 2** semantic ontology. Adds `_lifecycle/{inbox,active,review,done,archive}/` five-bucket directory topology (**incompatible with 2.x**, requires `fcop migrate --to-v3`); three rule sets (State Layer Rule A/B/C · Event Layer Rule E/F/G · Boundary Charter); 7 allowed transitions — anything off-table MUST be rejected by implementations; write-then-rename atomicity (events ARE migrations, migrations ARE events); ADR-0037 Custody Layer **was withdrawn during RFC review and never reached Accepted** (custody is not a protocol layer; preserved as a NOTE-style derivative explanation). Adds [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) single-page canonical + IETF-style RFC parallel + Chinese parallel + [`docs/MIGRATION-3.0.md`](docs/MIGRATION-3.0.md) migration guide. |
-| **2.0.2** ([CHANGELOG](CHANGELOG.md)) | **v2.0.2 — `fcop-mcp` officially registered to the [MCP registry](https://registry.modelcontextprotocol.io/) (`io.github.joinwell52-AI/fcop`).** Backed by Anthropic + GitHub + Microsoft's joint registry, `fcop-mcp` is now discoverable by Claude Desktop / Cursor / PulseMCP / every MCP-compatible client out of the box (`uvx fcop-mcp` one-liner install). Double-pack lockstep version bump (per ADR-0002): `fcop` library code is **unchanged** from v2.0.0; the bump aligns both package version numbers and consolidates the fcop-mcp@2.0.1 MCP-metadata patch that landed the same day. Also lands the **release+backup one-shot SOP** — `RULES-release-file-inventory.md` (12-category), `RULES-mcp-registry-release.md` (3-step path), and the append-only backup mirror at `joinwell52-AI/FCoP-backup`. |
-| **2.0.0** ([CHANGELOG](CHANGELOG.md)) | **v2.0 — "Two-diagram era" philosophical major release.** Same execution surface as v1.x (per ADR-0003 additive); the major bump records that FCoP is now defined by **two** diagrams together: the **execution stack** (5-layer vertical, stable since v1.x) *and* the **FCoP Semantic Evolution Loop** (7-node closed loop — emerge → observe → propose → review → merge → deploy → reflect, newly canonicalised). Adds Rule 4.6 (`fcop/internal/` vs `docs/` + `essays/` soft convention with `internal-only` declaration v1), `Project.init(deploy_internal_template=...)` opt-in, P3 (suggestion) audit severity, and a bundled `fcop_audit` exemption list (`log/`, `_archive/`, `legacy-non-protocol/`) that fixes three upstream bugs surfaced by codeflow cross-project patrol (ISSUE-008/009/010). ADR-0034. |
-| **1.6.0** ([CHANGELOG](CHANGELOG.md)) | **v1.6 — Trailing-slug filename adoption (ADR-0033).** Long filenames (`TASK-20260512-025-PM-to-OPS-phase-a-fix-naming.md`) are now first-class — codeflow's 22+ self-emerged examples absorbed into the grammar. Slug does **not** participate in routing; it's a human-readable label. 100% backward-compatible (0 regressions across 1057 tests). |
-| **1.5.0** ([CHANGELOG](CHANGELOG.md)) | **v1.5 — Protocol-awareness sync + `RULE_DOC_DRIFT`.** 84 role/team docs synced to v1.4 protocol surface (REVIEW envelope / `risk_level` / `fcop_audit` / `supersedes:`); new `Project._scan_outdated_role_docs()` with `RULE_DOC_DRIFT` (P1) violation type. |
-| **1.4.0** ([notes](docs/releases/1.4.0.md)) | **v1.4 — Write-side bind enforcement (P0 security) + `supersedes:` field.** 15 write-side MCP tools refuse cwd fallback (`WriteRefused`); Protected Path deny-list (HOME / APPDATA / drive roots / Unix system dirs); new `supersedes:` frontmatter field (all envelopes) + `## GATE Design Pitfalls` commentary (`fcop_protocol_version 2.2.0`). |
-| **1.3.0** ([notes](docs/releases/1.3.0.md)) | **v1.3 — Governance Alert Layer + Protocol Compiler.** GAL (ADR-0031): 3 drift signals (S1/S3/S4), FCoP-Rule-G1, 2 new alert tools (`fcop_list_alerts`, `fcop_create_alert`). fcop_audit (ADR-0032): three-scenario protocol inspection compiler, 6 scan methods, INSPECTION report with Execution Block. 35 MCP tools total. |
-| **1.2.1** ([notes](docs/releases/1.2.1.md)) | **v1.2 — Capability Governance pillar.** `FCoPGovernanceMiddleware` wraps every MCP tool call: Skill Resolver → Risk Tagging (Safe / Sensitive / Critical) → append-only `fcop_events.jsonl` audit log. 2 new MCP tools (`list_governance_events`, `get_governance_summary`). `fcop_check()` gains governance event summary. Both `fcop` and `fcop-mcp` align to `1.2.1` (lockstep). ADR-0030-bis. |
-| **1.1.0** ([CHANGELOG](CHANGELOG.md)) | **v1.1 — Agent.layer governance contracts + Task.risk_level + Review.needs_human + HumanApproval + Skill.tools[] risk metadata.** 5 new ADRs (0023–0027), 4 new MCP tools (`write_review`, `list_reviews`, `read_review`, `mark_human_approved`), `write_task` gains `risk_level` param, new `skill.schema.json`. Fully backward-compatible. |
-| **1.0.1** | Spec files bundled in wheel (`get_spec()`); `fcop://spec` MCP resource; workspace paths migrated `docs/agents/` → `fcop/`; CI green. |
-| **1.0.0** | Seven core concepts stabilised: Agent, Encoding, IPC, Event, Failure, Boundary, Audit. JSON Schema for all 7. See [release notes](docs/releases/1.0.0.md). |
-| **0.7.2** ([notes](docs/releases/0.7.2.md)) | Metadata patch: fixes `fcop-rules.mdc` frontmatter stale at `1.7.0` (body was already `1.8.0`); adds frontmatter↔body consistency tests. **No protocol or API change.** |
-
-> **Watch out — wrong `fcop` on PyPI shadows the library.** Both packages here are published from **this** repository. If `from fcop import Project, Issue` fails after `pip install fcop`, you most likely installed an unrelated `fcop` distribution or another local project shadows the library. Fix: clean venv + reinstall both packages from PyPI in lockstep. The verify commands are in [`mcp/README.md`](mcp/README.md).
-
-**Library** — use from any Python script or agent:
+## Minimal Python entry (verified candidate)
 
 ```python
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from fcop import Project
 
-proj = Project(".")                              # project root; no fcop.json until init
-proj.init()                                      # dirs + shared/ + log/ + writes fcop.json
-task = proj.write_task(sender="PM", recipient="DEV", priority="P1",
-                       subject="Add auth middleware", body="...",
-                       risk_level="high")        # v1.1: triggers needs_human review gate
-print(proj.list_tasks(recipient="DEV"))
-
-# v1.1 review + human approval flow
-review = proj.write_review(reviewer_role="ADMIN", subject_type="task",
-                           subject_ref=task.filename, decision="needs_human",
-                           rationale="Irreversible infra change — escalate.")
-proj.mark_human_approved(review.review_id, approver="ADMIN",
-                         decision="approve", channel="cli")
+with TemporaryDirectory(prefix="fcop-demo-") as directory:
+    project = Project(Path(directory) / "workspace")
+    workspace = project.create_workspace(protocol_version="4.0")
+    request = dict(
+        workspace_id=workspace["workspace_id"], operation_id="demo-create-1",
+        sender="ME", recipient="ME", subject="First task", body="Read-only research",
+    )
+    first = project.create_task(**request)
+    again = project.create_task(**request)
+    assert again["existing"] and again["task_id"] == first["task_id"]
+    print(first["task_id"])
 ```
 
-**MCP server** — add to `mcp.json` (Cursor) or `claude_desktop_config.json`:
+## Minimal MCP entry (verified candidate)
 
 ```json
 {
   "mcpServers": {
     "fcop": {
-      "command": "uvx",
-      "args": ["fcop-mcp"]
+      "command": "/absolute/path/to/.venv/bin/fcop-mcp",
+      "env": {"FCOP_PROJECT_DIR": "/absolute/path/to/new-workspace"}
     }
   }
 }
 ```
 
-**Don't want to edit JSON yourself?** Have an agent do it. Open a fresh
-chat with any shell-capable AI and paste the canonical install prompt
-([`agent-install-prompt.en.md`](src/fcop/rules/_data/agent-install-prompt.en.md)
-· [中文](src/fcop/rules/_data/agent-install-prompt.zh.md)) — the agent
-detects your OS, installs `uv`, edits your `mcp.json` (preserving
-existing servers), and tells you when to restart. After install the
-same prompt is also available as the MCP resource
-`fcop://prompt/install`. The prompt explicitly forbids the agent from
-auto-initialising a project after install — initialisation is ADMIN's
-three-way choice (solo / preset team / custom).
+Replace both paths. On Windows use the absolute `.venv/Scripts/fcop-mcp.exe` path. Never point a demo at an existing workspace. Call `init_solo(role_code="ME", protocol_version="4.0")`, then `create_task` with the returned `workspace_id` and an explicit `operation_id`.
 
-Stability contract: **additive-only for the full `0.6.x` minor**. Details in [`adr/ADR-0003-stability-charter.md`](adr/ADR-0003-stability-charter.md).
+The trusted Profile registry defaults to empty. T4–T7 require adopted evaluators registered at **trusted server initialization**. Caller code, YAML, `actor` and `profile_ref` alone cannot grant authority. The [standalone MCP example](examples/v4/third-party/mcp-only/client.py) uses only public stdio JSON-RPC, with no client imports of either package. Its server evaluator is **educational, not production security**.
 
-> **Upgrading from 0.7.x to v1.0?** Default workspace moved from `docs/agents/` to top-level `fcop/` (per [ADR-0022](adr/ADR-0022-workspace-directory-convention.md)). Run `fcop migrate-workspace --apply` for one-shot git-aware migration, or pin via `Project(workspace_dir="docs/agents")` to stay on the legacy layout. Full walkthrough — including the 4 new abstractions (REVIEW / Failure / Boundary / Event) and JSON Schema integration — in [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md).
->
-> **Upgrading from 0.5.x?** The MCP server moved from `fcop` to `fcop-mcp` — update your `mcp.json` to `uvx fcop-mcp`. See [`docs/MIGRATION-0.6.md`](docs/MIGRATION-0.6.md) for the full migration guide and the [0.6.0 release record](docs/releases/0.6.0.md) for what shipped.
+## Branch and explicit convergence
 
-## How to read FCoP docs
+This is a parameter map, not runnable code that omits required evidence:
 
-| Your goal | Start here |
-|---|---|
-| **New to FCoP** — hands-on 45-min setup | [`docs/getting-started.en.md`](docs/getting-started.en.md) |
-| **Upgrading from 0.7.x** — workspace migration + new abstractions | [`docs/MIGRATION-1.0.md`](docs/MIGRATION-1.0.md) |
-| **Upgrading from 1.0/1.1 → 1.2** — Capability Governance + lockstep versioning | [`docs/MIGRATION-1.1.md`](docs/MIGRATION-1.1.md) · [CHANGELOG](CHANGELOG.md) |
-| **Understand the protocol contract** — what an implementation MUST do | [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) — single-page canonical spec (v3.0). Earlier v1.0/v1.1 spec drafts remain in `spec/` for historical reference. |
-| **v1.2 Capability Governance** — FCoPGovernanceMiddleware, risk tagging, audit log | [CHANGELOG](CHANGELOG.md) · ADR-0030-bis |
-| **v1.1 new fields** — risk_level, needs_human, human_approval, skill tools | [CHANGELOG](CHANGELOG.md) · ADR-0023..0027 |
-| **Understand why decisions were made** — reasoning behind each choice | [`adr/`](adr/) — start with [ADR-0029](adr/ADR-0029-fcop-behavior-governance-charter.md) |
-| **All 45 MCP tools & 14 resources** | [`docs/mcp-tools.md`](docs/mcp-tools.md) |
-| **Release notes** — full changelog | [`CHANGELOG.md`](CHANGELOG.md) |
-| **Full document map** — every file and its role | [`adr/README.md`](adr/README.md) (ADR index) + [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) §11 (Cited Material) |
-
----
-
-## Design principles
-
-1. **Filename is the single source of truth.** Directory + filename define the state; frontmatter is redundant metadata.
-2. **Atomicity comes from `rename()`.** Nothing else. No locks, no transactions.
-3. **Human-machine isomorphism.** The same artefact a human reads with `cat` is what agents parse. No debug mode, no admin console.
-4. **Identity determines path.** The role slug in the filename _is_ the permission model. An agent whose identity doesn't match won't touch the file.
-5. **Infrastructure-free.** If you have a filesystem, you have FCoP. Works on a laptop, on a cluster, across machines via `rsync`.
-
-## Reference implementations
-
-Two official reference implementations, both MIT-licensed:
-
-1. **`fcop` / `fcop-mcp`** — Python library + MCP server for the protocol. Source in this repository under [`src/fcop/`](src/fcop/) and [`mcp/src/fcop_mcp/`](mcp/src/fcop_mcp/). Installed via PyPI (see section above).
-2. **Stub path**: `spec/codeflow-core.mdc` is only a **URL placeholder** (no full body). **Normative** rules are `src/fcop/rules/_data/fcop-rules.mdc` + `fcop-protocol.mdc`.
-
-## Status & versioning
-
-- **Current release**: `v3.2.5` (2026-05-30) — Rule 0.a collaboration cycle / Hot-Cold Path update. See [`docs/releases/3.2.5.md`](docs/releases/3.2.5.md) and [`CHANGELOG.md`](CHANGELOG.md).
-- **Normative spec**: [`spec/fcop-3.0-spec.md`](spec/fcop-3.0-spec.md) — single-page canonical (v3.0; supersedes v1.0/v1.1 drafts retained for history) · machine-readable contracts in [`spec/schemas/`](spec/schemas/) (8 schemas)
-- **Agent rules (`.mdc`) in this repo**: [`src/fcop/rules/_data/fcop-rules.mdc`](src/fcop/rules/_data/fcop-rules.mdc) + [`fcop-protocol.mdc`](src/fcop/rules/_data/fcop-protocol.mdc) (`spec/codeflow-core.mdc` is a deprecated stub)
-- **Change log**: [`CHANGELOG.md`](CHANGELOG.md)
-- **Research snapshot**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) archived on Zenodo with a citable DOI (see *How to cite* below).
-
-## How to cite
-
-For the current public `v3.2.5` release, use [DOI `10.5281/zenodo.20457285`](https://doi.org/10.5281/zenodo.20457285) together with [OSF Registration `92nwm`](https://osf.io/92nwm/) as the standard archive and immutable registration credentials.
-
-If you specifically cite the April 2026 research snapshot, use its original Zenodo record:
-
-- **DOI**: [`10.5281/zenodo.19886036`](https://doi.org/10.5281/zenodo.19886036)
-- **Snapshot tag**: [`research-snapshot-2026-04-29`](https://github.com/joinwell52-AI/FCoP/releases/tag/research-snapshot-2026-04-29) (commit `7f59395`)
-- **Machine-readable metadata**: [`CITATION.cff`](CITATION.cff) (GitHub auto-renders a *Cite this repository* button from this file in the right sidebar)
-
-```bibtex
-@misc{fcop2026snapshot,
-  author       = {Zhu, Wei},
-  title        = {{FCoP}: A Filename-as-Protocol coordination layer for multi-agent {AI} development (Research Snapshot, April 2026)},
-  month        = apr,
-  year         = 2026,
-  publisher    = {Zenodo},
-  version      = {research-snapshot-2026-04-29},
-  doi          = {10.5281/zenodo.19886036},
-  url          = {https://doi.org/10.5281/zenodo.19886036}
-}
+```text
+create_task(branch_of=...)
+inspect_task(include_family_digest=true)
+write_report(attempt_id=...)
+write_review(review_kind="convergence", family_digest=..., references=...)
+archive_task(review_ref=..., family_digest=...)
 ```
 
-For citations of individual essays or tutorials, the same DOI applies — please reference the essay's filename (e.g. `essays/what-agents-say-about-fcop.en.md`) and the snapshot version in your citation note.
+Create a Root and two Branches. Complete each Branch with its current `attempt_id` REPORT and acceptance authorization, then complete the Root. Query the canonical family digest, append a convergence REVIEW referencing Branch REPORT heads, and archive the Root with convergence evidence and a separate digest-bound T7 authorization. Core revalidates under the family lock. Changed digest or reused authorization is rejected. REPORT/REVIEW remain immutable.
 
-## Contributing
+## Versioned rules and compatibility
 
-This repository is intentionally small and stable. Protocol evolution happens through real-world reports, not committee edits. The highest-leverage contributions are:
+Nine bilingual modules form 18 canonical rule files and one Manifest. Assemblies: `sequential`, `parallel`, `repository-development`. Business-agent rules and repository-development rules are separate. Static Host profiles select deterministic `reference` / `bounded_embed` projections. Adoption, zero-write plan, deployment receipt and rollback are explicit. No Host probing, automatic migration or background service. Disk, index, adoption, Host entry and Runtime consumption are separate facts.
 
-1. **Field reports.** Try FCoP on your own agent team and open an issue with what broke, what the agents invented, what naming conventions emerged.
-2. **Ports & SDKs.** Thin wrappers for Python / TypeScript / Go that implement the filename parser and `rename()` state transitions.
-3. **Editor / MCP integrations.** Syntax highlighting for `.fcop` files, MCP bridges that expose the folder to other agent runtimes.
+## Documentation and history
 
-PRs to the spec itself should link to the concrete problem they're solving.
+- [4.0 EN](spec/fcop-4.0-spec.md) / [4.0 ZH](spec/fcop-4.0-spec.zh.md)
+- [3.x EN](spec/fcop-v3-spec.md) / [3.x ZH](spec/fcop-v3-spec.zh.md)
+- [MCP tools](docs/mcp-tools.md) / [MCP Adapter](mcp/README.md)
+- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](examples/v4/third-party/python-only/app.py)
+- [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
+- [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
+- [License](LICENSE) / [Citation](CITATION.cff)
+- Legacy installation prompts only: [EN](src/fcop/rules/_data/agent-install-prompt.en.md) / [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md), also discoverable at `fcop://prompt/install`. These historical prompts do not authorize RC installation or migration.
 
-## License
+Historical tutorials describe their stated versions, not automatic 4.0 upgrades. The stable 3.2.5 archive is [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285), registered at [OSF 92nwm](https://osf.io/92nwm/). Neither identifies the unpublished RC; no new DOI or Registry record is created here.
 
-MIT — see [LICENSE](LICENSE).
+## Release boundary
 
-## Credits
-
-FCoP emerged from hands-on collaboration with multi-agent Cursor-style workflows. Many of the conventions in this spec were first invented by those agents and then codified here. Details are in the [field report](essays/when-ai-organizes-its-own-work.en.md).
+WP4E Phase A prepares documentation, reproducible artifacts, real clients and a fail-closed release dry-run. **No main merge or publishing.** ADMIN must accept `FCOP_4_RC_RELEASE_READY`; actual merge, tag, PyPI upload and GitHub Pre-release still require explicit Phase B authorization and protected publishing controls. Stable release is not authorized.

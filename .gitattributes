@@ -1,0 +1,6 @@
+spec/schemas/v4/*.schema.json text eol=lf
+src/fcop/_data/schemas/v4/*.schema.json text eol=lf
+spec/fcop-4.0-spec.md text eol=lf
+spec/fcop-4.0-spec.zh.md text eol=lf
+src/fcop/rules/_data/v4/manifest.json text eol=lf
+src/fcop/rules/_data/v4/*.md text eol=lf

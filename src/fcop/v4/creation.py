@@ -1,0 +1,1050 @@
+"""Private creation/append plane; trusted issuer validation is shared with consumption."""
+
+from __future__ import annotations
+
+import os
+import re
+import tempfile
+from collections.abc import Callable, Mapping, Sequence
+from datetime import datetime, timezone
+from pathlib import Path
+from types import MappingProxyType
+from typing import Any
+from uuid import UUID, uuid4
+
+from fcop.core.config import parse_team_config
+from fcop.errors import ConfigError, V4ProtocolError, _V4Code
+from fcop.v4.encoding import (
+    BUCKETS,
+    ID_RE,
+    OP_RE,
+    STAGES,
+    canonical,
+    digest,
+    envelope_bytes,
+    fail,
+    normalize,
+    operation_lock,
+    parse_envelope,
+    parse_json,
+    publish,
+    publish_directory,
+    read_json,
+    safe_path,
+    strict_text,
+    supported_local,
+    sync_directory,
+)
+
+_UNSET = object()
+
+
+def _uuid(value: Any) -> bool:
+    try:
+        return isinstance(value, str) and UUID(value).urn == value
+    except ValueError:
+        return False
+
+
+def _manifest(value: dict[str, Any]) -> dict[str, Any]:
+    if value.get("protocol") != "fcop":
+        raise fail(
+            _V4Code.UNSUPPORTED_PROTOCOL, "Expected protocol fcop", operation="open_workspace"
+        )
+    if value.get("protocol_version") != "4.0":
+        raise fail(
+            _V4Code.UNSUPPORTED_WORKSPACE_VERSION,
+            "Unsupported workspace version",
+            operation="open_workspace",
+        )
+    if value.get("encoding") != {"name": "fcop-filesystem", "version": "4.0"}:
+        raise fail(
+            _V4Code.UNSUPPORTED_ENCODING,
+            "Unsupported filesystem encoding",
+            operation="open_workspace",
+        )
+    profiles = value.get("profiles")
+    if (
+        not _uuid(value.get("workspace_id"))
+        or not isinstance(profiles, list)
+        or not all(isinstance(item, str) and item for item in profiles)
+        or len(set(profiles)) != len(profiles)
+    ):
+        raise fail(
+            _V4Code.INVALID_ENVELOPE,
+            "Invalid workspace identity or adopted Profile set",
+            operation="open_workspace",
+        )
+    from fcop.v4.schema import _validate
+
+    _validate("workspace", value)
+    return value
+
+
+def _request(kwargs: Mapping[str, Any], allowed: set[str], required: set[str]) -> dict[str, Any]:
+    # No business request can carry judging logic, even through nesting.
+    def check(value: Any) -> None:
+        if callable(value):
+            raise fail(
+                _V4Code.AUTHORIZATION_INVALID, "Business requests cannot carry authority evaluators"
+            )
+        if isinstance(value, Mapping):
+            for key, nested in value.items():
+                if key in {
+                    "evaluator",
+                    "policy",
+                    "trusted_profiles",
+                    "profile_result",
+                    "profile_evaluator",
+                    "profile_resolver",
+                    "profile_registry",
+                    "authorization_evaluator",
+                    "caller_judge",
+                    "host_allowlist_match",
+                }:
+                    raise fail(_V4Code.AUTHORIZATION_INVALID, "Caller judging logic is forbidden")
+                check(nested)
+        elif isinstance(value, (tuple, list)):
+            for nested in value:
+                check(nested)
+
+    check(kwargs)
+    unknown = set(kwargs) - allowed
+    if unknown or required - set(kwargs):
+        raise fail(_V4Code.INVALID_ENVELOPE, "Unexpected or missing request fields")
+    return dict(kwargs)
+
+
+class _Creation:
+    """Private per-Project encoding context, not an independent public API."""
+
+    def __init__(
+        self,
+        root: Path,
+        manifest: dict[str, Any],
+        *,
+        invalid: bool = False,
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+    ) -> None:
+        self.root = root
+        self.manifest = manifest
+        self.invalid = invalid
+        self.trusted_profiles = MappingProxyType(dict(trusted_profiles or {}))
+        self._fault_plans: dict[str, tuple[str, bool]] = {}
+        self._returned_unprotected_operations: set[str] = set()
+
+    @classmethod
+    def open_if_declared(
+        cls,
+        root: Path,
+        *,
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+    ) -> _Creation | None:
+        path = root / "fcop" / "fcop.json"
+        if not path.exists() and not path.is_symlink():
+            return None
+        # Classification and formal reads share strict bytes and duplicate-key
+        # rejection. An ambiguous declaration must never reach a legacy writer.
+        try:
+            raw = safe_path(root, "fcop/fcop.json").read_bytes()
+            declaration = parse_json(raw, classification=True)
+        except (V4ProtocolError, OSError):
+            # Preserve legacy construction / is_initialized / config behavior,
+            # but never route an unclassifiable declaration to a legacy writer.
+            return cls(root, {}, invalid=True, trusted_profiles=trusted_profiles)
+        if "protocol" in declaration and declaration["protocol"] != "fcop":
+            raise fail(_V4Code.UNSUPPORTED_PROTOCOL, "Unrecognized protocol declaration")
+        if "protocol_version" not in declaration:
+            old_version = declaration.get("version")
+            if isinstance(old_version, str) and re.fullmatch(r"[123](?:\.\d+){0,2}", old_version):
+                # Historical v2 manifests used a semver string although the
+                # modern team-config parser expects an integer. Do not rewrite
+                # them or impose that newer parser on legacy writer routing.
+                return None
+            try:
+                legacy = parse_team_config(declaration, source=path)
+            except ConfigError:
+                return cls(root, {}, invalid=True, trusted_profiles=trusted_profiles)
+            if legacy.version in {1, 2, 3}:
+                return None
+            raise fail(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Unrecognized legacy version")
+        version = declaration["protocol_version"]
+        if isinstance(version, str) and re.fullmatch(r"[123](?:\.\d+){0,2}", version):
+            return None
+        strict_text(raw)
+        return cls(root, _manifest(declaration), trusted_profiles=trusted_profiles)
+
+    @classmethod
+    def create(
+        cls,
+        root: Path,
+        *,
+        protocol_version: str,
+        encoding: str,
+        profiles: Sequence[str],
+        trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+    ) -> _Creation:
+        if isinstance(profiles, (str, bytes)) or not isinstance(profiles, Sequence):
+            raise fail(
+                _V4Code.INVALID_ENVELOPE, "profiles must be an array", operation="create_workspace"
+            )
+        value = _manifest(
+            {
+                "protocol": "fcop",
+                "protocol_version": protocol_version,
+                "workspace_id": uuid4().urn,
+                "encoding": {"name": "fcop-filesystem", "version": "4.0"}
+                if encoding == "fcop-filesystem/4.0"
+                else encoding,
+                "profiles": list(profiles),
+            }
+        )
+        supported_local(root)
+        workspace = safe_path(root, "fcop")
+        if workspace.exists() or (root / "docs/agents").exists():
+            raise fail(
+                _V4Code.TARGET_ALREADY_EXISTS_DIFFERENT,
+                "Workspace already exists",
+                operation="create_workspace",
+            )
+        root.mkdir(parents=True, exist_ok=True)
+        if any(root.glob(".fcop-init-*")):
+            raise fail(
+                _V4Code.RECOVERY_REQUIRED,
+                "Unresolved initialization staging; evidence preserved",
+                operation="create_workspace",
+            )
+        try:
+            staging = Path(tempfile.mkdtemp(prefix=".fcop-init-", dir=root))
+            sync_directory(root)
+            publish(staging / "fcop.json", canonical(value) + b"\n")
+            for relative in [
+                *(f"_lifecycle/{stage}" for stage in STAGES),
+                *BUCKETS.values(),
+                "operations",
+                "cold",
+            ]:
+                directory = staging / relative
+                directory.mkdir(parents=True)
+                sync_directory(directory)
+                sync_directory(directory.parent)
+            sync_directory(staging)
+            publish_directory(staging, workspace)
+        except OSError as exc:
+            raise fail(
+                _V4Code.RECOVERY_REQUIRED,
+                "Workspace initialization interrupted; staging preserved",
+                operation="create_workspace",
+            ) from exc
+        return cls(root, value, trusted_profiles=trusted_profiles)
+
+    def handler(self, name: str) -> Callable[..., Any] | None:
+        from fcop.v4.reports import ReportQueries
+        from fcop.v4.rule_distribution import _bind
+
+        if self.invalid:
+            if name == "is_initialized":
+                return lambda: (self.root / "fcop/fcop.json").is_file()
+            return self._invalid_declaration
+        handlers: dict[str, Callable[..., Any]] = {
+            "is_initialized": lambda: (self.root / "fcop/fcop.json").is_file(),
+            "create_task": self.create_task,
+            "write_task": self.create_task,
+            "create_workspace": self.create_workspace,
+            "derive_workspace": self.derive_workspace,
+            "write_report": self.write_report,
+            "write_issue": self.write_issue,
+            "write_review": self.write_review,
+            "mark_human_approved": self.mark_human_approved,
+            "read_task": self.read_task,
+            "list_reports": ReportQueries(self).list_reports,
+            "read_report": ReportQueries(self).read_report,
+            "inspect_state": self.inspect_state,
+            "transition": self.transition,
+            "family_digest": self.family_digest,
+            "rule_distribution": _bind(self),
+            "recover_operation": self.recover_operation,
+            "inject_fault": self.inject_fault,
+            "export_archive": self.export_archive,
+            "finish_task": self.finish_task,
+        }
+        return handlers.get(name)
+
+    def _invalid_declaration(self, *args: Any, **kwargs: Any) -> Any:
+        raise fail(
+            _V4Code.INVALID_ENVELOPE, "Unreadable workspace manifest", operation="workspace_binding"
+        )
+
+    def transition(self, **kwargs: Any) -> dict[str, Any]:
+        if kwargs.get("tool") == "finish_task":
+            return self.finish_task(**kwargs)
+        from fcop.v4.lifecycle import Lifecycle
+
+        return Lifecycle(self).transition(**kwargs)
+
+    def finish_task(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        raise fail(
+            _V4Code.LEGACY_TRANSITION_NOT_ALLOWED,
+            "finish_task cannot operate on v4",
+            operation="finish_task",
+            subject=kwargs.get("task_id"),
+        )
+
+    def family_digest(self, *, root_task_id: str) -> str:
+        from fcop.v4.convergence import snapshot
+        from fcop.v4.linearization import family_boundary
+
+        self._check()
+        if not isinstance(root_task_id, str) or not root_task_id.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "Family subject must name a Root TASK")
+        with family_boundary(self.root, self.manifest["workspace_id"], root_task_id):
+            self._check()
+            family = snapshot(self, root_task_id)
+            return family.digest
+
+    def recover_operation(
+        self,
+        *,
+        operation_id: str,
+        source_path: Path | str,
+        target_path: Path | str,
+        receipt_path: Path | str | None = None,
+        filesystem: str = "local",
+    ) -> dict[str, Any]:
+        from fcop.v4.recovery import recover_operation
+
+        return recover_operation(
+            self,
+            operation_id=operation_id,
+            source_path=source_path,
+            target_path=target_path,
+            receipt_path=receipt_path,
+            filesystem=filesystem,
+        )
+
+    def inject_fault(self, *, operation: str, stage: str, once: bool = True) -> None:
+        self._check()
+        if (
+            operation not in {"transition", "export_archive"}
+            or stage not in {"PREPARED", "TARGET_DURABLE", "COMMITTED", "RESPONSE_LOST"}
+            or not isinstance(once, bool)
+        ):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid fault boundary")
+        self._fault_plans[operation] = (stage, once)
+
+    def _has_fault(self, operation: str) -> bool:
+        return operation in self._fault_plans
+
+    def _trigger_fault(self, operation: str, stage: str) -> None:
+        plan = self._fault_plans.get(operation)
+        if plan is None or plan[0] != stage:
+            return
+        if plan[1]:
+            del self._fault_plans[operation]
+        raise fail(
+            _V4Code.RECOVERY_REQUIRED,
+            f"Injected fault at durable {stage} boundary",
+            operation=operation,
+        )
+
+    def export_archive(self, *, task_id: str) -> dict[str, Any]:
+        self._check()
+        if not isinstance(task_id, str) or not task_id.startswith("TASK-"):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid TASK identity")
+        source, fields = self._resolve(task_id)
+        if fields["type"] != "TASK" or source.parent.name != "archive":
+            raise fail(
+                _V4Code.INVALID_TRANSITION,
+                "Cold export requires one archived TASK",
+                subject=task_id,
+            )
+        target = safe_path(self.root, f"fcop/cold/{task_id}.md")
+        data = source.read_bytes()
+        if target.exists() or target.is_symlink():
+            if not target.is_file() or target.read_bytes() != data:
+                raise fail(
+                    _V4Code.TARGET_ALREADY_EXISTS_DIFFERENT,
+                    "Cold target already contains different bytes",
+                    subject=task_id,
+                )
+            return {"task_id": task_id, "path": str(target), "existing": True}
+        self._trigger_fault("export_archive", "PREPARED")
+        publish(target, data)
+        self._trigger_fault("export_archive", "TARGET_DURABLE")
+        self._trigger_fault("export_archive", "COMMITTED")
+        result = {"task_id": task_id, "path": str(target), "existing": False}
+        self._trigger_fault("export_archive", "RESPONSE_LOST")
+        return result
+
+    def _check(self, workspace_id: str | None = None) -> None:
+        current = _manifest(read_json(safe_path(self.root, "fcop/fcop.json")))
+        if current != self.manifest:
+            raise fail(
+                _V4Code.WORKSPACE_ID_MISMATCH,
+                "Manifest changed after Project binding",
+                operation="workspace_binding",
+            )
+        if workspace_id is not None and workspace_id != self.manifest["workspace_id"]:
+            raise fail(
+                _V4Code.WORKSPACE_ID_MISMATCH,
+                "Request workspace identity mismatch",
+                operation="workspace_binding",
+            )
+        supported_local(self.root)
+        manifest_device = (self.root / "fcop/fcop.json").stat().st_dev
+        for relative in [
+            *(f"_lifecycle/{stage}" for stage in STAGES),
+            *BUCKETS.values(),
+            "operations",
+            "cold",
+        ]:
+            directory = safe_path(self.root, f"fcop/{relative}")
+            if not directory.is_dir():
+                raise fail(
+                    _V4Code.RECOVERY_REQUIRED,
+                    "Incomplete workspace layout",
+                    operation="workspace_binding",
+                )
+            if os.stat(directory).st_dev != manifest_device:
+                raise fail(
+                    _V4Code.UNSUPPORTED_FILESYSTEM,
+                    "Cross-device workspace layout",
+                    operation="workspace_binding",
+                )
+
+    def create_workspace(self, **kwargs: Any) -> dict[str, Any]:
+        raise fail(
+            _V4Code.TARGET_ALREADY_EXISTS_DIFFERENT,
+            "Workspace already exists",
+            operation="create_workspace",
+        )
+
+    def derive_workspace(
+        self, *, destination: Path | str, mode: str, retain_workspace_id: bool
+    ) -> dict[str, Any]:
+        self._check()
+        if retain_workspace_id:
+            raise fail(
+                _V4Code.WORKSPACE_ID_CLONE_CONFLICT,
+                "Writable derivation requires a new ID",
+                operation="derive_workspace",
+            )
+        if mode != "independent-writable":
+            raise fail(
+                _V4Code.INVALID_ENVELOPE,
+                "Unsupported derivation mode",
+                operation="derive_workspace",
+            )
+        target = Path(destination).absolute()
+        if target.is_relative_to(self.root) or self.root.is_relative_to(target):
+            raise fail(
+                _V4Code.RELATION_INVALID,
+                "Derivation cannot overlap source",
+                operation="derive_workspace",
+            )
+        # Derive configuration/identity, not a migration or a copy of old facts.
+        derived = self.create(
+            target,
+            protocol_version="4.0",
+            encoding="fcop-filesystem/4.0",
+            profiles=self.manifest["profiles"],
+            trusted_profiles=self.trusted_profiles,
+        )
+        return dict(derived.manifest)
+
+    def _paths(self, envelope_id: str) -> list[Path]:
+        if not isinstance(envelope_id, str) or not ID_RE.fullmatch(envelope_id):
+            raise fail(
+                _V4Code.RELATION_INVALID,
+                "Invalid typed envelope reference",
+                subject=str(envelope_id),
+            )
+        kind = envelope_id.split("-", 1)[0]
+        folders = [f"_lifecycle/{stage}" for stage in STAGES] if kind == "TASK" else [BUCKETS[kind]]
+        return [
+            path
+            for folder in folders
+            if (path := safe_path(self.root, f"fcop/{folder}/{envelope_id}.md")).exists()
+        ]
+
+    def _validate(self, fields: dict[str, Any], path: Path) -> dict[str, Any]:
+        kind = fields.get("type")
+        if kind not in {"TASK", "REPORT", "ISSUE", "REVIEW"}:
+            raise fail(
+                _V4Code.INVALID_ENVELOPE, "Not one of the four formal envelopes", subject=path.stem
+            )
+        if (
+            fields.get("protocol") != "fcop"
+            or type(fields.get("version")) is not int
+            or fields["version"] != 4
+        ):
+            raise fail(
+                _V4Code.INVALID_ENVELOPE, "Invalid envelope protocol/version", subject=path.stem
+            )
+        if fields.get("workspace_id") != self.manifest["workspace_id"]:
+            raise fail(
+                _V4Code.WORKSPACE_ID_MISMATCH, "Envelope identity mismatch", subject=path.stem
+            )
+        typed_id = fields.get(kind.lower() + "_id")
+        if (
+            not isinstance(typed_id, str)
+            or not ID_RE.fullmatch(typed_id)
+            or typed_id != path.stem
+            or not typed_id.startswith(kind + "-")
+        ):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Filename/type/ID mismatch", subject=path.stem)
+        if not all(
+            isinstance(fields.get(key), str) and fields[key] for key in ("sender", "recipient")
+        ):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Missing sender/recipient", subject=path.stem)
+        try:
+            stamp = fields.get("created_at")
+            if isinstance(stamp, str):
+                stamp = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+            if not isinstance(stamp, datetime) or stamp.utcoffset() is None:
+                raise ValueError("Timezone required")
+        except (ValueError, TypeError) as exc:
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid created_at", subject=path.stem) from exc
+        refs = fields.get("references", [])
+        if not isinstance(refs, list) or not all(isinstance(ref, str) and ref for ref in refs):
+            raise fail(
+                _V4Code.RELATION_INVALID,
+                "references must be an array of strings",
+                subject=path.stem,
+            )
+        from fcop.v4.schema import _validate
+
+        _validate(kind.lower(), fields)
+        return fields
+
+    def _resolve(
+        self, envelope_id: str, *, seen: frozenset[str] = frozenset()
+    ) -> tuple[Path, dict[str, Any]]:
+        paths = self._paths(envelope_id)
+        if len(paths) != 1:
+            raise fail(
+                _V4Code.STATE_AMBIGUOUS if len(paths) > 1 else _V4Code.RELATION_INVALID,
+                "Reference must resolve to exactly one envelope",
+                subject=envelope_id,
+            )
+        path = paths[0]
+        fields = self._validate(parse_envelope(path), path)
+        if envelope_id in seen:
+            raise fail(_V4Code.RELATION_INVALID, "Cyclic strong relation", subject=envelope_id)
+        for key in ("parent", "branch_of"):
+            target = fields.get(key)
+            if target is not None:
+                self._strong_task(target, seen=seen | {envelope_id})
+        return path, fields
+
+    def _strong_task(self, target: Any, *, seen: frozenset[str] = frozenset()) -> None:
+        if not isinstance(target, str) or not target.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "Strong TASK relation must name one TASK")
+        try:
+            self._resolve(target, seen=seen)
+        except V4ProtocolError as exc:
+            raise fail(
+                _V4Code.RELATION_INVALID, "Invalid strong TASK relation", subject=target
+            ) from exc
+
+    def _relations(self, fields: dict[str, Any]) -> list[dict[str, str]]:
+        for key in ("parent", "branch_of"):
+            if fields.get(key) is not None:
+                self._strong_task(fields[key])
+        if "subject_ref" in fields:
+            target = fields["subject_ref"]
+            if target != "workspace:" + self.manifest["workspace_id"]:
+                self._strong_task(target)
+        warnings = []
+        refs = fields.get("references", [])
+        if not isinstance(refs, (list, tuple)) or not all(
+            isinstance(ref, str) and ref for ref in refs
+        ):
+            raise fail(_V4Code.RELATION_INVALID, "Invalid references")
+        fields["references"] = sorted({normalize(ref) for ref in refs})
+        for ref in fields["references"]:
+            if "/" in ref or "\\" in ref or ".." in ref:
+                raise fail(_V4Code.RELATION_INVALID, "References are IDs, not paths", subject=ref)
+            try:
+                self._resolve(ref)
+            except V4ProtocolError:
+                warnings.append({"code": _V4Code.REFERENCE_UNRESOLVED, "subject_ref": ref})
+        return warnings
+
+    def _common(self, kind: str, sender: str, recipient: str) -> dict[str, Any]:
+        return {
+            "protocol": "fcop",
+            "version": 4,
+            "type": kind,
+            kind.lower() + "_id": kind + "-" + uuid4().hex,
+            "workspace_id": self.manifest["workspace_id"],
+            "sender": normalize(sender),
+            "recipient": normalize(recipient),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+    def create_task(self, **kwargs: Any) -> dict[str, Any]:
+        """Coordinate pure request planning and one short durable commit."""
+        plan = self._plan_create(kwargs)
+        return self._commit_create(plan)
+
+    def _plan_create(self, kwargs: Mapping[str, Any]) -> dict[str, Any]:
+        required = {"workspace_id", "operation_id", "sender", "recipient", "subject", "body"}
+        allowed = required | {
+            "operation_kind",
+            "priority",
+            "parent",
+            "branch_of",
+            "references",
+            "thread_key",
+            "risk_level",
+            "references_required_by_gate",
+        }
+        request = _request(kwargs, allowed, required)
+        self._check(request["workspace_id"])
+        opid = request["operation_id"]
+        if not isinstance(opid, str) or not OP_RE.fullmatch(opid):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid operation_id", operation=str(opid))
+        if request.get("operation_kind", "create_task") != "create_task":
+            raise fail(_V4Code.INVALID_ENVELOPE, "Wrong create operation kind", operation=opid)
+        for relation in ("parent", "branch_of"):
+            if request.get(relation) is not None and not isinstance(request[relation], str):
+                raise fail(
+                    _V4Code.RELATION_INVALID, "Strong relation must be a single ID", operation=opid
+                )
+        gate_required = request.get("references_required_by_gate", False)
+        if not isinstance(gate_required, bool):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid Gate reference requirement")
+        normalized = {
+            "contract": "fcop-create-task-v1",
+            "workspace_id": request["workspace_id"],
+            "operation_kind": "create_task",
+            "operation_id": opid,
+            **{key: normalize(request[key]) for key in ("sender", "recipient", "subject")},
+            "body": normalize(request["body"]).rstrip("\n") + "\n",
+            "priority": normalize(request.get("priority", "P2")),
+            "parent": normalize(request["parent"]) if request.get("parent") is not None else None,
+            "branch_of": normalize(request["branch_of"])
+            if request.get("branch_of") is not None
+            else None,
+            "references": request.get("references", []),
+        }
+        warnings = self._relations(normalized)
+        if gate_required and warnings:
+            raise fail(
+                _V4Code.REFERENCE_UNRESOLVED,
+                "Gate-required reference is unresolved",
+                operation=opid,
+                subject=warnings[0]["subject_ref"],
+            )
+        if normalized["priority"] not in {"P0", "P1", "P2", "P3"} or not all(
+            normalized[key] for key in ("subject", "sender", "recipient")
+        ):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Invalid TASK fields", operation=opid)
+        from fcop.v4.schema import _validate
+
+        _validate("create-request-canonical", normalized)
+        request_digest = digest(canonical(normalized))
+        key = digest(
+            canonical(
+                {
+                    name: normalized[name]
+                    for name in ("workspace_id", "operation_kind", "operation_id")
+                }
+            )
+        )
+        fields = self._common("TASK", normalized["sender"], normalized["recipient"])
+        fields.update(
+            {
+                name: normalized[name]
+                for name in (
+                    "subject",
+                    "priority",
+                    "parent",
+                    "branch_of",
+                    "references",
+                    "operation_id",
+                    "operation_kind",
+                )
+            }
+        )
+        fields["normalized_request_digest"] = request_digest
+        fields["transitions"] = [
+            {
+                "at": fields["created_at"],
+                "from": None,
+                "to": "inbox",
+                "by": fields["sender"],
+                "tool": "create_task",
+            }
+        ]
+        path = safe_path(self.root, f"fcop/_lifecycle/inbox/{fields['task_id']}.md")
+        self._validate(fields, path)
+        data = envelope_bytes(fields, normalized["body"])
+        fact = {
+            "contract": "fcop-create-task-v1",
+            "key": key,
+            "workspace_id": request["workspace_id"],
+            "operation_kind": "create_task",
+            "operation_id": opid,
+            "task_id": fields["task_id"],
+            "path": path.relative_to(self.root).as_posix(),
+            "digest": request_digest,
+            "content_digest": digest(data),
+        }
+        _validate("create-operation", parse_json(canonical(fact)))
+        return {
+            "fact": fact,
+            "data": data,
+            "warnings": warnings,
+            "branch_of": normalized["branch_of"],
+        }
+
+    def _commit_create(self, plan: dict[str, Any]) -> dict[str, Any]:
+        branch_of = plan["branch_of"]
+        if branch_of is None:
+            return self._commit_create_operation(plan)
+        from fcop.v4.linearization import family_boundary
+
+        with family_boundary(self.root, self.manifest["workspace_id"], branch_of):
+            self._check(plan["fact"]["workspace_id"])
+            root_path, root_fields = self._resolve(branch_of)
+            if root_fields.get("branch_of") is not None:
+                raise fail(
+                    _V4Code.BRANCH_DEPTH_EXCEEDED,
+                    "A Branch cannot be a Branch Root",
+                    subject=branch_of,
+                )
+            if root_path.parent.name != "active":
+                raise fail(
+                    _V4Code.ROOT_NOT_ACTIVE,
+                    "Branch Root must be uniquely active",
+                    subject=branch_of,
+                )
+            return self._commit_create_operation(plan)
+
+    def _commit_create_operation(self, plan: dict[str, Any]) -> dict[str, Any]:
+        planned_fact = plan["fact"]
+        opid, key = planned_fact["operation_id"], planned_fact["key"]
+        request_digest = planned_fact["digest"]
+        warnings = plan["warnings"]
+        operations = safe_path(self.root, "fcop/operations")
+        fact_path = safe_path(self.root, f"fcop/operations/create-{key}.json")
+        lock_path = safe_path(self.root, f"fcop/operations/create-{key}.lock")
+        with operation_lock(lock_path):
+            self._check(planned_fact["workspace_id"])
+            # Scan durable records under the key lock, including duplicates at
+            # noncanonical filenames. Never accept a copied/conflicting fact.
+            matching = []
+            for path in operations.glob("*.json"):
+                try:
+                    fact = read_json(safe_path(self.root, path.relative_to(self.root).as_posix()))
+                except V4ProtocolError as exc:
+                    raise fail(
+                        _V4Code.RECOVERY_REQUIRED, "Unreadable operation fact", operation=opid
+                    ) from exc
+                if fact.get("key") == key:
+                    matching.append((path, fact))
+            if len(matching) > 1 or (matching and matching[0][0] != fact_path):
+                raise fail(_V4Code.RECOVERY_REQUIRED, "Duplicate operation facts", operation=opid)
+            if fact_path.exists():
+                fact = read_json(fact_path)
+                from fcop.v4.schema import _validate
+
+                _validate("create-operation", fact, code=_V4Code.RECOVERY_REQUIRED)
+                if (
+                    not matching
+                    or fact.get("operation_id") != opid
+                    or fact.get("workspace_id") != planned_fact["workspace_id"]
+                    or fact.get("operation_kind") != "create_task"
+                ):
+                    raise fail(
+                        _V4Code.RECOVERY_REQUIRED, "Operation identity damaged", operation=opid
+                    )
+                if fact.get("digest") != request_digest:
+                    raise fail(
+                        _V4Code.OPERATION_ID_CONFLICT,
+                        "Operation key already has a different digest",
+                        operation=opid,
+                    )
+                try:
+                    relative = fact["path"]
+                    if (
+                        not isinstance(relative, str)
+                        or "\\" in relative
+                        or any(part in {"", ".", ".."} for part in relative.split("/"))
+                        or relative != f"fcop/_lifecycle/inbox/{fact['task_id']}.md"
+                    ):
+                        raise fail(_V4Code.RECOVERY_REQUIRED, "Noncanonical operation path")
+                    initial_path = safe_path(self.root, relative)
+                    path, fields = self._resolve(fact["task_id"])
+                    valid = (
+                        path == initial_path
+                        and digest(path.read_bytes()) == fact["content_digest"]
+                        and fields.get("operation_id") == opid
+                        and fields.get("normalized_request_digest") == request_digest
+                        and fields.get("operation_kind") == "create_task"
+                    )
+                except (KeyError, V4ProtocolError) as exc:
+                    raise fail(
+                        _V4Code.RECOVERY_REQUIRED, "Operation result is unprovable", operation=opid
+                    ) from exc
+                if not valid:
+                    raise fail(
+                        _V4Code.RECOVERY_REQUIRED,
+                        "Operation result differs from durable fact",
+                        operation=opid,
+                    )
+                return {
+                    "task_id": fact["task_id"],
+                    "path": str(path),
+                    "digest": request_digest,
+                    "existing": True,
+                    "warnings": warnings,
+                }
+            for stage in STAGES:
+                for path in safe_path(self.root, f"fcop/_lifecycle/{stage}").glob("TASK-*.md"):
+                    old = parse_envelope(
+                        safe_path(self.root, path.relative_to(self.root).as_posix())
+                    )
+                    if (
+                        old.get("operation_id") == opid
+                        and old.get("operation_kind") == "create_task"
+                    ):
+                        raise fail(
+                            _V4Code.RECOVERY_REQUIRED,
+                            "TASK exists without its durable operation fact",
+                            operation=opid,
+                        )
+            if list(operations.glob(f".fcop-create-{fact_path.stem}-*.tmp")):
+                raise fail(
+                    _V4Code.RECOVERY_REQUIRED,
+                    "Incomplete operation publication evidence",
+                    operation=opid,
+                )
+            path = safe_path(self.root, planned_fact["path"])
+            publish(path, plan["data"])
+            publish(fact_path, canonical(planned_fact) + b"\n")
+            return {
+                "task_id": planned_fact["task_id"],
+                "path": str(path),
+                "digest": request_digest,
+                "existing": False,
+                "warnings": warnings,
+            }
+
+    def _append(self, kind: str, kwargs: dict[str, Any]) -> dict[str, Any]:
+        common = {"workspace_id", "sender", "recipient", "body", "subject_ref"}
+        required = (
+            common
+            | {
+                "REPORT": {"attempt_id", "report_kind", "result"},
+                "ISSUE": {"severity"},
+                "REVIEW": {"review_kind", "decision"},
+            }[kind]
+        )
+        allowed = required | {"references"}
+        if kind == "REVIEW":
+            allowed |= {
+                "attempt_id",
+                "family_digest",
+                "authorization_ref",
+                "profile_ref",
+                "transition",
+                "issued_at",
+                "expires_at",
+                "authorization_scope",
+                "operation_kind",
+                "issuer_proof",
+            }
+        request = _request(kwargs, allowed, required)
+        self._check(request["workspace_id"])
+        fields = self._common(kind, request["sender"], request["recipient"])
+        for key, value in request.items():
+            if key not in common or key == "subject_ref":
+                fields[key] = normalize(value) if isinstance(value, str) else value
+        warnings = self._relations(fields)
+        path = safe_path(self.root, f"fcop/{BUCKETS[kind]}/{fields[kind.lower() + '_id']}.md")
+        self._validate(fields, path)
+        data = envelope_bytes(fields, request["body"])
+        publish(path, data)
+        return {
+            kind.lower() + "_id": fields[kind.lower() + "_id"],
+            "path": str(path),
+            "warnings": warnings,
+        }
+
+    def write_report(self, **kwargs: Any) -> dict[str, Any]:
+        from fcop.v4.lifecycle import current_attempt, family_root_for, report_head
+        from fcop.v4.linearization import family_boundary
+
+        self._check(kwargs.get("workspace_id"))
+        subject = kwargs.get("subject_ref")
+        if not isinstance(subject, str) or not subject.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "REPORT subject must name a TASK")
+        root_id = family_root_for(self, subject)
+        with family_boundary(self.root, self.manifest["workspace_id"], root_id):
+            self._check(kwargs.get("workspace_id"))
+            if family_root_for(self, subject) != root_id:
+                raise fail(_V4Code.RECOVERY_REQUIRED, "Family identity changed across lock")
+            if root_id != subject:
+                root_path, _ = self._resolve(root_id)
+                if root_path.parent.name == "archive":
+                    raise fail(
+                        _V4Code.INVALID_TRANSITION,
+                        "An archived Root freezes Branch REPORT state",
+                    )
+            task_path, task_fields = self._resolve(subject)
+            request_attempt = kwargs.get("attempt_id")
+            if not isinstance(request_attempt, str):
+                raise fail(_V4Code.INVALID_ENVELOPE, "REPORT attempt must be a UUID URN")
+            try:
+                task_attempt = current_attempt(task_fields)
+            except V4ProtocolError as exc:
+                if (
+                    exc.code != _V4Code.ATTEMPT_MISMATCH.value
+                    or task_path.parent.name != "inbox"
+                ):
+                    raise
+                task_attempt = None
+            if task_attempt is not None and request_attempt != task_attempt:
+                raise fail(_V4Code.ATTEMPT_MISMATCH, "REPORT attempt is not current")
+            existing = [
+                item
+                for item in safe_path(self.root, "fcop/reports").glob("REPORT-*.md")
+                if (
+                    (old := self._validate(parse_envelope(item), item)).get("subject_ref")
+                    == subject
+                    and old.get("attempt_id") == request_attempt
+                )
+            ]
+            kind = kwargs.get("report_kind")
+            if kind == "final" and existing:
+                raise fail(_V4Code.REPORT_HEAD_AMBIGUOUS, "Final REPORT already exists")
+            if kind == "replacement":
+                head_path, head = report_head(self, subject, request_attempt)
+                del head_path
+                same_attempt_refs = [
+                    ref for ref in kwargs.get("references", [])
+                    if ref in {old.stem for old in existing}
+                ]
+                if same_attempt_refs != [head["report_id"]]:
+                    raise fail(
+                        _V4Code.REPORT_HEAD_AMBIGUOUS,
+                        "Replacement must reference the unique current head",
+                    )
+            return self._append("REPORT", kwargs)
+
+    def write_issue(self, **kwargs: Any) -> dict[str, Any]:
+        return self._append("ISSUE", kwargs)
+
+    def write_review(self, **kwargs: Any) -> dict[str, Any]:
+        if kwargs.get("review_kind") != "convergence":
+            return self._append("REVIEW", kwargs)
+        from fcop.v4.convergence import validate_convergence_request
+        from fcop.v4.linearization import family_boundary
+
+        subject = kwargs.get("subject_ref")
+        if not isinstance(subject, str) or not subject.startswith("TASK-"):
+            raise fail(_V4Code.RELATION_INVALID, "Convergence subject must name a Root TASK")
+        with family_boundary(self.root, self.manifest["workspace_id"], subject):
+            self._check(kwargs.get("workspace_id"))
+            if kwargs.get("decision") != "approved":
+                raise fail(_V4Code.FAMILY_CONVERGENCE_MISMATCH, "Convergence must be approved")
+            family = validate_convergence_request(
+                self, subject, kwargs.get("family_digest"), kwargs.get("references")
+            )
+            if family.root_path.parent.name != "done":
+                raise fail(
+                    _V4Code.INVALID_TRANSITION,
+                    "Convergence may only be recorded while the Root is done",
+                )
+            return self._append("REVIEW", kwargs)
+
+    def mark_human_approved(
+        self, *, review_id: str, decision: str, approver: str, profile_ref: str,
+        from_stage: str | None = None, to_stage: str | None = None,
+        attempt_id: str | None = None, family_digest: str | None = None,
+        issued_at: str | None = None, expires_at: Any = _UNSET,
+        issuer_proof: Any = None, comment: str = "", **extra: Any,
+    ) -> dict[str, Any]:
+        from fcop.v4 import authorization
+        from fcop.v4.authorization import _review, _time, validate_profile_issuer
+        from fcop.v4.convergence import snapshot
+        from fcop.v4.lifecycle import current_attempt, family_root_for
+        from fcop.v4.linearization import family_boundary
+
+        self._check()
+        if extra or decision not in {"authorize", "approve", "approved"}:
+            raise fail(_V4Code.AUTHORIZATION_INVALID, "Unexpected fields or non-affirmative decision")
+        edge = (from_stage, to_stage)
+        if edge not in {("review", "done"), ("review", "active"), ("done", "active"), ("done", "archive")}:
+            raise fail(_V4Code.AUTHORIZATION_INVALID, "Invalid authorized edge")
+        _, initial, _ = _review(self, review_id)
+        subject = initial["subject_ref"]
+        root_id = family_root_for(self, subject)
+        with family_boundary(self.root, self.manifest["workspace_id"], root_id):
+            self._check()
+            old_path, old, old_digest = _review(self, review_id)
+            if old["subject_ref"] != subject or family_root_for(self, subject) != root_id:
+                raise fail(_V4Code.RECOVERY_REQUIRED, "Authorization subject changed across lock")
+            task_path, task = self._resolve(subject)
+            if task["type"] != "TASK" or task_path.parent.name != from_stage:
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization source does not match TASK")
+            self._relations(task)
+            task_digest = digest(task_path.read_bytes())
+            family_bound = False
+            if edge == ("done", "archive") and subject == root_id:
+                family = snapshot(self, root_id, require_terminal=True)
+                family_bound = bool(family.branches)
+                if family_bound and family_digest != family.digest:
+                    raise fail(_V4Code.FAMILY_CONVERGENCE_MISMATCH, "Invalid authorization family digest")
+            if not family_bound and family_digest is not None:
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Unexpected family binding")
+            current = current_attempt(task)
+            if (attempt_id != current and not (family_bound and attempt_id is None)) or (
+                old.get("attempt_id") is not None and old["attempt_id"] != current
+            ):
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization attempt mismatch")
+            issued = _time(issued_at, field="issued_at")
+            expires = _time(expires_at, field="expires_at") if expires_at is not None else None
+            if expires is not None and expires < issued:
+                raise fail(_V4Code.AUTHORIZATION_INVALID, "Authorization time range is invalid")
+            if expires is not None and expires < authorization._utc_now():
+                raise fail(_V4Code.AUTHORIZATION_EXPIRED, "Authorization already expired")
+            candidate = self._common("REVIEW", approver, old["recipient"])
+            candidate.update(
+                subject_ref=subject, review_kind="authorization", decision="authorize",
+                profile_ref=profile_ref, references=[review_id], attempt_id=attempt_id,
+                family_digest=family_digest, transition={"from": from_stage, "to": to_stage},
+                issued_at=issued_at, expires_at=expires_at, issuer_proof=issuer_proof,
+                operation_kind="lifecycle_transition", authorization_scope="single_use",
+            )
+            path = safe_path(self.root, f"fcop/reviews/{candidate['review_id']}.md")
+            self._validate(candidate, path)
+            warnings = self._relations(candidate)
+            data = envelope_bytes(candidate, comment)
+            validate_profile_issuer(self, candidate)
+            if expires is not None and expires < authorization._utc_now():
+                raise fail(_V4Code.AUTHORIZATION_EXPIRED, "Authorization expired before publication")
+            if digest(old_path.read_bytes()) != old_digest or digest(task_path.read_bytes()) != task_digest:
+                raise fail(_V4Code.EVIDENCE_DIGEST_MISMATCH, "Authorization inputs changed before publication")
+            publish(path, data)
+            return {"review_id": candidate["review_id"], "path": str(path), "warnings": warnings}
+
+    def read_task(
+        self, filename_or_id: str | None = None, *, task_id: str | None = None
+    ) -> dict[str, Any]:
+        self._check()
+        identity = task_id or filename_or_id
+        if not isinstance(identity, str) or not identity.startswith("TASK-"):
+            raise fail(_V4Code.INVALID_ENVELOPE, "Expected TASK ID")
+        path, fields = self._resolve(identity)
+        return {**fields, "path": str(path)}
+
+    def inspect_state(
+        self, *, task_id: str | None = None, envelope_path: str | Path | None = None
+    ) -> dict[str, Any]:
+        from fcop.v4.lifecycle import Lifecycle
+
+        return Lifecycle(self).inspect_state(task_id=task_id, envelope_path=envelope_path)
