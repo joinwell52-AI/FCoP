@@ -38,7 +38,7 @@ python -c "from importlib.metadata import version; print(version('fcop'), versio
 
 Stable 精确组合为 `fcop==4.0.0 / fcop-mcp==4.0.0`；适配器依赖声明为 `fcop>=4.0.0,<4.1.0`。不得混装不同发布线。现有 3.x 工作区保持原语义；安装不授权迁移、重新部署规则或升级下游。
 
-## 最小 Python 入口（已核验候选）
+## 最小 Python 入口（已核验 4.0）
 
 ```python
 from pathlib import Path
@@ -58,7 +58,7 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
     print(first["task_id"])
 ```
 
-## 最小 MCP 入口（已核验候选）
+## 最小 MCP 入口（已核验 4.0）
 
 ```json
 {
@@ -98,7 +98,7 @@ archive_task(review_ref=..., family_digest=...)
 - [4.0 EN](spec/fcop-4.0-spec.md) / [4.0 ZH](spec/fcop-4.0-spec.zh.md)
 - [3.x EN](spec/fcop-v3-spec.md) / [3.x ZH](spec/fcop-v3-spec.zh.md)
 - [MCP tools](docs/mcp-tools.md) / [MCP Adapter](mcp/README.md)
-- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](examples/v4/third-party/python-only/app.py)
+- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](tests/stable/third-party/python-only/app.py)
 - [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
 - [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
 - [License](LICENSE) / [Citation](CITATION.cff)

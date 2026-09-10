@@ -10,6 +10,10 @@ versioning strategy.
 
 ## [Unreleased]
 
+No additional feature changes.
+
+## [4.0.0] — 2026-09-10
+
 ### Changed — fcop / fcop-mcp
 
 - WP4F promotes the accepted RC to the `4.0.0 / 4.0.0` Stable pair,

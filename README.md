@@ -38,7 +38,7 @@ python -c "from importlib.metadata import version; print(version('fcop'), versio
 
 The exact Stable pair is `fcop==4.0.0 / fcop-mcp==4.0.0`; the adapter declares `fcop>=4.0.0,<4.1.0`. Do not mix release lines. Existing 3.x workspaces keep their original semantics; installing does not authorize migration, rule redeployment or downstream upgrades.
 
-## Minimal Python entry (verified candidate)
+## Minimal Python entry (verified 4.0)
 
 ```python
 from pathlib import Path
@@ -58,7 +58,7 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
     print(first["task_id"])
 ```
 
-## Minimal MCP entry (verified candidate)
+## Minimal MCP entry (verified 4.0)
 
 ```json
 {
@@ -98,7 +98,7 @@ Nine bilingual modules form 18 canonical rule files and one Manifest. Assemblies
 - [4.0 EN](spec/fcop-4.0-spec.md) / [4.0 ZH](spec/fcop-4.0-spec.zh.md)
 - [3.x EN](spec/fcop-v3-spec.md) / [3.x ZH](spec/fcop-v3-spec.zh.md)
 - [MCP tools](docs/mcp-tools.md) / [MCP Adapter](mcp/README.md)
-- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](examples/v4/third-party/python-only/app.py)
+- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](tests/stable/third-party/python-only/app.py)
 - [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
 - [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
 - [License](LICENSE) / [Citation](CITATION.cff)
