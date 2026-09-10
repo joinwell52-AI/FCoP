@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FCoP Core 到底是什么：从工具箱中提炼最小工作内核 · FCoP</title>
+<meta name="description" content="FCoP Core 到底是什么：从工具箱中提炼最小工作内核。FCoP 架构原理系列全文，按 4.0 契约修订。">
+<link rel="canonical" href="https://joinwell52-ai.github.io/FCoP/fcop-architecture-series/02-minimal-core.zh.html">
+<meta property="og:title" content="FCoP Core 到底是什么：从工具箱中提炼最小工作内核">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://joinwell52-ai.github.io/FCoP/fcop-architecture-series/02-minimal-core.zh.html">
+<link rel="icon" href="../site-assets/fcop-logo-256.png">
+<link rel="stylesheet" href="../site-assets/site.css">
+</head>
+<body class="reading-page">
+<a class="skip-link" href="#main">跳转正文</a>
+<header class="topbar"><div class="wrap nav-row">
+<a class="brand" href="../?lang=zh"><img src="../site-assets/fcop-logo-256.png" width="34" height="34" alt=""><span>FCoP<span class="brand-version">4.0</span></span></a>
+<nav aria-label="阅读导航"><a href="../?lang=zh">首页</a><a href="index.html">架构五篇</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-architecture-series/02-minimal-core.zh.md">GitHub ↗</a></nav>
+</div></header>
+<div class="reading-layout">
+<aside class="reading-toc" aria-label="文章目录"><h2>本文目录</h2><ol><li><a href="#一core-不是所有已经实现的东西">一、Core 不是“所有已经实现的东西”</a></li><li><a href="#二判断是不是-core只问一个问题">二、判断是不是 Core，只问一个问题</a></li><li><a href="#三第一个-core-原理正式工作行为必须外化">三、第一个 Core 原理：正式工作行为必须外化</a></li><li><a href="#四task正式委派">四、TASK：正式委派</a></li><li><a href="#五report正式交付">五、REPORT：正式交付</a></li><li><a href="#六issue正式问题">六、ISSUE：正式问题</a></li><li><a href="#七review正式审查">七、REVIEW：正式审查</a></li><li><a href="#八actor-与-attribution">八、Actor 与 Attribution</a></li><li><a href="#九reference工作对象必须能建立关系">九、Reference：工作对象必须能建立关系</a></li><li><a href="#十lifecycle当前状态与历史">十、Lifecycle：当前状态与历史</a></li><li><a href="#十一branch-relation-如何进入-core">十一、Branch Relation 如何进入 Core</a></li><li><a href="#十二core-最重要的不变量">十二、Core 最重要的不变量</a></li><li><a href="#十三哪些明确不是-core">十三、哪些明确不是 Core？</a></li><li><a href="#十四文件是不是-core">十四、文件是不是 Core？</a></li><li><a href="#十五40-将-core-冻结为-c1c8">十五、4.0 将 Core 冻结为 C1–C8</a></li><li><a href="#十六core-小并不意味着-fcop-功能少">十六、Core 小，并不意味着 FCoP 功能少</a></li><li><a href="#结语先知道什么不能变">结语：先知道什么不能变</a></li><li><a href="#实现与延伸阅读">实现与延伸阅读</a></li></ol></aside>
+<main class="article-content" id="main">
+<h1 id="fcop-core-到底是什么从工具箱中提炼最小工作内核">FCoP Core 到底是什么：从工具箱中提炼最小工作内核</h1>
+<p><a href="index.html">系列目录</a> · 第 2 / 5 篇 · <a href="01-work-beyond-context.zh.html">上一篇</a> · <a href="03-architecture-layers.zh.html">下一篇</a> · <a href="collected.zh.html">五篇合集</a></p>
+<p>原稿：2026-09-01 · 发布修订：2026-09-10 · 对齐 FCoP 4.0.0</p>
+<blockquote>
+<p>本文解释架构取舍；字段、迁移与错误以 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 契约</a>为准，版本状态见 <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0">4.0.0 发布说明</a>。原始设计建议已按当前版本修订；示意流程不等于可直接执行的 API 示例。</p>
+</blockquote>
+<p>FCoP 发展到今天，已经不再只有几份规则。</p>
+<p>它有 Library，有 MCP，有生命周期，有审查，有历史，也有越来越多用于真实工程的工具。</p>
+<p>问题随之出现：</p>
+<blockquote>
+<p><strong>哪些东西是 FCoP，哪些东西只是 FCoP 提供的工具？</strong></p>
+</blockquote>
+<p>如果这个问题不解决，协议每增加一个能力，Core 就会跟着膨胀。</p>
+<p>最后可能得到一个功能越来越丰富的工具箱，却越来越难回答：</p>
+<blockquote>
+<p><strong>FCoP 最本质的东西究竟是什么？</strong></p>
+</blockquote>
+<p>4.0 已将这一方向落实为 C1–C8 契约。下面先解释提炼 Core 的理由，再把概念映射到当前版本的完整要求。</p>
+<hr />
+<h2 id="一core-不是所有已经实现的东西">一、Core 不是“所有已经实现的东西”</h2>
+<p>一个基础系统通常同时拥有：</p>
+<pre><code class="language-text">核心语义
+公开合同
+SDK
+工具
+参考实现
+产品
+</code></pre>
+<p>这些不能混成一层。</p>
+<p>Windows 有大量 API、SDK、PowerShell 命令、调试器和管理工具，但它们的总和不等于 Windows Kernel。</p>
+<p>同样：</p>
+<pre><code class="language-text">fcop Python Library
+fcop-mcp
+CLI
+Validator
+Migration
+Audit
+Merge Helper
+</code></pre>
+<p>都可以属于 FCoP 生态。</p>
+<p>但它们不能自动成为 FCoP Core。</p>
+<p>否则：</p>
+<pre><code class="language-text">新增一个 MCP Tool
+=
+协议增加一个核心概念
+</code></pre>
+<p>Core 最终一定会失控。</p>
+<hr />
+<h2 id="二判断是不是-core只问一个问题">二、判断是不是 Core，只问一个问题</h2>
+<p>假设有一个第三方开发者：</p>
+<ul>
+<li>不安装官方 <code>fcop</code> Python 包；</li>
+<li>不使用 <code>fcop-mcp</code>；</li>
+<li>不使用 CodeFlowMu；</li>
+<li>只拿到 FCoP Specification。</li>
+</ul>
+<p>然后他用 TypeScript、Go 或 Rust 自己实现。</p>
+<p>这时候应该问：</p>
+<blockquote>
+<p><strong>为了让这个实现与官方实现表达相同的工作意义，他必须理解哪些概念？</strong></p>
+</blockquote>
+<p>这些跨实现必须一致的语义才有资格进入 Core。4.0 的边界还包括持久授权、创建幂等和可恢复原子语义，不限于对象名称。</p>
+<p>反过来，如果一个能力不用理解也能保持相同工作语义，它就不是 Core。</p>
+<p>这是非常重要的分界线。</p>
+<hr />
+<h2 id="三第一个-core-原理正式工作行为必须外化">三、第一个 Core 原理：正式工作行为必须外化</h2>
+<p>FCoP 最底层的问题并不是任务管理。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>Agent 的正式工作行为不能只存在于 Agent 上下文里。</strong></p>
+</blockquote>
+<p>因此可以把 FCoP 的第一条核心不变量写成：</p>
+<blockquote>
+<p><strong>Formal agent work behavior must be externalized into durable, attributable and inspectable work facts.</strong></p>
+</blockquote>
+<p>中文就是：</p>
+<blockquote>
+<p><strong>Agent 的正式工作行为必须外化为持久、可归属、可检查的工作事实。</strong></p>
+</blockquote>
+<p>文件是当前 reference realization。</p>
+<p>更底层的 Core 是：</p>
+<pre><code class="language-text">Behavior
+   ↓
+Externalization
+   ↓
+Work Fact
+</code></pre>
+<hr />
+<h2 id="四task正式委派">四、TASK：正式委派</h2>
+<p>第一个最小对象是：</p>
+<pre><code class="language-text">TASK
+</code></pre>
+<p>为什么它属于 Core？</p>
+<p>因为：</p>
+<pre><code class="language-text">“你顺便把测试跑一下。”
+</code></pre>
+<p>与：</p>
+<pre><code class="language-text">TASK-xxx
+</code></pre>
+<p>不是同一类工作事实。</p>
+<p>前者是语言。</p>
+<p>后者意味着：</p>
+<blockquote>
+<p>一个正式工作对象被创建并进入可追踪的工作世界。</p>
+</blockquote>
+<p>Core 不要求第三方复制官方 Python 类的方法签名；但规范规定的逻辑操作名称、字段、摘要和错误语义必须保持一致。例如创建摘要中的 <code>operation_kind</code> 在 4.0 固定为 <code>create_task</code>。</p>
+<p>它只需要规定：</p>
+<blockquote>
+<p><strong>什么条件下，一个对象在 FCoP 语义中构成正式 TASK。</strong></p>
+</blockquote>
+<hr />
+<h2 id="五report正式交付">五、REPORT：正式交付</h2>
+<p>第二个对象是：</p>
+<pre><code class="language-text">REPORT
+</code></pre>
+<p>它解决：</p>
+<blockquote>
+<p>执行者的“我做完了”如何成为正式交付？</p>
+</blockquote>
+<p>因此：</p>
+<pre><code class="language-text">Message
+≠
+REPORT
+</code></pre>
+<p>同时：</p>
+<pre><code class="language-text">REPORT
+≠
+Accepted
+</code></pre>
+<p>REPORT 记录的交付主张是：</p>
+<blockquote>
+<p>有一个 Actor 针对某项正式工作提交了结果。</p>
+</blockquote>
+<p>记录中的 Actor 归属需要结合来源和授权证据检查，不能仅凭姓名字符串证明实际操作者。</p>
+<p>它不自动证明：</p>
+<blockquote>
+<p>结果是真的。</p>
+</blockquote>
+<p>也不自动证明：</p>
+<blockquote>
+<p>结果已被组织接受。</p>
+</blockquote>
+<p>这个区分应该长期稳定，因此属于 Core。</p>
+<hr />
+<h2 id="六issue正式问题">六、ISSUE：正式问题</h2>
+<p>第三个对象：</p>
+<pre><code class="language-text">ISSUE
+</code></pre>
+<p>Agent 在聊天中说：</p>
+<pre><code class="language-text">“这里可能有问题。”
+</code></pre>
+<p>并不能保证后续工作持续记住这个风险。</p>
+<p>ISSUE 的意义是：</p>
+<blockquote>
+<p><strong>把问题本身外化成独立工作事实。</strong></p>
+</blockquote>
+<p>因此：</p>
+<pre><code class="language-text">Concern
+  ↓
+ISSUE
+</code></pre>
+<p>意味着：</p>
+<blockquote>
+<p>即使提出问题的 Agent 离开，问题也不能静默消失。</p>
+</blockquote>
+<hr />
+<h2 id="七review正式审查">七、REVIEW：正式审查</h2>
+<p>第四个对象：</p>
+<pre><code class="language-text">REVIEW
+</code></pre>
+<p>如果执行者：</p>
+<pre><code class="language-text">执行
+↓
+自己判断完成
+↓
+自己宣布通过
+</code></pre>
+<p>那么系统并没有真正表达“独立审查”。</p>
+<p>REVIEW 的 Core 含义不是规定：</p>
+<blockquote>
+<p>所有任务都必须由 QA 审查。</p>
+</blockquote>
+<p>而是：</p>
+<blockquote>
+<p><strong>协议能够表达另一个工作主体对既有交付进行了正式审查。</strong></p>
+</blockquote>
+<p>所以：</p>
+<pre><code class="language-text">REPORT
+≠
+REVIEW
+</code></pre>
+<p>4.0 中，REVIEW 还可以表达授权、退回、重开、归档、汇合等事实；不是所有 REVIEW 都只是内容审稿。验收需要绑定当前 attempt 与 REPORT，并通过已采纳 Profile 的可信签发者判断，单独写一个“approved”字段不够。</p>
+<p>至于 Reviewer 叫：</p>
+<pre><code class="language-text">QA
+PM
+Human
+Judge Agent
+External Reviewer
+</code></pre>
+<p>属于 Profile，不属于 Core。</p>
+<hr />
+<h2 id="八actor-与-attribution">八、Actor 与 Attribution</h2>
+<p>既然 FCoP 外化的是工作行为，就必须回答：</p>
+<blockquote>
+<p><strong>谁做的？</strong></p>
+</blockquote>
+<p>一个没有归属的报告只有内容，没有责任来源。</p>
+<p>因此 Core 至少需要：</p>
+<pre><code class="language-text">Actor
+Attribution
+</code></pre>
+<p>但 Core 不应该固定：</p>
+<pre><code class="language-text">PM
+DEV
+QA
+OPS
+EVAL
+ADMIN
+</code></pre>
+<p>这些是某种组织模型。</p>
+<p>Core 只要求：</p>
+<blockquote>
+<p>正式工作行为能够归属到明确 Actor。</p>
+</blockquote>
+<hr />
+<h2 id="九reference工作对象必须能建立关系">九、Reference：工作对象必须能建立关系</h2>
+<p>TASK、REPORT、ISSUE、REVIEW 如果彼此没有引用，只是一堆独立文件。</p>
+<p>FCoP 必须能表达：</p>
+<pre><code class="language-text">REPORT 属于哪个 TASK？
+ISSUE 针对什么工作？
+REVIEW 审查什么交付？
+一个 TASK 是否由另一个 TASK 派生？
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Reference
+</code></pre>
+<p>属于 Core。</p>
+<p>它使工作不再是一系列孤立记录，而形成可以重建的工作关系。</p>
+<hr />
+<h2 id="十lifecycle当前状态与历史">十、Lifecycle：当前状态与历史</h2>
+<p>正式工作除了“是什么”，还必须表达：</p>
+<pre><code class="language-text">现在在哪里？
+怎么来到这里？
+</code></pre>
+<p>因此 Core 需要：</p>
+<pre><code class="language-text">Lifecycle
+Transition
+History
+</code></pre>
+<p>当前文件实现可以使用路径表达 NOW、transition 记录历史。</p>
+<p>但：</p>
+<pre><code class="language-text">claim_task()
+submit_task()
+archive_task()
+</code></pre>
+<p>这些 API 名称不是 Core。</p>
+<p>它们是参考 SDK 的操作表面；其对应的逻辑迁移仍受规范约束。4.0 没有 <code>active → done</code> 直达边，进入 <code>active</code> 会生成新 attempt，提交与验收分别经过 T3/T4，archive 是终态。</p>
+<hr />
+<h2 id="十一branch-relation-如何进入-core">十一、Branch Relation 如何进入 Core</h2>
+<p>当多个 Agent 参与同一个 Root 工作时，不应该让所有 Agent 同时修改一个共享权威对象。</p>
+<p>更稳健的方法是：</p>
+<pre><code class="language-text">ROOT TASK
+├─ TASK A
+├─ TASK B
+└─ TASK C
+</code></pre>
+<p>其中每条 Branch 仍然是普通 TASK，只增加来源关系：</p>
+<pre><code class="language-yaml">branch_of: ROOT
+</code></pre>
+<p>因此：</p>
+<pre><code class="language-text">Branch relation
+</code></pre>
+<p>在 4.0 中属于 C4。</p>
+<p>Core 需要表达的是：</p>
+<blockquote>
+<p><strong>一个正式 TASK 可以由另一个 TASK 派生，并独立形成自己的工作串。</strong></p>
+</blockquote>
+<p>4.0 只允许同一 Root 下的同级 Branch；Branch 不能再成为 Branch Root。Core 不规定复杂度评分或 Git 合并算法，但 C5/C8 明确约束汇合证据、Root 归档条件和短暂任务族提交边界。</p>
+<hr />
+<h2 id="十二core-最重要的不变量">十二、Core 最重要的不变量</h2>
+<p>把以上概念进一步压缩，可以形成一组帮助理解设计的原则。下面的十点不是完整的 4.0 符合性清单，完整边界见第十五节 C1–C8：</p>
+<pre><code class="language-text">1. 正式工作不能只依赖模型上下文存在。
+
+2. TASK 与普通消息不同。
+
+3. REPORT 与普通消息不同。
+
+4. REPORT 不自动等于 Accepted。
+
+5. ISSUE 一旦正式产生，不能被后续过程静默抹除。
+
+6. REVIEW 与被审查的交付是不同工作事实。
+
+7. 当前状态必须存在唯一可检查表达。
+
+8. 状态迁移必须可追溯。
+
+9. 正式行为必须可以归属到 Actor。
+
+10. 派生工作必须保留来源关系。
+</code></pre>
+<p>这些比任何具体工具名都更接近 FCoP Core。</p>
+<hr />
+<h2 id="十三哪些明确不是-core">十三、哪些明确不是 Core？</h2>
+<p>一旦 Core 被提炼出来，大量功能就可以重新归类。</p>
+<p>例如：</p>
+<pre><code class="language-text">复杂度评分公式
+警告阈值
+MCP 工具名
+Python Project API
+具体 checkpoint 格式
+Runtime 的调度重试策略
+Git merge 的具体算法
+CodeFlowMu 的 PM/QA/EVAL 固定角色
+轨道机
+</code></pre>
+<p>这些具体实现或政策可能非常重要，但不是每个兼容实现都必须复制的算法。需要区分：C7 的持久创建幂等、C8 的恢复行为与阶段、授权迁移丢失响应后的重试规则，仍然是 4.0 Core 要求，不能整体归入可选工具。</p>
+<p>因此应该进入：</p>
+<pre><code class="language-text">Toolkit
+Policy
+Profile
+Runtime
+</code></pre>
+<p>而不是继续塞入 Core。</p>
+<hr />
+<h2 id="十四文件是不是-core">十四、文件是不是 Core？</h2>
+<p>这是最需要谨慎的地方。</p>
+<p>今天 FCoP 是 file-first 的。</p>
+<p>文件的优势非常真实：</p>
+<pre><code class="language-text">Agent 能读
+人能读
+脚本能读
+IDE 能读
+Git 能追踪
+</code></pre>
+<p>因此文件系统应该继续作为：</p>
+<blockquote>
+<p><strong>FCoP 的 reference carrier。</strong></p>
+</blockquote>
+<p>但如果把理论继续往下抽象，最不可丢失的并不是 <code>.md</code> 后缀。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>正式工作行为必须被持久外化。</strong></p>
+</blockquote>
+<p>未来可以研究 SQLite 或其他存储编码，但保持这些对象名称只是起点。4.0 Base 目前限定具有可靠本地语义的受支持文件系统；新编码还需逐项满足 C1–C8、定义可观察行为并提供符合性证据，不能仅凭概念一致宣称兼容。</p>
+<p>所以：</p>
+<blockquote>
+<p>文件是今天最重要的载体。</p>
+</blockquote>
+<blockquote>
+<p>行为外化才是最底层 Core 原理。</p>
+</blockquote>
+<hr />
+<h2 id="十五40-将-core-冻结为-c1c8">十五、4.0 将 Core 冻结为 C1–C8</h2>
+<p>前面讨论的 Actor、对象、关系与状态提供了理解入口，正式实现还必须回答身份、证据、权限、重复请求和部分失败问题。4.0 用八项契约固定这些要求：</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>契约</th>
+<th>必须保持的工作语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1 工作区身份</td>
+<td>稳定 workspace ID，以及显式 fork 的身份边界。</td>
+</tr>
+<tr>
+<td>C2 四类信封</td>
+<td>TASK、REPORT、ISSUE、REVIEW 的结构、归属与追加事实。</td>
+</tr>
+<tr>
+<td>C3 生命周期</td>
+<td>单一权威路径、七条合法迁移、追加事件；没有 active → done。</td>
+</tr>
+<tr>
+<td>C4 关系</td>
+<td>parent、branch_of、subject_ref、references；Branch 仅限同级。</td>
+</tr>
+<tr>
+<td>C5 证据与收敛</td>
+<td>当前 attempt、有效 REPORT、验收证据及 Root 的汇合条件。</td>
+</tr>
+<tr>
+<td>C6 持久授权</td>
+<td>绑定工作与证据的 REVIEW，由已采纳 Profile 判断签发权限。</td>
+</tr>
+<tr>
+<td>C7 创建幂等</td>
+<td>创建 TASK/Branch 使用稳定 operation_id 和规范化请求摘要。</td>
+</tr>
+<tr>
+<td>C8 原子恢复</td>
+<td>持久回执、明确恢复分类、拒绝歧义以及任务族的短暂提交边界。</td>
+</tr>
+</tbody>
+</table></div>
+<p>完整条款见 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 规范 §2–§9、§13</a>。对象语义、兼容性要求与 Python/MCP 工具目录分别维护，不能用工具数量替代契约覆盖。</p>
+<hr />
+<h2 id="十六core-小并不意味着-fcop-功能少">十六、Core 小，并不意味着 FCoP 功能少</h2>
+<p>成熟基础系统通常是：</p>
+<pre><code class="language-text">Core
+很小
+
+Toolkit
+很强
+</code></pre>
+<p>下面列出的是生态工具的分类方向，不是 4.0 安装包逐项交付清单：</p>
+<pre><code class="language-text">Python SDK
+MCP Server
+CLI
+Inspector
+Migration
+Audit
+Merge Helper
+Branch Helper
+Recovery Helper
+Conformance Suite
+Adapters
+</code></pre>
+<p>甚至工具数量继续增加也没有问题。</p>
+<p>因为：</p>
+<blockquote>
+<p><strong>工具数量不再等于协议复杂度。</strong></p>
+</blockquote>
+<p>真正需要多年保持稳定的，是 Core。</p>
+<hr />
+<h2 id="结语先知道什么不能变">结语：先知道什么不能变</h2>
+<p>软件升级最容易做的是增加功能。</p>
+<p>最难的是知道：</p>
+<blockquote>
+<p><strong>哪些东西不应该跟着功能一起变化？</strong></p>
+</blockquote>
+<p>对于 FCoP，这个答案正在变得清楚。</p>
+<p>它不是某一个 Python 类。</p>
+<p>不是几十个 MCP Tool。</p>
+<p>不是 PM、DEV、QA 的固定组织结构。</p>
+<p>也不是某个复杂度算法。</p>
+<p>它最底层的承诺是：</p>
+<blockquote>
+<p><strong>Agent 的正式工作行为必须脱离模型上下文，成为持久、可归属、可检查、可追溯的工作事实。</strong></p>
+</blockquote>
+<p>TASK、REPORT、ISSUE、REVIEW、关系与生命周期构成理解这套工作语言的入口；4.0 还通过 C1–C8 约束身份、授权、证据、创建幂等和原子恢复。</p>
+<p>工具可以变化。</p>
+<p>Runtime 可以变化。</p>
+<p>模型可以变化。</p>
+<p>Host 可以变化。</p>
+<p>但如果这些工作事实依然成立，FCoP 的 Core 就还在那里。</p>
+<hr />
+<h2 id="实现与延伸阅读">实现与延伸阅读</h2>
+<ul>
+<li><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 规范</a>：核对 C1–C8、授权、幂等与恢复条款。</li>
+<li><a href="https://github.com/joinwell52-AI/FCoP/tree/main/src/fcop/v4">Python v4 实现</a>与<a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance">符合性测试</a>：核对契约的具体落点。</li>
+<li><a href="../index.html#start">快速试用</a> · <a href="../index.html#mcp">MCP 接入</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/architecture.zh.md">架构概览</a>。</li>
+</ul>
+<p><a href="index.html">系列目录</a> · 第 2 / 5 篇 · <a href="01-work-beyond-context.zh.html">上一篇</a> · <a href="03-architecture-layers.zh.html">下一篇</a> · <a href="collected.zh.html">五篇合集</a></p>
+
+<p class="source-link">正文与仓库版本保持同步 · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-architecture-series/02-minimal-core.zh.md">查看 Markdown 源文件 ↗</a></p>
+</main></div>
+<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><a href="https://github.com/joinwell52-AI/FCoP/">☆ Star FCoP</a></div></footer>
+</body>
+</html>

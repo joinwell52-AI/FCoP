@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层 · FCoP</title>
+<meta name="description" content="FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层。FCoP 架构原理系列全文，按 4.0 契约修订。">
+<link rel="canonical" href="https://joinwell52-ai.github.io/FCoP/fcop-architecture-series/03-architecture-layers.zh.html">
+<meta property="og:title" content="FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://joinwell52-ai.github.io/FCoP/fcop-architecture-series/03-architecture-layers.zh.html">
+<link rel="icon" href="../site-assets/fcop-logo-256.png">
+<link rel="stylesheet" href="../site-assets/site.css">
+</head>
+<body class="reading-page">
+<a class="skip-link" href="#main">跳转正文</a>
+<header class="topbar"><div class="wrap nav-row">
+<a class="brand" href="../?lang=zh"><img src="../site-assets/fcop-logo-256.png" width="34" height="34" alt=""><span>FCoP<span class="brand-version">4.0</span></span></a>
+<nav aria-label="阅读导航"><a href="../?lang=zh">首页</a><a href="index.html">架构五篇</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-architecture-series/03-architecture-layers.zh.md">GitHub ↗</a></nav>
+</div></header>
+<div class="reading-layout">
+<aside class="reading-toc" aria-label="文章目录"><h2>本文目录</h2><ol><li><a href="#一windows-给出的启示平台不等于工具总和">一、Windows 给出的启示：平台不等于工具总和</a></li><li><a href="#二第一层fcop-core">二、第一层：FCoP Core</a></li><li><a href="#三第二层fcop-specification">三、第二层：FCoP Specification</a></li><li><a href="#四第三层conformance">四、第三层：Conformance</a></li><li><a href="#五第四层fcop-toolkit">五、第四层：FCoP Toolkit</a></li><li><a href="#六第五层profile">六、第五层：Profile</a></li><li><a href="#七第六层runtime">七、第六层：Runtime</a></li><li><a href="#八完整结构">八、完整结构</a></li><li><a href="#九用这个分层重新看-branch">九、用这个分层重新看 Branch</a></li><li><a href="#十复杂度评分属于-toolkit-或-policy">十、复杂度评分属于 Toolkit 或 Policy</a></li><li><a href="#十一角色属于-profile">十一、角色属于 Profile</a></li><li><a href="#十二merge-要区分语义和参考实现">十二、Merge 要区分“语义”和“参考实现”</a></li><li><a href="#十三工具多不是问题混层才是问题">十三、工具多不是问题，混层才是问题</a></li><li><a href="#十四40-已经如何落实这条路线">十四、4.0 已经如何落实这条路线？</a></li><li><a href="#十五后续演进继续遵守契约优先">十五、后续演进继续遵守契约优先</a></li><li><a href="#结语强大的系统核心通常很小">结语：强大的系统，核心通常很小</a></li><li><a href="#实现与延伸阅读">实现与延伸阅读</a></li></ol></aside>
+<main class="article-content" id="main">
+<h1 id="fcop-不等于它的工具corespecificationtoolkitprofile-与-runtime-如何分层">FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层</h1>
+<p><a href="index.html">系列目录</a> · 第 3 / 5 篇 · <a href="02-minimal-core.zh.html">上一篇</a> · <a href="04-parallel-work.zh.html">下一篇</a> · <a href="collected.zh.html">五篇合集</a></p>
+<p>原稿：2026-09-01 · 发布修订：2026-09-10 · 对齐 FCoP 4.0.0</p>
+<blockquote>
+<p>本文解释架构取舍；字段、迁移与错误以 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 契约</a>为准，版本状态见 <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0">4.0.0 发布说明</a>。原始设计建议已按当前版本修订；示意流程不等于可直接执行的 API 示例。</p>
+</blockquote>
+<p>当一个系统只有几个功能时，人们很少讨论分层。</p>
+<p>但当它逐渐拥有：</p>
+<pre><code class="language-text">Library
+MCP
+Schema
+Lifecycle
+Audit
+Migration
+Validation
+Branch
+Merge
+Recovery
+</code></pre>
+<p>问题就出现了：</p>
+<blockquote>
+<p><strong>这些东西是不是全部都属于 FCoP 本身？</strong></p>
+</blockquote>
+<p>如果答案一直是“是”，FCoP 最终就会变成一个不断膨胀的整体。</p>
+<p>这并不是功能太多的问题。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>核心、合同、工具、组织配置和运行时没有被明确分开。</strong></p>
+</blockquote>
+<hr />
+<h2 id="一windows-给出的启示平台不等于工具总和">一、Windows 给出的启示：平台不等于工具总和</h2>
+<p>Windows 拥有大量：</p>
+<pre><code class="language-text">API
+SDK
+PowerShell
+CMD
+Debugger
+Sysinternals
+Visual Studio
+Management Tools
+</code></pre>
+<p>但开发者不会认为：</p>
+<blockquote>
+<p>PowerShell 就是 Windows Kernel。</p>
+</blockquote>
+<p>因为它们处在不同层。</p>
+<p>可以简化成：</p>
+<pre><code class="language-text">Windows Core
+      ↓
+Platform Contract / API
+      ↓
+SDK
+      ↓
+Tools
+      ↓
+Applications
+</code></pre>
+<p>一个开发者开发 Windows 软件，并不需要使用微软所有工具。</p>
+<p>他真正必须遵守的是：</p>
+<blockquote>
+<p>Windows 对外提供的平台合同。</p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">文件有什么语义
+进程如何创建
+权限如何判断
+API 的输入输出如何解释
+</code></pre>
+<p>至于使用 C++、Rust、Python、Visual Studio 还是其他工具，并不改变这一点。</p>
+<p>FCoP 也需要同样的分层。</p>
+<hr />
+<h2 id="二第一层fcop-core">二、第一层：FCoP Core</h2>
+<p>最底层是：</p>
+<pre><code class="language-text">FCoP Core
+</code></pre>
+<p>Core 不应该包含某个具体 Python API，也不应该包含所有 MCP Tool。</p>
+<p>它定义：</p>
+<blockquote>
+<p><strong>FCoP 工作世界里哪些概念具有稳定意义。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">Actor
+TASK
+REPORT
+ISSUE
+REVIEW
+
+Reference
+Attribution
+Branch
+
+Lifecycle
+Transition
+History
+</code></pre>
+<p>以及最基本的原则：</p>
+<blockquote>
+<p>正式 Agent 工作行为必须被外化。</p>
+</blockquote>
+<p>以上是概念层的理解入口。正式 4.0 Core 为 C1–C8：工作区身份、四类信封、生命周期、关系、证据与汇合、持久授权、创建幂等和原子恢复。Core 应该小而稳定，但不能省去错误、授权和部分失败语义。</p>
+<hr />
+<h2 id="三第二层fcop-specification">三、第二层：FCoP Specification</h2>
+<p>Core 定义必须共同遵守的语义与不变量。</p>
+<p>要让别人可以独立实现，需要：</p>
+<pre><code class="language-text">Specification
+</code></pre>
+<p>Specification 回答：</p>
+<pre><code class="language-text">什么叫合法 TASK？
+REPORT 如何引用 TASK？
+哪些状态迁移合法？
+当前状态怎样表达？
+历史怎样保留？
+Branch 与 Root 的关系如何表达？
+</code></pre>
+<p>它类似一个平台公开合同。</p>
+<p>第三方真正需要遵守的是：</p>
+<blockquote>
+<p><strong>Specification。</strong></p>
+</blockquote>
+<p>而不是复制官方 Python 源代码。</p>
+<hr />
+<h2 id="四第三层conformance">四、第三层：Conformance</h2>
+<p>如果只有规范，没有符合性测试，很容易出现：</p>
+<pre><code class="language-text">Python 认为合法
+TypeScript 认为非法
+第三方实现又有第三种解释
+</code></pre>
+<p>因此还需要：</p>
+<pre><code class="language-text">Conformance Suite
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">TASK parsing              PASS
+TASK lifecycle            PASS
+REPORT reference          PASS
+Illegal transition        PASS
+Branch relation           PASS
+History reconstruction    PASS
+</code></pre>
+<p>这样第三方才能真正回答：</p>
+<blockquote>
+<p><strong>我的实现是不是 FCoP-compatible？</strong></p>
+</blockquote>
+<p>上面的 PASS 列表示意测试覆盖项，不是新增测试的运行结果。Conformance 是横跨实现的验证平面，而非每次操作必经的一层服务。成熟基础层需要可验证兼容；可从仓库的<a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance">符合性测试</a>核对具体证据。</p>
+<hr />
+<h2 id="五第四层fcop-toolkit">五、第四层：FCoP Toolkit</h2>
+<p>再往上才是大量实际工具：</p>
+<pre><code class="language-text">FCoP Toolkit
+</code></pre>
+<p>以下是工具分类示例，包含可发展方向，不是当前版本的完整交付清单：</p>
+<pre><code class="language-text">Python SDK
+MCP Server
+CLI
+Validator
+Inspector
+Migration
+Audit
+Branch helper
+Merge helper
+Recovery helper
+</code></pre>
+<p>Toolkit 的职责不是定义 FCoP 是什么。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>让开发者更容易正确实现和使用 FCoP。</strong></p>
+</blockquote>
+<p>例如 <code>Project.create_task(...)</code> 是 SDK 入口；这里省略必需参数，实际可运行代码见 <a href="../index.html#start">README 示例</a>。</p>
+<p>Core 要求的是：</p>
+<blockquote>
+<p>最终产生的 TASK 符合规范。</p>
+</blockquote>
+<p>所以：</p>
+<pre><code class="language-text">API 名称
+≠
+协议语义
+</code></pre>
+<hr />
+<h2 id="六第五层profile">六、第五层：Profile</h2>
+<p>再往上是：</p>
+<pre><code class="language-text">Profile
+</code></pre>
+<p>Profile 描述：</p>
+<blockquote>
+<p>某个具体组织怎样使用 FCoP。</p>
+</blockquote>
+<p>CodeFlowMu 可以定义：</p>
+<pre><code class="language-text">PM
+DEV
+QA
+OPS
+EVAL
+ADMIN
+</code></pre>
+<p>以及：</p>
+<pre><code class="language-text">谁能创建 TASK
+谁能提交 REPORT
+谁负责 REVIEW
+谁负责协调
+谁只能观察
+谁拥有人工最终权限
+</code></pre>
+<p>这些设计可以非常重要。</p>
+<p>但它们属于：</p>
+<blockquote>
+<p><strong>CodeFlowMu 的组织 Profile。</strong></p>
+</blockquote>
+<p>不是所有 FCoP 实现必须采用的角色结构。</p>
+<p>其他系统完全可以定义：</p>
+<pre><code class="language-text">Lead
+Researcher
+Reviewer
+Human
+</code></pre>
+<p>或者：</p>
+<pre><code class="language-text">Planner
+Worker
+Validator
+</code></pre>
+<p>但“声明谁有权限”与“权限被可信宿主验证”是两回事。4.0 工作区需显式采纳授权 Profile，由可信宿主注册签发者评估器；只有 <code>AUTHORIZED</code> 通过。角色名或请求中的 <code>profile_ref</code> 不能自行赋权，缺少可用 Profile 时 T4–T7 会拒绝执行。</p>
+<hr />
+<h2 id="七第六层runtime">七、第六层：Runtime</h2>
+<p>最后是：</p>
+<pre><code class="language-text">Runtime
+</code></pre>
+<p>Runtime 解决：</p>
+<pre><code class="language-text">Agent 什么时候启动？
+使用哪个模型？
+Session 怎么保持？
+Worker 挂了怎么办？
+Lease 怎么恢复？
+Timer 怎么触发？
+响应丢失以后怎么重试？
+Host 怎么连接？
+</code></pre>
+<p>这些问题很重要。</p>
+<p>但它们不是：</p>
+<blockquote>
+<p>“工作行为是什么意思？”</p>
+</blockquote>
+<p>它们属于：</p>
+<blockquote>
+<p><strong>工作怎样真正运行。</strong></p>
+</blockquote>
+<p>CodeFlowMu 的产品定位位于这一层。上述是 Runtime 职责分类，实际功能和版本支持应查看 <a href="https://github.com/joinwell52-AI/CodeflowMu-Distribution/releases">CodeflowMu-Distribution</a>。</p>
+<p>因此：</p>
+<pre><code class="language-text">FCoP
+≠
+CodeFlowMu
+</code></pre>
+<p>一个定义正式工作表达。</p>
+<p>另一个让 Agent 真正持续执行这些工作。</p>
+<hr />
+<h2 id="八完整结构">八、完整结构</h2>
+<p>可以按依赖与职责理解，而不是把所有名字画成一条运行调用链：</p>
+<pre><code class="language-text">Runtime（模型、会话、调度、工具执行与界面）
+    │ 使用
+    ├── Toolkit（Python 实现、MCP 适配及工具）
+    └── Profile（显式采纳的组织与授权策略）
+              │ 必须遵守
+Specification（字段、迁移、错误与可观察行为）
+              │ 精确表达
+Core C1–C8（跨实现不变量）
+
+Conformance：横向验证实现是否满足规范
+</code></pre>
+<p>Profile 的授权判断参与指定迁移，但不能改变 Base 状态机。Conformance 检查契约，并不负责日常调度。这样每层可以独立增长，同时保持共同工作语义。</p>
+<hr />
+<h2 id="九用这个分层重新看-branch">九、用这个分层重新看 Branch</h2>
+<p>Branch 很适合作为分层示例。</p>
+<p>关系层可以用下面的省略示意表达：</p>
+<pre><code class="language-yaml">branch_of: ROOT
+</code></pre>
+<p>它表示：</p>
+<blockquote>
+<p>这个 TASK 是某个 Root TASK 派生的独立工作线。</p>
+</blockquote>
+<p>这是工作事实，4.0 在 C4 固定了 sibling-only 关系，在 C5/C8 固定了汇合和提交边界；并非只增加一个字段就完成全部语义。</p>
+<p>而：</p>
+<pre><code class="language-text">create_task(..., branch_of=root_task_id)
+</code></pre>
+<p>只是 SDK API。</p>
+<p>两者不应该混同。</p>
+<hr />
+<h2 id="十复杂度评分属于-toolkit-或-policy">十、复杂度评分属于 Toolkit 或 Policy</h2>
+<p>如果为了避免 Branch 失控，引入：</p>
+<pre><code class="language-text">branch_count
+overlap_count
+unresolved_count
+</code></pre>
+<p>这些客观事实可以成为工具输入。</p>
+<p>但如果进一步定义：</p>
+<pre><code class="language-text">score = 某个权重公式
+warn = 某个阈值
+reject = 某个阈值
+</code></pre>
+<p>这已经是策略。</p>
+<p>策略未来应该能够调整，而不需要修改 TASK、REPORT 或 REVIEW 的含义。</p>
+<p>因此它更适合：</p>
+<pre><code class="language-text">Toolkit
+或
+CodeFlowMu Policy
+</code></pre>
+<p>而不是 Core。</p>
+<hr />
+<h2 id="十一角色属于-profile">十一、角色属于 Profile</h2>
+<p>如果某个实现规定：</p>
+<pre><code class="language-text">PM 负责协调
+QA 负责审查
+EVAL 只能观察
+ADMIN 负责最终授权
+</code></pre>
+<p>这是一个具体组织设计。</p>
+<p>FCoP Core 更应该表达：</p>
+<pre><code class="language-text">Actor
+Authority
+Attribution
+</code></pre>
+<p>然后 Profile 再映射：</p>
+<pre><code class="language-text">decision authority = PM
+review authority = QA
+observer = EVAL
+human authority = ADMIN
+</code></pre>
+<p>这样 FCoP 才不会被某一种组织结构锁死。</p>
+<hr />
+<h2 id="十二merge-要区分语义和参考实现">十二、Merge 要区分“语义”和“参考实现”</h2>
+<p>“多个 Branch 最终必须形成可识别的收敛结果”可以是工作语义。</p>
+<p>但：</p>
+<pre><code class="language-text">PREPARE
+BUILD
+VERIFY
+COMMIT
+MERGED
+</code></pre>
+<p>以及：</p>
+<pre><code class="language-text">Base
+Candidate
+checkpoint
+AlreadyCommitted
+Recovery
+</code></pre>
+<p>是原始架构讨论用来区分算法与语义的 Merge Toolkit 设计词汇，不是 4.0 新增的统一公开状态机。C8 自己规定的 receipt 阶段和恢复分类仍须遵守。</p>
+<p>第三方可以实现另外一种可靠收敛方法，但这不允许更换 4.0 的授权、证据摘要或恢复合同。Root 有 Branch 时，归档必须校验各分支终态、当前 attempt 的 REPORT、准确的 convergence REVIEW、<code>family_digest</code> 和独立归档授权；Git 代码合并由应用负责。</p>
+<p>这就是：</p>
+<pre><code class="language-text">Semantic Contract
+≠
+Reference Algorithm
+</code></pre>
+<hr />
+<h2 id="十三工具多不是问题混层才是问题">十三、工具多不是问题，混层才是问题</h2>
+<p>如果所有 MCP Tool 都被解释为：</p>
+<blockquote>
+<p>FCoP 本身，</p>
+</blockquote>
+<p>工具越多，FCoP 就越显得笨重。</p>
+<p>但如果结构是：</p>
+<pre><code class="language-text">FCoP Core
+少量稳定概念
+
+FCoP Toolkit
+大量可选工具
+</code></pre>
+<p>问题就完全不同了。</p>
+<p>真正需要控制的是：</p>
+<blockquote>
+<p><strong>默认暴露给某一个 Agent 的工具表面有多大。</strong></p>
+</blockquote>
+<p>普通 Worker 可能只需要：</p>
+<pre><code class="language-text">read task
+claim
+submit report
+open issue
+</code></pre>
+<p>Reviewer 可能只需要：</p>
+<pre><code class="language-text">read report
+review
+</code></pre>
+<p>宿主可以按需要设计工具选择策略；这不表示当前 MCP 适配器已提供按角色动态裁剪的功能。</p>
+<hr />
+<h2 id="十四40-已经如何落实这条路线">十四、4.0 已经如何落实这条路线？</h2>
+<p>原始草稿提出先形成 Core 边界、再进行实现。现在可以直接核对 4.0 的成果：</p>
+<ol>
+<li><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">规范</a>明确 C1–C8 及各层职责。</li>
+<li><a href="https://github.com/joinwell52-AI/FCoP/tree/main/src/fcop/v4">v4 实现</a>将创建、生命周期、授权、汇合和恢复分开组织。</li>
+<li><a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance">符合性测试</a>提供可核对的行为证据。</li>
+<li><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-4.0/rule-distribution-contract.zh.md">规则分发契约</a>区分采纳、部署和宿主投影。</li>
+</ol>
+<p>原文建议的 <code>FCOP-CORE-BOUNDARY.md</code> 是当时拟议的文件名；当前实现者应以上述实际文档为入口。</p>
+<hr />
+<h2 id="十五后续演进继续遵守契约优先">十五、后续演进继续遵守契约优先</h2>
+<p>这条路线仍可作为后续演进方法，下面是设计流程，不是新的版本排期：</p>
+<pre><code class="language-text">现有 FCoP
+   ↓
+Core Extraction
+   ↓
+Core Boundary Freeze
+   ↓
+Specification
+   ↓
+Conformance
+   ↓
+Amendment 分类
+   ↓
+Toolkit Implementation
+   ↓
+Profile Integration
+   ↓
+Runtime Integration
+</code></pre>
+<p>而不是：</p>
+<pre><code class="language-text">发现新问题
+   ↓
+加规则
+   ↓
+加 Library API
+   ↓
+加 MCP Tool
+   ↓
+全部继续叫 FCoP Core
+</code></pre>
+<p>前者在建设平台。</p>
+<p>后者只会产生越来越大的工具箱。</p>
+<hr />
+<h2 id="结语强大的系统核心通常很小">结语：强大的系统，核心通常很小</h2>
+<p>FCoP 不需要停止成长。</p>
+<p>它真正需要的是：</p>
+<blockquote>
+<p><strong>让增长发生在正确的层。</strong></p>
+</blockquote>
+<p>最终：</p>
+<pre><code class="language-text">Core
+定义工作世界的基本规律
+
+Specification
+公开这些规律
+
+Conformance
+证明实现没有偏离
+
+Toolkit
+让这些规律容易使用
+
+Profile
+定义具体组织怎样工作
+
+Runtime
+让工作真正持续运行
+</code></pre>
+<p>当层次稳定以后，新的 Inspector、A2A 适配器或 Runtime 集成可以在各自边界内演进；如果确实改变 Core 的外部行为，则必须走规范变更和符合性验证，不能用“只是工具”掩盖语义变化。</p>
+<blockquote>
+<p><strong>Core 小而稳定，生态才能大而自由。</strong></p>
+</blockquote>
+<hr />
+<h2 id="实现与延伸阅读">实现与延伸阅读</h2>
+<ul>
+<li><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 规范</a>：核对 C1–C8、授权、幂等与恢复条款。</li>
+<li><a href="https://github.com/joinwell52-AI/FCoP/tree/main/src/fcop/v4">Python v4 实现</a>与<a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance">符合性测试</a>：核对契约的具体落点。</li>
+<li><a href="../index.html#start">快速试用</a> · <a href="../index.html#mcp">MCP 接入</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/architecture.zh.md">架构概览</a>。</li>
+</ul>
+<p><a href="index.html">系列目录</a> · 第 3 / 5 篇 · <a href="02-minimal-core.zh.html">上一篇</a> · <a href="04-parallel-work.zh.html">下一篇</a> · <a href="collected.zh.html">五篇合集</a></p>
+
+<p class="source-link">正文与仓库版本保持同步 · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-architecture-series/03-architecture-layers.zh.md">查看 Markdown 源文件 ↗</a></p>
+</main></div>
+<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><a href="https://github.com/joinwell52-AI/FCoP/">☆ Star FCoP</a></div></footer>
+</body>
+</html>

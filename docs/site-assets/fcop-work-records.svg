@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-labelledby="title desc">
+  <title id="title">FCoP keeps work outside the conversation</title>
+  <desc id="desc">An agent uses Python or MCP to persist TASK, REPORT, ISSUE and REVIEW files. People, tools and another agent can inspect the same records across sessions. Execution is supplied by the host runtime.</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#506781" stroke-width="1.5"/></marker></defs>
+  <rect width="960" height="430" rx="20" fill="#f2f6fa"/>
+  <g font-family="Segoe UI,Arial,sans-serif" fill="#152b43">
+    <text x="36" y="49" font-size="15" font-weight="700" letter-spacing="2">FCOP / DURABLE WORK</text>
+    <text x="36" y="91" font-size="32" font-weight="700">The session ends. The work stays.</text>
+    <rect x="28" y="153" width="174" height="156" rx="12" fill="#fff" stroke="#cfdae6"/>
+    <text x="115" y="199" text-anchor="middle" font-size="23" font-weight="700">Agent</text>
+    <text x="115" y="237" text-anchor="middle" font-size="20">Python / MCP</text>
+    <text x="115" y="276" text-anchor="middle" font-size="17" fill="#506781">Host runs the work</text>
+    <path d="M205 230H252" fill="none" stroke="#506781" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="266" y="124" width="418" height="231" rx="14" fill="#fff" stroke="#a9bfd3"/>
+    <text x="289" y="158" font-size="20" font-weight="700">Shared, inspectable files</text>
+    <rect x="285" y="178" width="180" height="69" rx="8" fill="#e4edff"/>
+    <text x="301" y="205" font-size="21" font-weight="700" fill="#214d94">TASK</text>
+    <text x="301" y="231" font-size="18">Assignment</text>
+    <rect x="480" y="178" width="185" height="69" rx="8" fill="#e4f3ee"/>
+    <text x="496" y="205" font-size="21" font-weight="700" fill="#176448">REPORT</text>
+    <text x="496" y="231" font-size="18">Delivery claim</text>
+    <rect x="285" y="260" width="180" height="69" rx="8" fill="#fff0db"/>
+    <text x="301" y="287" font-size="21" font-weight="700" fill="#855207">ISSUE</text>
+    <text x="301" y="313" font-size="18">Problem</text>
+    <rect x="480" y="260" width="185" height="69" rx="8" fill="#eee9fa"/>
+    <text x="496" y="287" font-size="21" font-weight="700" fill="#634098">REVIEW</text>
+    <text x="496" y="313" font-size="18">Review / decision</text>
+    <path d="M687 230H732" fill="none" stroke="#506781" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="747" y="153" width="185" height="156" rx="12" fill="#152b43"/>
+    <text x="839" y="199" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">Next session</text>
+    <text x="839" y="237" text-anchor="middle" font-size="20" fill="#fff">People &amp; tools</text>
+    <text x="839" y="276" text-anchor="middle" font-size="18" fill="#ccdbe9">Read the same facts</text>
+    <text x="36" y="396" font-size="20" fill="#506781">Stable identity · explicit state · linked evidence · recorded decisions</text>
+  </g>
+</svg>

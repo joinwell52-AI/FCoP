@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统 · FCoP</title>
+<meta name="description" content="Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统。FCoP 架构原理系列全文，按 4.0 契约修订。">
+<link rel="canonical" href="https://joinwell52-ai.github.io/FCoP/fcop-architecture-series/01-work-beyond-context.zh.html">
+<meta property="og:title" content="Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://joinwell52-ai.github.io/FCoP/fcop-architecture-series/01-work-beyond-context.zh.html">
+<link rel="icon" href="../site-assets/fcop-logo-256.png">
+<link rel="stylesheet" href="../site-assets/site.css">
+</head>
+<body class="reading-page">
+<a class="skip-link" href="#main">跳转正文</a>
+<header class="topbar"><div class="wrap nav-row">
+<a class="brand" href="../?lang=zh"><img src="../site-assets/fcop-logo-256.png" width="34" height="34" alt=""><span>FCoP<span class="brand-version">4.0</span></span></a>
+<nav aria-label="阅读导航"><a href="../?lang=zh">首页</a><a href="index.html">架构五篇</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-architecture-series/01-work-beyond-context.zh.md">GitHub ↗</a></nav>
+</div></header>
+<div class="reading-layout">
+<aside class="reading-toc" aria-label="文章目录"><h2>本文目录</h2><ol><li><a href="#一agent-很强但它没有天然持久的工作世界">一、Agent 很强，但它没有天然持久的“工作世界”</a></li><li><a href="#二为什么保存聊天还不够">二、为什么保存聊天还不够？</a></li><li><a href="#三为什么是文件而不是数据库">三、为什么是文件，而不是数据库？</a></li><li><a href="#四filesystem-as-behavioral-externalization-surface">四、Filesystem as Behavioral Externalization Surface</a></li><li><a href="#五单机并不意味着没有并行">五、单机并不意味着“没有并行”</a></li><li><a href="#六一致性比-tps-更重要">六、一致性比 TPS 更重要</a></li><li><a href="#七状态落到路径正确提交还需要原子恢复">七、状态落到路径，正确提交还需要原子恢复</a></li><li><a href="#八fcop-不应该承担联网">八、FCoP 不应该承担联网</a></li><li><a href="#九fcop-也不等于-runtime">九、FCoP 也不等于 Runtime</a></li><li><a href="#十文件是载体行为外化才是核心">十、文件是载体，行为外化才是核心</a></li><li><a href="#十一单机不是落后而是边界清楚">十一、单机不是落后，而是边界清楚</a></li><li><a href="#结语即使模型离开了工作依然在那里">结语：即使模型离开了，工作依然在那里</a></li><li><a href="#实现与延伸阅读">实现与延伸阅读</a></li></ol></aside>
+<main class="article-content" id="main">
+<h1 id="agent-没有操作系统为什么-fcop-选择把工作行为外化到文件系统">Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统</h1>
+<p><a href="index.html">系列目录</a> · 第 1 / 5 篇 · <a href="02-minimal-core.zh.html">下一篇</a> · <a href="collected.zh.html">五篇合集</a></p>
+<p>原稿：2026-09-01 · 发布修订：2026-09-10 · 对齐 FCoP 4.0.0</p>
+<blockquote>
+<p>本文解释架构取舍；字段、迁移与错误以 <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 契约</a>为准，版本状态见 <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0">4.0.0 发布说明</a>。原始设计建议已按当前版本修订；示意流程不等于可直接执行的 API 示例。</p>
+</blockquote>
+<p>今天的大模型可以写代码、查资料、调用工具、分析数据，甚至连续执行很长的任务。</p>
+<p>但有一个很容易被忽略的问题：</p>
+<blockquote>
+<p><strong>Agent 并不拥有自己的操作系统。</strong></p>
+</blockquote>
+<p>这里说“没有操作系统”，不是说 Agent 脱离 Windows、Linux 或其他 Host 运行。恰恰相反，Agent 的文件、进程、网络、时钟、权限和持久化能力，都来自 Host、Runtime 和操作系统。模型本身并不天然拥有这些能力。</p>
+<p>Agent 可以说：</p>
+<blockquote>
+<p>“我接下这个任务。”</p>
+</blockquote>
+<p>也可以说：</p>
+<blockquote>
+<p>“我已经完成。”</p>
+</blockquote>
+<p>甚至可以说：</p>
+<blockquote>
+<p>“问题已经修复并通过验证。”</p>
+</blockquote>
+<p>但如果这些行为只存在于模型上下文或聊天记录里，它们不会天然成为持续存在的工作事实。会话关闭、上下文压缩、Host 重启、模型切换，甚至一次响应丢失，都可能让“刚才到底发生了什么”重新变得模糊。</p>
+<p>FCoP 最初真正要解决的，就是这个问题。</p>
+<p>它没有选择给 Agent 再造一个操作系统，也没有首先建立数据库、消息队列或分布式控制平面，而是采取了一条更直接的路线：</p>
+<blockquote>
+<p><strong>把 Agent 的正式工作行为外化。</strong></p>
+</blockquote>
+<p>在单机系统里，最自然的外化界面就是文件系统。</p>
+<hr />
+<h2 id="一agent-很强但它没有天然持久的工作世界">一、Agent 很强，但它没有天然持久的“工作世界”</h2>
+<p>一个 Agent 最基础的工作条件通常只有：</p>
+<pre><code class="language-text">模型
++
+当前上下文
++
+Host 暴露的工具
+</code></pre>
+<p>它自己并不天然拥有：</p>
+<pre><code class="language-text">持久文件系统
+进程系统
+系统时钟
+事务机制
+可靠状态机
+用户权限系统
+长期任务账本
+</code></pre>
+<p>这些能力属于操作系统和 Runtime。</p>
+<p>因此：</p>
+<pre><code class="language-text">Agent:
+“我已经接手 TASK-12”
+</code></pre>
+<p>首先只是一个语言行为。</p>
+<p>如果没有外部状态承载：</p>
+<pre><code class="language-text">Agent Context
+      ×
+</code></pre>
+<p>这项“接手”就可能和上下文一起消失。</p>
+<p>这就是“Agent 能做事”与“Agent 能持续承担工作”之间的差别。</p>
+<p>数字员工如果要真正承担岗位责任，工作状态不能依赖模型记得住。</p>
+<hr />
+<h2 id="二为什么保存聊天还不够">二、为什么保存聊天还不够？</h2>
+<p>最简单的办法似乎是：把所有聊天记录保存下来。</p>
+<p>但这仍然没有解决问题。</p>
+<p>因为：</p>
+<pre><code class="language-text">“我准备开始。”
+“应该快完成了。”
+“我觉得这个版本没问题。”
+</code></pre>
+<p>这些都是语言表达，不等于正式工作行为。</p>
+<p>FCoP 因此把少数具有明确工作意义的行为外化成正式对象：</p>
+<pre><code class="language-text">TASK
+REPORT
+ISSUE
+REVIEW
+</code></pre>
+<p>例如：</p>
+<pre><code class="language-text">“请把 Windows 安装流程补齐”
+</code></pre>
+<p>只有被外化为 <code>TASK</code>，才成为正式委派。</p>
+<p>执行者说：</p>
+<pre><code class="language-text">“我完成了。”
+</code></pre>
+<p>不会自动把任务变成成功，而是形成一个 <code>REPORT</code>：执行者正式提交了结果。</p>
+<p>发现故障：</p>
+<pre><code class="language-text">ISSUE
+</code></pre>
+<p>独立检查：</p>
+<pre><code class="language-text">REVIEW
+</code></pre>
+<p>这一步的意义不是“把聊天换成 Markdown”。</p>
+<p>真正发生的是：</p>
+<pre><code class="language-text">Agent 内部行为
+        ↓
+       外化
+        ↓
+操作系统中的持久工作对象
+</code></pre>
+<p>也就是说：</p>
+<blockquote>
+<p><strong>工作不再只活在模型上下文里。</strong></p>
+</blockquote>
+<hr />
+<h2 id="三为什么是文件而不是数据库">三、为什么是文件，而不是数据库？</h2>
+<p>FCoP 完全可以从一开始就选择数据库：</p>
+<pre><code class="language-text">tasks
+reports
+issues
+reviews
+</code></pre>
+<p>也可以选择消息队列：</p>
+<pre><code class="language-text">Kafka
+RabbitMQ
+Redis Streams
+</code></pre>
+<p>甚至建立完整中心服务：</p>
+<pre><code class="language-text">Agent
+  ↓
+SDK
+  ↓
+API
+  ↓
+Workflow Service
+  ↓
+Database
+</code></pre>
+<p>这些方案可以针对高并发、事务和跨机器通信提供不同的工程能力；具体取舍仍要看负载与实现。本文没有进行吞吐量基准比较。</p>
+<p>但 FCoP 面对的第一目标并不是高并发，而是：</p>
+<blockquote>
+<p><strong>怎样用最低复杂度，让单机里的多个 Agent 拥有一个脱离模型上下文的共同工作世界？</strong></p>
+</blockquote>
+<p>文件在这个问题上有几个特殊优势。</p>
+<p>第一，Agent 天然会读写文件。</p>
+<p>第二，人也能直接阅读。</p>
+<p>第三，IDE、脚本、Git、备份工具都能直接处理文件。</p>
+<p>因此同一个工作对象可以同时服务于：</p>
+<pre><code class="language-text">Agent
+人
+IDE
+脚本
+Git
+审计程序
+</code></pre>
+<p>这使文件成为一个非常低摩擦的共同表面。</p>
+<p>FCoP 并不是在证明：</p>
+<blockquote>
+<p>“文件比数据库先进。”</p>
+</blockquote>
+<p>它真正利用的是：</p>
+<blockquote>
+<p><strong>在单机 Agent 场景里，文件是行为外化成本最低、可观察性最高的公共界面之一。</strong></p>
+</blockquote>
+<hr />
+<h2 id="四filesystem-as-behavioral-externalization-surface">四、Filesystem as Behavioral Externalization Surface</h2>
+<p>过去常用一句话描述 FCoP：</p>
+<blockquote>
+<p>Filename as Protocol.</p>
+</blockquote>
+<p>这仍然有意义。</p>
+<p>但如果继续往底层追，FCoP 更核心的思想其实是：</p>
+<blockquote>
+<p><strong>Filesystem as Behavioral Externalization Surface.</strong></p>
+</blockquote>
+<p>也就是：</p>
+<blockquote>
+<p><strong>文件系统是 Agent 正式工作行为的外化界面。</strong></p>
+</blockquote>
+<p>以下路径省略了共同前缀 <code>fcop/_lifecycle/</code>，用于说明状态；它们不是手动搬动文件的操作教程。</p>
+<p>例如：</p>
+<pre><code class="language-text">inbox/TASK-001.md
+</code></pre>
+<p>经过合法领取以后进入：</p>
+<pre><code class="language-text">active/TASK-001.md
+</code></pre>
+<p>这不是简单的文件整理。</p>
+<p>它表达一个正式状态变化：</p>
+<blockquote>
+<p>TASK-001 已经从待领取进入执行状态。</p>
+</blockquote>
+<p>提交以后进入：</p>
+<pre><code class="language-text">review/TASK-001.md
+</code></pre>
+<p>又表达：</p>
+<blockquote>
+<p>执行者已经形成正式交付，现在等待审查。</p>
+</blockquote>
+<p>目录不是装饰。</p>
+<p>文件也不只是数据容器。</p>
+<p>它们共同构成 Agent 工作行为在操作系统中的持续投影。</p>
+<hr />
+<h2 id="五单机并不意味着没有并行">五、单机并不意味着“没有并行”</h2>
+<p>FCoP 的单机设计经常会引出一个问题：</p>
+<blockquote>
+<p>Windows 或普通文件系统又不是高并发任务平台，多 Agent 怎么并行？</p>
+</blockquote>
+<p>答案不是让多个 Agent 同时竞争修改一个共享文件。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>让多个独立工作串并行。</strong></p>
+</blockquote>
+<p>例如：</p>
+<pre><code class="language-text">TASK-001 → DEV-01
+TASK-002 → DEV-02
+TASK-003 → QA
+TASK-004 → OPS
+</code></pre>
+<p>这些工作可以同时进行。</p>
+<p>这是：</p>
+<blockquote>
+<p><strong>工作级并行。</strong></p>
+</blockquote>
+<p>但对于同一个正式对象：</p>
+<pre><code class="language-text">TASK-001
+</code></pre>
+<p>FCoP 并不追求：</p>
+<pre><code class="language-text">DEV-01 ─┐
+DEV-02 ─┼→ 同时修改同一权威状态
+PM     ─┤
+QA     ─┘
+</code></pre>
+<p>更合理的模式是：</p>
+<pre><code class="language-text">一个正式对象
+    ↓
+明确工作归属
+    ↓
+经过校验的状态迁移
+</code></pre>
+<p>因此：</p>
+<blockquote>
+<p><strong>FCoP 支持多任务并行，但不以同一治理对象的多写者高并发为设计目标。</strong></p>
+</blockquote>
+<hr />
+<h2 id="六一致性比-tps-更重要">六、一致性比 TPS 更重要</h2>
+<p>数据库和消息系统经常问：</p>
+<blockquote>
+<p>每秒能处理多少请求？</p>
+</blockquote>
+<p>数字员工面对的关键问题往往不同：</p>
+<pre><code class="language-text">任务有没有重复领取？
+REPORT 是谁提交的？
+失败之后有没有被误写成成功？
+系统重启以后还能不能恢复？
+当前状态为什么是合法的？
+谁审查过这项交付？
+</code></pre>
+<p>这些问题的核心不是吞吐量，而是：</p>
+<blockquote>
+<p><strong>工作事实是否稳定。</strong></p>
+</blockquote>
+<p>因此 FCoP 的设计优先级更接近：</p>
+<pre><code class="language-text">一致性
+&gt;
+可恢复性
+&gt;
+可检查性
+&gt;
+可审计性
+&gt;
+吞吐量
+</code></pre>
+<p>这不是说性能不重要。</p>
+<p>而是明确：</p>
+<blockquote>
+<p>FCoP 优化的不是数据中心级高并发，而是单机多 Agent 正式工作的稳定性。</p>
+</blockquote>
+<hr />
+<h2 id="七状态落到路径正确提交还需要原子恢复">七、状态落到路径，正确提交还需要原子恢复</h2>
+<p>例如：</p>
+<pre><code class="language-text">inbox/TASK-001.md
+        ↓
+active/TASK-001.md
+</code></pre>
+<p>FCoP 使用操作系统文件语义，并不是为了构建一个高速消息队列。</p>
+<p>它要获得的是一个非常简单但强的性质：</p>
+<blockquote>
+<p><strong>成功提交后，同一个工作对象应具有唯一可检查的正式生命周期位置。</strong></p>
+</blockquote>
+<p>4.0 不承诺跨目录迁移永远没有中间状态。参考实现还使用持久操作回执、摘要校验和恢复分类。若同一个 TASK 同时出现在多个权威阶段，读取必须拒绝歧义，不能按修改时间猜测。单次 <code>rename</code> 不能替代这套协议提交与恢复条件（<a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">规范 §9</a>）。</p>
+<p>这能让人和 Agent 直接检查：</p>
+<pre><code class="language-text">它现在在哪里？
+</code></pre>
+<p>而不必先向一个隐藏状态服务发起复杂查询。</p>
+<p>对于单机工作系统，这是一种非常实用的取舍。</p>
+<hr />
+<h2 id="八fcop-不应该承担联网">八、FCoP 不应该承担联网</h2>
+<p>当 FCoP 被理解为“单机 Agent 行为外化”，另一个边界也自然清楚了。</p>
+<p>它没有必要继续扩张去承担：</p>
+<pre><code class="language-text">Agent discovery
+OAuth
+mTLS
+跨机器路由
+streaming
+webhook
+remote task
+跨云互操作
+</code></pre>
+<p>这些问题属于网络互操作层。</p>
+<p>A2A 更适合处理：</p>
+<pre><code class="language-text">Agent System A
+       ↕
+      A2A
+       ↕
+Agent System B
+</code></pre>
+<p>FCoP 则处理：</p>
+<pre><code class="language-text">一个 Agent 系统内部
+Agent 行为
+    ↓
+正式工作对象
+</code></pre>
+<p>因此：</p>
+<blockquote>
+<p><strong>在本文提出的组合方式中，FCoP 保存本地工作事实，A2A 承担跨 Agent 系统交互。</strong></p>
+</blockquote>
+<p>这是一种架构分工，不是已交付集成声明。A2A 本身也定义任务与产物语义；认证和通信策略仍需由实现者部署。第五篇具体讨论两者的映射边界。</p>
+<hr />
+<h2 id="九fcop-也不等于-runtime">九、FCoP 也不等于 Runtime</h2>
+<p>把行为写入文件还不等于数字员工已经可靠运行。</p>
+<p>真正的 Runtime 还需要解决：</p>
+<pre><code class="language-text">Session
+Attempt
+Lease
+Timer
+Retry
+Recovery
+Host
+Model
+Tool execution
+Crash recovery
+</code></pre>
+<p>这些是 CodeFlowMu 一类 Runtime 要处理的运行问题。这里的 Runtime attempt 与 FCoP 4.0 用来绑定交付证据的 <code>attempt_id</code> 是不同层次的身份，不应混用；协议文件提交的崩溃恢复仍属于 C8。</p>
+<p>CodeFlowMu 的具体已实现功能和兼容版本以 <a href="https://github.com/joinwell52-AI/CodeflowMu-Distribution/releases">CodeflowMu-Distribution 发布说明</a>为准。</p>
+<p>所以可以分开理解：</p>
+<pre><code class="language-text">Agent
+  ↓
+FCoP
+工作行为外化
+
+CodeFlowMu Runtime
+  ↓
+持续执行与恢复
+</code></pre>
+<p>FCoP 不应该因为 Runtime 很重要，就把 Runtime 全部吸收到自己里面。</p>
+<hr />
+<h2 id="十文件是载体行为外化才是核心">十、文件是载体，行为外化才是核心</h2>
+<p>如果未来 FCoP 出现：</p>
+<pre><code class="language-text">SQLite adapter
+Object-store adapter
+Database-backed implementation
+</code></pre>
+<p>它是否还可以被视为 FCoP？</p>
+<p>这是一种未来的抽象方向，不是 4.0 已提供的存储适配能力。当前 Base 明确限定受支持、具有可靠本地语义的 NTFS/POSIX 文件系统。</p>
+<p>将来讨论新的兼容编码时，判断不应只看 <code>.md</code>。</p>
+<p>更重要的是它是否仍然保留：</p>
+<pre><code class="language-text">TASK 是正式委派
+REPORT 是正式交付
+ISSUE 是正式问题
+REVIEW 是正式审查
+状态迁移有明确含义
+工作事实不依赖模型记忆存在
+</code></pre>
+<p>所以：</p>
+<blockquote>
+<p><strong>文件系统是 FCoP 今天的 reference carrier。</strong></p>
+</blockquote>
+<p>而：</p>
+<blockquote>
+<p><strong>Agent 工作行为外化，是更底层的设计原则。</strong></p>
+</blockquote>
+<p>但设计原则本身不足以授予 4.0 兼容性。其他存储需要明确编码、C1–C8 全部契约和相应符合性证据；仅保存四类对象还不够。</p>
+<hr />
+<h2 id="十一单机不是落后而是边界清楚">十一、单机不是落后，而是边界清楚</h2>
+<p>云原生时代很容易形成一种误解：</p>
+<blockquote>
+<p>只有分布式才先进。</p>
+</blockquote>
+<p>但一个软件开发数字员工一天可能只处理：</p>
+<ul>
+<li>几个正式开发任务；</li>
+<li>若干审查；</li>
+<li>一轮测试；</li>
+<li>几次故障恢复；</li>
+<li>几份正式交付。</li>
+</ul>
+<p>它真正需要的不是每秒十万次状态变更。</p>
+<p>更重要的是：</p>
+<blockquote>
+<p>明天重新打开系统以后，它还知不知道昨天做到哪里？</p>
+</blockquote>
+<blockquote>
+<p>另一个 Agent 接手以后，能不能看懂之前发生了什么？</p>
+</blockquote>
+<blockquote>
+<p>系统能不能区分“执行者说完成”和“真正被接受”？</p>
+</blockquote>
+<blockquote>
+<p>出错以后，能不能根据外部事实恢复，而不是依赖模型回忆？</p>
+</blockquote>
+<p>在这样的负载下：</p>
+<blockquote>
+<p><strong>低并发、强状态、强可观察、强恢复</strong></p>
+</blockquote>
+<p>可以是一种非常合理的工程选择。</p>
+<hr />
+<h2 id="结语即使模型离开了工作依然在那里">结语：即使模型离开了，工作依然在那里</h2>
+<p>FCoP 表面上看，是用文件组织多个 Agent。</p>
+<p>继续往下推，它真正面对的是一个更基础的问题：</p>
+<blockquote>
+<p><strong>当 Agent 不拥有自己的操作系统、没有天然持久的工作事实时，工作怎样才能持续存在？</strong></p>
+</blockquote>
+<p>FCoP 的回答很朴素：</p>
+<blockquote>
+<p>借用单机操作系统最成熟的持久化界面，把 Agent 的正式工作行为外化出来。</p>
+</blockquote>
+<p>它接受自己的边界：</p>
+<pre><code class="language-text">单机优先
+受控并行
+不承担联网
+不承担完整 Runtime
+不追求数据库级吞吐
+</code></pre>
+<p>换来的则是：</p>
+<pre><code class="language-text">可见
+可读
+可恢复
+可追踪
+可审查
+可持续
+</code></pre>
+<p>因此，FCoP 不应该只被描述成“文件通信协议”。</p>
+<p>更准确的理解是：</p>
+<blockquote>
+<p><strong>FCoP 是面向单机多 Agent 系统的工作行为外化机制：它把任务、交付、问题和审查从易失的模型上下文转化为持久、可检查的工作对象。</strong></p>
+</blockquote>
+<p>数字员工真正成熟的标志，也许并不是模型能够完成越来越复杂的任务。</p>
+<p>而是：</p>
+<blockquote>
+<p><strong>即使模型离开了，工作依然在那里。</strong></p>
+</blockquote>
+<hr />
+<h2 id="实现与延伸阅读">实现与延伸阅读</h2>
+<ul>
+<li><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">4.0 规范</a>：核对 C1–C8、授权、幂等与恢复条款。</li>
+<li><a href="https://github.com/joinwell52-AI/FCoP/tree/main/src/fcop/v4">Python v4 实现</a>与<a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance">符合性测试</a>：核对契约的具体落点。</li>
+<li><a href="../index.html#start">快速试用</a> · <a href="../index.html#mcp">MCP 接入</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/architecture.zh.md">架构概览</a>。</li>
+</ul>
+<p><a href="index.html">系列目录</a> · 第 1 / 5 篇 · <a href="02-minimal-core.zh.html">下一篇</a> · <a href="collected.zh.html">五篇合集</a></p>
+
+<p class="source-link">正文与仓库版本保持同步 · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-architecture-series/01-work-beyond-context.zh.md">查看 Markdown 源文件 ↗</a></p>
+</main></div>
+<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><a href="https://github.com/joinwell52-AI/FCoP/">☆ Star FCoP</a></div></footer>
+</body>
+</html>
