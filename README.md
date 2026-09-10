@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/fcop-logo-256.png" alt="FCoP" width="88" /></p>
+<p align="center"><a href="docs/architecture.en.md"><img src="assets/fcop-logo-256.png" alt="FCoP architecture" width="88" /></a></p>
 
 # FCoP — File-based Coordination Protocol
 
@@ -118,15 +118,7 @@ Once connected, initialize a **new** workspace with `init_solo(role_code="ME", p
 
 Each TASK follows an ordered lifecycle. In 4.0, entering `active` starts a new attempt, and submission links that attempt's REPORT. Acceptance then binds the review and authorization to the current evidence.
 
-```mermaid
-flowchart TD
-    I["inbox · assigned"] -->|claim_task| A["active · current attempt"]
-    A -->|"submit_task + REPORT"| R["review · delivery submitted"]
-    R -->|"approve_task + authorized REVIEW"| D["done · accepted attempt"]
-    R -->|"reject_task + authorized REVIEW"| A
-    D -->|"reopen_task + authorization"| A
-    D -->|"archive_task + authorization / family checks"| H["archive · terminal"]
-```
+<a href="spec/fcop-4.0-spec.md"><img src="assets/fcop-lifecycle.svg" alt="FCoP 4.0 lifecycle: inbox, active, review, done and archive; authorized rejection and reopening return to a new active attempt." width="960" /></a>
 
 `active → done` is absent from 4.0. Reopening through `reopen_task` creates a new attempt for ordinary tasks as well as Branches. An old REPORT cannot satisfy a new attempt's submission gate. See the [complete lifecycle and C1–C8 contracts](spec/fcop-4.0-spec.md) · [中文规范](spec/fcop-4.0-spec.zh.md).
 

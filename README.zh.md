@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/fcop-logo-256.png" alt="FCoP" width="88" /></p>
+<p align="center"><a href="docs/architecture.zh.md"><img src="assets/fcop-logo-256.png" alt="FCoP 架构说明" width="88" /></a></p>
 
 # FCoP — 基于文件的协作协议
 
@@ -118,15 +118,7 @@ python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
 
 每项 TASK 沿有序生命周期前进。4.0 中，每次进入 `active` 都会生成新的尝试身份，提交时关联该次尝试的 REPORT；验收再把审查与授权绑定到当前证据。
 
-```mermaid
-flowchart TD
-    I["inbox · assigned"] -->|claim_task| A["active · current attempt"]
-    A -->|"submit_task + REPORT"| R["review · delivery submitted"]
-    R -->|"approve_task + authorized REVIEW"| D["done · accepted attempt"]
-    R -->|"reject_task + authorized REVIEW"| A
-    D -->|"reopen_task + authorization"| A
-    D -->|"archive_task + authorization / family checks"| H["archive · terminal"]
-```
+<a href="spec/fcop-4.0-spec.zh.md"><img src="assets/fcop-lifecycle.svg" alt="FCoP 4.0 生命周期：待领取、执行、审查、完成、归档；经授权的退回和重开进入新的执行尝试。" width="960" /></a>
 
 4.0 移除了 `active → done` 的直接跳转。普通任务和 Branch 都可通过 `reopen_task` 重开并生成新尝试；旧 REPORT 不能满足新尝试的提交门槛。完整迁移条件见 [C1–C8 英文规范](spec/fcop-4.0-spec.md) · [中文规范](spec/fcop-4.0-spec.zh.md)。
 
