@@ -42,6 +42,25 @@ def test_wp4f_stable_identity_and_exact_dependency():
     assert Requirement(pin).specifier == SpecifierSet(">=4.0.0,<4.1.0")
 
 
+@pytest.mark.parametrize("tamper", [False, True])
+def test_wp4f_historical_fixture_preserves_sources_across_checkout(tmp_path, monkeypatch, tamper):
+    from tests.stable import historical
+
+    expected = historical.text("src/fcop/_version.py")
+    raw = historical.FIXTURE.read_text(encoding="utf-8").encode("utf-8")
+    path = tmp_path / "fixture.json"
+    raw = raw.replace(b"\n", b"\r\n")
+    if tamper:
+        raw = raw.replace(b"4.0.0rc1", b"4.0.0rc2")
+    path.write_bytes(raw)
+    monkeypatch.setattr(historical, "FIXTURE", path)
+    if tamper:
+        with pytest.raises(AssertionError):
+            historical.text("src/fcop/_version.py")
+    else:
+        assert historical.text("src/fcop/_version.py") == expected
+
+
 @pytest.mark.parametrize("pair", [("4.0.0", "4.0.0rc1"), ("4.0.0rc1", "4.0.0"),
                                  ("4.0.0", "3.2.5"), ("3.2.5", "4.0.0")])
 def test_wp4f_mixed_release_pairs_still_fail_closed(monkeypatch, pair):

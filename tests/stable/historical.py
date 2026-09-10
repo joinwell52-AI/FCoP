@@ -8,7 +8,9 @@ SHA256 = "d6c868d8e92015c11905db31ec4987ee3ffb52eb2e9beab6cdd763ce85e63fd3"
 
 
 def text(name):
-    raw = FIXTURE.read_bytes()
+    # Git may materialize this test-only JSON container with CRLF. Canonicalize
+    # container line endings only; escaped source bytes inside JSON are unchanged.
+    raw = FIXTURE.read_text(encoding="utf-8").encode("utf-8")
     assert hashlib.sha256(raw).hexdigest() == SHA256
     document = json.loads(raw)
     assert document["commit"] == "d5e851c3fa628167999a9f8b7b7b89290e7b8f06"
