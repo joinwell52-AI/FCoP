@@ -102,6 +102,7 @@ Nine bilingual modules form 18 canonical rule files and one Manifest. Assemblies
 - [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
 - [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
 - [License](LICENSE) / [Citation](CITATION.cff)
+- Legacy installation prompts only: [EN](src/fcop/rules/_data/agent-install-prompt.en.md) / [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md), also discoverable at `fcop://prompt/install`. These historical prompts do not authorize RC installation or migration.
 
 Historical tutorials describe their stated versions, not automatic 4.0 upgrades. The stable 3.2.5 archive is [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285), registered at [OSF 92nwm](https://osf.io/92nwm/). Neither identifies the unpublished RC; no new DOI or Registry record is created here.
 

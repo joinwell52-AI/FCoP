@@ -37,7 +37,7 @@ def compare(old, new):
             assert list(before.items()) == list(after.items()), "Metadata headers changed"
             # Only the long description may change; it is exactly the authorized README.
             expected = Path("mcp/README.md").read_text(encoding="utf-8")
-            assert str(after.get_payload()).strip() == expected.strip()
+            assert after.get_payload(decode=True).decode("utf-8").strip() == expected.strip()
             continue
         if name.endswith(".dist-info/RECORD"):
             continue  # Every underlying non-RECORD member is independently compared.

@@ -102,6 +102,7 @@ archive_task(review_ref=..., family_digest=...)
 - [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
 - [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
 - [License](LICENSE) / [Citation](CITATION.cff)
+- 仅限历史版本的安装提示词：[EN](src/fcop/rules/_data/agent-install-prompt.en.md) / [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md)，也可通过 `fcop://prompt/install` 发现。这些历史提示词不授权 RC 安装或迁移。
 
 历史教程仅描述标明的版本，不是自动升级到 4.0 的指令。稳定版 3.2.5 归档为 [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285)，注册记录为 [OSF 92nwm](https://osf.io/92nwm/)。二者不代表尚未发布的 RC；本轮不创建新 DOI 或 Registry 记录。
 

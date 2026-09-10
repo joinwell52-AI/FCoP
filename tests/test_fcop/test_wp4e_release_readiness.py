@@ -141,6 +141,16 @@ def test_wp4e_artifact_member_attribution_rejects_production_change():
         delta.compare(old, changed)
 
 
+def test_wp4e_metadata_description_retains_utf8_bytes():
+    delta = load_script("wp4e_artifact_delta")
+    header = b"Metadata-Version: 2.5\nName: fcop-mcp\nVersion: 4.0.0rc1\n\n"
+    expected = (ROOT / "mcp/README.md").read_text(encoding="utf-8").encode("utf-8")
+    name = "fcop_mcp-4.0.0rc1.dist-info/METADATA"
+    assert delta.compare({name: header + b"old"}, {name: header + expected}) == [name]
+    with pytest.raises(AssertionError):
+        delta.compare({name: header + b"old"}, {name: header + b"wrong description"})
+
+
 @pytest.mark.parametrize(("changed", "evidence"), [
     ("reports/FCOP-4.0-WP4E-RESULT.md", True), ("reviews/fcop-4.0/wp4e/MANIFEST.md", True),
     ("README.md", False), ("scripts/wp4e_release_guard.py", False),
