@@ -4,7 +4,13 @@
 
 This index collects field reports, tutorials, design essays and their publication/evidence links. It preserves the former README article catalog. Titles and summaries retain their original publication languages.
 
-**Historical scope:** each article describes the version and environment used at the time. Field observations and agent interviews are not conformance tests. For current setup, use the [README demo](../README.md#try-it), [4.0 setup guide](../docs/fcop-4.0-progress.md) and [4.0 specification](../spec/fcop-4.0-spec.md).
+**Historical scope:** the 17 field articles below describe the version and environment used at the time. Field observations and agent interviews are not conformance tests. For current setup, use the [README demo](../README.md#try-it), [4.0 setup guide](../docs/fcop-4.0-progress.md) and [4.0 specification](../spec/fcop-4.0-spec.md).
+
+## New: architecture principles series (Chinese)
+
+Five full essays published September 10, 2026 and revised against 4.0: durable work, the minimal Core, system layers, parallel convergence, and the boundaries between FCoP, MCP, A2A and CodeFlowMu.
+
+**[Series index and full essays](../docs/fcop-architecture-series/README.md) · [Collected edition](../docs/fcop-architecture-series/collected.zh.md)**
 
 ## Choose a topic
 

@@ -14,7 +14,7 @@ Tasks, deliveries, issues and review decisions become durable files that people,
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
-**[Try Python](#try-it) · [Connect MCP](#mcp) · [Architecture](#architecture) · [Papers & citation](#research)**
+**[Try Python](#try-it) · [Connect MCP](#mcp) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
 
 <a href="docs/architecture.en.md"><img src="assets/fcop-work-records.svg" alt="Agent work is persisted as TASK, REPORT, ISSUE and REVIEW files, then read by people, tools and another session." width="960" /></a>
 
@@ -146,6 +146,16 @@ Another implementation should be able to preserve the same work semantics withou
 | **Runtime** | Run models and tools, manage sessions, schedule work and provide the user interface. |
 
 **Read the design explanation: [English](docs/architecture.en.md) · [简体中文](docs/architecture.zh.md).** It develops the reasoning behind files, separate delivery and acceptance, parallel work, and the boundaries between FCoP, MCP and a Runtime.
+
+**Architecture principles: five full essays in Chinese**, published September 10, 2026 and revised against 4.0:
+
+1. [Work beyond the model context: why files?](docs/fcop-architecture-series/01-work-beyond-context.zh.md)
+2. [Extracting the minimal FCoP Core](docs/fcop-architecture-series/02-minimal-core.zh.md)
+3. [Separating Core, Specification, Toolkit, Profile and Runtime](docs/fcop-architecture-series/03-architecture-layers.zh.md)
+4. [Parallel work through ordered task lifecycles](docs/fcop-architecture-series/04-parallel-work.zh.md)
+5. [How FCoP, MCP, A2A and CodeFlowMu fit together](docs/fcop-architecture-series/05-mcp-a2a-runtime.zh.md)
+
+[Series guide (中文)](docs/fcop-architecture-series/README.md) · [All five essays (中文)](docs/fcop-architecture-series/collected.zh.md)
 
 4.0 also distributes **nine bilingual rule modules** with versioned manifests and `sequential`, `parallel` and `repository-development` assemblies. Adoption, deployment planning, receipts and rollback are explicit. Host projections use `reference` or `bounded_embed`; installing a package does not silently rewrite host rules. [Rule distribution contract](docs/fcop-4.0/rule-distribution-contract.md) · [中文契约](docs/fcop-4.0/rule-distribution-contract.zh.md).
 

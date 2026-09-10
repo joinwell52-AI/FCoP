@@ -2,6 +2,8 @@
 
 [Back to FCoP](../README.md) · [简体中文](architecture.zh.md) · [4.0 setup](fcop-4.0-progress.md)
 
+**Deep reading in Chinese: [five architecture essays](fcop-architecture-series/README.md) · [collected edition](fcop-architecture-series/collected.zh.md).** This page provides the English overview; the series develops the full reasoning behind durable work, the minimal Core, layers, parallel convergence and network integration boundaries.
+
 **FCoP externalizes formal agent work as durable, attributable and inspectable facts.** This explains the choice of files, the separation of delivery from acceptance, and the boundaries between a protocol, its tools and a Runtime.
 
 This page explains the design of 4.0. The [4.0 specification](../spec/fcop-4.0-spec.md) defines fields, errors and transition conditions. Conceptual lists in historical research do not replace the current C1–C8 contracts.

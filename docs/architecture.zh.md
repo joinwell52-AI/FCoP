@@ -2,6 +2,8 @@
 
 [返回首页](../README.zh.md) · [English](architecture.en.md) · [4.0 接入](fcop-4.0-progress.md)
 
+**深入阅读：[FCoP 架构原理五篇全文](fcop-architecture-series/README.md) · [五篇合集](fcop-architecture-series/collected.zh.md)。** 本页提供概览，系列完整展开工作外化、最小 Core、系统分层、并行汇合与网络集成边界。
+
 **FCoP 将 Agent 的正式工作行为外化为持久、可归属、可检查的工作事实。** 这句话决定了它为什么使用文件、为什么区分交付与审查，以及为什么要把协议、工具和运行时分开。
 
 本页解释 4.0 的设计动机。字段、错误和迁移条件以 [4.0 规范](../spec/fcop-4.0-spec.zh.md)为准；历史研究中的概念枚举不能代替当前 C1–C8 契约。

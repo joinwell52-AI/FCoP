@@ -1,0 +1,54 @@
+{
+  "series": "FCoP 架构原理系列：让 Agent 的工作站到模型之外",
+  "original_date": "2026-09-01",
+  "published_at": "2026-09-10",
+  "updated_at": "2026-09-10",
+  "status": "published",
+  "publication_authorized": true,
+  "protocol_version": "4.0",
+  "reference_release": "4.0.0",
+  "publication_revision": 1,
+  "language": "zh-CN",
+  "index": "README.md",
+  "collection": "collected.zh.md",
+  "articles": [
+    {
+      "order": 1,
+      "title": "Agent 没有操作系统：为什么 FCoP 选择把工作行为外化到文件系统",
+      "file": "01-work-beyond-context.zh.md",
+      "summary": "Agent 能推理、调用工具和生成结果，却不拥有自己的操作系统，也没有天然持久的工作事实。FCoP 的核心选择不是再造一个 Agent OS，而是借用单机操作系统最成熟的持久化界面——文件系统——把任务、交付、问题和审查从模型上下文中外化出来。",
+      "source_file": "01-Agent没有操作系统_为什么FCoP选择把工作行为外化到文件系统.md"
+    },
+    {
+      "order": 2,
+      "title": "FCoP Core 到底是什么：从工具箱中提炼最小工作内核",
+      "file": "02-minimal-core.zh.md",
+      "summary": "FCoP 已经拥有 Library、MCP、生命周期、审查、恢复和大量工具，但这些都不等于 FCoP Core。真正的 Core 必须回答一个更严格的问题：如果第三方完全不用官方 Python、MCP 和 CodeFlowMu，只根据规范自行实现，哪些语义仍然必须一致？",
+      "source_file": "02-FCoP-Core到底是什么_从工具箱中提炼最小工作内核.md"
+    },
+    {
+      "order": 3,
+      "title": "FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层",
+      "file": "03-architecture-layers.zh.md",
+      "summary": "FCoP 4.0 如何区分 Core、规范、符合性验证、工具、组织策略与 Runtime，使功能增长保持清楚的边界。",
+      "source_file": "03-FCoP不等于它的工具_Core_Specification_Toolkit_Profile_Runtime如何分层.md"
+    },
+    {
+      "order": 4,
+      "title": "单机多 Agent 为什么不追求高并发：从共享写入到“多串行形成并行”",
+      "file": "04-parallel-work.zh.md",
+      "summary": "单机多 Agent 并不意味着只能串行，也不意味着应该把文件系统改造成高并发数据库。更适合 FCoP 的并行模型，是多个独立、可归属的串行工作流同时推进，并在需要时进行显式收敛。本文解释为什么共享可变状态是危险的，以及 Branch 如何成为行为外化层中的并行原语。",
+      "source_file": "04-单机多Agent为什么不追求高并发_从共享写入到多串行形成并行.md"
+    },
+    {
+      "order": 5,
+      "title": "从单机到联网：FCoP、MCP、A2A 与 CodeFlowMu 各自负责什么",
+      "file": "05-mcp-a2a-runtime.zh.md",
+      "summary": "讨论工具与上下文访问、工作事实、运行时与跨 Agent 系统通信的组合，区分已交付能力与网络映射设想。",
+      "source_file": "05-从单机到联网_FCoP_MCP_A2A_CodeFlowMu各自负责什么.md"
+    }
+  ],
+  "source": "FCoP-4.0-WP0-Audit-Package-v2.1/docs/fcop-architecture-series",
+  "note": "公开修订版；原始归档不变。A2A 映射等设计方向不表示已交付。",
+  "article_type": "engineering-architecture"
+}

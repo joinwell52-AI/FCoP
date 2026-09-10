@@ -14,7 +14,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
-**[运行 Python 示例](#try-it) · [接入 MCP](#mcp) · [了解架构](#architecture) · [论文与引用](#research)**
+**[运行 Python 示例](#try-it) · [接入 MCP](#mcp) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
 
 <a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.zh.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
 
@@ -146,6 +146,16 @@ python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
 | **Runtime** | 运行模型与工具，管理会话，调度工作并提供界面。 |
 
 **深入了解设计：[English](docs/architecture.en.md) · [简体中文](docs/architecture.zh.md)。** 专页展开说明为什么用文件、为什么分开交付与验收、如何组织并行，以及 FCoP、MCP 和 Runtime 各自承担什么。
+
+**FCoP 架构原理系列 · 五篇全文**（2026-09-10 发布，已按 4.0 修订）：
+
+1. [Agent 没有操作系统：为什么把工作行为外化到文件系统](docs/fcop-architecture-series/01-work-beyond-context.zh.md)
+2. [FCoP Core 到底是什么：从工具箱中提炼最小工作内核](docs/fcop-architecture-series/02-minimal-core.zh.md)
+3. [FCoP 不等于它的工具：Core、Specification、Toolkit、Profile 与 Runtime 如何分层](docs/fcop-architecture-series/03-architecture-layers.zh.md)
+4. [单机多 Agent 为什么不追求高并发：多串行形成并行](docs/fcop-architecture-series/04-parallel-work.zh.md)
+5. [从单机到联网：FCoP、MCP、A2A 与 CodeFlowMu 各自负责什么](docs/fcop-architecture-series/05-mcp-a2a-runtime.zh.md)
+
+[系列导读](docs/fcop-architecture-series/README.md) · [五篇全文合集](docs/fcop-architecture-series/collected.zh.md)
 
 4.0 还提供**九个双语规则模块**、版本化清单，以及 `sequential`、`parallel`、`repository-development` 三类组合。采纳、部署计划、回执和回滚都有显式步骤；宿主投影使用 `reference` 或 `bounded_embed`。安装包不会静默重写宿主规则。[规则分发英文契约](docs/fcop-4.0/rule-distribution-contract.md) · [中文契约](docs/fcop-4.0/rule-distribution-contract.zh.md)。
 
