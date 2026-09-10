@@ -345,6 +345,24 @@ class Project:
             operation_ref="family_digest", subject_ref=root_task_id,
         )
 
+    def inspect_family(self, *, root_task_id: str) -> dict[str, Any]:
+        """Read a v4 family, including structured reasons for unavailable digest."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A v4 workspace is required",
+                              operation_ref="inspect_family", subject_ref=root_task_id)
+
+    def merge_branches(
+        self, *, workspace_id: str, root_task_id: str, expected_family_digest: str,
+        branch_report_heads: Mapping[str, str], conclusion: str, conflict_resolution: str,
+        operation_id: str, sender: str, recipient: str,
+    ) -> dict[str, Any]:
+        """Atomically record the caller's convergence decision; never archive Root."""
+        from fcop.errors import V4ProtocolError, _V4Code
+
+        raise V4ProtocolError(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "A v4 workspace is required",
+                              operation_ref="merge_branches", subject_ref=root_task_id)
+
     def recover_operation(
         self,
         *,

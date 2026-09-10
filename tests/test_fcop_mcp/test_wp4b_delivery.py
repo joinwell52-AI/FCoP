@@ -126,7 +126,7 @@ def test_all_static_resources_and_disposition(tmp_path: Path, declared: str) -> 
     else:
         app_at(tmp_path)
     mcp = server.create_server(tmp_path)
-    assert {t.name for t in asyncio.run(mcp.list_tools())} == set(TOOLS)
+    assert {t.name for t in asyncio.run(mcp.list_tools())} == set(TOOLS) | {"create_branch", "inspect_family", "merge_branches"}
     assert {str(r.uri) for r in asyncio.run(mcp.list_resources())} == set(RESOURCES)
     assert {t.uri_template for t in asyncio.run(mcp.list_resource_templates())} == set(TEMPLATES)
     before = facts(tmp_path)
@@ -190,7 +190,7 @@ def test_explicit_relay_real_mcp() -> None:
             await socket.send(json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}))
             await socket.send(json.dumps({"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}))
             tools = json.loads(await socket.recv())
-            assert len(tools["result"]["tools"]) == 46
+            assert len(tools["result"]["tools"]) == 49
             completed.set()
         async with serve(relay_peer, "127.0.0.1", 0) as endpoint:
             port = next(iter(endpoint.sockets)).getsockname()[1]

@@ -1,5 +1,15 @@
 # fcop-mcp
 
+## 4.0.1 review candidate / 开发候选
+
+Adds `create_branch`, `inspect_family`, and `merge_branches`: **49 tools / 12
+resources / 4 templates**. Requires `fcop>=4.0.1,<4.1.0`; both 4.0.1 packages
+are pending ADMIN publication approval. Existing 46 tool signatures are retained.
+Core owns atomic merge, persistence and recovery; the adapter only forwards.
+See [contract and example](../docs/branch-merge.md) /
+[中文合同与示例](../docs/branch-merge.zh.md). The 4.0.0 install below remains the
+published version until release is authorized.
+
 mcp-name: io.github.joinwell52-AI/fcop
 
 > Stable distribution: fcop==4.0.0 and fcop-mcp==4.0.0.

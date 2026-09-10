@@ -22,8 +22,8 @@ def test_wp4b_surface_adds_only_reopen() -> None:
     names = {row["name"] for row in historical["tools"]}
     observed = {tool.name for tool in asyncio.run(server.mcp.list_tools())}
     assert len(names) == 45
-    assert observed == names | {"reopen_task"}
-    assert len(observed) == 46
+    assert observed == names | {"reopen_task", "create_branch", "inspect_family", "merge_branches"}
+    assert len(observed) == 49
     assert "close_issue" not in observed
     assert "transition" not in observed
 

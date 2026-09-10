@@ -20,6 +20,16 @@ Tasks, deliveries, issues and review decisions become durable files that people,
 
 **Stable version: 4.0.0** — [released September 10, 2026](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
 
+## 4.0.1 development candidate: Branch merge
+
+The review branch adds three thin MCP tools (`create_branch`, `inspect_family`,
+`merge_branches`) and two Core APIs. Both packages target **4.0.1**, not yet
+published. Core owns atomic, durable convergence and retry handling; MCP exposes
+49 tools. An unfinished family has `family_digest: null`, `merge_ready: false`
+and structured reasons. Only the caller decides the merge conclusion.
+See the [Branch merge contract and example](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md).
+The published 4.0.0 packages and tag remain unchanged.
+
 ## Why put work outside the model?
 
 “I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.

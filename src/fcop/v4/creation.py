@@ -262,6 +262,8 @@ class _Creation:
             "inspect_state": self.inspect_state,
             "transition": self.transition,
             "family_digest": self.family_digest,
+            "inspect_family": self.inspect_family,
+            "merge_branches": self.merge_branches,
             "rule_distribution": _bind(self),
             "recover_operation": self.recover_operation,
             "inject_fault": self.inject_fault,
@@ -302,6 +304,23 @@ class _Creation:
             family = snapshot(self, root_task_id)
             return family.digest
 
+    def inspect_family(self, *, root_task_id: str) -> dict[str, Any]:
+        from fcop.v4.merge import inspect_family
+
+        return inspect_family(self, root_task_id=root_task_id)
+
+    def merge_branches(
+        self, *, workspace_id: str, root_task_id: str, expected_family_digest: str,
+        branch_report_heads: Mapping[str, str], conclusion: str, conflict_resolution: str,
+        operation_id: str, sender: str, recipient: str,
+    ) -> dict[str, Any]:
+        from fcop.v4.merge import merge_branches
+
+        return merge_branches(self, workspace_id=workspace_id, root_task_id=root_task_id,
+                              expected_family_digest=expected_family_digest, branch_report_heads=branch_report_heads,
+                              conclusion=conclusion, conflict_resolution=conflict_resolution,
+                              operation_id=operation_id, sender=sender, recipient=recipient)
+
     def recover_operation(
         self,
         *,
@@ -325,7 +344,7 @@ class _Creation:
     def inject_fault(self, *, operation: str, stage: str, once: bool = True) -> None:
         self._check()
         if (
-            operation not in {"transition", "export_archive"}
+            operation not in {"transition", "export_archive", "merge_branches"}
             or stage not in {"PREPARED", "TARGET_DURABLE", "COMMITTED", "RESPONSE_LOST"}
             or not isinstance(once, bool)
         ):
@@ -941,25 +960,9 @@ class _Creation:
     def write_review(self, **kwargs: Any) -> dict[str, Any]:
         if kwargs.get("review_kind") != "convergence":
             return self._append("REVIEW", kwargs)
-        from fcop.v4.convergence import validate_convergence_request
-        from fcop.v4.linearization import family_boundary
+        from fcop.v4.merge import append
 
-        subject = kwargs.get("subject_ref")
-        if not isinstance(subject, str) or not subject.startswith("TASK-"):
-            raise fail(_V4Code.RELATION_INVALID, "Convergence subject must name a Root TASK")
-        with family_boundary(self.root, self.manifest["workspace_id"], subject):
-            self._check(kwargs.get("workspace_id"))
-            if kwargs.get("decision") != "approved":
-                raise fail(_V4Code.FAMILY_CONVERGENCE_MISMATCH, "Convergence must be approved")
-            family = validate_convergence_request(
-                self, subject, kwargs.get("family_digest"), kwargs.get("references")
-            )
-            if family.root_path.parent.name != "done":
-                raise fail(
-                    _V4Code.INVALID_TRANSITION,
-                    "Convergence may only be recorded while the Root is done",
-                )
-            return self._append("REVIEW", kwargs)
+        return append(self, kwargs)
 
     def mark_human_approved(
         self, *, review_id: str, decision: str, approver: str, profile_ref: str,

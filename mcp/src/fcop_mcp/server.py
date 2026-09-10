@@ -41,6 +41,7 @@ from fcop import Issue, Project, Report, Task, ValidationIssue
 
 from fcop_mcp.adapter import CURRENT_ROUTER, register_legacy_routes, register_reopen
 from fcop_mcp.adapter import create_server as create_server
+from fcop_mcp.branches import register_branches
 from fcop_mcp.gal import create_alert, list_alerts
 from fcop_mcp.gal._drift import run_drift_scan
 from fcop_mcp.governance import FCoPGovernanceMiddleware
@@ -4029,5 +4030,6 @@ def _request_router() -> WorkspaceRouter:
 
 
 register_reopen(mcp, _request_router)
+register_branches(mcp, _request_router)
 register_legacy_routes(mcp, sys.modules[__name__], _request_router, replace=True)
 register_resources(mcp, sys.modules[__name__], _request_router, replace=True)

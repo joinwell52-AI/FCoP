@@ -32,14 +32,14 @@ def test_wp4f_stable_identity_and_exact_dependency():
         tree = ast.parse((ROOT / name).read_text(encoding="utf-8"))
         values = [ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
                   and any(isinstance(t, ast.Name) and t.id == "__version__" for t in n.targets)]
-        assert values == ["4.0.0"]
+        assert values == ["4.0.1"]
     for name in ("pyproject.toml", "mcp/pyproject.toml"):
         text = (ROOT / name).read_text(encoding="utf-8")
         assert '"Development Status :: 5 - Production/Stable"' in text
         assert '"Development Status :: 4 - Beta"' not in text
     text = (ROOT / "mcp/pyproject.toml").read_text(encoding="utf-8")
     pin, = re.findall(r'"(fcop>=[^"]+)"', text)
-    assert Requirement(pin).specifier == SpecifierSet(">=4.0.0,<4.1.0")
+    assert Requirement(pin).specifier == SpecifierSet(">=4.0.1,<4.1.0")
 
 
 @pytest.mark.parametrize("tamper", [False, True])

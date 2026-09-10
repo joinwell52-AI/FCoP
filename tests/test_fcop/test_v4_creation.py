@@ -834,7 +834,7 @@ def test_closeout_boundary_reflection_binding_and_subclass(tmp_path: Path) -> No
     v4_only_names = {
             "create_workspace", "create_task", "derive_workspace", "inspect_state",
             "transition", "finish_task", "family_digest", "recover_operation",
-            "inject_fault", "export_archive", "rule_distribution",
+            "inject_fault", "export_archive", "rule_distribution", "inspect_family", "merge_branches",
         }
     original_names = set(_METHOD_POLICIES) - v4_only_names
     # Exact historical set read from c19808f4bc07948729bb841ec569627cb672fde7,
@@ -852,13 +852,14 @@ def test_closeout_boundary_reflection_binding_and_subclass(tmp_path: Path) -> No
     }
     assert len(original_names) == 38
     assert original_names == historical_names
-    assert len(v4_only_names) == 11
+    assert len(v4_only_names) == 13
     assert "rule_distribution" in _METHOD_POLICIES
     assert "rule_distribution" not in original_names
     assert original_names.isdisjoint(v4_only_names)
     assert set(_METHOD_POLICIES) == original_names | v4_only_names
-    historical_policies = historical_names | (v4_only_names - {"rule_distribution"})
-    assert set(_METHOD_POLICIES) - historical_policies == {"rule_distribution"}
+    additions = {"rule_distribution", "inspect_family", "merge_branches"}
+    historical_policies = historical_names | (v4_only_names - additions)
+    assert set(_METHOD_POLICIES) - historical_policies == additions
     assert historical_policies <= set(_METHOD_POLICIES)
     assert isinstance(vars(Project)["validate_team"], staticmethod)
     assert Project.validate_team(roles=["ME"], leader="ME") == []

@@ -946,6 +946,23 @@
         ],
         "return": "None"
       },
+      "inspect_family": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "root_task_id"
+          }
+        ],
+        "return": "dict[str, Any]"
+      },
       "inspect_state": {
         "params": [
           {
@@ -1236,6 +1253,71 @@
           }
         ],
         "return": "Review"
+      },
+      "merge_branches": {
+        "params": [
+          {
+            "annotation": null,
+            "has_default": false,
+            "kind": "POSITIONAL_OR_KEYWORD",
+            "name": "self"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "workspace_id"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "root_task_id"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "expected_family_digest"
+          },
+          {
+            "annotation": "Mapping[str, str]",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "branch_report_heads"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "conclusion"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "conflict_resolution"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "operation_id"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "sender"
+          },
+          {
+            "annotation": "str",
+            "has_default": false,
+            "kind": "KEYWORD_ONLY",
+            "name": "recipient"
+          }
+        ],
+        "return": "dict[str, Any]"
       },
       "poll_once": {
         "params": [
