@@ -4,8 +4,8 @@
 
 FCoP 通过 TASK / REPORT / ISSUE / REVIEW 文件治理协作。它是协议，不是调度器、Agent Runtime、消息中间件或数据库。
 
-- **Latest stable: 3.2.5** — 最新稳定版。
-- **Release candidate: 4.0.0rc1** — 尚未公开发布，不是稳定版，暂不能从公开 PyPI 安装。
+- **Stable version: 4.0.0** — 稳定发布制品，公开发布须经 WP4F Gate。
+- **Release candidate: 4.0.0rc1** — 已公开发布的历史预发布版，保持不变。
 - **4.0 MCP: 46 tools / 12 resources / 4 resource templates**。
 
 ## 协议级 Major 升级
@@ -24,21 +24,21 @@ Python Core（`fcop`）负责校验和文件系统行为。可选 MCP Adapter（
 
 ```bash
 python -m venv .venv
-python -m pip install fcop==3.2.5 fcop-mcp==3.2.5
+python -m pip install fcop==4.0.0 fcop-mcp==4.0.0
 ```
 
 ## 候选版安装
 
-取得 WP4E Manifest 验收锁定的制品及 SHA-256，核验后安装到**另一个全新的虚拟环境**。以下为本地制品安装，不是公开 PyPI RC 安装命令：
+Stable 公开发布前，取得 WP4F Manifest 锁定的制品及 SHA-256，核验后安装到**另一个全新的虚拟环境**。历史 RC 继续单独保留：
 
 ```bash
-python -m pip install ./candidate/fcop-4.0.0rc1-py3-none-any.whl ./candidate/fcop_mcp-4.0.0rc1-py3-none-any.whl
+python -m pip install ./candidate/fcop-4.0.0-py3-none-any.whl ./candidate/fcop_mcp-4.0.0-py3-none-any.whl
 python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
 ```
 
-候选精确组合为 `fcop==4.0.0rc1 / fcop-mcp==4.0.0rc1`；适配器依赖声明为 `fcop>=4.0.0rc1,<4.1.0`。不得混装 3.2.5 和 4.0.0rc1。现有 3.x 工作区保持原语义；安装不授权迁移、重新部署规则或升级下游。
+Stable 精确组合为 `fcop==4.0.0 / fcop-mcp==4.0.0`；适配器依赖声明为 `fcop>=4.0.0,<4.1.0`。不得混装不同发布线。现有 3.x 工作区保持原语义；安装不授权迁移、重新部署规则或升级下游。
 
-## 最小 Python 入口（已核验候选）
+## 最小 Python 入口（已核验 4.0）
 
 ```python
 from pathlib import Path
@@ -58,7 +58,7 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
     print(first["task_id"])
 ```
 
-## 最小 MCP 入口（已核验候选）
+## 最小 MCP 入口（已核验 4.0）
 
 ```json
 {
@@ -98,14 +98,14 @@ archive_task(review_ref=..., family_digest=...)
 - [4.0 EN](spec/fcop-4.0-spec.md) / [4.0 ZH](spec/fcop-4.0-spec.zh.md)
 - [3.x EN](spec/fcop-v3-spec.md) / [3.x ZH](spec/fcop-v3-spec.zh.md)
 - [MCP tools](docs/mcp-tools.md) / [MCP Adapter](mcp/README.md)
-- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](examples/v4/third-party/python-only/app.py)
+- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](tests/stable/third-party/python-only/app.py)
 - [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
 - [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
 - [License](LICENSE) / [Citation](CITATION.cff)
 - 仅限历史版本的安装提示词：[EN](src/fcop/rules/_data/agent-install-prompt.en.md) / [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md)，也可通过 `fcop://prompt/install` 发现。这些历史提示词不授权 RC 安装或迁移。
 
-历史教程仅描述标明的版本，不是自动升级到 4.0 的指令。稳定版 3.2.5 归档为 [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285)，注册记录为 [OSF 92nwm](https://osf.io/92nwm/)。二者不代表尚未发布的 RC；本轮不创建新 DOI 或 Registry 记录。
+历史教程仅描述标明的版本，不是自动升级到 4.0 的指令。历史 3.2.5 归档为 [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285)，注册记录为 [OSF 92nwm](https://osf.io/92nwm/)。二者不代表 4.0.0；本轮不创建新 DOI 或 Registry 记录。
 
 ## 发布边界
 
-WP4E Phase A 只准备文档、可复现制品、真实客户端及默认拒绝上传的发布 dry-run。**不合并 main、不发布。** ADMIN 必须接受 `FCOP_4_RC_RELEASE_READY`；实际合并、tag、PyPI 上传和 GitHub Pre-release 仍需明确 Phase B 授权及受保护发布控制。不授权稳定版发布。
+WP4F 将已验收 RC 提升为 Stable，不增加协议或业务行为。Phase A 验证可复现 Stable 制品和真实客户端。发布及指定本机 MCP 升级需要 ADMIN 的 `FCOP_4_STABLE_RELEASE_READY` Gate。保留 RC，不设观察期，不引入自动工作区迁移、Registry 或 Zenodo 更新。参见 [4.0.0 release notes](docs/releases/4.0.0.md)。

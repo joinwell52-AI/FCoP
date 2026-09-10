@@ -2,35 +2,35 @@
 
 mcp-name: io.github.joinwell52-AI/fcop
 
-> Unpublished WP4E candidate: both packages target `4.0.0rc1` (Beta).
-> Candidate installation must use the exact WP4E Actions artifacts and hashes,
-> in a fresh external venv. No PyPI, Registry, GitHub Release, main merge,
-> existing-workspace upgrade or rule redeployment is authorized.
-> The historical public-install instructions below are not candidate instructions.
+> Stable distribution: fcop==4.0.0 and fcop-mcp==4.0.0.
+> No new protocol or business behavior. Use an activated fresh Python 3.10+ venv:
+>
+> `python -m pip install fcop==4.0.0 fcop-mcp==4.0.0`
+>
+> Existing workspaces are not migrated or redeployed by installation.
+> The historical RC remains available; Registry and Zenodo are not updated.
 
 **MCP (stdio) server** — the optional **IDE bridge** for the same FCoP stack. It
 wraps the official [`fcop`](https://pypi.org/project/fcop/) library; it is **not**
 a second “FCoP product” and does not replace the protocol text.
 
-- **What FCoP is (protocol only, product-agnostic):** [`docs/getting-started.en.md`](../docs/getting-started.en.md) (中文 [`getting-started.md`](../docs/getting-started.md))  
+- **What FCoP is (protocol only, product-agnostic):** [`docs/getting-started.en.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md) (中文 [`getting-started.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.md))
 - **Pure Python lib / `pip install fcop`:** filesystem + Project API, PyYAML and jsonschema — [PyPI `fcop`](https://pypi.org/project/fcop/) (see that package’s `description` and **Documentation**).
 - **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
 - **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
 
-**🎯 v3.2.4 — PyPI metadata & bundled protocol fix** (2026-05-27). Also: official MCP registry package, docs aligned with FCoP 3.0.  
-`fcop-mcp` remains registered as `io.github.joinwell52-AI/fcop` in the [official MCP registry](https://registry.modelcontextprotocol.io/), and is discoverable from Claude Desktop / Cursor / PulseMCP and other MCP-compatible clients (`uvx fcop-mcp`). This release synchronizes team-template and rule-document references to the v3 `_lifecycle/` topology and keeps `fcop` / `fcop-mcp` lockstep semantics (ADR-0002).
-
-**Upgrading from older lines (`0.6.x` / `0.7.x` / `1.x` / `2.x`)?** See [**`docs/upgrade-fcop-mcp.md`**](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) — install in the MCP venv (`pip install -U fcop fcop-mcp`), restart IDE, then run `redeploy_rules()` once to refresh on-disk rule files.
+The exact Stable pair preserves the accepted RC protocol. The older documentation
+in the explicitly marked historical section below is not a Stable upgrade instruction.
 
 **Surface:** the historical released 3.2.5 baseline has **45 tools**. This
-unpublished candidate has **46 tools / 12 static resources / 4 templates**:
+Stable distribution has **46 tools / 12 static resources / 4 templates**:
 The existing 45 tools gain v4 routing and semantics; T6 `reopen_task` is the sole additional name (not Branch-only); WP4C adds version-selected guidance
 and team resources. Discovery is checked through stdio by the external sample.
 
-### Unpublished 4.0.0rc1 v4 adapter
+### 4.0.0 Stable v4 adapter
 
-The candidate requires `fcop>=4.0.0rc1,<4.1.0` and accepts the exact installed
-`4.0.0rc1 / 4.0.0rc1` pair. The historical `3.2.5 / 3.2.5` pair remains solely
+The Stable adapter requires `fcop>=4.0.0,<4.1.0` and accepts the exact installed
+`4.0.0 / 4.0.0` pair. The historical `3.2.5 / 3.2.5` pair remains solely
 for legacy/source compatibility checks; mixed installed pairs fail closed.
 The copied stdio-only sample under `examples/v4/third-party/mcp-only/` has no
 client-side FCoP imports and configures its educational Profile at trusted
@@ -122,7 +122,7 @@ Project，零 head／多 head 分别返回 `REPORT_REQUIRED`／
 
 ---
 
-## Historical published 3.x guide — not WP4D candidate installation
+## Historical 3.x guide — not Stable installation or migration authority
 
 The following public-index and upgrade instructions describe the released line.
 Do not execute them as part of WP4D or against an existing development workspace.
@@ -299,7 +299,7 @@ Resolution order (see [ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main
    - `docs/agents/fcop.json` or `docs/agents/tasks/` (legacy 0.7.x layout)
 5. Current working directory (last resort)
 
-Write guards additionally accept `fcop/fcop.json` (v1.0+ / v3 default workspace) or legacy `docs/agents/fcop.json`. v3 coordination files live under `fcop/_lifecycle/`; see [`docs/getting-started.en.md`](../docs/getting-started.en.md).
+Write guards additionally accept `fcop/fcop.json` (v1.0+ / v3 default workspace) or legacy `docs/agents/fcop.json`. v3 coordination files live under `fcop/_lifecycle/`; see [`docs/getting-started.en.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md).
 
 To pin a folder in config:
 
@@ -315,10 +315,10 @@ Within a single **MINOR** line (e.g. `3.2.x`), MCP tool/resource **shapes** stay
 
 `fcop` and `fcop-mcp` ship **lockstep** with the same version number ([ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md)). Install both together, e.g. `pip install -U "fcop>=3.2.5,<3.3" "fcop-mcp>=3.2.5,<3.3"`. **Avoid PyPI 3.2.3** (bad bundled `fcop-protocol.mdc` encoding).
 
-Upgrading from `0.6.x` / `0.7.x` / `1.x` / `2.x`? See [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and the release notes under [`docs/releases/`](../docs/releases/). v3.0.0 introduced the `_lifecycle/` topology — run `fcop_audit(scope="upgrade")` then `migrate_to_v3()` on unmigrated v2 workspaces.
+Upgrading from `0.6.x` / `0.7.x` / `1.x` / `2.x`? See [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and the release notes under [`docs/releases/`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/). v3.0.0 introduced the `_lifecycle/` topology — run `fcop_audit(scope="upgrade")` then `migrate_to_v3()` on unmigrated v2 workspaces.
 
 ---
 
 ## License
 
-MIT — see [`LICENSE`](../LICENSE).
+MIT — see [`LICENSE`](https://github.com/joinwell52-AI/FCoP/blob/main/LICENSE).

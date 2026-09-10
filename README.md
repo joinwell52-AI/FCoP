@@ -4,8 +4,8 @@
 
 FCoP governs collaboration through TASK / REPORT / ISSUE / REVIEW files. It is a protocol, not a scheduler, Agent Runtime, broker or database.
 
-- **Latest stable: 3.2.5**
-- **Release candidate: 4.0.0rc1** — unpublished; not stable and not yet a public PyPI install.
+- **Stable version: 4.0.0** — release distribution; publication is gated by WP4F.
+- **Release candidate: 4.0.0rc1** — published historical prerelease, retained unchanged.
 - **4.0 MCP: 46 tools / 12 resources / 4 resource templates**.
 
 ## Protocol-level Major upgrade
@@ -24,21 +24,21 @@ Use a fresh virtual environment; activate it in your shell before installing:
 
 ```bash
 python -m venv .venv
-python -m pip install fcop==3.2.5 fcop-mcp==3.2.5
+python -m pip install fcop==4.0.0 fcop-mcp==4.0.0
 ```
 
 ## Candidate installation
 
-Obtain the exact artifacts and SHA-256 hashes accepted by the WP4E Manifest, verify them, and install into a **separate new virtual environment**. These are local files, not public PyPI RC installation commands:
+Before Stable publication, obtain the exact artifacts and SHA-256 hashes from the WP4F Manifest and install into a **separate new virtual environment**. The published historical RC remains available separately:
 
 ```bash
-python -m pip install ./candidate/fcop-4.0.0rc1-py3-none-any.whl ./candidate/fcop_mcp-4.0.0rc1-py3-none-any.whl
+python -m pip install ./candidate/fcop-4.0.0-py3-none-any.whl ./candidate/fcop_mcp-4.0.0-py3-none-any.whl
 python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
 ```
 
-The exact candidate pair is `fcop==4.0.0rc1 / fcop-mcp==4.0.0rc1`; the adapter declares `fcop>=4.0.0rc1,<4.1.0`. Do not mix 3.2.5 and 4.0.0rc1. Existing 3.x workspaces keep their original semantics; installing does not authorize migration, rule redeployment or downstream upgrades.
+The exact Stable pair is `fcop==4.0.0 / fcop-mcp==4.0.0`; the adapter declares `fcop>=4.0.0,<4.1.0`. Do not mix release lines. Existing 3.x workspaces keep their original semantics; installing does not authorize migration, rule redeployment or downstream upgrades.
 
-## Minimal Python entry (verified candidate)
+## Minimal Python entry (verified 4.0)
 
 ```python
 from pathlib import Path
@@ -58,7 +58,7 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
     print(first["task_id"])
 ```
 
-## Minimal MCP entry (verified candidate)
+## Minimal MCP entry (verified 4.0)
 
 ```json
 {
@@ -98,14 +98,14 @@ Nine bilingual modules form 18 canonical rule files and one Manifest. Assemblies
 - [4.0 EN](spec/fcop-4.0-spec.md) / [4.0 ZH](spec/fcop-4.0-spec.zh.md)
 - [3.x EN](spec/fcop-v3-spec.md) / [3.x ZH](spec/fcop-v3-spec.zh.md)
 - [MCP tools](docs/mcp-tools.md) / [MCP Adapter](mcp/README.md)
-- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](examples/v4/third-party/python-only/app.py)
+- [RC guide](docs/fcop-4.0/rc-candidate-guide.md) / [Python example](tests/stable/third-party/python-only/app.py)
 - [CHANGELOG](CHANGELOG.md) / [ADR index](adr/README.md)
 - [Research EN](essays/when-ai-organizes-its-own-work.en.md) / [研究 ZH](essays/when-ai-organizes-its-own-work.md)
 - [License](LICENSE) / [Citation](CITATION.cff)
 - Legacy installation prompts only: [EN](src/fcop/rules/_data/agent-install-prompt.en.md) / [ZH](src/fcop/rules/_data/agent-install-prompt.zh.md), also discoverable at `fcop://prompt/install`. These historical prompts do not authorize RC installation or migration.
 
-Historical tutorials describe their stated versions, not automatic 4.0 upgrades. The stable 3.2.5 archive is [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285), registered at [OSF 92nwm](https://osf.io/92nwm/). Neither identifies the unpublished RC; no new DOI or Registry record is created here.
+Historical tutorials describe their stated versions, not automatic 4.0 upgrades. The historical 3.2.5 archive is [DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285), registered at [OSF 92nwm](https://osf.io/92nwm/). Neither identifies 4.0.0; no new DOI or Registry record is created here.
 
 ## Release boundary
 
-WP4E Phase A prepares documentation, reproducible artifacts, real clients and a fail-closed release dry-run. **No main merge or publishing.** ADMIN must accept `FCOP_4_RC_RELEASE_READY`; actual merge, tag, PyPI upload and GitHub Pre-release still require explicit Phase B authorization and protected publishing controls. Stable release is not authorized.
+WP4F promotes the accepted RC without new protocol or business behavior. Phase A verifies reproducible Stable artifacts and real clients. Publication and the specifically authorized local MCP upgrade require ADMIN's `FCOP_4_STABLE_RELEASE_READY` Gate. The RC is retained; no observation period, automatic workspace migration, Registry or Zenodo update is introduced. See [4.0.0 release notes](docs/releases/4.0.0.md).

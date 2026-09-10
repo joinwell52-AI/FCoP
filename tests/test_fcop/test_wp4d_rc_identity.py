@@ -6,11 +6,13 @@ from pathlib import Path
 import pytest
 from scripts.fcop_rc_candidate_check import check, validate_pin
 
+from tests.stable.historical import identity_tree
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_wp4d_rc_candidate_identity():
-    assert check(ROOT) == {
+def test_wp4d_rc_candidate_identity(tmp_path):
+    assert check(identity_tree(tmp_path)) == {
         "schema": "wp4d-identity/v1", "fcop": "4.0.0rc1", "fcop-mcp": "4.0.0rc1",
         "pin": "fcop>=4.0.0rc1,<4.1.0", "candidate_pair": True,
         "stable_pair": False, "published": False,
