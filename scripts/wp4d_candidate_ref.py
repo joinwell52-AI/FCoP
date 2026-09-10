@@ -5,8 +5,9 @@ import subprocess
 from pathlib import Path
 
 
-def candidate_ref(repo: Path) -> str:
+def candidate_ref(repo: Path, stage: str = "WP4D") -> str:
     """Skip only contiguous, single-parent WP4D evidence/Manifest commits."""
+    assert stage in {"WP4D", "WP4E"}
     ref = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
     while True:
         parents = subprocess.check_output(
@@ -17,8 +18,8 @@ def candidate_ref(repo: Path) -> str:
             ["git", "-C", str(repo), "diff", "--name-only", parents[1], ref], text=True,
         ).splitlines()
         evidence = bool(names) and all(
-            name.startswith(("reports/FCOP-4.0-WP4D-", "tests/rc/evidence/wp4d/"))
-            or name == "reviews/fcop-4.0/wp4d/MANIFEST.md"
+            name.startswith((f"reports/FCOP-4.0-{stage}-", f"tests/rc/evidence/{stage.lower()}/"))
+            or name == f"reviews/fcop-4.0/{stage.lower()}/MANIFEST.md"
             for name in names
         )
         if not evidence:

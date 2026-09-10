@@ -3,13 +3,16 @@ name: rc-candidate
 on:
   push:
     branches: [feat/fcop-4.0-wp4d-rc-candidate]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
-  group: wp4d-rc-${{ github.ref }}
+  group: wp4e-rc-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -26,12 +29,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Frozen files, public behavior and authorized write set
-        run: python -B scripts/wp4d_verify_scope.py
+        run: python -B scripts/wp4e_verify_scope.py
       - name: Install source test dependencies
         run: |
           python -m pip install -e '.[dev]' -e './mcp[dev]'
@@ -44,7 +48,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: wp4d-source-evidence-${{ matrix.os }}
+          name: wp4e-source-evidence-${{ matrix.os }}
           path: ${{ runner.temp }}/full.xml
           retention-days: 90
 
@@ -57,6 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -64,7 +69,21 @@ jobs:
       - name: Fixed build tooling (no publish tooling invocation)
         run: python -m pip install build==1.4.2 hatchling==1.32.0 setuptools==82.0.1 wheel==0.45.1 twine==7.0.0 packaging==26.3
       - name: Two fresh source directories, four raw byte equalities
-        run: python -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build" > "$RUNNER_TEMP/wp4d-build.log" 2>&1
+        run: python -B scripts/wp4d_build.py "$RUNNER_TEMP/rc-build" --stage WP4E > "$RUNNER_TEMP/wp4d-build.log" 2>&1
+      - uses: actions/download-artifact@v4
+        with:
+          name: wp4d-candidates-first-set
+          path: ${{ runner.temp }}/wp4d-baseline
+          run-id: 34383807188
+          github-token: ${{ github.token }}
+      - name: Attribute every changed archive member to authorized documentation
+        run: python -B scripts/wp4e_artifact_delta.py "$RUNNER_TEMP/wp4d-baseline" "$RUNNER_TEMP/rc-build/artifacts-1" > "$RUNNER_TEMP/wp4e-artifact-delta.json"
+      - name: No-credential release dry-run on the real newly built artifacts
+        run: |
+          HEAD=$(git rev-parse HEAD)
+          CONTENT=$(python -c "import json,os; print(json.load(open(os.environ['RUNNER_TEMP']+'/rc-build/artifacts-1/candidate-manifest.json'))['commit'])")
+          HASH=$(sha256sum "$RUNNER_TEMP/rc-build/artifacts-1/candidate-manifest.json" | cut -d' ' -f1)
+          python -B scripts/wp4e_release_guard.py "$RUNNER_TEMP/rc-build/artifacts-1" --head "$HEAD" --content "$CONTENT" --manifest-sha256 "$HASH" > "$RUNNER_TEMP/wp4e-dry-run.json"
       - name: Separate accepted 3.2.5 fixture, not an RC candidate
         run: python -B scripts/wp4d_legacy.py "$RUNNER_TEMP/legacy-build" > "$RUNNER_TEMP/wp4d-legacy-build.log" 2>&1
       - name: Bind both manifest identities
@@ -74,7 +93,7 @@ jobs:
           echo "historical_hash=$(sha256sum "$RUNNER_TEMP/legacy-build/artifact/historical-manifest.json" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: wp4d-candidates-first-set
+          name: wp4e-candidates-first-set
           path: ${{ runner.temp }}/rc-build/artifacts-1/
           retention-days: 90
       - uses: actions/upload-artifact@v4
@@ -85,10 +104,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: wp4d-build-logs
+          name: wp4e-build-logs
           path: |
             ${{ runner.temp }}/wp4d-build.log
             ${{ runner.temp }}/wp4d-legacy-build.log
+            ${{ runner.temp }}/wp4e-artifact-delta.json
+            ${{ runner.temp }}/wp4e-dry-run.json
           retention-days: 90
 
   consumer:
@@ -103,13 +124,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - uses: actions/download-artifact@v4
         with:
-          name: wp4d-candidates-first-set
+          name: wp4e-candidates-first-set
           path: ${{ runner.temp }}/candidate-input
       - uses: actions/download-artifact@v4
         with:
@@ -125,10 +147,10 @@ jobs:
           "${{ env.CANDIDATE_HASH }}"
           "${{ runner.temp }}/historical-input"
           "${{ env.HISTORICAL_HASH }}"
-          "${{ runner.temp }}/consumer-evidence"
+          "${{ runner.temp }}/consumer-evidence" --stage WP4E
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: wp4d-consumer-${{ matrix.os }}-${{ matrix.python }}
+          name: wp4e-consumer-${{ matrix.os }}-${{ matrix.python }}
           path: ${{ runner.temp }}/consumer-evidence/
           retention-days: 90

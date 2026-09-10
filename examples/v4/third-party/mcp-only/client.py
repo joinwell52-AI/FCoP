@@ -9,6 +9,7 @@ import queue
 import subprocess
 import sys
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -162,16 +163,48 @@ def main():
         app.archive(seq)
         parent = app.start("family-root")
         branch = app.start("family-branch", parent)
+        branch_two = app.start("family-branch-two", parent)
         report = app.complete(branch)
+        report_two = app.complete(branch_two)
         app.complete(parent)
         family = c.call("inspect_task", filename=parent, include_family_digest=True)["family_digest"]
         convergence = app.review(parent, "convergence", "approved", family_digest=family,
-                                 references=[report])
+                                 references=[report, report_two])
         app.archive(parent, convergence, family)
+        # Two independent stdio servers submit real writes to one workspace.
+        # The barrier coordinates request dispatch, never substitutes for the writes.
+        competitor = Connection(root, args.source, 3)
+        try:
+            assert competitor.proc.pid != c.proc.pid
+            request = dict(workspace_id=workspace["workspace_id"], operation_id="race-same",
+                           sender="ME", recipient="ME", subject="Concurrent task", body="same")
+            barrier = threading.Barrier(2)
+
+            def compete(connection):
+                barrier.wait(timeout=30)
+                return connection.call("create_task", **request)
+
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                futures = [pool.submit(compete, connection) for connection in (c, competitor)]
+                raced = [f.result(timeout=90) for f in futures]
+            assert raced[0]["task_id"] == raced[1]["task_id"]
+            assert raced[0]["digest"] == raced[1]["digest"]
+            assert sorted(r["existing"] for r in raced) == [False, True]
+            race_before = snapshot(root)
+            replay = competitor.call("create_task", **request)
+            assert replay["existing"] and replay["task_id"] == raced[0]["task_id"]
+            assert snapshot(root) == race_before
+            failed = competitor.rpc("tools/call", {"name": "create_task",
+                                     "arguments": {**request, "body": "different"}})
+            assert failed["isError"]
+            assert failed["structuredContent"]["code"] == "OPERATION_ID_CONFLICT"
+            assert snapshot(root) == race_before
+        finally:
+            competitor.close()
         lost_request, first = app.create("response-lost")
         # Transport observes completion but withholds it from the retrying app.
         # Kill the actual service only after committed filesystem facts exist.
-        tasks = [seq, parent, branch, first["task_id"]]
+        tasks = [seq, parent, branch, branch_two, first["task_id"]]
         observed = [c.call("read_task", filename=t) for t in tasks]
         before = snapshot(root)
     finally:
@@ -194,11 +227,15 @@ def main():
         assert rejected["structuredContent"]["code"] == "OPERATION_ID_CONFLICT"
         assert snapshot(root) == before
         states = [c.call("inspect_task", filename=t)["stage"] for t in tasks]
-        assert states == ["archive", "archive", "done", "inbox"]
-        assert sum(len(v["transitions"]) for v in observed) == 15
+        assert states == ["archive", "archive", "done", "done", "inbox"]
+        assert sum(len(v["transitions"]) for v in observed) == 19
+        race_retry = c.call("create_task", **request)
+        assert race_retry["existing"] and race_retry["task_id"] == raced[0]["task_id"]
+        assert snapshot(root) == before
         print(json.dumps(dict(mode="SOURCE_ONLY" if args.source else "INSTALLED",
                               transport="stdio-json-rpc", tools=46, resources=12, templates=4,
-                              states=states, transitions=15, service_processes=2,
+                              states=states, transitions=19, service_processes=3,
+                              branches=2, concurrent_real_writes=2, same_operation_one_result=True,
                               exact_retry=True, convergence=True, zero_conflict_effects=True),
                          sort_keys=True))
     finally:

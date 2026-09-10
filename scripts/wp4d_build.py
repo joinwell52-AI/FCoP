@@ -89,6 +89,7 @@ def inspect_archive(path, canonical):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--stage", choices=["WP4D", "WP4E"], default="WP4D")
     args = parser.parse_args()
     repo = Path.cwd()
     output = args.output.resolve()
@@ -99,7 +100,7 @@ def main():
                      "wheel": "0.45.1", "twine": "7.0.0", "packaging": "26.3"}, tools
     output.mkdir(parents=True)
     execution_head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    commit = candidate_ref(repo)
+    commit = candidate_ref(repo, stage=args.stage)
     assert not subprocess.check_output(["git", "status", "--porcelain"])
     canonical = {}
     names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", BASE,
@@ -131,7 +132,7 @@ def main():
                                 **inspect_archive(path, canonical)))
         sets.append(records)
     assert sets[0] == sets[1], "Non-reproducible candidate; do not mix sets"
-    document = dict(schema="wp4d-candidates/v1", repository="joinwell52-AI/FCoP",
+    document = dict(schema=f"{args.stage.lower()}-candidates/v1", repository="joinwell52-AI/FCoP",
                     commit=commit, execution_head=execution_head, python=platform.python_version(),
                     tools=tools,
                     source_date_epoch=int(EPOCH), started=started,

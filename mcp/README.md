@@ -2,8 +2,8 @@
 
 mcp-name: io.github.joinwell52-AI/fcop
 
-> Unpublished WP4D candidate: both packages target `4.0.0rc1` (Beta).
-> Candidate installation must use the exact WP4D Actions artifacts and hashes,
+> Unpublished WP4E candidate: both packages target `4.0.0rc1` (Beta).
+> Candidate installation must use the exact WP4E Actions artifacts and hashes,
 > in a fresh external venv. No PyPI, Registry, GitHub Release, main merge,
 > existing-workspace upgrade or rule redeployment is authorized.
 > The historical public-install instructions below are not candidate instructions.
@@ -24,7 +24,7 @@ a second “FCoP product” and does not replace the protocol text.
 
 **Surface:** the historical released 3.2.5 baseline has **45 tools**. This
 unpublished candidate has **46 tools / 12 static resources / 4 templates**:
-`reopen_task` is the sole additional tool; WP4C adds version-selected guidance
+The existing 45 tools gain v4 routing and semantics; T6 `reopen_task` is the sole additional name (not Branch-only); WP4C adds version-selected guidance
 and team resources. Discovery is checked through stdio by the external sample.
 
 ### Unpublished 4.0.0rc1 v4 adapter

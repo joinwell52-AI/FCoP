@@ -113,6 +113,7 @@ def main():
     parser.add_argument("legacy", type=Path)
     parser.add_argument("historical_manifest_sha256")
     parser.add_argument("evidence", type=Path)
+    parser.add_argument("--stage", choices=["WP4D", "WP4E"], default="WP4D")
     args = parser.parse_args()
     repo = Path.cwd().resolve()
     artifacts, legacy = args.artifacts.resolve(), args.legacy.resolve()
@@ -121,7 +122,7 @@ def main():
     assert manifest["raw_reproducibility"] == "4/4"
     assert manifest["repository"] == "joinwell52-AI/FCoP"
     execution_head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    assert manifest["commit"] == candidate_ref(repo)
+    assert manifest["commit"] == candidate_ref(repo, stage=args.stage)
     assert manifest["execution_head"] == execution_head
     historical = verify_set(legacy, "historical-manifest.json", args.historical_manifest_sha256)
     assert historical["commit"] == "167c5fd4ca4c9603c392bae3a4a055963e7b7ed6"
@@ -172,7 +173,7 @@ def main():
                 logs / "restored-identity.log", cwd=work, env=env)
         results.append(dict(origin=origin, identity=identity, python=adoption, mcp=mcp,
                             legacy=legacy_read, mismatches=negative))
-    final = dict(schema="wp4d-consumer/v1", os=platform.system(), python=platform.python_version(),
+    final = dict(schema=f"{args.stage.lower()}-consumer/v1", os=platform.system(), python=platform.python_version(),
                  candidate_commit=manifest["commit"], execution_head=execution_head, started=started,
                  finished=datetime.now(timezone.utc).isoformat(),
                  candidate_manifest_sha256=args.candidate_manifest_sha256,
