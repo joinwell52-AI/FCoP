@@ -10,6 +10,22 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Changed — fcop / fcop-mcp
+
+- WP4F promotes the accepted RC to the `4.0.0 / 4.0.0` Stable pair,
+  classified Production/Stable, with `fcop>=4.0.0,<4.1.0`. No protocol,
+  tool business behavior, Schema or frozen Conformance change is included.
+- Stable reproducibility, external consumer and release verification;
+  publication and the specified local MCP upgrade require
+  `FCOP_4_STABLE_RELEASE_READY`. No observation period or new feature.
+
+## [4.0.0rc1] — 2026-09-10
+
+Published to PyPI and GitHub Pre-release under the WP4E ADMIN Gate. The
+development entries below describe their scope when originally authored;
+their unpublished-stage restrictions are not current release status.
+RC tag and artifacts remain unchanged.
+
 ### Added — fcop
 
 - Unpublished WP4D `4.0.0rc1` candidate identity (Beta), strict matching-minor
