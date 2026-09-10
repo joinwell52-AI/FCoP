@@ -61,25 +61,6 @@ def test_wp4f_historical_fixture_preserves_sources_across_checkout(tmp_path, mon
         assert historical.text("src/fcop/_version.py") == expected
 
 
-@pytest.mark.parametrize("pair", [("4.0.0", "4.0.0rc1"), ("4.0.0rc1", "4.0.0"),
-                                 ("4.0.0", "3.2.5"), ("3.2.5", "4.0.0")])
-def test_wp4f_mixed_release_pairs_still_fail_closed(monkeypatch, pair):
-    from fcop_mcp import routing
-
-    monkeypatch.setattr(routing, "version", lambda name: pair[0 if name == "fcop" else 1])
-    with pytest.raises(RuntimeError, match="toolkit:MCP_PACKAGE_INCOMPATIBLE"):
-        routing.check_package_compatibility()
-
-
-def test_wp4f_stable_pair_is_registered_without_losing_history(monkeypatch):
-    from fcop_mcp import routing
-
-    assert frozenset({
-        ("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1"), ("4.0.0", "4.0.0")}) == routing.PACKAGE_COMPATIBILITY
-    monkeypatch.setattr(routing, "version", lambda name: "4.0.0")
-    routing.check_package_compatibility()
-
-
 def test_wp4f_readme_commands_parameters_and_links_match():
     en, zh = [(ROOT / n).read_text(encoding="utf-8") for n in ("README.md", "README.zh.md")]
     assert re.findall(r"```.*?```", en, re.S) == re.findall(r"```.*?```", zh, re.S)

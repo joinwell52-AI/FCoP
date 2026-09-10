@@ -33,7 +33,7 @@ def main():
     names.update(git("diff", "--name-only", "HEAD").decode().splitlines())
     names.update(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
     assert all(n in EXACT or n.startswith(("scripts/wp4f_", "tests/stable/",
-        "tests/test_fcop/test_wp4f_", "reports/FCOP-4.0-WP4F-",
+        "tests/test_fcop/test_wp4f_", "tests/test_fcop_mcp/test_wp4f_", "reports/FCOP-4.0-WP4F-",
         "taskbooks/fcop-4.0/WP4F/", "reviews/fcop-4.0/wp4f/")) for n in names), sorted(names)
     production = git("ls-tree", "-r", "--name-only", BASE, "src", "mcp/src").decode().splitlines()
     changed = {}
