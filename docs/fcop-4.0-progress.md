@@ -2,11 +2,17 @@
 
 [English README](../README.md) · [中文 README](../README.zh.md) · [Architecture](architecture.en.md) · [架构说明](architecture.zh.md)
 
-**4.0.0 is published / 4.0.0 已发布。** Updated September 10, 2026. This page supersedes the pre-release development note formerly at this address.
+**Current stable pair: 4.0.2 / 当前稳定版组合：4.0.2。** Updated September 11, 2026. This page supersedes the pre-release development note formerly at this address.
 
-Official distribution: [GitHub v4.0.0](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0) · [PyPI fcop 4.0.0](https://pypi.org/project/fcop/4.0.0/) · [PyPI fcop-mcp 4.0.0](https://pypi.org/project/fcop-mcp/4.0.0/).
+Official distribution: [GitHub v4.0.2](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2) · [PyPI fcop 4.0.2](https://pypi.org/project/fcop/4.0.2/) · [PyPI fcop-mcp 4.0.2](https://pypi.org/project/fcop-mcp/4.0.2/).
 
-## Start in a fresh environment / 从新环境开始
+## Recommended: ask your AI / 推荐：让 AI 安装
+
+Copy the request in the [AI installation guide](ai-install.md) into a coding agent with terminal and file access. It performs the checks, installation, client configuration and a task verification. The steps below are its technical reference; you do not need to type them yourself.
+
+将 [AI 安装说明](ai-install.md)里的指令交给能运行命令、修改文件的编程 AI，由它完成环境检查、安装、客户端配置和任务验收。下方是执行时的技术参考，你不需要自己逐条输入。
+
+## Manual reference: fresh environment / 手动参考：新环境
 
 Python 3.10+ is required. Create an environment in the directory where you want to install the tools:
 
@@ -29,15 +35,15 @@ Install the exact stable pair. Python-only users can omit `fcop-mcp`:
 安装一致的稳定版组合；只通过 Python 使用时可省略 `fcop-mcp`：
 
 ```sh
-python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
+python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
 python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
 ```
 
-Expected / 预期输出：`4.0.0 4.0.0`.
+Expected / 预期输出：`4.0.2 4.0.2`.
 
-The adapter's dependency is `fcop>=4.0.0,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
+The adapter's dependency is `fcop>=4.0.2,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
 
-适配器的依赖范围是 `fcop>=4.0.0,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
+适配器的依赖范围是 `fcop>=4.0.2,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
 
 ## Create and inspect work / 创建并检查工作
 
@@ -78,7 +84,7 @@ Legacy references / 历史资料：[3.x specification](../spec/fcop-v3-spec.md) 
 
 ## Release and design history / 发布与设计记录
 
-- **Current release:** [v4.0.0](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0), with accepted commit, artifact run and hashes. The [4.0.0 release document](releases/4.0.0.md) records the promotion procedure; the public release establishes publication.
+- **Current release:** [v4.0.2](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2), with accepted commit, artifact run and hashes. The [4.0.0 release document](releases/4.0.0.md) records the promotion procedure; the public release establishes publication.
 - **Historical candidate:** [v4.0.0rc1](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0rc1) is retained. Candidate guides and WP reports describe their original stages.
 - **Current contracts:** [4.0 specification EN](../spec/fcop-4.0-spec.md) / [ZH](../spec/fcop-4.0-spec.zh.md). C1–C8, rather than a historical concept count, define Core compatibility.
 - **Research:** [Complete index EN](../essays/README.md) / [中文](../essays/README.zh.md). The existing 3.2.5 and April 2026 citation archives retain their historical versions; they do not identify 4.0.0.

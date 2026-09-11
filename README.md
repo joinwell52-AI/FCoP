@@ -14,11 +14,45 @@ Tasks, deliveries, issues and review decisions become durable files that people,
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
-**[Try Python](#try-it) · [Connect MCP](#mcp) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
+**[Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
 
 <a href="docs/architecture.en.md"><img src="assets/fcop-work-records.svg" alt="Agent work is persisted as TASK, REPORT, ISSUE and REVIEW files, then read by people, tools and another session." width="960" /></a>
 
 **Stable version: 4.0.2** — [4.0.2 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
+
+<a id="ai-install"></a>
+
+## Ask your AI to install FCoP
+
+Paste this into **Cursor Agent, Codex, or another coding agent with terminal and file access**. The agent handles setup and checks the result.
+
+```text
+Install FCoP for the coding client and project I am using. Follow:
+https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
+Run the environment checks, installation, configuration and verification yourself. Preserve my existing configuration and project state. Report what actually works; ask me only for a missing client/project choice or a required approval/reload.
+```
+
+The [AI installation guide](docs/ai-install.md) covers dependencies, client configuration and a real task check. If the client needs approval or a reload, the agent will identify that step. Manual Python/MCP instructions remain below for reference.
+
+## Why put work outside the model?
+
+“I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.
+
+FCoP gives formal work a shared representation: Markdown files with structured metadata, stable identities, explicit relationships and recorded state transitions. An agent can write them, a human can open them, and a script can validate them. The filesystem reference implementation needs no database or message broker.
+
+| Record | What it preserves | Why it matters |
+|---|---|---|
+| **TASK** | Assignment, participants and lifecycle | The next worker can locate the work and its current state. |
+| **REPORT** | Delivery claim and evidence for an attempt | “Submitted” remains distinguishable from “accepted.” |
+| **ISSUE** | A problem and its context | A blocker survives the session that discovered it. |
+| **REVIEW** | Review, acceptance or authorization facts | Decisions can be checked against the work and evidence they concern. |
+
+Persistence makes a claim inspectable; it does not make the claim true. FCoP checks protocol relationships and gates. Reviewers evaluate the substance of the delivered work, and the host Runtime supplies execution, scheduling and permissions.
+
+<a id="manual-setup"></a>
+
+<details>
+<summary>Manual installation, Python/MCP examples and CLI reference (optional)</summary>
 
 ## CLI setup, observation and diagnosis; MCP work
 
@@ -44,21 +78,6 @@ without starting a server or installing packages.
 durable idempotency and recovery. Unfinished families return `family_digest: null`,
 `merge_ready: false` and structured reasons. The caller supplies the semantic conclusion.
 See the [Branch merge contract and example](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md).
-
-## Why put work outside the model?
-
-“I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.
-
-FCoP gives formal work a shared representation: Markdown files with structured metadata, stable identities, explicit relationships and recorded state transitions. An agent can write them, a human can open them, and a script can validate them. The filesystem reference implementation needs no database or message broker.
-
-| Record | What it preserves | Why it matters |
-|---|---|---|
-| **TASK** | Assignment, participants and lifecycle | The next worker can locate the work and its current state. |
-| **REPORT** | Delivery claim and evidence for an attempt | “Submitted” remains distinguishable from “accepted.” |
-| **ISSUE** | A problem and its context | A blocker survives the session that discovered it. |
-| **REVIEW** | Review, acceptance or authorization facts | Decisions can be checked against the work and evidence they concern. |
-
-Persistence makes a claim inspectable; it does not make the claim true. FCoP checks protocol relationships and gates. Reviewers evaluate the substance of the delivered work, and the host Runtime supplies execution, scheduling and permissions.
 
 <a id="try-it"></a>
 
@@ -138,6 +157,8 @@ Once connected, initialize a **new** workspace with `init_solo(role_code="ME", p
 **49 tools / 12 resources / 4 resource templates.** The adapter routes to the same Python Core. Default initialization has no trusted authorization Profile: creation, claim and submission are available, but acceptance, rejection, reopening and archival need an explicitly adopted Profile and an issuer evaluator registered by the trusted host. A role name typed into a request cannot supply that authority.
 
 [MCP tool reference](docs/mcp-tools.md) · [Stable external Python example](tests/stable/third-party/python-only/app.py) · [Stable external MCP example](tests/stable/third-party/mcp-only/client.py). The full examples include an educational Profile; a real deployment must supply its own trust policy.
+
+</details>
 
 ## From a delivery claim to an accepted result
 

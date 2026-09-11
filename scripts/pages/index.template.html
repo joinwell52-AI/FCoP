@@ -41,7 +41,7 @@
     <h1><span class="en-only">Keep agent work<br><em>beyond the conversation.</em></span><span class="zh-only">让 Agent 的工作，<br><em>留在对话之外。</em></span></h1>
     <p class="hero-summary"><span class="en-only">Tasks, deliveries, issues and review decisions become durable files. People, tools and the next agent can inspect the same work record—even after a session ends.</span><span class="zh-only">把任务、交付、问题与审查决定保存为持久文件。会话结束以后，人、工具和接手的 Agent，仍能读取同一份工作记录。</span></p>
     <div class="actions">
-      <a class="button primary" href="#start"><span class="en-only">Try FCoP</span><span class="zh-only">直接试用</span> <span aria-hidden="true">→</span></a>
+      <a class="button primary" href="#start"><span class="en-only">Ask AI to install</span><span class="zh-only">让 AI 帮你安装</span> <span aria-hidden="true">→</span></a>
       <a class="button" href="#architecture"><span class="en-only">Read the architecture</span><span class="zh-only">阅读架构原理</span></a>
       <a class="text-link" href="https://github.com/joinwell52-AI/FCoP">☆ Star FCoP</a>
     </div>
@@ -68,7 +68,19 @@
 </section>
 <section class="section surface" id="start">
 <div class="wrap">
-  <div class="section-heading"><div><p class="eyebrow">02 / GET STARTED</p><h2><span class="en-only">Start with one real task.</span><span class="zh-only">从一份真实任务开始。</span></h2></div><p><span class="en-only">Use Python directly, or expose the same operations to an agent through MCP. Start in a new workspace.</span><span class="zh-only">直接使用 Python，或通过 MCP 把同一套操作交给 Agent。从新工作区开始接入。</span></p></div>
+  <div class="section-heading"><div><p class="eyebrow">02 / GET STARTED</p><h2><span class="en-only">Let your AI handle setup.</span><span class="zh-only">把安装交给你的 AI。</span></h2></div><p><span class="en-only">Copy this request into Cursor Agent, Codex, or another coding agent with terminal and file access.</span><span class="zh-only">复制下面这段话，交给能运行命令、修改文件的 Cursor Agent、Codex 或其他编程 AI。</span></p></div>
+  <article class="setup-panel ai-install">
+    <h3><span class="en-only">One request. An installation the AI verifies.</span><span class="zh-only">发一句指令，让 AI 安装并验收。</span></h3>
+    <div class="code-block en-only"><button class="copy" data-copy="ai-install-en" type="button">Copy request</button><pre id="ai-install-en"><code>Install FCoP for the coding client and project I am using. Follow:
+https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
+Run the environment checks, installation, configuration and verification yourself. Preserve my existing configuration and project state. Report what actually works; ask me only for a missing client/project choice or a required approval/reload.</code></pre></div>
+    <div class="code-block zh-only"><button class="copy" data-copy="ai-install-zh" type="button">复制安装指令</button><pre id="ai-install-zh"><code>请为我当前使用的 AI 编程客户端和项目安装 FCoP，按这份说明操作：
+https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
+环境检查、安装、配置和验收都由你执行。保留我现有的配置和项目状态。完成后告诉我实际验证结果；只在缺少客户端/项目选择，或确实需要授权、重连时让我介入。</code></pre></div>
+    <p><span class="en-only">Your agent checks dependencies, configures the client and verifies a real task. It will point out any approval or reload the client requires. <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md">Read the AI installation guide ↗</a></span><span class="zh-only">AI 检查依赖、配置客户端并验证真实任务。客户端确实需要你授权或重连时，AI 会指出具体一步。<a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md">查看 AI 安装说明 ↗</a></span></p>
+  </article>
+  <details class="manual-setup" id="manual-setup">
+  <summary><span class="en-only">Manual setup and technical reference (optional)</span><span class="zh-only">手动安装与技术参考（可选）</span></summary>
   <div class="setup-grid">
     <article class="setup-panel">
       <div class="panel-heading"><span class="eyebrow">PYTHON LIBRARY</span><a href="https://pypi.org/project/fcop/@@VERSION@@/">PyPI ↗</a></div>
@@ -133,6 +145,7 @@ fcop migrate</code></pre></div>
     </div>
     <p class="figure-note"><span class="en-only">If <code>uvx</code> cannot be found, use its absolute executable path in <code>command</code>. Installing MCP does not initialize a workspace or replace an existing AGENTS.md. In 4.0, <a href="https://github.com/joinwell52-AI/FCoP/tree/main/src/fcop/rules/_data/v4">nine modular rules</a> and Host projections are available; adopting and deploying them is a separate explicit step.</span><span class="zh-only">若找不到 <code>uvx</code>，将 <code>command</code> 改为其可执行文件的绝对路径。安装 MCP 不会初始化工作区，也不会替换现有 AGENTS.md。4.0 已提供<a href="https://github.com/joinwell52-AI/FCoP/tree/main/src/fcop/rules/_data/v4">九个规则模块</a>及宿主入口生成能力，仍需显式采用和部署。</span></p>
   </div>
+  </details>
 </div>
 </section>
 <section class="section" id="workflow">
