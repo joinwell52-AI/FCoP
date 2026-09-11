@@ -63,7 +63,16 @@ def test_wp4f_historical_fixture_preserves_sources_across_checkout(tmp_path, mon
 
 def test_wp4f_readme_commands_parameters_and_links_match():
     en, zh = [(ROOT / n).read_text(encoding="utf-8") for n in ("README.md", "README.zh.md")]
-    assert re.findall(r"```.*?```", en, re.S) == re.findall(r"```.*?```", zh, re.S)
+    # The one AI request is translated prose; executable examples still match exactly.
+    guide = (ROOT / "docs/ai-install.md").read_text(encoding="utf-8")
+    technical = []
+    for text in (en, zh):
+        prompt = re.search(r'<a id="ai-install"></a>.*?(```text\n(.*?)```)', text, re.S)
+        assert prompt is not None
+        assert prompt.group(2).strip() in guide
+        assert "https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md" in prompt.group(2)
+        technical.append(text.replace(prompt.group(1), "", 1))
+    assert re.findall(r"```.*?```", technical[0], re.S) == re.findall(r"```.*?```", technical[1], re.S)
     assert re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", en) == re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", zh)
     for text in (en, zh):
         for token in ("Stable version: 4.0.2", "Release candidate: 4.0.0rc1",
