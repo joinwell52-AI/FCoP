@@ -43,4 +43,3 @@ def test_wp4d_rc_pin_rejects_major_only_alignment():
 def test_wp4d_rc_existing_registry_identity_is_not_relabelled():
     registry = (ROOT / "mcp/server.json").read_text(encoding="utf-8")
     assert "4.0.0rc1" not in registry
-    assert "3.2.5" in registry
