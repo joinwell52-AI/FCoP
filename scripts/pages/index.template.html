@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FCoP 4.0 — Keep agent work beyond the conversation</title>
-<meta name="description" content="FCoP 4.0 把 Agent 的任务、交付、问题和审查保存为持久工作文件。开放协议、Python 库、MCP 接入与五篇完整架构文章。">
+<meta name="description" content="FCoP @@VERSION@@ 提供持久任务、交付、问题与审查记录，以及九条 CLI 命令、49 个 MCP 工具和 Branch 并发与原子合并能力。">
 <link rel="canonical" href="https://joinwell52-ai.github.io/FCoP/">
 <meta property="og:title" content="FCoP 4.0 — 让 Agent 的工作，留在对话之外">
-<meta property="og:description" content="Durable tasks, evidence and review. Open protocol, Python and MCP.">
+<meta property="og:description" content="FCoP @@VERSION@@: durable agent work, nine CLI commands, 49 MCP tools, and explicit Branch convergence.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://joinwell52-ai.github.io/FCoP/">
 <meta property="og:image" content="https://joinwell52-ai.github.io/FCoP/site-assets/fcop-logo-256.png">
@@ -36,7 +36,7 @@
 <div class="registry-banner wrap"><span class="registry-label">MCP REGISTRY</span><p><code>fcop-mcp</code> <span class="en-only">is listed in the <a href="https://registry.modelcontextprotocol.io/">official MCP Registry</a>.</span><span class="zh-only">已收录于<a href="https://registry.modelcontextprotocol.io/">官方 MCP 注册表</a>。</span> <a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.joinwell52-AI%2Ffcop">io.github.joinwell52-AI/fcop ↗</a><small><span class="en-only">Registry entry: 4.0.2 · Current package: @@VERSION@@ · Checked Sep 11, 2026</span><span class="zh-only">注册表条目：4.0.2 · 当前安装包：@@VERSION@@ · 核对日期：2026-09-11</span></small></p></div>
 <section class="hero wrap">
   <div class="hero-copy">
-    <a class="release-note" href="https://github.com/joinwell52-AI/FCoP/releases/tag/v@@VERSION@@"><span class="status-dot"></span>FCoP @@VERSION@@ <span class="en-only">stable · Sep 10, 2026 ↗</span><span class="zh-only">稳定版 · 2026.09.10 ↗</span></a>
+    <a class="release-note" href="https://github.com/joinwell52-AI/FCoP/releases/tag/v@@VERSION@@"><span class="status-dot"></span>FCoP @@VERSION@@ <span class="en-only">stable · Sep 11, 2026 ↗</span><span class="zh-only">稳定版 · 2026.09.11 ↗</span></a>
     <p class="eyebrow">FILE-BASED COORDINATION PROTOCOL</p>
     <h1><span class="en-only">Keep agent work<br><em>beyond the conversation.</em></span><span class="zh-only">让 Agent 的工作，<br><em>留在对话之外。</em></span></h1>
     <p class="hero-summary"><span class="en-only">Tasks, deliveries, issues and review decisions become durable files. People, tools and the next agent can inspect the same work record—even after a session ends.</span><span class="zh-only">把任务、交付、问题与审查决定保存为持久文件。会话结束以后，人、工具和接手的 Agent，仍能读取同一份工作记录。</span></p>
@@ -60,8 +60,8 @@
 <div class="wrap">
   <div class="section-heading"><div><p class="eyebrow">01 / DURABLE WORK</p><h2><span class="en-only">A handoff you can inspect.</span><span class="zh-only">接手工作，有据可查。</span></h2></div><p><span class="en-only">A message says “done.” A work record shows which task, which attempt, what evidence and whose decision.</span><span class="zh-only">一句“完成了”之后，接手者需要找到任务、这次尝试的交付、相关证据，以及审查决定。</span></p></div>
   <a class="diagram" href="fcop-architecture-series/01-work-beyond-context.zh.html" aria-label="Read why work should persist / 阅读工作外化原理">
-    <img class="en-only" src="site-assets/fcop-work-records.svg" alt="Agent work persisted as TASK, REPORT, ISSUE and REVIEW, then read by people, tools and a later session." width="1200" height="440">
-    <img class="zh-only" src="site-assets/fcop-work-records.zh.svg" alt="任务、报告、问题与审查保存在文件中，人、工具和后续会话读取同一份工作事实。" width="1200" height="440">
+    <img class="en-only" src="site-assets/fcop-work-records.svg" alt="Agent work persisted as TASK, REPORT, ISSUE and REVIEW, then read by people, tools and a later session." width="960" height="430">
+    <img class="zh-only" src="site-assets/fcop-work-records.zh.svg" alt="任务、报告、问题与审查保存在文件中，人、工具和后续会话读取同一份工作事实。" width="960" height="430">
   </a>
   <p class="figure-note"><span class="en-only">FCoP checks protocol relationships and state gates. Reviewers assess the delivery; the host Runtime runs models and tools.</span><span class="zh-only">FCoP 检查协议关系与状态门槛；审查者判断交付质量，宿主 Runtime 负责模型与工具执行。</span></p>
 </div>
@@ -89,10 +89,26 @@ Same task after retry: True</code></pre>
       <p><span class="en-only">Or use <code>uvx</code> to obtain an isolated installation automatically. Configure Cursor or Codex using the examples below; the client starts the server.</span><span class="zh-only">也可以用 <code>uvx</code> 自动准备隔离安装环境。按下方示例配置 Cursor 或 Codex，由客户端启动服务。</span></p>
       <p><span class="en-only">First install <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> and confirm <code>uvx --version</code> works in a new terminal. The first connection downloads packages and can take longer.</span><span class="zh-only">先安装 <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>，在新终端确认 <code>uvx --version</code> 可用。首次连接需要下载依赖，可能稍慢。</span></p>
       <p><span class="en-only">After connecting, call <code>init_solo(role_code="ME", protocol_version="4.0")</code> for a new workspace, then create and inspect a task.</span><span class="zh-only">连接后，用 <code>init_solo(role_code="ME", protocol_version="4.0")</code> 初始化新工作区，再创建与检查任务。</span></p>
-      <div class="capability-line"><strong>46</strong> tools <span>·</span> <strong>12</strong> resources <span>·</span> <strong>4</strong> templates</div>
+      <div class="capability-line"><strong>49</strong> tools <span>·</span> <strong>12</strong> resources <span>·</span> <strong>4</strong> templates</div>
+      <p class="note"><span class="en-only">Parallel work is available through <code>create_branch</code>, <code>inspect_family</code> and <code>merge_branches</code>: create independent Branch tasks, inspect current REPORT evidence and the canonical family digest, then commit one explicit convergence decision through the Core atomic merge operation.</span><span class="zh-only">并发工作由 <code>create_branch</code>、<code>inspect_family</code> 和 <code>merge_branches</code> 支持：创建独立 Branch、检查当前 REPORT 证据与规范 family digest，再通过 Core 原子合并提交一次明确的收敛决定。</span></p>
+      <p class="note"><code>create_branch → REPORTs → inspect_family → merge_branches</code></p>
       <div class="notice"><h4><span class="en-only">Acceptance needs explicit authority.</span><span class="zh-only">验收需要明确授权。</span></h4><p><span class="en-only">Default initialization has no trusted authorization Profile. Acceptance, rejection, reopening and archiving require an adopted Profile and a trusted host evaluator. A role name alone grants no permission.</span><span class="zh-only">默认初始化不含可信授权 Profile。验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主判断签发权限。角色名本身不能赋权。</span></p></div>
       <a class="text-link" href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/fcop-4.0-progress.md"><span class="en-only">Full 4.0 setup and version guide ↗</span><span class="zh-only">完整 4.0 接入与版本指南 ↗</span></a>
     </article>
+  </div>
+  <div class="host-setup" id="cli">
+    <h3><span class="en-only">Use the built-in CLI.</span><span class="zh-only">使用内置 CLI。</span></h3>
+    <p class="figure-note"><span class="en-only"><strong>CLI = Setup + Observe + Diagnose; MCP = Work.</strong> FCoP @@VERSION@@ includes nine top-level commands. Read state, validate a workspace, inspect the installed MCP Tool Catalog and diagnose the environment without starting the MCP server.</span><span class="zh-only"><strong>CLI = 设置 + 观察 + 诊断；MCP = 工作操作。</strong>FCoP @@VERSION@@ 提供九条顶层命令，可读取状态、校验工作区、查看已安装 MCP 工具目录并诊断环境，无需启动 MCP 服务。</span></p>
+    <div class="code-block"><button class="copy" data-copy="cli-commands" type="button">Copy / 复制</button><pre id="cli-commands"><code>fcop init
+fcop status
+fcop inspect
+fcop validate
+fcop tools
+fcop doctor
+fcop version
+fcop spec
+fcop migrate</code></pre></div>
+    <p class="figure-note"><span class="en-only">Observation commands do not repair, migrate or create work records. Only explicit <code>init</code> and <code>migrate --apply</code> may write.</span><span class="zh-only">观察类命令不会修复、迁移或创建工作记录；只有显式执行 <code>init</code> 与 <code>migrate --apply</code> 才可能写入。</span> <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md"><span class="en-only">CLI reference ↗</span><span class="zh-only">CLI 参考 ↗</span></a></p>
   </div>
   <div class="host-setup" id="clients">
     <h3><span class="en-only">Connect your coding client.</span><span class="zh-only">在 Cursor / Codex 中接入。</span></h3>
@@ -123,10 +139,10 @@ Same task after retry: True</code></pre>
 <div class="wrap">
   <div class="section-heading"><div><p class="eyebrow">03 / EVIDENCE &amp; ACCEPTANCE</p><h2><span class="en-only">Delivery is the start of review.</span><span class="zh-only">提交交付，才能进入审查。</span></h2></div><p><span class="en-only">Every new active attempt gets its own identity. An old report cannot satisfy a new attempt. There is no direct active → done transition in 4.0.</span><span class="zh-only">每次进入执行状态都有新的尝试身份。旧报告不能满足新尝试的门槛；4.0 不允许 active → done 直接跳转。</span></p></div>
   <a class="diagram" href="fcop-architecture-series/02-minimal-core.zh.html" aria-label="Read the Core contracts / 阅读 Core 契约">
-    <img class="en-only" src="site-assets/fcop-lifecycle.svg" alt="Task lifecycle, evidence submission, review, authorized return and reopen." width="1200" height="440" loading="lazy">
-    <img class="zh-only" src="site-assets/fcop-lifecycle.zh.svg" alt="任务从领取、执行、提交到审查、完成和归档；退回、重开与归档有授权门槛。" width="1200" height="440" loading="lazy">
+    <img class="en-only" src="site-assets/fcop-lifecycle.svg" alt="Task lifecycle, evidence submission, review, authorized return and reopen." width="960" height="590" loading="lazy">
+    <img class="zh-only" src="site-assets/fcop-lifecycle.zh.svg" alt="任务从领取、执行、提交到审查、完成和归档；退回、重开与归档有授权门槛。" width="960" height="590" loading="lazy">
   </a>
-  <div class="parallel-intro"><div><h3><span class="en-only">Parallel work. Explicit convergence.</span><span class="zh-only">分开推进，按证据汇合。</span></h3><p><span class="en-only">Sibling Branch tasks retain their own attempts and reports. Before Root archiving, the protocol checks current branch evidence, the family digest, convergence and separate archive authority.</span><span class="zh-only">同级 Branch 各自保留尝试与报告。Root 归档前，要核对当前分支证据、任务族摘要、汇合记录和独立归档授权。</span></p><a href="fcop-architecture-series/04-parallel-work.zh.html"><span class="en-only">Read the parallel work model (中文) →</span><span class="zh-only">阅读并行工作模型 →</span></a></div><a class="diagram" href="fcop-architecture-series/04-parallel-work.zh.html" aria-label="Parallel work explained / 并行原理"><img class="en-only" src="site-assets/fcop-parallel-work.svg" width="1200" height="500" alt="Sibling Branches converge through current report evidence." loading="lazy"><img class="zh-only" src="site-assets/fcop-parallel-work.zh.svg" width="1200" height="500" alt="同级分支各自工作，根任务按当前报告证据汇合。" loading="lazy"></a></div>
+  <div class="parallel-intro"><div><h3><span class="en-only">Parallel work. Explicit convergence.</span><span class="zh-only">分开推进，按证据汇合。</span></h3><p><span class="en-only">Sibling Branch tasks retain their own attempts and reports. Before Root archiving, the protocol checks current branch evidence, the family digest, convergence and separate archive authority.</span><span class="zh-only">同级 Branch 各自保留尝试与报告。Root 归档前，要核对当前分支证据、任务族摘要、汇合记录和独立归档授权。</span></p><a href="fcop-architecture-series/04-parallel-work.zh.html"><span class="en-only">Read the parallel work model (中文) →</span><span class="zh-only">阅读并行工作模型 →</span></a></div><a class="diagram" href="fcop-architecture-series/04-parallel-work.zh.html" aria-label="Parallel work explained / 并行原理"><img class="en-only" src="site-assets/fcop-parallel-work.svg" width="960" height="390" alt="Sibling Branches converge through current report evidence." loading="lazy"><img class="zh-only" src="site-assets/fcop-parallel-work.zh.svg" width="960" height="390" alt="同级分支各自工作，根任务按当前报告证据汇合。" loading="lazy"></a></div>
 </div>
 </section>
 <section class="section surface" id="architecture">
@@ -140,7 +156,7 @@ Same task after retry: True</code></pre>
 <div class="wrap">
   <div class="section-heading"><div><p class="eyebrow">05 / SPECIFICATION &amp; RESEARCH</p><h2><span class="en-only">Read the contract. Check the evidence.</span><span class="zh-only">读规范，也能找到研究依据。</span></h2></div><p><span class="en-only">Current contracts and historical research have distinct versions. Choose the source that matches the work you are studying.</span><span class="zh-only">当前契约与历史研究各有版本。阅读和引用时，选择与你讨论的成果相符的来源。</span></p></div>
   <div class="resource-grid">
-    <article class="resource"><span class="eyebrow">CURRENT / 4.0</span><h3><span class="en-only">Eight Core contracts</span><span class="zh-only">八项 Core 契约</span></h3><p><span class="en-only">Identity, envelopes, lifecycle, relations, evidence, authority, creation idempotency and atomic recovery.</span><span class="zh-only">身份、信封、生命周期、关系、证据、授权、创建幂等与原子恢复。</span></p><div class="link-stack"><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">中文规范 ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.md">English specification ↗</a><a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance"><span class="en-only">Conformance tests ↗</span><span class="zh-only">符合性测试 ↗</span></a></div></article>
+    <article class="resource"><span class="eyebrow">CURRENT / 4.0</span><h3><span class="en-only">Eight Core contracts</span><span class="zh-only">八项 Core 契约</span></h3><p><span class="en-only">Identity, envelopes, lifecycle, relations, evidence, authority, creation idempotency and atomic recovery.</span><span class="zh-only">身份、信封、生命周期、关系、证据、授权、创建幂等与原子恢复。</span></p><div class="link-stack"><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">中文规范 ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.md">English specification ↗</a><a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance"><span class="en-only">Conformance tests ↗</span><span class="zh-only">符合性测试 ↗</span></a><a href="https://doi.org/10.5281/zenodo.22701147">Zenodo v@@VERSION@@ · DOI ↗</a><a href="https://pypi.org/project/fcop/@@VERSION@@/">PyPI · fcop @@VERSION@@ ↗</a><a href="https://pypi.org/project/fcop-mcp/@@VERSION@@/">PyPI · fcop-mcp @@VERSION@@ ↗</a></div></article>
     <article class="resource"><span class="eyebrow">ARCHIVED / 3.2.5</span><h3><span class="en-only">Papers &amp; citation</span><span class="zh-only">论文与引用凭证</span></h3><p><span class="en-only">The DOI archives below describe earlier research. They are not identifiers for the 4.0 release.</span><span class="zh-only">下列 DOI 对应早期研究归档，不代表 4.0 发布版本。</span></p><div class="link-stack"><a href="https://doi.org/10.5281/zenodo.20457285">Zenodo · 10.5281/zenodo.20457285 ↗</a><a href="https://doi.org/10.17605/OSF.IO/92NWM">OSF · 10.17605/OSF.IO/92NWM ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-coordination-to-governance.md"><span class="en-only">Historical architecture whitepaper (中文) ↗</span><span class="zh-only">历史架构白皮书 ↗</span></a><a href="https://doi.org/10.5281/zenodo.19886036"><span class="en-only">April 2026 research snapshot ↗</span><span class="zh-only">2026 年 4 月研究快照 ↗</span></a></div></article>
     <article class="resource" id="essays"><span class="eyebrow">FIELD NOTES / 17 ESSAYS</span><h3><span class="en-only">How the protocol evolved</span><span class="zh-only">协议怎样一步步演进</span></h3><p><span class="en-only">Field reports, agent interviews and hands-on cases, with their original publication and evidence links.</span><span class="zh-only">现场报告、Agent 访谈与动手案例，保留原始发布和证据链接，按各篇历史版本阅读。</span></p><div class="link-stack"><a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/README.zh.md">17 篇中文目录 ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/README.md">English index ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/CITATION.cff">CITATION.cff ↗</a></div></article>
   </div>
@@ -158,7 +174,7 @@ Same task after retry: True</code></pre>
 </div>
 </section>
 </main>
-<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><span><span class="en-only">Updated September 10, 2026</span><span class="zh-only">更新于 2026 年 9 月 10 日</span> · <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v@@VERSION@@">v@@VERSION@@</a> · <a href="https://github.com/joinwell52-AI/FCoP">GitHub ↗</a></span></div></footer>
+<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><span><span class="en-only">Updated September 11, 2026</span><span class="zh-only">更新于 2026 年 9 月 11 日</span> · <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v@@VERSION@@">v@@VERSION@@</a> · <a href="https://github.com/joinwell52-AI/FCoP">GitHub ↗</a></span></div></footer>
 <p class="copy-status sr-only" role="status" aria-live="polite"></p>
 </body>
 </html>
