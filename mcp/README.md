@@ -134,6 +134,9 @@ Resources 和 4 个 Templates。4.0.1 新增 `create_branch`、
 
 ## Documentation
 
+- [Authoritative install prompt (EN)](https://github.com/joinwell52-AI/FCoP/blob/main/src/fcop/rules/_data/agent-install-prompt.en.md)
+- [权威安装提示词（中文）](https://github.com/joinwell52-AI/FCoP/blob/main/src/fcop/rules/_data/agent-install-prompt.zh.md)
+- [Installation prompt MCP Resource](fcop://prompt/install)
 - [Repository](https://github.com/joinwell52-AI/FCoP)
 - [MCP tools reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md)
 - [Protocol introduction](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md)
