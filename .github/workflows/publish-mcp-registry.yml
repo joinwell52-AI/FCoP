@@ -31,8 +31,75 @@ jobs:
       - name: Validate the Registry manifest
         run: ./mcp-publisher validate mcp/server.json
 
+      - name: Check immutable Registry version
+        id: registry
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+
+          def canonical_package(package):
+              return {
+                  "registryType": package.get("registryType"),
+                  "identifier": package.get("identifier"),
+                  "version": package.get("version"),
+                  "transport": package.get("transport"),
+                  "environmentVariables": [
+                      {
+                          "name": item.get("name"),
+                          "description": item.get("description"),
+                          "format": item.get("format"),
+                          "isRequired": item.get("isRequired", False),
+                          "isSecret": item.get("isSecret", False),
+                      }
+                      for item in package.get("environmentVariables", [])
+                  ],
+              }
+
+          with open("mcp/server.json", encoding="utf-8") as stream:
+              expected = json.load(stream)
+          query = urllib.parse.urlencode({
+              "search": expected["name"],
+              "version": expected["version"],
+          })
+          url = f"https://registry.modelcontextprotocol.io/v0/servers?{query}"
+          with urllib.request.urlopen(url, timeout=30) as response:
+              payload = json.load(response)
+          exact = [
+              item["server"] for item in payload.get("servers", [])
+              if item["server"].get("name") == expected["name"]
+              and item["server"].get("version") == expected["version"]
+          ]
+          exists = bool(exact)
+          if exists:
+              actual = exact[0]
+              mismatches = []
+              if actual.get("description") != expected.get("description"):
+                  mismatches.append("description")
+              if actual.get("repository") != expected.get("repository"):
+                  mismatches.append("repository")
+              if [canonical_package(item) for item in actual.get("packages", [])] != [
+                  canonical_package(item) for item in expected.get("packages", [])
+              ]:
+                  mismatches.append("packages")
+              if mismatches:
+                  raise SystemExit(
+                      "Registry version is immutable and differs in: "
+                      + ", ".join(mismatches)
+                  )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print(f"exists={str(exists).lower()}", file=output)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              state = "already published and identical" if exists else "not yet published"
+              print(f"MCP Registry {expected['name']} {expected['version']}: {state}.", file=summary)
+          PY
+
       - name: Authenticate with GitHub OIDC
+        if: steps.registry.outputs.exists != 'true'
         run: ./mcp-publisher login github-oidc
 
       - name: Publish the Registry entry
+        if: steps.registry.outputs.exists != 'true'
         run: ./mcp-publisher publish mcp/server.json

@@ -28,6 +28,8 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
         f"pypi.org/project/fcop-mcp/{mcp}/",
         f'fcop=={core}',
         f'fcop-mcp=={mcp}',
+        f"Registry entry: {mcp}",
+        f"注册表条目：{mcp}",
         "<strong>49</strong> tools",
         "<strong>12</strong> resources",
         "<strong>4</strong> templates",
@@ -80,16 +82,9 @@ def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
                 }
             ],
         }
-    ]
-
-    description = manifest["description"]
-    assert len(description) <= 100
-    for capability in (
-        "49 tools",
-        "12 resources",
-        "4 templates",
-        "Branch creation",
-        "inspection",
-        "atomic merge",
-    ):
-        assert capability in description
+       ]
+    assert manifest["description"] == (
+        "Durable tasks, reports, reviews and branch convergence "
+        "for multi-agent teams over local files."
+    )
+    assert len(manifest["description"]) <= 100
