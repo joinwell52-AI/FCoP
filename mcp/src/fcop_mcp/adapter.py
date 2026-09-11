@@ -255,6 +255,9 @@ def create_server(
     mcp.add_middleware(FCoPGovernanceMiddleware(audit_enabled=legacy_audit))
     register_legacy_routes(mcp, server, lambda: router)
     register_reopen(mcp, lambda: router)
+    from fcop_mcp.branches import register_branches
+
+    register_branches(mcp, lambda: router)
     from fcop_mcp.resources import register_resources
 
     register_resources(mcp, server, lambda: router)

@@ -275,7 +275,9 @@ def test_actions_never_call_network_or_shell(distribution, monkeypatch, action):
 
 
 def test_mcp_accepted_snapshot_remains_46_12_4():
-    path = Path(__file__).resolve().parents[1] / "test_fcop_mcp/snapshots/tool_surface_v4.json"
+    # Preserve the accepted 4.0.0 surface; current additive 49-tool comparison
+    # is enforced separately by test_all_46_existing_tool_signatures_unchanged.
+    path = Path(__file__).resolve().parents[1] / "test_fcop_mcp/snapshots/tool_surface_4_0_0.json"
     surface = json.loads(path.read_bytes())
     assert len(surface["tools"]) == 46
     assert len(surface["resources"]["static"]) == 12

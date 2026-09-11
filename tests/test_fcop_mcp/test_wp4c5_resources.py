@@ -162,7 +162,7 @@ def test_old_uri_mime_preserved_and_additive_surface(tmp_path: Path) -> None:
         assert static[r["uri"]] == r["mime_type"]
     for r in historical["resources"]["templates"]:
         assert templates[r["uri_template"]] == r["mime_type"]
-    assert len(asyncio.run(mcp.list_tools())) == 46
+    assert len(asyncio.run(mcp.list_tools())) == 49
     assert len(static) == 12 and static["fcop://team"] == "application/json"
     assert len(templates) == 4 and templates["fcop://guidance/{assembly}/{language}"] == "text/markdown"
 

@@ -20,6 +20,15 @@
 
 **Stable version: 4.0.0** — 已于 [2026 年 9 月 10 日发布](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
+## 4.0.1 开发候选：Branch 合并
+
+尚未发布：新增 `create_branch`、`inspect_family`、`merge_branches` 三个 MCP
+工具，总计 49 个，原 46 个工具签名保持兼容。Core 负责原子合并、持久幂等和
+恢复；未就绪家族返回 `family_digest: null`、`merge_ready: false` 及结构化原因，
+不计算替代摘要。合并结论由调用者提供，不自动归档 Root。两个包均为 4.0.1 候选，
+已发布的 4.0.0 制品不变。
+详见[英文合同与示例](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md)。
+
 ## 为什么要把工作放到模型之外？
 
 “我完成了”是一句对话。接手的人还需要知道：**执行的是哪项任务、交付了什么、谁审查过、还有什么问题没有解决。** 如果这些事实只留在聊天里，每次交接都要重新拼接上下文。

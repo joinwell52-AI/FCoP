@@ -10,7 +10,21 @@ versioning strategy.
 
 ## [Unreleased]
 
-No additional feature changes.
+### Added — fcop
+
+- 4.0.1 candidate: public `Project.inspect_family` and `Project.merge_branches`.
+  Partial families expose null digest and structured readiness reasons. Core
+  convergence append now has one shared family-lock path, durable operation
+  identity, same-content reuse, conflicting-content rejection and restart recovery.
+  Legacy `write_review(review_kind="convergence")` uses that same path.
+
+### Added — fcop-mcp
+
+- 4.0.1 candidate: `create_branch`, `inspect_family`, `merge_branches` (49 tools,
+  preserving the original 46 signatures). MCP delegates to Core, including all
+  locking, receipt and REVIEW operations. Requires `fcop>=4.0.1,<4.1.0`.
+- The caller supplies merge conclusions/conflict decisions; no automatic Root
+  archive or semantic arbitration. Both packages require ADMIN release approval.
 
 ## [4.0.0] — 2026-09-10
 

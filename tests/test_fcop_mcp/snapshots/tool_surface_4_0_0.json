@@ -201,51 +201,6 @@
       ]
     },
     {
-      "name": "create_branch",
-      "params": [
-        {
-          "name": "body",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "operation_id",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "priority",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "name": "recipient",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "root_task_id",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "sender",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "subject",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "workspace_id",
-          "required": true,
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "create_custom_team",
       "params": [
         {
@@ -575,16 +530,6 @@
       ]
     },
     {
-      "name": "inspect_family",
-      "params": [
-        {
-          "name": "root_task_id",
-          "required": true,
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "inspect_task",
       "params": [
         {
@@ -896,56 +841,6 @@
           "name": "to_stage",
           "required": false,
           "type": null
-        }
-      ]
-    },
-    {
-      "name": "merge_branches",
-      "params": [
-        {
-          "name": "branch_report_heads",
-          "required": true,
-          "type": "object"
-        },
-        {
-          "name": "conclusion",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "conflict_resolution",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "expected_family_digest",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "operation_id",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "recipient",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "root_task_id",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "sender",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "workspace_id",
-          "required": true,
-          "type": "string"
         }
       ]
     },

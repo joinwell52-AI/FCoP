@@ -1,9 +1,14 @@
-# FCoP MCP · 4.0.0rc1 capability map / 能力映射
+# FCoP MCP · capability map / 能力映射
 
-Latest stable: **3.2.5**. Release candidate: **4.0.0rc1**, unpublished.
-4.0 discovery: **46 tools / 12 resources / 4 resource templates**.
-原有 45 个工具获得版本路由与 4.0 协议语义；唯一新增名称为 T6
-`reopen_task`，并非“仅新增一个能力”，也不是 Branch 专用工具。
+Published stable: **4.0.0** (46 tools). The **4.0.1 development candidate** adds
+`create_branch`, `inspect_family`, `merge_branches`: **49 tools / 12 resources /
+4 templates**, with the original 46 signatures preserved. Both packages target
+4.0.1; MCP requires `fcop>=4.0.1,<4.1.0`. No 4.0.1 publication is claimed.
+
+4.0.1 新增 Branch 创建、只读家族检查及原子合并；原 `reopen_task` 和旧入口保留。
+全部锁、幂等收据、REVIEW 追加与恢复由 Core 实现，MCP 只转换参数。
+未就绪摘要允许 null，同时返回 merge_ready=false 和结构化原因；merge 不接受 null。
+详见 [Branch merge contract](branch-merge.md) / [中文合同](branch-merge.zh.md)。
 
 | Capability / 能力 | Public MCP entry / 入口 | v4 behavior / 行为 |
 |---|---|---|

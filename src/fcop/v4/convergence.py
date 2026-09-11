@@ -28,9 +28,9 @@ class FamilySnapshot:
     digest: str
 
 
-def snapshot(
+def members(
     creation: _Creation, root_task_id: str, *, require_terminal: bool = False
-) -> FamilySnapshot:
+) -> tuple[Path, Mapping[str, Any], tuple[tuple[Path, Mapping[str, Any]], ...]]:
     """Re-read one family from authoritative envelopes; no cache or index."""
     root_path, root_fields = creation._resolve(root_task_id)
     if root_fields.get("type") != "TASK" or root_fields.get("branch_of") is not None:
@@ -53,10 +53,18 @@ def snapshot(
                 raise fail(_V4Code.BRANCH_NOT_TERMINAL, "Every Branch must be terminal")
             found[task_id] = (path, resolved)
 
+    return root_path, root_fields, tuple(found[key] for key in sorted(found))
+
+
+def snapshot(
+    creation: _Creation, root_task_id: str, *, require_terminal: bool = False
+) -> FamilySnapshot:
+    root_path, root_fields, branches = members(
+        creation, root_task_id, require_terminal=require_terminal
+    )
     from fcop.v4.lifecycle import current_attempt, report_head
 
     entries: list[Mapping[str, str]] = []
-    branches = tuple(found[key] for key in sorted(found))
     for _path, branch_fields in branches:
         task_id = branch_fields["task_id"]
         attempt_id = current_attempt(branch_fields)
