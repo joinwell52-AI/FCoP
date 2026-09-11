@@ -83,12 +83,13 @@ def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
     ]
 
     description = manifest["description"]
+    assert len(description) <= 100
     for capability in (
         "49 tools",
         "12 resources",
         "4 templates",
         "Branch creation",
-        "family inspection",
-        "atomic convergence",
+        "inspection",
+        "atomic merge",
     ):
         assert capability in description
