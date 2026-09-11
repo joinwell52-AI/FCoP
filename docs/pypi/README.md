@@ -49,4 +49,12 @@ Before the next PyPI release:
 7. After publication, compare both public PyPI pages with these GitHub sources.
 
 A version bump, tag, package upload, GitHub Release, MCP registry update, or
-local MCP upgrade is outside this documentation record.
+local MCP upgrade is outside this historical documentation record.
+
+## 4.0.2 CLI v1 release binding
+
+The separately authorized CLI v1 release updates both canonical README sources,
+adds CLI Setup/Observe/Diagnose guidance, and retains 49 MCP tools. Build metadata
+must contain these exact UTF-8 descriptions. The release evidence must compare
+both public PyPI JSON descriptions with the tagged sources after publication;
+pre-publication metadata checks alone are not public-page verification.

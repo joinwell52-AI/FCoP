@@ -8,7 +8,7 @@ adapter over the same protocol—not a second protocol implementation.
 
 ## Current stable surface
 
-FCoP 4.0.1 provides:
+FCoP 4.0.2 provides:
 
 - **49 tools**
 - **12 resources**
@@ -30,8 +30,8 @@ Install Core and the MCP adapter together in a dedicated virtual environment:
 
 ```bash
 python -m pip install --upgrade \
-  "fcop>=4.0.1,<4.1.0" \
-  "fcop-mcp>=4.0.1,<4.1.0"
+  "fcop>=4.0.2,<4.1.0" \
+  "fcop-mcp>=4.0.2,<4.1.0"
 ```
 
 Verify both distributions:
@@ -45,6 +45,23 @@ python -c "from fcop_mcp.server import mcp; print('fcop-mcp ready')"
 Do not mix incompatible minor versions.
 
 ## Configure an MCP client
+
+**CLI = Setup + Observe + Diagnose; MCP = Work.** Inspect this adapter's
+authoritative Tool Catalog without starting a server:
+
+```bash
+pip install fcop-mcp
+fcop tools
+fcop tools merge_branches --json
+```
+
+The public `fcop_mcp.catalog.get_tool_catalog(name=None)` query returns fresh,
+sorted name/disposition rows from `disposition.TOOLS`. It imports no MCP runtime,
+does not start a server and does not duplicate handler signatures. Unknown names
+raise `KeyError`. CLI Catalog, registry and real `tools/list` have equal sets;
+4.0.2 does not add, remove or change any MCP work tool.
+
+See the [CLI reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md).
 
 A fixed virtual environment gives predictable startup and avoids importing a
 different editable `fcop` package from another project.

@@ -4,7 +4,7 @@
 Protocol (FCoP)**. It gives agents and automation a durable, reviewable way to
 coordinate work through UTF-8 Markdown files with YAML front matter.
 
-This package is the protocol Core and Python API. The optional MCP adapter is
+This package is the protocol Core, Python API and thin CLI. The optional MCP adapter is
 published separately as [`fcop-mcp`](https://pypi.org/project/fcop-mcp/).
 
 ## Install
@@ -12,7 +12,7 @@ published separately as [`fcop-mcp`](https://pypi.org/project/fcop-mcp/).
 FCoP 4.0 supports Python 3.10–3.13.
 
 ```bash
-python -m pip install --upgrade "fcop>=4.0.1,<4.1.0"
+python -m pip install --upgrade "fcop>=4.0.2,<4.1.0"
 ```
 
 Verify the installed distribution:
@@ -32,8 +32,32 @@ python -c "from importlib.metadata import version; from fcop import Project; pri
 - Version-selected protocol rules and schemas.
 - A typed Python `Project` API with no MCP, LLM, or network dependency.
 
-FCoP 4.0.1 adds the public Core support used to inspect incomplete Branch
-families and to commit a convergence decision atomically and idempotently.
+## CLI v1: Setup + Observe + Diagnose
+
+FCoP 4.0.2 provides nine commands: `init`, `status`, `inspect`, `validate`,
+`tools`, `doctor`, `version`, `spec`, `migrate`.
+**CLI = Setup + Observe + Diagnose; MCP = Work.**
+
+```bash
+pip install fcop
+fcop version
+fcop doctor
+fcop init
+fcop status
+```
+
+Use `--root <path>` for workspace commands. The eight non-migration commands
+support `--json`; `fcop --help` discovers the full surface. Observe/diagnose
+commands never fix, repair, migrate, create work records or configure a Host.
+Only explicit `init` and migration `--apply` may write. Bare `fcop` retains
+its historical migration guidance and exit 1; use `fcop --help` for help.
+
+Exit codes: 0 success/valid, 1 internal failure, 2 invalid data/input,
+3 unavailable/unsupported. An absent optional MCP package is reported explicitly
+by `tools`; Core remains independently usable. `doctor` warns, not installs it.
+
+[CLI reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md) /
+[中文 CLI 参考](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.zh.md).
 
 ## Minimal Python example
 
@@ -65,7 +89,7 @@ or the [Chinese version](https://github.com/joinwell52-AI/FCoP/blob/main/docs/br
 
 | Package | Responsibility |
 | --- | --- |
-| `fcop` | Protocol Core, filesystem model, validation, persistence, recovery, and Python API |
+| `fcop` | Protocol Core, Python API and setup/observe/diagnose CLI; no MCP dependency |
 | `fcop-mcp` | Optional MCP stdio adapter exposing Core capabilities to MCP clients |
 
 FCoP is not a task scheduler, agent runtime, LLM SDK, database, or automatic

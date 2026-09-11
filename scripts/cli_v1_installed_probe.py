@@ -1,0 +1,98 @@
+"""Installed CLI/MCP smoke, run as python -I -B; never imports repository code.
+
+Creates disposable fixture workspaces only. Suitable before/after PyPI release.
+"""
+from __future__ import annotations
+
+import argparse
+import asyncio
+import hashlib
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from importlib import metadata
+from pathlib import Path
+
+
+def snapshot(root):
+    return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+            if p.is_file() else "directory" for p in sorted(root.rglob("*"))}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mcp", action="store_true")
+    args = parser.parse_args()
+    import fcop
+
+    assert fcop.__version__ == metadata.version("fcop") == "4.0.2"
+    assert "site-packages" in str(Path(fcop.__file__).resolve())
+    assert bool(importlib.util.find_spec("fcop_mcp")) == args.mcp
+    executable = Path(sys.executable).parent / ("fcop.exe" if os.name == "nt" else "fcop")
+    results = []
+    with tempfile.TemporaryDirectory(prefix="fcop-cli-v1-proof-") as directory:
+        root = Path(directory)
+
+        def call(command, *arguments, expected=0):
+            before = snapshot(root)
+            completed = subprocess.run([str(executable), command, *map(str, arguments), "--json"],
+                                       cwd=root, capture_output=True, encoding="utf-8", timeout=60)
+            assert completed.returncode == expected, (command, completed.stdout, completed.stderr)
+            value = json.loads(completed.stdout)
+            assert value["schema_version"] == 1 and value["command"] == command
+            assert "\x1b" not in completed.stdout and not completed.stderr
+            if command != "init":
+                assert snapshot(root) == before, command
+            results.append({"command": command, "exit": expected})
+            return value["data"]
+
+        call("status")
+        call("validate", expected=3)
+        call("doctor")
+        call("version")
+        call("spec")
+        call("init")
+        project = fcop.Project(root)
+        workspace_id = call("status")["workspace_id"]
+        task = project.create_task(workspace_id=workspace_id, operation_id="installed-proof",
+                                   sender="ME", recipient="ME", subject="Installed CLI", body="Evidence")
+        assert call("inspect", task["task_id"])["task_id"] == task["task_id"]
+        assert call("validate")["valid"]
+        call("doctor")
+        catalog = call("tools", expected=0 if args.mcp else 3)
+        if args.mcp:
+            from fcop_mcp.catalog import get_tool_catalog
+            from fcop_mcp.disposition import TOOLS
+            from mcp import ClientSession, StdioServerParameters
+            from mcp.client.stdio import stdio_client
+
+            assert metadata.version("fcop-mcp") == "4.0.2"
+            assert {r["name"] for r in catalog["tools"]} == set(TOOLS)
+            assert {r["name"] for r in get_tool_catalog()} == set(TOOLS)
+            environment = dict(os.environ, FCOP_PROJECT_DIR=str(root))
+            environment.pop("PYTHONPATH", None)
+
+            async def verify():
+                params = StdioServerParameters(command=sys.executable, args=["-I", "-B", "-m", "fcop_mcp"],
+                                                env=environment, cwd=str(root))
+                async with stdio_client(params) as streams, ClientSession(*streams) as session:
+                    await session.initialize()
+                    names = {t.name for t in (await session.list_tools()).tools}
+                    assert names == set(TOOLS)
+                    return len(names)
+
+            before = snapshot(root)
+            count = asyncio.run(verify())
+            assert snapshot(root) == before
+        else:
+            assert catalog["mcp"]["installed"] is False
+            count = None
+    print(json.dumps({"result": "PASS", "core": fcop.__version__, "mcp": args.mcp,
+                      "tools": count, "checks": results, "import_path": fcop.__file__}))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,10 +1,17 @@
-"""Single declarative tool-disposition table: historical 45 plus authorized T6."""
+"""Single declarative disposition table for the existing MCP work surface."""
 
 from __future__ import annotations
 
 from types import MappingProxyType
 
+BRANCH_TOOLS = MappingProxyType({
+    "create_branch": "CREATE_TASK",
+    "inspect_family": "INSPECT",
+    "merge_branches": "APPEND_REVIEW",
+})
+
 TOOLS = MappingProxyType({
+    **BRANCH_TOOLS,
     "approve_task": "T4",
     "archive_task": "T7",
     "archive_to_history": "LEGACY_V3_ONLY",
