@@ -40,6 +40,24 @@ jobs:
           import urllib.parse
           import urllib.request
 
+          def canonical_package(package):
+              return {
+                  "registryType": package.get("registryType"),
+                  "identifier": package.get("identifier"),
+                  "version": package.get("version"),
+                  "transport": package.get("transport"),
+                  "environmentVariables": [
+                      {
+                          "name": item.get("name"),
+                          "description": item.get("description"),
+                          "format": item.get("format"),
+                          "isRequired": item.get("isRequired", False),
+                          "isSecret": item.get("isSecret", False),
+                      }
+                      for item in package.get("environmentVariables", [])
+                  ],
+              }
+
           with open("mcp/server.json", encoding="utf-8") as stream:
               expected = json.load(stream)
           query = urllib.parse.urlencode({
@@ -57,8 +75,15 @@ jobs:
           exists = bool(exact)
           if exists:
               actual = exact[0]
-              fields = ("description", "repository", "packages")
-              mismatches = [field for field in fields if actual.get(field) != expected.get(field)]
+              mismatches = []
+              if actual.get("description") != expected.get("description"):
+                  mismatches.append("description")
+              if actual.get("repository") != expected.get("repository"):
+                  mismatches.append("repository")
+              if [canonical_package(item) for item in actual.get("packages", [])] != [
+                  canonical_package(item) for item in expected.get("packages", [])
+              ]:
+                  mismatches.append("packages")
               if mismatches:
                   raise SystemExit(
                       "Registry version is immutable and differs in: "
