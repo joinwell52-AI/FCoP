@@ -8,7 +8,7 @@ adapter over the same protocol—not a second protocol implementation.
 
 ## Current stable surface
 
-FCoP 4.0.2 provides:
+FCoP 4.0 is **Stable, Implemented and Released**. Package version **4.0.2** provides:
 
 - **49 tools**
 - **12 resources**
@@ -50,7 +50,9 @@ Do not mix incompatible minor versions.
 authoritative Tool Catalog without starting a server:
 
 ```bash
-pip install fcop-mcp
+pip install fcop-mcp==4.0.2
+fcop version
+fcop doctor
 fcop tools
 fcop tools merge_branches --json
 ```
@@ -126,6 +128,7 @@ applications using `Project` directly only need `fcop`.
 
 ## 中文简介
 
+FCoP 4.0 已正式稳定发布，当前包版本为 4.0.2。
 `fcop-mcp` 是 FCoP Core 的 MCP 适配层，当前提供 49 个 Tools、12 个
 Resources 和 4 个 Templates。4.0.1 新增 `create_branch`、
 `inspect_family`、`merge_branches`，让 MCP Host 能创建并发 Branch、

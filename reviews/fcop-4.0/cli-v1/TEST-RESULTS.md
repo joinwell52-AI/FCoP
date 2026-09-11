@@ -1,10 +1,32 @@
 # CLI v1 test results
 
-STATUS: BLOCKED
+STATUS: FINAL_VALIDATION_PENDING
 REQUESTED_ADMIN_GATE: NONE
 Publication, tag and merge have not been performed.
 
-## Commands and actual results
+## Current amended validation
+
+Both historical holds below have ADMIN resolution; no unresolved scope blocker.
+Identity/resources/prompt/Conformance targeted run: **121 passed**, 3 warnings,
+49.60s. CLI/Catalog: **88 passed**, 3 warnings, 15.81s.
+Ruff PASS; Core mypy PASS (58 files); MCP/source tests mypy PASS (35 files).
+Three new identity tests prove exact Stable EN/ZH bytes, ordered clause parity,
+Core citation and unchanged normative remainder against historical digests.
+The four self-reference lines retain their migration/authority restrictions.
+
+The preceding README-alignment HEAD 80a6b08c48305a845b6fb2b025886db34375a7be
+passed the full repository run: **2418 passed, 2 pre-existing skipped**, 3 warnings,
+850.82s; its GitHub CI passed **29/29**. Runs: 34556627134 and 34556627108.
+This is intermediate evidence, not acceptance of the amended release HEAD.
+
+Final validation command: python -X utf8 -m pytest -q --tb=short
+--junitxml=C:/Users/Administrator/AppData/Local/Temp/fcop-402-cli-final-head.xml.
+Final HEAD, actual result, GitHub check runs and hashes will be bound in the
+PR #40 completion receipt after the manifest-only commit. No source change may
+be made between that run and merge. The final receipt, not the historical rows
+below, determines C19/final-release acceptance.
+
+## Historical initial implementation run (blocker preserved)
 
 Development Python:
 C:/Users/Administrator/AppData/Local/Temp/fcop-401-branch-venv/Scripts/python.exe.
@@ -54,8 +76,8 @@ Editable imports point to this isolated worktree, not the original workspace.
 | C16 | PASS | independent Core-only environments |
 | C17 | PASS | unchanged tool snapshot and real stdio |
 | C18 | PASS | native Windows paths with spaces and Chinese |
-| C19 | FAIL | pre-existing README inline-prompt assertion |
+| C19 | PENDING FINAL HEAD | historical inline-prompt failure resolved by ADMIN; see current validation |
 | C20 | PASS | EN/ZH docs, code-block/link parity and example execution |
 
-C19 prevents release irrespective of other passes. Final-HEAD remote CI and
-publication checks are not claimed as passed.
+C19 prevents release until final-HEAD local/remote verification completes.
+Public publication checks are not claimed as passed in this pre-merge report.

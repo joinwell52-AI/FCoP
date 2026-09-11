@@ -33,8 +33,19 @@ def main():
     assert bool(importlib.util.find_spec("fcop_mcp")) == args.mcp
     executable = Path(sys.executable).parent / ("fcop.exe" if os.name == "nt" else "fcop")
     results = []
+    spec_hashes = {
+        "en": "9e6fd97ed4f3fa4bf9178babd54fd671fe4cc5f7bf7b8ee985d1726fb8c0e491",
+        "zh": "babe6acad7ddcd41ae06a3e9b21334b191576111905012f752a3052d5951dcf9",
+    }
+    spec_revision = "5c27e1bc90dce799aa7fa89e6cc717e01d47693e"
     with tempfile.TemporaryDirectory(prefix="fcop-cli-v1-proof-") as directory:
         root = Path(directory)
+        help_result = subprocess.run([str(executable), "--help"], cwd=root,
+                                     capture_output=True, encoding="utf-8", timeout=60)
+        assert help_result.returncode == 0
+        assert all(name in help_result.stdout for name in (
+            "init", "status", "inspect", "validate", "tools", "doctor", "version", "spec", "migrate"))
+        assert snapshot(root) == {}
 
         def call(command, *arguments, expected=0):
             before = snapshot(root)
@@ -53,7 +64,9 @@ def main():
         call("validate", expected=3)
         call("doctor")
         call("version")
-        call("spec")
+        identity = call("spec")["specification"]
+        assert identity == {"path": "spec/fcop-4.0-spec.md", "revision": spec_revision,
+                            "sha256": spec_hashes["en"], "bundled_text": False}
         call("init")
         project = fcop.Project(root)
         workspace_id = call("status")["workspace_id"]
@@ -64,6 +77,8 @@ def main():
         call("doctor")
         catalog = call("tools", expected=0 if args.mcp else 3)
         if args.mcp:
+            from importlib.resources import files
+
             from fcop_mcp.catalog import get_tool_catalog
             from fcop_mcp.disposition import TOOLS
             from mcp import ClientSession, StdioServerParameters
@@ -74,6 +89,12 @@ def main():
             assert {r["name"] for r in get_tool_catalog()} == set(TOOLS)
             environment = dict(os.environ, FCOP_PROJECT_DIR=str(root))
             environment.pop("PYTHONPATH", None)
+            registry = json.loads(files("fcop_mcp").joinpath("_specs.json").read_bytes())
+            for lang, expected in spec_hashes.items():
+                entry = registry["v4/" + lang]
+                assert entry["source_commit"] == spec_revision
+                assert hashlib.sha256(entry["content"].encode()).hexdigest() == entry["sha256"] == expected
+                assert "Stable · Implemented · Released" in entry["content"].splitlines()[2]
 
             async def verify():
                 params = StdioServerParameters(command=sys.executable, args=["-I", "-B", "-m", "fcop_mcp"],
@@ -82,6 +103,18 @@ def main():
                     await session.initialize()
                     names = {t.name for t in (await session.list_tools()).tools}
                     assert names == set(TOOLS)
+                    assert len((await session.list_resources()).resources) == 12
+                    assert len((await session.list_resource_templates()).resourceTemplates) == 4
+                    for lang, uri in (("en", "fcop://spec/en"), ("zh", "fcop://spec")):
+                        entry = registry["v4/" + lang]
+                        response = await session.read_resource(uri)
+                        text = response.contents[0].text
+                        expected = (
+                            "> Read-only specification projection; workspace protocol: v4\n"
+                            f"> Source: {entry['source_path']} @ {spec_revision}\n"
+                            f"> Source payload SHA-256: {spec_hashes[lang]}\n\n{entry['content']}"
+                        )
+                        assert text == expected
                     return len(names)
 
             before = snapshot(root)

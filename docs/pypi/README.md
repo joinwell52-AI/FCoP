@@ -58,3 +58,11 @@ adds CLI Setup/Observe/Diagnose guidance, and retains 49 MCP tools. Build metada
 must contain these exact UTF-8 descriptions. The release evidence must compare
 both public PyPI JSON descriptions with the tagged sources after publication;
 pre-publication metadata checks alone are not public-page verification.
+
+The fixed ADMIN release-identity amendment at
+`a72fef39d772104f5129b1b4ed1c6feeda62e31c` additionally binds current EN/ZH
+specification identity to Stable / Implemented / Released. Both descriptions
+state CLI = Setup + Observe + Diagnose and MCP = Work, with 49/12/4 and no
+automatic workspace initialization or migration. Historical release descriptions
+and candidate evidence remain unchanged. Final publication results belong to
+the CLI v1 release receipt, not to the historical 4.0.1 record above.

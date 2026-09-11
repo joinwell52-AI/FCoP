@@ -7,6 +7,11 @@ coordinate work through UTF-8 Markdown files with YAML front matter.
 This package is the protocol Core, Python API and thin CLI. The optional MCP adapter is
 published separately as [`fcop-mcp`](https://pypi.org/project/fcop-mcp/).
 
+**FCoP 4.0 is Stable, Implemented and Released.** The current package release
+is **4.0.2**. The optional adapter provides **49 Tools / 12 Resources /
+4 Templates**, including the official `create_branch`, `inspect_family`, and
+`merge_branches` tools.
+
 ## Install
 
 FCoP 4.0 supports Python 3.10–3.13.
@@ -39,7 +44,7 @@ FCoP 4.0.2 provides nine commands: `init`, `status`, `inspect`, `validate`,
 **CLI = Setup + Observe + Diagnose; MCP = Work.**
 
 ```bash
-pip install fcop
+pip install fcop==4.0.2
 fcop version
 fcop doctor
 fcop init
@@ -58,6 +63,11 @@ by `tools`; Core remains independently usable. `doctor` warns, not installs it.
 
 [CLI reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md) /
 [中文 CLI 参考](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.zh.md).
+
+For MCP work, install `fcop-mcp==4.0.2` in the same environment and use its
+[client configuration and verification guide](https://pypi.org/project/fcop-mcp/4.0.2/).
+Point the client at that environment's Python with `-m fcop_mcp` and explicitly
+set `FCOP_PROJECT_DIR`; run `fcop tools` to inspect the installed Tool Catalog.
 
 ## Minimal Python example
 
@@ -98,6 +108,7 @@ the participating agents or humans.
 
 ## 中文简介
 
+FCoP 4.0 已正式稳定发布，当前包版本为 4.0.2。
 `fcop` 是 FCoP 协议的 Python Core，负责工作区、TASK/REPORT/ISSUE/REVIEW、
 并发 Branch、显式收敛、原子合并、幂等与恢复。它不包含 MCP Server，也不会在
 安装时自动初始化、迁移或修改现有项目。需要在 Codex、Cursor、Claude Desktop

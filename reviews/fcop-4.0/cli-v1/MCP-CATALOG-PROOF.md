@@ -20,4 +20,9 @@ separate process that catalog access imports neither fastmcp nor server, and
 returned mutable rows cannot mutate later results. Unknown names are invalid.
 Core-only tools reports installed=false and exit 3 without import crashes.
 
-No work tool, resource or template was added, removed or changed.
+No work tool, resource or template was added or removed. Work-tool contracts
+are unchanged. Under the ADMIN identity amendment, the two v4 specification
+resource payloads now project the exact Stable source text and its pinned
+commit/hash. The v3 registry entries are byte-for-byte equivalent as values.
+The installed probe verifies 49/12/4 and exact EN/ZH stdio spec projections,
+with zero workspace writes. Final installed results are bound in the PR receipt.

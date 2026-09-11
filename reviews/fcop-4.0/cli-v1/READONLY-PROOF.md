@@ -16,5 +16,8 @@ from installed distributions outside the repository using python -I -B.
 It checks empty and initialized workspace reads, actual console entrypoint,
 Core-only unavailable MCP output, and (when installed) stdio discovery.
 
-No source changes under src/fcop/v4, spec, tests/conformance or retained public
-surface snapshots. No CodeFlowMu, original dogfood, rule or Host changes.
+The release-identity amendment changes only citation metadata under src/fcop/v4,
+current spec status/self-reference text, MCP spec payloads and the corresponding
+exact Conformance identity comparison. It changes no lifecycle/authorization/
+recovery behavior, work-tool contract or retained public surface snapshot.
+No CodeFlowMu, original dogfood, rule-body or Host changes.

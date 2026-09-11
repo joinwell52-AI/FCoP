@@ -31,8 +31,8 @@ _CONTEXT = {
 }
 _SPEC = {
     "path": "spec/fcop-4.0-spec.md",
-    "revision": "aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6",
-    "sha256": "0c5005ec754ee71d735e02c9ea403adbc35e8dff9ce98c13d8a42040cacbc8e9",
+    "revision": "5c27e1bc90dce799aa7fa89e6cc717e01d47693e",
+    "sha256": "9e6fd97ed4f3fa4bf9178babd54fd671fe4cc5f7bf7b8ee985d1726fb8c0e491",
 }
 
 

@@ -23,6 +23,11 @@ No server start, copied signature schema or CLI-maintained tool list is involved
 Limits: multi-file observations are not atomic across concurrent writers.
 Validation is limited to existing observable Core checks, not task quality.
 Catalog does not invent unavailable description/signature fields. spec reports
-the frozen specification identity/citation separately from actual bundled files.
+the current Stable specification identity/citation separately from actual bundled files.
 Absence of a REPORT is an explicit warning/null head; unready family state remains
 the existing Core null digest and structured readiness evidence.
+
+The ADMIN release-identity amendment changes presentation and exact identities,
+not normative semantics. EN/ZH source commit and SHA-256, Core citation and MCP
+full-text projection are synchronized. Historical freeze records keep their old
+candidate bytes; they are not represented as the current published specification.

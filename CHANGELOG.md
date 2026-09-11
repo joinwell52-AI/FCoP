@@ -29,6 +29,11 @@ CLI v1 and single-source MCP Catalog; both packages 4.0.2, MCP requires
 references; synchronized PyPI descriptions. No protocol, Schema, lifecycle,
 Host deployment or work-tool change. The additions above describe this release.
 
+The English/Chinese 4.0 specification now identifies the protocol as Stable,
+Implemented and Released. Core citations and MCP full-text resource projections
+are rebound to those exact bytes; historical candidate evidence and normative
+protocol semantics are preserved.
+
 ## [4.0.1] — 2026-09-11
 
 ### Added — fcop
