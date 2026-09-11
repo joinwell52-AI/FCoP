@@ -1,14 +1,14 @@
-# FCoP 4.0 候选规范（中文）
+# FCoP 4.0 正式稳定规范（中文）
 
-> **状态：Candidate · Not Implemented · Not Released**
+> **状态：Stable · Implemented · Released（正式稳定 · 已实现 · 已发布）**
 >
-> WP1.1 合同版本：`4.0.0-candidate.2`；基线 `68dbeb15f4e7f84e1d03f907be9fa66c2265843e`；WP0 证据 `c259bebdad77122d24dc18a6dd3f8fe191e4042f`；WP1 输入 `1b50f9e1fd4d2d21002bb1b98e14fd903a050f07`。在 ADMIN 签署 `FCOP_4_CONTRACT_FROZEN` 并完成后续实现/发布前，FCoP 3.2.5 仍是现行协议。
+> 历史 WP1.1 合同版本：`4.0.0-candidate.2`；基线 `68dbeb15f4e7f84e1d03f907be9fa66c2265843e`；WP0 证据 `c259bebdad77122d24dc18a6dd3f8fe191e4042f`；WP1 输入 `1b50f9e1fd4d2d21002bb1b98e14fd903a050f07`。这些引用保留候选阶段的历史证据。FCoP 4.0 此后已完成 ADMIN 合同、实现及发布 Gate，是正式稳定、已实现、已发布的协议；v3 工作区仍保留显式兼容边界。
 
 ## 0. 规范词义与权威
 
 **F4.0.1** “必须/不得”（MUST/MUST NOT）是符合性要求；“应当/可以”（SHOULD/MAY）是建议或可选能力。
 
-**F4.0.2** 英文 `spec/fcop-4.0-spec.md` 是候选规范主要权威文本；本中文版与其条款编号、对象、迁移、错误和不变量必须一致。差异必须阻止冻结/发布。
+**F4.0.2** 英文 `spec/fcop-4.0-spec.md` 是本规范主要权威文本；本中文版与其条款编号、对象、迁移、错误和不变量必须一致。差异必须阻止冻结/发布。
 
 **F4.0.3** JSON Schema 只对其能表达的结构具有机器权威性。生命周期、授权、并发、恢复等行为以本规范为准；WP2 测试只能验证本规范，不得新增规则。
 
@@ -271,7 +271,7 @@ workspace_id + operation_kind + operation_id
 
 ## 11. v3 兼容、Toolkit、MCP 与 Profile
 
-**F4.11.1** v3 workspace 在显式迁移前仍按 v3 读取；4.0 写入不得在缺少 §2 声明时发生。迁移不在本候选规范中授权。
+**F4.11.1** v3 workspace 在显式迁移前仍按 v3 读取；4.0 写入不得在缺少 §2 声明时发生。迁移不在本规范中授权。
 
 **F4.11.2** `finish_task` 与四个 history 工具是 `LEGACY_V3_ONLY`。4.0 workspace 的 history read 可作为 Legacy Toolkit；archive-to-history 移动权威 TASK 必须拒绝。
 
@@ -279,7 +279,7 @@ workspace_id + operation_kind + operation_id
 
 **F4.11.4** Branch 可由 create TASK + branch_of 表达，不要求新增 MCP 工具。`close_issue` 是下游 catalog 漂移，不属于官方表面。
 
-**F4.11.5** MCP 基础适配应为薄 stdio；Relay 是可选扩展（候选包装 `fcop-mcp[relay]`），不进入 Core。upgrade/redeploy/GAL/workspace/session 等均为 Toolkit/Profile/Runtime。
+**F4.11.5** MCP 基础适配应为薄 stdio；Relay 是可选扩展（包装 `fcop-mcp[relay]`），不进入 Core。upgrade/redeploy/GAL/workspace/session 等均为 Toolkit/Profile/Runtime。
 
 ## 12. 安全、符合性与发布门
 
@@ -289,7 +289,7 @@ workspace_id + operation_kind + operation_id
 
 **F4.12.3** Schema、规范和测试冲突时必须阻止发布；不得静默选择任一方。任何宣称 4.0 conformance 的实现必须通过同一可观察合同。
 
-**F4.12.4** 本文件在 `FCOP_4_CONTRACT_FROZEN` 前仅为 Candidate；它不授权 Schema、测试、实现、迁移、push 或发布。
+**F4.12.4** 本文件在 `FCOP_4_CONTRACT_FROZEN` 前曾为 Candidate，现描述正式稳定、已实现、已发布的协议；本文件本身不授权 Schema、测试、实现、迁移、push 或发布。
 
 ## 13. C1–C8 不变量摘要
 
