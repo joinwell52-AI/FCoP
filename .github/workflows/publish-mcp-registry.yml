@@ -1,0 +1,39 @@
+name: Publish MCP Registry
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "mcp/server.json"
+      - ".github/workflows/publish-mcp-registry.yml"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: mcp-registry-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the published manifest
+        uses: actions/checkout@v5
+
+      - name: Install the official MCP publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" |
+            tar --no-same-owner -xz mcp-publisher
+          ./mcp-publisher --version
+
+      - name: Validate the Registry manifest
+        run: ./mcp-publisher validate mcp/server.json
+
+      - name: Authenticate with GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish the Registry entry
+        run: ./mcp-publisher publish mcp/server.json
