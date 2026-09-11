@@ -1,6 +1,7 @@
 """Public release surfaces must not drift behind the installed package identity."""
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -52,3 +53,42 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
 
     current_package = re.findall(r"Current package: ([^ <]+)", page)
     assert current_package == [core]
+
+
+def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
+    mcp = _version("mcp/src/fcop_mcp/_version.py")
+    manifest = json.loads((ROOT / "mcp/server.json").read_text(encoding="utf-8"))
+
+    assert manifest["name"] == "io.github.joinwell52-AI/fcop"
+    assert manifest["version"] == mcp
+    assert manifest["packages"] == [
+        {
+            "registryType": "pypi",
+            "identifier": "fcop-mcp",
+            "version": mcp,
+            "transport": {"type": "stdio"},
+            "environmentVariables": [
+                {
+                    "name": "FCOP_PROJECT_DIR",
+                    "description": (
+                        "Absolute path to your project root "
+                        "(optional, auto-detected if omitted)."
+                    ),
+                    "isRequired": False,
+                    "format": "string",
+                    "isSecret": False,
+                }
+            ],
+        }
+    ]
+
+    description = manifest["description"]
+    for capability in (
+        "49 tools",
+        "12 resources",
+        "4 templates",
+        "Branch creation",
+        "family inspection",
+        "atomic convergence",
+    ):
+        assert capability in description
