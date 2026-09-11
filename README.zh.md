@@ -14,11 +14,45 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
-**[运行 Python 示例](#try-it) · [接入 MCP](#mcp) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
+**[让 AI 安装](#ai-install) · [手动参考](#manual-setup) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
 
 <a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.zh.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
 
 **Stable version: 4.0.2** — [4.0.2 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
+
+<a id="ai-install"></a>
+
+## 让 AI 帮你安装 FCoP
+
+把下面这段话交给 **Cursor Agent、Codex，或其他能运行命令、修改文件的编程 AI**。由 AI 完成安装并检查结果。
+
+```text
+请为我当前使用的 AI 编程客户端和项目安装 FCoP，按这份说明操作：
+https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
+环境检查、安装、配置和验收都由你执行。保留我现有的配置和项目状态。完成后告诉我实际验证结果；只在缺少客户端/项目选择，或确实需要授权、重连时让我介入。
+```
+
+[AI 安装说明](docs/ai-install.md)包含依赖准备、客户端配置和真实任务验收。客户端确实需要授权或重连时，AI 会告诉你具体一步。下方手动 Python/MCP 步骤保留作参考。
+
+## 为什么要把工作放到模型之外？
+
+“我完成了”是一句对话。接手的人还需要知道：**执行的是哪项任务、交付了什么、谁审查过、还有什么问题没有解决。** 如果这些事实只留在聊天里，每次交接都要重新拼接上下文。
+
+FCoP 为正式工作建立共同表示：带结构化元数据的 Markdown 文件、稳定身份、明确关系和状态迁移记录。Agent 可以写，人可以直接打开，脚本也可以校验。当前文件系统参考实现无需数据库或消息队列。
+
+| 工作记录 | 保存什么 | 带来什么 |
+|---|---|---|
+| **TASK** | 任务要求、参与者与生命周期 | 接手者能定位任务，知道它走到了哪一步。 |
+| **REPORT** | 某次尝试的交付主张与证据 | 区分“已经提交”与“已经验收”。 |
+| **ISSUE** | 问题及其上下文 | 发现问题的会话结束后，阻塞仍有记录。 |
+| **REVIEW** | 审查、验收或授权事实 | 可以核对决定针对的是哪项工作、哪份证据。 |
+
+持久化让主张可以检查，主张是否真实仍要核验。FCoP 检查协议关系和状态门槛，审查者判断交付内容；宿主 Runtime 负责执行、调度和权限。
+
+<a id="manual-setup"></a>
+
+<details>
+<summary>手动安装、Python/MCP 示例与 CLI 参考（可选）</summary>
 
 ## CLI 设置、观察与诊断；MCP 执行工作
 
@@ -42,21 +76,6 @@ fcop tools --json
 未就绪家族返回 `family_digest: null`、`merge_ready: false` 及结构化原因；
 语义合并结论始终来自调用方。
 详见[英文合同与示例](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md)。
-
-## 为什么要把工作放到模型之外？
-
-“我完成了”是一句对话。接手的人还需要知道：**执行的是哪项任务、交付了什么、谁审查过、还有什么问题没有解决。** 如果这些事实只留在聊天里，每次交接都要重新拼接上下文。
-
-FCoP 为正式工作建立共同表示：带结构化元数据的 Markdown 文件、稳定身份、明确关系和状态迁移记录。Agent 可以写，人可以直接打开，脚本也可以校验。当前文件系统参考实现无需数据库或消息队列。
-
-| 工作记录 | 保存什么 | 带来什么 |
-|---|---|---|
-| **TASK** | 任务要求、参与者与生命周期 | 接手者能定位任务，知道它走到了哪一步。 |
-| **REPORT** | 某次尝试的交付主张与证据 | 区分“已经提交”与“已经验收”。 |
-| **ISSUE** | 问题及其上下文 | 发现问题的会话结束后，阻塞仍有记录。 |
-| **REVIEW** | 审查、验收或授权事实 | 可以核对决定针对的是哪项工作、哪份证据。 |
-
-持久化让主张可以检查，主张是否真实仍要核验。FCoP 检查协议关系和状态门槛，审查者判断交付内容；宿主 Runtime 负责执行、调度和权限。
 
 <a id="try-it"></a>
 
@@ -136,6 +155,8 @@ python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
 **49 tools / 12 resources / 4 resource templates**（49 个工具、12 个资源、4 个资源模板）。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。
 
 [MCP 工具参考](docs/mcp-tools.md) · [稳定版独立 Python 示例](tests/stable/third-party/python-only/app.py) · [稳定版独立 MCP 示例](tests/stable/third-party/mcp-only/client.py)。完整示例包含教学用 Profile，实际部署需要配置自己的信任策略。
+
+</details>
 
 ## 从“提交交付”到“验收通过”
 

@@ -26,6 +26,39 @@
       });
     });
   }
+  const motionButton = document.querySelector('[data-motion-toggle]');
+  if (motionButton) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let motionPaused = false;
+    try { motionPaused = localStorage.getItem('fcop-motion-paused') === 'true'; } catch (_) {}
+    function syncMotion() {
+      const paused = reducedMotion.matches || motionPaused;
+      root.dataset.motionPaused = String(paused);
+      motionButton.setAttribute('aria-pressed', String(paused));
+      motionButton.disabled = reducedMotion.matches;
+      motionButton.querySelector('[data-motion-label="en"]').textContent = reducedMotion.matches
+        ? 'Motion off' : (paused ? 'Resume motion' : 'Pause motion');
+      motionButton.querySelector('[data-motion-label="zh"]').textContent = reducedMotion.matches
+        ? '动效已关' : (paused ? '开启动效' : '暂停动效');
+    }
+    syncMotion();
+    motionButton.hidden = false;
+    motionButton.addEventListener('click', () => {
+      motionPaused = !motionPaused;
+      try { localStorage.setItem('fcop-motion-paused', String(motionPaused)); } catch (_) {}
+      syncMotion();
+    });
+    reducedMotion.addEventListener('change', syncMotion);
+    function syncVisibility() { root.dataset.motionSuspended = String(document.hidden); }
+    syncVisibility();
+    document.addEventListener('visibilitychange', syncVisibility);
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => { entry.target.dataset.motionOffscreen = String(!entry.isIntersecting); });
+      });
+      document.querySelectorAll('.motion-scene').forEach(scene => observer.observe(scene));
+    }
+  }
   document.querySelectorAll('[data-copy]').forEach(button => {
     button.addEventListener('click', async () => {
       const code = document.getElementById(button.dataset.copy);
