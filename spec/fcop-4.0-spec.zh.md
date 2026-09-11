@@ -289,7 +289,7 @@ workspace_id + operation_kind + operation_id
 
 **F4.12.3** Schema、规范和测试冲突时必须阻止发布；不得静默选择任一方。任何宣称 4.0 conformance 的实现必须通过同一可观察合同。
 
-**F4.12.4** 本文件在 `FCOP_4_CONTRACT_FROZEN` 前曾为 Candidate，现描述正式稳定、已实现、已发布的协议；本文件本身不授权 Schema、测试、实现、迁移、push 或发布。
+**F4.12.4** 本文件在 `FCOP_4_CONTRACT_FROZEN` 前曾为 Candidate，现描述正式稳定、已实现、已发布的协议；它不授权 Schema、测试、实现、迁移、push 或发布。
 
 ## 13. C1–C8 不变量摘要
 

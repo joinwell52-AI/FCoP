@@ -289,7 +289,7 @@ Ordinary T2/T3 without a public `operation_id` do not promise arbitrary-time ext
 
 **F4.12.3** Conflict among Schema, specification, and tests blocks release; no source silently wins. Every 4.0-conformant implementation satisfies the same observable contract.
 
-**F4.12.4** This file was Candidate before `FCOP_4_CONTRACT_FROZEN` and now describes the stable, implemented, released protocol; it does not itself authorize Schema, tests, implementation, migration, push, or release.
+**F4.12.4** This file was Candidate before `FCOP_4_CONTRACT_FROZEN` and now describes the stable, implemented, released protocol; it does not authorize Schema, tests, implementation, migration, push, or release.
 
 ## 13. C1–C8 invariant summary
 
