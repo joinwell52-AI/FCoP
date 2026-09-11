@@ -1,6 +1,23 @@
 # CLI v1 package proof
 
-## Current Stable-identity pre-merge build
+## Final restriction-preserving pre-merge build
+
+Source identity: 81d3229ee602341063879fe9100ab7db92417ffe.
+Directory: C:/Users/Administrator/AppData/Local/Temp/fcop-402-cli-final-candidate.
+Build / Twine / descriptions / packaged source identities: **4/4 PASS**.
+Current source descriptors remain the canonical README hashes listed below.
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| fcop-4.0.2-py3-none-any.whl | 743898 | 741955544fe3cf55fe5edb30d63580ff373945db30a70d7717027c9fd37f02c2 |
+| fcop-4.0.2.tar.gz | 643201 | de14624fcd66ddc201be87c3a37cbf4ac69a1564eee8bbbf8ed08e1c95e88f42 |
+| fcop_mcp-4.0.2-py3-none-any.whl | 115992 | 911c2d30c129b4568b8b0004e7c758cf26d6e963e04d1c88222189e2b61d0b6d |
+| fcop_mcp-4.0.2.tar.gz | 107102 | 63e9a65df803ba86be30d7a6b1be2396c8edd2d1ee7c14fc2a5de67cac77d7cd |
+
+These final candidate files still must NOT replace the mandatory tag build.
+Final-HEAD and tag-built installed probes are bound in the PR completion receipt.
+
+## Intermediate Stable-identity pre-merge build (superseded)
 
 Directory: C:/Users/Administrator/AppData/Local/Temp/fcop-402-cli-stable-identity-candidate.
 Both builds: python -m build --wheel --sdist; Hatchling 1.32.0.

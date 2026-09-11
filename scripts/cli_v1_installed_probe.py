@@ -34,10 +34,10 @@ def main():
     executable = Path(sys.executable).parent / ("fcop.exe" if os.name == "nt" else "fcop")
     results = []
     spec_hashes = {
-        "en": "9e6fd97ed4f3fa4bf9178babd54fd671fe4cc5f7bf7b8ee985d1726fb8c0e491",
-        "zh": "babe6acad7ddcd41ae06a3e9b21334b191576111905012f752a3052d5951dcf9",
+        "en": "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
+        "zh": "0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40",
     }
-    spec_revision = "5c27e1bc90dce799aa7fa89e6cc717e01d47693e"
+    spec_revision = "81d3229ee602341063879fe9100ab7db92417ffe"
     with tempfile.TemporaryDirectory(prefix="fcop-cli-v1-proof-") as directory:
         root = Path(directory)
         help_result = subprocess.run([str(executable), "--help"], cwd=root,

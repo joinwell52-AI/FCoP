@@ -9,10 +9,10 @@ import pytest
 from fcop.v4.rule_distribution._read import specification_identity
 
 ROOT = Path(__file__).resolve().parents[2]
-REVISION = "5c27e1bc90dce799aa7fa89e6cc717e01d47693e"
+REVISION = "81d3229ee602341063879fe9100ab7db92417ffe"
 HASHES = {
-    "en": "9e6fd97ed4f3fa4bf9178babd54fd671fe4cc5f7bf7b8ee985d1726fb8c0e491",
-    "zh": "babe6acad7ddcd41ae06a3e9b21334b191576111905012f752a3052d5951dcf9",
+    "en": "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
+    "zh": "0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40",
 }
 # Historical 8bedfd3 source after omitting ONLY the amended identity header
 # and four self-reference lines. All tables, code blocks and other clauses remain.
@@ -47,11 +47,11 @@ def test_stable_source_and_unchanged_normative_remainder(language):
     if language == "en":
         assert "MUST have the same clause IDs, objects, transitions, errors, and invariants." in clauses["F4.0.2"]
         assert clauses["F4.11.1"].endswith("This specification does not authorize migration.")
-        assert clauses["F4.12.4"].endswith("does not itself authorize Schema, tests, implementation, migration, push, or release.")
+        assert clauses["F4.12.4"].endswith("does not authorize Schema, tests, implementation, migration, push, or release.")
     else:
         assert "条款编号、对象、迁移、错误和不变量必须一致" in clauses["F4.0.2"]
         assert clauses["F4.11.1"].endswith("迁移不在本规范中授权。")
-        assert clauses["F4.12.4"].endswith("本文件本身不授权 Schema、测试、实现、迁移、push 或发布。")
+        assert clauses["F4.12.4"].endswith("它不授权 Schema、测试、实现、迁移、push 或发布。")
 
 
 def test_stable_clause_parity_and_core_source_identity():

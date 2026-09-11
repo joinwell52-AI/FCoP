@@ -68,7 +68,7 @@ def test_versioned_content_and_transport(distribution, version, uri):
         raw = (Path(__file__).resolve().parents[2] / "spec/fcop-4.0-spec.md").read_bytes()
         assert direct["content"] == {
             "path": "spec/fcop-4.0-spec.md",
-            "revision": "5c27e1bc90dce799aa7fa89e6cc717e01d47693e",
+            "revision": "81d3229ee602341063879fe9100ab7db92417ffe",
             "sha256": digest(raw),
         }
         assert direct["sha256"] == digest(raw)

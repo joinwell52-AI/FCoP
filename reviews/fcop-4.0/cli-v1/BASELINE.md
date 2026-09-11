@@ -90,3 +90,23 @@ historical inputs, other contracts, behavior tests and their expectations remain
 Task self-review: this is release-identity/packaging metadata, not protocol policy.
 No second ADMIN Gate is needed once final validation passes. Merge and publishing
 remain conditional on actual final-HEAD results; those are recorded in PR #40.
+
+### Exact restriction retained after full-suite cross-check
+
+The cafffa53 intermediate run exposed RELEASE-GATE-01's exact phrase check:
+the new word "itself" interrupted the required substring "does not authorize
+Schema, tests, implementation, migration, push, or release". A focused rerun
+reproduced 1 failed / 2 passed. The already-failing full run was interrupted;
+it is not reported as a complete full-suite result. Its GitHub CI was 29/29,
+which did not waive this locally observed Conformance failure.
+
+The identity text now preserves the original restriction verbatim in EN/ZH.
+No change was made to tests/conformance/v4/test_mcp_surface_contract.py or any
+of the 18 frozen v4 Conformance files. This is within the fixed identity-text
+amendment, not an exception to the release guard.
+
+Current spec identity supersedes the intermediate 5c27e1b reference above:
+revision 81d3229ee602341063879fe9100ab7db92417ffe;
+EN SHA-256 fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d;
+ZH SHA-256 0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40.
+The exact Core/MCP payload references and new identity proof were rebound.

@@ -6,6 +6,17 @@ Publication, tag and merge have not been performed.
 
 ## Current amended validation
 
+Intermediate cafffa53 validation found one exact RELEASE-GATE-01 wording failure
+and was interrupted after the focused reproduction (1 failed / 2 passed).
+Its 29/29 green CI did not override this local failure. The EN/ZH self-reference
+now retains the original restriction verbatim; the frozen test was NOT changed.
+Current exact spec identity is 81d3229ee602341063879fe9100ab7db92417ffe.
+All final validation below must run again on the next manifest HEAD.
+
+The post-correction targeted run explicitly includes RELEASE-GATE-01:
+**124 passed**, 3 warnings, 57.58s; Ruff PASS. The original frozen release
+assertion passed unchanged. Current collection remains **2423 nodes**.
+
 Both historical holds below have ADMIN resolution; no unresolved scope blocker.
 Identity/resources/prompt/Conformance targeted run: **121 passed**, 3 warnings,
 49.60s. CLI/Catalog: **88 passed**, 3 warnings, 15.81s.

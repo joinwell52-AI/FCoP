@@ -294,12 +294,12 @@ def test_meta_frozen_contract_gate_and_manifest():
     )
     # ADMIN CLI release-identity amendment: exact current Stable spec blobs,
     # not the historical Candidate presentation. All other contracts stay fixed.
-    stable_revision = "5c27e1bc90dce799aa7fa89e6cc717e01d47693e"
+    stable_revision = "81d3229ee602341063879fe9100ab7db92417ffe"
     stable_specs = {
         "spec/fcop-4.0-spec.md":
-            "9e6fd97ed4f3fa4bf9178babd54fd671fe4cc5f7bf7b8ee985d1726fb8c0e491",
+            "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
         "spec/fcop-4.0-spec.zh.md":
-            "babe6acad7ddcd41ae06a3e9b21334b191576111905012f752a3052d5951dcf9",
+            "0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40",
     }
     for p, expected_sha in stable_specs.items():
         expected = git("show", f"{stable_revision}:{p}")
