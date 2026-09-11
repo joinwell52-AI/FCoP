@@ -1,6 +1,7 @@
 """Independent unpublished candidate identity and negative dependency guards."""
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -41,6 +42,11 @@ def test_wp4d_rc_pin_rejects_major_only_alignment():
 
 
 def test_wp4d_rc_existing_registry_identity_is_not_relabelled():
-    registry = (ROOT / "mcp/server.json").read_text(encoding="utf-8")
+    # Preserve the registry identity at accepted RC commit d5e851c3fa628167999a9f8b7b7b89290e7b8f06.
+    # The live manifest advances when a stable package is actually published.
+    registry = (ROOT / "tests/stable/accepted-rc-registry.json").read_text(encoding="utf-8")
+    assert hashlib.sha256(registry.encode("utf-8")).hexdigest() == (
+        "2194638d6894dd2bb33aa73ceea1ca58f1ece24f172e700ef66396d6a8003d85"
+    )
     assert "4.0.0rc1" not in registry
     assert "3.2.5" in registry
