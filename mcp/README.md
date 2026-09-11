@@ -1,334 +1,130 @@
-# fcop-mcp
-
-## 4.0.1 review candidate / 开发候选
-
-Adds `create_branch`, `inspect_family`, and `merge_branches`: **49 tools / 12
-resources / 4 templates**. Requires `fcop>=4.0.1,<4.1.0`; both 4.0.1 packages
-are pending ADMIN publication approval. Existing 46 tool signatures are retained.
-Core owns atomic merge, persistence and recovery; the adapter only forwards.
-See [contract and example](../docs/branch-merge.md) /
-[中文合同与示例](../docs/branch-merge.zh.md). The 4.0.0 install below remains the
-published version until release is authorized.
+# fcop-mcp — MCP adapter for FCoP
 
 mcp-name: io.github.joinwell52-AI/fcop
 
-> Stable distribution: fcop==4.0.0 and fcop-mcp==4.0.0.
-> No new protocol or business behavior. Use an activated fresh Python 3.10+ venv:
->
-> `python -m pip install fcop==4.0.0 fcop-mcp==4.0.0`
->
-> Existing workspaces are not migrated or redeployed by installation.
-> The historical RC remains available; Registry and Zenodo are not updated.
+`fcop-mcp` exposes the official [FCoP Python Core](https://pypi.org/project/fcop/)
+to Codex, Cursor, Claude Desktop, and other MCP clients. It is an optional
+adapter over the same protocol—not a second protocol implementation.
 
-**MCP (stdio) server** — the optional **IDE bridge** for the same FCoP stack. It
-wraps the official [`fcop`](https://pypi.org/project/fcop/) library; it is **not**
-a second “FCoP product” and does not replace the protocol text.
+## Current stable surface
 
-- **What FCoP is (protocol only, product-agnostic):** [`docs/getting-started.en.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md) (中文 [`getting-started.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.md))
-- **Pure Python lib / `pip install fcop`:** filesystem + Project API, PyYAML and jsonschema — [PyPI `fcop`](https://pypi.org/project/fcop/) (see that package’s `description` and **Documentation**).
-- **This package (`fcop-mcp`):** `pip install fcop-mcp` — stdio tools/resources for clients; same repo, folder `mcp/`.  
-- **Source home:** [joinwell52-AI/FCoP](https://github.com/joinwell52-AI/FCoP)
+FCoP 4.0.1 provides:
 
-The exact Stable pair preserves the accepted RC protocol. The older documentation
-in the explicitly marked historical section below is not a Stable upgrade instruction.
+- **49 tools**
+- **12 resources**
+- **4 resource templates**
+- Python 3.10–3.13 support
+- Version-routed behavior for existing v3 and v4 workspaces
 
-**Surface:** the historical released 3.2.5 baseline has **45 tools**. This
-Stable distribution has **46 tools / 12 static resources / 4 templates**:
-The existing 45 tools gain v4 routing and semantics; T6 `reopen_task` is the sole additional name (not Branch-only); WP4C adds version-selected guidance
-and team resources. Discovery is checked through stdio by the external sample.
+The original 46-tool surface remains available. The 4.0.1 Branch workflow adds:
 
-### 4.0.0 Stable v4 adapter
+| Tool | Purpose |
+| --- | --- |
+| `create_branch` | Create a Branch TASK under a Root TASK for parallel work |
+| `inspect_family` | Read the Root/Branch family, REPORT heads, readiness, and canonical family digest |
+| `merge_branches` | Commit an explicit convergence decision through Core's atomic merge operation |
 
-The Stable adapter requires `fcop>=4.0.0,<4.1.0` and accepts the exact installed
-`4.0.0 / 4.0.0` pair. The historical `3.2.5 / 3.2.5` pair remains solely
-for legacy/source compatibility checks; mixed installed pairs fail closed.
-The copied stdio-only sample under `examples/v4/third-party/mcp-only/` has no
-client-side FCoP imports and configures its educational Profile at trusted
-server startup. It does not establish a production credential policy.
+## Install
 
-`fcop-mcp` defaults to stdio. `fcop-mcp --relay-url wss://<explicit-endpoint>`
-selects a foreground standard-MCP JSON-RPC WebSocket transport; its direct
-dependency is in `fcop-mcp[relay]`. FastMCP itself may install `websockets`
-transitively. Presence of that package, `FCOP_ROOM_KEY` or `FCOP_RELAY_WS_URL`
-does **not** enable FCoP Relay. No connection is made by base stdio startup.
+Install Core and the MCP adapter together in a dedicated virtual environment:
 
-Trusted application startup can use:
-
-```python
-from fcop_mcp.server import create_server
-
-server = create_server(workspace_path, trusted_profiles={profile_ref: evaluator})
-server.run(transport="stdio")
+```bash
+python -m pip install --upgrade \
+  "fcop>=4.0.1,<4.1.0" \
+  "fcop-mcp>=4.0.1,<4.1.0"
 ```
 
-The registry is copied at construction and defaults to empty. It is never
-populated by tool requests, manifest fields, Profile documents or actor names.
-v4 T4–T7 without a trusted adopted evaluator fail in Core.
+Verify both distributions:
 
-For v4, `init_solo` / `init_project` require explicit `protocol_version="4.0"`
-to create a new workspace without legacy rule deployment. TASK creation requires
-`workspace_id` and `operation_id`; Branch uses the optional `branch_of` field.
-REPORT/ISSUE/REVIEW writers require the corresponding v4 fields, including
-`workspace_id`, formal subject and (for REPORT) current `attempt_id`.
-`write_review` appends evidence, not a transition.
+```bash
+python -c "from importlib.metadata import version; print('fcop', version('fcop')); print('fcop-mcp', version('fcop-mcp'))"
+python -c "from fcop_mcp.server import mcp; print('fcop-mcp ready')"
+```
 
-In v4, `mark_human_approved` delegates exclusively to the existing public
-Project method. Supply `review_id`, `approver`, affirmative `decision`,
-`profile_ref`, `from_stage`, `to_stage`, the edge's `attempt_id` and (for a
-Root T7 with Branches) `family_digest`, `issued_at`, explicit `expires_at`
-(which may be null), and `issuer_proof`; `comment` is optional. The Project
-derives workspace, subject, recipient and references from existing facts and
-stores a new authorization REVIEW with decision `authorize`. A trusted
-evaluator must authorize before publication. DENIED/UNKNOWN, invalid binding
-or expiry fail with zero writes. The old REVIEW is never edited and no TASK
-moves until a separate transition revalidates and consumes the authorization.
-`approve`/`approved` are accepted affirmative spellings; rejection never
-creates an authorization. v3 retains its original approve/reject behavior.
+`fcop` and `fcop-mcp` are released in lockstep within the same minor line.
+Do not mix incompatible minor versions.
+
+## Configure an MCP client
+
+A fixed virtual environment gives predictable startup and avoids importing a
+different editable `fcop` package from another project.
 
 ```json
 {
-  "name": "reopen_task",
-  "arguments": {
-    "task_id": "TASK-...",
-    "review_ref": "REVIEW-reopen-...",
-    "authorization_ref": "REVIEW-independent-authorization-...",
-    "profile_ref": "profile:adopted-by-trusted-startup",
-    "actor": "ME",
-    "lang": "en"
+  "mcpServers": {
+    "fcop": {
+      "command": "/absolute/path/to/venv/bin/python",
+      "args": ["-m", "fcop_mcp"],
+      "env": {
+        "FCOP_PROJECT_DIR": "/absolute/path/to/repository"
+      }
+    }
   }
 }
 ```
 
-This requests only `done -> active`; Core validates evidence and single-use
-authorization and creates the next attempt. An exact retry returns the existing
-result. No `operation_id`, attempt, report, family digest, transition selector
-or evaluator is accepted by `reopen_task`. The tool rejects v3 workspaces.
+On Windows, `command` is the virtual environment's
+`Scripts\\python.exe`. Restart the MCP host after changing its configuration.
 
-`list_reports(task_id=..., attempt_id=..., head_only=True)` and
-`read_report(filename=...)` return the requested immutable facts with `is_head`,
-`head_ref` and `head_digest`. All graph validation belongs to public Project
-readers; pagination cannot hide an ambiguous group. `status="archived"` is
-legacy-only, not v4 history authority. Base failures are standard MCP error
-results (`isError=true`) with structured `code`, `operation_ref`, `subject_ref`.
+Installation only installs the packages. It does **not** initialize a workspace,
+migrate existing files, deploy rules, publish anything, or modify another
+application.
 
-`fcop://spec` and `/en` are version-routed projections with source SHA-256.
-v4 rule Manifest and protocol identity objects are deterministically projected
-as Markdown, and sequential/parallel guidance is read-only. Legacy v3 protocol
-Markdown bytes and MIME remain unchanged. File projection does not prove Runtime
-consumption; Host adoption/deployment remain explicit Project operations.
-Profile resources remain read-only catalog documents and never grant authority.
-Existing product-only rule deployment/GAL/governance extensions are not
-relabelled as v4 Core; unsupported v4 projections return typed unavailability.
-
-中文：本 review 版本尚未发布；历史 45 项工具保留，仅新增 T6 `reopen_task`，
-合计 46 项。可信 Profile 只能在 server 初始化时注册。v4 查询委托公共
-Project，零 head／多 head 分别返回 `REPORT_REQUIRED`／
-`REPORT_HEAD_AMBIGUOUS`；旧 REPORT 可读取，但明确显示并非当前 head。
-不得把历史安装说明中的升级、规则重部署步骤用于本轮现有工作区。
-
-**0.6.3 ships [ADR-0006](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0006-host-neutral-rule-distribution.md)** — host-neutral protocol-rule distribution. New tool **`fcop_report`** is now the canonical session/init report (its header carries a `[Versions]` block that flags drift between the wheel-bundled rules and the project-local `.cursor/rules/` copy). New ADMIN-only tool **`redeploy_rules`** writes the four protocol-rule targets — `.cursor/rules/fcop-rules.mdc`, `.cursor/rules/fcop-protocol.mdc`, `AGENTS.md`, `CLAUDE.md` — so Cursor, Claude Code CLI, and Codex CLI all see the same rules. Legacy **`unbound_report`** stays as a deprecated alias of `fcop_report` (emits `DeprecationWarning`, removed in 0.7.0). See [`docs/releases/0.6.3.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/0.6.3.md) for the full migration story.
-
-> The **`fcop`** on PyPI **must** be the **FCoP library** (summary mentions *File-based Coordination Protocol*, `pyyaml`, no `fastmcp` inside `fcop`). If `pip show fcop` says *MCP toolbox* or `from fcop import Issue` fails, you have a **wrong** distribution — fix with a clean venv and reinstall (see *Verify* below).
-
----
-
-## Historical 3.x guide — not Stable installation or migration authority
-
-The following public-index and upgrade instructions describe the released line.
-Do not execute them as part of WP4D or against an existing development workspace.
-
-## TL;DR — Have an agent install fcop-mcp for you
-
-Don't want to read the rest of this page? Open a fresh chat with any
-shell-capable AI agent (Cursor with a new tab, Claude Code CLI, Codex
-CLI…) and **paste this prompt verbatim**. The agent will detect your
-OS, install `uv`, edit your `~/.cursor/mcp.json` (preserving every
-other server you already have), and tell you when to restart.
+## Parallel Branch workflow
 
 ```text
-Install fcop-mcp into Cursor for me — you run the commands end to end.
-
-1. Detect my OS first: in the terminal, run
-   `uname -s 2>$null; echo $env:OS` to see whether this is Windows
-   or macOS / Linux.
-
-2. Install uv (if not already present). One-liner:
-   - Windows PowerShell:
-     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-   - macOS / Linux:
-     curl -LsSf https://astral.sh/uv/install.sh | sh
-   Then run `uvx --version` to confirm.
-
-3. Add an fcop entry to the global mcp.json. **Preserve** existing
-   mcpServers — do not overwrite them.
-   - Windows path: %USERPROFILE%\.cursor\mcp.json
-   - macOS / Linux path: ~/.cursor/mcp.json
-   - Add this snippet inside the mcpServers object:
-     "fcop": {
-       "command": "uvx",
-       "args": ["fcop-mcp"]
-     }
-
-4. Print the final mcp.json contents back to me.
-
-5. Remind me to restart Cursor; on first launch fcop-mcp will pull
-   dependencies, **wait 30 seconds to 1 minute**, do not close or
-   reconnect early.
-
-Report back after each step before moving on. **Do not** auto-init
-a project after install — initialization is my (ADMIN's) choice; I
-will pick solo / dev-team / custom myself.
+create_branch → agents write REPORTs → inspect_family → merge_branches
 ```
 
-中文版本 / Chinese version: see
-[`agent-install-prompt.zh.md`](https://github.com/joinwell52-AI/FCoP/blob/main/src/fcop/rules/_data/agent-install-prompt.zh.md)
-in the repo, or after install read the MCP resource
-`fcop://prompt/install`.
+A PM, coordinating agent, or authorized human supplies the convergence decision.
+FCoP does not invent that decision. Core validates the exact REPORT heads and
+family digest, uses a family-scoped cross-process lock, and records one durable
+REVIEW. An exact retry is idempotent; a conflict fails without partial writes.
 
-> **Why the "do not auto-init" line?** Initialisation is ADMIN's
-> three-way choice (`solo` / preset team / custom). 0.6.3 had agents
-> defaulting to `init_project(team="dev-team")`, which silently
-> overwrote ADMIN's intended Solo flow. 0.6.4 makes the prompt and
-> the `fcop_report` Phase-1 message say the choice out loud and
-> forbid the agent from picking on ADMIN's behalf.
+Core owns validation, persistence, locking, and recovery. The MCP adapter
+validates the tool request and forwards it to the public Core API.
 
----
+See the [Branch merge contract and example](https://github.com/joinwell52-AI/FCoP/blob/main/docs/branch-merge.md)
+or the [Chinese version](https://github.com/joinwell52-AI/FCoP/blob/main/docs/branch-merge.zh.md).
 
-## One-page install (what we recommend for customers)
+## Authority and safety
 
-**Goal:** a dedicated Python environment for MCP only, so no other project’s `.pth` or wrong `fcop` shadows the real library.
+Profile and evaluator authority must be adopted by the trusted application when
+the server starts. A role name, TASK field, Profile document, or tool argument
+does not grant authority by itself.
 
-### A. Recommended: dedicated venv + `python -m fcop_mcp`
+FCoP uses a local stdio transport by default. Relay support is an explicit
+optional extra and is never activated merely because a WebSocket dependency or
+environment variable is present.
 
-1. **Python 3.10+** on `PATH` (3.10–3.13 tested in CI; avoid very new 3.14 until CI covers it).
-2. Create a venv (paths are examples — adjust if you like):
+## Package boundary
 
-**Windows (PowerShell)**
+| Package | Responsibility |
+| --- | --- |
+| `fcop` | Protocol Core, filesystem model, validation, atomic persistence, and recovery |
+| `fcop-mcp` | MCP tools and resources that call the Core API |
 
-```powershell
-$v = "$env:USERPROFILE\.cursor\fcop_mcp_venv"
-py -3.10 -m venv $v
-& "$v\Scripts\pip.exe" install -U pip
-& "$v\Scripts\pip.exe" install -U "fcop" "fcop-mcp"
-```
+You need `fcop-mcp` when an MCP client must operate FCoP through tools. Python
+applications using `Project` directly only need `fcop`.
 
-**macOS / Linux**
+## 中文简介
 
-```bash
-VENV="$HOME/.cursor/fcop_mcp_venv"
-python3 -m venv "$VENV"
-"$VENV/bin/pip" install -U pip
-"$VENV/bin/pip" install -U "fcop" "fcop-mcp"
-```
+`fcop-mcp` 是 FCoP Core 的 MCP 适配层，当前提供 49 个 Tools、12 个
+Resources 和 4 个 Templates。4.0.1 新增 `create_branch`、
+`inspect_family`、`merge_branches`，让 MCP Host 能创建并发 Branch、
+检查 REPORT 家族并提交原子合并。合并判断由 PM、Agent 或人类给出，Core
+负责校验、落盘、幂等和崩溃恢复。
 
-3. **Cursor** user config — file:
+## Documentation
 
-- Windows: `%USERPROFILE%\.cursor\mcp.json`
-- macOS / Linux: `~/.cursor/mcp.json`
-
-Add or merge (use the **real** `python` path from step 2):
-
-```json
-{
-  "mcpServers": {
-    "fcop": {
-      "command": "C:\\Users\\YOUR_USER\\.cursor\\fcop_mcp_venv\\Scripts\\python.exe",
-      "args": ["-m", "fcop_mcp"]
-    }
-  }
-}
-```
-
-On macOS, `command` is like `/Users/YOUR_USER/.cursor/fcop_mcp_venv/bin/python`.
-
-4. **Fully restart Cursor** (or *Developer: Reload Window*), then open MCP and confirm `fcop` is connected.
-
-**Why this path?** `uvx` (below) is convenient but **first run** can take a long time to download dependencies; some MCP hosts time out. A fixed venv avoids that and avoids **name conflicts** with other editable installs of `fcop` on the same machine.
-
----
-
-### B. Alternative: `uvx fcop-mcp` (quickest to try, slower cold start)
-
-```json
-{
-  "mcpServers": {
-    "fcop": {
-      "command": "uvx",
-      "args": ["fcop-mcp"]
-    }
-  }
-}
-```
-
-Install [uv](https://docs.astral.sh/uv/) first. **First connection** may download many wheels — **wait** for it; don’t spam reconnect. If you see *Aborted* or timeouts, use **A** above.
-
----
-
-## Verify (2 commands)
-
-In the **same** venv you use for MCP:
-
-```bash
-python -c "from fcop import Issue, Project; print('fcop OK', Project)"
-python -c "from fcop_mcp.server import mcp; print('fcop-mcp OK')"
-```
-
-If the first line fails, **`fcop` is not the FCoP library** — uninstall and reinstall in a **clean** venv (`fcop` / `fcop-mcp` from PyPI, **same version in lockstep** per [ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md); e.g. `fcop 3.2.x` + `fcop-mcp 3.2.x`).
-
----
-
-## Claude Desktop
-
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`  
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`  
-
-Use the same `command` / `args` as Cursor (either **A** with your venv `python`, or **B** with `uvx`).
-
----
-
-## Upgrading from `uvx` / `args: ["fcop"]` (0.5.x)
-
-```json
-"fcop": { "command": "uvx", "args": ["fcop-mcp"] }
-```
-
-The `mcpServers` key name can stay `"fcop"`. Full guide:  
-[`docs/MIGRATION-0.6.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/MIGRATION-0.6.md)
-
----
-
-## Where the server looks for the project
-
-Resolution order (see [ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)):
-
-1. Last `set_project_dir` in this MCP session  
-2. `FCOP_PROJECT_DIR`  
-3. Legacy 0.5.x env var `CODEFLOW_PROJECT_DIR` (still recognized with a deprecation warning — use `FCOP_PROJECT_DIR`)  
-4. Walk up from cwd for any of these markers (first hit wins):
-   - `.cursor/rules/fcop-rules.mdc` (present after `init_*` on v3 projects)
-   - `docs/agents/fcop.json` or `docs/agents/tasks/` (legacy 0.7.x layout)
-5. Current working directory (last resort)
-
-Write guards additionally accept `fcop/fcop.json` (v1.0+ / v3 default workspace) or legacy `docs/agents/fcop.json`. v3 coordination files live under `fcop/_lifecycle/`; see [`docs/getting-started.en.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md).
-
-To pin a folder in config:
-
-```json
-"env": { "FCOP_PROJECT_DIR": "D:/path/to/your/repo" }
-```
-
----
-
-## Stability (3.x)
-
-Within a single **MINOR** line (e.g. `3.2.x`), MCP tool/resource **shapes** stay **additive-only** ([stability charter, ADR-0003](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0003-stability-charter.md)): no renames, no required-parameter tightening, no resource removal. Patch releases do not break existing tool calls.
-
-`fcop` and `fcop-mcp` ship **lockstep** with the same version number ([ADR-0002](https://github.com/joinwell52-AI/FCoP/blob/main/adr/ADR-0002-package-split-and-migration.md)). Install both together, e.g. `pip install -U "fcop>=3.2.5,<3.3" "fcop-mcp>=3.2.5,<3.3"`. **Avoid PyPI 3.2.3** (bad bundled `fcop-protocol.mdc` encoding).
-
-Upgrading from `0.6.x` / `0.7.x` / `1.x` / `2.x`? See [`docs/upgrade-fcop-mcp.md`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md) and the release notes under [`docs/releases/`](https://github.com/joinwell52-AI/FCoP/blob/main/docs/releases/). v3.0.0 introduced the `_lifecycle/` topology — run `fcop_audit(scope="upgrade")` then `migrate_to_v3()` on unmigrated v2 workspaces.
-
----
+- [Repository](https://github.com/joinwell52-AI/FCoP)
+- [MCP tools reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md)
+- [Protocol introduction](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md)
+- [中文协议介绍](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.md)
+- [Branch merge](https://github.com/joinwell52-AI/FCoP/blob/main/docs/branch-merge.md)
+- [Changelog](https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md)
+- [Historical upgrades](https://github.com/joinwell52-AI/FCoP/blob/main/docs/upgrade-fcop-mcp.md)
 
 ## License
 
-MIT — see [`LICENSE`](https://github.com/joinwell52-AI/FCoP/blob/main/LICENSE).
+MIT — [LICENSE](https://github.com/joinwell52-AI/FCoP/blob/main/LICENSE)
