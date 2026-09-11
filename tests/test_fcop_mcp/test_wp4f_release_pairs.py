@@ -18,6 +18,6 @@ def test_wp4f_stable_pair_is_registered_without_losing_history(monkeypatch: pyte
     from fcop_mcp import routing
 
     assert frozenset({
-        ("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1"), ("4.0.0", "4.0.0"), ("4.0.1", "4.0.1")}) == routing.PACKAGE_COMPATIBILITY
+        ("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1"), ("4.0.0", "4.0.0"), ("4.0.1", "4.0.1"), ("4.0.2", "4.0.2")}) == routing.PACKAGE_COMPATIBILITY
     monkeypatch.setattr(routing, "version", lambda name: "4.0.0")
     routing.check_package_compatibility()

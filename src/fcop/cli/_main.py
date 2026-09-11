@@ -1,6 +1,6 @@
 """Top-level ``fcop`` command-line entry point.
 
-Dispatches subcommands (currently only ``migrate-workspace``). When
+Dispatches Setup/Observe/Diagnose and historical migration commands. When
 invoked with no subcommand we print the historical 0.5→0.6 MCP-server
 migration message — preserving the contract enforced by
 ``tests/test_fcop/test_compat_cli.py`` so users who upgraded from the
@@ -24,6 +24,7 @@ import argparse
 import sys
 from typing import IO
 
+from fcop.cli import _observe
 from fcop.cli import migrate_v3 as _migrate_v3
 from fcop.cli import migrate_workspace as _migrate_ws
 
@@ -32,15 +33,14 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="fcop",
         description=(
-            "FCoP — Agent Runtime Protocol library CLI. "
-            "Subcommands: 'migrate-workspace' (0.7→1.0 layout), "
-            "'migrate --to-v3' (2.x→3.0 _lifecycle/ topology). "
-            "Everything else lives in the Python library API."
+            "FCoP CLI = Setup + Observe + Diagnose; MCP = Work. "
+            "Observations never repair. Historical migration remains compatible."
         ),
     )
     sub = parser.add_subparsers(dest="cmd", required=False)
     _migrate_ws.add_subparser(sub)
     _migrate_v3.add_subparser(sub)
+    _observe.add_subparsers(sub)
     return parser
 
 

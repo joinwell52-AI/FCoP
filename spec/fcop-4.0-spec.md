@@ -1,14 +1,14 @@
-# FCoP 4.0 Candidate Specification (English)
+# FCoP 4.0 Stable Specification (English)
 
-> **Status: Candidate · Not Implemented · Not Released**
+> **Status: Stable · Implemented · Released**
 >
-> WP1.1 contract version: `4.0.0-candidate.2`; baseline `68dbeb15f4e7f84e1d03f907be9fa66c2265843e`; WP0 evidence `c259bebdad77122d24dc18a6dd3f8fe191e4042f`; WP1 input `1b50f9e1fd4d2d21002bb1b98e14fd903a050f07`. FCoP 3.2.5 remains the current protocol until ADMIN signs `FCOP_4_CONTRACT_FROZEN` and later implementation/release gates complete.
+> Historical WP1.1 contract version: `4.0.0-candidate.2`; baseline `68dbeb15f4e7f84e1d03f907be9fa66c2265843e`; WP0 evidence `c259bebdad77122d24dc18a6dd3f8fe191e4042f`; WP1 input `1b50f9e1fd4d2d21002bb1b98e14fd903a050f07`. These references preserve the candidate-stage evidence. FCoP 4.0 has since completed ADMIN contract, implementation, and release gates and is the stable, implemented, released protocol; v3 workspaces retain their explicit compatibility boundary.
 
 ## 0. Normative language and authority
 
 **F4.0.1** MUST/MUST NOT are conformance requirements; SHOULD/MAY are recommendations or optional capabilities.
 
-**F4.0.2** English `spec/fcop-4.0-spec.md` is the primary authority for this candidate. The Chinese parallel `spec/fcop-4.0-spec.zh.md` MUST have the same clause IDs, objects, transitions, errors, and invariants. Any difference blocks freeze/release.
+**F4.0.2** English `spec/fcop-4.0-spec.md` is the primary authority for this specification. The Chinese parallel `spec/fcop-4.0-spec.zh.md` MUST have the same clause IDs, objects, transitions, errors, and invariants. Any difference blocks freeze/release.
 
 **F4.0.3** JSON Schema has machine authority only for structure it can express. This specification governs lifecycle, authorization, concurrency, and recovery behavior. WP2 tests may verify this specification but may not create rules.
 
@@ -271,7 +271,7 @@ Ordinary T2/T3 without a public `operation_id` do not promise arbitrary-time ext
 
 ## 11. v3 compatibility, Toolkit, MCP, and Profile
 
-**F4.11.1** A v3 workspace is read under v3 until explicit migration. No 4.0 write occurs without §2 declaration. This candidate does not authorize migration.
+**F4.11.1** A v3 workspace is read under v3 until explicit migration. No 4.0 write occurs without §2 declaration. This specification does not authorize migration.
 
 **F4.11.2** `finish_task` and four history tools are `LEGACY_V3_ONLY`. A 4.0 workspace may read history through a Legacy Toolkit; moving an authoritative TASK to history is rejected.
 
@@ -279,7 +279,7 @@ Ordinary T2/T3 without a public `operation_id` do not promise arbitrary-time ext
 
 **F4.11.4** Branch is expressible as create TASK plus branch_of and requires no new MCP tool. `close_issue` is downstream catalog drift and is not official surface.
 
-**F4.11.5** Base MCP should be a thin stdio adapter. Relay is optional (candidate packaging `fcop-mcp[relay]`) and not Core. Upgrade/redeploy/GAL/workspace/session capabilities are Toolkit/Profile/Runtime.
+**F4.11.5** Base MCP should be a thin stdio adapter. Relay is optional (packaging `fcop-mcp[relay]`) and not Core. Upgrade/redeploy/GAL/workspace/session capabilities are Toolkit/Profile/Runtime.
 
 ## 12. Security, conformance, and release gate
 
@@ -289,7 +289,7 @@ Ordinary T2/T3 without a public `operation_id` do not promise arbitrary-time ext
 
 **F4.12.3** Conflict among Schema, specification, and tests blocks release; no source silently wins. Every 4.0-conformant implementation satisfies the same observable contract.
 
-**F4.12.4** This file is Candidate until `FCOP_4_CONTRACT_FROZEN`; it does not authorize Schema, tests, implementation, migration, push, or release.
+**F4.12.4** This file was Candidate before `FCOP_4_CONTRACT_FROZEN` and now describes the stable, implemented, released protocol; it does not authorize Schema, tests, implementation, migration, push, or release.
 
 ## 13. C1–C8 invariant summary
 

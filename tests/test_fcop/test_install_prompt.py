@@ -9,17 +9,14 @@ land:
 2. ``fcop.rules.get_install_prompt(lang)`` — programmatic accessor.
 3. ``fcop://prompt/install`` + ``fcop://prompt/install/en`` — MCP
    resources, exposed to any MCP client (Cursor, Claude Code CLI…).
-4. ``mcp/README.md`` — visible on GitHub *and* PyPI; embeds the EN
-   prompt verbatim so a customer reading PyPI never has to leave the
-   page to copy it.
+4. ``mcp/README.md`` — visible on GitHub *and* PyPI; links the EN/ZH
+   authoritative prompts and their MCP Resource without duplicating the body.
 
 Plus the root-level ``README.md`` and ``README.zh.md`` link to (1).
 
-Without a test, surfaces (1) and (4) drift the moment one is edited
-without the other. This module pins the relationship: the prompt
-block extracted from ``mcp/README.md`` must equal the one returned by
-``fcop.rules.get_install_prompt("en")``, both of which must equal the
-content of the bundled markdown file.
+The accessor must remain byte-for-byte equal to both bundled prompt files.
+The README link boundary is authorized by ADMIN PR #40 comment 5628747094;
+it replaces the historical inline-body presentation contract only.
 
 We also assert the **non-negotiable safety clauses** are present in
 both languages — the "preserve existing mcpServers" warning, the
@@ -98,19 +95,16 @@ class TestPromptIsStandardized:
         ).read_text(encoding="utf-8")
         assert get_install_prompt("en") == on_disk
 
-    def test_mcp_readme_inlines_canonical_en_prompt(self) -> None:
-        # mcp/README.md is the PyPI-visible page. It embeds the EN
-        # prompt inside a ```text fenced block so a copy-paste from
-        # PyPI matches the canonical text byte-for-byte.
+    def test_mcp_readme_links_canonical_prompts_and_resource(self) -> None:
         readme = MCP_README.read_text(encoding="utf-8")
-        embedded = _extract_first_fenced_block(readme, "```text")
-
-        canonical = _extract_canonical_prompt_body(get_install_prompt("en"))
-        assert embedded == canonical, (
-            "mcp/README.md TL;DR install prompt has drifted from "
-            "src/fcop/rules/_data/agent-install-prompt.en.md. "
-            "Update both — the README is just a copy of the .md."
-        )
+        links = re.findall(r"\[[^\]]+\]\(([^)]+)\)", readme)
+        for lang in ("en", "zh"):
+            path = f"src/fcop/rules/_data/agent-install-prompt.{lang}.md"
+            assert f"https://github.com/joinwell52-AI/FCoP/blob/main/{path}" in links
+            assert (REPO_ROOT / path).is_file()
+            canonical = _extract_canonical_prompt_body(get_install_prompt(lang))  # type: ignore[arg-type]
+            assert canonical not in readme, "Link the authoritative prompt; do not duplicate its body"
+        assert "fcop://prompt/install" in links
 
     def test_root_readme_links_to_install_prompt_files(self) -> None:
         text = ROOT_README_EN.read_text(encoding="utf-8")

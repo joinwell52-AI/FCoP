@@ -9,8 +9,8 @@
 Tasks, deliveries, issues and review decisions become durable files that people, tools and the next agent can inspect. A session can end without taking the work record with it.
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.0/"><img src="https://img.shields.io/badge/Python-4.0.0-245ac4" alt="fcop on PyPI: 4.0.0" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.0/"><img src="https://img.shields.io/badge/MCP-4.0.0-7055a2" alt="fcop-mcp on PyPI: 4.0.0" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.2/"><img src="https://img.shields.io/badge/Python-4.0.2-245ac4" alt="fcop on PyPI: 4.0.2" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.2/"><img src="https://img.shields.io/badge/MCP-4.0.2-7055a2" alt="fcop-mcp on PyPI: 4.0.2" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
@@ -18,17 +18,32 @@ Tasks, deliveries, issues and review decisions become durable files that people,
 
 <a href="docs/architecture.en.md"><img src="assets/fcop-work-records.svg" alt="Agent work is persisted as TASK, REPORT, ISSUE and REVIEW files, then read by people, tools and another session." width="960" /></a>
 
-**Stable version: 4.0.0** — [released September 10, 2026](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
+**Stable version: 4.0.2** — [4.0.2 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
 
-## 4.0.1 development candidate: Branch merge
+## CLI setup, observation and diagnosis; MCP work
 
-The review branch adds three thin MCP tools (`create_branch`, `inspect_family`,
-`merge_branches`) and two Core APIs. Both packages target **4.0.1**, not yet
-published. Core owns atomic, durable convergence and retry handling; MCP exposes
-49 tools. An unfinished family has `family_digest: null`, `merge_ready: false`
-and structured reasons. Only the caller decides the merge conclusion.
+4.0.2 provides nine top-level commands: `init`, `status`, `inspect`,
+`validate`, `tools`, `doctor`, `version`, `spec` and `migrate`.
+Except explicit initialization and migration apply, commands are read-only;
+the CLI does not provide task lifecycle write commands.
+
+```sh
+fcop init --root ./demo-workspace --json
+fcop status --root ./demo-workspace --json
+fcop doctor --root ./demo-workspace --json
+fcop tools --json
+```
+
+The `fcop` package alone sets up and observes workspaces. `tools` needs the
+optional MCP package; when absent it returns a structured unavailable result,
+without starting a server or installing packages.
+[CLI reference](docs/cli.md) · [中文命令参考](docs/cli.zh.md).
+
+4.0.1 introduced `create_branch`, `inspect_family` and `merge_branches`;
+4.0.2 preserves all 49 tools and their signatures. Core owns atomic convergence,
+durable idempotency and recovery. Unfinished families return `family_digest: null`,
+`merge_ready: false` and structured reasons. The caller supplies the semantic conclusion.
 See the [Branch merge contract and example](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md).
-The published 4.0.0 packages and tag remain unchanged.
 
 ## Why put work outside the model?
 
@@ -52,7 +67,7 @@ Persistence makes a claim inspectable; it does not make the claim true. FCoP che
 In an activated **Python 3.10+ virtual environment**, install the published library:
 
 ```sh
-python -m pip install "fcop==4.0.0"
+python -m pip install "fcop==4.0.2"
 ```
 
 Save this as `demo.py` and run `python demo.py`. It writes a real TASK, opens the workspace through a fresh `Project` instance, then retries the original request.
@@ -102,7 +117,7 @@ The example cleans up its temporary directory when it exits. Use your own projec
 The optional adapter exposes FCoP to an MCP-capable client over stdio. Install it in the same activated environment:
 
 ```sh
-python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
+python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
 ```
 
 Add this entry to the client's MCP configuration. Replace both absolute paths; on Windows the command ends in `.venv/Scripts/fcop-mcp.exe`.
@@ -120,7 +135,7 @@ Add this entry to the client's MCP configuration. Replace both absolute paths; o
 
 Once connected, initialize a **new** workspace with `init_solo(role_code="ME", protocol_version="4.0")`. Use its workspace identity when calling `create_task`, then inspect the TASK with `inspect_task(filename=task_id)`. Installing an MCP server alone does not initialize a workspace or start an agent team.
 
-**46 tools / 12 resources / 4 resource templates.** The adapter routes to the same Python Core. Default initialization has no trusted authorization Profile: creation, claim and submission are available, but acceptance, rejection, reopening and archival need an explicitly adopted Profile and an issuer evaluator registered by the trusted host. A role name typed into a request cannot supply that authority.
+**49 tools / 12 resources / 4 resource templates.** The adapter routes to the same Python Core. Default initialization has no trusted authorization Profile: creation, claim and submission are available, but acceptance, rejection, reopening and archival need an explicitly adopted Profile and an issuer evaluator registered by the trusted host. A role name typed into a request cannot supply that authority.
 
 [MCP tool reference](docs/mcp-tools.md) · [Stable external Python example](tests/stable/third-party/python-only/app.py) · [Stable external MCP example](tests/stable/third-party/mcp-only/client.py). The full examples include an educational Profile; a real deployment must supply its own trust policy.
 

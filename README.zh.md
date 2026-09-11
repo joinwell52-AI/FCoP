@@ -9,8 +9,8 @@
 任务、交付、问题与审查决定保存为持久文件，人、工具和接手的 Agent 都能检查。一次会话结束，工作记录仍然在。
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.0/"><img src="https://img.shields.io/badge/Python-4.0.0-245ac4" alt="fcop PyPI 版本：4.0.0" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.0/"><img src="https://img.shields.io/badge/MCP-4.0.0-7055a2" alt="fcop-mcp 版本：4.0.0" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.2/"><img src="https://img.shields.io/badge/Python-4.0.2-245ac4" alt="fcop PyPI 版本：4.0.2" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.2/"><img src="https://img.shields.io/badge/MCP-4.0.2-7055a2" alt="fcop-mcp 版本：4.0.2" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
@@ -18,15 +18,29 @@
 
 <a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.zh.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
 
-**Stable version: 4.0.0** — 已于 [2026 年 9 月 10 日发布](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
+**Stable version: 4.0.2** — [4.0.2 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
-## 4.0.1 开发候选：Branch 合并
+## CLI 设置、观察与诊断；MCP 执行工作
 
-尚未发布：新增 `create_branch`、`inspect_family`、`merge_branches` 三个 MCP
-工具，总计 49 个，原 46 个工具签名保持兼容。Core 负责原子合并、持久幂等和
-恢复；未就绪家族返回 `family_digest: null`、`merge_ready: false` 及结构化原因，
-不计算替代摘要。合并结论由调用者提供，不自动归档 Root。两个包均为 4.0.1 候选，
-已发布的 4.0.0 制品不变。
+4.0.2 提供九个顶层命令：`init`、`status`、`inspect`、`validate`、
+`tools`、`doctor`、`version`、`spec`、`migrate`。
+除显式初始化和迁移 apply 外均为只读；CLI 不提供任务生命周期写入命令。
+
+```sh
+fcop init --root ./demo-workspace --json
+fcop status --root ./demo-workspace --json
+fcop doctor --root ./demo-workspace --json
+fcop tools --json
+```
+
+`fcop` 单包即可设置和检查工作区；`tools` 需要可选 MCP 包，
+未安装时返回结构化不可用结果，不启动服务或自动安装。
+[CLI reference](docs/cli.md) · [中文命令参考](docs/cli.zh.md)。
+
+4.0.1 已提供 `create_branch`、`inspect_family`、`merge_branches`，
+4.0.2 保持 49 个工具及原签名。Core 负责原子合并、持久幂等和恢复。
+未就绪家族返回 `family_digest: null`、`merge_ready: false` 及结构化原因；
+语义合并结论始终来自调用方。
 详见[英文合同与示例](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md)。
 
 ## 为什么要把工作放到模型之外？
@@ -51,7 +65,7 @@ FCoP 为正式工作建立共同表示：带结构化元数据的 Markdown 文�
 在已激活的 **Python 3.10+ 虚拟环境**中安装公开版本：
 
 ```sh
-python -m pip install "fcop==4.0.0"
+python -m pip install "fcop==4.0.2"
 ```
 
 保存为 `demo.py`，运行 `python demo.py`。示例写入一份真实 TASK，再通过新的 `Project` 实例读取工作区，并重试原始创建请求。
@@ -101,7 +115,7 @@ Same task after retry: True
 可选适配器通过 stdio 为支持 MCP 的客户端提供 FCoP 操作。在同一已激活环境中安装：
 
 ```sh
-python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
+python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
 ```
 
 在客户端的 MCP 配置中加入以下条目，替换两个绝对路径；Windows 的命令路径以 `.venv/Scripts/fcop-mcp.exe` 结尾。
@@ -119,7 +133,7 @@ python -m pip install "fcop==4.0.0" "fcop-mcp==4.0.0"
 
 连接后，用 `init_solo(role_code="ME", protocol_version="4.0")` 初始化**新工作区**。调用 `create_task` 时传入工作区身份，再用 `inspect_task(filename=task_id)` 检查 TASK。安装 MCP 服务本身不会初始化工作区，也不会启动一个 Agent 团队。
 
-**46 tools / 12 resources / 4 resource templates**（46 个工具、12 个资源、4 个资源模板）。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。
+**49 tools / 12 resources / 4 resource templates**（49 个工具、12 个资源、4 个资源模板）。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。
 
 [MCP 工具参考](docs/mcp-tools.md) · [稳定版独立 Python 示例](tests/stable/third-party/python-only/app.py) · [稳定版独立 MCP 示例](tests/stable/third-party/mcp-only/client.py)。完整示例包含教学用 Profile，实际部署需要配置自己的信任策略。
 

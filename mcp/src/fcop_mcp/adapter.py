@@ -15,7 +15,7 @@ from fastmcp.tools import ToolResult
 from fcop.errors import V4ProtocolError, _V4Code
 from mcp.types import CallToolResult
 
-from fcop_mcp.disposition import TOOLS
+from fcop_mcp.disposition import BRANCH_TOOLS, TOOLS
 from fcop_mcp.projection import invoke_v4
 from fcop_mcp.routing import WorkspaceRouter, check_package_compatibility
 
@@ -74,7 +74,7 @@ def register_legacy_routes(
     *, replace: bool = False,
 ) -> None:
     for name, policy in TOOLS.items():
-        if name == "reopen_task":
+        if name == "reopen_task" or name in BRANCH_TOOLS:
             continue
         original = getattr(legacy, name)
         signature = inspect.signature(original, eval_str=True)

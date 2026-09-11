@@ -12,7 +12,33 @@ versioning strategy.
 
 ### Added — fcop
 
-- 4.0.1 candidate: public `Project.inspect_family` and `Project.merge_branches`.
+- CLI v1: `init`, `status`, `inspect`, `validate`, `tools`, `doctor`, `version`,
+  `spec`, and compatible `migrate`. Deterministic JSON/exit codes, no implicit
+  repair or MCP dependency; public read-only `fcop.observation` aggregation.
+
+### Added — fcop-mcp
+
+- Offline `fcop_mcp.catalog.get_tool_catalog`, backed by the complete existing
+  tool declaration. Branch registration remains separate from legacy wrapping;
+  all existing 49 work tool signatures and semantics remain unchanged.
+
+## [4.0.2] — 2026-09-11
+
+CLI v1 and single-source MCP Catalog; both packages 4.0.2, MCP requires
+`fcop>=4.0.2,<4.1.0`. Core-only setup/observe/diagnose and English/Chinese CLI
+references; synchronized PyPI descriptions. No protocol, Schema, lifecycle,
+Host deployment or work-tool change. The additions above describe this release.
+
+The English/Chinese 4.0 specification now identifies the protocol as Stable,
+Implemented and Released. Core citations and MCP full-text resource projections
+are rebound to those exact bytes; historical candidate evidence and normative
+protocol semantics are preserved.
+
+## [4.0.1] — 2026-09-11
+
+### Added — fcop
+
+- Public `Project.inspect_family` and `Project.merge_branches`.
   Partial families expose null digest and structured readiness reasons. Core
   convergence append now has one shared family-lock path, durable operation
   identity, same-content reuse, conflicting-content rejection and restart recovery.
@@ -20,11 +46,11 @@ versioning strategy.
 
 ### Added — fcop-mcp
 
-- 4.0.1 candidate: `create_branch`, `inspect_family`, `merge_branches` (49 tools,
+- `create_branch`, `inspect_family`, `merge_branches` (49 tools,
   preserving the original 46 signatures). MCP delegates to Core, including all
   locking, receipt and REVIEW operations. Requires `fcop>=4.0.1,<4.1.0`.
 - The caller supplies merge conclusions/conflict decisions; no automatic Root
-  archive or semantic arbitration. Both packages require ADMIN release approval.
+  archive or semantic arbitration. Published under ADMIN release approval.
 
 ## [4.0.0] — 2026-09-10
 

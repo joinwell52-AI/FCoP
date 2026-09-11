@@ -32,14 +32,14 @@ def test_wp4f_stable_identity_and_exact_dependency():
         tree = ast.parse((ROOT / name).read_text(encoding="utf-8"))
         values = [ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
                   and any(isinstance(t, ast.Name) and t.id == "__version__" for t in n.targets)]
-        assert values == ["4.0.1"]
+        assert values == ["4.0.2"]
     for name in ("pyproject.toml", "mcp/pyproject.toml"):
         text = (ROOT / name).read_text(encoding="utf-8")
         assert '"Development Status :: 5 - Production/Stable"' in text
         assert '"Development Status :: 4 - Beta"' not in text
     text = (ROOT / "mcp/pyproject.toml").read_text(encoding="utf-8")
     pin, = re.findall(r'"(fcop>=[^"]+)"', text)
-    assert Requirement(pin).specifier == SpecifierSet(">=4.0.1,<4.1.0")
+    assert Requirement(pin).specifier == SpecifierSet(">=4.0.2,<4.1.0")
 
 
 @pytest.mark.parametrize("tamper", [False, True])
@@ -66,8 +66,8 @@ def test_wp4f_readme_commands_parameters_and_links_match():
     assert re.findall(r"```.*?```", en, re.S) == re.findall(r"```.*?```", zh, re.S)
     assert re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", en) == re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", zh)
     for text in (en, zh):
-        for token in ("Stable version: 4.0.0", "Release candidate: 4.0.0rc1",
-                      "46 tools / 12 resources / 4 resource templates", "reopen_task", "family_digest",
+        for token in ("Stable version: 4.0.2", "Release candidate: 4.0.0rc1",
+                      "49 tools / 12 resources / 4 resource templates", "reopen_task", "family_digest",
                       "operation_id", "bounded_embed", "FCOP_4_STABLE_RELEASE_READY"):
             assert token in text
         for link in re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text):

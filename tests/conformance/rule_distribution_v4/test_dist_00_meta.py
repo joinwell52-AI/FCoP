@@ -277,8 +277,6 @@ def test_meta_frozen_contract_gate_and_manifest():
     paths = [
         "docs/fcop-4.0/rule-distribution-contract.md",
         "docs/fcop-4.0/rule-distribution-contract.zh.md",
-        "spec/fcop-4.0-spec.md",
-        "spec/fcop-4.0-spec.zh.md",
         "reviews/fcop-4.0/gates/WP4C-1-RULE-DISTRIBUTION-CONTRACT-FROZEN.md",
         "reviews/fcop-4.0/wp4c.1/MANIFEST.md",
         "reports/FCOP-4.0-WP4C.1-CONFORMANCE-MATRIX.md",
@@ -289,10 +287,29 @@ def test_meta_frozen_contract_gate_and_manifest():
             git("hash-object", "--path", p, str(REPO / p)).strip()
             == git("rev-parse", f"{INPUT_HEAD}:{p}").strip()
         )
+    # Historical candidate evidence remains pinned to its original input.
     assert (
         sha(input_blob("spec/fcop-4.0-spec.md"))
         == "0c5005ec754ee71d735e02c9ea403adbc35e8dff9ce98c13d8a42040cacbc8e9"
     )
+    # ADMIN CLI release-identity amendment: exact current Stable spec blobs,
+    # not the historical Candidate presentation. All other contracts stay fixed.
+    stable_revision = "81d3229ee602341063879fe9100ab7db92417ffe"
+    stable_specs = {
+        "spec/fcop-4.0-spec.md":
+            "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
+        "spec/fcop-4.0-spec.zh.md":
+            "0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40",
+    }
+    for p, expected_sha in stable_specs.items():
+        expected = git("show", f"{stable_revision}:{p}")
+        assert sha(expected) == expected_sha
+        assert git("show", f"HEAD:{p}") == expected
+        assert (REPO / p).read_bytes() == expected
+        assert (
+            git("hash-object", "--path", p, str(REPO / p)).strip()
+            == git("rev-parse", f"{stable_revision}:{p}").strip()
+        )
 
 
 def test_meta_empty_result_and_text_error_rejected():

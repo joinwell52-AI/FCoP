@@ -1,9 +1,14 @@
 # FCoP MCP · capability map / 能力映射
 
-Published stable: **4.0.0** (46 tools). The **4.0.1 development candidate** adds
-`create_branch`, `inspect_family`, `merge_branches`: **49 tools / 12 resources /
-4 templates**, with the original 46 signatures preserved. Both packages target
-4.0.1; MCP requires `fcop>=4.0.1,<4.1.0`. No 4.0.1 publication is claimed.
+Current package pair: **4.0.2**, with **49 tools / 12 resources / 4 templates**.
+The three Branch tools introduced in 4.0.1 remain available; all signatures
+are unchanged. MCP requires `fcop>=4.0.2,<4.1.0` and uses the declared
+package compatibility pairs.
+
+`fcop tools --json` reads the public offline `fcop_mcp.catalog.get_tool_catalog()`
+from the same declarations used by MCP registration. It neither starts MCP nor
+performs work. With only Core installed it reports MCP as unavailable.
+[CLI reference](cli.md) / [中文参考](cli.zh.md).
 
 4.0.1 新增 Branch 创建、只读家族检查及原子合并；原 `reopen_task` 和旧入口保留。
 全部锁、幂等收据、REVIEW 追加与恢复由 Core 实现，MCP 只转换参数。
@@ -38,7 +43,7 @@ operation applies to every workspace version.
 
 ## Versioned resources / 版本化只读资源
 
-The installed candidate exposes 12 concrete resources and 4 templates.
+The installed adapter exposes 12 concrete resources and 4 templates.
 Use discovery, not hard-coded old counts. `fcop://protocol` keeps Markdown
 for v3; for v4, Core returns `{path, revision, sha256}` and MCP projects this
 identity deterministically as Markdown, without rereading or interpreting the spec.
