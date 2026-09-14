@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="510" viewBox="0 0 960 510" role="img" aria-labelledby="title desc">
+  <title id="title">FCoP 安装后的最小效果</title>
+  <desc id="desc">从 CLI 自检、MCP 连接，到工作写入 project/fcop 文件夹，再由新会话继续读取。</desc>
+  <style>
+    .bg{fill:#f8fafc}.panel{fill:#fff;stroke:#cbd5e1;stroke-width:2}.head{fill:#0f172a;font:600 28px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.step{fill:#245ac4;font:600 20px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.body{fill:#334155;font:18px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.code{fill:#0f172a;font:17px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.arrow{fill:none;stroke:#7055a2;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.foot{fill:#475569;font:600 18px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.num{fill:#245ac4}.numtext{fill:#fff;font:600 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-anchor:middle}
+    @media(prefers-color-scheme:dark){.bg{fill:#0f172a}.panel{fill:#111827;stroke:#475569}.head,.code{fill:#f8fafc}.body{fill:#cbd5e1}.foot{fill:#cbd5e1}.step{fill:#7aa2ff}}
+  </style>
+  <rect class="bg" width="960" height="510" rx="24"/>
+  <text class="head" x="48" y="52">安装完成后，FCoP 带来什么？</text>
+
+  <rect class="panel" x="48" y="82" width="390" height="150" rx="18"/>
+  <circle class="num" cx="82" cy="116" r="19"/><text class="numtext" x="82" y="122">1</text>
+  <text class="step" x="114" y="123">CLI 自检</text>
+  <text class="code" x="78" y="162">fcop version</text>
+  <text class="code" x="78" y="190">fcop doctor · fcop tools</text>
+
+  <rect class="panel" x="522" y="82" width="390" height="150" rx="18"/>
+  <circle class="num" cx="556" cy="116" r="19"/><text class="numtext" x="556" y="122">2</text>
+  <text class="step" x="588" y="123">MCP 连接</text>
+  <text class="body" x="552" y="164">Codex / Cursor</text>
+  <text class="body" x="552" y="194">通过本地 stdio 使用 FCoP</text>
+
+  <path class="arrow" d="M448 157h58m-14-12 14 12-14 12"/>
+
+  <rect class="panel" x="48" y="276" width="390" height="150" rx="18"/>
+  <circle class="num" cx="82" cy="310" r="19"/><text class="numtext" x="82" y="316">3</text>
+  <text class="step" x="114" y="317">工作写入文件</text>
+  <text class="code" x="78" y="358">project/fcop/</text>
+  <text class="body" x="78" y="391">TASK · REPORT · ISSUE · REVIEW</text>
+
+  <rect class="panel" x="522" y="276" width="390" height="150" rx="18"/>
+  <circle class="num" cx="556" cy="310" r="19"/><text class="numtext" x="556" y="316">4</text>
+  <text class="step" x="588" y="317">换一个会话继续</text>
+  <text class="body" x="552" y="358">新 Agent 读取同一份工作事实</text>
+  <text class="body" x="552" y="391">无需重建聊天上下文</text>
+
+  <path class="arrow" d="M717 242v22m-12-12 12 12 12-12"/>
+  <path class="arrow" d="M448 351h58m-14-12 14 12-14 12"/>
+  <text class="foot" x="480" y="474" text-anchor="middle">本地文件 · 人可直接检查 · 跨会话交接</text>
+</svg>
