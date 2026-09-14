@@ -89,7 +89,8 @@ def main():
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[1]
     head = run("git", "rev-parse", args.commit, cwd=repo, text=True).strip()
-    raw = run("git", "archive", "--format=tar", head, cwd=repo)
+    # Export canonical Git bytes, not this Windows user's CRLF checkout policy.
+    raw = run("git", "-c", "core.autocrlf=false", "archive", "--format=tar", head, cwd=repo)
     epoch = run("git", "show", "-s", "--format=%ct", head, cwd=repo, text=True).strip()
     output = args.output.resolve()
     assert not output.exists(), "Use a fresh proof directory; preserve previous evidence"
