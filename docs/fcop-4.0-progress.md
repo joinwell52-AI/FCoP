@@ -2,7 +2,7 @@
 
 [English README](../README.md) · [中文 README](../README.zh.md) · [Architecture](architecture.en.md) · [架构说明](architecture.zh.md)
 
-**Current stable pair: 4.0.3 / 当前稳定版组合：4.0.3。** Updated September 11, 2026. This page supersedes the pre-release development note formerly at this address.
+**Current stable pair: 4.0.3 / 当前稳定版组合：4.0.3。** Updated September 14, 2026. This page supersedes the pre-release development note formerly at this address.
 
 Official distribution: [GitHub v4.0.3](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3) · [PyPI fcop 4.0.3](https://pypi.org/project/fcop/4.0.3/) · [PyPI fcop-mcp 4.0.3](https://pypi.org/project/fcop-mcp/4.0.3/).
 
@@ -84,7 +84,7 @@ Legacy references / 历史资料：[3.x specification](../spec/fcop-v3-spec.md) 
 
 ## Release and design history / 发布与设计记录
 
-- **4.0.3 delivery:** prepared on [Draft PR #48](https://github.com/joinwell52-AI/FCoP/pull/48); implementation review does not establish publication. The [4.0.0 release document](releases/4.0.0.md) remains historical promotion evidence. The eventual public tag and artifact hashes, not this source page, establish a new release.
+- **4.0.3 delivery:** [PR #48](https://github.com/joinwell52-AI/FCoP/pull/48) is merged; [v4.0.3](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3) and both PyPI packages were published on September 14, 2026. All four public artifact SHA-256 values match the accepted package proof. The [official Registry 4.0.3 record](https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3) is active. The [4.0.0 release document](releases/4.0.0.md) remains historical promotion evidence.
 - **Historical candidate:** [v4.0.0rc1](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0rc1) is retained. Candidate guides and WP reports describe their original stages.
 - **Current contracts:** [4.0 specification EN](../spec/fcop-4.0-spec.md) / [ZH](../spec/fcop-4.0-spec.zh.md). C1–C8, rather than a historical concept count, define Core compatibility.
 - **Research:** [Complete index EN](../essays/README.md) / [中文](../essays/README.zh.md). The existing 3.2.5 and April 2026 citation archives retain their historical versions; they do not identify 4.0.0.
