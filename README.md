@@ -34,6 +34,8 @@ Run the environment checks, installation, configuration and verification yoursel
 
 The [AI installation guide](docs/ai-install.md) covers dependencies, client configuration and a real task check. If the client needs approval or a reload, the agent will identify that step. Manual Python/MCP instructions remain below for reference.
 
+**Want to see a handoff first?** [Ask AI to run the session handoff example](docs/mcp-handoff.md): create a task and report, close the session, then read them from a fresh MCP session. No API key required; the result stays available for inspection.
+
 ## Why put work outside the model?
 
 “I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.
