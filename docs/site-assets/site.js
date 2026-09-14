@@ -10,8 +10,8 @@
       button.setAttribute('aria-pressed', String(button.dataset.setLang === next));
     });
     document.title = next === 'zh'
-      ? 'FCoP 4.0 — 让 Agent 的工作，不随对话结束而消失'
-      : 'FCoP 4.0 — Agent work should outlast the conversation';
+      ? 'FCoP 4.0 — 即使 Agent 离开了，工作依然在那里'
+      : 'FCoP 4.0 — Even when the agent is gone, the work remains';
   }
   if (bilingual) {
     let saved = null;
