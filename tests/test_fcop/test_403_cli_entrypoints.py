@@ -8,7 +8,7 @@ import os
 import re
 import socket
 import subprocess
-import sys
+import sysconfig
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -93,7 +93,7 @@ def test_doctor_is_offline_and_customer_root_readonly(tmp_path, monkeypatch):
 
 def test_visible_self_check_commands_execute_in_fresh_customer_directory(tmp_path):
     root = tmp_path / "my-project"
-    executable = Path(sys.executable).with_name("fcop.exe" if os.name == "nt" else "fcop")
+    executable = Path(sysconfig.get_path("scripts")) / ("fcop.exe" if os.name == "nt" else "fcop")
     assert executable.is_file(), "Test the installed public console entry point"
     for args in (
         ["version"], ["doctor"], ["init", "--root", str(root)],

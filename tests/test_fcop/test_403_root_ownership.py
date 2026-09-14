@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import io
 import json
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
 from fcop import Project
 from fcop.cli._main import main
-from fcop.errors import FcopError
+from fcop.errors import FcopError, V4ProtocolError
 
 HOST_ACTIONS = (
     "redeploy", "inspect_profile", "status", "adopt", "plan", "apply",
@@ -51,7 +53,9 @@ def assert_customer_unchanged(root: Path, before: dict[str, bytes | None]) -> No
 
 @pytest.mark.parametrize("occupied", [False, True])
 @pytest.mark.parametrize("initializer", ["project", "cli"])
-def test_real_init_work_reads_and_reopen_preserve_root(tmp_path, occupied, initializer):
+def test_real_init_work_reads_and_reopen_preserve_root(
+    tmp_path: Path, occupied: bool, initializer: str,
+) -> None:
     root = tmp_path / "customer root"
     before = customer(root, occupied)
     if initializer == "cli":
@@ -67,13 +71,14 @@ def test_real_init_work_reads_and_reopen_preserve_root(tmp_path, occupied, initi
     )
     project.transition(task_id=task["task_id"], from_stage="inbox", to_stage="active", actor="ME", tool="claim_task")
     state = project.inspect_state(task_id=task["task_id"])
-    report = project.write_report(
+    # Project binds the v4 handler at runtime; its class declaration is Legacy.
+    report = cast(Callable[..., dict[str, Any]], project.write_report)(
         workspace_id=workspace["workspace_id"], subject_ref=task["task_id"],
         sender="ME", recipient="ME", attempt_id=state["current_attempt_id"],
         report_kind="final", result="done", body="Actual evidence",
     )
     project.transition(task_id=task["task_id"], from_stage="active", to_stage="review", actor="ME", tool="submit_task", report_ref=report["report_id"])
-    project.write_review(
+    cast(Callable[..., dict[str, Any]], project.write_review)(
         workspace_id=workspace["workspace_id"], subject_ref=task["task_id"],
         sender="ME", recipient="ME", review_kind="assessment", decision="needs_human",
         body="Await acceptance", references=[report["report_id"]],
@@ -91,7 +96,9 @@ def test_real_init_work_reads_and_reopen_preserve_root(tmp_path, occupied, initi
 
 @pytest.mark.parametrize("action", HOST_ACTIONS)
 @pytest.mark.parametrize("occupied", [False, True])
-def test_retired_host_actions_are_structured_zero_write(tmp_path, action, occupied):
+def test_retired_host_actions_are_structured_zero_write(
+    tmp_path: Path, action: str, occupied: bool,
+) -> None:
     customer(tmp_path, occupied)
     project = Project(tmp_path)
     project.create_workspace(protocol_version="4.0")
@@ -102,6 +109,7 @@ def test_retired_host_actions_are_structured_zero_write(tmp_path, action, occupi
             "target_paths": ["AGENTS.md", "CLAUDE.md"], "force": True,
             "adoption_receipt_ref": {"path": "missing", "sha256": "0" * 64},
         })
+    assert isinstance(caught.value, V4ProtocolError)
     assert caught.value.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
     assert caught.value.operation_ref == action
     assert snapshot(tmp_path) == before
@@ -110,7 +118,7 @@ def test_retired_host_actions_are_structured_zero_write(tmp_path, action, occupi
 
 @pytest.mark.parametrize("assembly", ["sequential", "parallel"])
 @pytest.mark.parametrize("language", ["en", "zh"])
-def test_guidance_without_any_host_files(tmp_path, assembly, language):
+def test_guidance_without_any_host_files(tmp_path: Path, assembly: str, language: str) -> None:
     project = Project(tmp_path)
     project.create_workspace(protocol_version="4.0")
     before = snapshot(tmp_path)
