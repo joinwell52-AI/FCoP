@@ -34,7 +34,7 @@ https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
 
 [AI 安装说明](docs/ai-install.md)包含依赖准备、客户端配置和真实任务验收。客户端确实需要授权或重连时，AI 会告诉你具体一步。下方手动 Python/MCP 步骤保留作参考。
 
-**想先看看交接效果？** [让 AI 运行跨会话交接示例](docs/mcp-handoff.zh.md)：创建任务和报告，关闭会话，再从全新 MCP 会话中读回。无需 API Key，运行结果保留在本地，随时可以打开核对。
+**想先看看交接效果？** 让 AI 运行跨会话交接示例：[English](docs/mcp-handoff.md) · [简体中文](docs/mcp-handoff.zh.md)。创建任务和报告，关闭会话，再从全新 MCP 会话中读回。无需 API Key，运行结果保留在本地，随时可以打开核对。
 
 ## 为什么要把工作放到模型之外？
 
