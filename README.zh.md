@@ -66,10 +66,10 @@ python3 -m venv ~/.local/share/fcop/venv
 {
   "mcpServers": {
     "fcop": {
-      "command": "/Users/你的用户名/.local/share/fcop/venv/bin/python",
+      "command": "/Users/YOUR_NAME/.local/share/fcop/venv/bin/python",
       "args": ["-m", "fcop_mcp"],
       "env": {
-        "FCOP_PROJECT_DIR": "/Users/你的用户名/实际项目目录"
+        "FCOP_PROJECT_DIR": "/Users/YOUR_NAME/path/to/your-project"
       }
     }
   }
