@@ -27,7 +27,8 @@ versioning strategy.
   and CLI = Setup + Observe + Diagnose / MCP = Work.
 - Target both packages at 4.0.3, MCP dependency `fcop>=4.0.3,<4.1.0`;
   public MCP names/parameters remain 49 tools / 12 resources / 4 templates.
-  Publication and main merge remain pending explicit ADMIN authorization.
+  Released on 2026-09-14 under ADMIN authorization; PR #48 is merged,
+  and PyPI, GitHub v4.0.3 and the MCP Registry entry are public.
 
 ### Added — fcop
 
@@ -40,6 +41,13 @@ versioning strategy.
 - Offline `fcop_mcp.catalog.get_tool_catalog`, backed by the complete existing
   tool declaration. Branch registration remains separate from legacy wrapping;
   all existing 49 work tool signatures and semantics remain unchanged.
+
+## [4.0.3] — 2026-09-14
+
+The four-file retirement changes recorded above are released in both packages.
+The public tag targets `4c3f4010d5034ceeb2ee2f3f5d55ecf6a33012fb`.
+Four immutable PyPI/GitHub artifacts match the accepted reproducible builds;
+post-publication website status updates do not rebuild or replace these artifacts.
 
 ## [4.0.2] — 2026-09-11
 
