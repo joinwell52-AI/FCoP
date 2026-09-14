@@ -15,7 +15,6 @@ from fcop.rules import get_protocol_commentary, get_rules
 
 from .test_v4_rule_distribution import distribution as distribution
 from .test_v4_rule_distribution import snapshot
-from .test_v4_rule_distribution_host import deploy, prepared
 
 
 def digest(raw):
@@ -68,7 +67,7 @@ def test_versioned_content_and_transport(distribution, version, uri):
         raw = (Path(__file__).resolve().parents[2] / "spec/fcop-4.0-spec.md").read_bytes()
         assert direct["content"] == {
             "path": "spec/fcop-4.0-spec.md",
-            "revision": "81d3229ee602341063879fe9100ab7db92417ffe",
+            "revision": "1f91d53c51f040b1f4bd306d72d7e31ce35c7084",
             "sha256": digest(raw),
         }
         assert direct["sha256"] == digest(raw)
@@ -184,9 +183,8 @@ def test_manifest_change_during_read_rejects(distribution, monkeypatch):
 
 def test_layers_disk_update_does_not_adopt_or_consume(distribution):
     project, request, package, root = distribution
-    adopted = prepared(distribution)
-    ref = deploy(distribution, adopted)
-    arguments = {**request, "deployment_receipt_ref": ref}
+    (root / "AGENTS.md").write_bytes(b"Application-owned instructions\n")
+    arguments = request
     before = snapshot(root)
     first = project.rule_distribution(action="inspect_layers", request=arguments)
     manifest = json.loads((package / "manifest.json").read_bytes())
@@ -202,11 +200,13 @@ def test_layers_disk_update_does_not_adopt_or_consume(distribution):
     (root / "AGENTS.md").write_bytes(b"user changed target\n")
     before = snapshot(root)
     drift = project.rule_distribution(action="inspect_layers", request=arguments)
-    assert drift["host_entries"][0]["drifted"] is True and snapshot(root) == before
-    (root / ref["path"]).write_bytes(b"{}\n")
+    assert drift["host_entries"] == [] and snapshot(root) == before
+    assert drift["host_projection_status"] == "retired"
+    assert drift["adopted_manifest_sha256"] is None
+    assert drift["host_entry_sha256"] is None
     before = snapshot(root)
     with pytest.raises(FcopError):
-        project.rule_distribution(action="inspect_layers", request=arguments)
+        project.rule_distribution(action="inspect_layers", request={**arguments, "deployment_receipt_ref": {"path": "old.json", "sha256": "0" * 64}})
     assert snapshot(root) == before
 
 

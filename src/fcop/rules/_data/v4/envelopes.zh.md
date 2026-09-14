@@ -1,7 +1,7 @@
 # FCoP 4.0 — envelopes
 
-受众：business-agent。规则包：4.0.0-candidate.1。语言：zh。
-主权威：冻结 Core aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6，spec/fcop-4.0-spec.md（中文对照 spec/fcop-4.0-spec.zh.md）。
+受众：business-agent。规则包：4.0.3。语言：zh。
+主权威：冻结 Core 1f91d53c51f040b1f4bd306d72d7e31ce35c7084，spec/fcop-4.0-spec.md（中文对照 spec/fcop-4.0-spec.zh.md）。
 本派生指引不产生执行、采用、Host 或发布授权。
 显式选择依赖：workspace。
 

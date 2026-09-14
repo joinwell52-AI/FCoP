@@ -1,5 +1,15 @@
 # Getting Started with FCoP
 
+## Current FCoP 4.x
+
+**Install → connect MCP → initialize workspace → use FCoP.** Start with the visible [CLI installation and self-check](../README.md#cli--local-setup-inspect--diagnose), [AI installation guide](ai-install.md), [MCP reference](mcp-tools.md) and [rule resources](rule-resources.md). CLI = Setup + Observe + Diagnose; MCP = Work.
+
+FCoP owns `<project>/fcop/` and package-owned resources, not project-root Host instructions. Do not deploy a four-file rule bundle or use `redeploy_rules` on v4. Existing customer files and legacy workspaces remain unchanged until an explicitly authorized operation.
+
+## Historical Legacy v1–v3 guide — not the 4.x installation workflow
+
+The material below preserves earlier documentation, version counts and four-file deployment history. It is not the current v4 entry point. Use the links above for v4.
+
 > **FCoP** = **F**ile-based **Co**ordination **P**rotocol — the **behavior governance protocol layer**.
 >
 > "FCoP is the protocol of agents. We discovered it; we did not invent it. It happens that humans can read it too."

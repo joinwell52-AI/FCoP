@@ -1,7 +1,7 @@
 # FCoP 4.0 — compatibility
 
-受众：business-agent。规则包：4.0.0-candidate.1。语言：zh。
-主权威：冻结 Core aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6，spec/fcop-4.0-spec.md（中文对照 spec/fcop-4.0-spec.zh.md）。
+受众：business-agent。规则包：4.0.3。语言：zh。
+主权威：冻结 Core 1f91d53c51f040b1f4bd306d72d7e31ce35c7084，spec/fcop-4.0-spec.md（中文对照 spec/fcop-4.0-spec.zh.md）。
 本派生指引不产生执行、采用、Host 或发布授权。
 显式选择依赖：workspace。
 
@@ -20,6 +20,8 @@ Schema 管可表达结构，规范管行为，测试验证而非发明规则。
 ## F4.1.2
 
 FCoP 治理行为但不执行 Agent 工作、模型、工具、Host、会话、调度、数据库、UI、网络或进程；区分 Core、其 Specification、便捷 Toolkit、策略 Profile 与执行 Runtime。
+
+FCoP 仅拥有协议工作区及包内规则资源。安装、初始化、升级及正常运行不得创建、替换、修改、合并写入或依赖项目根目录的 Host/Agent 指令文件；应用配置与 Host 配置始终由宿主应用拥有。通过包内或 MCP resources 读取这些模块，不向 AGENTS.md、CLAUDE.md 或 Cursor 规则部署。
 
 ## F4.1.3
 

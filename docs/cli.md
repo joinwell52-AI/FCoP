@@ -1,4 +1,4 @@
-# CLI v1 reference — FCoP 4.0.2
+# CLI v1 reference — FCoP 4.0.3
 
 **CLI = Setup + Observe + Diagnose. MCP = Work.** Python 3.10–3.13.
 `fcop` contains Core and CLI; `fcop-mcp` is optional. No new runtime dependencies.

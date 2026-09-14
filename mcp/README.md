@@ -8,7 +8,7 @@ adapter over the same protocol—not a second protocol implementation.
 
 ## Current stable surface
 
-FCoP 4.0 is **Stable, Implemented and Released**. Package version **4.0.2** provides:
+FCoP 4.0 is **Stable, Implemented and Released**. Package version **4.0.3** provides:
 
 - **49 tools**
 - **12 resources**
@@ -30,8 +30,8 @@ Install Core and the MCP adapter together in a dedicated virtual environment:
 
 ```bash
 python -m pip install --upgrade \
-  "fcop>=4.0.2,<4.1.0" \
-  "fcop-mcp>=4.0.2,<4.1.0"
+  "fcop>=4.0.3,<4.1.0" \
+  "fcop-mcp>=4.0.3,<4.1.0"
 ```
 
 Verify both distributions:
@@ -44,13 +44,62 @@ python -c "from fcop_mcp.server import mcp; print('fcop-mcp ready')"
 `fcop` and `fcop-mcp` are released in lockstep within the same minor line.
 Do not mix incompatible minor versions.
 
+## CLI — Local Setup, Inspect & Diagnose
+
+**CLI = Setup + Observe + Diagnose; MCP = Work.**
+
+| Command | Purpose |
+| --- | --- |
+| `fcop init` | Initialize an FCoP workspace |
+| `fcop status` | View workspace status |
+| `fcop inspect` | Inspect TASK / REPORT / ISSUE / REVIEW |
+| `fcop validate` | Validate protocol structure |
+| `fcop tools` | Inspect the installed MCP Tool Catalog |
+| `fcop doctor` | Diagnose installation, environment and compatibility |
+| `fcop version` | Show installed versions |
+| `fcop spec` | Show specification / rule identity |
+| `fcop migrate` | Explicitly migrate a legacy workspace; inspect the plan before apply |
+
+### Install & Verify
+
+In an activated Python 3.10+ environment:
+
+```bash
+python -m pip install fcop
+
+fcop version
+fcop doctor
+fcop init --root ./my-project
+fcop status --root ./my-project
+fcop validate --root ./my-project
+```
+
+For the optional MCP Tool Catalog:
+
+```bash
+python -m pip install fcop-mcp
+
+fcop tools
+fcop tools merge_branches --json
+```
+
+Once installed, the CLI can initialize, inspect, validate and diagnose locally and offline.
+`doctor` does not access the network or modify Host configuration. Package installation itself may need a package index; offline installation requires locally available packages.
+The CLI does not perform `create_task`, approval, Branch, merge or authorization work operations; use MCP or the Python API for those.
+Installing `fcop` does not create Host instruction files. Normal v4 workspace state belongs in `<project>/fcop/`, never in project-root `AGENTS.md`, `CLAUDE.md` or Cursor rules.
+Existing atomic initialization staging and failed-initialization evidence are preserved; customer files are never cleaned up automatically.
+`migrate` is a separate explicit legacy operation, not an automatic package-upgrade step.
+`tools` requires the optional MCP package and never starts a server or installs it automatically.
+
+[CLI reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md) · [中文 CLI 参考](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.zh.md).
+
 ## Configure an MCP client
 
 **CLI = Setup + Observe + Diagnose; MCP = Work.** Inspect this adapter's
 authoritative Tool Catalog without starting a server:
 
 ```bash
-pip install fcop-mcp==4.0.2
+pip install fcop-mcp==4.0.3
 fcop version
 fcop doctor
 fcop tools
@@ -61,7 +110,7 @@ The public `fcop_mcp.catalog.get_tool_catalog(name=None)` query returns fresh,
 sorted name/disposition rows from `disposition.TOOLS`. It imports no MCP runtime,
 does not start a server and does not duplicate handler signatures. Unknown names
 raise `KeyError`. CLI Catalog, registry and real `tools/list` have equal sets;
-4.0.2 does not add, remove or change any MCP work tool.
+4.0.3 does not add, remove or change any MCP work tool.
 
 See the [CLI reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md).
 
@@ -128,7 +177,7 @@ applications using `Project` directly only need `fcop`.
 
 ## 中文简介
 
-FCoP 4.0 已正式稳定发布，当前包版本为 4.0.2。
+FCoP 4.0 已正式稳定发布，当前包版本为 4.0.3。
 `fcop-mcp` 是 FCoP Core 的 MCP 适配层，当前提供 49 个 Tools、12 个
 Resources 和 4 个 Templates。4.0.1 新增 `create_branch`、
 `inspect_family`、`merge_branches`，让 MCP Host 能创建并发 Branch、

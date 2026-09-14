@@ -1,7 +1,7 @@
 # FCoP 4.0 — compatibility
 
-Audience: business-agent. Package: 4.0.0-candidate.1. Language: en.
-Primary authority: frozen Core aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6, spec/fcop-4.0-spec.md.
+Audience: business-agent. Package: 4.0.3. Language: en.
+Primary authority: frozen Core 1f91d53c51f040b1f4bd306d72d7e31ce35c7084, spec/fcop-4.0-spec.md.
 This derived guidance grants no execution, adoption, Host or release authority.
 Dependencies (explicit selection): workspace.
 
@@ -20,6 +20,8 @@ Schema governs expressible structure, specification governs behavior, and tests 
 ## F4.1.2
 
 FCoP governs behavior but does not run Agent work, models, tools, hosts, sessions, schedulers, databases, UI, network or processes. Keep Core, its Specification, convenience Toolkit, policy Profile and execution Runtime distinct.
+
+FCoP owns only the protocol workspace and package-owned rule resources. Installation, initialization, upgrade and normal operations must not create, replace, modify, merge into or require project-root Host/Agent instruction files. Application and Host configuration remain application-owned. Read these modules through package/MCP resources; do not deploy them to AGENTS.md, CLAUDE.md or Cursor rules.
 
 ## F4.1.3
 

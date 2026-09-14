@@ -1,5 +1,9 @@
 # FCoP 发布流程 / Release Process
 
+> **4.0.3 current authority:** follow the [fixed 4.0.3 taskbook](../taskbooks/fcop-4.0/4.0.3/01-Legacy-Four-File-Rule-Distribution-Retirement-and-4.0.3-Release-Taskbook-v1.0.zh.md) and its review evidence. Implementation and Draft PR delivery do not authorize merge, tags or publication. Never run legacy four-file redeployment as a v4 release check. Current evidence verifies package/MCP resources and customer-root byte preservation.
+>
+> **4.0.3 当前口径：**按上述任务书完成实现、测试、制品与 Draft PR；发布须 ADMIN 另行授权。四件套同步不再是 v4 发布指标，不改写现有客户文件。以下 SOP 是保留的早期发布历史；其中旧版本命令、自动发布假设及 Host 重部署步骤不作为本轮执行授权。
+
 > 面向 **`fcop` / `fcop-mcp` 的维护者**。
 > 终端用户不需要读本文;看 [MIGRATION-0.6.md](./MIGRATION-0.6.md) 或
 > [README](../README.md) 即可。

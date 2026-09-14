@@ -1,86 +1,49 @@
 # Have an Agent Install fcop-mcp For You (canonical prompt / en)
 
-Send the block below to a **fresh agent that can run shell commands**
-(new Cursor chat, or any AI with terminal access). It will install
-`fcop-mcp` into Cursor step by step, no manual work from you.
-
-> This prompt is the source-of-truth in the fcop repo at
-> `src/fcop/rules/_data/agent-install-prompt.en.md`, also exposed as the
-> MCP resource `fcop://prompt/install` — the same text powers the GitHub
-> README, the PyPI project page, and the human-readable instructions
-> for agents.
-
----
+Current FCoP 4.x prompt, returned verbatim by the package and MCP resource `fcop://prompt/install/en`. README and PyPI link here without duplicating it.
 
 ## Copy the block below and send it to your agent
 
 ```
-Install fcop-mcp into Cursor for me — you run the commands end to end.
+Install FCoP for my chosen MCP client and report actual commands and results.
 
-1. Detect my OS first: in the terminal, run
-   `uname -s 2>$null; echo $env:OS` to see whether this is Windows
-   or macOS / Linux.
+1. Confirm the OS, client and Python environment without guessing. Use Python
+   3.10+ and run python -m pip install fcop-mcp in that environment.
+   Verify installed fcop and fcop-mcp versions and compatibility.
 
-2. Install uv (if not already present). One-liner:
-   - Windows PowerShell:
-     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-   - macOS / Linux:
-     curl -LsSf https://astral.sh/uv/install.sh | sh
-   Then run `uvx --version` to confirm.
+2. Run fcop version, fcop doctor and fcop tools.
+   CLI = Setup + Observe + Diagnose; MCP = Work.
+   doctor works locally, does not access the network or modify Host configuration.
+   Package installation itself may need network access.
 
-3. Add an fcop entry to the global mcp.json. **Preserve** existing
-   mcpServers — do not overwrite them.
-   - Windows path: %USERPROFILE%\.cursor\mcp.json
-   - macOS / Linux path: ~/.cursor/mcp.json
-   - Add this snippet inside the mcpServers object:
-     "fcop": {
-       "command": "uvx",
-       "args": ["fcop-mcp"]
-     }
+3. Configure the chosen MCP client only when I explicitly request it. Use that
+   environment's fcop-mcp executable and preserve the existing transport.
+   Preserve existing mcpServers and settings; do not overwrite other entries.
+   Do not print credentials or full secret-bearing configuration.
+   Client configuration belongs to the application, not the FCoP workspace.
 
-4. Print the final mcp.json contents back to me.
+4. Reconnect the MCP client. If first launch is still resolving dependencies,
+   allow 30 seconds to 1 minute; report errors instead of repeatedly reconnecting.
+   Verify 49 tools, 12 resources and 4 resource templates, including merge_branches.
 
-5. Remind me to restart Cursor; on first launch fcop-mcp will pull
-   dependencies, **wait 30 seconds to 1 minute**, do not close or
-   reconnect early.
+5. Do not auto-init or migrate a project. Initialization and the target directory
+   are ADMIN's explicit choice. Once requested, use fcop init --root <project>
+   for a new v4 workspace, then fcop status and fcop validate with the same --root.
+   Never automatically migrate a legacy workspace.
 
-Report back after each step before moving on. **Do not** auto-init
-a project after install — initialization is my (ADMIN's) choice; I
-will pick solo / dev-team / custom myself.
+6. Do not create, modify or delete AGENTS.md, CLAUDE.md, .cursor rules or other
+   project-root Host instruction files. Existing files are customer-owned bytes.
+   Normal v4 state lives under <project>/fcop/. Read package and MCP
+   rules/protocol/guidance resources directly; do not deploy Host projections.
+   redeploy_rules is Legacy v1-v3 only, not a v4 install or upgrade step.
+
+7. Task, approval, Branch, merge and authorization work uses MCP or the Python
+   API, not CLI. Stop after the installation report unless project work is
+   separately authorized.
 ```
 
----
+## Install & Verify
 
-## After install: run fcop_audit() for a health check
+After installation, `fcop version`, `fcop doctor` and `fcop tools` check the local environment without initializing a workspace. After ADMIN explicitly selects a new project, run `fcop init --root ./my-project`, `fcop status --root ./my-project` and `fcop validate --root ./my-project`.
 
-Once `fcop-mcp` is installed and the project is initialized, have the agent
-run a health check immediately:
-
-```
-Run fcop_audit(scope="new") and give me a project health check report.
-```
-
-The health check report (`INSPECTION-*.md`) will tell you:
-- Whether all protocol files are in place
-- Whether any role document gaps exist
-- Any P0 / P1 / P2 items needing remediation
-
-> If you're taking over an existing project, use `scope="takeover"` instead of `scope="new"`.
-
----
-
-## After install: initialization is ADMIN's pick
-
-Once `fcop-mcp` is installed, the agent **must not** default to
-`init_project(team="dev-team")` —
-- Is this a 4-person team?
-- Or solo (single AI)?
-- Or a custom roster?
-
-That's `ADMIN`'s call (yours), not the agent's default. After Cursor
-restarts, in a new chat the agent will first call `fcop_report()`,
-whose output includes a **3-way choice**. You pick, then the agent
-can invoke the matching `init_*` tool.
-
-For the full reasoning, read `fcop/LETTER-TO-ADMIN.md` in your
-project — that's fcop's complete manual for ADMIN.
+Read `fcop://rules`, `fcop://protocol` and `fcop://guidance/{sequential,parallel}/{en,zh}` without Host rule files. Historical v1-v3 team and deployment workflows remain legacy-only; package upgrades do not migrate workspaces.

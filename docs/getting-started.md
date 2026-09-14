@@ -1,5 +1,15 @@
 # Getting Started · 上手 FCoP
 
+## 当前 FCoP 4.x
+
+**安装 → 连接 MCP → 初始化工作区 → 使用 FCoP。** 从 [CLI 安装与自检](../README.zh.md#cli本地安装检查与诊断)、[AI 安装说明](ai-install.md)、[MCP 工具参考](mcp-tools.md)与[规则资源](rule-resources.md)开始。CLI = Setup + Observe + Diagnose；MCP = Work。
+
+FCoP 拥有 `<project>/fcop/` 与包内规则资源，不拥有项目根 Host 指令。v4 不部署四件套，不调用 `redeploy_rules`；既有用户文件与旧工作区不自动迁移或改写。
+
+## 历史 Legacy v1–v3 教程，不适用于 4.x 安装
+
+以下保留早期文档、版本数量与四件套部署历史，不再作为当前 v4 入口。v4 请使用上方链接。
+
 > **FCoP** = **F**ile-based **Co**ordination **P**rotocol —— the **behavior governance protocol layer**.
 >
 > 「FCoP 是 agent 的协议，我们发现了他，而不是发明；而正好人类可以读懂。」

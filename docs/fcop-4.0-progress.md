@@ -2,9 +2,9 @@
 
 [English README](../README.md) · [中文 README](../README.zh.md) · [Architecture](architecture.en.md) · [架构说明](architecture.zh.md)
 
-**Current stable pair: 4.0.2 / 当前稳定版组合：4.0.2。** Updated September 11, 2026. This page supersedes the pre-release development note formerly at this address.
+**Current stable pair: 4.0.3 / 当前稳定版组合：4.0.3。** Updated September 11, 2026. This page supersedes the pre-release development note formerly at this address.
 
-Official distribution: [GitHub v4.0.2](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2) · [PyPI fcop 4.0.2](https://pypi.org/project/fcop/4.0.2/) · [PyPI fcop-mcp 4.0.2](https://pypi.org/project/fcop-mcp/4.0.2/).
+Official distribution: [GitHub v4.0.3](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3) · [PyPI fcop 4.0.3](https://pypi.org/project/fcop/4.0.3/) · [PyPI fcop-mcp 4.0.3](https://pypi.org/project/fcop-mcp/4.0.3/).
 
 ## Recommended: ask your AI / 推荐：让 AI 安装
 
@@ -35,15 +35,15 @@ Install the exact stable pair. Python-only users can omit `fcop-mcp`:
 安装一致的稳定版组合；只通过 Python 使用时可省略 `fcop-mcp`：
 
 ```sh
-python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
+python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
 python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
 ```
 
-Expected / 预期输出：`4.0.2 4.0.2`.
+Expected / 预期输出：`4.0.3 4.0.3`.
 
-The adapter's dependency is `fcop>=4.0.2,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
+The adapter's dependency is `fcop>=4.0.3,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
 
-适配器的依赖范围是 `fcop>=4.0.2,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
+适配器的依赖范围是 `fcop>=4.0.3,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
 
 ## Create and inspect work / 创建并检查工作
 
@@ -72,9 +72,9 @@ These samples deliberately use an educational issuer proof. Read their evaluator
 
 ## Rules and existing workspaces / 规则与已有工作区
 
-4.0 rules have versioned manifests, explicit adoption, zero-write deployment planning, receipts and rollback. Select an assembly and host projection using the [rule distribution contract](fcop-4.0/rule-distribution-contract.md) / [中文契约](fcop-4.0/rule-distribution-contract.zh.md). Files on disk and rules actually consumed by a host are separate facts.
+4.0.3 rules use a versioned manifest and package-owned bilingual modules. Read, validate and select sequential/parallel assemblies through the package and MCP resources. See the [current rule resource guide](rule-resources.md). Host projection, adoption, deployment and rollback are retired; FCoP does not own project-root Host instructions. Available bytes do not prove Runtime consumption.
 
-4.0 规则提供版本化清单、显式采纳、零写入部署计划、回执与回滚。根据上方契约选择规则组合与宿主投影；磁盘上有文件，不代表宿主已经消费规则。
+4.0.3 规则由版本化清单和包内双语模块提供，通过包与 MCP 资源读取、校验、选择顺序或并行装配。Host 投影、采用、部署及回滚已退役，项目根 Host 指令不属于 FCoP。存在可读字节，不代表 Runtime 已消费规则。
 
 **Installing packages does not migrate a workspace.** Existing 3.x workspaces retain 3.x semantics. Do not use a fresh-workspace example to overwrite an existing workspace or treat old installation prompts as a 4.0 migration procedure. Retain backups and inspect the version-specific rules before planning a migration.
 
@@ -84,7 +84,7 @@ Legacy references / 历史资料：[3.x specification](../spec/fcop-v3-spec.md) 
 
 ## Release and design history / 发布与设计记录
 
-- **Current release:** [v4.0.2](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2), with accepted commit, artifact run and hashes. The [4.0.0 release document](releases/4.0.0.md) records the promotion procedure; the public release establishes publication.
+- **4.0.3 delivery:** prepared on [Draft PR #48](https://github.com/joinwell52-AI/FCoP/pull/48); implementation review does not establish publication. The [4.0.0 release document](releases/4.0.0.md) remains historical promotion evidence. The eventual public tag and artifact hashes, not this source page, establish a new release.
 - **Historical candidate:** [v4.0.0rc1](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.0rc1) is retained. Candidate guides and WP reports describe their original stages.
 - **Current contracts:** [4.0 specification EN](../spec/fcop-4.0-spec.md) / [ZH](../spec/fcop-4.0-spec.zh.md). C1–C8, rather than a historical concept count, define Core compatibility.
 - **Research:** [Complete index EN](../essays/README.md) / [中文](../essays/README.zh.md). The existing 3.2.5 and April 2026 citation archives retain their historical versions; they do not identify 4.0.0.

@@ -1,4 +1,4 @@
-# CLI v1 参考 — FCoP 4.0.2
+# CLI v1 参考 — FCoP 4.0.3
 
 **CLI = Setup + Observe + Diagnose；MCP = Work。** 支持 Python 3.10–3.13。
 `fcop` 包含 Core 和 CLI，不依赖 MCP；`fcop-mcp` 为可选安装。

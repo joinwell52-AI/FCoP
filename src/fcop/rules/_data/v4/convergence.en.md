@@ -1,7 +1,7 @@
 # FCoP 4.0 — convergence
 
-Audience: business-agent. Package: 4.0.0-candidate.1. Language: en.
-Primary authority: frozen Core aec4c2b21b2ac74f1ffcf99cf06ac14137ba3fc6, spec/fcop-4.0-spec.md.
+Audience: business-agent. Package: 4.0.3. Language: en.
+Primary authority: frozen Core 1f91d53c51f040b1f4bd306d72d7e31ce35c7084, spec/fcop-4.0-spec.md.
 This derived guidance grants no execution, adoption, Host or release authority.
 Dependencies (explicit selection): workspace, envelopes, relations, authorization, idempotency, recovery, lifecycle, compatibility.
 

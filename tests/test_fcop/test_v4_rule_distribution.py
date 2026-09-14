@@ -175,31 +175,13 @@ def test_development_reference_hashes_are_real(distribution):
 def test_wp4c6_positive_capability_requires_complete_request(distribution, action):
     with pytest.raises(FcopError) as exc:
         call(distribution, action)
-    assert exc.value.code == "toolkit:RULE_SELECTION_INVALID"
+    assert exc.value.code == ("toolkit:OPERATION_NOT_IMPLEMENTED" if action == "measure_context" else "toolkit:RULE_SELECTION_INVALID")
 
 
-@pytest.mark.parametrize("action", ["plan", "inspect_profile", "status"])
-def test_readonly_host_capability_has_no_effects(distribution, action):
-    assert call(distribution, action)
 
 
-def test_adoption_still_requires_explicit_authority(distribution):
-    with pytest.raises(FcopError) as exc:
-        call(distribution, "adopt")
-    assert exc.value.code == "toolkit:RULE_ADOPTION_REQUIRED"
 
 
-@pytest.mark.parametrize("action,kind,key", [("apply", "adoptions", "adoption_receipt_ref"), ("rollback", "deployments", "deployment_receipt_ref")])
-def test_hash_matching_receipt_is_not_trusted(distribution, action, kind, key):
-    raw = b'{}\n'
-    digest = hashlib.sha256(raw).hexdigest()
-    path = f"fcop/internal/rule-distribution/{kind}/{digest}.json"
-    target = distribution[3] / path
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(raw)
-    with pytest.raises(FcopError) as exc:
-        call(distribution, action, **{key: {"path": path, "sha256": digest}})
-    assert exc.value.code == ("toolkit:RULE_ADOPTION_REQUIRED" if action == "apply" else "toolkit:RULE_DEPLOYMENT_RECOVERY_REQUIRED")
 
 
 def test_workspace_rechecked_before_package_read(distribution):

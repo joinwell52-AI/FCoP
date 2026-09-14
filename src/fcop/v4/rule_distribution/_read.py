@@ -6,11 +6,11 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fcop.v4.encoding import parse_json, safe_path
+from fcop.v4.encoding import parse_json
 
 from ._contract import MODULES
 from ._errors import reject
-from ._files import ARTIFACT, current_bytes, external_file, json_bytes, path_at
+from ._files import ARTIFACT, external_file, json_bytes, path_at
 from ._loader import _Package, load, sha
 from ._selection import select
 
@@ -31,18 +31,17 @@ _CONTEXT = {
 }
 _SPEC = {
     "path": "spec/fcop-4.0-spec.md",
-    "revision": "81d3229ee602341063879fe9100ab7db92417ffe",
-    "sha256": "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
+    "revision": "1f91d53c51f040b1f4bd306d72d7e31ce35c7084",
+    "sha256": "8fba4ee790f380e71c50de0d841beb61d67ea9209cd4b77315d5523debe90140",
 }
 
 
 def request_shape(request: Mapping[str, Any], allowed: set[str], action: str) -> None:
     if set(request) - (_CONTEXT | allowed):
         reject(_SELECTION, action, "Unknown read request fields")
-    # Reuse the accepted executable-input guard without a deployment call.
-    from ._deployment import _safe_request
+    from ._request import safe_request
 
-    _safe_request(request, action)
+    safe_request(request, action)
 
 
 def package_read(request: Mapping[str, Any], action: str) -> _Package:
@@ -158,40 +157,19 @@ def read_resource(root: Path, version: str, request: Mapping[str, Any]) -> dict[
 
 
 def inspect_layers(root: Path, request: Mapping[str, Any]) -> dict[str, Any]:
-    from ._receipts import adoption_chain, deployment_chain, verify_history
-
     action = "inspect_layers"
-    request_shape(request, {"adoption_receipt_ref", "deployment_receipt_ref"}, action)
-    workspace = parse_json(safe_path(root, "fcop/fcop.json").read_bytes())["workspace_id"]
+    request_shape(request, set(), action)
     package = package_read(request, action)
-    ref = request.get("adoption_receipt_ref")
-    deployment_ref = request.get("deployment_receipt_ref")
-    targets = []
-    if deployment_ref is not None:
-        deployment = deployment_chain(root, deployment_ref, workspace, action)
-        verify_history(root, workspace, deployment_ref, action)
-        if ref is not None and ref != deployment["adoption_receipt_ref"]:
-            reject("RULE_ADOPTION_REQUIRED", action, "Selected receipts disagree")
-        ref = deployment["adoption_receipt_ref"]
-        for target in deployment["targets"]:
-            raw = current_bytes(root, target["path"], action)
-            digest = sha(raw) if raw is not None else None
-            targets.append(
-                {
-                    "path": target["path"],
-                    "sha256": digest,
-                    "recorded_sha256": target["after_sha256"],
-                    "drifted": digest != target["after_sha256"],
-                }
-            )
-    adopted = adoption_chain(root, ref, workspace, action) if ref is not None else None
+    # Package identity is observable; Host adoption and Runtime consumption
+    # are not inferred from bytes on disk. Old receipts stay untouched.
     return {
         "disk_manifest_sha256": package.manifest_sha256,
         "index_manifest_sha256": package.manifest_sha256,
         "index_invalidation_evidence": "uncached_current_read",
-        "adopted_manifest_sha256": adopted["rule_manifest_sha256"] if adopted else None,
-        "host_entry_sha256": targets[0]["sha256"] if len(targets) == 1 else None,
-        "host_entries": targets,
+        "adopted_manifest_sha256": None,
+        "host_entry_sha256": None,
+        "host_entries": [],
+        "host_projection_status": "retired",
         "runtime_consumption_verified": None,
     }
 

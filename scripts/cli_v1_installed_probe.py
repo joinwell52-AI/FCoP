@@ -28,16 +28,16 @@ def main():
     args = parser.parse_args()
     import fcop
 
-    assert fcop.__version__ == metadata.version("fcop") == "4.0.2"
+    assert fcop.__version__ == metadata.version("fcop") == "4.0.3"
     assert "site-packages" in str(Path(fcop.__file__).resolve())
     assert bool(importlib.util.find_spec("fcop_mcp")) == args.mcp
     executable = Path(sys.executable).parent / ("fcop.exe" if os.name == "nt" else "fcop")
     results = []
     spec_hashes = {
-        "en": "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
-        "zh": "0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40",
+        "en": "8fba4ee790f380e71c50de0d841beb61d67ea9209cd4b77315d5523debe90140",
+        "zh": "4cfe5696b85b8f26399719b8f74dc7593f3fb796e886a9040881961bf8ff910a",
     }
-    spec_revision = "81d3229ee602341063879fe9100ab7db92417ffe"
+    spec_revision = "1f91d53c51f040b1f4bd306d72d7e31ce35c7084"
     with tempfile.TemporaryDirectory(prefix="fcop-cli-v1-proof-") as directory:
         root = Path(directory)
         help_result = subprocess.run([str(executable), "--help"], cwd=root,
@@ -84,7 +84,7 @@ def main():
             from mcp import ClientSession, StdioServerParameters
             from mcp.client.stdio import stdio_client
 
-            assert metadata.version("fcop-mcp") == "4.0.2"
+            assert metadata.version("fcop-mcp") == "4.0.3"
             assert {r["name"] for r in catalog["tools"]} == set(TOOLS)
             assert {r["name"] for r in get_tool_catalog()} == set(TOOLS)
             environment = dict(os.environ, FCOP_PROJECT_DIR=str(root))

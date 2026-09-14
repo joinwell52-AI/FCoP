@@ -3556,9 +3556,14 @@ def fcop_audit(
 
 @mcp.tool(tags={"binding_required", "tier:L3"})
 def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -> str:
-    """**ADMIN-only.** Re-deploy bundled FCoP protocol rules to the project.
+    """**Legacy v1-v3 only; ADMIN-only.** Re-deploy legacy bundled rules.
 
-    Writes the wheel-bundled :file:`fcop-rules.mdc` /
+    Declared FCoP 4.0 workspaces reject this tool with
+    ``toolkit:OPERATION_NOT_IMPLEMENTED`` and zero writes, regardless of
+    force/archive. Use package-owned rules and MCP resources for v4;
+    project-root Host instruction files remain application-owned.
+
+    On supported legacy workspaces only, writes :file:`fcop-rules.mdc` /
     :file:`fcop-protocol.mdc` to **four** locations so any agent host
     the project runs under sees the same rules:
 
@@ -3569,7 +3574,8 @@ def redeploy_rules(force: bool = True, archive: bool = True, lang: str = "zh") -
         <root>/AGENTS.md                          # Codex / Cursor / Devin / generic
         <root>/CLAUDE.md                          # Claude Code CLI
 
-    Run this **after** ``pip install -U fcop-mcp`` (or ``-U fcop``)
+    For an explicitly maintained legacy workspace, run this after
+    ``pip install -U fcop-mcp`` (or ``-U fcop``)
     to refresh on-disk copies to the newly packaged versions.
     ``fcop_report()`` shows when this is needed via the version
     drift warning.
@@ -3843,12 +3849,9 @@ def resource_letter_en() -> str:
 def resource_install_prompt_zh() -> str:
     """Canonical "have an agent install fcop-mcp" prompt (Chinese).
 
-    Same text as the bundled ``agent-install-prompt.zh.md`` and the
-    ``mcp/README.md`` § "Have an agent install fcop-mcp for you"
-    section. ADMIN copies this and gives it to a fresh shell-capable
-    agent. The prompt body explicitly forbids agents from
-    auto-initialising a project after install — initialisation is
-    ADMIN's three-way choice (solo / preset team / custom).
+    Verbatim bundled ``agent-install-prompt.zh.md``, linked by README
+    and PyPI. Initialization is ADMIN's explicit choice. Current v4
+    guidance uses package/MCP resources, not Host instruction deployment.
     """
     return fcop.rules.get_install_prompt("zh")
 

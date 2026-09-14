@@ -142,8 +142,11 @@ def test_meta_guard_rejects_placeholders(body):
 
 def test_meta_exact_ids_and_grouping():
     functions = behavior_functions()
-    assert len(functions) == 30
-    assert {n.name for n in functions} == {f"test_dist_{i:02}" for i in range(1, 31)}
+    # 4.0.3 taskbook section 5 retires Host-only DIST-08..20 and DIST-28.
+    # Their original code remains in the fixed pre-retirement Git history.
+    active_ids = {*range(1, 8), *range(21, 28), 29, 30}
+    assert len(functions) == len(active_ids) == 16
+    assert {n.name for n in functions} == {f"test_dist_{i:02}" for i in active_ids}
     for n in functions:
         assert re.findall(r"DIST-\d{2}", ast.get_docstring(n)) == [
             n.name.replace("test_dist_", "DIST-")
@@ -294,12 +297,12 @@ def test_meta_frozen_contract_gate_and_manifest():
     )
     # ADMIN CLI release-identity amendment: exact current Stable spec blobs,
     # not the historical Candidate presentation. All other contracts stay fixed.
-    stable_revision = "81d3229ee602341063879fe9100ab7db92417ffe"
+    stable_revision = "1f91d53c51f040b1f4bd306d72d7e31ce35c7084"
     stable_specs = {
         "spec/fcop-4.0-spec.md":
-            "fb10d1b14a678b77874012f88cf35a977d2f8517b1aa4a6fdc5a0e94546ef33d",
+            "8fba4ee790f380e71c50de0d841beb61d67ea9209cd4b77315d5523debe90140",
         "spec/fcop-4.0-spec.zh.md":
-            "0dac91db3e38e0cf06423a0d815beaaad9c9b4d6ec06e732f1012aec0e346f40",
+            "4cfe5696b85b8f26399719b8f74dc7593f3fb796e886a9040881961bf8ff910a",
     }
     for p, expected_sha in stable_specs.items():
         expected = git("show", f"{stable_revision}:{p}")

@@ -2,7 +2,7 @@
 
 [English README](../README.md#ai-install) · [中文 README](../README.zh.md#ai-install)
 
-Current guide: **fcop 4.0.2 + fcop-mcp 4.0.2**, checked September 11, 2026.
+Target guide: **fcop 4.0.3 + fcop-mcp 4.0.3**. Use the released package pair; review-branch copy does not establish public availability.
 
 Use a coding agent with terminal and file access, such as Cursor Agent or Codex. Paste a request below; the agent performs the setup. A chat-only assistant cannot install software on your computer.
 
@@ -39,7 +39,7 @@ Identify the OS, shell, coding client, target project, existing FCoP state, Pyth
 If uvx is available, use this stdio launch command; it resolves the exact pair in an isolated environment:
 
 ```text
-uvx --from fcop-mcp==4.0.2 --with fcop==4.0.2 fcop-mcp
+uvx --from fcop-mcp==4.0.3 --with fcop==4.0.3 fcop-mcp
 ```
 
 This command starts a server awaiting MCP messages; it is not a command that should immediately print a success message and exit. Validate it with an MCP client and close the test process afterward.
@@ -48,7 +48,7 @@ When Python 3.10+ is available without uv, an isolated venv with the exact pair 
 
 ```text
 python -m venv <new-install-directory>
-<venv-python> -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
+<venv-python> -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
 <venv-python> -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
 ```
 
@@ -72,13 +72,13 @@ Use an absolute executable path when the client's PATH differs from the terminal
 
 Check these outcomes separately:
 
-1. **Installed:** verify the resolved fcop and fcop-mcp versions. For the pinned 4.0.2 pair, MCP discovery exposes 49 tools, 12 resources and 4 resource templates.
+1. **Installed:** verify the resolved fcop and fcop-mcp versions. For the pinned 4.0.3 pair, MCP discovery exposes 49 tools, 12 resources and 4 resource templates.
 2. **Connected:** confirm FCoP tools are available in the user's actual coding client and perform an appropriate read-only call. If a reload is needed, report “configured; client reconnection pending,” give the single required step, and continue verification after reconnection. A separate stdio probe proves the server works, not that the user's client has connected.
 3. **Task verified:** create a new isolated example directory and run the [create-and-read example](../README.md#try-it), or a corresponding MCP example after reading its tool schemas. Verify the stored task and its identity from a fresh reader. Keep the result or a concise verification receipt. Installation of the packages is not evidence of this task check.
 
-分别回报“包已安装”“客户端已连接”“示例已验证”。4.0.2 的工具清单应为 49/12/4；配置文件已写好不等于客户端已连接。如果当前会话需要重连，明确标为待重连，告诉用户具体一步，重连后继续验收。独立 MCP 进程验证不能冒充当前客户端已经能用。
+分别回报“包已安装”“客户端已连接”“示例已验证”。4.0.3 的工具清单应为 49/12/4；配置文件已写好不等于客户端已连接。如果当前会话需要重连，明确标为待重连，告诉用户具体一步，重连后继续验收。独立 MCP 进程验证不能冒充当前客户端已经能用。
 
-在独立新目录中运行“创建任务—重新读取”的真实示例，不改写已有业务项目的状态。现有 3.x 工作区保持原状；迁移、团队角色选择与规则部署依照用户目标另行处理。报告写了 done 也不等于审查已批准。
+在独立新目录中运行“创建任务—重新读取”的真实示例，不改写已有业务项目的状态。现有 3.x 工作区保持原状；迁移与团队策略依照用户目标另行处理。v4 规则通过包内及 MCP resources 读取，不部署 Host 四件套，不要求调用 redeploy_rules。报告写了 done 也不等于审查已批准。
 
 ### 5. Give a short result / 交付简短结果
 
@@ -90,8 +90,8 @@ Report the actual versions, configuration scope/path, connection status, task-ch
 
 - [Manual installation and 4.0 workspace guidance](fcop-4.0-progress.md)
 - [MCP tool reference](mcp-tools.md)
-- [4.0 rule distribution](fcop-4.0/rule-distribution-contract.md) / [中文](fcop-4.0/rule-distribution-contract.zh.md)
+- [Current rule resources / 当前规则资源](rule-resources.md)
 
-The bundled resources fcop://prompt/install and fcop://prompt/install/en still contain legacy installation material in the published 4.0.2 package. This document is the current website/repository installation guide. Use the linked 4.0 contracts for initialization and rule deployment.
+The published 4.0.2 package's bundled installation prompts are historical inputs. For 4.0.3 follow this current guide and the rules/resource ownership boundary: installing or normally using FCoP must not create or modify project-root Host instruction files. A client's MCP server configuration is application-owned and may only be configured under the user's explicit installation request.
 
-已发布 4.0.2 包内的 fcop://prompt/install 等资源仍是旧版安装资料。本页是当前网站与仓库的安装说明，初始化和规则部署以链接的 4.0 契约为准。
+已发布 4.0.2 包内安装提示词属于历史输入。4.0.3 使用当前说明与规则资源所有权边界：安装及正常运行不得创建或修改项目根 Host 指令文件。客户端的 MCP 服务配置属于应用，只能按用户的显式安装请求配置，不能与协议指令文件混淆。

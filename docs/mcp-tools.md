@@ -1,8 +1,8 @@
 # FCoP MCP · capability map / 能力映射
 
-Current package pair: **4.0.2**, with **49 tools / 12 resources / 4 templates**.
+Current package pair: **4.0.3**, with **49 tools / 12 resources / 4 templates**.
 The three Branch tools introduced in 4.0.1 remain available; all signatures
-are unchanged. MCP requires `fcop>=4.0.2,<4.1.0` and uses the declared
+are unchanged. MCP requires `fcop>=4.0.3,<4.1.0` and uses the declared
 package compatibility pairs.
 
 `fcop tools --json` reads the public offline `fcop_mcp.catalog.get_tool_catalog()`
@@ -28,7 +28,7 @@ performs work. With only Core installed it reports MCP as unavailable.
 | Family | `inspect_task(include_family_digest=true)` | canonical `family_digest`, not a client-computed substitute |
 | Convergence | `write_review(review_kind="convergence")` | `family_digest` and `references` to Branch REPORT heads; does not move a TASK |
 | Rule discovery | `resources/list`, `resources/templates/list`, `resources/read` | version-selected read-only representations; discovery ≠ adoption ≠ Runtime consumption |
-| Explicit deployment | `redeploy_rules`, `deploy_role_templates` | version routing; v4 delegates to public rule distribution with explicit selection/adoption; no automatic migration |
+| Legacy deployment | `redeploy_rules`, `deploy_role_templates` | supported Legacy versions only; v4 rejects without Host writes; no automatic migration |
 | Errors / retry | relevant write calls | structured `code`; same `operation_id` exact retry; different digest `OPERATION_ID_CONFLICT`; zero effects on rejection |
 
 `reopen_task(task_id, review_ref, authorization_ref, profile_ref, actor, lang="")`
@@ -251,7 +251,7 @@ finish_task / approve_task
 |------|------|----------|
 | `check_update` | 比对本地 `fcop-mcp` 与 PyPI 最新版（不写盘、不安装）。 | `lang` |
 | `upgrade_fcop` | 打印**针对你的安装方式**的升级命令。**不**自动跑 pip。 | `lang` |
-| `redeploy_rules` | **ADMIN-only**。把 wheel 里四份规则文件写到项目根；`force=True` 覆写，`archive=True` 先归档旧文件。何时调：`fcop_report` 显示版本漂移。 | `force`（默认 `True`）、`archive`（默认 `True`）、`lang` |
+| `redeploy_rules` | **Legacy v1–v3 only / ADMIN-only**。仅维护显式 Legacy 工作区；v4 无论 force/archive 都返回 `toolkit:OPERATION_NOT_IMPLEMENTED`，零写入。不是 4.x 安装或升级步骤；v4 通过包内及 MCP rules/protocol/guidance resources 获取规则。 | `force`（默认 `True`）、`archive`（默认 `True`）、`lang` |
 
 ---
 
