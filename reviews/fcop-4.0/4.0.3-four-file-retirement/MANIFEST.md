@@ -2,12 +2,14 @@
 
 Status: LOCAL_VERIFICATION_PASS_REMOTE_CI_PENDING. This supersedes the earlier BLOCKED checkpoint status, not its historical evidence. No ADMIN Gate is signed here.
 
-- Base: `157acaeb0cbd11bbf0ce54fba18c2a7d0d980efb`
+- Execution-start base: `157acaeb0cbd11bbf0ce54fba18c2a7d0d980efb`
+- Current-main integration / inventory base: `aa970936f19b875720c4b17608bb3c17b7fb195c`; merged into this review branch only, preserving PR #49 handoff material.
 - Taskbook: `8ec8658c15f2aa148bd42e3d6e6bb916921e4b0b`
 - Spec source: `1f91d53c51f040b1f4bd306d72d7e31ce35c7084`
 - Implementation: `009d6abdadcde1fc97c440e04970434e2e0c9459`
-- Candidate build source: `d1abaa6dba73be829450c108719c50506e82be29`
-- Evidence/content HEAD: `3c2756f84de97691bddbf16c8cd152410526cb4b`
+- Candidate build source: `b767e8f46ede33d405a96ba568dc38b4e733b3ec`
+- Corrected test HEAD: `5da0bbc127e272cd2492c2963db6441e6b2c46e3`
+- Evidence/content HEAD: `bbc207e6dd4479840a379271fdb19670ba632dc3`
 - Branch: `review/fcop-4.0.3-four-file-retirement`
 - Draft PR: https://github.com/joinwell52-AI/FCoP/pull/48
 - Delivery HEAD: the commit containing this Manifest; exact SHA, remote hash readback and CI results are bound by the final PR receipt. A Manifest cannot contain its own commit SHA or own byte hash without a circular dependency.
@@ -23,14 +25,14 @@ Status: LOCAL_VERIFICATION_PASS_REMOTE_CI_PENDING. This supersedes the earlier B
 
 ## Candidate artifacts
 
-- `fcop-4.0.3-py3-none-any.whl` — 721754 bytes — SHA-256 `ec04e09e717d4a89370bf7ebb27ab85a539240ec664b55b3c63e594bd43989fb`
-- `fcop-4.0.3.tar.gz` — 628219 bytes — SHA-256 `19b8d1b4fd0fa3c932a65b933bf46381c680ed4e305f097b3e7f5f2bdeb54d2c`
-- `fcop_mcp-4.0.3-py3-none-any.whl` — 116598 bytes — SHA-256 `65e6485f1d54086b6bd9254209e532b29ad4632ffb22e70d99f306cd62146a59`
-- `fcop_mcp-4.0.3.tar.gz` — 107441 bytes — SHA-256 `febd82d051abfc1a5de250b37b2a1180b006b51dfd84f62f812b45962f69f6e9`
+- `fcop-4.0.3-py3-none-any.whl` — 721754 bytes — SHA-256 `a974ff981cb829ab2af2ceb1b5fa82c275ffe7c8492a0642c215c3817bff244d`
+- `fcop-4.0.3.tar.gz` — 628433 bytes — SHA-256 `2323147d5d740cc671f9a8219826b642bb37d997e02059819033c3842d1378db`
+- `fcop_mcp-4.0.3-py3-none-any.whl` — 116598 bytes — SHA-256 `6264ec0fb08ac8aa46780c0dc165e13e07571da2524480fdedcebe23e4d38897`
+- `fcop_mcp-4.0.3.tar.gz` — 107434 bytes — SHA-256 `8f2dea3e5b7d4a47099cae9b2d6cfd859dadad17bc400e59dd88dcbdd400aced`
 
 ## Changed-file byte inventory
 
-Hashes cover canonical Git blobs at the content HEAD above, not Windows CRLF checkout bytes. DELETED means absent in the delivery tree; previous bytes remain in Git history. This Manifest is excluded from its own inventory and is separately checked during remote readback.
+Hashes cover canonical Git blobs at the content HEAD above relative to the current-main integration base, not Windows CRLF checkout bytes. The original execution-start base remains recorded separately. There are 99 changed files: 91 present including this Manifest and 8 deleted. Upstream's three newly added handoff files are inherited unchanged, not claimed as this task's additions. DELETED means absent in the delivery tree; previous bytes remain in Git history. This Manifest is excluded from its own inventory and separately checked during remote readback.
 
 | Status | File | Bytes | SHA-256 |
 | --- | --- | ---: | --- |
@@ -39,15 +41,15 @@ Hashes cover canonical Git blobs at the content HEAD above, not Windows CRLF che
 | M | `AGENTS.md` | 926 | `5c920c9c949a14af02140907700e40d224e12a7a058a1cc199663a54d50bb395` |
 | M | `CHANGELOG.md` | 136846 | `4e8233c86ce931601fcc934b043832e901fa0da3254edf8f94b8ca29e151ec8d` |
 | DELETED | `CLAUDE.md` | — | — |
-| M | `README.md` | 17316 | `39253f65891a3d9b26c217a4fc1c5c7d6cc24f5a8ee5087a00e379780dec781c` |
-| M | `README.zh.md` | 16316 | `56648ccb773d9a892995f5d5e94e19ad76209bf7e1ba967f323f02b68525ca44` |
+| M | `README.md` | 17617 | `d19388ef8f5b9c81f4440711636eccd6f2cf275466216b78118fb567f4c68844` |
+| M | `README.zh.md` | 16610 | `ec3f43796f1e157cde253c1f0f60476949d7905297a98f49f4a3e84cc60989ad` |
 | M | `docs/ai-install.md` | 9018 | `dbaa55f2ca08b7a1eab3ba59b7aa5301f28ae3e6ca03228ad50cd4972a40e2bb` |
 | M | `docs/cli.md` | 4282 | `9defc268bafce63818e7961a24178dc61922fc33196934a4c8a5b5cc9384841f` |
 | M | `docs/cli.zh.md` | 3564 | `79fced88c3500cb07c716e1515c2e42ce5577f2bbe2e2d0a007715bacba4de84` |
 | M | `docs/fcop-4.0-progress.md` | 8437 | `4c103273e8b939e5954cfed34f5b9a987cbcaf20611b6fcb9fbc21ab246f22a7` |
 | M | `docs/getting-started.en.md` | 17312 | `2271bcfea25009be9597d8f6a4a6af47dc874f0e1c950b307e03fd5b142816e2` |
 | M | `docs/getting-started.md` | 17735 | `7e71eb0ec63894f3b4c2e6e48eeb542613f148905f7d4c3c89c2658e3fc20004` |
-| M | `docs/index.html` | 42265 | `327e5d029c3c80ebd015b96f734bee868f8774aef5aee1a20d36b7f7512515fa` |
+| M | `docs/index.html` | 42864 | `4fe65b0425f14ba0a35a42124af54b37c3d7207f634eaea21301245b3215c67c` |
 | M | `docs/mcp-tools.md` | 21057 | `d77ffbffc4a690ee6baf9391438f806c395b8585b6ba0bdcc09307672579d58d` |
 | M | `docs/pypi/README.md` | 3366 | `524e8eb754ea58113a786fa2d68ef8f365d40d58551ff7de80e43f699ee35cae` |
 | M | `docs/release-process.md` | 33002 | `79f6622a2eb4a4aa68c3f2ca387d0d64e859e17b49ff5fae751b6f35aa1b8a4f` |
@@ -68,20 +70,20 @@ Hashes cover canonical Git blobs at the content HEAD above, not Windows CRLF che
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/BLOCKED-INITIALIZATION-BOUNDARY.md` | 7106 | `ddec2a6fd0f3a370fb7e1b06093e3754b10366f050da2672fc2d3c110f0bf361` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/MCP-SURFACE.md` | 1497 | `97e189f76a6b61775bdccb17f751fb8c75df9f0aecba5f0a6814ecaf15b2d587` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/OWNERSHIP-BOUNDARY.md` | 2904 | `a3d86c15b671f732dc74b301e861de68f0a7e83815311305217eec7c60878e76` |
-| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/PACKAGE-PROOF.md` | 1810 | `72995d12d91830368ec9289527374c99e10a3708443c1f814fe33918b9e1af3e` |
+| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/PACKAGE-PROOF.md` | 2407 | `5fb9e229aeb49be34fd013cccd2b2601ba3952443f1f6194b3aa7ef72f5a9442` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/PYPI-DESCRIPTION-PROOF.md` | 937 | `5ed9a3cc6569e57569938c53cc98f46db4500b591018da2f077eb6275220e199` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/RELEASE-PLAN.md` | 1159 | `7e7bd1606743deace31d06fc7c3cc46089b13a20db2b84c57f1cfb34ad16020b` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/RESUME-PLAN.md` | 2201 | `9abcffd058663a6cefda0e8ca129038d4f86ca56ec02bab9b1d5287fe04a3c8e` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/ROOT-BYTE-PRESERVATION.md` | 1445 | `4496c773f1b97f5988017616c4c83ace545252a257a3438e6fed07b7696681c1` |
-| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/TEST-RESULTS.md` | 3063 | `671a7b5b659dc4722394512b66edf82338d8140b4efbe2b76a9edbd7351309ad` |
+| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/TEST-RESULTS.md` | 4506 | `4dd292398222b427b03add9b0ccd1f26c3846d818f9b83b22d6c58698b72eb53` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/TEST-RETIREMENT.md` | 3586 | `a257e118eedc8f307a9c7d90e31ec1a51ccd49e9915de8cbd757d408c349420c` |
-| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/WEBSITE-PROOF.md` | 1679 | `d5c417225dd0ae8cec403fdad0488d26ff7ca2af5caa9cdeae0b74de45712b04` |
+| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/WEBSITE-PROOF.md` | 2301 | `cb348591cadb257f7eeb7edb53ab834da2186ddc98a03c3fcd2ccc082172e3d1` |
 | A | `reviews/fcop-4.0/4.0.3-four-file-retirement/initialization-boundary-repro.py` | 2241 | `404ebc67b031a205e2a9446cfed76a2a9ba213908eae16f2b92fe64bacb08a99` |
-| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/package-proof.json` | 1868 | `4504cd261cef8d4297b013883028845fbc74d137da297295291c6f9358f0b83d` |
+| A | `reviews/fcop-4.0/4.0.3-four-file-retirement/package-proof.json` | 1868 | `286366aee70fc797840fe55df0c8bbd7bac31a7ea1e59e9afd4e199ec5b8fabf` |
 | M | `scripts/cli_v1_installed_probe.py` | 6307 | `0b6051b8bdca9be9378d5fb7c8ff648323ec352d61bebc858f7b00a923e14fb4` |
 | A | `scripts/fcop_403_package_proof.py` | 6031 | `fa461212644815abd4b7fd8f33e7dbcf452c378610769785cb9e0984e341bed7` |
 | M | `scripts/pages/build.py` | 9731 | `250c88873e32052166e0ae3e87ee57be97235e93edd831f3eacb6fd667e5b472` |
-| M | `scripts/pages/index.template.html` | 36599 | `3b88a5c68d58dc0cfa947be57d13f1191bd93795e911d0ce9588c4e339475a48` |
+| M | `scripts/pages/index.template.html` | 37198 | `a16a1102ae92ea3d18078f9db197f2440c5583b8a355f39efb7c1364105adaf5` |
 | M | `spec/fcop-4.0-spec.md` | 26792 | `8fba4ee790f380e71c50de0d841beb61d67ea9209cd4b77315d5523debe90140` |
 | M | `spec/fcop-4.0-spec.zh.md` | 24911 | `4cfe5696b85b8f26399719b8f74dc7593f3fb796e886a9040881961bf8ff910a` |
 | M | `src/fcop/_version.py` | 561 | `b64f31c0116e27baa5f05cac297e3722785edb60b9aa13e7ddd2920167792cb4` |
@@ -121,8 +123,8 @@ Hashes cover canonical Git blobs at the content HEAD above, not Windows CRLF che
 | M | `tests/conformance/rule_distribution_v4/test_dist_13_20_projection.py` | 253 | `68e0a4db19c6a11aa8c46ab71f03d80741fc39c4e3fadef47497bb666f8b4c0e` |
 | M | `tests/conformance/rule_distribution_v4/test_dist_21_24_assembly_compat_mcp.py` | 6739 | `1d4b36d3b170464f3bed17e4ef7d97961604568630e969546aa97f450d68ac80` |
 | M | `tests/conformance/rule_distribution_v4/test_dist_25_30_failures_artifacts_context_gates.py` | 10356 | `6112f40d83432fbdc2814161450ea75b651dd4bdf4477a6208894d8545e7408d` |
-| A | `tests/test_fcop/test_403_cli_entrypoints.py` | 4382 | `f86d39e8663397441a1fcc03c5e2bc63ef659af258009dc58c250c411996a2c2` |
-| A | `tests/test_fcop/test_403_root_ownership.py` | 5205 | `4ecfb8dc4ca78c9155244d43d9a56238351fc9d4cd670041ad206f54e756fe12` |
+| A | `tests/test_fcop/test_403_cli_entrypoints.py` | 4396 | `d8a7418dae61d69cf5dcad4459b80944e10fd4b6a1f225e1777253face4188aa` |
+| A | `tests/test_fcop/test_403_root_ownership.py` | 5583 | `50d5ab1f0546af7ed751690f2cb79a3ff11c5f15538a0b53264bfc8c9b65ebbb` |
 | M | `tests/test_fcop/test_cli_release_identity.py` | 4142 | `8519279573bee4ad0325293976ca5ce572c16833f08d1b005b07582c00e2dd74` |
 | M | `tests/test_fcop/test_public_docs_release_identity.py` | 2984 | `0675da799685540a0fb0e5698b8d477569ce06b8a750b5b60404dd0ec1f21d83` |
 | M | `tests/test_fcop/test_v4_rule_distribution.py` | 8551 | `d86a775e2270d3ccc0316b081f8086e497e494c9b3afb94d7c32dc97f088f1bb` |
@@ -130,7 +132,7 @@ Hashes cover canonical Git blobs at the content HEAD above, not Windows CRLF che
 | M | `tests/test_fcop/test_v4_rule_distribution_host.py` | 2720 | `4e16629d23faff37cfe18c698d8107fbc7620c3ff2364dd0de381cbfed063c7e` |
 | M | `tests/test_fcop/test_v4_rule_distribution_reads.py` | 14779 | `4eea1aaa7da67a0b215f58ebb3226dd6f5e816d9fcb7f7a42be663f723dfb3c4` |
 | M | `tests/test_fcop/test_wp4f_release_readiness.py` | 15013 | `2d2f464723fd6798d25f32a61ca49e4d263a16c3d65c8c2142fddd69c0f8a581` |
-| A | `tests/test_fcop_mcp/test_403_mcp_root_ownership.py` | 2263 | `c768f404642a392c5b9ee65daa0502edeff3dfe3db390d82e8ac6c5c37191aa8` |
+| A | `tests/test_fcop_mcp/test_403_mcp_root_ownership.py` | 2617 | `3ea8a9a5e057b9b657d2b7b27527c0352b1cde70ec1f2eb05255aea086b09ee6` |
 | M | `tests/test_fcop_mcp/test_wp4f_release_pairs.py` | 1067 | `9d126d3a2e454fa2da5e674d69b6c3951d3d05da17fea5761703ee0ae56b09d9` |
 
 ## Qualification and stop boundary
