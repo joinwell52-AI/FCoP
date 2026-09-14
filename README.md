@@ -4,7 +4,7 @@
 
 [English](README.md) · [简体中文](README.zh.md)
 
-**Keep agent work beyond the conversation.**
+**Even when the agent is gone, the work remains.**
 
 Tasks, deliveries, issues and review decisions become durable files that people, tools and the next agent can inspect. A session can end without taking the work record with it.
 
