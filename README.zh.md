@@ -36,6 +36,48 @@ https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
 
 **想先看看交接效果？** 让 AI 运行跨会话交接示例：[English](docs/mcp-handoff.md) · [简体中文](docs/mcp-handoff.zh.md)。创建任务和报告，关闭会话，再从全新 MCP 会话中读回。无需 API Key，运行结果保留在本地，随时可以打开核对。
 
+## macOS（Intel 与 Apple 芯片）：同时安装 CLI 与 MCP
+
+FCoP 支持 Intel Mac 与 Apple Silicon（M1/M2/M3/M4 等），发布包不依赖特定处理器架构，不需要 Rosetta。需要 Python 3.10–3.13。CLI 可直接在终端使用；MCP 还要求 Codex、Cursor 等客户端支持本地 stdio MCP Server。
+
+创建独立环境，并安装同版本线的 Core 与 MCP：
+
+```bash
+python3 --version
+python3 -m venv ~/.local/share/fcop/venv
+~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
+  "fcop>=4.0.3,<4.1.0" \
+  "fcop-mcp>=4.0.3,<4.1.0"
+```
+
+检查 CLI 与已安装的 MCP 工具目录：
+
+```bash
+~/.local/share/fcop/venv/bin/fcop version
+~/.local/share/fcop/venv/bin/fcop doctor
+~/.local/share/fcop/venv/bin/fcop tools --json
+```
+
+安装后即可使用下方列出的九条 CLI 命令：`init`、`status`、`inspect`、`validate`、`tools`、`doctor`、`version`、`spec`、`migrate`。使用 CLI 初始化、查看和诊断时，不要求 AI 客户端支持 MCP。
+
+需要 MCP 时，在客户端配置中使用 macOS 绝对路径；配置文件中不要写 `~`：
+
+```json
+{
+  "mcpServers": {
+    "fcop": {
+      "command": "/Users/你的用户名/.local/share/fcop/venv/bin/python",
+      "args": ["-m", "fcop_mcp"],
+      "env": {
+        "FCOP_PROJECT_DIR": "/Users/你的用户名/实际项目目录"
+      }
+    }
+  }
+}
+```
+
+替换用户名和项目路径后，重启或重新连接 MCP 客户端。`FCOP_PROJECT_DIR` 应指向实际使用 FCoP 的项目，而不是 FCoP 源码仓库。
+
 ## 为什么要把工作放到模型之外？
 
 “我完成了”是一句对话。接手的人还需要知道：**执行的是哪项任务、交付了什么、谁审查过、还有什么问题没有解决。** 如果这些事实只留在聊天里，每次交接都要重新拼接上下文。
