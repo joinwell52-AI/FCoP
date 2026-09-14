@@ -9,8 +9,8 @@
 任务、交付、问题与审查决定保存为持久文件，人、工具和接手的 Agent 都能检查。一次会话结束，工作记录仍然在。
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.2/"><img src="https://img.shields.io/badge/Python-4.0.2-245ac4" alt="fcop PyPI 版本：4.0.2" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.2/"><img src="https://img.shields.io/badge/MCP-4.0.2-7055a2" alt="fcop-mcp 版本：4.0.2" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/Python-4.0.3-245ac4" alt="fcop PyPI 版本：4.0.3" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/MCP-4.0.3-7055a2" alt="fcop-mcp 版本：4.0.3" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
@@ -18,7 +18,7 @@
 
 <a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.zh.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
 
-**Stable version: 4.0.2** — [4.0.2 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
+**Stable version: 4.0.3** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
 <a id="ai-install"></a>
 
@@ -49,30 +49,61 @@ FCoP 为正式工作建立共同表示：带结构化元数据的 Markdown 文�
 
 持久化让主张可以检查，主张是否真实仍要核验。FCoP 检查协议关系和状态门槛，审查者判断交付内容；宿主 Runtime 负责执行、调度和权限。
 
+## CLI：本地安装、检查与诊断
+
+**CLI = Setup + Observe + Diagnose；MCP = Work。**
+
+| 命令 | 用途 |
+| --- | --- |
+| `fcop init` | 初始化 FCoP workspace |
+| `fcop status` | 查看 workspace 状态 |
+| `fcop inspect` | 检查 TASK / REPORT / ISSUE / REVIEW |
+| `fcop validate` | 验证协议结构 |
+| `fcop tools` | 查看已安装的 MCP 工具目录 |
+| `fcop doctor` | 检查安装、环境和兼容性 |
+| `fcop version` | 查看已安装版本 |
+| `fcop spec` | 查看规范 / 规则身份 |
+| `fcop migrate` | 显式迁移旧 workspace；先检查计划，再决定是否 apply |
+
+### 安装后快速自检 / Install & Verify
+
+在已激活的 Python 3.10+ 环境中执行：
+
+```bash
+python -m pip install fcop
+
+fcop version
+fcop doctor
+fcop init --root ./my-project
+fcop status --root ./my-project
+fcop validate --root ./my-project
+```
+
+需要查看 MCP 工具目录时：
+
+```bash
+python -m pip install fcop-mcp
+
+fcop tools
+fcop tools merge_branches --json
+```
+
+安装完成后，CLI 可在本地、离线环境中初始化、查看、校验和诊断；`doctor` 不联网、不修改 Host 配置。安装包本身可能需要访问包索引，离线安装需预备本地包。
+CLI 不负责 create_task、approve、Branch、merge、authorization 等工作操作，实际 Agent 工作由 MCP 或 Python API 承担。
+安装 `fcop` 不会自动创建 Host 指令文件；FCoP 4.x 正常 workspace 状态写入范围是 `<project>/fcop/`，不是根目录的 `AGENTS.md`、`CLAUDE.md` 或 Cursor 规则。
+保留既有原子初始化暂存及失败证据，不自动清理用户文件。
+`migrate` 是单独显式执行的旧工作区迁移，不是升级包时的自动步骤。
+`tools` 需要可选 MCP 包，但不会自动安装它或启动服务。
+
+[CLI reference](docs/cli.md) · [中文 CLI 参考](docs/cli.zh.md).
+
 <a id="manual-setup"></a>
 
 <details>
 <summary>手动安装、Python/MCP 示例与 CLI 参考（可选）</summary>
 
-## CLI 设置、观察与诊断；MCP 执行工作
-
-4.0.2 提供九个顶层命令：`init`、`status`、`inspect`、`validate`、
-`tools`、`doctor`、`version`、`spec`、`migrate`。
-除显式初始化和迁移 apply 外均为只读；CLI 不提供任务生命周期写入命令。
-
-```sh
-fcop init --root ./demo-workspace --json
-fcop status --root ./demo-workspace --json
-fcop doctor --root ./demo-workspace --json
-fcop tools --json
-```
-
-`fcop` 单包即可设置和检查工作区；`tools` 需要可选 MCP 包，
-未安装时返回结构化不可用结果，不启动服务或自动安装。
-[CLI reference](docs/cli.md) · [中文命令参考](docs/cli.zh.md)。
-
 4.0.1 已提供 `create_branch`、`inspect_family`、`merge_branches`，
-4.0.2 保持 49 个工具及原签名。Core 负责原子合并、持久幂等和恢复。
+4.0.3 保持 49 个工具及原签名。Core 负责原子合并、持久幂等和恢复。
 未就绪家族返回 `family_digest: null`、`merge_ready: false` 及结构化原因；
 语义合并结论始终来自调用方。
 详见[英文合同与示例](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md)。
@@ -84,7 +115,7 @@ fcop tools --json
 在已激活的 **Python 3.10+ 虚拟环境**中安装公开版本：
 
 ```sh
-python -m pip install "fcop==4.0.2"
+python -m pip install "fcop==4.0.3"
 ```
 
 保存为 `demo.py`，运行 `python demo.py`。示例写入一份真实 TASK，再通过新的 `Project` 实例读取工作区，并重试原始创建请求。
@@ -134,7 +165,7 @@ Same task after retry: True
 可选适配器通过 stdio 为支持 MCP 的客户端提供 FCoP 操作。在同一已激活环境中安装：
 
 ```sh
-python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
+python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
 ```
 
 在客户端的 MCP 配置中加入以下条目，替换两个绝对路径；Windows 的命令路径以 `.venv/Scripts/fcop-mcp.exe` 结尾。
@@ -201,7 +232,7 @@ python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
 
 [系列导读](docs/fcop-architecture-series/README.md) · [五篇全文合集](docs/fcop-architecture-series/collected.zh.md)
 
-4.0 还提供**九个双语规则模块**、版本化清单，以及 `sequential`、`parallel`、`repository-development` 三类组合。采纳、部署计划、回执和回滚都有显式步骤；宿主投影使用 `reference` 或 `bounded_embed`。安装包不会静默重写宿主规则。[规则分发英文契约](docs/fcop-4.0/rule-distribution-contract.md) · [中文契约](docs/fcop-4.0/rule-distribution-contract.zh.md)。
+4.0.3 通过包内和 MCP resources 分发**九个双语规则模块**，保留严格清单、`sequential`、`parallel` 及独立的 `repository-development` 装配。**安装 → 连接 MCP → 初始化工作区 → 使用 FCoP。** FCoP 拥有 `<project>/fcop/`，不拥有项目根 Host 指令文件。Host 投影、采用、部署与回滚已退役；`redeploy_rules` 仅支持 Legacy v1–v3，对 v4 零写入拒绝。已有用户文件保持不变。[Rule resources / 规则资源](docs/rule-resources.md)。
 
 <a id="research"></a>
 

@@ -9,8 +9,8 @@
 Tasks, deliveries, issues and review decisions become durable files that people, tools and the next agent can inspect. A session can end without taking the work record with it.
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.2/"><img src="https://img.shields.io/badge/Python-4.0.2-245ac4" alt="fcop on PyPI: 4.0.2" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.2/"><img src="https://img.shields.io/badge/MCP-4.0.2-7055a2" alt="fcop-mcp on PyPI: 4.0.2" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/Python-4.0.3-245ac4" alt="fcop on PyPI: 4.0.3" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/MCP-4.0.3-7055a2" alt="fcop-mcp on PyPI: 4.0.3" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
@@ -18,7 +18,7 @@ Tasks, deliveries, issues and review decisions become durable files that people,
 
 <a href="docs/architecture.en.md"><img src="assets/fcop-work-records.svg" alt="Agent work is persisted as TASK, REPORT, ISSUE and REVIEW files, then read by people, tools and another session." width="960" /></a>
 
-**Stable version: 4.0.2** — [4.0.2 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.2). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
+**Stable version: 4.0.3** — [4.0.3 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
 
 <a id="ai-install"></a>
 
@@ -49,32 +49,62 @@ FCoP gives formal work a shared representation: Markdown files with structured m
 
 Persistence makes a claim inspectable; it does not make the claim true. FCoP checks protocol relationships and gates. Reviewers evaluate the substance of the delivered work, and the host Runtime supplies execution, scheduling and permissions.
 
+## CLI — Local Setup, Inspect & Diagnose
+
+**CLI = Setup + Observe + Diagnose; MCP = Work.**
+
+| Command | Purpose |
+| --- | --- |
+| `fcop init` | Initialize an FCoP workspace |
+| `fcop status` | View workspace status |
+| `fcop inspect` | Inspect TASK / REPORT / ISSUE / REVIEW |
+| `fcop validate` | Validate protocol structure |
+| `fcop tools` | Inspect the installed MCP Tool Catalog |
+| `fcop doctor` | Diagnose installation, environment and compatibility |
+| `fcop version` | Show installed versions |
+| `fcop spec` | Show specification / rule identity |
+| `fcop migrate` | Explicitly migrate a legacy workspace; inspect the plan before apply |
+
+### Install & Verify
+
+In an activated Python 3.10+ environment:
+
+```bash
+python -m pip install fcop
+
+fcop version
+fcop doctor
+fcop init --root ./my-project
+fcop status --root ./my-project
+fcop validate --root ./my-project
+```
+
+For the optional MCP Tool Catalog:
+
+```bash
+python -m pip install fcop-mcp
+
+fcop tools
+fcop tools merge_branches --json
+```
+
+Once installed, the CLI can initialize, inspect, validate and diagnose locally and offline.
+`doctor` does not access the network or modify Host configuration. Package installation itself may need a package index; offline installation requires locally available packages.
+The CLI does not perform `create_task`, approval, Branch, merge or authorization work operations; use MCP or the Python API for those.
+Installing `fcop` does not create Host instruction files. Normal v4 workspace state belongs in `<project>/fcop/`, never in project-root `AGENTS.md`, `CLAUDE.md` or Cursor rules.
+Existing atomic initialization staging and failed-initialization evidence are preserved; customer files are never cleaned up automatically.
+`migrate` is a separate explicit legacy operation, not an automatic package-upgrade step.
+`tools` requires the optional MCP package and never starts a server or installs it automatically.
+
+[CLI reference](docs/cli.md) · [中文 CLI 参考](docs/cli.zh.md).
+
 <a id="manual-setup"></a>
 
 <details>
 <summary>Manual installation, Python/MCP examples and CLI reference (optional)</summary>
 
-## CLI setup, observation and diagnosis; MCP work
-
-4.0.2 provides nine top-level commands: `init`, `status`, `inspect`,
-`validate`, `tools`, `doctor`, `version`, `spec` and `migrate`.
-Except explicit initialization and migration apply, commands are read-only;
-the CLI does not provide task lifecycle write commands.
-
-```sh
-fcop init --root ./demo-workspace --json
-fcop status --root ./demo-workspace --json
-fcop doctor --root ./demo-workspace --json
-fcop tools --json
-```
-
-The `fcop` package alone sets up and observes workspaces. `tools` needs the
-optional MCP package; when absent it returns a structured unavailable result,
-without starting a server or installing packages.
-[CLI reference](docs/cli.md) · [中文命令参考](docs/cli.zh.md).
-
 4.0.1 introduced `create_branch`, `inspect_family` and `merge_branches`;
-4.0.2 preserves all 49 tools and their signatures. Core owns atomic convergence,
+4.0.3 preserves all 49 tools and their signatures. Core owns atomic convergence,
 durable idempotency and recovery. Unfinished families return `family_digest: null`,
 `merge_ready: false` and structured reasons. The caller supplies the semantic conclusion.
 See the [Branch merge contract and example](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md).
@@ -86,7 +116,7 @@ See the [Branch merge contract and example](docs/branch-merge.md) / [中文合�
 In an activated **Python 3.10+ virtual environment**, install the published library:
 
 ```sh
-python -m pip install "fcop==4.0.2"
+python -m pip install "fcop==4.0.3"
 ```
 
 Save this as `demo.py` and run `python demo.py`. It writes a real TASK, opens the workspace through a fresh `Project` instance, then retries the original request.
@@ -136,7 +166,7 @@ The example cleans up its temporary directory when it exits. Use your own projec
 The optional adapter exposes FCoP to an MCP-capable client over stdio. Install it in the same activated environment:
 
 ```sh
-python -m pip install "fcop==4.0.2" "fcop-mcp==4.0.2"
+python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
 ```
 
 Add this entry to the client's MCP configuration. Replace both absolute paths; on Windows the command ends in `.venv/Scripts/fcop-mcp.exe`.
@@ -203,7 +233,7 @@ Another implementation should be able to preserve the same work semantics withou
 
 [Series guide (中文)](docs/fcop-architecture-series/README.md) · [All five essays (中文)](docs/fcop-architecture-series/collected.zh.md)
 
-4.0 also distributes **nine bilingual rule modules** with versioned manifests and `sequential`, `parallel` and `repository-development` assemblies. Adoption, deployment planning, receipts and rollback are explicit. Host projections use `reference` or `bounded_embed`; installing a package does not silently rewrite host rules. [Rule distribution contract](docs/fcop-4.0/rule-distribution-contract.md) · [中文契约](docs/fcop-4.0/rule-distribution-contract.zh.md).
+4.0.3 distributes **nine bilingual rule modules** through package-owned and MCP resources, with strict manifests and `sequential`, `parallel` and separate `repository-development` assemblies. **Install → connect MCP → initialize workspace → use FCoP.** FCoP owns `<project>/fcop/`, not project-root Host instruction files. Host projection, adoption, deployment and rollback are retired; `redeploy_rules` is Legacy v1–v3 only and rejects v4 with zero writes. Existing customer files stay unchanged. [Rule resources / 规则资源](docs/rule-resources.md).
 
 <a id="research"></a>
 

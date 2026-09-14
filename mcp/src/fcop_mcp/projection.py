@@ -27,6 +27,10 @@ def invoke_v4(route: Route, name: str, policy: str, args: dict[str, Any]) -> Any
     # Project binds version-specific instance signatures at runtime; class-level
     # annotations intentionally retain the unchanged legacy public signatures.
     project: Any = route.project
+    if policy == "LEGACY_RULE_DEPLOY":
+        # Preserve the existing structured v4 rejection and the legacy tool's
+        # name/parameters. The router alone can admit a v1-v3 writer.
+        raise unavailable(name)
     if policy == "LEGACY_V3_ONLY":
         raise V4ProtocolError(
             _V4Code.LEGACY_TRANSITION_NOT_ALLOWED, f"{name} is legacy-only",

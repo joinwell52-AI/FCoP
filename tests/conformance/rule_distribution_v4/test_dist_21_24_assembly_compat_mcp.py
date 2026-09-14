@@ -97,7 +97,18 @@ def test_dist_23(case, variant):
         assert not (case.root / "fcop/internal/rule-distribution").exists()
         assert "4.0" not in str(field(result, "written_paths"))
     else:
-        case.reject("apply", "RULE_ADOPTION_REQUIRED", case.request(adoption_receipt_ref=None))
+        if variant == "v4-no-adoption":
+            from fcop.errors import FcopError
+
+            unchanged = snapshot(case.sandbox)
+            with pytest.raises(FcopError) as caught:
+                case.invoke("apply", case.request(adoption_receipt_ref=None))
+            assert caught.value.code == "toolkit:OPERATION_NOT_IMPLEMENTED"
+            assert caught.value.operation_ref == "apply"
+            assert caught.value.subject_ref == "fcop:rule-distribution"
+            assert snapshot(case.sandbox) == unchanged
+        else:
+            case.reject("apply", "RULE_ADOPTION_REQUIRED", case.request(adoption_receipt_ref=None))
         assert (case.root / "AGENTS.md").read_bytes() == legacy
     assert (case.root / "fcop/fcop.json").read_bytes() == before
 

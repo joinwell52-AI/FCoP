@@ -47,7 +47,7 @@ TOOLS = MappingProxyType({
     "read_report": "READ_REPORT",
     "read_review": "READ_REVIEW",
     "read_task": "READ_TASK",
-    "redeploy_rules": "PROFILE_DEPLOY",
+    "redeploy_rules": "LEGACY_RULE_DEPLOY",
     "reject_task": "T5",
     "reopen_task": "T6",
     "set_project_dir": "BIND",

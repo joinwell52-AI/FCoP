@@ -10,15 +10,10 @@ import yaml
 
 from .conftest import (
     ALLOWLIST,
-    ERRORS,
     EXCLUDED_RC,
-    HOSTS,
     INPUT_HEAD,
-    MODULES,
-    SEQUENTIAL,
     WP4C_2_ACCEPTED_HEAD,
     WP4C_2_INPUT_HEAD,
-    Scenario,
     field,
     git,
     historical_delivery_paths,
@@ -29,9 +24,9 @@ from .conftest import (
 from .driver import RuleDistributionConformanceDriver
 
 
-@pytest.mark.parametrize("code", ERRORS)
+@pytest.mark.parametrize("code", ["RULE_MANIFEST_INVALID", "RULE_ARTIFACT_MISMATCH", "RULE_SELECTION_INVALID", "RULE_HOST_UNAVAILABLE"])
 def test_dist_25(case, code):
-    """DIST-25; RD-22; Owner: WP4C.3. Arrange eight distinct faults; Act real operations; Assert structured namespace/effects."""
+    """DIST-25; RD-22; Owner: WP4C.3. Arrange retained read faults; Act real operations; Assert structured namespace/effects."""
     action, request = "validate", case.request()
     if code == "RULE_MANIFEST_INVALID":
         case.manifest["manifest_schema"] = "invalid"
@@ -41,41 +36,18 @@ def test_dist_25(case, code):
     elif code == "RULE_SELECTION_INVALID":
         action, request = "select", case.request(selected_modules=["missing"])
     elif code == "RULE_HOST_UNAVAILABLE":
-        case.profile["host_id"] = "unknown"
-        case.flush()
-        action = "inspect_profile"
-    elif code == "RULE_PROJECTION_LIMIT":
-        raw = b"non-normative oversized fixture " * 3000 + b"\n"
-        case.put(case.package / "workspace.en.md", raw)
-        case.manifest["artifacts"][0].update(sha256=sha(raw), size_bytes=len(raw))
-        case.flush()
-        action = "plan"
-    elif code == "RULE_OWNERSHIP_CONFLICT":
-        case.put(case.root / "AGENTS.md", b"secret-fixture-token: user owned\n")
-        action = "plan"
-    elif code == "RULE_ADOPTION_REQUIRED":
-        action, request = "apply", case.request(adoption_receipt_ref=None, admin_selection_ref=None)
-    else:
-        action, request = (
-            "rollback",
-            case.request(
-                deployment_receipt_ref={
-                    "path": "fcop/internal/rule-distribution/deployments/missing.json",
-                    "sha256": "0" * 64,
-                }
-            ),
-        )
+        action, request = "read_resource", case.request(resource_uri="fcop://rules", admin_selection_ref={"caller_judge": "AUTHORIZED"})
     case.reject(action, code, request)
     assert code not in {"AUTHORIZATION_INVALID", "RECOVERY_REQUIRED", "INVALID_ENVELOPE"}
 
 
 def test_dist_26(case):
     """DIST-26; RD-23; Owner: WP4C.5. Arrange cached/deployed old bytes; Act disk upgrade/query; Assert layer separation."""
-    deployment, receipt = case.deploy()
+    case.put(case.root / "AGENTS.md", b"Application-owned instructions\n")
     old_host = (case.root / "AGENTS.md").read_bytes()
     old_hash = sha((case.package / "manifest.json").read_bytes())
     first = case.invoke(
-        "inspect_layers", case.request(deployment_receipt_ref=deployment), readonly=True
+        "inspect_layers", case.request(), readonly=True
     )
     assert field(first, "disk_manifest_sha256") == old_hash
     assert field(first, "index_manifest_sha256") == old_hash
@@ -83,20 +55,22 @@ def test_dist_26(case):
     case.flush()
     new_hash = sha((case.package / "manifest.json").read_bytes())
     second = case.invoke(
-        "inspect_layers", case.request(deployment_receipt_ref=deployment), readonly=True
+        "inspect_layers", case.request(), readonly=True
     )
     assert field(second, "disk_manifest_sha256") == new_hash != old_hash
     assert field(second, "index_manifest_sha256") in {old_hash, new_hash}
     assert field(second, "index_invalidation_evidence") is not None
-    assert field(second, "adopted_manifest_sha256") == receipt["manifest_sha256"] == old_hash
-    assert field(second, "host_entry_sha256") == sha(old_host)
+    assert field(second, "adopted_manifest_sha256") is None
+    assert field(second, "host_entry_sha256") is None
+    assert field(second, "host_entries") == []
+    assert field(second, "host_projection_status") == "retired"
     assert field(second, "runtime_consumption_verified") is None
     assert (case.root / "AGENTS.md").read_bytes() == old_host
     restarted = RuleDistributionConformanceDriver(case.root).invoke(
-        "inspect_layers", case.request(deployment_receipt_ref=deployment)
+        "inspect_layers", case.request()
     )
     assert field(restarted, "disk_manifest_sha256") == new_hash
-    assert field(restarted, "host_entry_sha256") == sha(old_host)
+    assert field(restarted, "host_entry_sha256") is None
     assert field(restarted, "runtime_consumption_verified") is None
 
 
@@ -143,48 +117,6 @@ def test_dist_27(case, kind):
     )
 
 
-@pytest.mark.parametrize("assembly", ["sequential", "parallel"])
-@pytest.mark.parametrize("host", list(HOSTS))
-@pytest.mark.parametrize("languages", [["en"], ["zh"], ["en", "zh"]])
-def test_dist_28(case, assembly, host, languages):
-    """DIST-28; RD-23; Owner: WP4C.6. Arrange byte/context inputs; Act measure; Assert exact bytes/disclosed estimates."""
-    c = Scenario(case.sandbox / "measurement", case.node, host)
-    c.profile["languages"] = languages
-    if len(languages) == 2:
-        c.profile["profile_version"] = "explicit-bilingual-fixture.1"
-    c.flush()
-    modules = MODULES if assembly == "parallel" else SEQUENTIAL
-    historical = []
-    for n in range(6):
-        raw = (f"Historical surface {n}.\n" * (n + 1)).encode()
-        path = c.sandbox / f"inputs/historical-{n}.md"
-        c.put(path, raw)
-        historical.append({"path": str(path), "sha256": sha(raw)})
-    result = c.invoke(
-        "measure_context",
-        c.request(
-            assembly_id=assembly,
-            selected_modules=modules,
-            selected_languages=languages,
-            historical_surfaces=historical,
-        ),
-        readonly=True,
-    )
-    expected = c.expected_embed(modules, languages)
-    assert field(result, "projection_size_bytes") == len(expected)
-    assert field(result, "selected_modules") == modules
-    assert field(result, "selected_languages") == languages
-    estimator = field(result, "estimator")
-    assert field(estimator, "algorithm") and field(estimator, "version")
-    assert field(result, "limit_unit") == "utf8_bytes"
-    assert field(result, "runtime_consumption_verified") is None
-    measures = field(result, "historical_surfaces")
-    assert len(measures) == 6
-    from pathlib import Path
-
-    assert [field(m, "size_bytes") for m in measures] == [
-        len(Path(h["path"]).read_bytes()) for h in historical
-    ]
 
 
 def test_dist_29(case):

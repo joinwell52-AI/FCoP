@@ -5,43 +5,14 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ._contract import MODULES, RELATIONS
 from ._errors import reject
-from ._loader import _Package, contained, parse, read_file, sha, text_bytes
+from ._loader import _Package, contained, read_file, sha, text_bytes
 
 _SELECTION = "RULE_SELECTION_INVALID"
-_HOST = "RULE_HOST_UNAVAILABLE"
 _EXCLUDED = "87cf212d1cb75cefd0da6da7e5f0f4c7eaedbc231c784b985c3e2e51856abc4c"
-_PROFILE_FIELDS = {
-    "host_id", "profile_version", "supported_entry_kinds", "reference_mode",
-    "projection_mode", "target_paths", "preserve_regions", "max_projection_bytes",
-    "encoding", "newline", "languages",
-}
-
-
-def profile(request: Mapping[str, Any], action: str) -> dict[str, Any]:
-    path = request.get("host_profile_path")
-    if not isinstance(path, str) or not path or "\x00" in path or not Path(path).is_absolute():
-        reject(_HOST, action, "Explicit local Host profile required")
-    value = parse(read_file(Path(path), _HOST, action), _HOST, action)
-    targets = {"codex": "AGENTS.md", "cursor": ".cursor/rules/fcop-v4.mdc", "claude-code": "CLAUDE.md"}
-    host = value.get("host_id")
-    if not isinstance(host, str) or host not in targets or set(value) != _PROFILE_FIELDS:
-        reject(_HOST, action, "Unknown Host or profile fields")
-    if (
-        value["profile_version"] != "1.0-candidate.1"
-        or value["projection_mode"] != "bounded_embed" or value["reference_mode"] != "none"
-        or value["target_paths"] != [targets[host]]
-        or value["supported_entry_kinds"] != (["cursor-mdc"] if host == "cursor" else ["markdown"])
-        or value["preserve_regions"] != [["<!-- fcop:v4:begin -->", "<!-- fcop:v4:end -->"]]
-        or type(value["max_projection_bytes"]) is not int or value["max_projection_bytes"] != 65536
-        or value["encoding"] != "UTF-8-no-BOM" or value["newline"] != "LF"
-        or value["languages"] not in (["en"], ["zh"])
-    ):
-        reject(_HOST, action, "Unproven Host profile contract")
-    return value
 
 
 def development(root: Path, request: Mapping[str, Any], action: str) -> dict[str, Any]:
@@ -97,8 +68,11 @@ def select(root: Path, package: _Package, request: Mapping[str, Any], action: st
         or request.get("relation_fields", RELATIONS) != RELATIONS
     ):
         reject(_SELECTION, action, "Explicit closed modules, language and relations required")
-    host = profile(request, action) if validated_profile is None else validated_profile
-    if languages != host["languages"]:
+    languages = cast(list[str], languages)
+    # Resource selection owns module/language validation, not Host files.
+    # Retain optional internally validated language constraints for callers
+    # such as the fixed guidance URI; never require a Host projection profile.
+    if validated_profile is not None and languages != validated_profile["languages"]:
         reject(_SELECTION, action, "Language is not adopted by the selected profile")
     artifacts = [a for a in package.artifacts if a["module_id"] in expected and a["language"] in languages]
     return {

@@ -51,7 +51,7 @@ Before the next PyPI release:
 A version bump, tag, package upload, GitHub Release, MCP registry update, or
 local MCP upgrade is outside this historical documentation record.
 
-## 4.0.2 CLI v1 release binding
+## 4.0.3 CLI v1 release binding
 
 The separately authorized CLI v1 release updates both canonical README sources,
 adds CLI Setup/Observe/Diagnose guidance, and retains 49 MCP tools. Build metadata

@@ -1,76 +1,47 @@
 # 让 Agent 帮你装 fcop-mcp（标准提示词 / zh）
 
-把下面整段话发给一个**新开的、能跑命令的 agent**（Cursor 里开新会话，
-或者任何带 shell 工具的 AI），它会一步步把 `fcop-mcp` 装到 Cursor 里，
-全程不用你自己动手。
-
-> 这份提示词是 fcop 官方仓库 `src/fcop/rules/_data/agent-install-prompt.zh.md`
-> 的内容，也作为 MCP 资源 `fcop://prompt/install` 暴露——同一份文本同时
-> 用于 GitHub README、PyPI 项目页、给 agent 的人工指令。
-
----
+本文件为当前 FCoP 4.x 提示词，包内访问器及 MCP 资源 `fcop://prompt/install` 逐字返回正文。README 与 PyPI 只链接这里，不复制正文。
 
 ## 复制下面这段，发给 Agent
 
 ```
-帮我把 fcop-mcp 装到 Cursor，全程你来跑命令。要求：
+为我选择的 MCP 客户端安装 FCoP，汇报实际命令与结果。
 
-1. 先识别我的系统：终端跑 `uname -s 2>$null; echo $env:OS` 看一眼是 Windows 还是 macOS / Linux。
+1. 先确认操作系统、客户端与 Python 环境，不得猜测。使用 Python 3.10+，
+   在该环境运行 python -m pip install fcop-mcp。
+   核验 fcop、fcop-mcp 已安装版本及兼容性。
 
-2. 装 uv（如果还没有）。一行命令：
-   - Windows PowerShell:
-     powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-   - macOS / Linux:
-     curl -LsSf https://astral.sh/uv/install.sh | sh
-   装完跑 `uvx --version` 确认。
+2. 运行 fcop version、fcop doctor、fcop tools。
+   CLI = Setup + Observe + Diagnose；MCP = Work。
+   doctor 本地运行，不联网、不修改 Host；安装包本身可能需要联网。
 
-3. 在全局 mcp.json 里加 fcop entry。**保留**已有的其他 mcp servers，不要覆盖：
-   - Windows 路径：%USERPROFILE%\.cursor\mcp.json
-   - macOS / Linux 路径：~/.cursor/mcp.json
-   - 加到 mcpServers 对象里这一段：
-     "fcop": {
-       "command": "uvx",
-       "args": ["fcop-mcp"]
-     }
+3. 只有我明确要求配置所选 MCP 客户端时，才进行配置。
+   使用该环境的 fcop-mcp 可执行文件，保留现有传输方式。
+   保留已有 mcpServers 与设置，不要覆盖其他条目。
+   不得打印凭据或包含秘密的完整配置。
+   客户端配置属于应用，不属于 FCoP workspace。
 
-4. 把最终的 mcp.json 完整内容打印给我看。
+4. 重新连接 MCP 客户端。首次启动若仍在解析依赖，等 30 秒到 1 分钟；
+   出错如实报告，不反复重连。核验 49 tools、12 resources、
+   4 resource templates，确认包含 merge_branches。
 
-5. 提醒我重启 Cursor；首次启动 fcop-mcp 会下载依赖，**等 30 秒到 1 分钟**，
-   不要急着关掉或重连。
+5. 不要自动初始化或迁移项目。初始化及目标目录由 ADMIN 明确选择。
+   获准创建新的 v4 workspace 后，运行 fcop init --root <project>，
+   随后以同一个 --root 运行 fcop status 与 fcop validate。
+   不得自动迁移旧 workspace。
 
-每完成一步报告结果再走下一步。装完后**不要**自动初始化项目——初始化是
-我（ADMIN）的选择题，我会单独决定走 solo / dev-team / 自定义。
+6. 不得创建、修改或删除 AGENTS.md、CLAUDE.md、.cursor 规则或其他
+   项目根 Host 指令文件；已有文件是客户拥有的字节。
+   v4 正常状态位于 <project>/fcop/。直接读取包内规则及 MCP
+   rules/protocol/guidance 资源，不部署 Host 投影。
+   redeploy_rules 仅供 Legacy v1-v3，不是 v4 安装或升级步骤。
+
+7. TASK、审批、Branch、merge、authorization 工作由 MCP 或 Python API
+   承担，不由 CLI 承担。提交安装报告后停止，除非项目工作已单独授权。
 ```
 
----
+## 安装后快速自检
 
-## 装完之后：先跑 fcop_audit() 做一份体检
+安装后用 `fcop version`、`fcop doctor`、`fcop tools` 检查本地环境，不会初始化 workspace。ADMIN 明确选定新项目后，运行 `fcop init --root ./my-project`、`fcop status --root ./my-project`、`fcop validate --root ./my-project`。
 
-`fcop-mcp` 装好、项目初始化完成后，推荐让 agent 立刻运行一次体检：
-
-```
-运行 fcop_audit(scope="new") 给我一份项目体检报告。
-```
-
-体检报告（`INSPECTION-*.md`）会告诉你：
-- 协议文件是否齐全
-- 角色文档是否有缺口
-- 是否有需要整改的 P0 / P1 / P2 问题
-
-> 如果是接手老项目，用 `scope="takeover"` 代替 `scope="new"`。
-
----
-
-## 装完之后：初始化是 ADMIN 的选择题
-
-`fcop-mcp` 装好以后，agent **不应该**自己 `init_project(team="dev-team")` —
-- 团队是不是 4 人组？
-- 还是 solo 一个人？
-- 还是自定义角色？
-
-这是 `ADMIN`（你）要决定的事情，不是 agent 的默认值。重启 Cursor 之后，新会话
-里 agent 会先调 `fcop_report()`，输出会包含**三选一**清单——你选完，agent 才
-能调对应的 `init_*` 工具。
-
-更细的解读看仓库里的 `fcop/LETTER-TO-ADMIN.md`，那是 fcop 给 ADMIN
-的完整说明书。
+通过 `fcop://rules`、`fcop://protocol`、`fcop://guidance/{sequential,parallel}/{en,zh}` 读取规则，无需 Host 规则文件。历史 v1-v3 团队及部署流程仅为 Legacy 兼容；安装新版包不会迁移旧 workspace。

@@ -10,8 +10,8 @@ from fcop.errors import V4ProtocolError, _V4Code
 from fcop.v4.encoding import read_json, safe_path
 
 from ._errors import reject
-from ._loader import contained, load, read_file, sha
-from ._selection import operation_scope, profile, select
+from ._loader import load
+from ._selection import operation_scope, select
 
 if TYPE_CHECKING:
     from fcop.v4.creation import _Creation
@@ -24,28 +24,24 @@ def _unavailable(action: str) -> NoReturn:
     )
 
 
-def _receipt_preflight(root: Path, ref: Any, kind: str, code: str, action: str) -> None:
-    if not isinstance(ref, dict) or set(ref) != {"path", "sha256"}:
-        reject(code, action, "Explicit receipt identity required")
-    path, digest = ref["path"], ref["sha256"]
-    if not isinstance(path, str) or not path.startswith(f"fcop/internal/rule-distribution/{kind}/"):
-        reject(code, action, "Receipt namespace invalid")
-    raw = read_file(contained(root, path, code, action), code, action)
-    if not isinstance(digest, str) or sha(raw) != digest:
-        reject(code, action, "Receipt byte identity mismatch")
-    # These necessary checks cannot establish adoption/deployment. No receipt
-    # is consumed, trusted, created or returned in this implementation stage.
-
-
 def _dispatch(root: Path, action: str, request: Mapping[str, Any]) -> Mapping[str, Any]:
+    # 4.0.3 ownership boundary: these historical operations must not even
+    # inspect a target, receipt, backup or caller-supplied Host profile.
+    # Keep the public entry/signature, but retire the Host materialization plane.
+    if action in {
+        "redeploy", "inspect_profile", "status", "adopt", "plan", "apply",
+        "verify_deployment", "rollback", "inspect_failure", "rollback_partial",
+        "measure_context",
+    }:
+        raise V4ProtocolError(
+            _V4Code.OPERATION_NOT_IMPLEMENTED,
+            "Host-file rule distribution is retired; use package/MCP rule resources",
+            operation_ref=action, subject_ref="fcop:rule-distribution",
+        )
     if action == "build_artifacts":
         from ._artifacts import build_artifacts
 
         return build_artifacts(root, request)
-    if action == "measure_context":
-        from ._measurement import measure_context
-
-        return measure_context(root, request)
     if action == "read_resource":
         from ._read import read_resource
 
@@ -58,22 +54,7 @@ def _dispatch(root: Path, action: str, request: Mapping[str, Any]) -> Mapping[st
         from ._shadow import shadow
 
         return shadow(request)
-    if action == "redeploy":
-        reject("RULE_ADOPTION_REQUIRED", action, "v4 requires explicit adoption and deployment")
-    if action in {"inspect_profile", "status", "adopt", "plan", "apply", "verify_deployment", "rollback", "inspect_failure", "rollback_partial"}:
-        from ._deployment import dispatch
-
-        return dispatch(root, action, request)
-    if action not in {"validate", "select", "validate_operation_scope", "inspect_profile", "plan", "apply", "rollback"}:
-        _unavailable(action)
-    if action == "apply":
-        _receipt_preflight(root, request.get("adoption_receipt_ref"), "adoptions", "RULE_ADOPTION_REQUIRED", action)
-        _unavailable(action)
-    if action == "rollback":
-        _receipt_preflight(root, request.get("deployment_receipt_ref"), "deployments", "RULE_DEPLOYMENT_RECOVERY_REQUIRED", action)
-        _unavailable(action)
-    if action == "inspect_profile":
-        profile(request, action)
+    if action not in {"validate", "select", "validate_operation_scope"}:
         _unavailable(action)
     package = load(request.get("manifest_path"), action)
     if action == "validate":
@@ -81,17 +62,7 @@ def _dispatch(root: Path, action: str, request: Mapping[str, Any]) -> Mapping[st
     selected = select(root, package, request, action)
     if action == "select":
         return selected
-    if action == "validate_operation_scope":
-        return operation_scope(selected, request, action)
-    host = profile(request, action)
-    # A lower bound proves overflow without generating any Host projection.
-    if len(selected["guidance"]) > host["max_projection_bytes"]:
-        reject("RULE_PROJECTION_LIMIT", action, "Selected raw sources already exceed Host byte bound")
-    for target in host["target_paths"]:
-        path = root / target
-        if path.exists() or path.is_symlink():
-            reject("RULE_OWNERSHIP_CONFLICT", action, "Existing target has no proven distribution ownership")
-    _unavailable(action)
+    return operation_scope(selected, request, action)
 
 
 def _bind(creation: _Creation) -> Callable[..., Mapping[str, Any]]:

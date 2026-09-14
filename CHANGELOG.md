@@ -10,6 +10,25 @@ versioning strategy.
 
 ## [Unreleased]
 
+### Changed — fcop / fcop-mcp 4.0.3
+
+- State the bilingual F4.1.2 ownership invariant: project-root Host/Agent
+  instruction files remain application-owned during installation, initialization,
+  upgrade and normal v4 operation. Preserve existing atomic initialization staging
+  and failed-initialization evidence without changing Core Encoding.
+- Retire v4 Host projection, adoption/deployment receipts, backup/rollback and
+  projection-byte measurement. Keep package-owned nine-module bilingual rules,
+  strict Manifest validation, explicit assemblies and read-only MCP resources.
+- Keep `redeploy_rules` and its parameters for supported Legacy v1–v3 only;
+  v4 rejects with structured `toolkit:OPERATION_NOT_IMPLEMENTED` and zero writes.
+  No automatic cleanup of customer AGENTS.md, CLAUDE.md or Cursor files.
+- Give CLI its own visible, non-collapsed chapter in both READMEs, the homepage
+  and both PyPI descriptions: nine commands, Install & Verify, offline diagnosis,
+  and CLI = Setup + Observe + Diagnose / MCP = Work.
+- Target both packages at 4.0.3, MCP dependency `fcop>=4.0.3,<4.1.0`;
+  public MCP names/parameters remain 49 tools / 12 resources / 4 templates.
+  Publication and main merge remain pending explicit ADMIN authorization.
+
 ### Added — fcop
 
 - CLI v1: `init`, `status`, `inspect`, `validate`, `tools`, `doctor`, `version`,
