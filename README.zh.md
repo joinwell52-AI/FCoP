@@ -78,6 +78,12 @@ python3 -m venv ~/.local/share/fcop/venv
 
 替换用户名和项目路径后，重启或重新连接 MCP 客户端。`FCOP_PROJECT_DIR` 应指向实际使用 FCoP 的项目，而不是 FCoP 源码仓库。
 
+## 看见最小效果
+
+<a href="docs/mcp-handoff.zh.md"><img src="assets/fcop-minimal-result.zh.svg" alt="检查 CLI、连接 MCP，将 TASK、REPORT、ISSUE、REVIEW 写入 project/fcop，再由全新会话继续读取。" width="960" /></a>
+
+安装成功不只是“包已经存在”：正式工作会成为人可检查、后续会话可继续读取的文件。点击图片可运行完整的跨会话交接示例。
+
 ## 为什么要把工作放到模型之外？
 
 “我完成了”是一句对话。接手的人还需要知道：**执行的是哪项任务、交付了什么、谁审查过、还有什么问题没有解决。** 如果这些事实只留在聊天里，每次交接都要重新拼接上下文。
