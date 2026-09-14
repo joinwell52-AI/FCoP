@@ -26,6 +26,23 @@ Verify the installed distribution:
 python -c "from importlib.metadata import version; from fcop import Project; print(version('fcop'), Project)"
 ```
 
+## macOS (Intel and Apple silicon)
+
+The same package supports Intel and Apple silicon Macs; Rosetta is not required. Install the CLI and optional MCP adapter together in a dedicated Python 3.10–3.13 environment:
+
+```bash
+python3 -m venv ~/.local/share/fcop/venv
+~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
+  "fcop>=4.0.3,<4.1.0" \
+  "fcop-mcp>=4.0.3,<4.1.0"
+
+~/.local/share/fcop/venv/bin/fcop version
+~/.local/share/fcop/venv/bin/fcop doctor
+~/.local/share/fcop/venv/bin/fcop tools --json
+```
+
+The CLI provides `init`, `status`, `inspect`, `validate`, `tools`, `doctor`, `version`, `spec`, and `migrate`. MCP additionally requires a local-stdio-capable client. Use the absolute `/Users/.../.local/share/fcop/venv/bin/python` path with `args = ["-m", "fcop_mcp"]`, and set `FCOP_PROJECT_DIR` to the actual project root.
+
 ## What Core provides
 
 - Workspace identity and versioned protocol behavior.

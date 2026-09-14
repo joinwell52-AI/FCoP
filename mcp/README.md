@@ -44,6 +44,23 @@ python -c "from fcop_mcp.server import mcp; print('fcop-mcp ready')"
 `fcop` and `fcop-mcp` are released in lockstep within the same minor line.
 Do not mix incompatible minor versions.
 
+## macOS (Intel and Apple silicon)
+
+FCoP MCP supports both Intel and Apple silicon Macs; Rosetta is not required. With Python 3.10–3.13:
+
+```bash
+python3 -m venv ~/.local/share/fcop/venv
+~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
+  "fcop>=4.0.3,<4.1.0" \
+  "fcop-mcp>=4.0.3,<4.1.0"
+
+~/.local/share/fcop/venv/bin/fcop version
+~/.local/share/fcop/venv/bin/fcop doctor
+~/.local/share/fcop/venv/bin/fcop tools --json
+```
+
+The installed CLI provides `init`, `status`, `inspect`, `validate`, `tools`, `doctor`, `version`, `spec`, and `migrate`. MCP additionally requires a client that supports local stdio servers. Configure the command as the absolute `/Users/.../.local/share/fcop/venv/bin/python` path, pass `["-m", "fcop_mcp"]`, and set `FCOP_PROJECT_DIR` to the actual project root.
+
 ## CLI — Local Setup, Inspect & Diagnose
 
 **CLI = Setup + Observe + Diagnose; MCP = Work.**

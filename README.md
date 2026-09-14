@@ -36,6 +36,54 @@ The [AI installation guide](docs/ai-install.md) covers dependencies, client conf
 
 **Want to see a handoff first?** Ask AI to run the session handoff example: [English](docs/mcp-handoff.md) · [简体中文](docs/mcp-handoff.zh.md). Create a task and report, close the session, then read them from a fresh MCP session. No API key required; the result stays available for inspection.
 
+## macOS (Intel and Apple silicon): install CLI and MCP
+
+FCoP supports macOS on both Intel and Apple silicon. The published wheels are platform-independent; Rosetta is not required. Use Python 3.10–3.13. The CLI works directly in Terminal, while MCP additionally requires a client that supports local stdio servers, such as Codex or Cursor.
+
+Create a dedicated environment and install the matching Core/MCP pair:
+
+```bash
+python3 --version
+python3 -m venv ~/.local/share/fcop/venv
+~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
+  "fcop>=4.0.3,<4.1.0" \
+  "fcop-mcp>=4.0.3,<4.1.0"
+```
+
+Verify the CLI and installed MCP catalog:
+
+```bash
+~/.local/share/fcop/venv/bin/fcop version
+~/.local/share/fcop/venv/bin/fcop doctor
+~/.local/share/fcop/venv/bin/fcop tools --json
+```
+
+The installed CLI provides all nine commands listed below: `init`, `status`, `inspect`, `validate`, `tools`, `doctor`, `version`, `spec`, and `migrate`. CLI setup and inspection do not require an MCP-capable AI client.
+
+For MCP, configure the client with absolute macOS paths; do not use `~` inside client configuration:
+
+```json
+{
+  "mcpServers": {
+    "fcop": {
+      "command": "/Users/YOUR_NAME/.local/share/fcop/venv/bin/python",
+      "args": ["-m", "fcop_mcp"],
+      "env": {
+        "FCOP_PROJECT_DIR": "/Users/YOUR_NAME/path/to/your-project"
+      }
+    }
+  }
+}
+```
+
+Replace `YOUR_NAME` and the project path, then restart or reconnect the MCP client. `FCOP_PROJECT_DIR` points to the project that will use FCoP, not to this source repository.
+
+## See the minimum result
+
+<a href="docs/mcp-handoff.md"><img src="assets/fcop-minimal-result.svg" alt="Verify the CLI, connect MCP, persist TASK, REPORT, ISSUE and REVIEW under project/fcop, then continue from a fresh session." width="960" /></a>
+
+The visible outcome is not merely an installed package: formal work becomes inspectable files that another session can read. The linked handoff example verifies that result end to end.
+
 ## Why put work outside the model?
 
 “I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.
