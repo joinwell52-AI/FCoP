@@ -78,6 +78,12 @@ For MCP, configure the client with absolute macOS paths; do not use `~` inside c
 
 Replace `YOUR_NAME` and the project path, then restart or reconnect the MCP client. `FCOP_PROJECT_DIR` points to the project that will use FCoP, not to this source repository.
 
+## See the minimum result
+
+<a href="docs/mcp-handoff.md"><img src="assets/fcop-minimal-result.svg" alt="Verify the CLI, connect MCP, persist TASK, REPORT, ISSUE and REVIEW under project/fcop, then continue from a fresh session." width="960" /></a>
+
+The visible outcome is not merely an installed package: formal work becomes inspectable files that another session can read. The linked handoff example verifies that result end to end.
+
 ## Why put work outside the model?
 
 “I have finished” is a statement in a conversation. A teammate still needs to know **which assignment was attempted, what was delivered, who reviewed it and what remains unresolved**. Keeping those facts only in a chat makes a handoff depend on reconstructing that chat.
