@@ -4,9 +4,9 @@ Local environment: dedicated Windows Python 3.12 environment with editable fcop/
 
 ## Final local regression
 
-`python -B -m pytest tests -q --tb=line --junitxml=<evidence>/fcop-403-retirement-full-3.xml`
+`python -B -m pytest tests -q --tb=line --junitxml=<evidence>/fcop-403-retirement-full-5.xml`
 
-**2320 passed / 0 failed / 0 errors / 2 existing skips** (349.37 seconds).
+**2320 passed / 0 failed / 0 errors / 2 existing skips** (323.10 seconds), on corrected test/implementation HEAD 5da0bbc127e272cd2492c2963db6441e6b2c46e3. Production/test files were unchanged during this final run; only evidence documents were being completed.
 
 | Group | Collected | Result |
 | --- | ---: | --- |
@@ -20,7 +20,7 @@ Local environment: dedicated Windows Python 3.12 environment with editable fcop/
 
 The two skips are unmodified tests/test_schemas/test_legacy_files_validate.py: absent historical docs/agents/log and empty fixture parameterization. No skip/xfail was added. Existing Traversable/RefResolver deprecation warnings remain.
 
-Raw JUnit SHA-256: `30c408f4e5fb55a1f108fb5145b708dbc0a636948b8703775750eb03e6c2bea5`. Local raw evidence: C:/Users/Administrator/.codex/tmp/fcop-403-retirement-full-3.xml.
+Raw JUnit SHA-256: `21e376409375515e05ac42ccd5fe367b794a814f6d689a047b4f5f6701a32217`. Local raw evidence: C:/Users/Administrator/.codex/tmp/fcop-403-retirement-full-5.xml. Earlier full-3 and full-4 results (also 2320 passed / 2 existing skips) remain preserved locally and in earlier evidence history.
 
 - Ruff: src, tests, mcp/src and current proof scripts PASS.
 - mypy Core: 54 source files PASS; MCP: 20 source files PASS.
@@ -40,4 +40,8 @@ The first build proof detected Windows Git export CRLF versus metadata LF. The p
 
 ## Remote verification
 
-GitHub CI for the delivery HEAD is pending at this evidence commit. It must not be reported as PASS until the actual jobs complete; the final Manifest/PR receipt will bind the observed HEAD and results. This report is not a signed ADMIN Gate.
+The first delivery 7db5a24 had no CI checks because upstream PR #49 introduced a homepage merge conflict. A history-preserving merge b767e8f incorporated the upstream documentation, kept the CLI section visible and restored PR CI. It did not merge this PR into main.
+
+Runs 34821714826 (Core) and 34821714874 (MCP) then exposed new-test defects: Windows non-venv console scripts live in sysconfig's scripts directory, not beside python.exe; MCP CI additionally type-checks its test tree, revealing 25 diagnostics in the two new ownership-test files. The corrections use sysconfig.get_path("scripts"), annotate tests, express existing runtime v4 method binding with Callable casts, and add structured-result/type narrowing assertions. No existing behavior assertion was removed, no skip/xfail added, no workflow or production code changed. Corrected test commit: 5da0bbc127e272cd2492c2963db6441e6b2c46e3. Directed 42/42 PASS; MCP test-tree mypy 16 source files PASS. Both package production mypy checks and Ruff remain PASS.
+
+At corrected implementation HEAD 5da0bbc127e272cd2492c2963db6441e6b2c46e3, MCP run 34822242078 passed all 14 jobs; Core run 34822241976 was still running at evidence drafting. The final Manifest/PR receipt must bind completed CI for the actual final delivery HEAD, not substitute checkpoint or partial CI. This report is not a signed ADMIN Gate.

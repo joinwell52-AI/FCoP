@@ -1,12 +1,12 @@
 {
-  "content_commit": "d1abaa6dba73be829450c108719c50506e82be29",
-  "source_date_epoch": "1789372749",
+  "content_commit": "b767e8f46ede33d405a96ba568dc38b4e733b3ec",
+  "source_date_epoch": "1789373660",
   "reproducibility": "4/4",
   "twine": "8/8",
   "files": [
     {
       "filename": "fcop-4.0.3-py3-none-any.whl",
-      "sha256": "ec04e09e717d4a89370bf7ebb27ab85a539240ec664b55b3c63e594bd43989fb",
+      "sha256": "a974ff981cb829ab2af2ceb1b5fa82c275ffe7c8492a0642c215c3817bff244d",
       "bytes": 721754,
       "package": "fcop",
       "version": "4.0.3",
@@ -17,8 +17,8 @@
     },
     {
       "filename": "fcop-4.0.3.tar.gz",
-      "sha256": "19b8d1b4fd0fa3c932a65b933bf46381c680ed4e305f097b3e7f5f2bdeb54d2c",
-      "bytes": 628219,
+      "sha256": "2323147d5d740cc671f9a8219826b642bb37d997e02059819033c3842d1378db",
+      "bytes": 628433,
       "package": "fcop",
       "version": "4.0.3",
       "description_sha256": "04e389fc9aff843f7b23662ed6d12e0e2ee4f1a6ececfa228627d89c96b3fa76",
@@ -28,7 +28,7 @@
     },
     {
       "filename": "fcop_mcp-4.0.3-py3-none-any.whl",
-      "sha256": "65e6485f1d54086b6bd9254209e532b29ad4632ffb22e70d99f306cd62146a59",
+      "sha256": "6264ec0fb08ac8aa46780c0dc165e13e07571da2524480fdedcebe23e4d38897",
       "bytes": 116598,
       "package": "fcop-mcp",
       "version": "4.0.3",
@@ -39,8 +39,8 @@
     },
     {
       "filename": "fcop_mcp-4.0.3.tar.gz",
-      "sha256": "febd82d051abfc1a5de250b37b2a1180b006b51dfd84f62f812b45962f69f6e9",
-      "bytes": 107441,
+      "sha256": "8f2dea3e5b7d4a47099cae9b2d6cfd859dadad17bc400e59dd88dcbdd400aced",
+      "bytes": 107434,
       "package": "fcop-mcp",
       "version": "4.0.3",
       "description_sha256": "df6b8389505855c413993f3f09e0fd5ba6edd7df2b956480577ab70978e32e2e",
