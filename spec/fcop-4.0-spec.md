@@ -18,6 +18,10 @@
 
 **F4.1.2** FCoP does not execute work and does not own LLM/tool invocation, hosts, sessions, schedulers, databases, UI, networking, or process management.
 
+FCoP MUST NOT create, replace, modify, merge into, or require project-root Host/Agent instruction files as part of protocol installation, workspace initialization, upgrade, or normal protocol operation. Project-root Host instruction files are outside FCoP ownership.
+
+FCoP owns only the protocol workspace and package-owned rule resources. Application and Host configuration remain application-owned.
+
 | Layer | Contract | Core |
 |---|---|---:|
 | Core | Semantics and invariants shared by every implementation | Yes |
