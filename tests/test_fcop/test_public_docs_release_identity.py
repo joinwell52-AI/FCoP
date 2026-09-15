@@ -60,6 +60,49 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
     assert current_package == [core]
 
 
+
+def test_public_entrypoints_lead_with_multi_agent_purpose() -> None:
+    readme_en = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme_zh = (ROOT / "README.zh.md").read_text(encoding="utf-8")
+    page = (ROOT / "docs/index.html").read_text(encoding="utf-8")
+    template = (ROOT / "scripts/pages/index.template.html").read_text(encoding="utf-8")
+
+    for value in (
+        "Multi-agent collaboration",
+        "Files as protocol",
+        "No complex infrastructure",
+        "Agent governance",
+        "Agents do not need to chat directly.",
+        "Even when an agent is gone, the work remains.",
+    ):
+        assert value in readme_en
+
+    for value in (
+        "多 Agent 协作",
+        "文件即协议",
+        "无需复杂基础设施",
+        "Agent 治理",
+        "Agent 之间不需要直接聊天。",
+        "即使 Agent 离开了，工作依然在那里。",
+    ):
+        assert value in readme_zh
+
+    for surface in (page, template):
+        for value in (
+            "MULTI-AGENT COLLABORATION · FILES AS PROTOCOL",
+            "Multi-agent collaboration.",
+            "Files as protocol.",
+            "Agent governance",
+            "No database or broker required",
+            "多 Agent 协作。",
+            "文件即协议。",
+            "Agent 治理",
+            "无需数据库或消息队列",
+            "Agents do not need to chat directly. The files are the protocol.",
+            "Agent 无需直接聊天，文件就是协议。",
+        ):
+            assert value in surface
+
 def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
     mcp = _version("mcp/src/fcop_mcp/_version.py")
     manifest = json.loads((ROOT / "mcp/server.json").read_text(encoding="utf-8"))
