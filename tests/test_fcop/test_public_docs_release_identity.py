@@ -72,7 +72,7 @@ def test_public_entrypoints_lead_with_multi_agent_purpose() -> None:
         "Files as protocol",
         "No complex infrastructure",
         "Agent governance",
-        "Agents do not need to chat directly.",
+        "Agents do not chat with each other; they collaborate through files.",
         "Even when an agent is gone, the work remains.",
     ):
         assert value in readme_en
@@ -82,7 +82,7 @@ def test_public_entrypoints_lead_with_multi_agent_purpose() -> None:
         "文件即协议",
         "无需复杂基础设施",
         "Agent 治理",
-        "Agent 之间不需要直接聊天。",
+        "Agent 之间不聊天，通过文件协作。",
         "即使 Agent 离开了，工作依然在那里。",
     ):
         assert value in readme_zh
@@ -98,8 +98,8 @@ def test_public_entrypoints_lead_with_multi_agent_purpose() -> None:
             "文件即协议。",
             "Agent 治理",
             "无需数据库或消息队列",
-            "Agents do not need to chat directly. The files are the protocol.",
-            "Agent 无需直接聊天，文件就是协议。",
+            "Only ADMIN and PM chat. Agents collaborate through files.",
+            "只有 ADMIN 与 PM 聊天。Agent 之间不聊天，通过文件协作。",
         ):
             assert value in surface
 
@@ -145,6 +145,21 @@ def test_public_entrypoints_answer_installation_questions_before_setup() -> None
 
     assert readme_en.index('id="before-install"') < readme_en.index('id="ai-install"')
     assert readme_zh.index('id="before-install"') < readme_zh.index('id="ai-install"')
+
+
+def test_discovery_directory_is_distinct_from_official_registration() -> None:
+    for path in ("README.md", "README.zh.md", "docs/index.html",
+                 "scripts/pages/index.template.html"):
+        surface = (ROOT / path).read_text(encoding="utf-8")
+        assert "https://mcpservers.org/" in surface
+        assert "https://registry.modelcontextprotocol.io/v0/servers/" in surface
+        if path != "README.zh.md":
+            assert "a third-party directory for discovering and learning about FCoP" in surface
+            assert "server identifier, version and package metadata" in surface
+        if path != "README.md":
+            assert "https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop" in surface
+            assert "第三方目录，帮助用户发现和了解 FCoP" in surface
+            assert "服务标识、版本与安装包元数据" in surface
 
 
 def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
