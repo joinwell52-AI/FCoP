@@ -32,11 +32,11 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
         "注册表条目：4.0.3（核对日期：2026-09-14）",
         "Published and verified",
         "已发布并核验",
-        "Zenodo v4.0.2 · DOI",
+        "Zenodo v4.0.3 · DOI",
         "<strong>49</strong> tools",
         "<strong>12</strong> resources",
         "<strong>4</strong> templates",
-        "10.5281/zenodo.22701147",
+        "10.5281/zenodo.22746175",
     ):
         assert value in page
 
