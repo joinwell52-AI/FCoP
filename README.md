@@ -2,7 +2,7 @@
 
 # FCoP — File-based Coordination Protocol
 
-**FCoP 4.0 Stable Specification: [English](spec/fcop-4.0-spec.md) · [简体中文](spec/fcop-4.0-spec.zh.md)**
+**FCoP 4.0 Stable Specification: [简体中文](spec/fcop-4.0-spec.zh.md) · [English](spec/fcop-4.0-spec.md)**
 
 [Project homepage](https://joinwell52-ai.github.io/FCoP/) · [English](README.md) · [简体中文](README.zh.md)
 
@@ -14,7 +14,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
-**Discover FCoP:** [MCPServers introduction](https://mcpservers.org/servers/joinwell52-ai/fcop) — a third-party directory for discovering and learning about FCoP. **Registration details:** [Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3) — the server identifier, version and package metadata.
+**Discover FCoP:** [MCPServers introduction](https://mcpservers.org/servers/joinwell52-ai/fcop) ([简体中文](https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop)) — a third-party directory for discovering and learning about FCoP. **Registration details:** [Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3) — the server identifier, version and package metadata.
 
 <p align="center"><strong>Multi-agent collaboration · Files as protocol · No complex infrastructure · Agent governance</strong></p>
 
@@ -34,7 +34,7 @@
 
 **Multi-agent collaboration means working together, not chatting with each other.** In this team workflow, only the human ADMIN and PM chat. PM decomposes the work and assigns TASK files to DEV, QA and OPS. Each member executes its assignment and submits REPORT files to PM. PM consolidates the results into a summary report for ADMIN. **Agents do not chat with each other; they collaborate through files.**
 
-This is the Team/Profile-defined organizational workflow, not a fixed hierarchy built into FCoP Core. TASK carries assignments, REPORT carries deliveries, ISSUE carries problems and REVIEW records decisions. FCoP governs these collaboration facts and authorization boundaries; the host Runtime runs agents, and the application owns code integration. [Root/Branch technical model](docs/architecture.en.md#parallel-work).
+This is the Team/Profile-defined organizational workflow, not a fixed hierarchy built into FCoP Core. TASK carries assignments, REPORT carries deliveries, ISSUE carries problems and REVIEW records decisions. FCoP governs these collaboration facts and authorization boundaries; the host Runtime runs agents, and the application owns code integration. Root/Branch technical model: [English](docs/architecture.en.md#parallel-work) · [简体中文](docs/architecture.zh.md#parallel-work).
 
 **A file-native approach to coordination.** FCoP is one option for multi-agent collaboration, suited to teams that want local, inspectable work records with little additional coordination infrastructure. It can work alongside existing agent tools and applications.
 
@@ -99,7 +99,7 @@ FCoP supplies the coordination protocol; CodeFlowMu supplies the application exp
 
 **The current 4.0 implementation:** new tasks live at `fcop/_lifecycle/inbox/TASK-<uuid>.md`, with `sender: PM` and `recipient: DEV` in the file header. The agent or caller reads the task fields and selects work for its established role. A filename-only search for `to-DEV` will not work because v4 names do not contain that segment. Reports live at `fcop/reports/REPORT-<uuid>.md`, with `subject_ref` and `attempt_id` linking the task and its execution attempt.
 
-These placeholders explain layout; they are not complete runnable envelopes. Consult the [4.0 specification](spec/fcop-4.0-spec.md), [current creation implementation](src/fcop/v4/creation.py) and [legacy filename grammar](src/fcop/core/filename.py) for the exact contracts.
+These placeholders explain layout; they are not complete runnable envelopes. Consult the 4.0 specification ([English](spec/fcop-4.0-spec.md) · [简体中文](spec/fcop-4.0-spec.zh.md)), [current creation implementation](src/fcop/v4/creation.py) and [legacy filename grammar](src/fcop/core/filename.py) for the exact contracts.
 
 <a id="team-demo"></a>
 
@@ -231,7 +231,7 @@ The official installation route uses the Python packages above. This guide does 
 
 ### Implement the protocol yourself
 
-You can build conforming tools from the [formal specification](spec/fcop-4.0-spec.md) without using the Python reference implementation. Creating a few directories is not sufficient: field, transition, evidence, authorization, idempotency and recovery contracts must also be met. With the official toolkit, use `fcop init` to create the workspace.
+You can build conforming tools from the formal specification ([English](spec/fcop-4.0-spec.md) · [简体中文](spec/fcop-4.0-spec.zh.md)) without using the Python reference implementation. Creating a few directories is not sufficient: field, transition, evidence, authorization, idempotency and recovery contracts must also be met. With the official toolkit, use `fcop init` to create the workspace.
 
 <a id="ai-install"></a>
 

@@ -34,7 +34,7 @@
 
 **多 Agent 协作是工作协作，不是多 Agent 聊天。** 在这套团队工作流中，只有真人 ADMIN 与 PM 聊天。PM 拆解工作，通过 TASK 文件向 DEV、QA、OPS 分派任务；成员各自执行，通过 REPORT 文件向 PM 回报；最后由 PM 汇总报告，向 ADMIN 汇报。**Agent 之间不聊天，通过文件协作。**
 
-这是由 Team/Profile 定义的组织工作流，不是 FCoP Core 内置的固定层级。TASK 承载任务，REPORT 承载交付，ISSUE 承载问题，REVIEW 记录决定。FCoP 治理这些协作事实与授权边界；宿主 Runtime 负责运行 Agent，应用负责代码集成。[Root/Branch 技术模型](docs/architecture.zh.md#parallel-work)。
+这是由 Team/Profile 定义的组织工作流，不是 FCoP Core 内置的固定层级。TASK 承载任务，REPORT 承载交付，ISSUE 承载问题，REVIEW 记录决定。FCoP 治理这些协作事实与授权边界；宿主 Runtime 负责运行 Agent，应用负责代码集成。Root/Branch 技术模型：[English](docs/architecture.en.md#parallel-work) · [简体中文](docs/architecture.zh.md#parallel-work)。
 
 **一种文件原生的协作方案。** FCoP 为多 Agent 协作提供一种选择，适合希望让任务和证据保留在本地文件、减少额外协调基础设施的团队。它可以与既有 Agent 工具和应用配合使用。
 
@@ -99,7 +99,7 @@ FCoP 提供协作协议；CodeFlowMu 提供应用运行体验。你可以单独�
 
 **4.0 当前实现的实际格式：** 新任务保存在 `fcop/_lifecycle/inbox/TASK-<uuid>.md`，文件头使用 `sender: PM`、`recipient: DEV` 标明收发方。Agent 或调用方读取任务字段，按已确定的角色选择自己的任务；不能仅通过文件名中的 `to-DEV` 查找，因为 v4 文件名不再包含这一段。报告保存在 `fcop/reports/REPORT-<uuid>.md`，通过 `subject_ref` 和 `attempt_id` 关联任务及本次执行。
 
-上面的占位符用于解释布局，不是完整可运行的信封。具体字段以[4.0 协议原文](spec/fcop-4.0-spec.zh.md)为准；[当前创建实现](src/fcop/v4/creation.py)与[旧版文件名语法](src/fcop/core/filename.py)可直接核对。
+上面的占位符用于解释布局，不是完整可运行的信封。具体字段以4.0 协议原文（[English](spec/fcop-4.0-spec.md) · [简体中文](spec/fcop-4.0-spec.zh.md)）为准；[当前创建实现](src/fcop/v4/creation.py)与[旧版文件名语法](src/fcop/core/filename.py)可直接核对。
 
 <a id="team-demo"></a>
 
@@ -231,7 +231,7 @@ fcop version
 
 ### 只采用协议，自行实现
 
-无需使用 Python 参考实现，也可以依据[双语正式规范](spec/fcop-4.0-spec.zh.md)开发符合协议的工具。仅创建几个目录还不构成符合性实现：字段、状态迁移、证据、授权、幂等与恢复契约都需要满足。使用官方工具时，由 `fcop init` 创建工作区。
+无需使用 Python 参考实现，也可以依据双语正式规范（[English](spec/fcop-4.0-spec.md) · [简体中文](spec/fcop-4.0-spec.zh.md)）开发符合协议的工具。仅创建几个目录还不构成符合性实现：字段、状态迁移、证据、授权、幂等与恢复契约都需要满足。使用官方工具时，由 `fcop init` 创建工作区。
 
 <a id="ai-install"></a>
 
