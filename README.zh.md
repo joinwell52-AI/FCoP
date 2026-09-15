@@ -2,7 +2,7 @@
 
 # FCoP — 基于文件的协作协议
 
-[English](README.md) · [简体中文](README.zh.md)
+[项目主页](https://joinwell52-ai.github.io/FCoP/) · [English](README.md) · [简体中文](README.zh.md)
 
 <p>
   <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.3-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop 4.0.3" /></a>
@@ -12,13 +12,21 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
-**即使 Agent 离开了，工作依然在那里。**
+<p align="center"><strong>多 Agent 协作 · 文件即协议 · 无需复杂基础设施 · Agent 治理</strong></p>
 
-任务、交付、问题与审查决定保存为持久文件，人、工具和接手的 Agent 都能检查。一次会话结束，工作记录仍然在。
+**FCoP 是一套面向多 Agent 系统、基于文件的协作与治理协议。** 多个 Agent 通过普通文件分工，推进各自的工作尝试，提交 REPORT、提出 ISSUE、审查证据，并显式收敛。
+
+**文件承载协议，路径表达状态，事件记录迁移。** 不要求协作数据库、消息队列或常驻中心控制服务。
+
+<a href="docs/architecture.zh.md#parallel-work"><img src="assets/fcop-parallel-work.zh.svg" alt="一个 Root 主任务拆出多个并行 Branch 任务；每个 Agent 独立执行、交付并接受审查，最后依据当前证据显式收敛。" width="960" /></a>
+
+**Agent 之间不需要直接聊天。** Root TASK 承载共同目标，Branch TASK 让多条工作流并行推进，REPORT 与 REVIEW 将“已经交付”和“已经接受”明确分开。FCoP 治理协作事实与授权边界；宿主 Runtime 负责运行模型、工具与调度，应用负责代码集成。
+
+**即使 Agent 离开了，工作依然在那里。** 人、工具和接手的 Agent 可以检查同一份协作记录，依据当前证据继续工作。
+
+**来自真实 Agent 团队：** [四 Agent 团队 48 小时现场报告](essays/when-ai-organizes-its-own-work.en.md) · [双 Agent 实操教程](docs/tutorials/tetris-solo-to-duo.en.md) · [中文现场报告](essays/when-ai-organizes-its-own-work.md) · [中文实操教程](docs/tutorials/tetris-solo-to-duo.zh.md)
 
 **[让 AI 安装](#ai-install) · [手动参考](#manual-setup) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
-
-<a href="docs/architecture.zh.md"><img src="assets/fcop-work-records.zh.svg" alt="Agent 将正式工作保存为 TASK、REPORT、ISSUE、REVIEW 文件，人、工具和后续会话读取同一份工作事实。" width="960" /></a>
 
 **Stable version: 4.0.3** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
