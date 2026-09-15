@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FCoP 4.0 — Even when the agent is gone, the work remains</title>
-<meta name="description" content="FCoP @@VERSION@@ 提供持久任务、交付、问题与审查记录，以及九条 CLI 命令、49 个 MCP 工具和 Branch 并发与原子合并能力。">
+<title>FCoP 4.0 — Multi-agent collaboration. Files as protocol.</title>
+<meta name="description" content="FCoP @@VERSION@@ 是面向多 Agent 系统的文件原生协作与治理协议：文件即协议，无需协作数据库、消息队列或常驻中心服务。">
 <link rel="canonical" href="https://joinwell52-ai.github.io/FCoP/">
-<meta property="og:title" content="FCoP 4.0 — 即使 Agent 离开了，工作依然在那里">
-<meta property="og:description" content="FCoP @@VERSION@@: durable agent work, nine CLI commands, 49 MCP tools, and explicit Branch convergence.">
+<meta property="og:title" content="FCoP 4.0 — 多 Agent 协作，文件即协议">
+<meta property="og:description" content="FCoP @@VERSION@@: governed multi-agent collaboration over ordinary files, without complex coordination infrastructure.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://joinwell52-ai.github.io/FCoP/">
 <meta property="og:image" content="https://joinwell52-ai.github.io/FCoP/site-assets/fcop-logo-256.png">
@@ -21,6 +21,7 @@
   <div class="wrap nav-row">
     <a class="brand" href="./" aria-label="FCoP home"><img src="site-assets/fcop-logo-256.png" width="34" height="34" alt=""><span>FCoP<span class="brand-version">4.0</span></span></a>
     <nav aria-label="Main navigation">
+      <a href="#what"><span class="en-only">Why FCoP</span><span class="zh-only">为什么需要 FCoP</span></a>
       <a href="#start"><span class="en-only">Get started</span><span class="zh-only">开始使用</span></a>
       <a href="#architecture"><span class="en-only">Architecture</span><span class="zh-only">架构五篇</span></a>
       <a href="#cite"><span class="en-only">Research</span><span class="zh-only">论文与引用</span></a>
@@ -45,34 +46,34 @@
   </div>
   <div class="hero-copy">
     <a class="release-note" href="https://github.com/joinwell52-AI/FCoP/releases/tag/v@@VERSION@@"><span class="status-dot"></span>FCoP @@VERSION@@ <span class="en-only">stable release ↗</span><span class="zh-only">稳定版 ↗</span></a>
-    <p class="eyebrow">FILE-BASED COORDINATION PROTOCOL</p>
-    <h1><span class="en-only">Keep agent work<br><em>beyond the conversation.</em></span><span class="zh-only">让 Agent 的工作，<br><em>留在对话之外。</em></span></h1>
-    <p class="hero-summary"><span class="en-only">Tasks, deliveries, issues and review decisions become durable files. People, tools and the next agent can inspect the same work record—even after a session ends.</span><span class="zh-only">把任务、交付、问题与审查决定保存为持久文件。会话结束以后，人、工具和接手的 Agent，仍能读取同一份工作记录。</span></p>
+    <p class="eyebrow">MULTI-AGENT COLLABORATION · FILES AS PROTOCOL</p>
+    <h1><span class="en-only">Multi-agent collaboration.<br><em>Files as protocol.</em></span><span class="zh-only">多 Agent 协作。<br><em>文件即协议。</em></span></h1>
+    <p class="hero-summary"><span class="en-only">FCoP lets agents divide work, advance parallel branches, deliver results, review evidence and converge explicitly through ordinary files—without a coordination database, message broker or always-on control service.</span><span class="zh-only">FCoP 让多个 Agent 通过普通文件分工、并行推进、交付结果、审查证据并显式收敛，无需协作数据库、消息队列或常驻中心控制服务。</span></p>
     <div class="actions">
-      <a class="button primary" href="#start"><span class="en-only">Ask AI to install</span><span class="zh-only">让 AI 帮你安装</span> <span aria-hidden="true">→</span></a>
-      <a class="button" href="#architecture"><span class="en-only">Read the architecture</span><span class="zh-only">阅读架构原理</span></a>
+      <a class="button primary" href="#what"><span class="en-only">See how agents collaborate</span><span class="zh-only">了解多 Agent 协作</span> <span aria-hidden="true">→</span></a>
+      <a class="button" href="#start"><span class="en-only">Ask AI to install</span><span class="zh-only">让 AI 帮你安装</span></a>
       <a class="text-link" href="https://github.com/joinwell52-AI/FCoP">☆ Star FCoP</a>
     </div>
-    <div class="hero-facts"><span class="en-only">Open source · MIT</span><span class="zh-only">开源 · MIT</span><span>Python 3.10+</span><a href="#cite"><span class="en-only">Citable Zenodo archives</span><span class="zh-only">可引用 Zenodo 归档</span></a></div>
+    <div class="hero-facts"><span class="en-only">Agent governance</span><span class="zh-only">Agent 治理</span><span class="en-only">No database or broker required</span><span class="zh-only">无需数据库或消息队列</span><span class="en-only">Open source · MIT</span><span class="zh-only">开源 · MIT</span><a href="#cite">Zenodo DOI</a></div>
   </div>
-  <div class="work-preview" aria-label="Durable work illustration / 持久工作记录示意">
-    <div class="preview-top"><span class="status-dot"></span><span class="en-only">A shared work record</span><span class="zh-only">同一份工作记录</span><span class="mono">.md</span></div>
-    <div class="file-row"><span class="file-type task">TASK</span><div><strong><span class="en-only">What needs to happen</span><span class="zh-only">要做什么</span></strong><small>workspace · identity · lifecycle</small></div><span>01</span></div>
-    <div class="file-row"><span class="file-type report">REPORT</span><div><strong><span class="en-only">What was delivered</span><span class="zh-only">交付了什么</span></strong><small>attempt · result · evidence</small></div><span>02</span></div>
-    <div class="file-row"><span class="file-type issue">ISSUE</span><div><strong><span class="en-only">What remains unresolved</span><span class="zh-only">还存在什么问题</span></strong><small>problem · context · references</small></div><span>03</span></div>
-    <div class="file-row"><span class="file-type review">REVIEW</span><div><strong><span class="en-only">What was reviewed</span><span class="zh-only">依据什么作出决定</span></strong><small>decision · evidence · authority</small></div><span>04</span></div>
-    <div class="preview-footer"><span class="en-only">The session ends. The work record stays.</span><span class="zh-only">会话可以结束，工作仍有落点。</span></div>
+  <div class="work-preview" aria-label="Multi-agent collaboration preview / 多 Agent 协作示意">
+    <div class="preview-top"><span class="status-dot"></span><span class="en-only">One objective. Multiple agents.</span><span class="zh-only">一个共同目标，多个 Agent</span><span class="mono">FCoP</span></div>
+    <div class="file-row"><span class="file-type task">ROOT</span><div><strong><span class="en-only">Shared objective</span><span class="zh-only">共同目标</span></strong><small>identity · responsibility · lifecycle</small></div><span>01</span></div>
+    <div class="file-row"><span class="file-type report">BRANCH</span><div><strong><span class="en-only">Agent A · independent attempt</span><span class="zh-only">Agent A · 独立执行与交付</span></strong><small>work · REPORT · evidence</small></div><span>A</span></div>
+    <div class="file-row"><span class="file-type issue">BRANCH</span><div><strong><span class="en-only">Agent B · parallel stream</span><span class="zh-only">Agent B · 并行工作流</span></strong><small>work · ISSUE · REPORT</small></div><span>B</span></div>
+    <div class="file-row"><span class="file-type review">REVIEW</span><div><strong><span class="en-only">Evidence before convergence</span><span class="zh-only">依据证据审查与收敛</span></strong><small>decision · authority · family digest</small></div><span>✓</span></div>
+    <div class="preview-footer"><span class="en-only">Agents do not need to chat directly. The files are the protocol.</span><span class="zh-only">Agent 无需直接聊天，文件就是协议。</span></div>
   </div>
 </section>
 <section class="section rule-top motion-scene" id="what">
 <div class="brand-motion" aria-hidden="true"><img class="logo-orbit orbit-b orbit-right" src="site-assets/fcop-logo-256.png" width="72" height="72" alt=""></div>
 <div class="wrap">
-  <div class="section-heading"><div><p class="eyebrow">01 / DURABLE WORK</p><h2><span class="en-only">A handoff you can inspect.</span><span class="zh-only">接手工作，有据可查。</span></h2></div><p><span class="en-only">A message says “done.” A work record shows which task, which attempt, what evidence and whose decision.</span><span class="zh-only">一句“完成了”之后，接手者需要找到任务、这次尝试的交付、相关证据，以及审查决定。</span></p></div>
-  <a class="diagram" href="fcop-architecture-series/01-work-beyond-context.zh.html" aria-label="Read why work should persist / 阅读工作外化原理">
-    <img class="en-only" src="site-assets/fcop-work-records.svg" alt="Agent work persisted as TASK, REPORT, ISSUE and REVIEW, then read by people, tools and a later session." width="960" height="430">
-    <img class="zh-only" src="site-assets/fcop-work-records.zh.svg" alt="任务、报告、问题与审查保存在文件中，人、工具和后续会话读取同一份工作事实。" width="960" height="430">
+  <div class="section-heading"><div><p class="eyebrow">01 / GOVERNED MULTI-AGENT WORK</p><h2><span class="en-only">Work together without a coordination platform.</span><span class="zh-only">无需复杂协作基础设施，也能共同工作。</span></h2></div><p><span class="en-only">Each agent keeps an ordered work stream. Branches advance in parallel; REPORT records delivery, REVIEW records acceptance or return, and Root closure requires current evidence and explicit authority.</span><span class="zh-only">每个 Agent 保持自己的有序工作流，多条 Branch 并行推进；REPORT 记录交付，REVIEW 记录接受或退回，Root 收尾必须依据当前证据和显式授权。</span></p></div>
+  <a class="diagram" href="fcop-architecture-series/04-parallel-work.zh.html" aria-label="Read the parallel multi-agent model / 阅读多 Agent 并行模型">
+    <img class="en-only" src="site-assets/fcop-parallel-work.svg" alt="A Root task splits into parallel Branch tasks. Each agent works, reports and is reviewed independently before explicit evidence convergence." width="960" height="390">
+    <img class="zh-only" src="site-assets/fcop-parallel-work.zh.svg" alt="一个 Root 主任务拆出多个并行 Branch 任务；每个 Agent 独立执行、交付并接受审查，最后依据当前证据显式收敛。" width="960" height="390">
   </a>
-  <p class="figure-note"><span class="en-only">FCoP checks protocol relationships and state gates. Reviewers assess the delivery; the host Runtime runs models and tools.</span><span class="zh-only">FCoP 检查协议关系与状态门槛；审查者判断交付质量，宿主 Runtime 负责模型与工具执行。</span></p>
+  <p class="figure-note"><span class="en-only"><strong>Files carry protocol. Paths express state. Events record transitions.</strong> FCoP governs collaboration facts and authorization boundaries. The host Runtime runs models, tools and schedules; the application owns code integration.</span><span class="zh-only"><strong>文件承载协议，路径表达状态，事件记录迁移。</strong>FCoP 治理协作事实与授权边界；宿主 Runtime 负责模型、工具和调度，应用负责代码集成。</span></p>
 </div>
 </section>
 <section class="section surface motion-scene" id="start">
@@ -203,7 +204,7 @@ Same task after retry: True</code></pre>
 <div class="wrap">
   <div class="section-heading"><div><p class="eyebrow">05 / SPECIFICATION &amp; RESEARCH</p><h2><span class="en-only">Read the contract. Check the evidence.</span><span class="zh-only">读规范，也能找到研究依据。</span></h2></div><p><span class="en-only">Current contracts and historical research have distinct versions. Choose the source that matches the work you are studying.</span><span class="zh-only">当前契约与历史研究各有版本。阅读和引用时，选择与你讨论的成果相符的来源。</span></p></div>
   <div class="resource-grid">
-    <article class="resource"><span class="eyebrow">CURRENT / 4.0</span><h3><span class="en-only">Eight Core contracts</span><span class="zh-only">八项 Core 契约</span></h3><p><span class="en-only">Identity, envelopes, lifecycle, relations, evidence, authority, creation idempotency and atomic recovery.</span><span class="zh-only">身份、信封、生命周期、关系、证据、授权、创建幂等与原子恢复。</span></p><div class="link-stack"><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">中文规范 ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.md">English specification ↗</a><a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance"><span class="en-only">Conformance tests ↗</span><span class="zh-only">符合性测试 ↗</span></a><a href="https://doi.org/10.5281/zenodo.22701147">Zenodo v4.0.2 · DOI ↗</a><a href="https://pypi.org/project/fcop/@@VERSION@@/">PyPI · fcop @@VERSION@@ ↗</a><a href="https://pypi.org/project/fcop-mcp/@@VERSION@@/">PyPI · fcop-mcp @@VERSION@@ ↗</a></div></article>
+    <article class="resource"><span class="eyebrow">CURRENT / 4.0</span><h3><span class="en-only">Eight Core contracts</span><span class="zh-only">八项 Core 契约</span></h3><p><span class="en-only">Identity, envelopes, lifecycle, relations, evidence, authority, creation idempotency and atomic recovery.</span><span class="zh-only">身份、信封、生命周期、关系、证据、授权、创建幂等与原子恢复。</span></p><div class="link-stack"><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">中文规范 ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.md">English specification ↗</a><a href="https://github.com/joinwell52-AI/FCoP/tree/main/tests/conformance"><span class="en-only">Conformance tests ↗</span><span class="zh-only">符合性测试 ↗</span></a><a href="https://doi.org/10.5281/zenodo.22746175">Zenodo v4.0.3 · DOI ↗</a><a href="https://pypi.org/project/fcop/@@VERSION@@/">PyPI · fcop @@VERSION@@ ↗</a><a href="https://pypi.org/project/fcop-mcp/@@VERSION@@/">PyPI · fcop-mcp @@VERSION@@ ↗</a></div></article>
     <article class="resource"><span class="eyebrow">ARCHIVED / 3.2.5</span><h3><span class="en-only">Papers &amp; citation</span><span class="zh-only">论文与引用凭证</span></h3><p><span class="en-only">The DOI archives below describe earlier research. They are not identifiers for the 4.0 release.</span><span class="zh-only">下列 DOI 对应早期研究归档，不代表 4.0 发布版本。</span></p><div class="link-stack"><a href="https://doi.org/10.5281/zenodo.20457285">Zenodo · 10.5281/zenodo.20457285 ↗</a><a href="https://doi.org/10.17605/OSF.IO/92NWM">OSF · 10.17605/OSF.IO/92NWM ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/from-coordination-to-governance.md"><span class="en-only">Historical architecture whitepaper (中文) ↗</span><span class="zh-only">历史架构白皮书 ↗</span></a><a href="https://doi.org/10.5281/zenodo.19886036"><span class="en-only">April 2026 research snapshot ↗</span><span class="zh-only">2026 年 4 月研究快照 ↗</span></a></div></article>
     <article class="resource" id="essays"><span class="eyebrow">FIELD NOTES / 17 ESSAYS</span><h3><span class="en-only">How the protocol evolved</span><span class="zh-only">协议怎样一步步演进</span></h3><p><span class="en-only">Field reports, agent interviews and hands-on cases, with their original publication and evidence links.</span><span class="zh-only">现场报告、Agent 访谈与动手案例，保留原始发布和证据链接，按各篇历史版本阅读。</span></p><div class="link-stack"><a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/README.zh.md">17 篇中文目录 ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/essays/README.md">English index ↗</a><a href="https://github.com/joinwell52-AI/FCoP/blob/main/CITATION.cff">CITATION.cff ↗</a></div></article>
   </div>

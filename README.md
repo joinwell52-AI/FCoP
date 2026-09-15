@@ -2,21 +2,31 @@
 
 # FCoP — File-based Coordination Protocol
 
-[English](README.md) · [简体中文](README.zh.md)
-
-**Even when the agent is gone, the work remains.**
-
-Tasks, deliveries, issues and review decisions become durable files that people, tools and the next agent can inspect. A session can end without taking the work record with it.
+[Project homepage](https://joinwell52-ai.github.io/FCoP/) · [English](README.md) · [简体中文](README.zh.md)
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/Python-4.0.3-245ac4" alt="fcop on PyPI: 4.0.3" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/MCP-4.0.3-7055a2" alt="fcop-mcp on PyPI: 4.0.3" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.3-3775A9?logo=pypi&logoColor=white" alt="fcop 4.0.3 on PyPI" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.3-3775A9?logo=pypi&logoColor=white" alt="fcop-mcp 4.0.3 on PyPI" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="fcop 4.0.3 on the official MCP Registry" /></a>
+  <a href="https://doi.org/10.5281/zenodo.22746175"><img src="https://img.shields.io/badge/Zenodo-v4.0.3%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.3 archive on Zenodo: DOI 10.5281/zenodo.22746175" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
-**[Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
+<p align="center"><strong>Multi-agent collaboration · Files as protocol · No complex infrastructure · Agent governance</strong></p>
 
-<a href="docs/architecture.en.md"><img src="assets/fcop-work-records.svg" alt="Agent work is persisted as TASK, REPORT, ISSUE and REVIEW files, then read by people, tools and another session." width="960" /></a>
+**FCoP is a file-based collaboration and governance protocol for multi-agent systems.** Multiple agents divide work, advance independent attempts, submit REPORTs, raise ISSUEs, review evidence and converge explicitly through ordinary files.
+
+**Files carry protocol. Paths express state. Events record transitions.** No mandatory coordination database, message broker or always-on control service is required.
+
+<a href="docs/architecture.en.md#parallel-work"><img src="assets/fcop-parallel-work.svg" alt="A Root TASK splits into parallel Branch tasks. Each agent works, reports and is reviewed independently before explicit evidence convergence." width="960" /></a>
+
+**Agents do not need to chat directly.** A Root TASK carries the shared objective; Branch TASKs let independent work streams advance in parallel; REPORT and REVIEW records keep delivery separate from acceptance. FCoP governs collaboration facts and authorization boundaries. The host Runtime runs models, tools and schedules; the application owns code integration.
+
+**Even when an agent is gone, the work remains.** People, tools and the next agent can inspect the same collaboration record and continue from current evidence.
+
+**Born from real agent teams:** [48-hour four-agent field report](essays/when-ai-organizes-its-own-work.en.md) · [two-agent hands-on tutorial](docs/tutorials/tetris-solo-to-duo.en.md) · [中文现场报告](essays/when-ai-organizes-its-own-work.md) · [中文实操教程](docs/tutorials/tetris-solo-to-duo.zh.md)
+
+**[Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
 
 **Stable version: 4.0.3** — [4.0.3 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
 
