@@ -26,9 +26,29 @@
 
 **Born from real agent teams:** [48-hour four-agent field report](essays/when-ai-organizes-its-own-work.en.md) · [two-agent hands-on tutorial](docs/tutorials/tetris-solo-to-duo.en.md) · [中文现场报告](essays/when-ai-organizes-its-own-work.md) · [中文实操教程](docs/tutorials/tetris-solo-to-duo.zh.md)
 
-**[Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
+**[Before you install](#before-install) · [Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
 
 **Stable version: 4.0.3** — [4.0.3 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
+
+<a id="before-install"></a>
+
+## Before you install: four questions
+
+### 1. Why should I install FCoP?
+
+When work involves multiple agents, long-running tasks, cross-session handoff or formal acceptance, chat alone does not create shared, inspectable work facts. FCoP persists assignments, deliveries, issues, reviews and authorization as TASK, REPORT, ISSUE and REVIEW records so different agents can continue around the same project. It does not make a model smarter; it makes collaboration traceable, transferable and governable.
+
+### 2. Do I import FCoP into my application code?
+
+If you are building a Runtime, agent platform or another integration, install `fcop` and use the Python API through `from fcop import Project`. Ordinary project users usually do not import FCoP into business code: the CLI handles setup, inspection, validation and diagnosis, while MCP performs actual agent work.
+
+### 3. Should I install it in Codex, Cursor or another agent client? What does that add?
+
+Yes—this is the main path for ordinary developers. Configure `fcop-mcp` in Codex, Cursor or another stdio MCP client and the agent receives 49 tools, 12 resources and 4 templates. It can inspect project state and create, claim, deliver and review tasks or advance parallel Branches. FCoP does not launch multiple agents; the client or host Runtime runs them.
+
+### 4. What changes immediately after installation?
+
+Installing the Python packages alone does not create a team, modify a project or start work. After MCP connects, the client displays the FCoP tools and resources. After project initialization, `<project>/fcop/` becomes the shared collaboration space. A new session can read current state and the adopted Team/Profile, then confirm its role and task before formal writes; once the first TASK or REPORT is persisted, another session can continue from it. Roles such as PM, DEV, QA and OPS in `dev-team` come from a Team/Profile, not from FCoP Core.
 
 <a id="ai-install"></a>
 
