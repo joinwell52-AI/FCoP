@@ -131,8 +131,7 @@ fcop tools</code></pre></div><p><span class="en-only">Add this server to your MC
 
 
 
-<section class="section wrap" id="reference"><h2><span class="en-only">Reference, when you need it.</span><span class="zh-only">需要时，再深入。</span></h2><details class="manual-setup"><summary><span class="en-only">CLI commands and verification</span><span class="zh-only">CLI 九条命令与自检</span></summary>
-<section class="host-setup" id="cli" aria-labelledby="cli-heading">
+<section class="section wrap" id="reference"><h2><span class="en-only">Reference, when you need it.</span><span class="zh-only">需要时，再深入。</span></h2><section class="host-setup" id="cli" aria-labelledby="cli-heading">
     <h2 id="cli-heading"><span class="en-only">CLI — Local Setup, Inspect &amp; Diagnose</span><span class="zh-only">CLI：本地安装、检查与诊断</span></h2>
     <p class="figure-note"><strong>CLI = Setup + Observe + Diagnose; MCP = Work.</strong></p>
     <table class="cli-command-table"><thead><tr><th><span class="en-only">Command</span><span class="zh-only">命令</span></th><th><span class="en-only">Purpose</span><span class="zh-only">用途</span></th></tr></thead><tbody>
@@ -146,6 +145,8 @@ fcop tools</code></pre></div><p><span class="en-only">Add this server to your MC
       <tr><td><code>fcop spec</code></td><td><span class="en-only">Show specification / rule identity</span><span class="zh-only">查看规范 / 规则身份</span></td></tr>
       <tr><td><code>fcop migrate</code></td><td><span class="en-only">Explicit legacy migration; review the plan before apply</span><span class="zh-only">显式迁移旧工作区；先检查计划，再决定 apply</span></td></tr>
     </tbody></table>
+<details class="manual-setup"><summary><span class="en-only">CLI verification and details</span><span class="zh-only">CLI 自检与详细说明</span></summary>
+
     <h3><span class="en-only">Install &amp; Verify</span><span class="zh-only">安装后快速自检 / Install &amp; Verify</span></h3>
     <div class="code-block"><button class="copy" data-copy="cli-verify" type="button">Copy / 复制</button><pre id="cli-verify"><code>python -m pip install fcop
 
@@ -162,8 +163,8 @@ fcop tools merge_branches --json</code></pre></div>
     <p class="figure-note"><span class="en-only">Once installed, CLI setup, observation, validation and diagnosis work locally and offline. <code>doctor</code> does not access the network or modify Host configuration. Installation may need a package index; offline installation requires local packages. CLI does not perform create_task, approve, Branch, merge or authorization work operations: use MCP or the Python API.</span><span class="zh-only">安装后，CLI 可在本地离线初始化、查看、校验和诊断；<code>doctor</code> 不联网、不修改 Host。安装包可能需要包索引，离线安装须预备本地包。CLI 不负责 create_task、approve、Branch、merge 或 authorization 工作操作：请使用 MCP 或 Python API。</span></p>
     <p class="figure-note"><span class="en-only">Installing fcop does not create Host instruction files. Normal v4 workspace state belongs in <code>&lt;project&gt;/fcop/</code>; project-root Host instructions remain application-owned. Existing atomic initialization staging and failure evidence are preserved. Migration is explicit, never an automatic upgrade step.</span><span class="zh-only">安装 fcop 不创建 Host 指令文件。v4 正常 workspace 状态写入范围为 <code>&lt;project&gt;/fcop/</code>；项目根 Host 指令属于宿主应用。保留既有原子初始化暂存与失败证据。迁移必须显式执行，不是自动升级步骤。</span></p>
     <p><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md">CLI reference ↗</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.zh.md">中文 CLI 参考 ↗</a></p>
-  </section>
-</details><details class="manual-setup" id="manual-setup">
+  </details>
+</section><details class="manual-setup" id="manual-setup">
   <summary><span class="en-only">Manual setup and technical reference (optional)</span><span class="zh-only">手动安装与技术参考（可选）</span></summary>
   <div class="setup-grid">
     <article class="setup-panel">
