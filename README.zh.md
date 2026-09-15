@@ -22,6 +22,22 @@
 
 **文件承载协议，路径表达状态，事件记录迁移。** 不要求协作数据库、消息队列或常驻中心控制服务。
 
+**让多个 Agent 像团队一样工作。** 你把目标交给 PM，PM 拆解任务、组织成员执行、收集报告，再把结果汇总给你。任务与交付保存在文件中，换一个会话仍然能查、能接着做。
+
+**[运行最小案例](#team-demo) · [选择安装方式](#installation) · [安装前问答](#before-install)**
+
+<a id="team-workflow"></a>
+
+## 多 Agent 团队怎样协作
+
+<img src="assets/fcop-team-workflow.zh.svg" alt="ADMIN 向 PM 提需求；PM 拆解任务并分派团队；成员向 PM 提交报告；PM 汇总后向 ADMIN 汇报。" width="960" />
+
+**多 Agent 协作是工作协作，不是多 Agent 聊天。** 在这套团队工作流中，只有真人 ADMIN 与 PM 聊天。PM 拆解工作，通过 TASK 文件向 DEV、QA、OPS 分派任务；成员各自执行，通过 REPORT 文件向 PM 回报；最后由 PM 汇总报告，向 ADMIN 汇报。**Agent 之间不聊天，通过文件协作。**
+
+这是由 Team/Profile 定义的组织工作流，不是 FCoP Core 内置的固定层级。TASK 承载任务，REPORT 承载交付，ISSUE 承载问题，REVIEW 记录决定。FCoP 治理这些协作事实与授权边界；宿主 Runtime 负责运行 Agent，应用负责代码集成。[Root/Branch 技术模型](docs/architecture.zh.md#parallel-work)。
+
+**一种文件原生的协作方案。** FCoP 为多 Agent 协作提供一种选择，适合希望让任务和证据保留在本地文件、减少额外协调基础设施的团队。它可以与既有 Agent 工具和应用配合使用。
+
 <a id="why-fcop"></a>
 
 ## 为什么需要 FCoP？
@@ -50,16 +66,6 @@ Python、Node.js、Go、Rust 或 Shell 都可以读写文件。实现相同协�
 
 任务、报告、问题和审查决定保留在文件中，接手的 Agent 可以继续查阅。适合提交的记录可以纳入 Git，辅助比较和回溯；协议事件记录迁移历史。Git 不承担实时派单，也不保证重现模型输出或外部操作。
 
-<a id="team-workflow"></a>
-
-## 多 Agent 团队怎样协作
-
-<img src="assets/fcop-team-workflow.zh.svg" alt="ADMIN 向 PM 提需求；PM 拆解任务并分派团队；成员向 PM 提交报告；PM 汇总后向 ADMIN 汇报。" width="960" />
-
-**多 Agent 协作是工作协作，不是多 Agent 聊天。** 在这套团队工作流中，只有真人 ADMIN 与 PM 聊天。PM 拆解工作，通过 TASK 文件向 DEV、QA、OPS 分派任务；成员各自执行，通过 REPORT 文件向 PM 回报；最后由 PM 汇总报告，向 ADMIN 汇报。**Agent 之间不聊天，通过文件协作。**
-
-这是由 Team/Profile 定义的组织工作流，不是 FCoP Core 内置的固定层级。TASK 承载任务，REPORT 承载交付，ISSUE 承载问题，REVIEW 记录决定。FCoP 治理这些协作事实与授权边界；宿主 Runtime 负责运行 Agent，应用负责代码集成。[Root/Branch 技术模型](docs/architecture.zh.md#parallel-work)。
-
 **即使 Agent 离开了，工作依然在那里。** 人、工具和接手的 Agent 可以检查同一份协作记录，依据当前证据继续工作。
 
 **来自真实 Agent 团队：** [四 Agent 团队 48 小时现场报告](essays/when-ai-organizes-its-own-work.en.md) · [双 Agent 实操教程](docs/tutorials/tetris-solo-to-duo.en.md) · [中文现场报告](essays/when-ai-organizes-its-own-work.md) · [中文实操教程](docs/tutorials/tetris-solo-to-duo.zh.md)
@@ -67,6 +73,14 @@ Python、Node.js、Go、Rust 或 Shell 都可以读写文件。实现相同协�
 **[安装前问答](#before-install) · [让 AI 安装](#ai-install) · [手动参考](#manual-setup) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
 
 **Stable version: 4.0.3** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
+
+<a id="codeflowmu"></a>
+
+## 已有应用：CodeFlowMu
+
+**[CodeFlowMu](https://github.com/joinwell52-AI/CodeflowMu-Distribution) 是 FCoP 的应用实践：一个组织 PM、DEV、QA、OPS 协同工作的多 Agent 开发系统。** 人提出软件目标，PM 负责组织工作，成员执行并交付，系统提供客户端接入、运行与进度查看，把文件协议用于实际团队工作。
+
+FCoP 提供协作协议；CodeFlowMu 提供应用运行体验。你可以单独使用 FCoP，也可以到 [CodeFlowMu 公开介绍与下载页](https://github.com/joinwell52-AI/CodeflowMu-Distribution)了解完整应用。CodeFlowMu 当前以专有软件预览版分发，采用的协议版本与支持范围以其发布说明为准；FCoP 本身按 MIT 开源。
 
 <a id="files-as-protocol"></a>
 
@@ -125,19 +139,35 @@ QA 对比实际结果与预期文本，再留下审查证据；PM 读取两份�
 
 ### 1. 为什么我要安装 FCoP？
 
-当工作涉及多个 Agent、长期任务、跨会话接手或正式验收时，只靠聊天无法形成共同、可检查的工作事实。FCoP 把分工、交付、问题、审查和授权保存为 TASK、REPORT、ISSUE、REVIEW，让不同 Agent 围绕同一项目继续工作。用它把分工和回报落到文件中，减少重复接单和交接遗漏，让协作可追溯、可交接、可治理。
+当多个 Agent 协作、项目长期演进或跨会话接手时，聊天上下文容易遗漏任务、交付和决定。FCoP 将这些内容保存为项目内可持久化、可检查的工作记录：
+
+- **结构化工作事实**：TASK 记录分工，REPORT 记录交付，ISSUE 记录问题，REVIEW 记录审查与授权决定。
+- **跨会话与跨 Agent 交接**：切模型、关窗口或换人后，接手者可以读取现有任务和证据，确认进度与自己的职责，继续工作。
+- **交付与验收分开**：执行者提交 REPORT，验收由有资格的主体依据证据作出。记录让“已交付”“待验收”“已接受”可以区分；成果质量仍需要实际审查。
 
 ### 2. 安装后，是直接在开发代码里引用吗？
 
-如果你在开发 Runtime、Agent 平台或其他集成，可以安装 `fcop` 并通过 `from fcop import Project` 调用 Python API。普通项目用户通常不需要在业务代码中引用 FCoP：CLI 负责初始化、查看、校验和诊断，实际 Agent 工作通过 MCP 完成。
+**通常不需要。**
+
+- **普通业务项目**：无需在业务 API、组件或其他业务逻辑中写 `import fcop`。CLI 负责初始化、查看、验证和诊断；Agent 通过 MCP 使用任务与交付工具。
+- **集成或平台开发者**：需要把协议操作接入自己的程序时，可以使用 `from fcop import Project`。运行模型与调度 Agent 由客户端或自研 Runtime 负责。
 
 ### 3. 应该把它安装到 Codex、Cursor 等 Agent 工具里吗？有什么用？
 
-是的，这是普通开发者的主要用法。把 `fcop-mcp` 配置到 Codex、Cursor 或其他支持 stdio MCP 的客户端后，Agent 可以使用 49 个工具、12 个资源和 4 个模板，读取项目状态，并创建、认领、交付、审查任务或推进并行 Branch。FCoP 不会自动启动多个 Agent；客户端或宿主 Runtime 负责运行它们。
+**是的，这是普通开发者的主要接入方式。** 将 `fcop-mcp` 配置到支持本地 stdio MCP 的客户端后：
+
+- **标准工具集**：Agent 可以访问 49 个工具、12 个资源和 4 个模板。
+- **明确的协作动作**：读取项目状态，创建或认领 TASK，提交 REPORT，提出 ISSUE，记录 REVIEW，或推进分支工作。
+- **按协议执行**：工具对所支持的操作进行协议校验；客户端负责运行 Agent，已采用的团队规则规定职责。连接 MCP 本身不保证模型始终选择正确工具，也不授予验收权限。
 
 ### 4. 安装后立刻能看到什么效果？
 
-仅安装 Python 包不会自动创建团队、修改项目或开始工作。连接 MCP 后，客户端会显示 FCoP 工具与资源；初始化项目后，`<project>/fcop/` 成为共享协作空间。新会话可以读取现有状态与已采用的 Team/Profile，并在正式写入前确认角色和任务；第一份 TASK 或 REPORT 落盘后，其他会话即可继续读取。像 `dev-team` 中的 PM、DEV、QA、OPS 来自 Team/Profile，不是 FCoP Core 的固定角色。
+- **安装包后**：可以运行 `fcop version`、`fcop doctor`；安装适配器后可用 `fcop tools` 查看工具目录。
+- **连接 MCP 后**：在客户端的 MCP 列表中看到 `fcop` 及可用工具、资源。首次配置可能需要重连或重启客户端。
+- **初始化项目后**：`<project>/fcop/` 成为协作工作区，任务和报告可以在编辑器中直接查看。
+- **执行第一份任务后**：能够看到真实 TASK、REPORT 及相应状态；运行上方最小案例，还能检查 QA 的审查记录和 PM 汇总报告。
+
+像 `dev-team` 中的 PM、DEV、QA、OPS 来自 Team/Profile，不是 FCoP Core 的固定角色。安装包不会自动启动多个 Agent；正式验收需要已采用的 Profile 与可信宿主授权判断。
 
 <a id="installation"></a>
 

@@ -22,6 +22,22 @@
 
 **Files carry protocol. Paths express state. Events record transitions.** No mandatory coordination database, message broker or always-on control service is required.
 
+**Let multiple agents work as a team.** Give your goal to PM. PM breaks down the work, assigns members, collects their reports and brings the result back to you. Assignments and deliveries stay in files that the next session can inspect and continue.
+
+**[Run the minimal example](#team-demo) · [Choose an installation](#installation) · [Before you install](#before-install)**
+
+<a id="team-workflow"></a>
+
+## How the agent team works
+
+<img src="assets/fcop-team-workflow.svg" alt="ADMIN briefs PM; PM decomposes and assigns tasks to the team; members report to PM; PM summarizes for ADMIN." width="960" />
+
+**Multi-agent collaboration means working together, not chatting with each other.** In this team workflow, only the human ADMIN and PM chat. PM decomposes the work and assigns TASK files to DEV, QA and OPS. Each member executes its assignment and submits REPORT files to PM. PM consolidates the results into a summary report for ADMIN. **Agents do not chat with each other; they collaborate through files.**
+
+This is the Team/Profile-defined organizational workflow, not a fixed hierarchy built into FCoP Core. TASK carries assignments, REPORT carries deliveries, ISSUE carries problems and REVIEW records decisions. FCoP governs these collaboration facts and authorization boundaries; the host Runtime runs agents, and the application owns code integration. [Root/Branch technical model](docs/architecture.en.md#parallel-work).
+
+**A file-native approach to coordination.** FCoP is one option for multi-agent collaboration, suited to teams that want local, inspectable work records with little additional coordination infrastructure. It can work alongside existing agent tools and applications.
+
 <a id="why-fcop"></a>
 
 ## Why use FCoP?
@@ -50,16 +66,6 @@ Python, Node.js, Go, Rust and Shell can all read and write files. Agents and scr
 
 Tasks, reports, issues and review decisions remain available to the next agent. Records suitable for committing can be tracked in Git for comparison and history; protocol events record transitions. Git is not a live task dispatcher and does not guarantee replay of model outputs or external operations.
 
-<a id="team-workflow"></a>
-
-## How the agent team works
-
-<img src="assets/fcop-team-workflow.svg" alt="ADMIN briefs PM; PM decomposes and assigns tasks to the team; members report to PM; PM summarizes for ADMIN." width="960" />
-
-**Multi-agent collaboration means working together, not chatting with each other.** In this team workflow, only the human ADMIN and PM chat. PM decomposes the work and assigns TASK files to DEV, QA and OPS. Each member executes its assignment and submits REPORT files to PM. PM consolidates the results into a summary report for ADMIN. **Agents do not chat with each other; they collaborate through files.**
-
-This is the Team/Profile-defined organizational workflow, not a fixed hierarchy built into FCoP Core. TASK carries assignments, REPORT carries deliveries, ISSUE carries problems and REVIEW records decisions. FCoP governs these collaboration facts and authorization boundaries; the host Runtime runs agents, and the application owns code integration. [Root/Branch technical model](docs/architecture.en.md#parallel-work).
-
 **Even when an agent is gone, the work remains.** People, tools and the next agent can inspect the same collaboration record and continue from current evidence.
 
 **Born from real agent teams:** [48-hour four-agent field report](essays/when-ai-organizes-its-own-work.en.md) · [two-agent hands-on tutorial](docs/tutorials/tetris-solo-to-duo.en.md) · [中文现场报告](essays/when-ai-organizes-its-own-work.md) · [中文实操教程](docs/tutorials/tetris-solo-to-duo.zh.md)
@@ -67,6 +73,14 @@ This is the Team/Profile-defined organizational workflow, not a fixed hierarchy 
 **[Before you install](#before-install) · [Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
 
 **Stable version: 4.0.3** — [4.0.3 release](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3). This repository contains the open protocol, the `fcop` Python implementation and the optional `fcop-mcp` adapter. Python 3.10+; no model API key is needed for the local example.
+
+<a id="codeflowmu"></a>
+
+## In use: CodeFlowMu
+
+**[CodeFlowMu](https://github.com/joinwell52-AI/CodeflowMu-Distribution) applies FCoP in a multi-agent development system with PM, DEV, QA and OPS.** A person supplies the software goal; PM organizes the work; members execute and deliver. The application provides client integration, execution and progress views around the team's file-based work.
+
+FCoP supplies the coordination protocol; CodeFlowMu supplies the application experience. Use FCoP independently, or explore the [CodeFlowMu public introduction and downloads](https://github.com/joinwell52-AI/CodeflowMu-Distribution). CodeFlowMu is distributed as a proprietary preview; its adopted protocol version and supported scope follow its own release notes. FCoP itself is MIT-licensed open source.
 
 <a id="files-as-protocol"></a>
 
@@ -125,19 +139,35 @@ QA compares the actual output with the expected text and records evidence. PM re
 
 ### 1. Why should I install FCoP?
 
-When work involves multiple agents, long-running tasks, cross-session handoff or formal acceptance, chat alone does not create shared, inspectable work facts. FCoP persists assignments, deliveries, issues, reviews and authorization as TASK, REPORT, ISSUE and REVIEW records so different agents can continue around the same project. Use it to make assignments and reports explicit, reduce duplicate claims and missed handoffs, and keep collaboration traceable, transferable and governable.
+When several agents collaborate, a project evolves over time or a new session takes over, chat context can lose assignments, deliveries and decisions. FCoP preserves them as durable, inspectable project records:
+
+- **Structured work facts**: TASK records assignments, REPORT records deliveries, ISSUE records problems, and REVIEW records review and authorization decisions.
+- **Cross-session and cross-agent handoffs**: after changing models, closing a window or handing over to someone else, the next worker can read existing tasks and evidence, confirm progress and responsibilities, and continue.
+- **Delivery and acceptance stay separate**: workers submit REPORTs; qualified reviewers decide acceptance from evidence. Records distinguish delivered, pending review and accepted work. Quality still requires substantive review.
 
 ### 2. Do I import FCoP into my application code?
 
-If you are building a Runtime, agent platform or another integration, install `fcop` and use the Python API through `from fcop import Project`. Ordinary project users usually do not import FCoP into business code: the CLI handles setup, inspection, validation and diagnosis, while MCP performs actual agent work.
+**Usually, no.**
+
+- **Ordinary business projects**: no `import fcop` is needed in business APIs, components or other application logic. CLI handles initialization, inspection, validation and diagnosis; agents use task and delivery tools through MCP.
+- **Integration and platform developers**: use `from fcop import Project` when your program needs protocol operations. The client or your Runtime owns model execution and agent scheduling.
 
 ### 3. Should I install it in Codex, Cursor or another agent client? What does that add?
 
-Yes—this is the main path for ordinary developers. Configure `fcop-mcp` in Codex, Cursor or another stdio MCP client and the agent receives 49 tools, 12 resources and 4 templates. It can inspect project state and create, claim, deliver and review tasks or advance parallel Branches. FCoP does not launch multiple agents; the client or host Runtime runs them.
+**Yes, this is the main integration route for ordinary developers.** Configure `fcop-mcp` in a client supporting local stdio MCP:
+
+- **Standard tools and resources**: agents can access 49 tools, 12 resources and 4 templates.
+- **Explicit work operations**: inspect project state, create or claim TASKs, submit REPORTs, raise ISSUEs, record REVIEWs or advance branch work.
+- **Protocol checks**: tools validate the operations they support; the client runs the agents and adopted team rules define responsibilities. Connecting MCP does not guarantee correct model tool selection or grant acceptance authority.
 
 ### 4. What changes immediately after installation?
 
-Installing the Python packages alone does not create a team, modify a project or start work. After MCP connects, the client displays the FCoP tools and resources. After project initialization, `<project>/fcop/` becomes the shared collaboration space. A new session can read current state and the adopted Team/Profile, then confirm its role and task before formal writes; once the first TASK or REPORT is persisted, another session can continue from it. Roles such as PM, DEV, QA and OPS in `dev-team` come from a Team/Profile, not from FCoP Core.
+- **After package installation**: run `fcop version` and `fcop doctor`; with the adapter installed, inspect the tool catalog using `fcop tools`.
+- **After connecting MCP**: see `fcop` and its tools and resources in the client. Initial configuration may require reconnection or a client restart.
+- **After project initialization**: `<project>/fcop/` becomes the collaboration workspace; tasks and reports can be opened in an editor.
+- **After the first task**: inspect real TASKs, REPORTs and their states. The minimal example also produces QA assessment evidence and a PM summary.
+
+Roles such as PM, DEV, QA and OPS in `dev-team` come from a Team/Profile, not fixed FCoP Core roles. Package installation does not launch agents; formal acceptance requires an adopted Profile and a trusted host evaluator.
 
 <a id="installation"></a>
 
