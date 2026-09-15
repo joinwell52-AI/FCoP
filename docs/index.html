@@ -23,8 +23,8 @@
     <nav aria-label="Main navigation">
       <a href="#what"><span class="en-only">Why FCoP</span><span class="zh-only">为什么需要 FCoP</span></a>
       <a href="#start"><span class="en-only">Get started</span><span class="zh-only">开始使用</span></a>
-      <a href="#architecture"><span class="en-only">Architecture</span><span class="zh-only">架构五篇</span></a>
-      <a href="#cite"><span class="en-only">Research</span><span class="zh-only">论文与引用</span></a>
+      <a href="#team-demo"><span class="en-only">Example</span><span class="zh-only">最小案例</span></a>
+      <a href="#codeflowmu">CodeFlowMu</a>
       <a class="nav-github" href="https://github.com/joinwell52-AI/FCoP">GitHub ↗</a>
     </nav>
     <div class="nav-controls">
@@ -46,16 +46,16 @@
   <div class="hero-copy">
     <a class="release-note" href="https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3"><span class="status-dot"></span>FCoP 4.0.3 <span class="en-only">stable release ↗</span><span class="zh-only">稳定版 ↗</span></a>
     <p class="eyebrow">MULTI-AGENT COLLABORATION · FILES AS PROTOCOL</p>
-    <p><strong>FCoP 4.0 <span class="en-only">Stable Specification</span><span class="zh-only">正式稳定规范</span>:</strong> <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">简体中文 ↗</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.md">English ↗</a></p>
-    <p><strong>FCoP — File-based Coordination Protocol</strong><br><span class="en-only">The 4.0 specification defines it as a file-native agent behavior-governance protocol.</span><span class="zh-only">基于文件的协调协议。4.0 正式规范定义：文件原生的 Agent 行为治理协议。</span></p>
+    <p><strong><span class="en-only">Protocol text</span><span class="zh-only">协议原文</span>:</strong> <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.zh.md">简体中文 ↗</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/spec/fcop-4.0-spec.md">English ↗</a></p>
+    <p><strong>FCoP — File-based Coordination Protocol</strong></p>
     <h1><span class="en-only">Multi-agent collaboration.<br><em>Files as protocol.</em></span><span class="zh-only">多 Agent 协作。<br><em>文件即协议。</em></span></h1>
-    <p class="hero-summary"><span class="en-only">Let multiple agents work as a team. Give your goal to PM; PM assigns work, collects member reports and summarizes the result for you. Tasks and evidence stay in files, without a complex central coordination service, message queue or database.</span><span class="zh-only">让多个 Agent 像团队一样工作。你把目标交给 PM，PM 拆解派单、收集成员报告，再向你汇总。任务与证据留在文件中，无需部署复杂中央协调服务、消息队列或数据库。</span></p>
+    <p class="hero-summary"><span class="en-only">New session, same project explanation? An agent says “done”, but where is the result? Let multiple agents work as a team: PM assigns work, members deliver reports, and PM summarizes for you. Keep it all in project files.</span><span class="zh-only">换个会话，又要从头解释项目？Agent 说“改好了”，结果在哪里？让多个 Agent 像团队一样工作：PM 派单，成员交付，PM 汇总。任务和结果，都留在项目文件里。</span></p>
     <div class="actions">
       <a class="button primary" href="#team-demo"><span class="en-only">Run the minimal example</span><span class="zh-only">运行最小案例</span> <span aria-hidden="true">→</span></a>
       <a class="button" href="#start"><span class="en-only">Ask AI to install</span><span class="zh-only">让 AI 帮你安装</span></a>
       <a class="text-link" href="https://github.com/joinwell52-AI/FCoP">☆ Star FCoP</a>
     </div>
-    <div class="hero-facts"><span class="en-only">Agent governance</span><span class="zh-only">Agent 治理</span><span class="en-only">No database or broker required</span><span class="zh-only">无需数据库或消息队列</span><span class="en-only">Open source · MIT</span><span class="zh-only">开源 · MIT</span><a href="#cite">Zenodo DOI</a></div>
+    <div class="hero-facts"><span class="en-only">Agent governance</span><span class="zh-only">Agent 治理</span><span class="en-only">No database or broker required</span><span class="zh-only">无需数据库或消息队列</span><span class="en-only">Open source · MIT</span><span class="zh-only">开源 · MIT</span><a href="https://pypi.org/project/fcop/4.0.3/">PyPI</a><a href="https://pypi.org/project/fcop-mcp/4.0.3/">MCP</a></div>
   </div>
   <div class="work-preview" aria-label="Multi-agent collaboration preview / 多 Agent 协作示意">
     <div class="preview-top"><span class="status-dot"></span><span class="en-only">One objective. Multiple agents.</span><span class="zh-only">一个共同目标，多个 Agent</span><span class="mono">FCoP</span></div>
@@ -66,73 +66,45 @@
     <div class="preview-footer"><span class="en-only">Only ADMIN and PM chat. Agents collaborate through files.</span><span class="zh-only">只有 ADMIN 与 PM 聊天。Agent 之间不聊天，通过文件协作。</span></div>
   </div>
 </section>
-<div class="registry-banner wrap"><span class="registry-label">MCP DISCOVERY</span><p><span class="en-only"><a href="https://mcpservers.org/servers/joinwell52-ai/fcop">MCPServers introduction ↗</a> — a third-party directory for discovering and learning about FCoP.</span><span class="zh-only"><a href="https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop">MCPServers 介绍页 ↗</a>——第三方目录，帮助用户发现和了解 FCoP。</span></p></div>
-<div class="registry-banner wrap"><span class="registry-label">MCP REGISTRY</span><p><code>fcop-mcp</code> <span class="en-only">registration details are available in the <a href="https://registry.modelcontextprotocol.io/">official MCP Registry</a>: server identifier, version and package metadata.</span><span class="zh-only">的注册信息可在<a href="https://registry.modelcontextprotocol.io/">官方 MCP 注册表</a>查看：服务标识、版本与安装包元数据。</span> <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3">io.github.joinwell52-AI/fcop ↗</a><small><span class="en-only">Registry entry: 4.0.3 (checked Sep 14, 2026) · Current package: 4.0.3 · Published and verified</span><span class="zh-only">注册表条目：4.0.3（核对日期：2026-09-14）· 当前安装包：4.0.3 · 已发布并核验</span></small></p></div>
-<section class="section rule-top motion-scene" id="what">
-<div class="brand-motion" aria-hidden="true"><img class="logo-orbit orbit-b orbit-right" src="site-assets/fcop-logo-256.png" width="72" height="72" alt=""></div>
-<div class="wrap">
-  <div class="section-heading"><div><p class="eyebrow">01 / WHY FCOP</p><h2><span class="en-only">Make teamwork visible in files.</span><span class="zh-only">让团队协作落在文件里。</span></h2></div><p><span class="en-only">Who owns the task? Where are the results? Who reviewed them? FCoP gives agents, scripts and people a shared record without complex coordination infrastructure.</span><span class="zh-only">谁接了任务，结果交给谁，谁审查过，下一次会话怎样接手？FCoP 用文件给团队共同的工作依据。</span></p></div>
-  <div class="host-setup" id="team-workflow">
+
+
+<section class="section rule-top" id="what"><div class="wrap">
+<div class="section-heading"><div><p class="eyebrow">01 / WHY FCOP</p><h2><span class="en-only">Stop reconstructing work from chat.</span><span class="zh-only">接手项目，先看工作记录。</span></h2></div><p><span class="en-only">Assignments, deliveries, blockers and decisions stay together in the project.</span><span class="zh-only">任务、交付、阻碍和决定，都保留在项目里。</span></p></div>
+<div class="resource-grid">
+<article class="resource"><h3><span class="en-only">Find your next task</span><span class="zh-only">知道接下来做什么</span></h3><p><span class="en-only">TASK records the assignment and recipient. Agents follow the protocol to find their work.</span><span class="zh-only">TASK 记录工作内容和接收方，Agent 按文件约定找到自己的任务。</span></p></article>
+<article class="resource"><h3><span class="en-only">Open the result</span><span class="zh-only">直接打开交付结果</span></h3><p><span class="en-only">REPORT keeps delivery evidence, REVIEW records checks and decisions, and ISSUE preserves blockers.</span><span class="zh-only">REPORT 留下交付证据，REVIEW 记录检查与决定，ISSUE 保存遇到的问题。</span></p></article>
+<article class="resource"><h3><span class="en-only">Pick it up next session</span><span class="zh-only">换个会话接着做</span></h3><p><span class="en-only">The next agent can read the same files. Use your editor and Git for suitable records; no coordination database or broker to deploy.</span><span class="zh-only">接手 Agent 可以读取同一份文件。用编辑器查看、把适合的记录纳入 Git，无需另配协作数据库或消息队列。</span></p></article>
+</div>
+<div class="host-setup" id="team-workflow">
     <h3><span class="en-only">PM leads the team and reports to ADMIN.</span><span class="zh-only">PM 组织团队，最后向 ADMIN 汇报。</span></h3>
     <a class="diagram" href="https://github.com/joinwell52-AI/FCoP#team-workflow">
       <img class="en-only" src="site-assets/fcop-team-workflow.svg" alt="ADMIN briefs PM. PM assigns tasks to the team. Members report to PM, who summarizes for ADMIN." width="960" height="420">
       <img class="zh-only" src="site-assets/fcop-team-workflow.zh.svg" alt="ADMIN 向 PM 提需求，PM 拆解并派发任务，成员回报给 PM，PM 汇总后向 ADMIN 汇报。" width="960" height="420">
     </a>
-    <p><span class="en-only">Only the human ADMIN and PM chat. PM assigns TASK files; members execute and return REPORT files; PM consolidates the results for ADMIN. Agents do not chat with each other; they collaborate through files. Team/Profile defines this organization and its roles.</span><span class="zh-only">只有真人 ADMIN 与 PM 聊天。PM 拆解工作，通过 TASK 文件分派；成员各自执行，通过 REPORT 文件回报；PM 汇总结果后向 ADMIN 汇报。Agent 之间不聊天，通过文件协作。这套组织方式与角色由 Team/Profile 定义。</span></p>
+    <p><span class="en-only">Only the human ADMIN and PM chat. PM assigns TASK files; members execute and return REPORT files; PM consolidates the results for ADMIN. Agents do not chat with each other; they collaborate through files.</span><span class="zh-only">只有真人 ADMIN 与 PM 聊天。PM 拆解工作，通过 TASK 文件分派；成员各自执行，通过 REPORT 文件回报；PM 汇总结果后向 ADMIN 汇报。Agent 之间不聊天，通过文件协作。</span></p>
   </div>
-  <div class="resource-grid">
-    <article class="resource"><p class="eyebrow">01</p><h3><span class="en-only">Clear ownership for concurrent work</span><span class="zh-only">让并发工作有明确归属</span></h3><p><span class="en-only">Explicit task claims, deliveries and protocol transitions reduce duplicate claims and confused handoffs. Application-code edits still need isolation and integration review.</span><span class="zh-only">任务领取、交付和状态迁移有据可查，减少重复接单与交接混乱。业务代码的并发修改仍需隔离和集成审查。</span></p></article>
-    <article class="resource"><p class="eyebrow">02</p><h3><span class="en-only">Less coordination infrastructure</span><span class="zh-only">无需复杂协作基础设施</span></h3><p><span class="en-only">Keep work records on a suitable local filesystem. No separate Redis, RabbitMQ or coordination database to deploy.</span><span class="zh-only">协作记录落在满足实现要求的本地文件系统中，无需另行部署 Redis、RabbitMQ 或协调数据库。</span></p></article>
-    <article class="resource"><p class="eyebrow">03</p><h3><span class="en-only">Inspect work with ordinary tools</span><span class="zh-only">人和 Agent 都能检查现场</span></h3><p><span class="en-only">Open tasks, reports and decisions in an editor or file manager. Use protocol-compliant tools for formal interventions.</span><span class="zh-only">用编辑器或文件管理器查看任务、报告和决定；通过符合协议的工具进行正式干预。</span></p></article>
-    <article class="resource"><p class="eyebrow">04</p><h3><span class="en-only">Shared conventions across languages</span><span class="zh-only">跨语言、跨工具协作</span></h3><p><span class="en-only">Agents and scripts can implement the same file contracts. Python and MCP are the reference integration routes.</span><span class="zh-only">Agent 与脚本可以实现同一套文件契约；Python 库与 MCP 提供参考接入方式。</span></p></article>
-    <article class="resource"><p class="eyebrow">05</p><h3><span class="en-only">Durable handoffs and audit evidence</span><span class="zh-only">交接与审计不再依赖聊天</span></h3><p><span class="en-only">The next session can read the work. Git can track selected records; protocol events preserve transition history.</span><span class="zh-only">接手会话可以继续读取工作记录。Git 可辅助追踪适合提交的文件，协议事件保留迁移历史。</span></p></article>
-  </div>
-  <section class="host-setup" id="codeflowmu">
-    <h3><span class="en-only">In use: CodeFlowMu</span><span class="zh-only">已有应用：CodeFlowMu</span></h3>
-    <p><span class="en-only">FCoP offers one file-native approach to multi-agent collaboration. CodeFlowMu puts it to work in a development team with PM, DEV, QA and OPS, adding client integration, execution and progress views.</span><span class="zh-only">FCoP 为多 Agent 协作提供一种文件原生的解决方案。CodeFlowMu 已将它用于 PM、DEV、QA、OPS 开发团队，提供客户端接入、运行和进度查看，让协议成为实际应用的一部分。</span></p>
-    <p><span class="en-only">Use FCoP independently or explore CodeFlowMu's application experience. CodeFlowMu is a proprietary preview; its release notes define its protocol version and supported scope. FCoP remains MIT open source.</span><span class="zh-only">你可以独立使用 FCoP，也可以体验 CodeFlowMu 的应用形态。CodeFlowMu 为专有软件预览版，协议版本与支持范围以其发布说明为准；FCoP 按 MIT 开源。</span></p>
-    <a class="text-link" href="https://github.com/joinwell52-AI/CodeflowMu-Distribution"><span class="en-only">Explore CodeFlowMu ↗</span><span class="zh-only">了解 CodeFlowMu 与下载入口 ↗</span></a>
-  </section>
-  <div class="host-setup" id="files-as-protocol">
-    <h3><span class="en-only">How does an agent identify its work?</span><span class="zh-only">Agent 怎样识别自己的任务？</span></h3>
-    <p><span class="en-only">Files carry protocol. Paths express state. Events record transitions. The filename identifies a record; its header identifies sender and recipient; its body holds the work.</span><span class="zh-only">文件承载协议，路径表达状态，事件记录迁移。文件名标识记录，文件头标明收发方，正文承载工作内容。</span></p>
-    <p><span class="en-only">Legacy v1–v3 names such as <code>TASK-20260915-001-PM-to-DEV.md</code> expose routing directly. In the current 4.0 implementation, <code>TASK-&lt;uuid&gt;.md</code> uses header fields such as <code>sender: PM</code> and <code>recipient: DEV</code>. Agents or callers read those fields to select work for their established role.</span><span class="zh-only">Legacy v1–v3 的 <code>TASK-20260915-001-PM-to-DEV.md</code> 直接用文件名表达路由。当前 4.0 实现使用 <code>TASK-&lt;uuid&gt;.md</code>，以文件头中的 <code>sender: PM</code>、<code>recipient: DEV</code> 标明收发方；Agent 或调用方读取这些字段，按已确定的角色选择任务。</span></p>
-    <a class="text-link" href="https://github.com/joinwell52-AI/FCoP/blob/main/README.zh.md#files-as-protocol"><span class="en-only">See the versioned file formats ↗</span><span class="zh-only">查看分版本的文件格式说明 ↗</span></a>
-  </div>
-  <section class="host-setup" id="team-demo">
+<section class="host-setup" id="team-demo">
     <h3><span class="en-only">Run one team handoff.</span><span class="zh-only">运行一次团队任务交接。</span></h3>
-    <p><span class="en-only">A scripted PM assigns work to DEV and QA, reads their reports and summarizes for ADMIN. No model or API key is required. Run from the repository root:</span><span class="zh-only">脚本模拟 PM 给 DEV、QA 派单，读取成员报告，再向 ADMIN 汇总。无需模型或 API Key，在仓库根目录运行：</span></p>
-    <div class="code-block"><button class="copy" data-copy="team-demo-command" type="button">Copy / 复制</button><pre id="team-demo-command"><code>python -m pip install "fcop==4.0.3"
+    <p><span class="en-only">A scripted PM assigns work to DEV and QA, reads their reports and summarizes for ADMIN. No model or API key is required. With Git and Python 3.10+ installed, run:</span><span class="zh-only">脚本模拟 PM 给 DEV、QA 派单，读取成员报告，再向 ADMIN 汇总。无需模型或 API Key，准备好 Git 和 Python 3.10+ 后运行：</span></p>
+    <div class="code-block"><button class="copy" data-copy="team-demo-command" type="button">Copy / 复制</button><pre id="team-demo-command"><code>git clone https://github.com/joinwell52-AI/FCoP.git
+cd FCoP
+python -m pip install "fcop==4.0.3"
 python examples/team_workflow.py --output ./demo-runs</code></pre></div>
-    <p><span class="en-only">Verified result: 3 TASKs, 3 REPORTs and 1 assessment REVIEW remain on disk. QA checks the actual output; PM reports the result to ADMIN. Tasks remain pending formal acceptance in <code>review</code>. This is a sequential scripted handoff, not a concurrency benchmark.</span><span class="zh-only">实测结果：磁盘保留 3 份 TASK、3 份 REPORT 和 1 份 assessment REVIEW。QA 核对实际结果，PM 向 ADMIN 汇总。任务停在 <code>review</code> 等待正式验收。这是顺序执行的脚本交接示例，不是并发性能测试。</span></p>
+    <p><span class="en-only">Open the printed workspace path: 3 TASKs, 3 REPORTs and 1 assessment REVIEW remain on disk. Read PM's summary, then follow the files to DEV's delivery and QA's check. This sequential example leaves tasks in <code>review</code>, awaiting formal acceptance.</span><span class="zh-only">打开终端打印的工作区：3 份 TASK、3 份 REPORT、1 份 assessment REVIEW 都在磁盘上。先看 PM 的汇总，再沿文件找到 DEV 交付与 QA 检查。这个顺序执行的案例完成交付，任务保留在 <code>review</code> 等待正式验收。</span></p>
     <a class="text-link" href="https://github.com/joinwell52-AI/FCoP/blob/main/examples/team_workflow.py"><span class="en-only">Full runnable code ↗</span><span class="zh-only">查看完整可运行代码 ↗</span></a>
   </section>
-  <section class="host-setup" id="faq" aria-labelledby="faq-heading">
-    <div class="section-heading"><div><p class="eyebrow">BEFORE YOU INSTALL / 安装前问答</p><h2 id="faq-heading"><span class="en-only">Four questions, answered.</span><span class="zh-only">先把四个问题说清楚。</span></h2></div><p><span class="en-only">Package installation, application integration, agent connection and project initialization are different steps.</span><span class="zh-only">安装软件包、开发引用、连接 Agent 与初始化项目，是四件不同的事。</span></p></div>
+<section class="host-setup" id="faq" aria-labelledby="faq-heading">
+    <div class="section-heading"><div><p class="eyebrow">BEFORE YOU INSTALL / 安装前问答</p><h2 id="faq-heading"><span class="en-only">Four questions, answered.</span><span class="zh-only">先把四个问题说清楚。</span></h2></div><p><span class="en-only">What it adds, where it runs, and what you can see.</span><span class="zh-only">有什么用，装在哪里，能看到什么。</span></p></div>
     <div class="setup-grid">
-      <article class="resource"><p class="eyebrow">01</p><h3><span class="en-only">Why should I install FCoP?</span><span class="zh-only">为什么我要安装 FCoP？</span></h3><p><span class="en-only">Preserve assignments, deliveries, problems and decisions as TASK, REPORT, ISSUE and REVIEW. The next agent can read the work; delivery remains separate from acceptance. Reviewers still evaluate the actual result.</span><span class="zh-only">把分工、交付、问题和决定保存为 TASK、REPORT、ISSUE、REVIEW。接手 Agent 可以读取工作记录；交付与验收明确分开，成果仍由审查者依据实际证据判断。</span></p></article>
+      <article class="resource"><p class="eyebrow">01</p><h3><span class="en-only">Why should I install FCoP?</span><span class="zh-only">为什么我要安装 FCoP？</span></h3><p><span class="en-only">Preserve assignments, deliveries, problems and decisions as TASK, REPORT, ISSUE and REVIEW. The next agent can read the work; delivery remains separate from acceptance.</span><span class="zh-only">把分工、交付、问题和决定保存为 TASK、REPORT、ISSUE、REVIEW。接手 Agent 可以读取工作记录；交付与验收明确分开，</span></p></article>
       <article class="resource"><p class="eyebrow">02</p><h3><span class="en-only">Do I import it into my application?</span><span class="zh-only">安装后，是直接在开发代码里引用吗？</span></h3><p><span class="en-only">Runtime and platform developers can use <code>from fcop import Project</code>. Ordinary project users usually use the CLI for setup and diagnosis, and MCP for actual agent work—without adding FCoP to business code.</span><span class="zh-only">Runtime 或平台开发者可以使用 <code>from fcop import Project</code>。普通项目通常用 CLI 初始化和诊断、用 MCP 完成 Agent 工作，无需在业务代码中引用 FCoP。</span></p></article>
       <article class="resource"><p class="eyebrow">03</p><h3><span class="en-only">Should I connect it to Codex or Cursor?</span><span class="zh-only">应该安装到 Codex、Cursor 等 Agent 工具里吗？</span></h3><p><span class="en-only">Yes. Configure <code>fcop-mcp</code> and the client receives 49 tools, 12 resources and 4 templates for task, report, issue, review and Branch work. The client or host Runtime still runs the agents.</span><span class="zh-only">是的。配置 <code>fcop-mcp</code> 后，客户端获得 49 个工具、12 个资源和 4 个模板，用于 TASK、REPORT、ISSUE、REVIEW 和 Branch 协作；Agent 仍由客户端或宿主 Runtime 运行。</span></p></article>
       <article class="resource"><p class="eyebrow">04</p><h3><span class="en-only">What changes immediately?</span><span class="zh-only">安装后，直接效果是什么？</span></h3><p><span class="en-only">Install: run <code>fcop version</code> and <code>fcop doctor</code>. Connect MCP: see tools and resources. Initialize: create <code>&lt;project&gt;/fcop/</code>. Execute a task: inspect actual TASK and REPORT records. The minimal example also produces QA evidence and PM's summary.</span><span class="zh-only">安装后可运行 <code>fcop version</code>、<code>fcop doctor</code>；连接 MCP 后看到工具与资源；初始化后建立 <code>&lt;project&gt;/fcop/</code>；执行任务后可检查真实 TASK、REPORT。最小案例还会留下 QA 审查与 PM 汇总报告。</span></p></article>
     </div>
-    <p class="figure-note"><span class="en-only">PM, DEV, QA and OPS in <code>dev-team</code> are defined by its Team/Profile; they are not fixed roles in FCoP Core. FCoP also does not schedule agents or merge application code.</span><span class="zh-only"><code>dev-team</code> 中的 PM、DEV、QA、OPS 由 Team/Profile 定义，不是 FCoP Core 的固定角色。FCoP 也不负责调度 Agent 或合并应用代码。</span></p>
+    
   </section>
-</div>
-</section>
-<section class="section surface motion-scene" id="start">
-<div class="brand-motion" aria-hidden="true"><img class="logo-orbit orbit-d orbit-right" src="site-assets/fcop-logo-256.png" width="80" height="80" alt=""></div>
-<div class="wrap">
-  <div class="section-heading"><div><p class="eyebrow">02 / GET STARTED</p><h2><span class="en-only">Let your AI handle setup.</span><span class="zh-only">把安装交给你的 AI。</span></h2></div><p><span class="en-only">Copy this request into Cursor Agent, Codex, or another coding agent with terminal and file access.</span><span class="zh-only">复制下面这段话，交给能运行命令、修改文件的 Cursor Agent、Codex 或其他编程 AI。</span></p></div>
-  <div class="setup-grid">
-    <article class="resource"><h3>CLI / Python</h3><p><span class="en-only">Install the library and CLI in one package.</span><span class="zh-only">一个包同时提供 Python 库与 CLI。</span></p><pre><code>python -m pip install "fcop==4.0.3"
-fcop version
-fcop doctor</code></pre><a href="#cli">CLI ↗</a> · <a href="#python">Python API ↗</a></article>
-    <article class="resource"><h3>MCP / Agent</h3><p><span class="en-only">Install both packages, then connect your client.</span><span class="zh-only">安装两个包，再连接 Agent 客户端。</span></p><pre><code>python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
-fcop tools</code></pre><a href="#clients">Cursor / Codex ↗</a></article>
-  </div>
-  <p class="figure-note"><span class="en-only">For editable source installation or implementing the protocol in another language, see <a href="https://github.com/joinwell52-AI/FCoP#installation">installation routes</a>. Creating directories alone does not implement the protocol.</span><span class="zh-only">源码安装与自行实现协议，见<a href="https://github.com/joinwell52-AI/FCoP/blob/main/README.zh.md#installation">安装方式说明</a>。只创建目录不构成协议实现。</span></p>
-  <figure class="diagram"><img src="site-assets/fcop-cursor-connected.png" alt="Cursor: fcop connected, 49 tools and 12 resources enabled" width="835" height="607" loading="lazy"><figcaption class="figure-note"><span class="en-only">Actual Cursor connection: 49 tools and 12 resources discovered. Set FCOP_PROJECT_DIR to the project where you want to use FCoP.</span><span class="zh-only">Cursor 实际连接效果：已发现 49 个工具与 12 个资源。FCOP_PROJECT_DIR 应指向你要使用 FCoP 的项目。</span></figcaption></figure>
-  <article class="setup-panel ai-install">
+</div></section>
+<section class="section surface" id="start"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">02 / GET STARTED</p><h2><span class="en-only">Use it in your next session.</span><span class="zh-only">在下一次工作中用起来。</span></h2></div><p><span class="en-only">Ask your coding agent to install and verify FCoP, or configure MCP yourself.</span><span class="zh-only">让编程 Agent 安装并验证 FCoP，也可以自己配置 MCP。</span></p></div><article class="setup-panel ai-install">
     <h3><span class="en-only">One request. An installation the AI verifies.</span><span class="zh-only">发一句指令，让 AI 安装并验收。</span></h3>
     <div class="code-block en-only"><button class="copy" data-copy="ai-install-en" type="button">Copy request</button><pre id="ai-install-en"><code>Install FCoP for the coding client and project I am using. Follow:
 https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
@@ -141,9 +113,25 @@ Run the environment checks, installation, configuration and verification yoursel
 https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
 环境检查、安装、配置和验收都由你执行。保留我现有的配置和项目状态。完成后告诉我实际验证结果；只在缺少客户端/项目选择，或确实需要授权、重连时让我介入。</code></pre></div>
     <p><span class="en-only">Your agent checks dependencies, configures the client and verifies a real task. It will point out any approval or reload the client requires. <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md">Read the AI installation guide ↗</a></span><span class="zh-only">AI 检查依赖、配置客户端并验证真实任务。客户端确实需要你授权或重连时，AI 会指出具体一步。<a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md">查看 AI 安装说明 ↗</a></span></p>
-  </article>
-  <p><span class="en-only"><strong>See a handoff first:</strong> <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-handoff.md">ask AI to run the session handoff example ↗</a>. Create a task and report, close the session, then read them from a fresh MCP session. No API key required.</span><span class="zh-only"><strong>先看看交接效果：</strong><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-handoff.zh.md">让 AI 运行跨会话交接示例 ↗</a>。创建任务和报告，关闭会话，再从全新 MCP 会话中读回。无需 API Key。</span></p>
-  <section class="host-setup" id="cli" aria-labelledby="cli-heading">
+  </article><section class="host-setup" id="quick-mcp"><h3><span class="en-only">Prefer manual setup? Connect Cursor through MCP.</span><span class="zh-only">想自己配置？通过 MCP 接入 Cursor。</span></h3><div class="code-block"><button class="copy" data-copy="quick-install" type="button">Copy / 复制</button><pre id="quick-install"><code>python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+fcop tools</code></pre></div><p><span class="en-only">Add this server to your MCP configuration, preserving other servers. Replace the two absolute paths with your Python interpreter and project.</span><span class="zh-only">在 MCP 配置中加入这个服务，保留其他服务。将两个绝对路径换成你的 Python 解释器和项目路径。</span></p><div class="code-block"><button class="copy" data-copy="quick-config" type="button">Copy / 复制</button><pre id="quick-config"><code>{
+  "mcpServers": {
+    "fcop": {
+      "command": "/absolute/path/to/python",
+      "args": ["-m", "fcop_mcp"],
+      "env": {"FCOP_PROJECT_DIR": "/absolute/path/to/my-project"}
+    }
+  }
+}</code></pre></div><p><span class="en-only">Reconnect, check the tools, then follow the installation guide to initialize the project, adopt team rules and execute a task.</span><span class="zh-only">重连并检查工具列表，再按安装说明初始化项目、采用团队规则并执行一份任务。</span> <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md"><span class="en-only">Full guide, including Codex ↗</span><span class="zh-only">完整说明（含 Codex 配置）↗</span></a></p></section><figure class="diagram"><img src="site-assets/fcop-cursor-connected.png" alt="Cursor: fcop connected, 49 tools and 12 resources enabled" width="835" height="607" loading="lazy"><figcaption class="figure-note"><span class="en-only">Actual Cursor connection: 49 tools and 12 resources discovered. Set FCOP_PROJECT_DIR to the project where you want to use FCoP.</span><span class="zh-only">Cursor 实际连接效果：已发现 49 个工具与 12 个资源。FCOP_PROJECT_DIR 应指向你要使用 FCoP 的项目。</span></figcaption></figure><section class="host-setup" id="codeflowmu">
+    <h3><span class="en-only">In use: CodeFlowMu</span><span class="zh-only">已有应用：CodeFlowMu</span></h3>
+    <p><span class="en-only">FCoP offers one file-native approach to multi-agent collaboration. CodeFlowMu puts it to work in a development team with PM, DEV, QA and OPS, adding client integration, execution and progress views.</span><span class="zh-only">FCoP 为多 Agent 协作提供一种文件原生的解决方案。CodeFlowMu 已将它用于 PM、DEV、QA、OPS 开发团队，提供客户端接入、运行和进度查看，让协议成为实际应用的一部分。</span></p>
+    <p><span class="en-only">Use FCoP independently, or explore CodeFlowMu, distributed as a proprietary preview. FCoP is MIT open source.</span><span class="zh-only">你可以独立使用 FCoP，也可以体验 CodeFlowMu 的专有软件预览版。FCoP 按 MIT 开源。</span></p>
+    <a class="text-link" href="https://github.com/joinwell52-AI/CodeflowMu-Distribution"><span class="en-only">Explore CodeFlowMu ↗</span><span class="zh-only">了解 CodeFlowMu 与下载入口 ↗</span></a>
+  </section><p><strong><span class="en-only">Want to try it in your next multi-agent project?</span><span class="zh-only">想在下一个多 Agent 项目里试试？</span></strong> <a href="https://github.com/joinwell52-AI/FCoP">☆ Star FCoP</a></p></div></section>
+
+
+
+<section class="section wrap" id="reference"><h2><span class="en-only">Reference, when you need it.</span><span class="zh-only">需要时，再深入。</span></h2><section class="host-setup" id="cli" aria-labelledby="cli-heading">
     <h2 id="cli-heading"><span class="en-only">CLI — Local Setup, Inspect &amp; Diagnose</span><span class="zh-only">CLI：本地安装、检查与诊断</span></h2>
     <p class="figure-note"><strong>CLI = Setup + Observe + Diagnose; MCP = Work.</strong></p>
     <table class="cli-command-table"><thead><tr><th><span class="en-only">Command</span><span class="zh-only">命令</span></th><th><span class="en-only">Purpose</span><span class="zh-only">用途</span></th></tr></thead><tbody>
@@ -157,6 +145,8 @@ https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
       <tr><td><code>fcop spec</code></td><td><span class="en-only">Show specification / rule identity</span><span class="zh-only">查看规范 / 规则身份</span></td></tr>
       <tr><td><code>fcop migrate</code></td><td><span class="en-only">Explicit legacy migration; review the plan before apply</span><span class="zh-only">显式迁移旧工作区；先检查计划，再决定 apply</span></td></tr>
     </tbody></table>
+<details class="manual-setup"><summary><span class="en-only">CLI verification and details</span><span class="zh-only">CLI 自检与详细说明</span></summary>
+
     <h3><span class="en-only">Install &amp; Verify</span><span class="zh-only">安装后快速自检 / Install &amp; Verify</span></h3>
     <div class="code-block"><button class="copy" data-copy="cli-verify" type="button">Copy / 复制</button><pre id="cli-verify"><code>python -m pip install fcop
 
@@ -173,8 +163,8 @@ fcop tools merge_branches --json</code></pre></div>
     <p class="figure-note"><span class="en-only">Once installed, CLI setup, observation, validation and diagnosis work locally and offline. <code>doctor</code> does not access the network or modify Host configuration. Installation may need a package index; offline installation requires local packages. CLI does not perform create_task, approve, Branch, merge or authorization work operations: use MCP or the Python API.</span><span class="zh-only">安装后，CLI 可在本地离线初始化、查看、校验和诊断；<code>doctor</code> 不联网、不修改 Host。安装包可能需要包索引，离线安装须预备本地包。CLI 不负责 create_task、approve、Branch、merge 或 authorization 工作操作：请使用 MCP 或 Python API。</span></p>
     <p class="figure-note"><span class="en-only">Installing fcop does not create Host instruction files. Normal v4 workspace state belongs in <code>&lt;project&gt;/fcop/</code>; project-root Host instructions remain application-owned. Existing atomic initialization staging and failure evidence are preserved. Migration is explicit, never an automatic upgrade step.</span><span class="zh-only">安装 fcop 不创建 Host 指令文件。v4 正常 workspace 状态写入范围为 <code>&lt;project&gt;/fcop/</code>；项目根 Host 指令属于宿主应用。保留既有原子初始化暂存与失败证据。迁移必须显式执行，不是自动升级步骤。</span></p>
     <p><a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md">CLI reference ↗</a> · <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.zh.md">中文 CLI 参考 ↗</a></p>
-  </section>
-  <details class="manual-setup" id="manual-setup">
+  </details>
+</section><details class="manual-setup" id="manual-setup">
   <summary><span class="en-only">Manual setup and technical reference (optional)</span><span class="zh-only">手动安装与技术参考（可选）</span></summary>
   <div class="setup-grid">
     <article class="setup-panel">
@@ -274,10 +264,13 @@ FCOP_PROJECT_DIR = &quot;D:/your-project&quot;</code></pre></div>
     </div>
     <p class="figure-note"><span class="en-only">If <code>uvx</code> cannot be found, use its absolute executable path in <code>command</code>. <strong>Install → connect MCP → initialize workspace → use FCoP.</strong> FCoP owns <code>&lt;project&gt;/fcop/</code>, not project-root Host instructions. The nine bilingual modules are read through package/MCP resources; no Host projection or redeployment is required. Existing AGENTS.md, CLAUDE.md and Cursor rules stay unchanged.</span><span class="zh-only">若找不到 <code>uvx</code>，将 <code>command</code> 改为绝对路径。<strong>安装 → 连接 MCP → 初始化工作区 → 使用 FCoP。</strong>FCoP 拥有 <code>&lt;project&gt;/fcop/</code>，不拥有项目根 Host 指令。九模块双语规则通过包内及 MCP resources 读取，无需 Host 投影或重部署；已有 AGENTS.md、CLAUDE.md 和 Cursor 规则保持不变。</span> <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/rule-resources.md">Rule resources / 规则资源 ↗</a></p>
   </div>
-  </details>
-</div>
-</section>
-<section class="section motion-scene" id="workflow">
+  </details><details class="manual-setup"><summary><span class="en-only">File formats, team rules and lifecycle</span><span class="zh-only">文件格式、团队规则与生命周期</span></summary>
+<p><strong>FCoP — File-based Coordination Protocol</strong><br><span class="en-only">The 4.0 specification defines it as a file-native agent behavior-governance protocol.</span><span class="zh-only">基于文件的协调协议。4.0 正式规范定义：文件原生的 Agent 行为治理协议。</span></p><div class="host-setup" id="files-as-protocol">
+    <h3><span class="en-only">How does an agent identify its work?</span><span class="zh-only">Agent 怎样识别自己的任务？</span></h3>
+    <p><span class="en-only">Files carry protocol. Paths express state. Events record transitions. The filename identifies a record; its header identifies sender and recipient; its body holds the work.</span><span class="zh-only">文件承载协议，路径表达状态，事件记录迁移。文件名标识记录，文件头标明收发方，正文承载工作内容。</span></p>
+    <p><span class="en-only">Legacy v1–v3 names such as <code>TASK-20260915-001-PM-to-DEV.md</code> expose routing directly. In the current 4.0 implementation, <code>TASK-&lt;uuid&gt;.md</code> uses header fields such as <code>sender: PM</code> and <code>recipient: DEV</code>. Agents or callers read those fields to select work for their established role.</span><span class="zh-only">Legacy v1–v3 的 <code>TASK-20260915-001-PM-to-DEV.md</code> 直接用文件名表达路由。当前 4.0 实现使用 <code>TASK-&lt;uuid&gt;.md</code>，以文件头中的 <code>sender: PM</code>、<code>recipient: DEV</code> 标明收发方；Agent 或调用方读取这些字段，按已确定的角色选择任务。</span></p>
+    <a class="text-link" href="https://github.com/joinwell52-AI/FCoP/blob/main/README.zh.md#files-as-protocol"><span class="en-only">See the versioned file formats ↗</span><span class="zh-only">查看分版本的文件格式说明 ↗</span></a>
+  </div><p class="figure-note"><span class="en-only">PM, DEV, QA and OPS in <code>dev-team</code> are defined by its Team/Profile; they are not fixed roles in FCoP Core. FCoP also does not schedule agents or merge application code.</span><span class="zh-only"><code>dev-team</code> 中的 PM、DEV、QA、OPS 由 Team/Profile 定义，不是 FCoP Core 的固定角色。FCoP 也不负责调度 Agent 或合并应用代码。</span></p><section class="section motion-scene" id="workflow">
 <div class="brand-motion" aria-hidden="true"><img class="logo-orbit orbit-c orbit-left" src="site-assets/fcop-logo-256.png" width="60" height="60" alt=""></div>
 <div class="wrap">
   <div class="section-heading"><div><p class="eyebrow">03 / EVIDENCE &amp; ACCEPTANCE</p><h2><span class="en-only">Delivery is the start of review.</span><span class="zh-only">提交交付，才能进入审查。</span></h2></div><p><span class="en-only">Every new active attempt gets its own identity. An old report cannot satisfy a new attempt. There is no direct active → done transition in 4.0.</span><span class="zh-only">每次进入执行状态都有新的尝试身份。旧报告不能满足新尝试的门槛；4.0 不允许 active → done 直接跳转。</span></p></div>
@@ -288,6 +281,7 @@ FCOP_PROJECT_DIR = &quot;D:/your-project&quot;</code></pre></div>
   <div class="parallel-intro"><div><h3><span class="en-only">Parallel work. Explicit convergence.</span><span class="zh-only">分开推进，按证据汇合。</span></h3><p><span class="en-only">Sibling Branch tasks retain their own attempts and reports. Before Root archiving, the protocol checks current branch evidence, the family digest, convergence and separate archive authority.</span><span class="zh-only">同级 Branch 各自保留尝试与报告。Root 归档前，要核对当前分支证据、任务族摘要、汇合记录和独立归档授权。</span></p><a href="fcop-architecture-series/04-parallel-work.zh.html"><span class="en-only">Read the parallel work model (中文) →</span><span class="zh-only">阅读并行工作模型 →</span></a></div><a class="diagram" href="fcop-architecture-series/04-parallel-work.zh.html" aria-label="Parallel work explained / 并行原理"><img class="en-only" src="site-assets/fcop-parallel-work.svg" width="960" height="390" alt="Sibling Branches converge through current report evidence." loading="lazy"><img class="zh-only" src="site-assets/fcop-parallel-work.zh.svg" width="960" height="390" alt="同级分支各自工作，根任务按当前报告证据汇合。" loading="lazy"></a></div>
 </div>
 </section>
+</details><details class="manual-setup"><summary><span class="en-only">Architecture: five essays</span><span class="zh-only">架构原理：五篇全文</span></summary>
 <section class="section surface motion-scene" id="architecture">
 <div class="brand-motion" aria-hidden="true"><img class="logo-orbit orbit-b orbit-right" src="site-assets/fcop-logo-256.png" width="72" height="72" alt=""></div>
 <div class="wrap">
@@ -300,7 +294,8 @@ FCOP_PROJECT_DIR = &quot;D:/your-project&quot;</code></pre></div>
   <div class="actions"><a class="button" href="fcop-architecture-series/"><span class="en-only">Series guide (中文)</span><span class="zh-only">系列导读</span> →</a><a class="text-link" href="fcop-architecture-series/collected.zh.html"><span class="en-only">All five essays on one page (中文)</span><span class="zh-only">五篇全文合集</span> ↗</a></div>
 </div>
 </section>
-<section class="section motion-scene" id="cite">
+</details><details class="manual-setup"><summary><span class="en-only">MCP listings, specification, Zenodo and research</span><span class="zh-only">MCP 收录、正式规范、Zenodo 与研究</span></summary>
+<div class="registry-banner wrap"><span class="registry-label">MCP DISCOVERY</span><p><span class="en-only"><a href="https://mcpservers.org/servers/joinwell52-ai/fcop">MCPServers introduction ↗</a> — a third-party directory for discovering and learning about FCoP.</span><span class="zh-only"><a href="https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop">MCPServers 介绍页 ↗</a>——第三方目录，帮助用户发现和了解 FCoP。</span></p></div><div class="registry-banner wrap"><span class="registry-label">MCP REGISTRY</span><p><code>fcop-mcp</code> <span class="en-only">registration details are available in the <a href="https://registry.modelcontextprotocol.io/">official MCP Registry</a>: server identifier, version and package metadata.</span><span class="zh-only">的注册信息可在<a href="https://registry.modelcontextprotocol.io/">官方 MCP 注册表</a>查看：服务标识、版本与安装包元数据。</span> <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3">io.github.joinwell52-AI/fcop ↗</a><small><span class="en-only">Registry entry: 4.0.3 (checked Sep 14, 2026) · Current package: 4.0.3 · Published and verified</span><span class="zh-only">注册表条目：4.0.3（核对日期：2026-09-14）· 当前安装包：4.0.3 · 已发布并核验</span></small></p></div><section class="section motion-scene" id="cite">
 <div class="brand-motion" aria-hidden="true">
   <img class="cite-logo-large" src="site-assets/fcop-logo-256.png" width="256" height="256" alt="">
   <img class="logo-orbit orbit-a orbit-right" src="site-assets/fcop-logo-256.png" width="60" height="60" alt="">
@@ -314,6 +309,7 @@ FCOP_PROJECT_DIR = &quot;D:/your-project&quot;</code></pre></div>
   </div>
 </div>
 </section>
+</details></section>
 <div class="wrap"><p class="figure-note" id="tutorials"><span class="en-only">Historical tutorials: <a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/README.md">hands-on examples and recorded runs ↗</a>. Follow each tutorial's original version; use the 4.0 setup above for new workspaces.</span><span class="zh-only">历史教程：<a href="https://github.com/joinwell52-AI/FCoP/blob/main/docs/tutorials/README.md">动手示例与运行记录 ↗</a>。按各篇原始版本阅读；新工作区请使用上方 4.0 接入方法。</span></p></div>
 <section class="section ecosystem rule-top motion-scene">
 <div class="brand-motion" aria-hidden="true"><img class="logo-orbit orbit-c orbit-left" src="site-assets/fcop-logo-256.png" width="52" height="52" alt=""></div>
@@ -327,7 +323,7 @@ FCOP_PROJECT_DIR = &quot;D:/your-project&quot;</code></pre></div>
 </div>
 </section>
 </main>
-<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><span><span class="en-only">Updated September 14, 2026</span><span class="zh-only">更新于 2026 年 9 月 14 日</span> · <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3">v4.0.3</a> · <a href="https://github.com/joinwell52-AI/FCoP">GitHub ↗</a></span></div></footer>
+<footer class="site-footer"><div class="wrap footer-row"><span>© 2026 Wei Zhu · FCoP · MIT</span><span><span class="en-only">Updated September 15, 2026</span><span class="zh-only">更新于 2026 年 9 月 15 日</span> · <a href="https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3">v4.0.3</a> · <a href="https://github.com/joinwell52-AI/FCoP">GitHub ↗</a></span></div></footer>
 <p class="copy-status sr-only" role="status" aria-live="polite"></p>
 </body>
 </html>
