@@ -103,6 +103,50 @@ def test_public_entrypoints_lead_with_multi_agent_purpose() -> None:
         ):
             assert value in surface
 
+def test_public_entrypoints_answer_installation_questions_before_setup() -> None:
+    readme_en = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme_zh = (ROOT / "README.zh.md").read_text(encoding="utf-8")
+    page = (ROOT / "docs/index.html").read_text(encoding="utf-8")
+    template = (ROOT / "scripts/pages/index.template.html").read_text(encoding="utf-8")
+
+    for value in (
+        "Why should I install FCoP?",
+        "Do I import FCoP into my application code?",
+        "Should I install it in Codex, Cursor or another agent client?",
+        "What changes immediately after installation?",
+        "from fcop import Project",
+        "Roles such as PM, DEV, QA and OPS in `dev-team` come from a Team/Profile",
+    ):
+        assert value in readme_en
+
+    for value in (
+        "为什么我要安装 FCoP？",
+        "安装后，是直接在开发代码里引用吗？",
+        "应该把它安装到 Codex、Cursor 等 Agent 工具里吗？有什么用？",
+        "安装后立刻能看到什么效果？",
+        "from fcop import Project",
+        "`dev-team` 中的 PM、DEV、QA、OPS 来自 Team/Profile",
+    ):
+        assert value in readme_zh
+
+    for surface in (page, template):
+        for value in (
+            "BEFORE YOU INSTALL / 安装前问答",
+            "Why should I install FCoP?",
+            "为什么我要安装 FCoP？",
+            "Do I import it into my application?",
+            "Should I connect it to Codex or Cursor?",
+            "What changes immediately?",
+            "49 tools, 12 resources and 4 templates",
+            "PM、DEV、QA、OPS 由 Team/Profile 定义",
+        ):
+            assert value in surface
+        assert surface.index('id="faq"') < surface.index('id="start"')
+
+    assert readme_en.index('id="before-install"') < readme_en.index('id="ai-install"')
+    assert readme_zh.index('id="before-install"') < readme_zh.index('id="ai-install"')
+
+
 def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
     mcp = _version("mcp/src/fcop_mcp/_version.py")
     manifest = json.loads((ROOT / "mcp/server.json").read_text(encoding="utf-8"))
