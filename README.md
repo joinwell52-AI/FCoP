@@ -4,15 +4,17 @@
 
 [English](README.md) · [简体中文](README.zh.md)
 
+<p>
+  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.3-3775A9?logo=pypi&logoColor=white" alt="fcop 4.0.3 on PyPI" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.3-3775A9?logo=pypi&logoColor=white" alt="fcop-mcp 4.0.3 on PyPI" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="fcop 4.0.3 on the official MCP Registry" /></a>
+  <a href="https://doi.org/10.5281/zenodo.22701147"><img src="https://img.shields.io/badge/Zenodo-v4.0.2%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.2 archive on Zenodo: DOI 10.5281/zenodo.22701147" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
+</p>
+
 **Even when the agent is gone, the work remains.**
 
 Tasks, deliveries, issues and review decisions become durable files that people, tools and the next agent can inspect. A session can end without taking the work record with it.
-
-<p>
-  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/Python-4.0.3-245ac4" alt="fcop on PyPI: 4.0.3" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/MCP-4.0.3-7055a2" alt="fcop-mcp on PyPI: 4.0.3" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
-</p>
 
 **[Ask AI to install](#ai-install) · [Manual reference](#manual-setup) · [Architecture series (中文)](docs/fcop-architecture-series/README.md) · [Architecture](#architecture) · [Papers & citation](#research)**
 
