@@ -26,9 +26,29 @@
 
 **来自真实 Agent 团队：** [四 Agent 团队 48 小时现场报告](essays/when-ai-organizes-its-own-work.en.md) · [双 Agent 实操教程](docs/tutorials/tetris-solo-to-duo.en.md) · [中文现场报告](essays/when-ai-organizes-its-own-work.md) · [中文实操教程](docs/tutorials/tetris-solo-to-duo.zh.md)
 
-**[让 AI 安装](#ai-install) · [手动参考](#manual-setup) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
+**[安装前问答](#before-install) · [让 AI 安装](#ai-install) · [手动参考](#manual-setup) · [架构原理五篇](docs/fcop-architecture-series/README.md) · [了解架构](#architecture) · [论文与引用](#research)**
 
 **Stable version: 4.0.3** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
+
+<a id="before-install"></a>
+
+## 安装前先弄清楚：四个问题
+
+### 1. 为什么我要安装 FCoP？
+
+当工作涉及多个 Agent、长期任务、跨会话接手或正式验收时，只靠聊天无法形成共同、可检查的工作事实。FCoP 把分工、交付、问题、审查和授权保存为 TASK、REPORT、ISSUE、REVIEW，让不同 Agent 围绕同一项目继续工作。它不会让模型变聪明；它让协作变得可追溯、可交接、可治理。
+
+### 2. 安装后，是直接在开发代码里引用吗？
+
+如果你在开发 Runtime、Agent 平台或其他集成，可以安装 `fcop` 并通过 `from fcop import Project` 调用 Python API。普通项目用户通常不需要在业务代码中引用 FCoP：CLI 负责初始化、查看、校验和诊断，实际 Agent 工作通过 MCP 完成。
+
+### 3. 应该把它安装到 Codex、Cursor 等 Agent 工具里吗？有什么用？
+
+是的，这是普通开发者的主要用法。把 `fcop-mcp` 配置到 Codex、Cursor 或其他支持 stdio MCP 的客户端后，Agent 可以使用 49 个工具、12 个资源和 4 个模板，读取项目状态，并创建、认领、交付、审查任务或推进并行 Branch。FCoP 不会自动启动多个 Agent；客户端或宿主 Runtime 负责运行它们。
+
+### 4. 安装后立刻能看到什么效果？
+
+仅安装 Python 包不会自动创建团队、修改项目或开始工作。连接 MCP 后，客户端会显示 FCoP 工具与资源；初始化项目后，`<project>/fcop/` 成为共享协作空间。新会话可以读取现有状态与已采用的 Team/Profile，并在正式写入前确认角色和任务；第一份 TASK 或 REPORT 落盘后，其他会话即可继续读取。像 `dev-team` 中的 PM、DEV、QA、OPS 来自 Team/Profile，不是 FCoP Core 的固定角色。
 
 <a id="ai-install"></a>
 
