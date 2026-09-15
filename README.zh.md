@@ -1,6 +1,8 @@
-<p align="center"><a href="docs/architecture.zh.md"><img src="assets/fcop-logo-256.png" alt="FCoP 架构说明" width="88" /></a></p>
+<p align="center"><a href="spec/fcop-4.0-spec.zh.md"><img src="assets/fcop-logo-256.png" alt="FCoP 4.0 协议原文" width="88" /></a></p>
 
-# FCoP — 基于文件的协作协议
+# FCoP — File-based Coordination Protocol
+
+**FCoP 4.0 正式稳定规范：[简体中文](spec/fcop-4.0-spec.zh.md) · [English](spec/fcop-4.0-spec.md)**
 
 [项目主页](https://joinwell52-ai.github.io/FCoP/) · [English](README.md) · [简体中文](README.zh.md)
 
@@ -12,15 +14,51 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
+**发现 FCoP：**[MCPServers 介绍页](https://mcpservers.org/servers/joinwell52-ai/fcop)（[中文版](https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop)）——第三方目录，帮助用户发现和了解 FCoP。**注册信息：**[官方 MCP Registry](https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3)——查看服务标识、版本与安装包元数据。
+
 <p align="center"><strong>多 Agent 协作 · 文件即协议 · 无需复杂基础设施 · Agent 治理</strong></p>
 
-**FCoP 是一套面向多 Agent 系统、基于文件的协作与治理协议。** 多个 Agent 通过普通文件分工，推进各自的工作尝试，提交 REPORT、提出 ISSUE、审查证据，并显式收敛。
+**FCoP（File-based Coordination Protocol，基于文件的协调协议）用于组织多 Agent、脚本与人类开发者的工作协作。** 任务怎样分派、由谁执行、结果交给谁、怎样审查，都通过文件和协议约定表达。4.0 正式规范将其定义为“文件原生的 Agent 行为治理协议”。
 
 **文件承载协议，路径表达状态，事件记录迁移。** 不要求协作数据库、消息队列或常驻中心控制服务。
 
-<a href="docs/architecture.zh.md#parallel-work"><img src="assets/fcop-parallel-work.zh.svg" alt="一个 Root 主任务拆出多个并行 Branch 任务；每个 Agent 独立执行、交付并接受审查，最后依据当前证据显式收敛。" width="960" /></a>
+<a id="why-fcop"></a>
 
-**Agent 之间不需要直接聊天。** Root TASK 承载共同目标，Branch TASK 让多条工作流并行推进，REPORT 与 REVIEW 将“已经交付”和“已经接受”明确分开。FCoP 治理协作事实与授权边界；宿主 Runtime 负责运行模型、工具与调度，应用负责代码集成。
+## 为什么需要 FCoP？
+
+当编码 Agent、测试 Agent、运维脚本与人类开发者围绕同一个项目工作时，难点不只是“能不能执行”，还包括：谁接了任务、谁负责哪一部分、结果交给谁、是否已经验收，以及换一个会话后怎样接着做。
+
+**FCoP 让这些协作关系成为可读、可检查的文件协议，无需额外部署复杂中央协调服务、消息队列或数据库。**
+
+### 1. 让并发工作有明确归属
+
+多个 Agent 可以各自承担任务、并行执行、提交交付。协议为任务领取、状态迁移和证据提交提供明确约束，参考实现处理这些操作的原子性、幂等与恢复。团队据此减少重复接单和交付混乱；业务代码的并发修改仍需工作空间隔离、版本控制与集成审查。
+
+### 2. 降低协作基础设施成本
+
+在满足实现要求的本地文件系统上，任务、报告和审查记录都保存在项目中，不必另行部署 Redis、RabbitMQ 或协调数据库。Python 工具包有正常的软件依赖，Agent 仍由 Codex、Cursor 等客户端或宿主运行。
+
+### 3. 人和 Agent 都能检查工作现场
+
+用编辑器、终端或文件管理器就能查看任务与证据。目录表达当前状态，文件保存分工、结果和决定；人可以据此审查并通过符合协议的工具进行干预。正式迁移和更正遵守协议，报告与审查记录采用追加方式保留历史。
+
+### 4. 跨语言、跨工具共享同一套约定
+
+Python、Node.js、Go、Rust 或 Shell 都可以读写文件。实现相同协议的 Agent 与脚本，可以围绕同一份任务与报告协作；正确互操作还需要遵守字段、生命周期、授权与原子操作约束。仓库提供 Python 参考实现和 MCP 接入。
+
+### 5. 交接与审计不再依赖找回聊天
+
+任务、报告、问题和审查决定保留在文件中，接手的 Agent 可以继续查阅。适合提交的记录可以纳入 Git，辅助比较和回溯；协议事件记录迁移历史。Git 不承担实时派单，也不保证重现模型输出或外部操作。
+
+<a id="team-workflow"></a>
+
+## 多 Agent 团队怎样协作
+
+<img src="assets/fcop-team-workflow.zh.svg" alt="ADMIN 向 PM 提需求；PM 拆解任务并分派团队；成员向 PM 提交报告；PM 汇总后向 ADMIN 汇报。" width="960" />
+
+**多 Agent 协作是工作协作，不是多 Agent 聊天。** 在这套团队工作流中，只有真人 ADMIN 与 PM 聊天。PM 拆解工作，通过 TASK 文件向 DEV、QA、OPS 分派任务；成员各自执行，通过 REPORT 文件向 PM 回报；最后由 PM 汇总报告，向 ADMIN 汇报。**Agent 之间不聊天，通过文件协作。**
+
+这是由 Team/Profile 定义的组织工作流，不是 FCoP Core 内置的固定层级。TASK 承载任务，REPORT 承载交付，ISSUE 承载问题，REVIEW 记录决定。FCoP 治理这些协作事实与授权边界；宿主 Runtime 负责运行 Agent，应用负责代码集成。[Root/Branch 技术模型](docs/architecture.zh.md#parallel-work)。
 
 **即使 Agent 离开了，工作依然在那里。** 人、工具和接手的 Agent 可以检查同一份协作记录，依据当前证据继续工作。
 
@@ -30,13 +68,64 @@
 
 **Stable version: 4.0.3** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
+<a id="files-as-protocol"></a>
+
+## 文件怎样成为协议？
+
+**文件有约定的类型、身份、收发方和内容；Agent 依据协议识别属于自己的工作。** 文件名、目录和文件头各有职责，不能混为一谈。
+
+| 载体 | 能读出什么 |
+|---|---|
+| 文件名 | 文件类型与身份；旧版命名还直接包含收发角色 |
+| 所在目录 | 任务当前处于 inbox、active、review、done 或 archive |
+| 文件头 | 工作区、发送方、接收方、任务关联与证据身份 |
+| Markdown 正文 | 要做什么、交付了什么、问题和审查理由 |
+
+**文件名路由的直观例子（Legacy v1–v3）：** `TASK-20260915-001-PM-to-DEV.md` 表示 PM 发给 DEV 的任务，`REPORT-20260915-001-DEV-to-PM.md` 表示 DEV 交给 PM 的报告。角色明确后，Agent 可以从命名约定识别自己的收件文件。
+
+**4.0 当前实现的实际格式：** 新任务保存在 `fcop/_lifecycle/inbox/TASK-<uuid>.md`，文件头使用 `sender: PM`、`recipient: DEV` 标明收发方。Agent 或调用方读取任务字段，按已确定的角色选择自己的任务；不能仅通过文件名中的 `to-DEV` 查找，因为 v4 文件名不再包含这一段。报告保存在 `fcop/reports/REPORT-<uuid>.md`，通过 `subject_ref` 和 `attempt_id` 关联任务及本次执行。
+
+上面的占位符用于解释布局，不是完整可运行的信封。具体字段以[4.0 协议原文](spec/fcop-4.0-spec.zh.md)为准；[当前创建实现](src/fcop/v4/creation.py)与[旧版文件名语法](src/fcop/core/filename.py)可直接核对。
+
+<a id="team-demo"></a>
+
+## 最小示例：PM 派单，成员交付，PM 汇总
+
+运行[完整 Python 示例](examples/team_workflow.py)，模拟 PM、DEV、QA 三个角色围绕“转换文本并检查结果”协作。每个角色使用独立的 `Project` 客户端，从磁盘读取任务与报告。脚本顺序执行，不调用模型，也不需要 API Key。
+
+在仓库根目录运行：
+
+```bash
+python -m pip install "fcop==4.0.3"
+python examples/team_workflow.py --output ./demo-runs
+```
+
+实测输出的四个步骤：
+
+```text
+1/4 ADMIN -> PM: goal recorded; PM -> DEV: TASK assigned.
+2/4 DEV -> PM: REPORT submitted; task is pending review.
+3/4 PM -> QA: TASK assigned; QA -> PM: assessment and REPORT recorded.
+4/4 PM -> ADMIN: summary REPORT recorded; formal acceptance remains pending.
+```
+
+每次运行会新建 `demo-runs/fcop-team-<随机后缀>/`，并打印工作区与 PM 汇总报告的实际路径。运行结束后，文件仍然保留：
+
+| 路径（相对于该次工作区） | 内容 |
+|---|---|
+| `fcop/_lifecycle/review/TASK-*.md` | ADMIN→PM、PM→DEV、PM→QA，共 3 份任务 |
+| `fcop/reports/REPORT-*.md` | DEV→PM、QA→PM、PM→ADMIN，共 3 份报告 |
+| `fcop/reviews/REVIEW-*.md` | QA 对实际文本结果的 1 份 assessment 审查 |
+
+QA 对比实际结果与预期文本，再留下审查证据；PM 读取两份成员报告后汇总。**这次演示到“交付并待验收”为止：三个任务均处于 `review`，没有删除任务，也没有把 assessment 当作正式验收授权。** 正式接受、退回、重开和归档需要已采用的 Profile 与可信宿主授权判断。
+
 <a id="before-install"></a>
 
 ## 安装前先弄清楚：四个问题
 
 ### 1. 为什么我要安装 FCoP？
 
-当工作涉及多个 Agent、长期任务、跨会话接手或正式验收时，只靠聊天无法形成共同、可检查的工作事实。FCoP 把分工、交付、问题、审查和授权保存为 TASK、REPORT、ISSUE、REVIEW，让不同 Agent 围绕同一项目继续工作。它不会让模型变聪明；它让协作变得可追溯、可交接、可治理。
+当工作涉及多个 Agent、长期任务、跨会话接手或正式验收时，只靠聊天无法形成共同、可检查的工作事实。FCoP 把分工、交付、问题、审查和授权保存为 TASK、REPORT、ISSUE、REVIEW，让不同 Agent 围绕同一项目继续工作。用它把分工和回报落到文件中，减少重复接单和交接遗漏，让协作可追溯、可交接、可治理。
 
 ### 2. 安装后，是直接在开发代码里引用吗？
 
@@ -49,6 +138,70 @@
 ### 4. 安装后立刻能看到什么效果？
 
 仅安装 Python 包不会自动创建团队、修改项目或开始工作。连接 MCP 后，客户端会显示 FCoP 工具与资源；初始化项目后，`<project>/fcop/` 成为共享协作空间。新会话可以读取现有状态与已采用的 Team/Profile，并在正式写入前确认角色和任务；第一份 TASK 或 REPORT 落盘后，其他会话即可继续读取。像 `dev-team` 中的 PM、DEV、QA、OPS 来自 Team/Profile，不是 FCoP Core 的固定角色。
+
+<a id="installation"></a>
+
+## 选择你的安装方式
+
+| 使用方式 | 安装什么 | 用来做什么 |
+|---|---|---|
+| 独立命令行 CLI | `fcop` | 初始化、查看、校验、诊断项目 |
+| Python 开发引用 | `fcop` | 在自己的程序中调用 `Project` API |
+| Agent 工具中的 MCP | `fcop` + `fcop-mcp` | 让 Codex、Cursor 等客户端中的 Agent 使用协作工具 |
+| 从源码开发 | 本仓库及 `mcp/` 子项目 | 修改、调试或贡献参考实现 |
+
+### CLI 与 Python：同一个安装包
+
+```bash
+python -m pip install "fcop==4.0.3"
+fcop version
+fcop doctor
+fcop init --root ./my-project
+fcop status --root ./my-project
+```
+
+Python 开发者安装后可以使用 `from fcop import Project`，完整例子见下方[手动参考](#manual-setup)。普通用户不需要把 FCoP 引入业务代码。
+
+### MCP：让 Agent 使用 FCoP
+
+```bash
+python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+fcop tools
+```
+
+安装后，在支持本地 stdio MCP 的客户端中配置服务。以下是通用 JSON 示例；Codex 的具体配置见[AI 安装说明](docs/ai-install.md)。
+
+```json
+{
+  "mcpServers": {
+    "fcop": {
+      "command": "/absolute/path/to/python",
+      "args": ["-m", "fcop_mcp"],
+      "env": {
+        "FCOP_PROJECT_DIR": "/absolute/path/to/my-project"
+      }
+    }
+  }
+}
+```
+
+把 `command` 换成安装了两个包的 Python 解释器绝对路径，把项目路径换成你的工作目录；Windows 路径可使用正斜杠。重连客户端后，应看到 FCoP 的 49 个工具与 12 个资源。项目初始化与团队规则采用是后续步骤，连接 MCP 不会自动建立 PM 团队或启动其他 Agent。
+
+### 源码安装
+
+```bash
+git clone https://github.com/joinwell52-AI/FCoP.git
+cd FCoP
+python -m pip install -e .
+python -m pip install -e ./mcp
+fcop version
+```
+
+官方安装入口是上述 Python 包；本指南不提供未经核实的 npm 包或 Node SDK。Node.js 等语言可以通过 MCP 客户端接入，或依据协议开发自己的实现。
+
+### 只采用协议，自行实现
+
+无需使用 Python 参考实现，也可以依据[双语正式规范](spec/fcop-4.0-spec.zh.md)开发符合协议的工具。仅创建几个目录还不构成符合性实现：字段、状态迁移、证据、授权、幂等与恢复契约都需要满足。使用官方工具时，由 `fcop init` 创建工作区。
 
 <a id="ai-install"></a>
 

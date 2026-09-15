@@ -7,7 +7,7 @@ Markdown files are not converted by the host.
 - Python example source: `README.zh.md` (first Python fence).
 - Article sources: `docs/fcop-architecture-series/*.md` and `manifest.json`.
 - Shared styles and language/copy controls: `docs/site-assets/site.css` and `site.js`.
-- Diagram sources: `assets/fcop-*.svg`; the builder copies the six selected diagrams.
+- Diagram sources: `assets/fcop-*.svg`; the builder copies the eight selected diagrams.
 
 Install build-only dependencies in a virtual environment:
 

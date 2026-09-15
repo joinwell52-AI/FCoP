@@ -23,7 +23,7 @@ VERSION = "4.0.3"
 ESC = html.escape
 MD = MarkdownIt("commonmark", {"html": True}).enable("table")
 ASSETS = [f"fcop-{name}{lang}.svg" for name in
-          ("work-records", "lifecycle", "parallel-work") for lang in ("", ".zh")]
+          ("work-records", "lifecycle", "parallel-work", "team-workflow") for lang in ("", ".zh")]
 ARGS = ["--from", f"fcop-mcp=={VERSION}", "--with", f"fcop=={VERSION}", "fcop-mcp"]
 CURSOR = {"mcpServers": {"fcop": {"type": "stdio", "command": "uvx", "args": ARGS,
           "env": {"FCOP_PROJECT_DIR": "D:/your-project"}}}}
