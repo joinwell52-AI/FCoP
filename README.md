@@ -169,6 +169,10 @@ When several agents collaborate, a project evolves over time or a new session ta
 
 Roles such as PM, DEV, QA and OPS in `dev-team` come from a Team/Profile, not fixed FCoP Core roles. Package installation does not launch agents; formal acceptance requires an adopted Profile and a trusted host evaluator.
 
+**An actual Cursor connection:** `fcop` shows Connected with 49 tools / 12 resources. This screenshot shows client discovery; see the minimal example above for task execution evidence.
+
+<img src="assets/fcop-cursor-connected.png" alt="Cursor: fcop connected, 49 tools and 12 resources enabled" width="835" />
+
 <a id="installation"></a>
 
 ## Choose how to install

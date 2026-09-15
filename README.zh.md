@@ -169,6 +169,10 @@ QA 对比实际结果与预期文本，再留下审查证据；PM 读取两份�
 
 像 `dev-team` 中的 PM、DEV、QA、OPS 来自 Team/Profile，不是 FCoP Core 的固定角色。安装包不会自动启动多个 Agent；正式验收需要已采用的 Profile 与可信宿主授权判断。
 
+**Cursor 中的实际连接效果：** `fcop` 显示 Connected，49 tools / 12 resources。截图证明客户端已发现这些能力；任务执行结果见上方最小案例。
+
+<img src="assets/fcop-cursor-connected.png" alt="Cursor: fcop connected, 49 tools and 12 resources enabled" width="835" />
+
 <a id="installation"></a>
 
 ## 选择你的安装方式
