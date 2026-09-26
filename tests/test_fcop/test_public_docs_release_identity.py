@@ -1,4 +1,4 @@
-"""Public release surfaces must not drift behind the installed package identity."""
+"""Public documentation and registry metadata identify the 4.0.5 release."""
 from __future__ import annotations
 
 import json
@@ -19,23 +19,22 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
     core = _version("src/fcop/_version.py")
     mcp = _version("mcp/src/fcop_mcp/_version.py")
     assert core == mcp
+    assert core == "4.0.5"
+    published = "4.0.5"
 
     page = (ROOT / "docs/index.html").read_text(encoding="utf-8")
     for value in (
-        f"FCoP {core}",
-        f"releases/tag/v{core}",
-        f"pypi.org/project/fcop/{core}/",
-        f"pypi.org/project/fcop-mcp/{mcp}/",
-        f'fcop=={core}',
-        f'fcop-mcp=={mcp}',
-        "Registry entry: 4.0.3 (checked Sep 14, 2026)",
-        "注册表条目：4.0.3（核对日期：2026-09-14）",
-        "Published and verified",
-        "已发布并核验",
+        f"FCoP {published}",
+        f"releases/tag/v{published}",
+        f"pypi.org/project/fcop/{published}/",
+        f"pypi.org/project/fcop-mcp/{published}/",
+        f'fcop=={published}',
+        f'fcop-mcp=={published}',
+        "25 Canonical MCP Tools and 6 read-only Core Resources.",
+        "25 个 Canonical MCP Tools 和 6 个只读 Core Resources。",
         "Zenodo v4.0.3 · DOI",
-        "<strong>49</strong> tools",
-        "<strong>12</strong> resources",
-        "<strong>4</strong> templates",
+        "<strong>25</strong> Canonical MCP Tools",
+        "<strong>6</strong> read-only Core Resources",
         "10.5281/zenodo.22746175",
     ):
         assert value in page
@@ -57,7 +56,7 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
         assert tool in page
 
     current_package = re.findall(r"Current package: ([^ <]+)", page)
-    assert current_package == [core]
+    assert current_package == [published]
 
 
 
@@ -137,7 +136,7 @@ def test_public_entrypoints_answer_installation_questions_before_setup() -> None
             "Do I import it into my application?",
             "Should I connect it to Codex or Cursor?",
             "What changes immediately?",
-            "49 tools, 12 resources and 4 templates",
+            "25 Canonical MCP Tools and 6 read-only Core Resources",
             "PM、DEV、QA、OPS 由 Team/Profile 定义",
         ):
             assert value in surface
@@ -163,7 +162,7 @@ def test_discovery_directory_is_distinct_from_official_registration() -> None:
 
 
 def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
-    mcp = _version("mcp/src/fcop_mcp/_version.py")
+    mcp = "4.0.5"
     manifest = json.loads((ROOT / "mcp/server.json").read_text(encoding="utf-8"))
 
     assert manifest["name"] == "io.github.joinwell52-AI/fcop"
@@ -189,7 +188,6 @@ def test_official_mcp_registry_manifest_matches_current_mcp_release() -> None:
         }
        ]
     assert manifest["description"] == (
-        "Durable tasks, reports, reviews and branch convergence "
-        "for multi-agent teams over local files."
+        "FCoP Core adapter with 25 canonical tools and 6 read-only resources for durable agent work."
     )
     assert len(manifest["description"]) <= 100

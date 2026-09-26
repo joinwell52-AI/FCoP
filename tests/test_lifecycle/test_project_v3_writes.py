@@ -16,7 +16,8 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Priority, Project
+from fcop import Priority
+from fcop.compatibility.v3.project import Project
 from fcop.lifecycle.events import read_events
 from fcop.lifecycle.migrate import apply as migrate_apply
 from fcop.lifecycle.migrate import plan as migrate_plan

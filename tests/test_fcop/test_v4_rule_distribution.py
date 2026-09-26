@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.errors import FcopError, V4ProtocolError
 
 DATA = Path(__file__).resolve().parents[2] / "src/fcop/rules/_data/v4"

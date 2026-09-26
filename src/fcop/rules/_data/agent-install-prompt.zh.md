@@ -22,10 +22,10 @@
    客户端配置属于应用，不属于 FCoP workspace。
 
 4. 重新连接 MCP 客户端。首次启动若仍在解析依赖，等 30 秒到 1 分钟；
-   出错如实报告，不反复重连。核验 49 tools、12 resources、
-   4 resource templates，确认包含 merge_branches。
+   出错如实报告，不反复重连。核验精确的 25 个 Canonical MCP Tools
+   和 6 个只读 Core Resources。
 
-5. 不要自动初始化或迁移项目。初始化及目标目录由 ADMIN 明确选择。
+5. 不要自动初始化或迁移项目。初始化及目标目录由用户明确选择。
    获准创建新的 v4 workspace 后，运行 fcop init --root <project>，
    随后以同一个 --root 运行 fcop status 与 fcop validate。
    不得自动迁移旧 workspace。
@@ -36,12 +36,13 @@
    rules/protocol/guidance 资源，不部署 Host 投影。
    redeploy_rules 仅供 Legacy v1-v3，不是 v4 安装或升级步骤。
 
-7. TASK、审批、Branch、merge、authorization 工作由 MCP 或 Python API
-   承担，不由 CLI 承担。提交安装报告后停止，除非项目工作已单独授权。
+7. Team、Solo、ME、seat 与 Host session 不属于 Base Protocol，不得作为前置条件。
+   TASK、审批、Branch、merge、authorization 工作由 MCP 或 Python API 承担，
+   不由 CLI 承担。提交安装报告后停止，除非项目工作已单独授权。
 ```
 
 ## 安装后快速自检
 
-安装后用 `fcop version`、`fcop doctor`、`fcop tools` 检查本地环境，不会初始化 workspace。ADMIN 明确选定新项目后，运行 `fcop init --root ./my-project`、`fcop status --root ./my-project`、`fcop validate --root ./my-project`。
+安装后用 `fcop version`、`fcop doctor`、`fcop tools` 检查本地环境，不会初始化 workspace。用户明确选定新项目后，运行 `fcop init --root ./my-project`、`fcop status --root ./my-project`、`fcop validate --root ./my-project`。
 
 通过 `fcop://rules`、`fcop://protocol`、`fcop://guidance/{sequential,parallel}/{en,zh}` 读取规则，无需 Host 规则文件。历史 v1-v3 团队及部署流程仅为 Legacy 兼容；安装新版包不会迁移旧 workspace。

@@ -24,10 +24,10 @@ Install FCoP for my chosen MCP client and report actual commands and results.
 
 4. Reconnect the MCP client. If first launch is still resolving dependencies,
    allow 30 seconds to 1 minute; report errors instead of repeatedly reconnecting.
-   Verify 49 tools, 12 resources and 4 resource templates, including merge_branches.
+   Verify exactly 25 Canonical MCP Tools and 6 read-only Core Resources.
 
 5. Do not auto-init or migrate a project. Initialization and the target directory
-   are ADMIN's explicit choice. Once requested, use fcop init --root <project>
+   are the user's explicit choice. Once requested, use fcop init --root <project>
    for a new v4 workspace, then fcop status and fcop validate with the same --root.
    Never automatically migrate a legacy workspace.
 
@@ -37,13 +37,14 @@ Install FCoP for my chosen MCP client and report actual commands and results.
    rules/protocol/guidance resources directly; do not deploy Host projections.
    redeploy_rules is Legacy v1-v3 only, not a v4 install or upgrade step.
 
-7. Task, approval, Branch, merge and authorization work uses MCP or the Python
-   API, not CLI. Stop after the installation report unless project work is
+7. Team/Solo/ME, seats and Host sessions are outside Base Protocol and must not
+   be imposed as prerequisites. Task, approval, Branch, merge and authorization
+   work uses MCP or the Python API, not CLI. Stop after the installation report unless project work is
    separately authorized.
 ```
 
 ## Install & Verify
 
-After installation, `fcop version`, `fcop doctor` and `fcop tools` check the local environment without initializing a workspace. After ADMIN explicitly selects a new project, run `fcop init --root ./my-project`, `fcop status --root ./my-project` and `fcop validate --root ./my-project`.
+After installation, `fcop version`, `fcop doctor` and `fcop tools` check the local environment without initializing a workspace. After the user explicitly selects a new project, run `fcop init --root ./my-project`, `fcop status --root ./my-project` and `fcop validate --root ./my-project`.
 
 Read `fcop://rules`, `fcop://protocol` and `fcop://guidance/{sequential,parallel}/{en,zh}` without Host rule files. Historical v1-v3 team and deployment workflows remain legacy-only; package upgrades do not migrate workspaces.

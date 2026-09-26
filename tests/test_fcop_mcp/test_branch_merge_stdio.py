@@ -1,4 +1,4 @@
-"""Real stdio 49-tool family flow with caller-supplied semantic decisions."""
+"""Real canonical stdio family flow with caller-supplied semantic decisions."""
 
 from __future__ import annotations
 
@@ -55,12 +55,12 @@ def test_real_stdio_branch_merge_and_restart(tmp_path: Path) -> None:
         async with stdio_client(parameters) as streams, ClientSession(*streams) as session:
             await session.initialize()
             tools = (await session.list_tools()).tools
-            assert len(tools) == 49
+            assert len(tools) == 25
             assert {"create_branch", "inspect_family", "merge_branches", "reopen_task"} <= {
                 t.name for t in tools
             }
-            assert len((await session.list_resources()).resources) == 12
-            assert len((await session.list_resource_templates()).resourceTemplates) == 4
+            assert len((await session.list_resources()).resources) == 6
+            assert len((await session.list_resource_templates()).resourceTemplates) == 0
             requests = [
                 dict(
                     root_task_id=root_id,
@@ -79,9 +79,7 @@ def test_real_stdio_branch_merge_and_restart(tmp_path: Path) -> None:
             branches = []
             for result in results:
                 assert not result.isError and result.structuredContent
-                assert result.structuredContent["family_digest"] is None
-                assert result.structuredContent["merge_ready"] is False
-                branches.append(result.structuredContent["branch_task_id"])
+                branches.append(result.structuredContent["task_id"])
             assert len(set(branches)) == 2
             retried = await session.call_tool("create_branch", requests[0])
             assert retried.structuredContent is not None

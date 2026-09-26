@@ -38,8 +38,10 @@ from pathlib import Path
 import pytest
 
 import fcop
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 
+# This pre-1.0 snapshot covers the historical Project surface, which 4.x
+# exposes only through explicit compatibility access.
 SNAPSHOT_PATH = Path(__file__).parent / "snapshots" / "public_surface.json"
 
 PUBLIC_DATACLASSES = [

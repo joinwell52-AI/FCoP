@@ -196,7 +196,7 @@ def test_meta_no_skip_xfail_or_empty_tests():
 def test_meta_driver_has_only_public_forwarding():
     tree = ast.parse(sources()["driver.py"])
     imports = {n.module for n in tree.body if isinstance(n, ast.ImportFrom)}
-    assert imports == {"pathlib", "fcop"}
+    assert imports == {"pathlib", "fcop.compatibility.v3.project"}
     klass = next(
         n
         for n in tree.body

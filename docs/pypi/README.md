@@ -14,7 +14,20 @@ same files are included in source distributions and rendered by package builds.
 These files are the single sources of truth for future PyPI long descriptions.
 Do not maintain separate copied descriptions in this directory.
 
-## 4.0.1 documentation correction
+## 4.0.5 release binding
+
+The 4.0.5 release updates both canonical sources above. The `fcop` page presents
+the package as protocol Core and states that Team/Solo/ME, seats, sessions,
+Runtime, and Legacy compatibility are outside Base Protocol. The `fcop-mcp`
+page presents the thin adapter's exact default surface as **25 Canonical MCP
+Tools + 6 read-only Core Resources**. The historical 49-tool implementation
+surface appears only as explicitly labelled migration history.
+
+Release verification compares the descriptions embedded in both wheel/sdist
+pairs and the two public PyPI JSON descriptions against these files. There is
+no separately maintained PyPI page copy.
+
+## Historical 4.0.1 documentation correction
 
 Prepared on 2026-09-11 against the published FCoP 4.0.1 package pair.
 
@@ -24,7 +37,7 @@ The correction:
 - removes stale 4.0.0 install instructions from the current page;
 - moves 0.x and 3.x detail out of the main package descriptions;
 - states the `fcop` / `fcop-mcp` package boundary;
-- records the current MCP surface as 49 tools, 12 resources, and 4 templates;
+- recorded that release's MCP surface as 49 tools, 12 resources, and 4 templates;
 - documents `create_branch`, `inspect_family`, and `merge_branches`;
 - explains that Branch convergence is explicit and Core owns atomic persistence,
   idempotency, cross-process locking, and recovery;
@@ -51,7 +64,7 @@ Before the next PyPI release:
 A version bump, tag, package upload, GitHub Release, MCP registry update, or
 local MCP upgrade is outside this historical documentation record.
 
-## 4.0.3 CLI v1 release binding
+## Historical 4.0.3 CLI v1 release binding
 
 The separately authorized CLI v1 release updates both canonical README sources,
 adds CLI Setup/Observe/Diagnose guidance, and retains 49 MCP tools. Build metadata

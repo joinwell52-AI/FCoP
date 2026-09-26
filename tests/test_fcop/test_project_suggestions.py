@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 
 # ``YYYYMMDD-HHMMSS`` plus optional ``-N`` duplicate-counter, plus ``.md``.
 _FILENAME_RE = re.compile(r"^\d{8}-\d{6}(-\d+)?\.md$")
@@ -102,7 +102,7 @@ class TestUniqueness:
             def now(cls, tz: real_dt.tzinfo | None = None) -> real_dt.datetime:  # type: ignore[override]
                 return frozen_moment
 
-        monkeypatch.setattr("fcop.project._dt.datetime", FrozenDatetime)
+        monkeypatch.setattr("fcop.compatibility.v3.project._dt.datetime", FrozenDatetime)
 
         project = Project(tmp_path)
         first = project.drop_suggestion(content="one")

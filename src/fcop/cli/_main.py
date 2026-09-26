@@ -38,9 +38,13 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     sub = parser.add_subparsers(dest="cmd", required=False)
+    from fcop import __version__
+    parser.add_argument("--version", action="version", version=__version__)
     _migrate_ws.add_subparser(sub)
     _migrate_v3.add_subparser(sub)
     _observe.add_subparsers(sub)
+    from fcop.cli._boundary import add_subparsers
+    add_subparsers(sub)
     return parser
 
 

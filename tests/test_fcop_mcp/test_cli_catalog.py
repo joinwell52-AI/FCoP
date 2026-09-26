@@ -9,8 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from fcop_mcp.canonical_tools import MANIFEST
 from fcop_mcp.catalog import get_tool_catalog
-from fcop_mcp.disposition import TOOLS
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
@@ -26,14 +26,15 @@ def test_catalog_does_not_import_runtime_and_returns_fresh_rows(tmp_path: Path) 
     first = get_tool_catalog()
     first[0]["name"] = "tampered"
     assert "tampered" not in {row["name"] for row in get_tool_catalog()}
-    assert get_tool_catalog("create_branch") == [{"name": "create_branch", "disposition": TOOLS["create_branch"]}]
+    assert get_tool_catalog("create_branch")[0]["name"] == "create_branch"
+    assert get_tool_catalog("create_branch")[0]["status"] == "canonical"
 
 
 def test_catalog_cli_stdio_registry_equality(tmp_path: Path) -> None:
     output = io.StringIO()
     assert main(["tools", "--json"], stdout=output) == 0
     cli = json.loads(output.getvalue())["data"]
-    authoritative = set(TOOLS)
+    authoritative = set(MANIFEST)
     assert {r["name"] for r in cli["tools"]} == authoritative
     assert {r["name"] for r in get_tool_catalog()} == authoritative
     assert cli["total"] == len(authoritative)

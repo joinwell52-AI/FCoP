@@ -11,14 +11,14 @@ New session, same project explanation? An agent says “done”, but where is th
 [协议原文：中文](spec/fcop-4.0-spec.zh.md) · [Specification: English](spec/fcop-4.0-spec.md) · [English](README.md) · [简体中文](README.zh.md) · [Homepage](https://joinwell52-ai.github.io/FCoP/)
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.3-3775A9?logo=pypi&logoColor=white" alt="fcop 4.0.3 on PyPI" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.3-3775A9?logo=pypi&logoColor=white" alt="fcop-mcp 4.0.3 on PyPI" /></a>
-  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="fcop 4.0.3 on the official MCP Registry" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.5-3775A9?logo=pypi&logoColor=white" alt="fcop 4.0.5 on PyPI" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.5-3775A9?logo=pypi&logoColor=white" alt="fcop-mcp 4.0.5 on PyPI" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="fcop 4.0.5 on the official MCP Registry" /></a>
   <a href="https://doi.org/10.5281/zenodo.22746175"><img src="https://img.shields.io/badge/Zenodo-v4.0.3%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.3 archive on Zenodo: DOI 10.5281/zenodo.22746175" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
-[PyPI · fcop](https://pypi.org/project/fcop/4.0.3/) · [MCP · fcop-mcp](https://pypi.org/project/fcop-mcp/4.0.3/) · [MIT](LICENSE) · [Zenodo & citation](#research)
+[PyPI · fcop](https://pypi.org/project/fcop/4.0.5/) · [MCP · fcop-mcp](https://pypi.org/project/fcop-mcp/4.0.5/) · [MIT](LICENSE) · [Zenodo & citation](#research)
 
 **[Run the minimal example](#team-demo) · [Connect Cursor / Codex](#ai-install) · [Installation FAQ](#before-install)**
 
@@ -56,7 +56,7 @@ PM assigns a text conversion to DEV, QA checks the actual result, and PM reads b
 ```bash
 git clone https://github.com/joinwell52-AI/FCoP.git
 cd FCoP
-python -m pip install "fcop==4.0.3"
+python -m pip install "fcop==4.0.5"
 python examples/team_workflow.py --output ./demo-runs
 ```
 
@@ -86,7 +86,7 @@ Usually no. Ordinary projects use the CLI and MCP; developers building their own
 
 ### 3. Should I install it in Codex, Cursor or another agent client?
 
-Yes. Configure `fcop-mcp` so your agent can create and claim tasks, submit reports, and record issues and reviews. It currently provides **49 tools / 12 resources / 4 resource templates**.
+Yes. Configure `fcop-mcp` so your agent can create and claim tasks, submit reports, and record issues and reviews. It currently provides **25 Canonical MCP Tools / 6 read-only Core Resources**.
 
 ### 4. What changes immediately after installation?
 
@@ -107,7 +107,7 @@ Run the environment checks, installation, configuration and verification yoursel
 ### MCP: give agents access to FCoP
 
 ```bash
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 fcop tools
 ```
 
@@ -131,7 +131,7 @@ Replace the absolute paths with your Python interpreter and project path; forwar
 
 [Full installation and client configuration](docs/ai-install.md)
 
-Actual Cursor connection: **49 tools, 12 resources**.
+Historical 4.0.3 Cursor connection: **49 tools, 12 resources**. The current 4.0.5 catalog has 25 tools and 6 read-only resources.
 
 <img src="assets/fcop-cursor-connected.png" alt="Cursor: fcop connected, 49 tools and 12 resources enabled" width="640" />
 
@@ -244,7 +244,7 @@ These placeholders explain layout; they are not complete runnable envelopes. Con
 ### CLI and Python: one package
 
 ```bash
-python -m pip install "fcop==4.0.3"
+python -m pip install "fcop==4.0.5"
 fcop version
 fcop doctor
 fcop init --root ./my-project
@@ -256,7 +256,7 @@ Python developers can then use `from fcop import Project`; see the complete exam
 ### MCP: give agents access to FCoP
 
 ```bash
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 fcop tools
 ```
 
@@ -276,7 +276,7 @@ Configure a server in a client supporting local stdio MCP. This is a generic JSO
 }
 ```
 
-Replace `command` with the absolute path to the Python interpreter containing both packages, and set your project directory. Windows paths can use forward slashes. Reconnect the client to see 49 FCoP tools and 12 resources. Project initialization and team-rule adoption are separate steps; connecting MCP does not create a PM-led team or launch other agents.
+Replace `command` with the absolute path to the Python interpreter containing both packages, and set your project directory. Windows paths can use forward slashes. Reconnect the client to see 25 Canonical MCP Tools and 6 read-only Core Resources. Project initialization and team-rule adoption are separate steps; connecting MCP does not create a PM-led team or launch other agents.
 
 ### Install from source
 
@@ -309,8 +309,8 @@ Create a dedicated environment and install the matching Core/MCP pair:
 python3 --version
 python3 -m venv ~/.local/share/fcop/venv
 ~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
-  "fcop>=4.0.3,<4.1.0" \
-  "fcop-mcp>=4.0.3,<4.1.0"
+  "fcop>=4.0.5,<4.1.0" \
+  "fcop-mcp>=4.0.5,<4.1.0"
 ```
 
 Verify the CLI and installed MCP catalog:
@@ -349,7 +349,7 @@ Replace `YOUR_NAME` and the project path, then restart or reconnect the MCP clie
 <summary>Manual installation, Python/MCP examples and CLI reference (optional)</summary>
 
 4.0.1 introduced `create_branch`, `inspect_family` and `merge_branches`;
-4.0.3 preserves all 49 tools and their signatures. Core owns atomic convergence,
+4.0.5 exposes 25 canonical MCP tools and 6 read-only Core resources. Core owns atomic convergence,
 durable idempotency and recovery. Unfinished families return `family_digest: null`,
 `merge_ready: false` and structured reasons. The caller supplies the semantic conclusion.
 See the [Branch merge contract and example](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md).
@@ -361,7 +361,7 @@ See the [Branch merge contract and example](docs/branch-merge.md) / [中文合�
 In an activated **Python 3.10+ virtual environment**, install the published library:
 
 ```sh
-python -m pip install "fcop==4.0.3"
+python -m pip install "fcop==4.0.5"
 ```
 
 Save this as `demo.py` and run `python demo.py`. It writes a real TASK, opens the workspace through a fresh `Project` instance, then retries the original request.
@@ -379,7 +379,7 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
     request = dict(
         workspace_id=workspace["workspace_id"],
         operation_id="demo-create-1",
-        sender="ME", recipient="ME",
+        sender="author", recipient="worker",
         subject="Inspect this handoff",
         body="Read the task and check the evidence before accepting delivery.",
     )
@@ -411,7 +411,7 @@ The example cleans up its temporary directory when it exits. Use your own projec
 The optional adapter exposes FCoP to an MCP-capable client over stdio. Install it in the same activated environment:
 
 ```sh
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 ```
 
 Add this entry to the client's MCP configuration. Replace both absolute paths; on Windows the command ends in `.venv/Scripts/fcop-mcp.exe`.
@@ -427,9 +427,9 @@ Add this entry to the client's MCP configuration. Replace both absolute paths; o
 }
 ```
 
-Once connected, initialize a **new** workspace with `init_solo(role_code="ME", protocol_version="4.0")`. Use its workspace identity when calling `create_task`, then inspect the TASK with `inspect_task(filename=task_id)`. Installing an MCP server alone does not initialize a workspace or start an agent team.
+In **4.0.5**, initialize a new workspace with `init_workspace()`. Use its `workspace_id` and a unique `operation_id` with `create_task`, then inspect the TASK with `inspect_task(task_id=...)`. Team/Solo/ME, seats, and Host session assignment are outside Base Protocol.
 
-**49 tools / 12 resources / 4 resource templates.** The adapter routes to the same Python Core. Default initialization has no trusted authorization Profile: creation, claim and submission are available, but acceptance, rejection, reopening and archival need an explicitly adopted Profile and an issuer evaluator registered by the trusted host. A role name typed into a request cannot supply that authority.
+**25 Canonical MCP Tools + 6 read-only Core Resources.** The adapter routes to the same Python Core. Default initialization has no trusted authorization Profile: creation, claim and submission are available, but acceptance, rejection, reopening and archival need an explicitly adopted Profile and an issuer evaluator registered by the trusted host. A role name typed into a request cannot supply that authority. See the [49-to-25 migration guide](docs/migration-4.0.5-mcp.md) for older clients.
 
 [MCP tool reference](docs/mcp-tools.md) · [Stable external Python example](tests/stable/third-party/python-only/app.py) · [Stable external MCP example](tests/stable/third-party/mcp-only/client.py). The full examples include an educational Profile; a real deployment must supply its own trust policy.
 
@@ -485,7 +485,7 @@ Another implementation should be able to preserve the same work semantics withou
 
 [Series guide (中文)](docs/fcop-architecture-series/README.md) · [All five essays (中文)](docs/fcop-architecture-series/collected.zh.md)
 
-4.0.3 distributes **nine bilingual rule modules** through package-owned and MCP resources, with strict manifests and `sequential`, `parallel` and separate `repository-development` assemblies. **Install → connect MCP → initialize workspace → use FCoP.** FCoP owns `<project>/fcop/`, not project-root Host instruction files. Host projection, adoption, deployment and rollback are retired; `redeploy_rules` is Legacy v1–v3 only and rejects v4 with zero writes. Existing customer files stay unchanged. [Rule resources / 规则资源](docs/rule-resources.md).
+4.0.5 distributes **nine bilingual rule modules** through package-owned and MCP resources, with strict manifests and `sequential`, `parallel` and separate `repository-development` assemblies. **Install → connect MCP → initialize workspace → use FCoP.** FCoP owns `<project>/fcop/`, not project-root Host instruction files. Host projection, adoption, deployment and rollback are retired; `redeploy_rules` is Legacy v1–v3 only and rejects v4 with zero writes. Existing customer files stay unchanged. [Rule resources / 规则资源](docs/rule-resources.md).
 
 </details>
 

@@ -1,0 +1,1997 @@
+[
+  {
+    "name": "reopen_task",
+    "description": "Request only v4 T6 done->active. Actor is audit data, never authority.\n\nThe independent authorization and reopen REVIEW are validated and consumed\nby Project. Trusted evaluators can only be installed at server startup.\nRepeating the same formal request returns the Core's existing result.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "review_ref": {
+          "type": "string"
+        },
+        "authorization_ref": {
+          "type": "string"
+        },
+        "profile_ref": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "lang": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "review_ref",
+        "authorization_ref",
+        "profile_ref",
+        "actor"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:209",
+    "policy": "T6"
+  },
+  {
+    "name": "create_branch",
+    "description": "Create a Branch through Core T1; unavailable family digest is null with reasons.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "root_task_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "priority": {
+          "default": "P2",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_task_id",
+        "workspace_id",
+        "operation_id",
+        "sender",
+        "recipient",
+        "subject",
+        "body"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\branches.py:23",
+    "policy": "CREATE_TASK"
+  },
+  {
+    "name": "inspect_family",
+    "description": "Read a canonical ordered family, precise REPORT heads, readiness and convergence facts.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "root_task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\branches.py:61",
+    "policy": "INSPECT"
+  },
+  {
+    "name": "merge_branches",
+    "description": "Core atomically materializes the caller's decision. Never chooses a winner or archives Root.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "root_task_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "expected_family_digest": {
+          "type": "string"
+        },
+        "branch_report_heads": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "conclusion": {
+          "type": "string"
+        },
+        "conflict_resolution": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_task_id",
+        "workspace_id",
+        "expected_family_digest",
+        "branch_report_heads",
+        "conclusion",
+        "conflict_resolution",
+        "operation_id",
+        "sender",
+        "recipient"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\branches.py:71",
+    "policy": "APPEND_REVIEW"
+  },
+  {
+    "name": "approve_task",
+    "description": "Approve lifecycle stage: ``review`` → ``done`` (v3 directory move).\n\n    **Lifecycle approval ≠ business acceptance (Rule 0.a.3).** Typically\n    ``ADMIN`` / reviewer after inspecting the paired ``REPORT-*``.\n    Does **not** auto-call ``archive_task`` or mark blocked upstream\n    work as externally delivered.\n\n    File ops: ``mv _lifecycle/review/TASK-* _lifecycle/done/``. On v2\n    projects this is a no-op.\n\n    Args:\n        task_id: Task ID or full filename.\n        actor:   Role code of the approver (default ``\"ADMIN\"``).\n        note:    Optional approval note appended to the transition event.\n    \n\nVersion policy: T4. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "default": "ADMIN",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        },
+        "report_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "review_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1764",
+    "policy": "T4"
+  },
+  {
+    "name": "archive_task",
+    "description": "Archive a task after governance acceptance (v3: ``_lifecycle/archive/``; v2: ``log/``).\n\n    **Governance action (Rule 0.a.5).** **Not** Hot Path step 4 for\n    executors. Default actor is ``leader`` or ``ADMIN`` after accepting\n    the paired ``REPORT-*``. Executors must **not** call this unless the\n    task body or ``ADMIN`` explicitly authorises archive-on-completion.\n\n    **Authorization:** subtasks — direct upstream or governance runtime;\n    main tasks — ``ADMIN`` or the main-task owner only. Archive **≠**\n    business completion (Rule 0.a.3).\n\n    Does **not** run automatically after ``write_report`` or\n    ``finish_task``.\n\n    File ops: ``mv`` task (+ matched reports via ``references``) to\n    ``_lifecycle/archive/`` or ``fcop/log/``.\n\n    Args:\n        task_id: Task ID (e.g. ``TASK-20260423-001``) or full filename.\n        lang: Kept for 0.5.4 parity; currently unused because the\n            library does not need locale for this operation.\n    \n\nVersion policy: T7. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "lang": {
+          "default": "",
+          "type": "string"
+        },
+        "review_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "actor": {
+          "default": "agent",
+          "type": "string"
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1277",
+    "policy": "T7"
+  },
+  {
+    "name": "archive_to_history",
+    "description": "Deep-history cold storage after governance archive (v3 only).\n\n    Moves a task already in ``_lifecycle/archive/`` (or legacy ``log/``)\n    into ``history/YYYY-MM-DD/<task-stem>/`` with its reports — immutable,\n    date-sharded retention. **Not** business acceptance and **not** a\n    substitute for ``write_report`` or authorised ``archive_task``.\n\n    Call ``archive_task`` first (v3: ``done/`` → ``archive/``). Main-task\n    deep archive requires the same governance authorization as\n    ``archive_task`` (Rule 0.a.5).\n\n    File ops: ``mv _lifecycle/archive/TASK-* history/YYYY-MM-DD/<stem>/``.\n\n    Args:\n        task_id:   Task ID (e.g. ``TASK-20260522-001``) or full filename.\n        done_date: Override the shard date in ``YYYY-MM-DD`` format.\n                   Leave empty to use the task's own ``done_at`` timestamp.\n    \n\nVersion policy: LEGACY_V3_ONLY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "done_date": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1316",
+    "policy": "LEGACY_V3_ONLY"
+  },
+  {
+    "name": "bulk_archive_to_history",
+    "description": "Migrate **all** tasks from ``_lifecycle/archive/`` into the deep history archive.\n\n    This is a convenience migration tool.  It iterates every task in\n    ``_lifecycle/archive/`` and calls :func:`archive_to_history` for each\n    one, moving each task together with its associated reports into\n    ``history/YYYY-MM-DD/<task-stem>/``.\n\n    Useful when:\n    - A project is being upgraded and existing archived tasks need to be\n      moved into the new date-sharded history structure.\n    - You have just finished a manual archiving session and want to flush\n      everything from ``_lifecycle/archive/`` into ``history/`` in one step.\n\n    The ``history/`` directory is created automatically if it does not yet exist.\n\n    Args:\n        done_date: Override the shard date (``YYYY-MM-DD``) for **all**\n                   migrated tasks.  Leave empty to use each task's own\n                   ``done_at`` timestamp (falls back to today if missing).\n\n    Returns:\n        A summary of how many tasks were migrated and any errors encountered.\n    \n\nVersion policy: LEGACY_V3_ONLY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "done_date": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1371",
+    "policy": "LEGACY_V3_ONLY"
+  },
+  {
+    "name": "check_update",
+    "description": "Compare the installed fcop-mcp version to the latest on PyPI.\n\n    Prints the local version, the latest PyPI version (if reachable),\n    and a one-line verdict. Does NOT install anything — call\n    ``upgrade_fcop`` afterwards for that.\n\n    Args:\n        lang: Output language, ``zh`` or ``en``.\n    \n\nVersion policy: GLOBAL_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3664",
+    "policy": "GLOBAL_READ"
+  },
+  {
+    "name": "claim_task",
+    "description": "Claim a task: ``inbox`` → ``active`` (v3 Hot Path start).\n\n    **Hot Path step 1 (v3):** call before executing on an inbox task.\n    Always follow with ``read_task`` + ``inspect_task``. Does **not**\n    read the task body, write a report, or imply business completion.\n\n    File ops: ``mv _lifecycle/inbox/TASK-* _lifecycle/active/`` + append\n    ``claim_task`` transition event to frontmatter. On v2 projects this\n    is a no-op with an informational message.\n\n    Args:\n        task_id: Task ID (e.g. ``TASK-20260423-001``) or full filename.\n        actor:   Role code of the agent claiming the task (default ``\"agent\"``).\n    \n\nVersion policy: T2. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "default": "agent",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1589",
+    "policy": "T2"
+  },
+  {
+    "name": "create_custom_team",
+    "description": "Create an FCoP project with a custom roster of roles.\n\n    Role codes can be anything — they become part of task filenames,\n    e.g. ``TASK-20260423-001-BOSS-to-CODER.md``. Use ``validate_team_config``\n    first to catch illegal role codes without writing anything.\n\n    Since 3.0.2 fresh init produces the **v3 topology** (per spec §1.1):\n    ``fcop/_lifecycle/{inbox,active,review,done,archive}/`` plus retained\n    ``reports/`` / ``issues/`` / ``shared/``. Superseded v2 buckets\n    (``tasks/``, ``log/``) are no longer created on fresh init.\n\n    Custom teams have **no bundled three-layer docs**, so\n    ``fcop/shared/`` is left empty (apart from the project's\n    own ``shared/README.md``). The recommended next step is to read\n    the closest preset (``fcop://teams/<closest-preset>`` — see the\n    ``teams/_data/README.md`` \"Custom teams\" section) and hand-author\n    your own ``TEAM-README.md`` / ``TEAM-ROLES.md`` /\n    ``TEAM-OPERATING-RULES.md`` + ``roles/{ROLE}.md`` based on it.\n\n    The other init artifacts are deposited as usual:\n    ``fcop/fcop.json``, ``LETTER-TO-ADMIN.md``,\n    ``workspace/README.md``, plus the protocol rule files at\n    ``.cursor/rules/*.mdc`` + ``AGENTS.md`` + ``CLAUDE.md`` (existing\n    copies archived under ``.fcop/migrations/``).\n\n    Args:\n        team_name: Display name for the team (e.g. ``\"My Design Studio\"``).\n        roles: Comma-separated role codes (e.g. ``\"BOSS,CODER,TESTER\"``).\n        leader: Leader role code; must appear in ``roles``.\n        lang: Output language, ``zh`` or ``en``.\n        force: When ``True``, overwrite an already-initialized project.\n            Existing config / letter / workspace README / ``shared/``\n            files are archived under ``.fcop/migrations/<timestamp>/``\n            before the new ones land. Default: ``False``.\n    \n\nVersion policy: BOOTSTRAP_PROFILE. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "team_name": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "string"
+        },
+        "leader": {
+          "type": "string"
+        },
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        },
+        "force": {
+          "default": false,
+          "type": "boolean"
+        },
+        "protocol_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profiles": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "team_name",
+        "roles",
+        "leader"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:976",
+    "policy": "BOOTSTRAP_PROFILE"
+  },
+  {
+    "name": "create_task",
+    "description": "Create a new task and place it in the inbox (v3) or tasks folder (v2).\n\n    This is the canonical **FCoP v3 spec §8 L1** entry-point for task\n    creation — functionally identical to :func:`write_task` but named to\n    match the spec.  In a v3 project the task lands in\n    ``_lifecycle/inbox/`` so the recipient can ``claim_task`` it.\n\n    Args:\n        sender:     Sender role code (uppercase).\n        recipient:  Recipient role code (uppercase). May use the slot\n                    form ``ROLE.D1`` or ``TEAM`` for broadcast.\n        subject:    One-line subject for the ``subject:`` frontmatter field.\n        body:       Task body in Markdown.\n        priority:   ``P0`` / ``P1`` / ``P2`` / ``P3`` (or legacy aliases).\n                    Default: ``P2``.\n        thread_key: Optional thread identifier.\n        parent: Optional upstream task ID for ``parent:`` frontmatter.\n        references: Comma-separated task filenames for ``references:`` field.\n        risk_level: ``low`` / ``medium`` / ``high`` / ``irreversible``.\n                    Leave empty to accept the default (``medium``).\n\n    Returns:\n        The filename of the created task on success; error string on failure.\n    \n\nVersion policy: CREATE_TASK. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "priority": {
+          "default": "P2",
+          "type": "string"
+        },
+        "thread_key": {
+          "default": "",
+          "type": "string"
+        },
+        "parent": {
+          "default": "",
+          "type": "string"
+        },
+        "references": {
+          "default": "",
+          "type": "string"
+        },
+        "risk_level": {
+          "default": "",
+          "type": "string"
+        },
+        "workspace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "operation_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "branch_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "sender",
+        "recipient",
+        "subject",
+        "body"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1451",
+    "policy": "CREATE_TASK"
+  },
+  {
+    "name": "deploy_role_templates",
+    "description": "Deploy the three-layer team documentation into ``shared/``.\n\n    Writes ``TEAM-README.md`` (bilingual), ``TEAM-ROLES.md``,\n    ``TEAM-OPERATING-RULES.md``, and per-role bios under\n    ``docs/agents/shared/`` (both ``zh`` and ``en`` variants).\n\n    When ``force=True`` (default) existing files are archived under\n    ``.fcop/migrations/<timestamp>/shared/`` before being overwritten,\n    so the action is safely reversible. When ``force=False`` existing\n    files are left untouched and reported as skipped.\n\n    Args:\n        team: Team ID to deploy. Empty = use the current project's\n            ``fcop.json`` team.\n        lang: Language variant to emphasize. Empty = use project\n            language from ``fcop.json``.\n        force: Overwrite existing files (after archiving) vs skip.\n\n    Returns:\n        A summary listing deployed / skipped / archived paths, and\n        the migration directory (when ``force=True`` archived anything).\n    \n\nVersion policy: PROFILE_DEPLOY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "team": {
+          "default": "",
+          "type": "string"
+        },
+        "lang": {
+          "default": "",
+          "type": "string"
+        },
+        "force": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2387",
+    "policy": "PROFILE_DEPLOY"
+  },
+  {
+    "name": "drop_suggestion",
+    "description": "Pressure valve for agents who disagree with the current FCoP protocol.\n\n    Writes a timestamped markdown file under ``.fcop/proposals/`` that\n    ADMIN can review later. **This is the ONLY sanctioned way for an\n    agent to push back on the rule files** (``fcop-rules.mdc`` /\n    ``fcop-protocol.mdc``). Agents MUST NOT edit the rule files\n    themselves; those are ADMIN's source of truth.\n\n    Works before ``init_project`` / ``init_solo`` too — suggestions\n    just land under the project root even if the project is not yet\n    fully initialized.\n\n    Args:\n        content: the suggestion body (plain text or markdown).\n        context: optional short context line (e.g. \"triggered while\n            doing X\"). Rendered as a separate block in the proposal\n            file.\n\n    Returns:\n        Bilingual confirmation with the absolute path of the created\n        file so ADMIN can open it directly.\n    \n\nVersion policy: OPTIONAL_OBSERVATION. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "context": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2719",
+    "policy": "OPTIONAL_OBSERVATION"
+  },
+  {
+    "name": "fcop_audit",
+    "description": "**协议体检工具（ADR-0032）** — deep compliance scan, not Hot Path.\n\n    与 ``fcop_check`` 的区别：\n\n    - ``fcop_check`` — 日常轻量自检（working-tree drift + session/role 冲突）；\n      **不**在每次 ``write_report`` 后自动调用\n    - ``fcop_audit`` — 一次性深度体检（协议合规度全量扫描 + 整改方案）；\n      **不**替代协作闭环，**不**等于业务验收或 ``archive_task``\n\n    **Not lifecycle closure:** passing audit does not archive tasks or\n    accept reports. Execution Block commands are **suggestions** only.\n\n    三个 scope：\n\n    - ``new``      : 新项目验收 — 协议文件是否完整部署\n    - ``upgrade``  : 版本升级后验收 — 规则版本 / 文档是否同步\n    - ``takeover`` : 老 non-fcop 项目首次引入 fcop — 全量合规扫描（含 6 类盲区）\n    - ``auto``     : 自动推断（推荐）\n\n    产出物：``fcop/shared/INSPECTION-{date}-{NNN}-{scope}.md``\n\n    报告含 **Execution Block**：每条违规附带可直接复制的整改命令、执行人、\n    Tier 优先级和回滚方式。\n\n    Args:\n        scope:        ``\"new\"`` | ``\"upgrade\"`` | ``\"takeover\"`` | ``\"auto\"``\n        output:       ``\"file\"`` 写报告文件（默认） | ``\"stdout\"`` 仅返回 Markdown |\n                      ``\"both\"`` 写文件并返回\n        project_path: 保留参数（暂未使用），实际路径由 FCOP_DIR 环境变量或当前目录决定\n    \n\nVersion policy: AUDIT. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "default": "auto",
+          "type": "string"
+        },
+        "output": {
+          "default": "file",
+          "type": "string"
+        },
+        "project_path": {
+          "default": ".",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3486",
+    "policy": "AUDIT"
+  },
+  {
+    "name": "fcop_check",
+    "description": "**FCoP audit.** Cross-reference git working tree + frontmatter\n    against the FCoP ledger.\n\n    Two independent post-hoc audits, both new in 0.7.1\n    (``fcop_protocol_version: 1.6.0``):\n\n    1. **Rule 0.a.1 drift** — files in ``git status --porcelain``\n       that live outside the FCoP ledger (``_lifecycle/`` or legacy\n       ``docs/agents/{tasks,reports,issues,log}/``) are work performed\n       without the task→execute/dispatch→report collaboration cycle.\n       Missing ``archive_task`` on an open task is **not** drift by\n       itself — executors default to **not** archiving (Rule 0.a.5).\n    2. **Rule 1 sub-agent role impersonation** — any ``session_id``\n       that signed files under more than one role code. One session =\n       one role binding for life; cross-role usage is direct evidence\n       that a sub-agent self-claimed a role its parent session was\n       not assigned.\n\n    This tool is **detection, not prevention**. It surfaces the\n    evidence; the protocol-mandated response is for ADMIN to file an\n    ISSUE-* and decide handoff / co-review / distinct-role per\n    Rule 1, just as for the ``role_occupancy`` table in\n    ``fcop_report()``.\n\n    **Not Hot Path auto-run:** do **not** invoke after every\n    ``write_report`` by default. For one-shot deep compliance scans use\n    ``fcop_audit`` instead (Rule 9.6).\n\n    Decomposes to filesystem operations:\n    - ``git status --porcelain -z`` from the project root.\n    - Walk every ``TASK-*.md`` / ``REPORT-*.md`` / ``ISSUE-*.md`` in\n      ``docs/agents/{tasks,reports,issues}`` + ``docs/agents/log/*``.\n    - Read frontmatter only; never task bodies.\n\n    Args:\n        lang: Output language, ``zh`` or ``en``. Default: ``zh``.\n    \n\nVersion policy: CHECK. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3260",
+    "policy": "CHECK"
+  },
+  {
+    "name": "fcop_create_alert",
+    "description": "**ADMIN / Governance Observer only.** Manually file a governance alert.\n\n    Use when you (as ADMIN or an authorized governance observer) detect a\n    governance gap that automated scanning has not yet captured. Creates a\n    new ALERT-*.md file in fcop/alerts/.\n\n    Args:\n        severity:   ``high``, ``medium``, or ``low``.\n        alert_type: One of: ``missing_independent_verdict``,\n                    ``commit_flood_without_governance``,\n                    ``critical_tool_unreviewed``,\n                    ``long_running_without_reconciliation``.\n        summary:    Plain-text description of the governance gap (1-3 sentences).\n        suggestion: Recommended action for ADMIN. Default: \"ADMIN review recommended\".\n    \n\nVersion policy: OPTIONAL_ALERT_WRITE. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "severity": {
+          "type": "string"
+        },
+        "alert_type": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "suggestion": {
+          "default": "ADMIN review recommended",
+          "type": "string"
+        }
+      },
+      "required": [
+        "severity",
+        "alert_type",
+        "summary"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3991",
+    "policy": "OPTIONAL_ALERT_WRITE"
+  },
+  {
+    "name": "fcop_list_alerts",
+    "description": "**ADMIN Governance Alert Inbox.** List governance alerts from fcop/alerts/.\n\n    Alerts are written automatically by `fcop_check()` when governance drift\n    signals are detected (ADR-0031). Each alert is a structured ALERT-*.md file\n    with severity (high/medium/low), type, and a summary of the governance gap.\n\n    This is the ADMIN's \"red dot\" — run this to see what governance gaps\n    the system has surfaced, without needing to manually patrol logs.\n\n    Args:\n        status:   Filter by status: ``open``, ``acknowledged``, ``resolved``.\n                  Empty string returns all statuses.\n        severity: Filter by severity: ``high``, ``medium``, ``low``.\n                  Empty string returns all severities.\n        last_n:   Maximum number of alerts to return (most recent first).\n    \n\nVersion policy: OPTIONAL_ALERT_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "",
+          "type": "string"
+        },
+        "severity": {
+          "default": "",
+          "type": "string"
+        },
+        "last_n": {
+          "default": 20,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3966",
+    "policy": "OPTIONAL_ALERT_READ"
+  },
+  {
+    "name": "fcop_report",
+    "description": "**FCoP Rule 0 — first tool call of every new session, also the\n    general project-status report.**\n\n    Returns one of two reports plus a versions block + optional drift\n    warning (ADR-0006):\n\n    1. **Initialization report** when ``docs/agents/fcop.json`` is\n       missing. Lists the detected project path + resolution source\n       and the available init modes (Solo / preset teams / custom).\n       Does NOT ask for a role assignment — there's no team yet.\n\n    2. **UNBOUND report** when the project is initialized but this\n       session has no role. Shows project state and a role-assignment\n       template for ADMIN to fill in.\n\n    In both cases the ``[Versions]`` block reports installed\n    ``fcop-mcp`` / ``fcop`` versions plus the project-local vs\n    packaged versions of the protocol rules. When the project's\n    ``.cursor/rules/*.mdc`` is older than the wheel-bundled copy a\n    drift warning is appended prompting ADMIN to run\n    ``redeploy_rules()``. Agents must NOT invoke redeploy themselves.\n\n    While UNBOUND (or uninitialized) the agent MUST NOT read task\n    bodies, write any files (except via the explicit init tools), or\n    claim a role from context clues.\n\n    The initialized report includes the **3.2.5 collaboration cycle**\n    (Rule 0.a.1–0.a.6): ``write_task`` → execute/dispatch →\n    ``write_report`` → wait / authorised ``archive_task``. It does\n    **not** deep-audit the project — use ``fcop_check`` (lightweight)\n    or ``fcop_audit`` (deep) when ADMIN requests.\n\n    .. note::\n        This tool replaced ``unbound_report`` in 0.6.3. The deprecated\n        alias was removed in 0.7.0; existing system prompts and\n        ``LETTER-TO-ADMIN.md`` references that still reference\n        ``unbound_report`` must switch to ``fcop_report``.\n\n    Args:\n        lang: Output language, ``zh`` or ``en``. Default: ``zh``.\n    \n\nVersion policy: STATUS. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3214",
+    "policy": "STATUS"
+  },
+  {
+    "name": "finish_task",
+    "description": "Move lifecycle stage: ``active`` → ``done`` (v3 directory move only).\n\n    This is a **lifecycle directory move** — it does **not** replace\n    ``write_report``, upstream acceptance, or authorised ``archive_task``\n    (Rules 0.a.3, 0.a.5, 0.a.6). **Rule 0.a.6:** after reporting, **stop\n    and wait** for review; do **not** chain ``finish_task`` in the same turn\n    as ``write_report`` or treat it as \"business complete\".\n\n    File ops: ``mv _lifecycle/active/TASK-* _lifecycle/done/``. On v2\n    projects this is a no-op.\n\n    Args:\n        task_id: Task ID or full filename.\n        actor:   Role code of the agent finishing the task.\n    \n\nVersion policy: LEGACY_V3_ONLY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "default": "agent",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1705",
+    "policy": "LEGACY_V3_ONLY"
+  },
+  {
+    "name": "get_available_teams",
+    "description": "List bundled preset teams and their role rosters.\n\n    Useful before ``init_project`` to pick a template that fits the\n    work. Each team ships with its own three-layer documentation\n    (``TEAM-README.md`` + ``TEAM-ROLES.md`` + ``TEAM-OPERATING-RULES.md``)\n    that gets deployed into ``docs/agents/shared/`` during ``init_project``.\n\n    Args:\n        lang: Output language hint. Currently only affects display\n            prose; the roster data is language-independent.\n\n    Returns:\n        A block of markdown listing every bundled team with its ID,\n        roster, and leader.\n    \n\nVersion policy: GLOBAL_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2302",
+    "policy": "GLOBAL_READ"
+  },
+  {
+    "name": "get_governance_summary",
+    "description": "**FCoP governance summary.** Return aggregate statistics from the\n    governance event log: total calls by risk level, most active tools,\n    and any CRITICAL_TAG events that should be reconciled with Tasks and Reviews.\n\n    Use as a quick health check: CRITICAL_TAG events without corresponding\n    Task + Review coverage are governance gaps that require ADMIN attention.\n    \n\nVersion policy: OPTIONAL_GOVERNANCE_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3951",
+    "policy": "OPTIONAL_GOVERNANCE_READ"
+  },
+  {
+    "name": "get_team_status",
+    "description": "Return a concise status snapshot of the current project.\n\n    Shows whether the project is initialized, which team / roster is\n    loaded, how many open tasks / reports / issues are on disk, and\n    the five most recent activity entries (sorted newest first).\n\n    Args:\n        lang: Output language (``zh`` / ``en``). Empty = auto-detect\n            from ``docs/agents/fcop.json``.\n    \n\nVersion policy: STATUS. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2339",
+    "policy": "STATUS"
+  },
+  {
+    "name": "init_project",
+    "description": "Initialize an FCoP project with a bundled preset team.\n\n    Since 3.0.2 a fresh init produces the **v3 topology** (per spec\n    §1.1): ``fcop/_lifecycle/{inbox,active,review,done,archive}/`` plus\n    the retained v2 buckets ``reports/`` / ``issues/`` / ``shared/``.\n    The superseded v2 buckets ``tasks/`` and ``log/`` are no longer\n    created on fresh init (use ``python -m fcop migrate --to-v3`` to\n    upgrade an existing v2 project).\n\n    Writes ``fcop/fcop.json``, deposits ``LETTER-TO-ADMIN.md``\n    under ``fcop/``, creates the ``workspace/`` cage with a\n    starter README (per Rule 7.5), deploys the team's three-layer\n    docs to ``fcop/shared/`` (TEAM-README / TEAM-ROLES /\n    TEAM-OPERATING-RULES + ``roles/{ROLE}.md``, both zh and en),\n    and (per ADR-0006) deploys the bundled protocol rules to **four**\n    locations so any agent host sees them:\n    ``.cursor/rules/fcop-rules.mdc``,\n    ``.cursor/rules/fcop-protocol.mdc``, ``AGENTS.md``, and\n    ``CLAUDE.md``. Existing copies are archived to\n    ``.fcop/migrations/<timestamp>/`` before being overwritten.\n\n    Args:\n        team: Team template ID. One of ``dev-team`` / ``media-team`` /\n            ``mvp-team`` / ``qa-team``. Default: ``dev-team``.\n            (Solo mode is a separate entry point — call ``init_solo``\n            instead so the config carries ``mode=\"solo\"``.)\n        lang: Output language. ``zh`` or ``en``. Default: ``zh``.\n        force: When ``True``, overwrite an already-initialized project.\n            The previous ``fcop.json``, letter, workspace README, and\n            ``shared/`` documents are archived under\n            ``.fcop/migrations/<timestamp>/`` before the new content\n            lands — nothing is lost silently. Use this when ADMIN\n            wants to switch teams (e.g. solo → dev-team) without\n            manually wiping the project. Default: ``False``.\n\n    Returns:\n        Post-init summary with roster, leader, and directory layout.\n    \n\nVersion policy: BOOTSTRAP. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "team": {
+          "default": "dev-team",
+          "type": "string"
+        },
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        },
+        "force": {
+          "default": false,
+          "type": "boolean"
+        },
+        "protocol_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profiles": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:823",
+    "policy": "BOOTSTRAP"
+  },
+  {
+    "name": "init_solo",
+    "description": "Initialize an FCoP project in **Solo mode** (one AI, no dispatch).\n\n    Solo mode is for projects where a single agent works directly with\n    ADMIN. Rule 0.b still applies: the agent uses files to split itself\n    into *proposer* and *reviewer*, even though there is no second role.\n\n    Since 3.0.2 fresh init produces the **v3 topology** (per spec §1.1):\n    ``fcop/_lifecycle/{inbox,active,review,done,archive}/`` plus retained\n    ``reports/`` / ``issues/`` / ``shared/``. Superseded v2 buckets\n    (``tasks/``, ``log/``) are no longer created on fresh init.\n\n    Beyond ``fcop.json`` and the canonical directories, this also\n    deposits ``fcop/LETTER-TO-ADMIN.md`` (the user manual),\n    creates the ``workspace/`` cage with a starter README (per Rule\n    7.5), deploys the bundled solo three-layer docs (TEAM-README /\n    TEAM-ROLES / TEAM-OPERATING-RULES + ``roles/ME.md``, both zh and\n    en) to ``docs/agents/shared/``, and (per ADR-0006) drops the\n    bundled protocol rules into ``.cursor/rules/*.mdc`` +\n    ``AGENTS.md`` + ``CLAUDE.md``. Existing copies are archived under\n    ``.fcop/migrations/<timestamp>/`` before being overwritten.\n\n    Args:\n        role_code: The single role code (uppercase letters / digits /\n            underscore, must start with a letter; ``ADMIN`` and\n            ``SYSTEM`` are reserved). Default: ``ME``.\n        role_label: Display label (e.g. ``\"我自己\"``). Currently\n            recorded in ``extra`` for future use; the library does not\n            yet consume it. Safe to omit.\n        lang: Output language, ``zh`` or ``en``.\n        force: When ``True``, overwrite an already-initialized project.\n            All previous artifacts (config, letter, workspace README,\n            ``shared/`` docs, protocol rule files) are archived under\n            ``.fcop/migrations/<timestamp>/`` before the new content\n            lands. Use this when ADMIN wants to switch from team mode\n            back to solo, or re-init solo with a different\n            ``role_code``. Default: ``False``.\n    \n\nVersion policy: BOOTSTRAP. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "role_code": {
+          "default": "ME",
+          "type": "string"
+        },
+        "role_label": {
+          "default": "",
+          "type": "string"
+        },
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        },
+        "force": {
+          "default": false,
+          "type": "boolean"
+        },
+        "protocol_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profiles": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:901",
+    "policy": "BOOTSTRAP"
+  },
+  {
+    "name": "inspect_task",
+    "description": "Validate a task file against FCoP grammar (Hot Path pre-flight).\n\n    Run **before executing** on a claimed/assigned task, alongside\n    ``read_task``. Catches deterministic violations agents often miss\n    (filename ``to-DEV`` vs frontmatter ``recipient: QA``, mistyped\n    ``protocol``, missing required fields). ``PASS`` does **not** replace\n    reading the task body for acceptance criteria.\n\n    File ops: read filename + frontmatter and validate grammar only.\n\n    Args:\n        filename: Task filename or ID (same forms as ``read_task``).\n\n    Returns:\n        ``\"PASS\"`` if the file is fully FCoP-compliant, else a bulleted\n        list of violations with field names and suggestions.\n    \n\nVersion policy: INSPECT. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "include_family_digest": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1246",
+    "policy": "INSPECT"
+  },
+  {
+    "name": "list_governance_events",
+    "description": "**FCoP governance audit.** Read the append-only governance event log.\n\n    Returns recent tool-call intercept events recorded by the\n    FCoPGovernanceMiddleware (ADR-0030-bis Layer 1). Use this to understand\n    what actions agents have taken and their risk classification.\n\n    Each event contains:\n      - tool: MCP tool name called\n      - risk: Safe | Sensitive | Critical\n      - tag:  ALLOW | REVIEW_TAG | CRITICAL_TAG\n      - args_hash: sha256 fingerprint of arguments (first 12 chars shown)\n      - session_id: caller session (if available)\n      - ts: unix timestamp\n\n    Args:\n        last_n: Maximum number of recent events to return (default 50).\n        risk:   Filter by risk level: \"Safe\", \"Sensitive\", \"Critical\", or \"\" (all).\n        tag:    Filter by tag: \"ALLOW\", \"REVIEW_TAG\", \"CRITICAL_TAG\", or \"\" (all).\n    \n\nVersion policy: OPTIONAL_GOVERNANCE_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "last_n": {
+          "default": 50,
+          "type": "integer"
+        },
+        "risk": {
+          "default": "",
+          "type": "string"
+        },
+        "tag": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3923",
+    "policy": "OPTIONAL_GOVERNANCE_READ"
+  },
+  {
+    "name": "list_history",
+    "description": "List the deep history archive.\n\n    When *date* is supplied (``YYYY-MM-DD``) the tool lists every task\n    entry stored under that date shard.  When *date* is omitted it lists\n    all available date shards (newest first).\n\n    Args:\n        date: Optional date shard in ``YYYY-MM-DD`` format.\n              Leave empty to list all available date shards.\n    \n\nVersion policy: LEGACY_V3_ONLY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1501",
+    "policy": "LEGACY_V3_ONLY"
+  },
+  {
+    "name": "list_issues",
+    "description": "List issues, optionally filtered.\n\n    Args:\n        reporter: Filter by reporter role code (case-insensitive).\n        severity: Filter by severity (``critical`` / ``high`` /\n            ``medium`` / ``low``). Empty = all.\n        limit: Maximum number of rows (0 = no limit).\n        offset: Number of rows to skip.\n        lang: Kept for 0.5.4 parity; currently unused.\n    \n\nVersion policy: LIST_ISSUE. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "reporter": {
+          "default": "",
+          "type": "string"
+        },
+        "severity": {
+          "default": "",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "lang": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2259",
+    "policy": "LIST_ISSUE"
+  },
+  {
+    "name": "list_reports",
+    "description": "List reports, optionally filtered.\n\n    Args:\n        reporter: Filter by reporter role code (case-insensitive).\n        task_id: Filter by source task ID.\n        status: ``open`` (default), ``archived``, or ``all``.\n        limit: Maximum number of rows (0 = no limit).\n        offset: Number of rows to skip.\n    \n\nVersion policy: LIST_REPORT. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "reporter": {
+          "default": "",
+          "type": "string"
+        },
+        "task_id": {
+          "default": "",
+          "type": "string"
+        },
+        "status": {
+          "default": "open",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "attempt_id": {
+          "default": "",
+          "type": "string"
+        },
+        "head_only": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1943",
+    "policy": "LIST_REPORT"
+  },
+  {
+    "name": "list_reviews",
+    "description": "List REVIEW files, optionally filtered.\n\n    Args:\n        reviewer_role: Filter by reviewer role code.\n        decision: Filter by decision value (``approved`` / ``rejected``\n            / ``needs_changes`` / ``abstained`` / ``needs_human``).\n        subject_type: Filter by subject type (``task`` / ``report`` /\n            ``role_switch`` / ``code_change``).\n        status: ``open`` (default) / ``archived`` / ``all``.\n        limit: Maximum number of rows (0 = no limit).\n        offset: Skip this many rows.\n\n    Returns:\n        Formatted list of reviews, newest first.\n    \n\nVersion policy: LIST_REVIEW. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "reviewer_role": {
+          "default": "",
+          "type": "string"
+        },
+        "decision": {
+          "default": "",
+          "type": "string"
+        },
+        "subject_type": {
+          "default": "",
+          "type": "string"
+        },
+        "status": {
+          "default": "open",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "review_kind": {
+          "default": "",
+          "type": "string"
+        },
+        "subject_ref": {
+          "default": "",
+          "type": "string"
+        },
+        "attempt_id": {
+          "default": "",
+          "type": "string"
+        },
+        "authorization_ref": {
+          "default": "",
+          "type": "string"
+        },
+        "profile_ref": {
+          "default": "",
+          "type": "string"
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2114",
+    "policy": "LIST_REVIEW"
+  },
+  {
+    "name": "list_tasks",
+    "description": "List tasks, optionally filtered.\n\n    Args:\n        sender: Filter by sender role code (case-insensitive).\n        recipient: Filter by recipient role code. Matches ``to-ROLE``,\n            ``to-ROLE.SLOT``, and ``to-TEAM`` broadcasts.\n        status: ``open`` (default), ``archived``, or ``all``.\n        date: Filter by YYYYMMDD date stamp.\n        limit: Maximum number of rows to return (0 = no limit).\n        offset: Number of rows to skip before returning.\n    \n\nVersion policy: LIST_TASK. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "sender": {
+          "default": "",
+          "type": "string"
+        },
+        "recipient": {
+          "default": "",
+          "type": "string"
+        },
+        "status": {
+          "default": "open",
+          "type": "string"
+        },
+        "date": {
+          "default": "",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "stage": {
+          "default": "",
+          "type": "string"
+        },
+        "parent": {
+          "default": "",
+          "type": "string"
+        },
+        "branch_of": {
+          "default": "",
+          "type": "string"
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1190",
+    "policy": "LIST_TASK"
+  },
+  {
+    "name": "list_workspaces",
+    "description": "List all ``workspace/<slug>/`` subdirectories with their metadata.\n\n    Picks up both workspaces created by ``new_workspace`` (they have\n    a ``.workspace.json`` marker) and directories created by hand\n    (shown with just the slug). Use for the at-a-glance \"what's\n    inside this project\" view.\n\n    Args:\n        lang: Output language (``zh``/``en``). Empty = auto-detect\n            from project config.\n    \n\nVersion policy: DISCOVERY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2642",
+    "policy": "DISCOVERY"
+  },
+  {
+    "name": "mark_human_approved",
+    "description": "Record a human approval decision on a ``needs_human`` REVIEW file.\n\n    Closes the escalation loop opened by ``write_review(decision='needs_human')``.\n    Writes ``human_approval`` sub-structure into the REVIEW frontmatter\n    and returns the updated review summary (per ADR-0026).\n\n    Args:\n        review_id: The stable review ID — filename stem without ``.md``\n            (e.g. ``REVIEW-20260510-001-ADMIN-on-some-task``).\n        approver: Role code of the human approver. MUST be an agent\n            with ``layer: admin`` (e.g. ``ADMIN``).\n        decision: Human's binary decision: ``approve`` or ``reject``.\n        channel: Channel through which the approval was submitted.\n            One of ``mobile`` / ``cli`` / ``web`` / ``manual_file_edit``.\n            Default: ``cli``.\n        comment: Optional free-text comment from the approver.\n\n    Returns:\n        Summary of the updated review on success; error string on failure.\n    \n\nVersion policy: APPEND_AUTHORIZATION. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "review_id": {
+          "type": "string"
+        },
+        "approver": {
+          "type": "string"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "channel": {
+          "default": "cli",
+          "type": "string"
+        },
+        "comment": {
+          "default": "",
+          "type": "string"
+        },
+        "profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "from_stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "to_stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issued_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issuer_proof": {
+          "default": null,
+          "title": "Issuer Proof"
+        }
+      },
+      "required": [
+        "review_id",
+        "approver",
+        "decision"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2202",
+    "policy": "APPEND_AUTHORIZATION"
+  },
+  {
+    "name": "new_workspace",
+    "description": "Create a workspace subdirectory under ``workspace/<slug>/``.\n\n    ``workspace/<slug>/`` is FCoP's soft convention for the actual\n    artifacts of a piece of work — code, scripts, data. Keeping those\n    out of the project root prevents yesterday's mini-game from\n    colliding with today's report generator.\n\n    Idempotent: calling twice with the same slug updates the title /\n    description but never wipes files you already dropped in the\n    folder.\n\n    Args:\n        slug: Short lowercase-hyphen name matching ``^[a-z][a-z0-9-]*$``\n            and ≤ 40 chars. Examples: ``csdn-search``, ``mini-game``,\n            ``weekly-report-2026w17``.\n        title: Optional human-readable title (any language).\n        description: Optional one-paragraph description, written into\n            the per-slug README.\n    \n\nVersion policy: NEW_WORKSPACE. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "type": "string"
+        },
+        "protocol_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profiles": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "slug"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2533",
+    "policy": "NEW_WORKSPACE"
+  },
+  {
+    "name": "read_history_task",
+    "description": "Read a task from the deep history archive.\n\n    Searches ``history/`` for the task matching *task_id*.  Providing\n    *date* restricts the search to that date shard (much faster).\n\n    Args:\n        task_id: Task ID (e.g. ``TASK-20260522-001``) or full filename.\n        date:    Optional ``YYYY-MM-DD`` date shard to restrict the search.\n    \n\nVersion policy: LEGACY_V3_ONLY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "date": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1548",
+    "policy": "LEGACY_V3_ONLY"
+  },
+  {
+    "name": "read_report",
+    "description": "Read the full content of a report file.\n\n    Args:\n        filename: Report filename or the ``task_id`` the report was\n            filed against.\n    \n\nVersion policy: READ_REPORT. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1984",
+    "policy": "READ_REPORT"
+  },
+  {
+    "name": "read_review",
+    "description": "Read the full content of a REVIEW file.\n\n    Args:\n        filename: Review filename or review ID\n            (``REVIEW-YYYYMMDD-NNN-{reviewer}-on-{slug}[.md]``).\n    \n\nVersion policy: READ_REVIEW. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2161",
+    "policy": "READ_REVIEW"
+  },
+  {
+    "name": "read_task",
+    "description": "Read the full content of a task file (Hot Path pre-flight).\n\n    **Before executing** on an assigned or claimed task, call this\n    **together with** ``inspect_task`` (Rules 0.a.1 / 0.a.2). Do not\n    mutate the workspace or dispatch from chat/memory alone.\n\n    File ops: ``cat`` the file under ``_lifecycle/{stage}/TASK-*.md``,\n    legacy ``fcop/tasks/``, or ``fcop/log/`` when archived.\n\n    Args:\n        filename: Task filename (e.g. ``TASK-20260423-001-PM-to-DEV.md``)\n            or plain task ID (e.g. ``TASK-20260423-001``). Both open\n            and archived tasks are searched.\n    \n\nVersion policy: READ_TASK. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1163",
+    "policy": "READ_TASK"
+  },
+  {
+    "name": "redeploy_rules",
+    "description": "**Legacy v1-v3 only; ADMIN-only.** Re-deploy legacy bundled rules.\n\n    Declared FCoP 4.0 workspaces reject this tool with\n    ``toolkit:OPERATION_NOT_IMPLEMENTED`` and zero writes, regardless of\n    force/archive. Use package-owned rules and MCP resources for v4;\n    project-root Host instruction files remain application-owned.\n\n    On supported legacy workspaces only, writes :file:`fcop-rules.mdc` /\n    :file:`fcop-protocol.mdc` to **four** locations so any agent host\n    the project runs under sees the same rules:\n\n    .. code-block:: text\n\n        <root>/.cursor/rules/fcop-rules.mdc       # Cursor IDE\n        <root>/.cursor/rules/fcop-protocol.mdc    # Cursor IDE\n        <root>/AGENTS.md                          # Codex / Cursor / Devin / generic\n        <root>/CLAUDE.md                          # Claude Code CLI\n\n    For an explicitly maintained legacy workspace, run this after\n    ``pip install -U fcop-mcp`` (or ``-U fcop``)\n    to refresh on-disk copies to the newly packaged versions.\n    ``fcop_report()`` shows when this is needed via the version\n    drift warning.\n\n    Per ADR-0006, agents must NOT invoke this tool themselves —\n    only ADMIN does, explicitly.\n\n    Args:\n        force: When ``True`` (default) overwrite existing copies.\n            ``False`` skips files that already exist (no-op for an\n            up-to-date project).\n        archive: When ``True`` (default) and ``force=True``, the\n            existing copy is moved to\n            :file:`.fcop/migrations/<timestamp>/rules/<rel>` before\n            being overwritten so ADMIN can diff or roll back.\n            ``False`` skips archiving (destructive — only safe when\n            the project has no local edits).\n        lang: Output language, ``zh`` or ``en``.\n    \n\nVersion policy: LEGACY_RULE_DEPLOY. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "force": {
+          "default": true,
+          "type": "boolean"
+        },
+        "archive": {
+          "default": true,
+          "type": "boolean"
+        },
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3557",
+    "policy": "LEGACY_RULE_DEPLOY"
+  },
+  {
+    "name": "reject_task",
+    "description": "Reject / recall: ``review`` → ``active`` (v3 rework loop).\n\n    Returns the task to ``active/`` for revision after a ``REPORT-*``\n    or review finding (complements Rule 0.a.6 stop-and-wait). **Lifecycle\n    only** — does not delete reports or auto-call ``archive_task``.\n\n    File ops: ``mv _lifecycle/review/TASK-* _lifecycle/active/`` + append\n    ``reject_task`` event. On v2 projects this is a no-op.\n\n    Args:\n        task_id: Task ID or full filename.\n        actor:   Role code of the rejector (default ``\"ADMIN\"``).\n        note:    Mandatory rejection reason (strongly recommended).\n    \n\nVersion policy: T5. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "default": "ADMIN",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        },
+        "report_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "review_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1824",
+    "policy": "T5"
+  },
+  {
+    "name": "set_project_dir",
+    "description": "Pin the project root for this MCP session.\n\n    Useful when the MCP process was spawned with the wrong working\n    directory — typical symptom: ``unbound_report`` shows a project\n    path like ``C:\\Users\\<you>`` instead of the workspace you\n    actually opened in Cursor. Calling this tool once re-binds every\n    subsequent tool call to the given directory, **without** editing\n    ``mcp.json`` or restarting Cursor.\n\n    Safe to call while UNBOUND — re-pointing at a directory is not a\n    role-claim and writes nothing. It only mutates in-process state.\n\n    Args:\n        path: absolute path to the project root (the directory that\n            should contain ``docs/agents/`` and ``.cursor/rules/``).\n            The directory must exist; it does not need to be an\n            already-initialized FCoP project.\n\n    Returns:\n        Bilingual confirmation with the resolved absolute path and\n        whether ``docs/agents/fcop.json`` is present.\n    \n\nVersion policy: BIND. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:388",
+    "policy": "BIND"
+  },
+  {
+    "name": "submit_task",
+    "description": "Submit for review: ``active`` → ``review`` (v3 lifecycle directory move).\n\n    **Lifecycle only (Rule 0.a.3).** Does **not** replace ``write_report``,\n    upstream acceptance, or authorised ``archive_task``. Pair with a\n    ``REPORT-*`` before or after submit as your team's operating rules\n    require — this tool alone does not close business work.\n\n    File ops: ``mv _lifecycle/active/TASK-* _lifecycle/review/``. On v2\n    projects this is a no-op.\n\n    Args:\n        task_id: Task ID or full filename.\n        actor:   Role code of the agent submitting the task.\n    \n\nVersion policy: T3. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "default": "agent",
+          "type": "string"
+        },
+        "report_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1647",
+    "policy": "T3"
+  },
+  {
+    "name": "upgrade_fcop",
+    "description": "Return the install-method-specific command to upgrade fcop-mcp.\n\n    Does NOT run pip — MCP servers cannot safely upgrade themselves\n    mid-process, and different install methods (``pip`` in a venv,\n    ``pipx``, ``uvx``) need different commands. This tool prints the\n    right incantation for the user to run in their own shell.\n\n    Args:\n        lang: Output language, ``zh`` or ``en``.\n    \n\nVersion policy: GLOBAL_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "default": "zh",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:3714",
+    "policy": "GLOBAL_READ"
+  },
+  {
+    "name": "validate_team_config",
+    "description": "Dry-run validation for a custom team config.\n\n    Use **before** ``create_custom_team`` to catch illegal role codes\n    (Chinese characters, dashes, reserved names, duplicates) without\n    writing anything to disk.\n\n    Args:\n        roles: Comma-separated role codes.\n        leader: Leader role code; must be one of ``roles``.\n\n    Returns:\n        ``\"OK\"`` if valid, else a bulleted list of violations.\n    \n\nVersion policy: GLOBAL_READ. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "roles": {
+          "type": "string"
+        },
+        "leader": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "roles",
+        "leader"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1055",
+    "policy": "GLOBAL_READ"
+  },
+  {
+    "name": "write_issue",
+    "description": "File an issue under ``docs/agents/issues/``.\n\n    Args:\n        reporter: Reporter role code (uppercase).\n        summary: One-line summary written into the filename and\n            frontmatter.\n        body: Detailed issue body in Markdown.\n        severity: ``critical`` / ``high`` / ``medium`` / ``low``.\n            Aliases: ``P0`` → critical, ``P1`` → high, ``P2`` →\n            medium, ``P3`` → low.\n    \n\nVersion policy: APPEND_ISSUE. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "reporter": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "severity": {
+          "default": "medium",
+          "type": "string"
+        },
+        "workspace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "subject_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "recipient": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "reporter",
+        "summary",
+        "body"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2004",
+    "policy": "APPEND_ISSUE"
+  },
+  {
+    "name": "write_report",
+    "description": "Write a completion report for a task.\n\n    Creates ``REPORT-<task_id>-{REPORTER}-to-{RECIPIENT}.md`` under\n    ``docs/agents/reports/`` (v3: co-located under ``_lifecycle/``).\n    The ``task_id`` is the canonical reference back to the source task.\n\n    **Stop signal (Rule 0.a.6):** after this call, wait for upstream\n    review / rework — do not keep editing artefacts, dispatch unrelated\n    work, or call ``archive_task`` unless explicitly authorised.\n\n    Does **not** trigger ``finish_task``, ``approve_task``, or\n    ``archive_task`` automatically. ``status=blocked`` still leaves the\n    task open for upstream action.\n\n    File ops: write ``REPORT-*.md`` under ``fcop/reports/`` or co-located\n    ``_lifecycle/`` stage.\n\n    Args:\n        task_id: Source task ID (e.g. ``TASK-20260423-001``).\n        reporter: Reporter role code (uppercase).\n        recipient: Recipient role code (typically the PM).\n        body: Report body in Markdown.\n        status: ``done`` / ``in_progress`` / ``blocked``.\n        priority: FCoP priority; accepts ``P0``–``P3`` and aliases.\n    \n\nVersion policy: APPEND_REPORT. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "reporter": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "status": {
+          "default": "done",
+          "type": "string"
+        },
+        "priority": {
+          "default": "P2",
+          "type": "string"
+        },
+        "workspace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "report_kind": {
+          "default": "final",
+          "type": "string"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id",
+        "reporter",
+        "recipient",
+        "body"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1886",
+    "policy": "APPEND_REPORT"
+  },
+  {
+    "name": "write_review",
+    "description": "Write a REVIEW file (governance-layer decision, per ADR-0017/0025).\n\n    Args:\n        reviewer_role: Role code of the reviewer (must have\n            ``review_decision`` capability; typically ``layer: governance``\n            or ``layer: admin``).\n        subject_type: What is being reviewed. One of\n            ``task`` / ``report`` / ``role_switch`` / ``code_change``.\n        subject_ref: Reference to the artefact under review —\n            file path for task/report/code_change; fcop.json diff range\n            for role_switch.\n        decision: Review decision. One of:\n            ``approved`` — artefact is accepted;\n            ``rejected`` — artefact is rejected (cannot proceed);\n            ``needs_changes`` — must be revised (requires ``required_changes``);\n            ``abstained`` — reviewer recuses;\n            ``needs_human`` — reviewer escalates to human (ADR-0025,\n            v1.1). The review stays pending until ``mark_human_approved``\n            is called to close the loop.\n        rationale: Free-text rationale for the decision. Recommended\n            for all non-``approved`` decisions.\n        required_changes: Newline- or comma-separated list of required\n            changes. Mandatory when ``decision=needs_changes``.\n        reviewer_agent: Optional agent/session identifier on top of\n            the role code.\n        body: Additional Markdown body after the frontmatter.\n        subject_short: Override the ``-on-{slug}`` segment of the\n            filename. Auto-derived from ``subject_ref`` when omitted.\n\n    Returns:\n        The filename of the created REVIEW on success; error string on\n        failure.\n    \n\nVersion policy: APPEND_REVIEW. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "reviewer_role": {
+          "type": "string"
+        },
+        "subject_type": {
+          "type": "string"
+        },
+        "subject_ref": {
+          "type": "string"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "type": "string"
+        },
+        "required_changes": {
+          "default": "",
+          "type": "string"
+        },
+        "reviewer_agent": {
+          "default": "",
+          "type": "string"
+        },
+        "body": {
+          "default": "",
+          "type": "string"
+        },
+        "subject_short": {
+          "default": "",
+          "type": "string"
+        },
+        "workspace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "recipient": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "review_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issued_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "operation_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transition": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issuer_proof": {
+          "default": null,
+          "title": "Issuer Proof"
+        }
+      },
+      "required": [
+        "reviewer_role",
+        "subject_type",
+        "subject_ref",
+        "decision"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:2042",
+    "policy": "APPEND_REVIEW"
+  },
+  {
+    "name": "write_task",
+    "description": "Create a new task file (Cold Path dispatch or formal intake only).\n\n    **Not Hot Path execution.** Use when ``ADMIN`` / ``leader`` assigns\n    work, when Cold Path fan-out dispatches subtasks, or when you were\n    explicitly told to land a formal task. Agents **must NOT**\n    self-dispatch without an upstream requirement (Rule 0.a.2).\n\n    Subtask linking: set ``thread_key`` for thread continuity; set\n    ``parent`` to the upstream task ID (``parent:`` frontmatter — work\n    derivation, distinct from ``references``). Do **not** emit\n    ``parent_task_id`` as normative output (read-only legacy alias only).\n\n    File ops: write ``TASK-*.md`` under ``_lifecycle/inbox/`` (v3) or\n    ``fcop/tasks/`` (v2). Does **not** claim, finish, or archive.\n\n    The library assigns a filename of the form\n    ``TASK-YYYYMMDD-NNN-{SENDER}-to-{RECIPIENT}.md`` with FCoP-compliant\n    YAML frontmatter + markdown body. In v3 the recipient ``claim_task``s\n    from inbox.\n\n    Args:\n        sender: Sender role code (uppercase).\n        recipient: Recipient role code (uppercase). May use the\n            slot form ``ROLE.D1`` for per-slot targeting or ``TEAM``\n            for broadcast.\n        subject: One-line subject written to the ``subject:``\n            frontmatter field.\n        body: Task body in Markdown.\n        priority: FCoP priority. Accepts ``P0`` / ``P1`` / ``P2`` /\n            ``P3`` (canonical) or the legacy aliases\n            ``urgent`` / ``high`` / ``normal`` / ``low``. Default:\n            ``P2``.\n        thread_key: Optional thread identifier for linking this task\n            to an ongoing conversation.\n        parent: Optional upstream task ID (``TASK-YYYYMMDD-NNN-...``)\n            written to ``parent:`` frontmatter for subtask derivation.\n        references: Comma-separated task filenames this task refers\n            back to (for ``references:`` frontmatter field).\n        risk_level: Operation risk level (per ADR-0024). One of\n            ``low`` / ``medium`` / ``high`` / ``irreversible``.\n            Default: ``medium``. ``high`` and ``irreversible`` will\n            automatically require a ``needs_human`` review gate.\n            Leave empty to accept the default (``medium``).\n\n    Returns:\n        The filename of the created task on success; error string\n        on failure.\n    \n\nVersion policy: CREATE_TASK. Legacy prose above applies to v3. v4 dispatch uses public Project operations and structured results; actor is not authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "priority": {
+          "default": "P2",
+          "type": "string"
+        },
+        "thread_key": {
+          "default": "",
+          "type": "string"
+        },
+        "parent": {
+          "default": "",
+          "type": "string"
+        },
+        "references": {
+          "default": "",
+          "type": "string"
+        },
+        "risk_level": {
+          "default": "",
+          "type": "string"
+        },
+        "workspace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "operation_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "branch_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "sender",
+        "recipient",
+        "subject",
+        "body"
+      ],
+      "type": "object"
+    },
+    "implementation": "D:\\FCoP\\mcp/src\\fcop_mcp\\adapter.py:1081",
+    "policy": "CREATE_TASK"
+  }
+]

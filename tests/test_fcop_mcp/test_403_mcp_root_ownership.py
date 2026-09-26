@@ -26,7 +26,7 @@ def test_stdio_bootstrap_and_resources_without_host_dependency(
 ) -> None:
     before = customer(tmp_path, occupied)
     launcher = (
-        "from fcop_mcp.adapter import create_server; "
+        "from fcop_mcp.compatibility.v3.server import create_server; "
         f"create_server({str(tmp_path)!r}).run(transport='stdio')"
     )
     params = StdioServerParameters(command=sys.executable, args=["-I", "-B", "-c", launcher])

@@ -1,6 +1,6 @@
 # FCoP 4.0 — idempotency
 
-Audience: business-agent. Package: 4.0.3. Language: en.
+Audience: business-agent. Package: 4.0.5. Language: en.
 Primary authority: frozen Core 1f91d53c51f040b1f4bd306d72d7e31ce35c7084, spec/fcop-4.0-spec.md.
 This derived guidance grants no execution, adoption, Host or release authority.
 Dependencies (explicit selection): workspace.

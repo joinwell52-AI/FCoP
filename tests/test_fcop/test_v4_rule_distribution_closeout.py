@@ -13,7 +13,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.errors import FcopError
 
 from .test_v4_rule_distribution import distribution as distribution

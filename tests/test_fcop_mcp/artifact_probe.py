@@ -93,8 +93,8 @@ async def base() -> None:
 
 
 async def relay() -> None:
+    from fcop_mcp.compatibility.v3.server import mcp
     from fcop_mcp.relay import run_relay
-    from fcop_mcp.server import mcp
     from websockets.asyncio.server import serve
 
     completed = asyncio.Event()

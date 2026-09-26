@@ -17,9 +17,9 @@ from fcop import (
     EventType,
     Failure,
     FailureType,
-    Project,
     RecoveryAction,
 )
+from fcop.compatibility.v3.project import Project
 from fcop.errors import BoundaryViolationError
 
 # ── helpers ──────────────────────────────────────────────────────────

@@ -13,8 +13,9 @@ from typing import Any
 
 from fcop import Project
 from fcop.errors import V4ProtocolError, _V4Code
+from packaging.version import Version
 
-PACKAGE_COMPATIBILITY = frozenset({("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1"), ("4.0.0", "4.0.0"), ("4.0.1", "4.0.1"), ("4.0.2", "4.0.2"), ("4.0.3", "4.0.3")})
+PACKAGE_COMPATIBILITY = frozenset({("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1"), ("4.0.0", "4.0.0"), ("4.0.1", "4.0.1"), ("4.0.2", "4.0.2"), ("4.0.3", "4.0.3"), ("4.0.5", "4.0.5")})
 
 
 def check_package_compatibility() -> None:
@@ -23,6 +24,8 @@ def check_package_compatibility() -> None:
         pair = (version("fcop"), version("fcop-mcp"))
     except PackageNotFoundError as exc:
         raise RuntimeError("toolkit:MCP_PACKAGE_INCOMPATIBLE: missing package metadata") from exc
+    if pair[1] == "4.0.5" and Version("4.0.5") <= Version(pair[0]) < Version("4.1.0"):
+        return
     if pair not in PACKAGE_COMPATIBILITY:
         raise RuntimeError(f"toolkit:MCP_PACKAGE_INCOMPATIBLE: unsupported pair {pair!r}")
 
@@ -56,8 +59,7 @@ class WorkspaceRouter:
         self._trusted_profiles = MappingProxyType(dict(trusted_profiles or {}))
 
     def route(self) -> Route:
-        project = Project(self.root, trusted_profiles=self._trusted_profiles)
-        path = project.config_path
+        path = self.root / "fcop" / "fcop.json"
         try:
             raw = path.read_bytes()
             value = json.loads(raw.decode("utf-8"), object_pairs_hook=_unique_object)
@@ -88,6 +90,12 @@ class WorkspaceRouter:
                 _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Unsupported declared workspace version",
                 operation_ref="workspace_binding", subject_ref=str(self.root),
             )
+        if declared == "v3":
+            from fcop.compatibility.v3.project import Project as LegacyProject
+
+            project = LegacyProject(self.root)
+        else:
+            project = Project(self.root, trusted_profiles=self._trusted_profiles)
         return Route(self.root, declared, project, frozenset({declared}))
 
     def bind(self, root: Path | str) -> Route:

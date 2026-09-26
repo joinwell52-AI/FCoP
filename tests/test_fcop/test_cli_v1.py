@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
 from fcop.cli._main import main
+from fcop.compatibility.v3.project import Project
 from tests.conformance.v4.fixtures import snapshot_tree
 
 COMMANDS = ("init", "status", "inspect", "validate", "tools", "doctor", "version", "spec")
@@ -53,7 +53,8 @@ def test_exact_top_level_surface(capsys):
     from fcop.cli._main import _build_parser
 
     action = next(a for a in _build_parser()._actions if isinstance(a, argparse._SubParsersAction))
-    assert set(action.choices) == {*COMMANDS, "migrate", "migrate-workspace"}
+    assert set(action.choices) == {*COMMANDS, "migrate", "migrate-workspace",
+                                   "audit", "check-update", "profile", "upgrade"}
     assert main([]) == 1
     captured = capsys.readouterr()
     assert not captured.out and "fcop-mcp" in captured.err

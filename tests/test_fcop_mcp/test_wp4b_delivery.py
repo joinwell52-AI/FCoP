@@ -15,11 +15,11 @@ import pytest
 import yaml
 from fastmcp import Client
 from fastmcp.exceptions import ResourceError
-from fcop_mcp import server
+from fcop_mcp.compatibility.v3 import server
 from fcop_mcp.disposition import RESOURCES, TEMPLATES, TOOLS
 from fcop_mcp.routing import WorkspaceRouter
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 
 
 def call(mcp: Any, name: str, args: dict[str, Any]) -> Any:
@@ -95,7 +95,7 @@ def test_unknown_version_zero_write(tmp_path: Path, manifest: bytes) -> None:
     result = call(server.create_server(tmp_path), "create_task",
                   dict(sender="ME", recipient="ME", subject="Reject", body="No writes"))
     assert result.is_error
-    expected = "UNSUPPORTED_PROTOCOL" if manifest == b'{"protocol_version":"9.0"}' else "UNSUPPORTED_WORKSPACE_VERSION"
+    expected = "UNSUPPORTED_WORKSPACE_VERSION"
     assert result.structured_content["code"] == expected
     assert facts(tmp_path) == before
 
@@ -168,7 +168,8 @@ def test_stdio_explicit_no_relay(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
         seen.append(kwargs["transport"])
     def network(*args: Any, **kwargs: Any) -> Any:
         raise AssertionError("Base stdio must not connect")
-    monkeypatch.setattr(server.mcp, "run", stdio)
+    from types import SimpleNamespace
+    monkeypatch.setattr("fcop_mcp.registry.create_server", lambda root: SimpleNamespace(run=stdio))
     monkeypatch.setattr(socket, "create_connection", network)
     monkeypatch.setenv("FCOP_RELAY_WS_URL", "wss://must-not-be-used.invalid")
     monkeypatch.setenv("FCOP_ROOM_KEY", "must-not-activate")

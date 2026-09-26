@@ -22,7 +22,7 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from fcop_mcp.server import mcp
+from fcop_mcp.compatibility.v3.server import mcp
 
 
 def _text(result: object) -> str:

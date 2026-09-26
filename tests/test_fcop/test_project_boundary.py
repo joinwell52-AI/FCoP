@@ -12,8 +12,8 @@ import pytest
 
 from fcop import (
     BoundaryViolationError,
-    Project,
 )
+from fcop.compatibility.v3.project import Project
 from fcop.core.boundary import (
     RULE_NO_GOVERNANCE_FISSION,
     RULE_NO_WORKER_REVIEWS_GOVERNANCE,

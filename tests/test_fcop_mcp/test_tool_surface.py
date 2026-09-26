@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import TypedDict
 
 import pytest
-from fcop_mcp.server import mcp
+from fcop_mcp.compatibility.v3.server import mcp
 
 SNAPSHOT_PATH = Path(__file__).parent / "snapshots" / "tool_surface.json"
 V4_SNAPSHOT_PATH = Path(__file__).parent / "snapshots" / "tool_surface_v4.json"

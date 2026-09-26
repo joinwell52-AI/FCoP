@@ -38,6 +38,8 @@ def add_subparsers(sub: Any) -> None:
             parser.add_argument("--root", type=Path, default=None, help="Project root (default cwd).")
         if name == "init":
             parser.add_argument("--protocol", default=None, help="Installed Core protocol (default).")
+            parser.add_argument("path", nargs="?", type=Path)
+            parser.add_argument("--profile", help="Explicit profile ID or JSON path; no implicit team")
         if name == "inspect":
             target = parser.add_mutually_exclusive_group(required=True)
             target.add_argument("task_id", nargs="?")
@@ -150,8 +152,13 @@ def _doctor(root: Path) -> tuple[dict[str, Any], int]:
 def _run(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     root = (getattr(args, "root", None) or Path.cwd()).resolve()
     if args.cmd == "init":
+        root = (args.path or root).resolve()
+        profiles = []
+        if args.profile:
+            from fcop.profiles import load_profile
+            profiles = [load_profile(args.profile)["id"]]
         return Project(root).create_workspace(
-            protocol_version=args.protocol or bundled_inventory()["protocol_version"]), 0
+            protocol_version=args.protocol or bundled_inventory()["protocol_version"], profiles=profiles), 0
     if args.cmd == "status":
         return workspace_status(root), 0
     if args.cmd == "inspect":

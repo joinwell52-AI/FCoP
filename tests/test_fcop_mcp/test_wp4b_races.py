@@ -100,7 +100,7 @@ def test_cross_process_create_idempotency(tmp_path: Path, different: bool) -> No
 import asyncio,json,sys,time
 from pathlib import Path
 from fastmcp import Client
-from fcop_mcp.server import create_server
+from fcop_mcp.compatibility.v3.server import create_server
 root=Path(sys.argv[1]); start=Path(sys.argv[2]); request=json.loads(sys.argv[3]); ready=Path(sys.argv[4])
 async def run():
     async with Client(create_server(root)) as client:

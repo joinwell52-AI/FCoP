@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.lifecycle.state import ensure_lifecycle_dirs
 
 

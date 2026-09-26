@@ -37,7 +37,7 @@ This is the expected output shape. Your run must actually finish before reportin
 
    Replace `<new-demo-parent>` with an actual path. Omit `--output` to use the system temporary directory. Every run creates a new directory and preserves its files. Initial package downloads may take longer than later runs.
 
-4. Check the exit code and read the generated `result.json`. Require `status=pass`, `stage=review`, matching task/attempt/report identities, the actual report digest and unchanged workspace file hashes. Discovery should report 49 tools, 12 resources and 4 templates for this pinned pair. The transcript and two stderr logs sit alongside the workspace.
+4. Check the exit code and read the generated `result.json`. Require `status=pass`, `stage=review`, matching task/attempt/report identities, the actual report digest and unchanged workspace file hashes. This example pins the historical 4.0.3 pair; its tool inventory is documented in the [migration guide](migration-4.0.5-mcp.md). The transcript and two stderr logs sit alongside the workspace.
 5. Show the user where the task and report are, explain what survived the session change, and say that acceptance remains pending. A failed dependency download, timeout or tool call is a failure to investigate, not a successful trial.
 
 The computation uses Python `hashlib`, with input `FCoP handoff example`. Its SHA-256 is:

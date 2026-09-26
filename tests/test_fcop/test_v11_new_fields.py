@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import pytest
 
-from fcop import Project, RiskLevel, Skill, SkillTool
+from fcop.compatibility.v3.project import Project
 from fcop.core.jsonschema_validator import load_bundled_schema
 from fcop.core.schema import normalize_risk_level
-from fcop.models import TaskFrontmatter
+from fcop.models import RiskLevel, Skill, SkillTool, TaskFrontmatter
 
 # ── RiskLevel enum ──────────────────────────────────────────────────
 

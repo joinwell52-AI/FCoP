@@ -11,14 +11,14 @@
 [协议原文：中文](spec/fcop-4.0-spec.zh.md) · [Specification: English](spec/fcop-4.0-spec.md) · [English](README.md) · [简体中文](README.zh.md) · [项目主页](https://joinwell52-ai.github.io/FCoP/)
 
 <p>
-  <a href="https://pypi.org/project/fcop/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.3-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop 4.0.3" /></a>
-  <a href="https://pypi.org/project/fcop-mcp/4.0.3/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.3-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop-mcp 4.0.3" /></a>
-  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="官方 MCP Registry 中的 fcop 4.0.3" /></a>
+  <a href="https://pypi.org/project/fcop/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.5-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop 4.0.5" /></a>
+  <a href="https://pypi.org/project/fcop-mcp/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.5-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop-mcp 4.0.5" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="官方 MCP Registry 中的 fcop 4.0.5" /></a>
   <a href="https://doi.org/10.5281/zenodo.22746175"><img src="https://img.shields.io/badge/Zenodo-v4.0.3%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.3 Zenodo 归档：DOI 10.5281/zenodo.22746175" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
-[PyPI · fcop](https://pypi.org/project/fcop/4.0.3/) · [MCP · fcop-mcp](https://pypi.org/project/fcop-mcp/4.0.3/) · [MIT](LICENSE) · [Zenodo 与引用](#research)
+[PyPI · fcop](https://pypi.org/project/fcop/4.0.5/) · [MCP · fcop-mcp](https://pypi.org/project/fcop-mcp/4.0.5/) · [MIT](LICENSE) · [Zenodo 与引用](#research)
 
 **[先跑最小案例](#team-demo) · [接入 Cursor / Codex](#ai-install) · [安装前问答](#before-install)**
 
@@ -56,7 +56,7 @@ PM 派给 DEV 一个文本转换任务，QA 检查实际结果，PM 读取两人
 ```bash
 git clone https://github.com/joinwell52-AI/FCoP.git
 cd FCoP
-python -m pip install "fcop==4.0.3"
+python -m pip install "fcop==4.0.5"
 python examples/team_workflow.py --output ./demo-runs
 ```
 
@@ -86,7 +86,7 @@ python examples/team_workflow.py --output ./demo-runs
 
 ### 3. 应该把它安装到 Codex、Cursor 等 Agent 工具里吗？有什么用？
 
-是的，配置 `fcop-mcp` 后，Agent 就可以调用创建任务、领取任务、提交报告、记录问题与审查等工具。当前提供 **49 tools / 12 resources / 4 resource templates**。
+是的，配置 `fcop-mcp` 后，Agent 就可以调用创建任务、领取任务、提交报告、记录问题与审查等工具。当前提供 **25 Canonical MCP Tools / 6 read-only Core Resources**。
 
 ### 4. 安装后立刻能看到什么效果？
 
@@ -107,7 +107,7 @@ https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md
 ### MCP：让 Agent 使用 FCoP
 
 ```bash
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 fcop tools
 ```
 
@@ -243,7 +243,7 @@ CLI 不负责 create_task、approve、Branch、merge、authorization 等工作�
 ### CLI 与 Python：同一个安装包
 
 ```bash
-python -m pip install "fcop==4.0.3"
+python -m pip install "fcop==4.0.5"
 fcop version
 fcop doctor
 fcop init --root ./my-project
@@ -255,7 +255,7 @@ Python 开发者安装后可以使用 `from fcop import Project`，完整例子�
 ### MCP：让 Agent 使用 FCoP
 
 ```bash
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 fcop tools
 ```
 
@@ -308,8 +308,8 @@ FCoP 支持 Intel Mac 与 Apple Silicon（M1/M2/M3/M4 等），发布包不依�
 python3 --version
 python3 -m venv ~/.local/share/fcop/venv
 ~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
-  "fcop>=4.0.3,<4.1.0" \
-  "fcop-mcp>=4.0.3,<4.1.0"
+  "fcop>=4.0.5,<4.1.0" \
+  "fcop-mcp>=4.0.5,<4.1.0"
 ```
 
 检查 CLI 与已安装的 MCP 工具目录：
@@ -348,7 +348,7 @@ python3 -m venv ~/.local/share/fcop/venv
 <summary>手动安装、Python/MCP 示例与 CLI 参考（可选）</summary>
 
 4.0.1 已提供 `create_branch`、`inspect_family`、`merge_branches`，
-4.0.3 保持 49 个工具及原签名。Core 负责原子合并、持久幂等和恢复。
+历史 4.0.3 保留当时的工具签名；其迁移去向见 [4.0.5 迁移指南](docs/migration-4.0.5-mcp.md)。Core 负责原子合并、持久幂等和恢复。
 未就绪家族返回 `family_digest: null`、`merge_ready: false` 及结构化原因；
 语义合并结论始终来自调用方。
 详见[英文合同与示例](docs/branch-merge.md) / [中文合同](docs/branch-merge.zh.md)。
@@ -360,7 +360,7 @@ python3 -m venv ~/.local/share/fcop/venv
 在已激活的 **Python 3.10+ 虚拟环境**中安装公开版本：
 
 ```sh
-python -m pip install "fcop==4.0.3"
+python -m pip install "fcop==4.0.5"
 ```
 
 保存为 `demo.py`，运行 `python demo.py`。示例写入一份真实 TASK，再通过新的 `Project` 实例读取工作区，并重试原始创建请求。
@@ -378,7 +378,7 @@ with TemporaryDirectory(prefix="fcop-demo-") as directory:
     request = dict(
         workspace_id=workspace["workspace_id"],
         operation_id="demo-create-1",
-        sender="ME", recipient="ME",
+        sender="author", recipient="worker",
         subject="Inspect this handoff",
         body="Read the task and check the evidence before accepting delivery.",
     )
@@ -410,7 +410,7 @@ Same task after retry: True
 可选适配器通过 stdio 为支持 MCP 的客户端提供 FCoP 操作。在同一已激活环境中安装：
 
 ```sh
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 ```
 
 在客户端的 MCP 配置中加入以下条目，替换两个绝对路径；Windows 的命令路径以 `.venv/Scripts/fcop-mcp.exe` 结尾。
@@ -426,9 +426,9 @@ python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
 }
 ```
 
-连接后，用 `init_solo(role_code="ME", protocol_version="4.0")` 初始化**新工作区**。调用 `create_task` 时传入工作区身份，再用 `inspect_task(filename=task_id)` 检查 TASK。安装 MCP 服务本身不会初始化工作区，也不会启动一个 Agent 团队。
+本地 **4.0.5 发布候选**连接后，用 `init_workspace()` 初始化新工作区。调用 `create_task` 时传入 `workspace_id` 与唯一的 `operation_id`，再用 `inspect_task(task_id=...)` 检查 TASK。Base Protocol 不要求 Team/Solo/ME 席位或 Host session 指派。
 
-**49 tools / 12 resources / 4 resource templates**（49 个工具、12 个资源、4 个资源模板）。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。
+本地 4.0.5 候选的默认 MCP 有 **25 个 canonical 工具**。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。旧工具去向见 [49→25 迁移指南](docs/migration-4.0.5-mcp.md)。
 
 [MCP 工具参考](docs/mcp-tools.md) · [稳定版独立 Python 示例](tests/stable/third-party/python-only/app.py) · [稳定版独立 MCP 示例](tests/stable/third-party/mcp-only/client.py)。完整示例包含教学用 Profile，实际部署需要配置自己的信任策略。
 
@@ -484,7 +484,7 @@ python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
 
 [系列导读](docs/fcop-architecture-series/README.md) · [五篇全文合集](docs/fcop-architecture-series/collected.zh.md)
 
-4.0.3 通过包内和 MCP resources 分发**九个双语规则模块**，保留严格清单、`sequential`、`parallel` 及独立的 `repository-development` 装配。**安装 → 连接 MCP → 初始化工作区 → 使用 FCoP。** FCoP 拥有 `<project>/fcop/`，不拥有项目根 Host 指令文件。Host 投影、采用、部署与回滚已退役；`redeploy_rules` 仅支持 Legacy v1–v3，对 v4 零写入拒绝。已有用户文件保持不变。[Rule resources / 规则资源](docs/rule-resources.md)。
+4.0.5 通过包内和 MCP resources 分发**九个双语规则模块**，保留严格清单、`sequential`、`parallel` 及独立的 `repository-development` 装配。**安装 → 连接 MCP → 初始化工作区 → 使用 FCoP。** FCoP 拥有 `<project>/fcop/`，不拥有项目根 Host 指令文件。Host 投影、采用、部署与回滚已退役；`redeploy_rules` 仅支持 Legacy v1–v3，对 v4 零写入拒绝。已有用户文件保持不变。[Rule resources / 规则资源](docs/rule-resources.md)。
 
 </details>
 

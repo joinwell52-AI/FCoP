@@ -12,7 +12,7 @@ fcop tools
 fcop tools merge_branches --json
 ```
 
-4.0.3 保持 MCP 49/12/4；安装与升级不初始化或迁移现有 workspace，不写根目录 Host 指令，也不删除看似旧 FCoP 生成的文件。v4 不调用 `redeploy_rules`，不要求“四件套同步”；规则通过包内及 MCP resources 读取。`doctor` 不联网、不修改 Host。正常 v4 状态归属 `<project>/fcop/`；既有原子初始化暂存与失败证据保留。
+4.0.5 默认 MCP 精确提供 25 个 Canonical MCP Tools 和 6 个只读 Core Resources。Team、Solo、ME、seat 与 Host session 不属于 Base Protocol。安装与升级不初始化或迁移现有 workspace，不写根目录 Host 指令，也不删除看似旧 FCoP 生成的文件。v4 不调用 `redeploy_rules`，不要求“四件套同步”；规则通过包内及 MCP resources 读取。`doctor` 不联网、不修改 Host。正常 v4 状态归属 `<project>/fcop/`；既有原子初始化暂存与失败证据保留。历史 49 工具实现面的去向见[迁移指南](migration-4.0.5-mcp.md)。
 
 参见[规则资源](rule-resources.md)、[中文 CLI](cli.zh.md)和 [MCP 说明](../mcp/README.md)。Legacy v1–v3 继续保持版本隔离，不因包升级自动变成 v4。
 
