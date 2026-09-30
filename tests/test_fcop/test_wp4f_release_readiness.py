@@ -76,7 +76,7 @@ def test_wp4f_readme_commands_parameters_and_links_match():
     # Localized pages may link to language-specific guides; each local link is
     # checked for existence below.
     for text in (en, zh):
-        for token in (("Stable version: 4.0.5" if text is en else "稳定版本：4.0.5"), "Release candidate: 4.0.0rc1",
+        for token in (("Current Python packages: 4.0.5" if text is en else "当前 Python 安装包：4.0.5"), "Release candidate: 4.0.0rc1",
                       "reopen_task", "family_digest",
                       "operation_id", "<project>/fcop/", "FCOP_4_STABLE_RELEASE_READY"):
             assert token in text
