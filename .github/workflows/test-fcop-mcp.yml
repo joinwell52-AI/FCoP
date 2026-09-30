@@ -205,8 +205,9 @@ jobs:
           templates = asyncio.run(mcp.list_resource_templates())
           print(f'tools: {len(tools)}; static resources: {len(resources)};'
                 f' templates: {len(templates)}')
-          assert len(tools) >= 24, 'fewer tools than the 0.6.0 baseline'
-          assert len(resources) >= 7, 'fewer static resources than baseline'
+          assert len(tools) == 25, 'canonical 4.0.5 tool count differs'
+          assert len(resources) == 6, 'canonical 4.0.5 resource count differs'
+          assert len(templates) == 0, 'canonical 4.0.5 has no resource templates'
           "
           # 2. Console script must be wired up and importable.
           test -x /tmp/mcp-smoke-venv/bin/fcop-mcp

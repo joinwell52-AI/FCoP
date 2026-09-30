@@ -11,12 +11,12 @@ from pathlib import Path
 import pytest
 
 from fcop import (
-    Project,
     Review,
     ReviewDecision,
     ReviewSubjectType,
     ValidationError,
 )
+from fcop.compatibility.v3.project import Project
 
 
 @pytest.fixture()

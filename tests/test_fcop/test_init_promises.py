@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 
 # Files every init_* must produce. Subject to expansion as new
 # init-time deposits are introduced; intentionally kept as a flat

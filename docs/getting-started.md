@@ -4,6 +4,8 @@
 
 **安装 → 连接 MCP → 初始化工作区 → 使用 FCoP。** 从 [CLI 安装与自检](../README.zh.md#cli本地安装检查与诊断)、[AI 安装说明](ai-install.md)、[MCP 工具参考](mcp-tools.md)与[规则资源](rule-resources.md)开始。CLI = Setup + Observe + Diagnose；MCP = Work。
 
+**4.0.5** 的默认 MCP 精确提供 25 个 Canonical MCP Tools 和 6 个只读 Core Resources。`init_workspace` 创建纯 v4 工作区，无需 Team、Solo、ME、seat 或 Host session 指派。Profile 是显式扩展；旧工具的去向见[迁移指南](migration-4.0.5-mcp.md)。旧清单属于历史 49 工具实现面。
+
 FCoP 拥有 `<project>/fcop/` 与包内规则资源，不拥有项目根 Host 指令。v4 不部署四件套，不调用 `redeploy_rules`；既有用户文件与旧工作区不自动迁移或改写。
 
 ## 历史 Legacy v1–v3 教程，不适用于 4.x 安装
@@ -276,21 +278,27 @@ tools:
 
 ---
 
-## 协议规范权威来源（按抽象层级）
+## 历史 v3 来源（不是 4.x 权威）
+
+下表记录已退出默认路径的 v3 Host 投影模型。4.x 以本文开头所述的 canonical
+workspace 清单、Core API 和 [MCP 规则资源](rule-resources.md)为准。仓库根目录的
+[`AGENTS.md`](../AGENTS.md) 只是本源码仓库的开发说明，不是协议投影或初始化产物。
 
 | 层 | 文件 | 角色 |
 |---|---|---|
 | L0 + L1 入口 | [`docs/getting-started.md`](./getting-started.md)（本文）| 30 秒 + 5 分钟 |
-| L2 权威规范 | [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md)（[中文](../spec/fcop-3.0-spec.zh.md)）| ★ 单页权威规范（FCoP 3.0）|
+| L2 历史 v3 规范 | [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md)（[中文](../spec/fcop-3.0-spec.zh.md)）| 仅供 FCoP 3.0 参考 |
 | L2 RFC 版本 | [`spec/fcop-3.0-rfc.md`](../spec/fcop-3.0-rfc.md)（[中文](../spec/fcop-3.0-rfc.zh.md)）| IETF 风格 RFC 版 |
 | L2 历史 | [`spec/archived/`](../spec/archived/) | v1.0 / v1.1 / 0.7.x 早期 spec（已被取代）|
-| L2 给 agent 读的规则（Cursor） | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor 宿主，`alwaysApply: true` |
-| L2 给 agent 读的规则（其他宿主） | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / 通用 SDK |
+| L2 历史 Host 投影（Cursor） | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | 仅 v3 compatibility |
+| L2 历史 Host 投影（其他宿主） | [`CLAUDE.md`](../CLAUDE.md) | 仅 v3 compatibility；根 `AGENTS.md` 是仓库开发说明 |
 | L2 机器可读 schema | [`spec/schemas/*.schema.json`](../spec/schemas/)（v1.1：8 个 schema）| JSON Schema × 7+1 抽象 |
 | L3 故事 | [`essays/`](../essays/) | 现场报告与随笔 |
 | 决策史 | [`adr/`](../adr/)（ADR-0001..0027）| 为什么这么做 |
 
-> **`src/fcop/rules/_data/` 是规则的唯一来源（canonical source）。** `deploy_protocol_rules()`（或 MCP `redeploy_rules()`）将其同步到：`.cursor/rules/*.mdc`（Cursor 宿主）以及 `AGENTS.md` / `CLAUDE.md`（其他宿主）。详见 [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)。
+> 历史 v3 的 `deploy_protocol_rules()` / `redeploy_rules()` 曾把规则投影到 Host
+> 指令文件。它们不属于 4.x canonical 初始化或默认 MCP 工具清单。
+> [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)记录的是早期设计。
 
 ---
 

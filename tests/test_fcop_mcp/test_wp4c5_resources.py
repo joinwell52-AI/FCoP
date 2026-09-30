@@ -13,9 +13,10 @@ from typing import Any
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ResourceError
-from fcop_mcp import resources, server
+from fcop_mcp import resources
+from fcop_mcp.compatibility.v3 import server
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.rules import get_protocol_commentary, get_rules
 
 

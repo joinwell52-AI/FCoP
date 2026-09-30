@@ -1,0 +1,1305 @@
+[
+  {
+    "name": "init_workspace",
+    "id": "init_workspace",
+    "category": "workspace",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Create only a canonical FCoP 4.0 workspace at the server-bound root. An optional explicit profile is a reference, never executable authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "inspect_workspace",
+    "id": "inspect_workspace",
+    "category": "workspace",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Inspect protocol identity, envelopes, lifecycle, families and recovery facts without repair.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    }
+  },
+  {
+    "name": "validate_workspace",
+    "id": "validate_workspace",
+    "category": "workspace",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Deterministically validate canonical workspace facts through Core validators; never repair or consult host/runtime state.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    }
+  },
+  {
+    "name": "create_task",
+    "id": "create_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Create a TASK using Core T1 and its workspace-scoped operation identity. Repeated requests retain Core idempotency semantics.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "workspace_id": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "priority": {
+          "default": "P2",
+          "type": "string"
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "branch_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "thread_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "risk_level": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "workspace_id",
+        "operation_id",
+        "sender",
+        "recipient",
+        "subject",
+        "body"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "claim_task",
+    "id": "claim_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Request Core T2 inbox to active; actor records attribution and grants no authority.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "actor"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "submit_task",
+    "id": "submit_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Request Core T3 active to review with the explicit current-attempt REPORT.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "report_ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "actor",
+        "report_ref"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "approve_task",
+    "id": "approve_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Request Core T4 review to done using independently validated review and authorization evidence.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "report_ref": {
+          "type": "string"
+        },
+        "review_ref": {
+          "type": "string"
+        },
+        "authorization_ref": {
+          "type": "string"
+        },
+        "profile_ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "actor",
+        "report_ref",
+        "review_ref",
+        "authorization_ref",
+        "profile_ref"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "reject_task",
+    "id": "reject_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Request Core T5 review to active; Core validates evidence and advances the attempt.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "report_ref": {
+          "type": "string"
+        },
+        "review_ref": {
+          "type": "string"
+        },
+        "authorization_ref": {
+          "type": "string"
+        },
+        "profile_ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "actor",
+        "report_ref",
+        "review_ref",
+        "authorization_ref",
+        "profile_ref"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "reopen_task",
+    "id": "reopen_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Request Core T6 done to active with explicit reopen evidence and authorization.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "review_ref": {
+          "type": "string"
+        },
+        "authorization_ref": {
+          "type": "string"
+        },
+        "profile_ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "actor",
+        "review_ref",
+        "authorization_ref",
+        "profile_ref"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "archive_task",
+    "id": "archive_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Request Core T7 done to archive; Core enforces authorization and family convergence.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "authorization_ref": {
+          "type": "string"
+        },
+        "profile_ref": {
+          "type": "string"
+        },
+        "review_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id",
+        "actor",
+        "authorization_ref",
+        "profile_ref"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "inspect_task",
+    "id": "inspect_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Read Core lifecycle, current attempt and transition evidence for a TASK.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "list_tasks",
+    "id": "list_tasks",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "List validated canonical TASK facts, optionally filtered by stage or relations.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "recipient": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "branch_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "read_task",
+    "id": "read_task",
+    "category": "task",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Read a canonical TASK by its typed identity through Core.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "create_branch",
+    "id": "create_branch",
+    "category": "branch",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Create a branch TASK through Core T1 with an explicit branch_of relation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "root_task_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "priority": {
+          "default": "P2",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_task_id",
+        "workspace_id",
+        "operation_id",
+        "sender",
+        "recipient",
+        "subject",
+        "body"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "inspect_family",
+    "id": "inspect_family",
+    "category": "branch",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Read Core family membership, REPORT heads, digest and convergence readiness.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "root_task_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_task_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "merge_branches",
+    "id": "merge_branches",
+    "category": "branch",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Record the caller's convergence decision atomically in Core; never choose winners or archive the root.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "root_task_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "expected_family_digest": {
+          "type": "string"
+        },
+        "branch_report_heads": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "conclusion": {
+          "type": "string"
+        },
+        "conflict_resolution": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "root_task_id",
+        "workspace_id",
+        "expected_family_digest",
+        "branch_report_heads",
+        "conclusion",
+        "conflict_resolution",
+        "operation_id",
+        "sender",
+        "recipient"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "write_report",
+    "id": "write_report",
+    "category": "envelope-write",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Append a Core REPORT for the explicit TASK attempt; reporting does not accept or archive work.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "workspace_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject_ref": {
+          "type": "string"
+        },
+        "attempt_id": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        },
+        "report_kind": {
+          "default": "final",
+          "type": "string"
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "workspace_id",
+        "sender",
+        "recipient",
+        "subject_ref",
+        "attempt_id",
+        "body",
+        "result"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "write_issue",
+    "id": "write_issue",
+    "category": "envelope-write",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Append a Core ISSUE with explicit workspace and subject identity.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "workspace_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject_ref": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "workspace_id",
+        "sender",
+        "recipient",
+        "subject_ref",
+        "body",
+        "severity"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "write_review",
+    "id": "write_review",
+    "category": "envelope-write",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Append a typed Core REVIEW. Authority is evaluated only by trusted startup Profile evaluators.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "workspace_id": {
+          "type": "string"
+        },
+        "sender": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string"
+        },
+        "subject_ref": {
+          "type": "string"
+        },
+        "review_kind": {
+          "type": "string"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "references": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transition": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issued_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "authorization_scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "operation_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issuer_proof": {
+          "default": null,
+          "title": "Issuer Proof"
+        }
+      },
+      "required": [
+        "workspace_id",
+        "sender",
+        "recipient",
+        "subject_ref",
+        "review_kind",
+        "decision",
+        "body"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "list_reports",
+    "id": "list_reports",
+    "category": "envelope-read",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "List REPORTs through Core, including exact attempt and head selection semantics.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "subject_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "head_only": {
+          "default": false,
+          "type": "boolean"
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "read_report",
+    "id": "read_report",
+    "category": "envelope-read",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Read a canonical REPORT through Core identity resolution.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filename_or_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename_or_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "list_issues",
+    "id": "list_issues",
+    "category": "envelope-read",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "List validated canonical ISSUE facts, with deterministic filtering and pagination.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "sender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "subject_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "list_reviews",
+    "id": "list_reviews",
+    "category": "envelope-read",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "List validated canonical REVIEW facts; listing grants no authorization.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "sender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "subject_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "review_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "offset": {
+          "default": 0,
+          "type": "integer"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "read_review",
+    "id": "read_review",
+    "category": "envelope-read",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Read a validated REVIEW from its canonical bucket without changing its decision.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "review_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "review_id"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "mark_human_approved",
+    "id": "mark_human_approved",
+    "category": "review-decision",
+    "owner": "FCoP Core",
+    "status": "canonical",
+    "since": "4.0.5",
+    "replacement": null,
+    "deprecation": null,
+    "description": "Ask Core to append independent authorization evidence. Caller-supplied approver text alone is never authority; expires_at must be explicit.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "review_id": {
+          "type": "string"
+        },
+        "decision": {
+          "type": "string"
+        },
+        "approver": {
+          "type": "string"
+        },
+        "profile_ref": {
+          "type": "string"
+        },
+        "from_stage": {
+          "type": "string"
+        },
+        "to_stage": {
+          "type": "string"
+        },
+        "issued_at": {
+          "type": "string"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "family_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "issuer_proof": {
+          "default": null,
+          "title": "Issuer Proof"
+        },
+        "comment": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "review_id",
+        "decision",
+        "approver",
+        "profile_ref",
+        "from_stage",
+        "to_stage",
+        "issued_at",
+        "expires_at"
+      ],
+      "type": "object"
+    }
+  }
+]

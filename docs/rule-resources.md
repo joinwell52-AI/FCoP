@@ -39,6 +39,6 @@ In v4, `redeploy`, `inspect_profile`, `status` (the rule-distribution Host statu
 
 MCP `redeploy_rules` keeps its name and parameters for supported Legacy v1–v3 only. V4 rejects regardless of `force` or `archive`; it is not a v4 install or upgrade step. Retain your own Host files unchanged. Legacy history and prior Host contracts remain auditable in [the historical distribution contract](fcop-4.0/rule-distribution-contract.md), not current v4 installation instructions.
 
-MCP 保持 **49 tools / 12 resources / 4 templates**。`redeploy_rules` 的名称与参数保留，仅支持 Legacy v1–v3；v4 不论 `force`、`archive` 均拒绝。若用户需要清理旧四件套，须由用户单独决定，升级不会代做。
+历史 4.0.3 MCP 工具面与规则资源仅供 Legacy v1–v3 兼容参考。4.0.5 默认 MCP 精确提供 25 个 canonical 工具，`redeploy_rules` 不在默认面；旧文件清理由用户单独决定，升级不会代做。
 
 See [CLI](cli.md) / [中文 CLI](cli.zh.md) and [MCP tools](mcp-tools.md).

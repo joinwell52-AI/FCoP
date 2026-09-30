@@ -17,11 +17,24 @@ from fcop.errors import FcopError
 __all__ = ["workspace_status", "inspect_object", "validate_workspace", "bundled_inventory"]
 
 
-def _context(root: Path | str) -> tuple[Project, Any]:
+def _context(root: Path | str) -> tuple[Any, Any]:
     from fcop.v4.creation import _Creation
     from fcop.v4.encoding import parse_json
 
-    project = Project(root)
+    root_path = Path(root).resolve()
+    declaration_path = root_path / "fcop" / "fcop.json"
+    declared = parse_json(declaration_path.read_bytes(), classification=True) if declaration_path.exists() else None
+    historical = (
+        declared.get("protocol_version") != "4.0" if declared is not None
+        else (root_path / "docs" / "agents").exists()
+    )
+    project: Any
+    if historical:
+        from fcop.compatibility.v3.project import Project as LegacyProject
+
+        project = LegacyProject(root_path)
+    else:
+        project = Project(root_path)
     creation = _Creation.open_if_declared(project.path)
     if project.config_path.exists():
         # Classification must not silently fall through malformed/duplicate JSON.

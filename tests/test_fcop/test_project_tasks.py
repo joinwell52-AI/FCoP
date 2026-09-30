@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.errors import TaskNotFoundError
 from fcop.models import Priority, Task
 

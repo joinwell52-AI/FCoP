@@ -4,6 +4,8 @@
 
 **Install → connect MCP → initialize workspace → use FCoP.** Start with the visible [CLI installation and self-check](../README.md#cli--local-setup-inspect--diagnose), [AI installation guide](ai-install.md), [MCP reference](mcp-tools.md) and [rule resources](rule-resources.md). CLI = Setup + Observe + Diagnose; MCP = Work.
 
+In **4.0.5**, the default MCP server has exactly 25 Canonical MCP Tools and 6 read-only Core Resources. `init_workspace` creates a pure v4 workspace without Team/Solo/ME, seats, or Host session assignment. Profiles are explicit extensions; older tool names are mapped in the [migration guide](migration-4.0.5-mcp.md). The prior inventory is the historical 49-tool implementation surface.
+
 FCoP owns `<project>/fcop/` and package-owned resources, not project-root Host instructions. Do not deploy a four-file rule bundle or use `redeploy_rules` on v4. Existing customer files and legacy workspaces remain unchanged until an explicitly authorized operation.
 
 ## Historical Legacy v1–v3 guide — not the 4.x installation workflow
@@ -272,21 +274,30 @@ Honestly:
 
 ---
 
-## Authoritative sources (by abstraction layer)
+## Historical v3 sources (not 4.x authority)
+
+The following table documents the retired v3 Host projection model. For 4.x,
+use the canonical workspace manifest and Core APIs described above, together
+with [MCP rule resources](rule-resources.md). The repository root
+[`AGENTS.md`](../AGENTS.md) is developer guidance for this source repository;
+it is not a protocol projection or an initialization output.
 
 | Layer | File | Role |
 |---|---|---|
 | L0 + L1 entry | [`docs/getting-started.en.md`](./getting-started.en.md) (this page) | 30-second + 5-minute |
-| L2 canonical spec | [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md) | ★ Single-page canonical (FCoP 3.0) |
+| L2 historical v3 spec | [`spec/fcop-3.0-spec.md`](../spec/fcop-3.0-spec.md) | FCoP 3.0 reference only |
 | L2 RFC projection | [`spec/fcop-3.0-rfc.md`](../spec/fcop-3.0-rfc.md) | IETF-style RFC edition |
 | L2 historical | [`spec/archived/`](../spec/archived/) | v1.0 / v1.1 / 0.7.x drafts (superseded) |
-| L2 agent-readable rules (Cursor) | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | Cursor host — `alwaysApply: true` |
-| L2 agent-readable rules (others) | [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) | Codex / Claude Code / Devin / generic SDK |
+| L2 historical Host projection (Cursor) | [`.cursor/rules/fcop-rules.mdc`](../.cursor/rules/fcop-rules.mdc) + [`fcop-protocol.mdc`](../.cursor/rules/fcop-protocol.mdc) | v3 compatibility only |
+| L2 historical Host projection (others) | [`CLAUDE.md`](../CLAUDE.md) | v3 compatibility only; root `AGENTS.md` is repository guidance |
 | L2 machine-readable | [`spec/schemas/*.schema.json`](../spec/schemas/) (8 schemas in v1.1) | JSON Schema × 7+1 abstractions |
 | L3 stories | [`essays/`](../essays/) | Field reports & notes |
 | Decision history | [`adr/`](../adr/) (ADR-0001..0027) | Why we did things |
 
-> **`src/fcop/rules/_data/` is the canonical source.** `deploy_protocol_rules()` (or MCP `redeploy_rules()`) syncs it to `.cursor/rules/*.mdc` (Cursor) and `AGENTS.md` / `CLAUDE.md` (other hosts). See [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md).
+> Historically, v3 `deploy_protocol_rules()` / `redeploy_rules()` projected rules
+> into Host instruction files. These operations are not part of canonical 4.x
+> initialization or the default MCP tool list. [ADR-0006](../adr/ADR-0006-host-neutral-rule-distribution.md)
+> records that earlier design.
 
 ---
 

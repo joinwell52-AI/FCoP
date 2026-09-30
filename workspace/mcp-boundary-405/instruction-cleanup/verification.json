@@ -1,0 +1,32 @@
+{
+  "gate": "REPOSITORY_INSTRUCTION_CLEANUP",
+  "status": "PASS",
+  "checks": [
+    {
+      "command": "python -m pytest tests/test_repository_instruction_cleanup.py tests/conformance/v4 -q --tb=short",
+      "exit_code": 0,
+      "result": "122 passed, 2 warnings in 141.70s",
+      "warnings": "Existing jsonschema.RefResolver deprecation warnings",
+      "scope": "3 repository-boundary tests plus 119 existing v4 behavioral conformance tests; not the complete mixed-version suite"
+    },
+    {
+      "command": "python -m ruff check src/fcop/project.py src/fcop/__init__.py src/fcop/v4/creation.py src/fcop/v4/rule_distribution/_read.py tests/test_repository_instruction_cleanup.py",
+      "exit_code": 0,
+      "result": "All checks passed!"
+    },
+    {
+      "command": "fcop.cli._main.main(['--version']) using source imports",
+      "exit_code": 0,
+      "result": "4.0.5",
+      "scope": "source CLI smoke check, not clean-room installed-version proof"
+    }
+  ],
+  "default_team_solo_me_seat_session_dependency": false,
+  "host_instruction_access_guard": "PASS",
+  "profile_independence_import_guard": "PASS",
+  "new_workspace_host_projection_absent": true,
+  "prior_boundary_work_preserved": true,
+  "original_wp1_wp11_resumed": false,
+  "release_candidate_ready": false,
+  "pypi_upload_tag_release_performed": false
+}

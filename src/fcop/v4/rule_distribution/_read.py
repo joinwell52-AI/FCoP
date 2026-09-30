@@ -15,7 +15,7 @@ from ._loader import _Package, load, sha
 from ._selection import select
 
 if TYPE_CHECKING:
-    from fcop import Project
+    from fcop.compatibility.v3.project import Project
 
 _SELECTION = "RULE_SELECTION_INVALID"
 _CONTEXT = {
@@ -212,7 +212,7 @@ def legacy(project: Project, action: str, request: Mapping[str, Any]) -> Mapping
                 action,
                 "Legacy route must preserve existing Host entries",
             )
-        from fcop.project import _plan_protocol_rules_deployment
+        from fcop.compatibility.v3.project import _plan_protocol_rules_deployment
 
         for relative, _ in _plan_protocol_rules_deployment():
             path_at(project.path, str(relative), "RULE_OWNERSHIP_CONFLICT", action)

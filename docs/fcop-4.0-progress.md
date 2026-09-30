@@ -2,9 +2,20 @@
 
 [English README](../README.md) · [中文 README](../README.zh.md) · [Architecture](architecture.en.md) · [架构说明](architecture.zh.md)
 
-**Current stable pair: 4.0.3 / 当前稳定版组合：4.0.3。** Updated September 14, 2026. This page supersedes the pre-release development note formerly at this address.
+**Current stable pair: 4.0.5 / 当前稳定版组合：4.0.5。** Updated September 27, 2026. This page supersedes the pre-release development note formerly at this address.
 
-Official distribution: [GitHub v4.0.3](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3) · [PyPI fcop 4.0.3](https://pypi.org/project/fcop/4.0.3/) · [PyPI fcop-mcp 4.0.3](https://pypi.org/project/fcop-mcp/4.0.3/).
+The **4.0.5** default MCP surface contains 25 Canonical MCP Tools and 6
+read-only Core Resources. For new v4 workspaces, call `init_workspace()` and then
+`create_task(workspace_id=..., operation_id=...)`; inspect with
+`inspect_task(task_id=...)`. Team/Solo/ME and Host session assignment are not
+Base Protocol prerequisites. See the [4.0.5 migration guide](migration-4.0.5-mcp.md).
+
+本地 **4.0.5 发布候选**默认 MCP 为 25 个 canonical 工具。新 v4 工作区使用
+`init_workspace()`，再调用 `create_task(workspace_id=..., operation_id=...)`，
+通过 `inspect_task(task_id=...)` 查看结果。Team/Solo/ME 与 Host session 指派
+不是 Base Protocol 前置条件。参见 [4.0.5 迁移指南](migration-4.0.5-mcp.md)。
+
+Official distribution: [GitHub v4.0.5](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.5) · [PyPI fcop 4.0.5](https://pypi.org/project/fcop/4.0.5/) · [PyPI fcop-mcp 4.0.5](https://pypi.org/project/fcop-mcp/4.0.5/).
 
 ## Recommended: ask your AI / 推荐：让 AI 安装
 
@@ -35,15 +46,15 @@ Install the exact stable pair. Python-only users can omit `fcop-mcp`:
 安装一致的稳定版组合；只通过 Python 使用时可省略 `fcop-mcp`：
 
 ```sh
-python -m pip install "fcop==4.0.3" "fcop-mcp==4.0.3"
+python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 python -c "from importlib.metadata import version; print(version('fcop'), version('fcop-mcp'))"
 ```
 
-Expected / 预期输出：`4.0.3 4.0.3`.
+Expected / 预期输出：`4.0.5 4.0.5`.
 
-The adapter's dependency is `fcop>=4.0.3,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
+The adapter's dependency is `fcop>=4.0.5,<4.1.0`. The pinned pair above makes this example reproducible; do not combine it with a 3.x adapter or library.
 
-适配器的依赖范围是 `fcop>=4.0.3,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
+适配器的依赖范围是 `fcop>=4.0.5,<4.1.0`。上方固定组合便于复现，不要与 3.x 适配器或库混用。
 
 ## Create and inspect work / 创建并检查工作
 
@@ -51,9 +62,9 @@ The [Python demo](../README.md#try-it) writes an actual TASK and reads it throug
 
 [Python 示例](../README.zh.md#try-it)会写入真实 TASK 并通过新客户端读取。需要保留工作区时，把临时根目录换成自己管理的新目录，再调用 `Project(root).create_workspace(protocol_version="4.0")`。创建任务时使用返回的 `workspace_id`；重试同一创建请求时保留 `operation_id`，通过 `inspect_state(task_id=...)` 读取状态。
 
-For MCP, use the [README configuration](../README.md#mcp) with absolute executable and project paths. Initialize a new workspace with `init_solo(role_code="ME", protocol_version="4.0")`; the returned workspace identity is used by `create_task`. Inspect through `inspect_task(filename=task_id)`. Parameters are documented in the [tool reference](mcp-tools.md).
+The historical 4.0.3 setup used `init_solo`; that tool is not in the 4.0.5 canonical registry. Use the 4.0.5 flow above. Parameters are documented in the [tool reference](mcp-tools.md).
 
-MCP 使用 [README 配置](../README.zh.md#mcp)中的可执行文件和项目绝对路径。通过 `init_solo(role_code="ME", protocol_version="4.0")` 初始化新工作区，使用返回的身份创建任务，再通过 `inspect_task(filename=task_id)` 检查。参数见[工具参考](mcp-tools.md)。
+历史 4.0.3 MCP 适配器使用 `init_solo`；4.0.5 canonical 注册表不含此工具。请使用上方 4.0.5 流程。参数见[工具参考](mcp-tools.md)。
 
 ## Complete work with explicit authority / 配置授权后完成工作
 
@@ -72,9 +83,9 @@ These samples deliberately use an educational issuer proof. Read their evaluator
 
 ## Rules and existing workspaces / 规则与已有工作区
 
-4.0.3 rules use a versioned manifest and package-owned bilingual modules. Read, validate and select sequential/parallel assemblies through the package and MCP resources. See the [current rule resource guide](rule-resources.md). Host projection, adoption, deployment and rollback are retired; FCoP does not own project-root Host instructions. Available bytes do not prove Runtime consumption.
+4.0.5 rules use a versioned manifest and package-owned bilingual modules. Read, validate and select sequential/parallel assemblies through the package and MCP resources. See the [current rule resource guide](rule-resources.md). Host projection, adoption, deployment and rollback are retired; FCoP does not own project-root Host instructions. Available bytes do not prove Runtime consumption.
 
-4.0.3 规则由版本化清单和包内双语模块提供，通过包与 MCP 资源读取、校验、选择顺序或并行装配。Host 投影、采用、部署及回滚已退役，项目根 Host 指令不属于 FCoP。存在可读字节，不代表 Runtime 已消费规则。
+4.0.5 规则由版本化清单和包内双语模块提供，通过包与 MCP 资源读取、校验、选择顺序或并行装配。Host 投影、采用、部署及回滚已退役，项目根 Host 指令不属于 FCoP。存在可读字节，不代表 Runtime 已消费规则。
 
 **Installing packages does not migrate a workspace.** Existing 3.x workspaces retain 3.x semantics. Do not use a fresh-workspace example to overwrite an existing workspace or treat old installation prompts as a 4.0 migration procedure. Retain backups and inspect the version-specific rules before planning a migration.
 

@@ -102,7 +102,7 @@ def register_legacy_routes(
                     if policy == "BIND":
                         target = Path(args["path"]).expanduser().resolve()
                         # Binding an empty existing directory authorizes no business write.
-                        from fcop import Project
+                        from fcop.compatibility.v3.project import Project
 
                         if target.is_dir() and Project(target).config_path.exists():
                             WorkspaceRouter(target, trusted_profiles=router._trusted_profiles).route()
@@ -118,7 +118,7 @@ def register_legacy_routes(
                         return result
                     if policy in {"BOOTSTRAP", "BOOTSTRAP_PROFILE"}:
                         if args.get("protocol_version") == "4.0":
-                            from fcop import Project
+                            from fcop.compatibility.v3.project import Project
 
                             if policy == "BOOTSTRAP_PROFILE":
                                 from fcop_mcp.projection import unavailable
@@ -145,7 +145,7 @@ def register_legacy_routes(
                         raise V4ProtocolError(_V4Code.AUTHORIZATION_INVALID,
                                               "expires_at must be explicit, including null", operation_ref=name)
                     if policy == "NEW_WORKSPACE":
-                        from fcop import Project
+                        from fcop.compatibility.v3.project import Project
 
                         if args.get("protocol_version") != "4.0":
                             raise V4ProtocolError(_V4Code.UNSUPPORTED_WORKSPACE_VERSION,
@@ -235,11 +235,11 @@ def register_reopen(mcp: FastMCP, router_factory: Callable[[], WorkspaceRouter])
             return core_error(exc)
 
 
-def create_server(
+def create_legacy_server(
     root: Path | str, *, trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
 ) -> FastMCP:
     """Create a server with a startup-only trusted Profile registry."""
-    from fcop_mcp import server
+    from fcop_mcp.compatibility.v3 import server
 
     check_package_compatibility()
     router = WorkspaceRouter(root, trusted_profiles=trusted_profiles)
@@ -269,3 +269,9 @@ def create_server(
     ):
         mcp.resource(uri, mime_type="text/markdown")(handler)
     return mcp
+
+
+def create_server(root: Path | str, *, trusted_profiles: Mapping[str, Callable[..., str]] | None = None) -> FastMCP:
+    """Default canonical server; historical routing requires create_legacy_server."""
+    from fcop_mcp.registry import create_server as canonical_server
+    return canonical_server(root, trusted_profiles=trusted_profiles)

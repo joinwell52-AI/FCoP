@@ -33,7 +33,7 @@ from pathlib import Path
 
 import pytest
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.rules import (
     get_protocol_commentary,
     get_protocol_version,

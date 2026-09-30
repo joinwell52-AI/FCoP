@@ -13,8 +13,9 @@ from __future__ import annotations
 
 import pytest
 
-from fcop import Project, Review, ReviewDecision
+from fcop.compatibility.v3.project import Project
 from fcop.core.jsonschema_validator import load_bundled_schema
+from fcop.models import Review, ReviewDecision
 
 
 def test_review_decision_enum_has_needs_human():

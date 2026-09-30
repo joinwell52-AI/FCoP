@@ -12,7 +12,7 @@ from fastmcp import FastMCP
 from fastmcp.exceptions import ResourceError
 from fastmcp.resources import ResourceContent, ResourceResult
 from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.errors import FcopError, V4ProtocolError
 from mcp.types import ReadResourceRequest, ReadResourceRequestParams
 

@@ -51,7 +51,7 @@ def reset_session_project() -> Iterator[None]:
     so a write_task in one test doesn't accidentally lock the role
     for the next test's write_task.
     """
-    from fcop_mcp import server as srv
+    from fcop_mcp.compatibility.v3 import server as srv
 
     with srv._STATE_LOCK:
         prev_path = srv._SESSION_PROJECT_PATH
@@ -81,7 +81,7 @@ def initialized_project(project_dir: Path) -> Path:
     """A temp dir that has already run ``init_project`` for ``dev-team``."""
     import asyncio
 
-    from fcop_mcp.server import mcp
+    from fcop_mcp.compatibility.v3.server import mcp
 
     async def _init() -> None:
         await mcp.call_tool("set_project_dir", {"path": str(project_dir)})
@@ -96,6 +96,6 @@ def mcp_server() -> object:
     """Return the shared FastMCP instance so tests can list & dispatch."""
     os.environ.pop("FCOP_PROJECT_DIR", None)
     os.environ.pop("CODEFLOW_PROJECT_DIR", None)
-    from fcop_mcp.server import mcp
+    from fcop_mcp.compatibility.v3.server import mcp
 
     return mcp

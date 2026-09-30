@@ -10,6 +10,13 @@ versioning strategy.
 
 ## [Unreleased]
 
+## [4.0.5] — 2026-09-27
+
+- The default MCP registry is generated from one 25-tool canonical manifest and delegates protocol operations to Core. `init_workspace`, `inspect_workspace` and `validate_workspace` operate on protocol facts only; no Team/Solo/ME/seat/session prerequisite is imposed.
+- Move the prior 49-tool implementation to explicit historical compatibility. `write_task` becomes a deprecated opt-in Python forwarding shim; `fcop_audit` becomes the `fcop audit` Toolkit command. Host, Runtime/EVAL, package management, application scaffolding and v3 rule projection are absent from default `tools/list`.
+- Preserve all FCoP 4.0 protocol algorithms and schemas. Provide a source-backed [49-to-25 migration guide](docs/migration-4.0.5-mcp.md) and generated [MCP tools reference](docs/mcp-tools.md).
+- Align both distribution versions at 4.0.5, with `fcop-mcp` requiring `fcop>=4.0.5,<4.1.0`.
+
 ### Changed — fcop / fcop-mcp 4.0.3
 
 - State the bilingual F4.1.2 ownership invariant: project-root Host/Agent

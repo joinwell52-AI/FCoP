@@ -24,9 +24,16 @@ def main(argv: list[str] | None = None) -> int:
     on ``sys.exit`` side effects.
     """
     parser = argparse.ArgumentParser(description="FCoP MCP stdio adapter; Relay is explicitly optional")
+    from fcop_mcp._version import __version__
+    parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument("--root", help="Immutable workspace root selected by the host")
     parser.add_argument("--relay-url", help="Explicit foreground MCP WebSocket endpoint")
     args = parser.parse_args(argv)
-    from fcop_mcp.server import mcp
+    import os
+    from pathlib import Path
+
+    from fcop_mcp.registry import create_server
+    mcp = create_server(args.root or os.environ.get("FCOP_PROJECT_DIR", Path.cwd()))
 
     if args.relay_url is not None:
         import asyncio

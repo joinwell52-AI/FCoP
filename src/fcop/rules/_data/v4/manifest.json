@@ -1,13 +1,13 @@
 {
   "manifest_schema": "fcop-rule-distribution/v1",
   "protocol_version": "4.0",
-  "package_version": "4.0.3",
+  "package_version": "4.0.5",
   "artifacts": [
     {
       "module_id": "workspace",
       "source_path": "workspace.en.md",
       "language": "en",
-      "sha256": "beda65ea376061a87c17710ff44a594c55f277b9ffe4834ca47836ab421e35d9",
+      "sha256": "13f82bfc2b55c421608d9d17e929c5ed66985fe68927c251617e75310dd2830a",
       "size_bytes": 1908,
       "normative_clause_refs": [
         "F4.1.1",
@@ -29,7 +29,7 @@
       "module_id": "workspace",
       "source_path": "workspace.zh.md",
       "language": "zh",
-      "sha256": "9e79cceb2a36504e296d8c435c82729c812f7bbba5500de00a5400782f3a2fe4",
+      "sha256": "3d267c807d9574904c727f876f77b24f90e334664905f0d25c8654546d2cbed6",
       "size_bytes": 1711,
       "normative_clause_refs": [
         "F4.1.1",
@@ -51,7 +51,7 @@
       "module_id": "envelopes",
       "source_path": "envelopes.en.md",
       "language": "en",
-      "sha256": "daa674ee84e2ca0776dbc8efbd072571df25ba49036e6613989e2ed25d728a58",
+      "sha256": "583d536a91a95a9fff8d01a9b23166f24f49f82df87c8e138eda953eaa039352",
       "size_bytes": 1731,
       "normative_clause_refs": [
         "F4.3.1",
@@ -72,7 +72,7 @@
       "module_id": "envelopes",
       "source_path": "envelopes.zh.md",
       "language": "zh",
-      "sha256": "92a23f813bf46de64d428b5fb994a32c28b2a88eb8ca3077baac3fcb5bd9033b",
+      "sha256": "875e48615ac8ffe08809462494fb54dd7243f426cc5f9e52a5a1ab28eb995d29",
       "size_bytes": 1660,
       "normative_clause_refs": [
         "F4.3.1",
@@ -93,7 +93,7 @@
       "module_id": "relations",
       "source_path": "relations.en.md",
       "language": "en",
-      "sha256": "cd4f9e90082b8084c08d195005a65cf088c77158deedd8a31e526aa4332d4232",
+      "sha256": "f36f9f712e68e7661a2752d87185ffc7e1ea81ed2471622e5d7008185e5b3db6",
       "size_bytes": 1094,
       "normative_clause_refs": [
         "F4.5.1",
@@ -113,7 +113,7 @@
       "module_id": "relations",
       "source_path": "relations.zh.md",
       "language": "zh",
-      "sha256": "1497d2c34d368a69c3b1559c394edb92fc70d938320d009dc75927035806d38a",
+      "sha256": "d5982a9a15b67f429cb456169f9066ad17944bb4ecf691785ca0087eab933110",
       "size_bytes": 1045,
       "normative_clause_refs": [
         "F4.5.1",
@@ -133,7 +133,7 @@
       "module_id": "authorization",
       "source_path": "authorization.en.md",
       "language": "en",
-      "sha256": "206aef3f8bf23cbaab73fcaa73c0fe070e53ee6c55fc0127d382de1d9fea28db",
+      "sha256": "28109a9e0c49255bfc127a5545ad2ba0b45edb8448ce3e1f1c76d533fbe2539a",
       "size_bytes": 2116,
       "normative_clause_refs": [
         "F4.7.1",
@@ -158,7 +158,7 @@
       "module_id": "authorization",
       "source_path": "authorization.zh.md",
       "language": "zh",
-      "sha256": "e51381642cae47558089bc1ac17a9e73f818a8e189fa62c4353273117b8bf01b",
+      "sha256": "2a611fbbde68c9cc9092c969fe578b62d6e30a82a43ee47fcfbb32e241f8d7fc",
       "size_bytes": 2021,
       "normative_clause_refs": [
         "F4.7.1",
@@ -183,7 +183,7 @@
       "module_id": "idempotency",
       "source_path": "idempotency.en.md",
       "language": "en",
-      "sha256": "ed6fb259fd88586db79b8195e2532646df2b475483d42f0ef60ee0060cd07ff2",
+      "sha256": "75d8074571665d271dc4fd691fa48fb282aa09ef80e7dfd5ba7f71508837e49c",
       "size_bytes": 1708,
       "normative_clause_refs": [
         "F4.8.1",
@@ -204,7 +204,7 @@
       "module_id": "idempotency",
       "source_path": "idempotency.zh.md",
       "language": "zh",
-      "sha256": "8b207caecfccf62fe64d28482f8cd03d2b8587b3af7431f1822aac70e0ef20e5",
+      "sha256": "46aeee6f83060342afaf7ebbe44b5b50a30522868614ef9cc42bf974718daa0b",
       "size_bytes": 1579,
       "normative_clause_refs": [
         "F4.8.1",
@@ -225,7 +225,7 @@
       "module_id": "recovery",
       "source_path": "recovery.en.md",
       "language": "en",
-      "sha256": "ffa5141531bb3ca8207ce716825cd2a4629e5d286d172f102e7e92e607877885",
+      "sha256": "0f246746d1d2568eac9c66add25a6b4ba379bf1e7bbc74b5ccab8915cfc57151",
       "size_bytes": 3522,
       "normative_clause_refs": [
         "F4.9.1",
@@ -252,7 +252,7 @@
       "module_id": "recovery",
       "source_path": "recovery.zh.md",
       "language": "zh",
-      "sha256": "04d6031b1dcd2749c45c7b816c63db2675388dc267780c6aa8156d8317f07084",
+      "sha256": "00df977e3b1aeee1b71b7900202803b8e4e87fdf58207b620dc8e3f625364d18",
       "size_bytes": 3087,
       "normative_clause_refs": [
         "F4.9.1",
@@ -279,7 +279,7 @@
       "module_id": "lifecycle",
       "source_path": "lifecycle.en.md",
       "language": "en",
-      "sha256": "ec20246e998dbd351d34e3771a6fd76cc58ad00eef5740eae192361b33e8b4e7",
+      "sha256": "fdc67743d80ced6622e34f168ef635474f149990038c5b12fccb8e88b2372e86",
       "size_bytes": 3029,
       "normative_clause_refs": [
         "F4.4.1",
@@ -311,7 +311,7 @@
       "module_id": "lifecycle",
       "source_path": "lifecycle.zh.md",
       "language": "zh",
-      "sha256": "2bf22c4d2aac616b769854320395c2c364d4ba4600a56f24f8ac495d4388b9f8",
+      "sha256": "09480521e7f7176c19ec1e286d46f4697ef26ae5872334e51b326c74581db367",
       "size_bytes": 2775,
       "normative_clause_refs": [
         "F4.4.1",
@@ -343,7 +343,7 @@
       "module_id": "compatibility",
       "source_path": "compatibility.en.md",
       "language": "en",
-      "sha256": "9a381dd57a36401db215fbf2579b0eb9715a5d068046ede6dbf34165d58e232f",
+      "sha256": "3eeec33e7a07ae9b348cad86ca40a805ffadc5959787fd154f3ecdab6a591a8d",
       "size_bytes": 3912,
       "normative_clause_refs": [
         "F4.0.1",
@@ -376,7 +376,7 @@
       "module_id": "compatibility",
       "source_path": "compatibility.zh.md",
       "language": "zh",
-      "sha256": "ce6d4aad15d7d1a4f858eaeeeb77f0be3a6a0bc75a3d69dec0d1bc6a3946000d",
+      "sha256": "204907bfe1bfef84810be32a64d7c72244325c58ef79f4b3bbd4e3d522326dd2",
       "size_bytes": 3371,
       "normative_clause_refs": [
         "F4.0.1",
@@ -409,7 +409,7 @@
       "module_id": "convergence",
       "source_path": "convergence.en.md",
       "language": "en",
-      "sha256": "ba4e1e80f7dfcdbe7369d96c009caf92702a0067d9755eac15a100bbb93c96c9",
+      "sha256": "2620c381cad8d947ec91e3a75caeff958ebd21db32cefd10120ffd943be039ea",
       "size_bytes": 2271,
       "normative_clause_refs": [
         "F4.5.3",
@@ -438,7 +438,7 @@
       "module_id": "convergence",
       "source_path": "convergence.zh.md",
       "language": "zh",
-      "sha256": "dae8e0f95c798530e5b644ffb8d6b889c0fc377c610a4490cbd3da49a5768d65",
+      "sha256": "8f04db06a8fe3b776b2644494fa75fbd53e168cda3d0d1ede43bb245c8874a17",
       "size_bytes": 2102,
       "normative_clause_refs": [
         "F4.5.3",

@@ -46,16 +46,23 @@ async def base() -> None:
         )
         async with stdio_client(parameters) as streams, ClientSession(*streams) as session:
             await session.initialize()
-            assert len((await session.list_tools()).tools) == 49
-            assert len((await session.list_resources()).resources) == 12
-            assert len((await session.list_resource_templates()).resourceTemplates) == 4
-            initialized = await session.call_tool("init_solo", {
-                "role_code": "ME", "protocol_version": "4.0", "profiles": [],
-            })
+            tools = (await session.list_tools()).tools
+            expected = json.loads((Path(__file__).parent / "snapshots" / "canonical_tools_405.json").read_text(encoding="utf-8"))
+            assert {tool.name for tool in tools} == {entry["name"] for entry in expected}
+            assert len(tools) == 25
+            for tool in tools:
+                entry = next(item for item in expected if item["name"] == tool.name)
+                assert tool.description == entry["description"]
+                assert tool.inputSchema == entry["inputSchema"]
+            assert len((await session.list_resources()).resources) == 6
+            assert len((await session.list_resource_templates()).resourceTemplates) == 0
+            initialized = await session.call_tool("init_workspace", {})
             assert not initialized.isError and initialized.structuredContent
             root = Path(temporary)
+            assert initialized.structuredContent["profiles"] == []
+            assert not any((root / name).exists() for name in ("AGENTS.md", "CLAUDE.md", ".cursor"))
             before = {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
-            for uri in ("fcop://rules", "fcop://protocol", "fcop://team", "fcop://guidance/sequential/en", "fcop://guidance/parallel/zh"):
+            for uri in ("fcop://rules", "fcop://protocol", "fcop://guidance/sequential/en", "fcop://guidance/sequential/zh", "fcop://guidance/parallel/en", "fcop://guidance/parallel/zh"):
                 semantic = fcop.Project(root).rule_distribution(action="read_resource", request={"resource_uri": uri})
                 resource = (await session.read_resource(AnyUrl(uri))).contents[0]
                 assert resource.mimeType == semantic["mime_type"]
@@ -65,8 +72,6 @@ async def base() -> None:
                     assert json.loads(text.split("```json\n", 1)[1].split("```", 1)[0]) == semantic["content"]
                 elif uri == "fcop://protocol":
                     assert all(f"- {key}: {semantic['content'][key]}\n" in text for key in ("path", "revision", "sha256"))
-                elif uri == "fcop://team":
-                    assert json.loads(text) == semantic["content"]
                 else:
                     assert text == semantic["content"]
             assert {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()} == before
@@ -79,22 +84,35 @@ async def base() -> None:
             assert not second.isError and second.structuredContent
             assert second.structuredContent["existing"] is True
             assert second.structuredContent["task_id"] == first.structuredContent["task_id"]
-            spec = await session.read_resource(AnyUrl("fcop://spec/en"))
-            assert "workspace protocol: v4" in str(spec.contents)
-            rejected = await session.call_tool("finish_task", {
-                "task_id": first.structuredContent["task_id"],
-            })
+            rejected = await session.call_tool("create_task", request | {"body": "Conflicting retry"})
             assert rejected.isError and rejected.structuredContent
-            assert rejected.structuredContent["code"] == "LEGACY_TRANSITION_NOT_ALLOWED"
-    print("REAL_STDIO: 49/12/4; create/retry/spec/structured-error PASS", flush=True)
-    print("WP4C5_PACKAGED_RESOURCE_PROJECT_STDIO_PARITY_ZERO_WRITE: 5/5", flush=True)
+            assert rejected.structuredContent["code"] == "OPERATION_ID_CONFLICT"
+            claimed = await session.call_tool("claim_task", {"task_id": first.structuredContent["task_id"], "actor": "ME"})
+            assert not claimed.isError and claimed.structuredContent
+            report = await session.call_tool("write_report", dict(
+                workspace_id=initialized.structuredContent["workspace_id"],
+                sender="ME", recipient="ME", subject_ref=first.structuredContent["task_id"],
+                attempt_id=claimed.structuredContent["attempt_id"], body="Actual delivery", result="done",
+            ))
+            assert not report.isError and report.structuredContent
+            submitted = await session.call_tool("submit_task", {
+                "task_id": first.structuredContent["task_id"], "actor": "ME",
+                "report_ref": report.structuredContent["report_id"],
+            })
+            assert not submitted.isError and submitted.structuredContent
+            assert submitted.structuredContent["to_stage"] == "review"
+            validated = await session.call_tool("validate_workspace", {})
+            assert not validated.isError and validated.structuredContent
+            assert validated.structuredContent["valid"] is True
+    print("REAL_STDIO: 25/6/0; schema/create/retry/report/submit/structured-error PASS", flush=True)
+    print("CANONICAL_PACKAGED_RESOURCE_PROJECT_STDIO_PARITY_ZERO_WRITE: 6/6", flush=True)
     print("RESOLVED", {name: version(name) for name in ("fcop", "fcop-mcp", "fastmcp", "mcp", "websockets")})
     print("DIRECT_REQUIREMENTS", requires("fcop-mcp"))
 
 
 async def relay() -> None:
+    from fcop_mcp.compatibility.v3.server import mcp
     from fcop_mcp.relay import run_relay
-    from fcop_mcp.server import mcp
     from websockets.asyncio.server import serve
 
     completed = asyncio.Event()

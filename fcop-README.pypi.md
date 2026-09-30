@@ -1,23 +1,20 @@
-# FCoP — Python Core
+# FCoP · Python Core
 
 `fcop` is the official Python implementation of the **File-based Coordination
-Protocol (FCoP)**. It gives agents and automation a durable, reviewable way to
-coordinate work through UTF-8 Markdown files with YAML front matter.
+Protocol (FCoP)**. It records durable, reviewable coordination facts as UTF-8
+Markdown documents with YAML front matter.
 
-This package is the protocol Core, Python API and thin CLI. The optional MCP adapter is
-published separately as [`fcop-mcp`](https://pypi.org/project/fcop-mcp/).
-
-**FCoP 4.0 is Stable, Implemented and Released.** The current package release
-is **4.0.3**. The optional adapter provides **49 Tools / 12 Resources /
-4 Templates**, including the official `create_branch`, `inspect_family`, and
-`merge_branches` tools.
+**Current version: 4.0.5.** This package is the protocol Core, Python API, and
+local CLI. The optional [`fcop-mcp`](https://pypi.org/project/fcop-mcp/) package
+is a thin adapter over this Core. Core remains the sole authority for protocol
+facts, validation, state transitions, idempotency, locking, and recovery.
 
 ## Install
 
-FCoP 4.0 supports Python 3.10–3.13.
+FCoP 4.0.5 supports Python 3.10–3.13.
 
 ```bash
-python -m pip install --upgrade "fcop>=4.0.3,<4.1.0"
+python -m pip install "fcop==4.0.5"
 ```
 
 Verify the installed distribution:
@@ -33,8 +30,8 @@ The same package supports Intel and Apple silicon Macs; Rosetta is not required.
 ```bash
 python3 -m venv ~/.local/share/fcop/venv
 ~/.local/share/fcop/venv/bin/python -m pip install --upgrade \
-  "fcop>=4.0.3,<4.1.0" \
-  "fcop-mcp>=4.0.3,<4.1.0"
+  "fcop>=4.0.5,<4.1.0" \
+  "fcop-mcp>=4.0.5,<4.1.0"
 
 ~/.local/share/fcop/venv/bin/fcop version
 ~/.local/share/fcop/venv/bin/fcop doctor
@@ -43,36 +40,45 @@ python3 -m venv ~/.local/share/fcop/venv
 
 The CLI provides `init`, `status`, `inspect`, `validate`, `tools`, `doctor`, `version`, `spec`, and `migrate`. MCP additionally requires a local-stdio-capable client. Use the absolute `/Users/.../.local/share/fcop/venv/bin/python` path with `args = ["-m", "fcop_mcp"]`, and set `FCOP_PROJECT_DIR` to the actual project root.
 
-## What Core provides
+## Base Protocol boundary
+
+FCoP Core provides:
 
 - Workspace identity and versioned protocol behavior.
 - Four durable envelope types: TASK, REPORT, ISSUE, and REVIEW.
-- Explicit lifecycle, attempt, relation, and authorization records.
-- Branch families for parallel work without overwriting the Root task.
-- Explicit convergence with family inspection and atomic Branch merge.
+- Explicit lifecycle, attempt, relation, evidence, and authorization records.
+- Branch families, explicit convergence, and atomic Branch merge.
 - Durable idempotency, cross-process locking, and crash-safe recovery.
 - Version-selected protocol rules and schemas.
-- A typed Python `Project` API with no MCP, LLM, or network dependency.
+- A typed Python `Project` API with no MCP, LLM, Runtime, or network dependency.
 
-## CLI — Local Setup, Inspect & Diagnose
+Team models, Solo mode, ME or other fixed roles, seats, and Host sessions are
+outside the Base Protocol. A Host, Profile, or Runtime may define such concepts,
+but Core does not require them. Legacy compatibility is also a separate boundary
+and does not redefine canonical 4.x behavior. FCoP Core can be used independently
+of CodeFlowMu.
+
+`init_workspace` and the matching Core workspace API initialize a pure FCoP v4
+workspace. They do not create `AGENTS.md`, `CLAUDE.md`, Cursor rules, role files,
+or session state.
+
+## CLI — Setup, inspect, and diagnose
 
 **CLI = Setup + Observe + Diagnose; MCP = Work.**
 
 | Command | Purpose |
 | --- | --- |
-| `fcop init` | Initialize an FCoP workspace |
+| `fcop init` | Initialize a pure FCoP workspace |
 | `fcop status` | View workspace status |
 | `fcop inspect` | Inspect TASK / REPORT / ISSUE / REVIEW |
 | `fcop validate` | Validate protocol structure |
-| `fcop tools` | Inspect the installed MCP Tool Catalog |
-| `fcop doctor` | Diagnose installation, environment and compatibility |
+| `fcop tools` | Inspect the installed optional MCP catalog |
+| `fcop doctor` | Diagnose installation, environment, and compatibility |
 | `fcop version` | Show installed versions |
-| `fcop spec` | Show specification / rule identity |
-| `fcop migrate` | Explicitly migrate a legacy workspace; inspect the plan before apply |
+| `fcop spec` | Show specification and rule identity |
+| `fcop migrate` | Explicitly plan or apply a legacy workspace migration |
 
-### Install & Verify
-
-In an activated Python 3.10+ environment:
+Example:
 
 ```bash
 python -m pip install fcop
@@ -82,26 +88,16 @@ fcop doctor
 fcop init --root ./my-project
 fcop status --root ./my-project
 fcop validate --root ./my-project
-```
 
-For the optional MCP Tool Catalog:
-
-```bash
 python -m pip install fcop-mcp
-
 fcop tools
 fcop tools merge_branches --json
 ```
 
-Once installed, the CLI can initialize, inspect, validate and diagnose locally and offline.
-`doctor` does not access the network or modify Host configuration. Package installation itself may need a package index; offline installation requires locally available packages.
-The CLI does not perform `create_task`, approval, Branch, merge or authorization work operations; use MCP or the Python API for those.
-Installing `fcop` does not create Host instruction files. Normal v4 workspace state belongs in `<project>/fcop/`, never in project-root `AGENTS.md`, `CLAUDE.md` or Cursor rules.
-Existing atomic initialization staging and failed-initialization evidence are preserved; customer files are never cleaned up automatically.
-`migrate` is a separate explicit legacy operation, not an automatic package-upgrade step.
-`tools` requires the optional MCP package and never starts a server or installs it automatically.
-
-[CLI reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.md) · [中文 CLI 参考](https://github.com/joinwell52-AI/FCoP/blob/main/docs/cli.zh.md).
+Package installation does not initialize a repository, migrate a workspace,
+deploy Host instructions, start an MCP server, or modify another application.
+Canonical v4 workspace state belongs under `<project>/fcop/`.
+`fcop doctor` does not access the network or modify Host configuration.
 
 ## Minimal Python example
 
@@ -112,52 +108,41 @@ from fcop import Project
 
 project = Project(Path("/absolute/path/to/repository"))
 workspace = project.create_workspace(protocol_version="4.0")
-
 print(workspace["workspace_id"])
 ```
-
-Installing the package does **not** initialize a repository, migrate an existing
-workspace, deploy rules, start an MCP server, or modify another application.
-
-## Branch and merge
-
-Parallel work is represented as a Root TASK with Branch TASKs. Agents produce
-REPORTs on their assigned Branches; a PM or coordinating agent inspects the
-family and supplies the convergence decision. Core verifies the referenced
-heads and family digest, then records the merge as one durable REVIEW.
-
-See the [Branch merge contract and example](https://github.com/joinwell52-AI/FCoP/blob/main/docs/branch-merge.md)
-or the [Chinese version](https://github.com/joinwell52-AI/FCoP/blob/main/docs/branch-merge.zh.md).
 
 ## Package boundary
 
 | Package | Responsibility |
 | --- | --- |
-| `fcop` | Protocol Core, Python API and setup/observe/diagnose CLI; no MCP dependency |
-| `fcop-mcp` | Optional MCP stdio adapter exposing Core capabilities to MCP clients |
+| `fcop` | Protocol Core, Python API, and setup/observe/diagnose CLI |
+| `fcop-mcp` | Optional canonical MCP adapter exposing Core capabilities |
 
-FCoP is not a task scheduler, agent runtime, LLM SDK, database, or automatic
-merge-decision engine. It records and validates coordination decisions made by
-the participating agents or humans.
+The 4.0.5 default MCP surface contains **25 Canonical MCP Tools** and **6
+read-only Core Resources**. The
+[MCP reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md)
+is generated from its canonical manifest. Every entry from the historical
+49-tool implementation surface has an explicit disposition in the
+[4.0.5 migration guide](https://github.com/joinwell52-AI/FCoP/blob/main/docs/migration-4.0.5-mcp.md).
 
 ## 中文简介
 
-FCoP 4.0 已正式稳定发布，当前包版本为 4.0.3。
-`fcop` 是 FCoP 协议的 Python Core，负责工作区、TASK/REPORT/ISSUE/REVIEW、
-并发 Branch、显式收敛、原子合并、幂等与恢复。它不包含 MCP Server，也不会在
-安装时自动初始化、迁移或修改现有项目。需要在 Codex、Cursor、Claude Desktop
-等 MCP Host 中调用时，请另外安装 `fcop-mcp`。
+FCoP 4.0.5 是 File-based Coordination Protocol 的官方 Python Core。
+Core 是协议事实、校验和状态迁移的唯一权威；`fcop-mcp` 只是可选的薄适配层。
+Base Protocol 不要求 Team、Solo、ME、seat 或 Host session，这些概念属于
+Host、Profile 或 Runtime。Legacy compatibility 也不属于 canonical 4.x 路径。
+`init_workspace` 初始化纯 FCoP v4 工作区，不生成 Host 指令或角色文件。
+FCoP Core 可以脱离 CodeFlowMu 独立使用。
 
 ## Documentation
 
 - [Repository](https://github.com/joinwell52-AI/FCoP)
 - [Protocol introduction](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.en.md)
-- [中文协议介绍](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.md)
-- [Branch merge](https://github.com/joinwell52-AI/FCoP/blob/main/docs/branch-merge.md)
+- [中文协议入门](https://github.com/joinwell52-AI/FCoP/blob/main/docs/getting-started.md)
 - [MCP tools reference](https://github.com/joinwell52-AI/FCoP/blob/main/docs/mcp-tools.md)
+- [4.0.5 migration guide](https://github.com/joinwell52-AI/FCoP/blob/main/docs/migration-4.0.5-mcp.md)
 - [Changelog](https://github.com/joinwell52-AI/FCoP/blob/main/CHANGELOG.md)
-- [Historical migrations](https://github.com/joinwell52-AI/FCoP/tree/main/docs/releases)
 
 ## License
 
-MIT — [LICENSE](https://github.com/joinwell52-AI/FCoP/blob/main/LICENSE)
+MIT · [LICENSE](https://github.com/joinwell52-AI/FCoP/blob/main/LICENSE)

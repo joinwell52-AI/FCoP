@@ -22,7 +22,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from fcop import DriftReport, Project, SessionRoleConflict
+from fcop import DriftReport, SessionRoleConflict
+from fcop.compatibility.v3.project import Project
 
 
 def _init_solo(tmp_path: Path) -> Project:

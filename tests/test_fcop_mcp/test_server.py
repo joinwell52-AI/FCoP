@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from fcop_mcp.server import mcp
+from fcop_mcp.compatibility.v3.server import mcp
 
 # ─── Shared helpers ──────────────────────────────────────────────────
 
@@ -624,7 +624,7 @@ class TestSessionReportAndRedeploy:
         # The deprecated alias from 0.6.3 was removed in fcop-mcp 0.7.0
         # per ADR-0006's two-cycle deprecation window. New code must
         # call ``fcop_report`` directly.
-        from fcop_mcp import server as srv
+        from fcop_mcp.compatibility.v3 import server as srv
 
         assert not hasattr(srv, "unbound_report"), (
             "unbound_report should have been removed in 0.7.0; "
@@ -686,7 +686,7 @@ class TestSessionReportAndRedeploy:
 
 def _tool_doc(name: str) -> str:
     """Return the registered MCP tool's docstring from ``fcop_mcp.server``."""
-    from fcop_mcp import server as srv
+    from fcop_mcp.compatibility.v3 import server as srv
 
     fn = getattr(srv, name, None)
     assert fn is not None, f"MCP tool {name!r} not found on fcop_mcp.server"

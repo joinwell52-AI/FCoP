@@ -32,14 +32,14 @@ def test_wp4f_stable_identity_and_exact_dependency():
         tree = ast.parse((ROOT / name).read_text(encoding="utf-8"))
         values = [ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
                   and any(isinstance(t, ast.Name) and t.id == "__version__" for t in n.targets)]
-        assert values == ["4.0.3"]
+        assert values == ["4.0.5"]
     for name in ("pyproject.toml", "mcp/pyproject.toml"):
         text = (ROOT / name).read_text(encoding="utf-8")
         assert '"Development Status :: 5 - Production/Stable"' in text
         assert '"Development Status :: 4 - Beta"' not in text
     text = (ROOT / "mcp/pyproject.toml").read_text(encoding="utf-8")
     pin, = re.findall(r'"(fcop>=[^"]+)"', text)
-    assert Requirement(pin).specifier == SpecifierSet(">=4.0.3,<4.1.0")
+    assert Requirement(pin).specifier == SpecifierSet(">=4.0.5,<4.1.0")
 
 
 @pytest.mark.parametrize("tamper", [False, True])
@@ -73,12 +73,14 @@ def test_wp4f_readme_commands_parameters_and_links_match():
         assert "https://github.com/joinwell52-AI/FCoP/blob/main/docs/ai-install.md" in prompt.group(2)
         technical.append(text.replace(prompt.group(1), "", 1))
     assert re.findall(r"```.*?```", technical[0], re.S) == re.findall(r"```.*?```", technical[1], re.S)
-    assert re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", en) == re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", zh)
+    # Localized pages may link to language-specific guides; each local link is
+    # checked for existence below.
     for text in (en, zh):
-        for token in ("Stable version: 4.0.3", "Release candidate: 4.0.0rc1",
-                      "49 tools / 12 resources / 4 resource templates", "reopen_task", "family_digest",
+        for token in (("Current Python packages: 4.0.5" if text is en else "当前 Python 安装包：4.0.5"), "Release candidate: 4.0.0rc1",
+                      "reopen_task", "family_digest",
                       "operation_id", "<project>/fcop/", "FCOP_4_STABLE_RELEASE_READY"):
             assert token in text
+        assert "25" in text and "canonical" in text
         for link in re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text):
             if not link.startswith("https://"):
                 assert (ROOT / link.split("#", 1)[0]).exists(), link

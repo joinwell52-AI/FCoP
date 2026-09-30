@@ -293,7 +293,9 @@ def test_cold_export_conflict_and_target_durable_fault_preserve_archive(
 
 
 def test_new_public_methods_fail_closed_on_v3(tmp_path: Path) -> None:
-    project = Project(tmp_path)
+    from fcop.compatibility.v3.project import Project as LegacyProject
+
+    project = LegacyProject(tmp_path)
     project.init_solo(role_code="ME")
     calls = [
         lambda: project.inject_fault(operation="transition", stage="PREPARED"),

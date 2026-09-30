@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 
 
 def _init_solo(tmp_path: Path) -> Project:

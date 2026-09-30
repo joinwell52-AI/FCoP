@@ -1,16 +1,12 @@
-# FCoP repository development instructions
+# FCoP source repository
 
-This file is repository-owned contributor guidance, not an FCoP protocol artifact.
-It is not packaged or deployed to customers and does not activate a workspace.
-
-- Follow the current ADMIN-authorized taskbook, scope and release gates.
-- Preserve unrelated working trees, historical evidence and customer-owned bytes.
-- Use UTF-8 and apply_patch for edits; do not edit Chinese text through PowerShell.
-- Do not modify CodeFlowMu or implicitly migrate existing workspaces.
-- FCoP owns protocol state under <project>/fcop/ and package rule resources,
-  not project-root Host instructions. Keep Legacy compatibility isolated.
-- Verify tests, generated docs and artifact identities; record real failures.
-- Never merge, tag or publish without explicit task authorization.
-
-Protocol: spec/fcop-4.0-spec.md and spec/fcop-4.0-spec.zh.md.
-Current rule distribution: docs/rule-resources.md.
+- This repository develops the FCoP Python library and its optional MCP adapter.
+- Core is the sole authority for protocol facts, validation and state transitions.
+- Canonical MCP is a thin Core adapter; its manifest owns the exposed tool surface.
+- Keep Runtime, CodeFlowMu, Profile presets, Host configuration and Legacy compatibility outside Base Protocol.
+- Preserve existing user changes. Use UTF-8; do not edit Chinese text with PowerShell.
+- Source: `src/fcop/`; MCP: `mcp/src/fcop_mcp/`; tests: `tests/`.
+- Run relevant tests with `python -m pytest`; run lint with `python -m ruff check`.
+- Local package builds use `python -m build` at the repository root and in `mcp/`.
+- Validate local wheels in a clean environment before claiming release-candidate readiness.
+- Do not automatically publish packages, upload to PyPI, create tags or Releases, or merge changes.

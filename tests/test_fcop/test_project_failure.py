@@ -15,7 +15,6 @@ from fcop import (
     Failure,
     FailureReceipt,
     FailureType,
-    Project,
     RecoveryAction,
     RecoveryOutcome,
     ResumePayload,
@@ -24,6 +23,7 @@ from fcop import (
     SessionRecoveryAction,
     SessionRecoveryResult,
 )
+from fcop.compatibility.v3.project import Project
 
 # ── helpers ──────────────────────────────────────────────────────────
 

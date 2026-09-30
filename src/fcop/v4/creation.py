@@ -12,7 +12,6 @@ from types import MappingProxyType
 from typing import Any
 from uuid import UUID, uuid4
 
-from fcop.core.config import parse_team_config
 from fcop.errors import ConfigError, V4ProtocolError, _V4Code
 from fcop.v4.encoding import (
     BUCKETS,
@@ -162,6 +161,8 @@ class _Creation:
                 # them or impose that newer parser on legacy writer routing.
                 return None
             try:
+                from fcop.core.config import parse_team_config
+
                 legacy = parse_team_config(declaration, source=path)
             except ConfigError:
                 return cls(root, {}, invalid=True, trusted_profiles=trusted_profiles)

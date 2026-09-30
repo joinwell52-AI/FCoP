@@ -159,12 +159,12 @@ class TestPromptSafetyClausesPresent:
     ) -> None:
         text = get_install_prompt(lang)  # type: ignore[arg-type]
         # ZH uses "不要" 自动初始化 / "选择题"; EN uses "Do not" auto-
-        # init / "ADMIN's choice". Cross-check both anchors so a
+        # init / "user's choice". Cross-check both anchors so a
         # future paraphrase has to keep the intent.
         if lang == "zh":
             assert "不要" in text and "初始化" in text
-            assert "ADMIN" in text
+            assert "用户" in text
         else:
             assert "Do not" in text or "do not" in text
             assert "auto-init" in text.lower() or "init" in text.lower()
-            assert "ADMIN" in text
+            assert "user" in text.lower()

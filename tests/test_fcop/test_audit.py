@@ -15,7 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from fcop import InspectionReport, Project
+from fcop import InspectionReport
+from fcop.compatibility.v3.project import Project
 
 # ── Fixtures ──────────────────────────────────────────────────────────────
 

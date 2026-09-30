@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 import yaml
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 from fcop.errors import FcopError, V4ProtocolError
 from fcop.v4.encoding import operation_lock, publish
 

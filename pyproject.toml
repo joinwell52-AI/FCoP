@@ -109,13 +109,13 @@ include = [
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/fcop",
-    "fcop-README.pypi.md",
-    "README.md",
-    "README.zh.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    "pyproject.toml",
+    "/src/fcop/**",
+    "/fcop-README.pypi.md",
+    "/README.md",
+    "/README.zh.md",
+    "/LICENSE",
+    "/CHANGELOG.md",
+    "/pyproject.toml",
 ]
 exclude = [
     "mcp",

@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 from fastmcp import Client
-from fcop_mcp.server import create_server
+from fcop_mcp.compatibility.v3.server import create_server
 
 
 @pytest.mark.parametrize("verdict", ["AUTHORIZED", "DENIED", "UNKNOWN", "EMPTY", "REJECT"])

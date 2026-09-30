@@ -10,7 +10,7 @@ from typing import Any
 
 import pytest
 from fastmcp.exceptions import ResourceError
-from fcop_mcp import server
+from fcop_mcp.compatibility.v3 import server
 
 ROOT = Path(__file__).resolve().parents[2]
 

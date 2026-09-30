@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from fcop import Project
+from fcop.compatibility.v3.project import Project
 
-PUBLIC_ENTRY = "fcop.Project.rule_distribution"
+PUBLIC_ENTRY = "fcop.compatibility.v3.project.Project.rule_distribution"
 
 
 class DistributionNotImplementedError(AssertionError):
