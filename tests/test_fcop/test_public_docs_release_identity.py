@@ -32,10 +32,11 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
         f'fcop-mcp=={published}',
         "25 Canonical MCP Tools and 6 read-only Core Resources.",
         "25 个 Canonical MCP Tools 和 6 个只读 Core Resources。",
-        "Zenodo v4.0.3 · DOI",
+        "Zenodo v4.0.5 · DOI",
         "<strong>25</strong> Canonical MCP Tools",
         "<strong>6</strong> read-only Core Resources",
-        "10.5281/zenodo.22746175",
+        "10.5281/zenodo.23051275",
+        "10.5281/zenodo.22855630",
     ):
         assert value in page
 

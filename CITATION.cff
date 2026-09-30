@@ -1,16 +1,15 @@
 cff-version: 1.2.0
-message: "If you use this work in research, software, or writing, please cite the archived research snapshot below."
+message: "If you use FCoP v4.0.5, please cite the software archive below. Cite the related preprint separately when discussing its frozen 4.0.3 experiments."
 type: software
 title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
 abstract: >-
-  FCoP (File-based Coordination Protocol) is a minimalist multi-agent
-  coordination protocol whose only sync primitive is os.rename() over a
-  shared folder tree. Directories are statuses, filenames are routing,
-  Markdown files are payload. No database, no message queue, no daemon —
-  the filesystem itself is the protocol. Two reference implementations
-  ship with the repository (the `fcop` Python library and the `fcop-mcp`
-  MCP server for Cursor), alongside field-report essays and case-study
-  tutorials with inspectable evidence.
+  FCoP (File-based Coordination Protocol) is a persistent, project-visible
+  coordination protocol for multi-agent work. Core owns protocol facts,
+  validation, and state transitions. The canonical MCP adapter exposes
+  25 tools and 6 resources, with no resource templates. Runtime, Profile
+  presets, Host configuration, and Legacy compatibility remain outside
+  the Base Protocol. This archive contains the Python library, optional
+  MCP adapter, specifications, documentation, and tests.
 authors:
   - family-names: "Zhu"
     given-names: "Wei"
@@ -20,13 +19,14 @@ identifiers:
     value: "10.5281/zenodo.19886035"
     description: "Concept DOI — resolves to the Zenodo record series"
   - type: doi
-    value: "10.5281/zenodo.19886036"
-    description: "Archived research snapshot DOI — 2026-04-29"
+    value: "10.5281/zenodo.23051275"
+    description: "Version DOI — v4.0.5 software source archive"
+doi: "10.5281/zenodo.23051275"
 repository-code: "https://github.com/joinwell52-AI/FCoP"
 url: "https://joinwell52-ai.github.io/FCoP/"
 license: MIT
-date-released: "2026-05-30"
-version: "v3.2.5"
+date-released: "2026-09-30"
+version: "v4.0.5"
 keywords:
   - "multi-agent coordination"
   - "filename as protocol"
@@ -45,19 +45,46 @@ keywords:
   - "append-only history"
 preferred-citation:
   type: software
-  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development (Research Snapshot, April 2026)"
+  title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
   authors:
     - family-names: "Zhu"
       given-names: "Wei"
       affiliation: "Independent researcher"
   year: 2026
-  month: 4
-  version: "research-snapshot-2026-04-29"
-  doi: "10.5281/zenodo.19886036"
-  url: "https://doi.org/10.5281/zenodo.19886036"
+  month: 9
+  date-released: "2026-09-30"
+  version: "v4.0.5"
+  doi: "10.5281/zenodo.23051275"
+  url: "https://doi.org/10.5281/zenodo.23051275"
   publisher:
     name: "Zenodo"
 references:
+  - type: article
+    title: "FCoP: A File-Based Coordination Protocol for Governed Multi-Agent Systems"
+    authors:
+      - family-names: "Zhu"
+        given-names: "Wei"
+    year: 2026
+    month: 9
+    version: "1.0"
+    doi: "10.5281/zenodo.22855630"
+    url: "https://doi.org/10.5281/zenodo.22855630"
+  - type: software
+    title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development"
+    authors:
+      - family-names: "Zhu"
+        given-names: "Wei"
+    version: "v4.0.3"
+    doi: "10.5281/zenodo.22746175"
+    url: "https://doi.org/10.5281/zenodo.22746175"
+  - type: software
+    title: "FCoP: A Filename-as-Protocol coordination layer for multi-agent AI development (Research Snapshot, April 2026)"
+    authors:
+      - family-names: "Zhu"
+        given-names: "Wei"
+    version: "research-snapshot-2026-04-29"
+    doi: "10.5281/zenodo.19886036"
+    url: "https://doi.org/10.5281/zenodo.19886036"
   - type: generic
     title: "TMPA: Textual Multi-Agent Process Architecture — V1.0 Publication Set"
     authors:
