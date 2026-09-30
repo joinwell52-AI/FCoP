@@ -14,7 +14,7 @@
   <a href="https://pypi.org/project/fcop/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.5-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop 4.0.5" /></a>
   <a href="https://pypi.org/project/fcop-mcp/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.5-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop-mcp 4.0.5" /></a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="官方 MCP Registry 中的 fcop 4.0.3" /></a>
-  <a href="https://doi.org/10.5281/zenodo.22746175"><img src="https://img.shields.io/badge/Zenodo-v4.0.3%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.3 Zenodo 归档：DOI 10.5281/zenodo.22746175" /></a>
+  <a href="https://doi.org/10.5281/zenodo.23051275"><img src="https://img.shields.io/badge/Zenodo-v4.0.5%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.5 Zenodo 归档：DOI 10.5281/zenodo.23051275" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
 
@@ -505,12 +505,15 @@ python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 
 | 资料 | 阅读或引用 |
 |---|---|
+| **4.0.5 软件归档** | [Zenodo DOI 10.5281/zenodo.23051275](https://doi.org/10.5281/zenodo.23051275) · [引用元数据](CITATION.cff) — 源码提交 `c9ac1ef0717309d45df4c1a3be76498f6818d530` |
+| **FCoP 4.0 预印本（1.0）** | [FCoP: A File-Based Coordination Protocol for Governed Multi-Agent Systems](https://doi.org/10.5281/zenodo.22855630) — 实验与补充材料使用冻结的 4.0.3 实现 |
+| **4.0.3 软件归档** | [Zenodo DOI 10.5281/zenodo.22746175](https://doi.org/10.5281/zenodo.22746175) — 历史版本 |
 | **架构白皮书** | [English](essays/from-coordination-to-governance.en.md) · [中文](essays/from-coordination-to-governance.md) — 历史研究背景 |
 | **3.2.5 归档** | [Zenodo DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285) · [OSF DOI 10.17605/OSF.IO/92NWM](https://doi.org/10.17605/OSF.IO/92NWM) |
-| **2026 年 4 月研究快照** | [Zenodo DOI 10.5281/zenodo.19886036](https://doi.org/10.5281/zenodo.19886036) · [引用元数据](CITATION.cff) |
+| **2026 年 4 月研究快照** | [Zenodo DOI 10.5281/zenodo.19886036](https://doi.org/10.5281/zenodo.19886036) |
 | **17 篇现场报告与设计文章** | [英文目录](essays/README.md) · [中文目录](essays/README.zh.md)，保留原始发布和证据链接 |
 
-引用时请选择与研究版本相符的归档。以上历史 DOI 不代表 4.0.0；讨论当前行为请同时指向版本化发布与规范。
+引用时请选择与研究版本相符的归档。4.0.5 软件 DOI 对应当前源码归档；预印本 DOI 对应论文及其冻结的 4.0.3 实验证据。软件更新不代表论文实验已在 4.0.5 上重新运行。
 
 ## 三个仓库，三个入口
 

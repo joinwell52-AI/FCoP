@@ -14,7 +14,7 @@ New session, same project explanation? An agent says “done”, but where is th
   <a href="https://pypi.org/project/fcop/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.5-3775A9?logo=pypi&logoColor=white" alt="fcop 4.0.5 on PyPI" /></a>
   <a href="https://pypi.org/project/fcop-mcp/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.5-3775A9?logo=pypi&logoColor=white" alt="fcop-mcp 4.0.5 on PyPI" /></a>
   <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="fcop 4.0.3 on the official MCP Registry" /></a>
-  <a href="https://doi.org/10.5281/zenodo.22746175"><img src="https://img.shields.io/badge/Zenodo-v4.0.3%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.3 archive on Zenodo: DOI 10.5281/zenodo.22746175" /></a>
+  <a href="https://doi.org/10.5281/zenodo.23051275"><img src="https://img.shields.io/badge/Zenodo-v4.0.5%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.5 archive on Zenodo: DOI 10.5281/zenodo.23051275" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
 
@@ -506,12 +506,15 @@ These resources are directly accessible; reading the essay collection is optiona
 
 | Resource | Read or cite |
 |---|---|
+| **4.0.5 software archive** | [Zenodo DOI 10.5281/zenodo.23051275](https://doi.org/10.5281/zenodo.23051275) · [Citation metadata](CITATION.cff) — source commit `c9ac1ef0717309d45df4c1a3be76498f6818d530` |
+| **FCoP 4.0 preprint (1.0)** | [FCoP: A File-Based Coordination Protocol for Governed Multi-Agent Systems](https://doi.org/10.5281/zenodo.22855630) — experiments and supplement use the frozen 4.0.3 implementation |
+| **4.0.3 software archive** | [Zenodo DOI 10.5281/zenodo.22746175](https://doi.org/10.5281/zenodo.22746175) — historical version |
 | **Architecture whitepaper** | [English](essays/from-coordination-to-governance.en.md) · [中文](essays/from-coordination-to-governance.md) — historical research context |
 | **3.2.5 archive** | [Zenodo DOI 10.5281/zenodo.20457285](https://doi.org/10.5281/zenodo.20457285) · [OSF DOI 10.17605/OSF.IO/92NWM](https://doi.org/10.17605/OSF.IO/92NWM) |
-| **April 2026 research snapshot** | [Zenodo DOI 10.5281/zenodo.19886036](https://doi.org/10.5281/zenodo.19886036) · [Citation metadata](CITATION.cff) |
+| **April 2026 research snapshot** | [Zenodo DOI 10.5281/zenodo.19886036](https://doi.org/10.5281/zenodo.19886036) |
 | **17 field reports and design essays** | [Complete index](essays/README.md) · [中文目录](essays/README.zh.md), including original publication and evidence links |
 
-Choose the archive matching the version you studied. The historical DOIs above are not identifiers for 4.0.0; use the versioned release and specification when discussing current behavior.
+Choose the archive matching the version you studied. The 4.0.5 software DOI identifies the current source archive; the preprint DOI identifies the paper and its frozen 4.0.3 evidence. The software update does not imply that the paper's experiments were rerun on 4.0.5.
 
 ## Three repositories, three entry points
 
