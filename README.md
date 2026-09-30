@@ -13,7 +13,7 @@ New session, same project explanation? An agent says “done”, but where is th
 <p>
   <a href="https://pypi.org/project/fcop/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.5-3775A9?logo=pypi&logoColor=white" alt="fcop 4.0.5 on PyPI" /></a>
   <a href="https://pypi.org/project/fcop-mcp/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.5-3775A9?logo=pypi&logoColor=white" alt="fcop-mcp 4.0.5 on PyPI" /></a>
-  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="fcop 4.0.3 on the official MCP Registry" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.5"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.5-7055A2" alt="fcop 4.0.5 on the official MCP Registry" /></a>
   <a href="https://doi.org/10.5281/zenodo.23051275"><img src="https://img.shields.io/badge/Zenodo-v4.0.5%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.5 archive on Zenodo: DOI 10.5281/zenodo.23051275" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT license" /></a>
 </p>
@@ -498,7 +498,7 @@ Another implementation should be able to preserve the same work semantics withou
 
 </p>
 
-**Discover FCoP:** [MCPServers introduction](https://mcpservers.org/servers/joinwell52-ai/fcop) ([简体中文](https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop)) — a third-party directory for discovering and learning about FCoP. **Registration details:** [Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3) — the server identifier, version and package metadata.
+**Discover FCoP:** [MCPServers introduction](https://mcpservers.org/servers/joinwell52-ai/fcop) ([简体中文](https://mcpservers.org/zh-CN/servers/joinwell52-ai/fcop)) — a third-party directory for discovering and learning about FCoP. **Registration details:** [Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.5) — the server identifier, version and package metadata.
 
 ## Papers, evidence and citation
 
