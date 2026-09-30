@@ -13,7 +13,7 @@
 <p>
   <a href="https://pypi.org/project/fcop/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop%204.0.5-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop 4.0.5" /></a>
   <a href="https://pypi.org/project/fcop-mcp/4.0.5/"><img src="https://img.shields.io/badge/PyPI-fcop--mcp%204.0.5-3775A9?logo=pypi&logoColor=white" alt="PyPI 上的 fcop-mcp 4.0.5" /></a>
-  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="官方 MCP Registry 中的 fcop 4.0.5" /></a>
+  <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.3"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.3-7055A2" alt="官方 MCP Registry 中的 fcop 4.0.3" /></a>
   <a href="https://doi.org/10.5281/zenodo.22746175"><img src="https://img.shields.io/badge/Zenodo-v4.0.3%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.3 Zenodo 归档：DOI 10.5281/zenodo.22746175" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
 </p>
@@ -131,7 +131,7 @@ fcop tools
 
 [完整安装与客户端配置](docs/ai-install.md)
 
-Cursor 实际连接效果：**49 个工具、12 个资源**。
+历史 4.0.3 Cursor 连接截图：**49 个工具、12 个资源**。当前 4.0.5 提供 25 个工具和 6 个只读资源。
 
 <img src="assets/fcop-cursor-connected.png" alt="Cursor: fcop connected, 49 tools and 12 resources enabled" width="640" />
 
@@ -275,7 +275,7 @@ fcop tools
 }
 ```
 
-把 `command` 换成安装了两个包的 Python 解释器绝对路径，把项目路径换成你的工作目录；Windows 路径可使用正斜杠。重连客户端后，应看到 FCoP 的 49 个工具与 12 个资源。项目初始化与团队规则采用是后续步骤，连接 MCP 不会自动建立 PM 团队或启动其他 Agent。
+把 `command` 换成安装了两个包的 Python 解释器绝对路径，把项目路径换成你的工作目录；Windows 路径可使用正斜杠。重连客户端后，应看到 FCoP 的 25 个 canonical 工具与 6 个只读资源。项目初始化与团队规则采用是后续步骤，连接 MCP 不会自动建立 PM 团队或启动其他 Agent。
 
 ### 源码安装
 
@@ -428,7 +428,7 @@ python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 
 本地 **4.0.5 发布候选**连接后，用 `init_workspace()` 初始化新工作区。调用 `create_task` 时传入 `workspace_id` 与唯一的 `operation_id`，再用 `inspect_task(task_id=...)` 检查 TASK。Base Protocol 不要求 Team/Solo/ME 席位或 Host session 指派。
 
-本地 4.0.5 候选的默认 MCP 有 **25 个 canonical 工具**。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。旧工具去向见 [49→25 迁移指南](docs/migration-4.0.5-mcp.md)。
+4.0.5 的默认 MCP 有 **25 个 canonical 工具**。适配器将调用交给同一 Python Core。默认初始化不含可信授权 Profile：可以创建、领取、提交任务；验收、退回、重开和归档需要显式采纳 Profile，并由可信宿主注册签发者评估器。在请求里填写一个角色名，不能赋予自己这些权限。旧工具去向见 [49→25 迁移指南](docs/migration-4.0.5-mcp.md)。
 
 [MCP 工具参考](docs/mcp-tools.md) · [稳定版独立 Python 示例](tests/stable/third-party/python-only/app.py) · [稳定版独立 MCP 示例](tests/stable/third-party/mcp-only/client.py)。完整示例包含教学用 Profile，实际部署需要配置自己的信任策略。
 
@@ -493,7 +493,7 @@ python -m pip install "fcop==4.0.5" "fcop-mcp==4.0.5"
 <details>
 <summary>发布、MCP 收录、论文、Zenodo 与历史版本</summary>
 
-**Stable version: 4.0.3** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
+**当前 Python 安装包：4.0.5；最新 GitHub Release：4.0.3。** — [4.0.3 发布页面](https://github.com/joinwell52-AI/FCoP/releases/tag/v4.0.3)。本仓库提供开放协议、`fcop` Python 实现和可选的 `fcop-mcp` 适配器。需要 Python 3.10+；下面的本地示例无需模型 API Key。
 
 </p>
 

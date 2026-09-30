@@ -24,8 +24,8 @@ def test_public_homepage_matches_current_core_and_mcp_release() -> None:
 
     page = (ROOT / "docs/index.html").read_text(encoding="utf-8")
     for value in (
+        "Available on PyPI; GitHub Release: 4.0.3",
         f"FCoP {published}",
-        f"releases/tag/v{published}",
         f"pypi.org/project/fcop/{published}/",
         f"pypi.org/project/fcop-mcp/{published}/",
         f'fcop=={published}',
