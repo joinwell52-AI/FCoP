@@ -1,4 +1,6 @@
 """Explicit Profile, audit and package operations; never loaded by MCP."""
+from __future__ import annotations
+
 import argparse
 import json
 import subprocess
