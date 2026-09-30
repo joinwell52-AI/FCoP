@@ -28,6 +28,7 @@ def _context(root: Path | str) -> tuple[Any, Any]:
         declared.get("protocol_version") != "4.0" if declared is not None
         else (root_path / "docs" / "agents").exists()
     )
+    project: Any
     if historical:
         from fcop.compatibility.v3.project import Project as LegacyProject
 

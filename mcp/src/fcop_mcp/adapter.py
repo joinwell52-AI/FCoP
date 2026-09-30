@@ -271,7 +271,7 @@ def create_legacy_server(
     return mcp
 
 
-def create_server(root, *, trusted_profiles=None):
+def create_server(root: Path | str, *, trusted_profiles: Mapping[str, Callable[..., str]] | None = None) -> FastMCP:
     """Default canonical server; historical routing requires create_legacy_server."""
     from fcop_mcp.registry import create_server as canonical_server
     return canonical_server(root, trusted_profiles=trusted_profiles)

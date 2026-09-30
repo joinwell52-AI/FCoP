@@ -1,11 +1,13 @@
 """Explicit Profile, audit and package operations; never loaded by MCP."""
+import argparse
 import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any, TextIO
 
 
-def add_subparsers(sub):
+def add_subparsers(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     audit = sub.add_parser("audit", help="Validate protocol facts without repair")
     audit.add_argument("path", nargs="?", type=Path, default=Path.cwd())
     audit.add_argument("--json", action="store_true")
@@ -19,7 +21,8 @@ def add_subparsers(sub):
         parser.set_defaults(func=run)
 
 
-def run(args, *, stdout=None):
+def run(args: argparse.Namespace, *, stdout: TextIO | None = None) -> int:
+    result: Any
     try:
         if args.cmd == "audit":
             from fcop.toolkit.audit import audit

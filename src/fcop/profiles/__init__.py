@@ -3,15 +3,16 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 
-def list_profiles():
+def list_profiles() -> list[dict[str, str]]:
     """Installed bundled team presets are discoverable only on explicit request."""
     from fcop.teams import get_available_teams
     return [{"id": t.name, "source": "bundled-team-profile"} for t in get_available_teams()]
 
 
-def load_profile(reference: str):
+def load_profile(reference: str) -> dict[str, Any]:
     path = Path(reference)
     if path.is_file():
         value = json.loads(path.read_text(encoding="utf-8"))

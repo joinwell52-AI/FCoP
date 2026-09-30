@@ -15,7 +15,7 @@ from ._loader import _Package, load, sha
 from ._selection import select
 
 if TYPE_CHECKING:
-    from fcop import Project
+    from fcop.compatibility.v3.project import Project
 
 _SELECTION = "RULE_SELECTION_INVALID"
 _CONTEXT = {

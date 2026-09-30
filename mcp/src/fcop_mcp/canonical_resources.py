@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 from fastmcp import FastMCP
@@ -42,7 +43,7 @@ def _read(root: Path, uri: str) -> str:
     return str(content)
 
 
-def _reader(root: Path, resource_uri: str):
+def _reader(root: Path, resource_uri: str) -> Callable[[], str]:
     def read() -> str:
         return _read(root, resource_uri)
     return read

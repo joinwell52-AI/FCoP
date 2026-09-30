@@ -9,11 +9,14 @@ from dataclasses import dataclass
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fcop import Project
 from fcop.errors import V4ProtocolError, _V4Code
 from packaging.version import Version
+
+if TYPE_CHECKING:
+    from fcop.compatibility.v3.project import Project as LegacyProject
 
 PACKAGE_COMPATIBILITY = frozenset({("3.2.5", "3.2.5"), ("4.0.0rc1", "4.0.0rc1"), ("4.0.0", "4.0.0"), ("4.0.1", "4.0.1"), ("4.0.2", "4.0.2"), ("4.0.3", "4.0.3"), ("4.0.5", "4.0.5")})
 
@@ -34,7 +37,7 @@ def check_package_compatibility() -> None:
 class Route:
     workspace_path: Path
     declared_protocol: str
-    project: Project
+    project: Project | LegacyProject
     capabilities: frozenset[str]
 
 
@@ -90,6 +93,7 @@ class WorkspaceRouter:
                 _V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Unsupported declared workspace version",
                 operation_ref="workspace_binding", subject_ref=str(self.root),
             )
+        project: Project | LegacyProject
         if declared == "v3":
             from fcop.compatibility.v3.project import Project as LegacyProject
 

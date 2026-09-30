@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any
+from typing import Any, cast
 
 from fcop.errors import _V4Code
 from fcop.v4.creation import _Creation
@@ -18,13 +18,13 @@ from fcop.v4.encoding import fail, parse_json, safe_path
 class Project:
     """Bind a canonical filesystem workspace and delegate all semantics to Core."""
 
-    def __init__(self, path: Path | str, *, trusted_profiles: Mapping[str, Callable] | None = None,
-                 strict: bool = True, workspace_dir: Path | str | None = None):
+    def __init__(self, path: Path | str, *, trusted_profiles: Mapping[str, Callable[..., str]] | None = None,
+                 strict: bool = True, workspace_dir: Path | str | None = None) -> None:
         self._path = Path(path).resolve()
         self._trusted_profiles = MappingProxyType(dict(trusted_profiles or {}))
         if workspace_dir is not None and (self._path / workspace_dir).resolve() != self._path / "fcop":
             raise fail(_V4Code.UNSUPPORTED_ENCODING, "Canonical workspaces use fcop/")
-        self._v4_creation = None
+        self._v4_creation: _Creation | None = None
         manifest = safe_path(self._path, "fcop/fcop.json")
         if manifest.exists():
             declaration = parse_json(manifest.read_bytes(), classification=True)
@@ -57,7 +57,7 @@ class Project:
         return self._v4_creation is not None
 
     def create_workspace(self, *, protocol_version: str = "4.0",
-                         encoding: str = "fcop-filesystem/4.0", profiles: Sequence[str] = ()) -> dict:
+                         encoding: str = "fcop-filesystem/4.0", profiles: Sequence[str] = ()) -> dict[str, Any]:
         self._v4_creation = _Creation.create(self._path, protocol_version=protocol_version,
             encoding=encoding, profiles=profiles, trusted_profiles=self._trusted_profiles)
         return dict(self._v4_creation.manifest)
@@ -67,7 +67,10 @@ class Project:
         if creation is None:
             raise fail(_V4Code.UNSUPPORTED_WORKSPACE_VERSION, "Initialize a canonical 4.0 workspace first", operation=name)
         try:
-            return creation.handler(name)(*args, **kwargs)
+            handler = creation.handler(name)
+            if handler is None:
+                raise fail(_V4Code.OPERATION_NOT_IMPLEMENTED, "Unknown Core operation", operation=name)
+            return handler(*args, **kwargs)
         except Exception as exc:
             from fcop.errors import V4ProtocolError
             if isinstance(exc, V4ProtocolError):
@@ -77,18 +80,74 @@ class Project:
                     exc.subject_ref = kwargs.get("subject_ref") or kwargs.get("task_id") or creation.manifest.get("workspace_id")
             raise
 
+    def create_task(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate create_task to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("create_task", *args, **kwargs))
 
-def _delegate(name):
-    def call(self, *args, **kwargs):
-        return self._invoke(name, *args, **kwargs)
-    call.__name__ = name
-    call.__doc__ = f"Delegate {name} to the existing v4 Core implementation."
-    return call
+    def derive_workspace(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate derive_workspace to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("derive_workspace", *args, **kwargs))
 
+    def read_task(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate read_task to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("read_task", *args, **kwargs))
 
-# Core API includes operations beyond the MCP surface. No legacy dispatcher.
-for _name in ("create_task", "derive_workspace", "read_task", "write_report", "write_issue",
-              "write_review", "mark_human_approved", "list_reports", "read_report", "inspect_state",
-              "transition", "family_digest", "inspect_family", "merge_branches", "rule_distribution",
-              "recover_operation", "inject_fault", "export_archive"):
-    setattr(Project, _name, _delegate(_name))
+    def write_report(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate write_report to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("write_report", *args, **kwargs))
+
+    def write_issue(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate write_issue to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("write_issue", *args, **kwargs))
+
+    def write_review(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate write_review to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("write_review", *args, **kwargs))
+
+    def mark_human_approved(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate mark_human_approved to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("mark_human_approved", *args, **kwargs))
+
+    def list_reports(self, *args: Any, **kwargs: Any) -> list[dict[str, Any]]:
+        """Delegate list_reports to the existing v4 Core implementation."""
+        return cast(list[dict[str, Any]], self._invoke("list_reports", *args, **kwargs))
+
+    def read_report(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate read_report to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("read_report", *args, **kwargs))
+
+    def inspect_state(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate inspect_state to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("inspect_state", *args, **kwargs))
+
+    def transition(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate transition to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("transition", *args, **kwargs))
+
+    def family_digest(self, *args: Any, **kwargs: Any) -> str:
+        """Delegate family_digest to the existing v4 Core implementation."""
+        return cast(str, self._invoke("family_digest", *args, **kwargs))
+
+    def inspect_family(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate inspect_family to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("inspect_family", *args, **kwargs))
+
+    def merge_branches(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate merge_branches to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("merge_branches", *args, **kwargs))
+
+    def rule_distribution(self, *args: Any, **kwargs: Any) -> Mapping[str, Any]:
+        """Delegate rule_distribution to the existing v4 Core implementation."""
+        return cast(Mapping[str, Any], self._invoke("rule_distribution", *args, **kwargs))
+
+    def recover_operation(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate recover_operation to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("recover_operation", *args, **kwargs))
+
+    def inject_fault(self, *args: Any, **kwargs: Any) -> None:
+        """Delegate inject_fault to the existing v4 Core implementation."""
+        self._invoke("inject_fault", *args, **kwargs)
+
+    def export_archive(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Delegate export_archive to the existing v4 Core implementation."""
+        return cast(dict[str, Any], self._invoke("export_archive", *args, **kwargs))

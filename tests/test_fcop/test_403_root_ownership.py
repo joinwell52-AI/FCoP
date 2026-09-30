@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import io
 import json
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any, cast
 
 import pytest
 
@@ -71,14 +69,13 @@ def test_real_init_work_reads_and_reopen_preserve_root(
     )
     project.transition(task_id=task["task_id"], from_stage="inbox", to_stage="active", actor="ME", tool="claim_task")
     state = project.inspect_state(task_id=task["task_id"])
-    # Project binds the v4 handler at runtime; its class declaration is Legacy.
-    report = cast(Callable[..., dict[str, Any]], project.write_report)(
+    report = project.write_report(
         workspace_id=workspace["workspace_id"], subject_ref=task["task_id"],
         sender="ME", recipient="ME", attempt_id=state["current_attempt_id"],
         report_kind="final", result="done", body="Actual evidence",
     )
     project.transition(task_id=task["task_id"], from_stage="active", to_stage="review", actor="ME", tool="submit_task", report_ref=report["report_id"])
-    cast(Callable[..., dict[str, Any]], project.write_review)(
+    project.write_review(
         workspace_id=workspace["workspace_id"], subject_ref=task["task_id"],
         sender="ME", recipient="ME", review_kind="assessment", decision="needs_human",
         body="Await acceptance", references=[report["report_id"]],

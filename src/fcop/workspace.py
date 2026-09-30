@@ -6,6 +6,7 @@ Validation delegates to the existing v4 encoding/schema/relation/receipt checks.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from fcop import Project
 from fcop.errors import FcopError, _V4Code
@@ -38,7 +39,7 @@ def _paths(root: Path, kind: str) -> list[Path]:
     return sorted(p for folder in folders for p in safe_path(root, f"fcop/{folder}").glob("*.md"))
 
 
-def _envelope(project: Project, creation: _Creation, path: Path) -> dict:
+def _envelope(project: Project, creation: _Creation, path: Path) -> dict[str, Any]:
     safe_path(project.path, path.relative_to(project.path).as_posix())
     fields = creation._validate(parse_envelope(path), path)
     identity = fields[fields["type"].lower() + "_id"]
@@ -57,8 +58,8 @@ def _envelope(project: Project, creation: _Creation, path: Path) -> dict:
     return result
 
 
-def list_envelopes(root: Path | str, kind: str, *, filters: dict | None = None,
-                   offset: int = 0, limit: int | None = None) -> dict:
+def list_envelopes(root: Path | str, kind: str, *, filters: dict[str, Any] | None = None,
+                   offset: int = 0, limit: int | None = None) -> dict[str, Any]:
     project, creation = _open(root)
     if offset < 0 or (limit is not None and limit < 0):
         raise fail(_V4Code.INVALID_ENVELOPE, "Invalid pagination")
@@ -69,12 +70,17 @@ def list_envelopes(root: Path | str, kind: str, *, filters: dict | None = None,
     return {"items": values[offset:None if limit is None else offset + limit], "total": len(values)}
 
 
-def inspect_workspace(root: Path | str) -> dict:
+def inspect_workspace(root: Path | str) -> dict[str, Any]:
     """Observe canonical facts, including incomplete operations, without writes."""
     project, creation = _open(root)
-    errors, warnings, tasks, envelopes, families, operations = [], [], [], [], [], []
+    errors: list[dict[str, Any]] = []
+    warnings: list[dict[str, Any]] = []
+    tasks: list[dict[str, Any]] = []
+    envelopes: list[dict[str, Any]] = []
+    families: list[dict[str, Any]] = []
+    operations: list[dict[str, Any]] = []
 
-    def error(path, exc):
+    def error(path: Path | str, exc: Exception) -> None:
         errors.append(dict(path=str(path), code=str(getattr(exc, "code", "INVALID_DATA")), message=str(exc)))
 
     for part in [*(f"_lifecycle/{s}" for s in STAGES), *BUCKETS.values(), "operations", "cold"]:
@@ -134,10 +140,10 @@ def inspect_workspace(root: Path | str) -> dict:
                 _validate("create-operation", value)
                 key = digest(canonical({k: value[k] for k in ("workspace_id", "operation_kind", "operation_id")}))
                 if value["key"] != key or path.name != f"create-{key}.json":
-                    raise fail(_V4Code.IDEMPOTENCY_CONFLICT, "Create operation key/path mismatch")
+                    raise fail(_V4Code.OPERATION_ID_CONFLICT, "Create operation key/path mismatch")
                 _, task = creation._resolve(value["task_id"])
                 if task["normalized_request_digest"] != value["digest"] or task["operation_id"] != value["operation_id"]:
-                    raise fail(_V4Code.IDEMPOTENCY_CONFLICT, "Create operation and TASK disagree")
+                    raise fail(_V4Code.OPERATION_ID_CONFLICT, "Create operation and TASK disagree")
                 state = "COMMITTED"
             else:
                 value = _read_receipt(creation, path)
@@ -156,7 +162,7 @@ def inspect_workspace(root: Path | str) -> dict:
             "consistent": not errors, "observation": "non-atomic, read-only protocol facts"}
 
 
-def validate_workspace(root: Path | str) -> dict:
+def validate_workspace(root: Path | str) -> dict[str, Any]:
     """Use the same protocol validators as inspection; return deterministic findings."""
     try:
         observed = inspect_workspace(root)

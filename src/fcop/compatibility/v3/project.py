@@ -145,15 +145,15 @@ from fcop.rules import (
 )
 
 if TYPE_CHECKING:
-    from fcop.teams import TeamTemplate
+    from fcop.teams import TeamInfo, TeamTemplate
 
 
-def get_team_info(*args, **kwargs):
+def get_team_info(*args: Any, **kwargs: Any) -> TeamInfo:
     from fcop.teams import get_team_info as load
     return load(*args, **kwargs)
 
 
-def get_template(*args, **kwargs):
+def get_template(*args: Any, **kwargs: Any) -> TeamTemplate:
     from fcop.teams import get_template as load
     return load(*args, **kwargs)
 

@@ -5,6 +5,7 @@ import asyncio
 import json
 from pathlib import Path
 
+import pytest
 from fcop_mcp.registry import create_server, export_manifest
 
 from fcop import Project
@@ -189,6 +190,25 @@ def test_unknown_operation_is_reported_without_guessing_recovery(tmp_path: Path)
     assert observed["consistent"] is False
     assert any(item["state"] == "UNKNOWN" for item in observed["operations"])
     assert unknown.read_bytes() == before
+
+
+@pytest.mark.parametrize("field", ["key", "digest"])
+def test_corrupt_create_receipt_reports_protocol_error_without_repair(tmp_path: Path, field: str) -> None:
+    server = create_server(tmp_path)
+    workspace = asyncio.run(server.call_tool("init_workspace", {})).structured_content
+    asyncio.run(server.call_tool("create_task", dict(
+        workspace_id=workspace["workspace_id"], operation_id="corrupt-create-receipt",
+        sender="ALPHA", recipient="BETA", subject="Receipt integrity", body="Work",
+    )))
+    receipt = next((tmp_path / "fcop" / "operations").glob("create-*.json"))
+    value = json.loads(receipt.read_text(encoding="utf-8"))
+    value[field] = "0" * 64
+    receipt.write_text(json.dumps(value), encoding="utf-8")
+    before = receipt.read_bytes()
+    validated = asyncio.run(server.call_tool("validate_workspace", {})).structured_content
+    assert validated["valid"] is False
+    assert any(error["code"] == "OPERATION_ID_CONFLICT" for error in validated["errors"])
+    assert receipt.read_bytes() == before
 
 
 def test_default_server_root_is_immutable_and_offline(tmp_path: Path, monkeypatch) -> None:

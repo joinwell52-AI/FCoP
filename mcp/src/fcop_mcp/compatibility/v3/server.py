@@ -42,6 +42,8 @@ from fcop.compatibility.v3.project import Project
 
 from fcop_mcp.adapter import CURRENT_ROUTER, register_legacy_routes, register_reopen
 from fcop_mcp.adapter import create_legacy_server as create_server  # noqa: F401
+
+__all__ = ["create_server"]
 from fcop_mcp.branches import register_branches
 from fcop_mcp.gal import create_alert, list_alerts
 from fcop_mcp.gal._drift import run_drift_scan
@@ -712,7 +714,7 @@ def _parse_refs_list(references: str) -> tuple[str, ...]:
     return tuple(r.strip() for r in references.split(",") if r.strip())
 
 
-def _letter_relpath(project: fcop.Project) -> str:
+def _letter_relpath(project: Project) -> str:
     """Return the project-root-relative path of the deposited LETTER.
 
     v1.0 (per ADR-0022) lets the workspace live at ``fcop/`` (default),
@@ -3111,7 +3113,7 @@ def _compose_session_report(lang: str) -> str:
 
 
 def _format_drift_summary(
-    project: fcop.Project, *, is_en: bool
+    project: Project, *, is_en: bool
 ) -> str:
     """Render the audit_drift summary as a multi-line block.
 
@@ -3181,7 +3183,7 @@ def _format_drift_summary(
     return "\n".join(lines)
 
 
-def _format_role_occupancy(project: fcop.Project, *, is_en: bool) -> str:
+def _format_role_occupancy(project: Project, *, is_en: bool) -> str:
     """Render :meth:`fcop.Project.role_occupancy` as a fixed-width table.
 
     Backs the "Role occupancy" section of `fcop_report()` UNBOUND
