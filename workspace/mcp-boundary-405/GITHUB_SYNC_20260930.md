@@ -32,6 +32,30 @@ zero resource templates.
   These strict typing failures remain open; the PR is a draft and this record
   does not claim merge or release-candidate readiness.
 
+## Authorized completion follow-up
+
+The user subsequently authorized completion through the GitHub main update.
+The initial strict typing failures above are now resolved: Core (62 files),
+MCP source (27 files), and MCP tests (16 files) all pass mypy. Core forwarding
+methods now declare their actual return types; optional legacy paths retain
+lazy imports, and the canonical MCP input-schema snapshot is unchanged.
+
+Two corrupt-create-receipt regressions verify that validation returns the
+defined `OPERATION_ID_CONFLICT` code and leaves customer bytes unchanged.
+The canonical boundary file passes all 13 cases; the full conformance suite
+passes 233 cases. A CLI annotation compatibility issue found during the first
+follow-up run was fixed by postponing annotation evaluation; all 86 CLI tests
+pass. A complete repository rerun is in progress, with its final result and
+GitHub CI outcome to be recorded in PR #58 before merging.
+
+Freshly built wheels were installed together in a new isolated environment.
+The installed real stdio probe passes exact names, descriptions and input
+schemas for 25 tools, six Core-backed resources and zero templates; it also
+passes create/retry/conflict, claim/report/submit, workspace validation and
+read-resource byte parity without Host files or unintended Relay activation.
+Installed CLI version/catalog checks report 4.0.5 and 25 tools. No package,
+tag or Release publication is authorized by this synchronization follow-up.
+
 ## Preservation and publication boundary
 
 The original `D:/FCoP` checkout remained at `6905b1e`; its uncommitted and
