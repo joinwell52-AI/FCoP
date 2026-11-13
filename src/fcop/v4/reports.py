@@ -54,7 +54,11 @@ class ReportQueries:
         ):
             raise fail(_V4Code.INVALID_ENVELOPE, "Invalid REPORT query arguments")
         inventory, rows = self._scan()
-        groups = sorted({(r["subject_ref"], r["attempt_id"]) for r in rows.values()})
+        # Select graph boundaries before resolving heads. An explicit task/attempt
+        # query must not enter the family boundaries of unrelated report groups.
+        groups = sorted({(r["subject_ref"], r["attempt_id"]) for r in rows.values()
+                         if (subject_ref is None or r["subject_ref"] == subject_ref)
+                         and (attempt_id is None or r["attempt_id"] == attempt_id)})
         result: list[dict[str, Any]] = []
         for subject, attempt in groups:
             family = family_root_for(self.creation, subject)
@@ -104,10 +108,20 @@ class ReportQueries:
         identity = filename_or_id.removesuffix(".md")
         if not ID_RE.fullmatch(identity) or not identity.startswith("REPORT-"):
             raise fail(_V4Code.INVALID_ENVELOPE, "Exact REPORT identity required")
-        # list validates every group before returning. It never substitutes its head
-        # for a requested replaced REPORT; returned content remains the requested file.
-        rows = self.list_reports()
+        path = safe_path(self.creation.root, f"fcop/reports/{identity}.md")
+        try:
+            raw = path.read_bytes()
+        except FileNotFoundError as exc:
+            raise fail(_V4Code.INVALID_ENVELOPE, "REPORT does not exist", subject=identity) from exc
+        except OSError as exc:
+            raise fail(_V4Code.RECOVERY_REQUIRED, "REPORT changed while locating", subject=identity) from exc
+        fields = self.creation._validate(_parse_envelope_bytes(raw), path)
+        self.creation._relations(fields)
+        # Use the envelope only to locate its canonical graph. list_reports still
+        # checks inventory freshness and uses the lifecycle/writer head resolver.
+        # Historical reports retain their own content, even when replaced.
+        rows = self.list_reports(subject_ref=fields["subject_ref"], attempt_id=fields["attempt_id"])
         found = [row for row in rows if row["report_id"] == identity]
-        if not found:
-            raise fail(_V4Code.INVALID_ENVELOPE, "REPORT does not exist", subject=identity)
+        if not found or found[0]["content"] != strict_text(raw):
+            raise fail(_V4Code.RECOVERY_REQUIRED, "REPORT changed after locating", subject=identity)
         return found[0]
