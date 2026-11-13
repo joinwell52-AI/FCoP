@@ -1,0 +1,2 @@
+# Evidence bytes and receipt hashes must survive checkout unchanged.
+* -text

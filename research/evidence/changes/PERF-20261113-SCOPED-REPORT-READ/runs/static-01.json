@@ -1,0 +1,39 @@
+{
+  "checks": [
+    {
+      "command": [
+        "D:/codeflowmu/.cache/fcop-check-tools/bin/ruff.exe",
+        "check",
+        "src/fcop/v4/reports.py",
+        "tests/test_fcop/test_v4_report_query_scope.py"
+      ],
+      "exit_code": 0,
+      "duration_ms": 23.93389999633655
+    },
+    {
+      "command": [
+        "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "py_compile",
+        "src/fcop/v4/reports.py",
+        "tests/test_fcop/test_v4_report_query_scope.py"
+      ],
+      "exit_code": 0,
+      "duration_ms": 78.58739999937825
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "duration_ms": 36.9693999964511
+    }
+  ],
+  "installed_sdk_untouched": true,
+  "version_unchanged": true,
+  "package_build": "Not run: source change only; no release/package candidate claimed."
+}

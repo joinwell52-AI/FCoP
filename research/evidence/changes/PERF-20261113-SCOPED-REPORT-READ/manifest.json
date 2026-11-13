@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 3,
+  "mode": "change",
+  "phase": "VERIFIED",
+  "id": "PERF-20261113-SCOPED-REPORT-READ",
+  "bundleId": "BUNDLE-CHANGE-9642b2d6d5af44ec8c43654b1752c506",
+  "title": "Scope official report queries to requested task and attempt",
+  "createdAt": "2026-11-13T13:27:59.390125+00:00",
+  "repository": "D:\\codeflowmu\\.cache\\fcop-query-source-20261113",
+  "baselineGitSha": "f1aa3348a9a64475caba8036dcc23e83f5080c7c",
+  "baselineBranch": "codex/scoped-report-read-20261113",
+  "baselineWorkingTreeDirty": false,
+  "baselineWorkingTreeStatus": [],
+  "decision": "PASS",
+  "finalizedAt": "2026-11-13T13:43:47.684024+00:00",
+  "candidateGitSha": "a67ae12f4479136b6581b579e14a9637cfc1ca07",
+  "candidateBranch": "codex/scoped-report-read-20261113",
+  "candidateWorkingTreeDirty": true,
+  "candidateWorkingTreeStatus": [
+    "?? research/"
+  ]
+}

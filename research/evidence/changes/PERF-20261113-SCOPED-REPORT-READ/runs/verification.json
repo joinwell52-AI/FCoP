@@ -1,0 +1,17 @@
+{
+  "candidate_git_sha": "a67ae12f4479136b6581b579e14a9637cfc1ca07",
+  "source_baseline": "f1aa3348a9a64475caba8036dcc23e83f5080c7c",
+  "installed_reports_sha256": "03a6ac952e29289c5c668a12a91fa57c9b07a6ffad4802ef78966bc4fdf807cc",
+  "original_reports_sha256": "03a6ac952e29289c5c668a12a91fa57c9b07a6ffad4802ef78966bc4fdf807cc",
+  "installed_sdk_is_original": true,
+  "deployment": "Source candidate only; not loaded by live 18766",
+  "changed_code_files": [
+    "src/fcop/v4/reports.py",
+    "tests/test_fcop/test_v4_report_query_scope.py"
+  ],
+  "real_model_retests": 0,
+  "authority_changes": 0,
+  "task_decisions": 0,
+  "github_push": false,
+  "package_publish": false
+}

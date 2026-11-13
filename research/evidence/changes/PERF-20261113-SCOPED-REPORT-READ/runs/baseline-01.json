@@ -1,0 +1,15 @@
+{
+  "command": [
+    "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_fcop/test_v4_report_queries.py"
+  ],
+  "exit_code": 0,
+  "duration_ms": 123721.05039999587,
+  "source_root": "D:\\codeflowmu\\.cache\\fcop-query-source-20261113",
+  "source_path_override": true
+}

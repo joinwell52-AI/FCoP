@@ -1,0 +1,16 @@
+{
+  "command": [
+    "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-I",
+    "D:\\codeflowmu\\.cache\\fcop_query_real_ledger.py"
+  ],
+  "cwd": "D:\\codeflowmu",
+  "started_at": "2026-11-13T13:39:28.601874+00:00",
+  "finished_at": "2026-11-13T13:43:02.761526+00:00",
+  "exit_code": 0,
+  "duration_ms": 214159.42439998616,
+  "stdout_sha256": "e0815e1cfba3221120304e42ce65b0b59c7b9012f4110c0038917d25a24acd39",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

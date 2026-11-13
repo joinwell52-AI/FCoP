@@ -1,0 +1,16 @@
+{
+  "command": [
+    "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-I",
+    "D:\\codeflowmu\\.cache\\fcop_query_baseline.py"
+  ],
+  "cwd": "D:\\codeflowmu",
+  "started_at": "2026-11-13T13:31:49.371840+00:00",
+  "finished_at": "2026-11-13T13:33:53.160144+00:00",
+  "exit_code": 0,
+  "duration_ms": 123788.37189999467,
+  "stdout_sha256": "b25515a3bd043ce2e7986d244035260fa13877944e7890aabbf929551c5e0fcb",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

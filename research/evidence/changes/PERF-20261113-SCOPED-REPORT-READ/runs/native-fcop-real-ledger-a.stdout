@@ -1,0 +1,13 @@
+{"operation": "read_report", "pair": 1, "order": "AB", "variant": "A", "elapsed_ms": 27359.161800006405, "result_sha256": "bddb158bb4b1da3c6bf7279033bc118128e741b80abc9abe4cfb38565c6ad6ba"}
+{"operation": "read_report", "pair": 1, "order": "AB", "variant": "B", "elapsed_ms": 2253.125999995973, "result_sha256": "bddb158bb4b1da3c6bf7279033bc118128e741b80abc9abe4cfb38565c6ad6ba"}
+{"operation": "read_report", "pair": 2, "order": "BA", "variant": "B", "elapsed_ms": 2225.5961000046227, "result_sha256": "bddb158bb4b1da3c6bf7279033bc118128e741b80abc9abe4cfb38565c6ad6ba"}
+{"operation": "read_report", "pair": 2, "order": "BA", "variant": "A", "elapsed_ms": 28891.674200000125, "result_sha256": "bddb158bb4b1da3c6bf7279033bc118128e741b80abc9abe4cfb38565c6ad6ba"}
+{"operation": "read_report", "pair": 3, "order": "AB", "variant": "A", "elapsed_ms": 28075.436099999934, "result_sha256": "bddb158bb4b1da3c6bf7279033bc118128e741b80abc9abe4cfb38565c6ad6ba"}
+{"operation": "read_report", "pair": 3, "order": "AB", "variant": "B", "elapsed_ms": 2329.8854999884497, "result_sha256": "bddb158bb4b1da3c6bf7279033bc118128e741b80abc9abe4cfb38565c6ad6ba"}
+{"operation": "scoped_heads", "pair": 1, "order": "AB", "variant": "A", "elapsed_ms": 30454.293600007077, "result_sha256": "4ae40a335adbab17563ed7f5047299dca09ed06fb9da54ba4f85ea5d721ef68b"}
+{"operation": "scoped_heads", "pair": 1, "order": "AB", "variant": "B", "elapsed_ms": 2435.393000007025, "result_sha256": "4ae40a335adbab17563ed7f5047299dca09ed06fb9da54ba4f85ea5d721ef68b"}
+{"operation": "scoped_heads", "pair": 2, "order": "BA", "variant": "B", "elapsed_ms": 2506.89199999033, "result_sha256": "4ae40a335adbab17563ed7f5047299dca09ed06fb9da54ba4f85ea5d721ef68b"}
+{"operation": "scoped_heads", "pair": 2, "order": "BA", "variant": "A", "elapsed_ms": 45056.359299996984, "result_sha256": "4ae40a335adbab17563ed7f5047299dca09ed06fb9da54ba4f85ea5d721ef68b"}
+{"operation": "scoped_heads", "pair": 3, "order": "AB", "variant": "A", "elapsed_ms": 27658.44830000424, "result_sha256": "4ae40a335adbab17563ed7f5047299dca09ed06fb9da54ba4f85ea5d721ef68b"}
+{"operation": "scoped_heads", "pair": 3, "order": "AB", "variant": "B", "elapsed_ms": 2282.0753999985754, "result_sha256": "4ae40a335adbab17563ed7f5047299dca09ed06fb9da54ba4f85ea5d721ef68b"}
+{"completed": true, "summaries": [{"operation": "read_report", "baseline_median_ms": 28075.436099999934, "candidate_median_ms": 2253.125999995973, "reduction_percent": 91.97474264702169}, {"operation": "scoped_heads", "baseline_median_ms": 30454.293600007077, "candidate_median_ms": 2435.393000007025, "reduction_percent": 92.00312103116238}]}

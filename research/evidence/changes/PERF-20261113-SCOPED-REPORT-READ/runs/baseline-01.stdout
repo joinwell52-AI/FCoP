@@ -1,0 +1,9 @@
+....................                                                     [100%]
+============================== warnings summary ===============================
+tests/test_fcop/test_v4_report_queries.py::test_query_replacement_metadata_and_t3
+tests/test_fcop/test_v4_report_queries.py::test_query_replacement_metadata_and_t3
+  D:\codeflowmu\.cache\fcop-query-source-20261113\src\fcop\v4\schema.py:11: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import (  # type: ignore[import-untyped]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 passed, 2 warnings in 122.63s (0:02:02)
