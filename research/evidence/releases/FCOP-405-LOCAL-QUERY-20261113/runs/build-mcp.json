@@ -1,0 +1,18 @@
+{
+  "label": "build-mcp",
+  "command": [
+    "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "build",
+    "--no-isolation",
+    "--wheel",
+    "--sdist",
+    "--outdir",
+    "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-query-e1fbc593\\artifacts"
+  ],
+  "cwd": "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593\\mcp",
+  "exit_code": 0,
+  "duration_ms": 1329.1658999951323
+}

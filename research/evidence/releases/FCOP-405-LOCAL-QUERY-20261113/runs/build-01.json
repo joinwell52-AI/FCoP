@@ -1,0 +1,84 @@
+{
+  "kind": "downstream-local-query-build",
+  "base_version": "4.0.5",
+  "source_commit": "e1fbc593e210aac322eb52e7122020703d4de0b9",
+  "source_code_commit": "a67ae12f4479136b6581b579e14a9637cfc1ca07",
+  "source_directory": "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593",
+  "artifact_directory": "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-query-e1fbc593\\artifacts",
+  "original_pypi_artifact": false,
+  "published": false,
+  "artifacts": [
+    {
+      "filename": "fcop-4.0.5-py3-none-any.whl",
+      "sha256": "97aa3238a4cccc1a88e00e018a03351bb173290287023d5347ecc0a6c52dcf9f",
+      "bytes": 733942
+    },
+    {
+      "filename": "fcop-4.0.5.tar.gz",
+      "sha256": "1c71cb9ad5d7237aa21a7a5ab45bc3d1965d24b65b42acf0c5fecc9491ade3d3",
+      "bytes": 622784
+    },
+    {
+      "filename": "fcop_mcp-4.0.5-py3-none-any.whl",
+      "sha256": "3846296f213ed69586749487829330ac5551cbc6985d66d6a491ce90131e0a77",
+      "bytes": 124091
+    },
+    {
+      "filename": "fcop_mcp-4.0.5.tar.gz",
+      "sha256": "b33b5b38f5fb7bf0ca27ed6ebdbe885e1923c3996dc934bd2e3dd5a3da85f504",
+      "bytes": 113039
+    }
+  ],
+  "steps": [
+    {
+      "label": "package-source",
+      "command": [
+        "git",
+        "worktree",
+        "add",
+        "--detach",
+        "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593",
+        "e1fbc593e210aac322eb52e7122020703d4de0b9"
+      ],
+      "cwd": "D:\\codeflowmu\\.cache\\fcop-query-source-20261113",
+      "exit_code": 0,
+      "duration_ms": 3227.4645999859786
+    },
+    {
+      "label": "build-library",
+      "command": [
+        "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "build",
+        "--no-isolation",
+        "--wheel",
+        "--sdist",
+        "--outdir",
+        "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-query-e1fbc593\\artifacts"
+      ],
+      "cwd": "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593",
+      "exit_code": 0,
+      "duration_ms": 2765.2763000078266
+    },
+    {
+      "label": "build-mcp",
+      "command": [
+        "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-m",
+        "build",
+        "--no-isolation",
+        "--wheel",
+        "--sdist",
+        "--outdir",
+        "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-query-e1fbc593\\artifacts"
+      ],
+      "cwd": "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593\\mcp",
+      "exit_code": 0,
+      "duration_ms": 1329.1658999951323
+    }
+  ]
+}

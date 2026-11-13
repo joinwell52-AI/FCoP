@@ -1,0 +1,14 @@
+{
+  "label": "package-source",
+  "command": [
+    "git",
+    "worktree",
+    "add",
+    "--detach",
+    "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593",
+    "e1fbc593e210aac322eb52e7122020703d4de0b9"
+  ],
+  "cwd": "D:\\codeflowmu\\.cache\\fcop-query-source-20261113",
+  "exit_code": 0,
+  "duration_ms": 3227.4645999859786
+}

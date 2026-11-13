@@ -1,0 +1,18 @@
+{
+  "label": "build-library",
+  "command": [
+    "D:\\codeflowmu\\.venv\\fcop405\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "build",
+    "--no-isolation",
+    "--wheel",
+    "--sdist",
+    "--outdir",
+    "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-query-e1fbc593\\artifacts"
+  ],
+  "cwd": "D:\\codeflowmu\\.cache\\fcop-query-package-e1fbc593",
+  "exit_code": 0,
+  "duration_ms": 2765.2763000078266
+}

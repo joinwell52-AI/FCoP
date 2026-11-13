@@ -1,0 +1,32 @@
+[
+  {
+    "wheel": "fcop-4.0.5-py3-none-any.whl",
+    "changed_payload": [
+      "fcop/__init__.py",
+      "fcop/cli/_boundary.py",
+      "fcop/compatibility/v3/project.py",
+      "fcop/observation.py",
+      "fcop/profiles/__init__.py",
+      "fcop/project.py",
+      "fcop/toolkit/audit.py",
+      "fcop/v4/reports.py",
+      "fcop/v4/rule_distribution/_read.py",
+      "fcop/workspace.py"
+    ],
+    "deployment_eligible": false
+  },
+  {
+    "wheel": "fcop_mcp-4.0.5-py3-none-any.whl",
+    "changed_payload": [
+      "fcop_mcp/adapter.py",
+      "fcop_mcp/canonical_resources.py",
+      "fcop_mcp/canonical_tools.py",
+      "fcop_mcp/catalog.py",
+      "fcop_mcp/compatibility/aliases.py",
+      "fcop_mcp/compatibility/v3/server.py",
+      "fcop_mcp/registry.py",
+      "fcop_mcp/routing.py"
+    ],
+    "deployment_eligible": false
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "original_mcp_unchanged": true,
+  "only_report_query_module_changed": true,
+  "installed_wheel_regressions": "See installed-wheel-regressions.stdout",
+  "conformance": {
+    "kind": "source-conformance",
+    "status": "PASS",
+    "source_commit": "e1fbc593e210aac322eb52e7122020703d4de0b9",
+    "evidence": {
+      "name": "FCoP-4.0.5-full-conformance",
+      "result": "pass",
+      "evidence_ref": "D:\\cf-query-opt-20261113\\.cache\\codeflowmu\\fcop-read-report-a67ae12\\conformance\\f3329b8eee8248fcb4ecf400e15af993\\full-conformance.json",
+      "evidence_sha256": "18c04201b7380f092f6842e0e52865b4aedef5bd4d23c2ead82cc9fc45f98eec",
+      "artifacts": [
+        {
+          "name": "fcop-wheel",
+          "filename": "fcop-4.0.5-py3-none-any.whl",
+          "sha256": "04e9ffb364359349022daeb74a73c36d07b2e827b4124e4db1d8bf75242ed193"
+        },
+        {
+          "name": "fcop-mcp-wheel",
+          "filename": "fcop_mcp-4.0.5-py3-none-any.whl",
+          "sha256": "1ca030a12ddfd52b60411b9b95ab3f0072c8b2a8a34ae7fde17998b3550d5d2f"
+        }
+      ]
+    },
+    "runner_sha256": "8182f18a815643cb79226370c32df66ba4f20c435c533437d92d1653dd919617",
+    "lock_sha256": "d8c337422ebb8ac2228d4572e902341529152e45da3f4fc3f2fc1c5cf59960e6",
+    "formal_adoption": false,
+    "activation_performed": false
+  },
+  "fixture_cycles": 10,
+  "live_rollout_performed": false
+}

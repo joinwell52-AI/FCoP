@@ -1,0 +1,10 @@
+{
+  "command": [
+    "D:\\cf-query-opt-20261113\\.venv\\fcop405\\Scripts\\python.exe",
+    "-I",
+    "D:\\cf-query-opt-20261113\\research\\evidence\\changes\\PERF-20261113-18766-FCOP-QUERY-BUILD\\runs\\ten_fixture_cycles.py"
+  ],
+  "cwd": "D:\\cf-query-opt-20261113",
+  "exit_code": 0,
+  "duration_ms": 12667.635599995265
+}

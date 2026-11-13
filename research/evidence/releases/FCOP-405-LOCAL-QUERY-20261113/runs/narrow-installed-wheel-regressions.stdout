@@ -1,0 +1,16 @@
+........................................................................ [ 25%]
+........................................................................ [ 50%]
+........................................................................ [ 75%]
+.....................................................................    [100%]
+============================== warnings summary ===============================
+::test_query_replacement_metadata_and_t3
+::test_query_replacement_metadata_and_t3
+  D:\cf-query-opt-20261113\.venv\fcop405\Lib\site-packages\fcop\v4\schema.py:11: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import (  # type: ignore[import-untyped]
+
+::test_closeout_boundary_reflection_binding_and_subclass
+  D:\cf-query-opt-20261113\.venv\fcop405\Lib\site-packages\fcop\teams\__init__.py:31: DeprecationWarning: 'importlib.abc.Traversable' is deprecated and slated for removal in Python 3.14
+    from importlib.abc import Traversable
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+285 passed, 3 warnings in 74.92s (0:01:14)

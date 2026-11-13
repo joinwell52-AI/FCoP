@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 3,
+  "mode": "release",
+  "phase": "VERIFIED",
+  "id": "FCOP-405-LOCAL-QUERY-20261113",
+  "bundleId": "BUNDLE-RELEASE-4ef59518e41c4617b29d4c7a313f8629",
+  "title": "Local query build qualification; no public publication",
+  "createdAt": "2026-11-13T13:52:40.910835+00:00",
+  "repository": "D:\\codeflowmu\\.cache\\fcop-query-source-20261113",
+  "baselineGitSha": "e1fbc593e210aac322eb52e7122020703d4de0b9",
+  "baselineBranch": "codex/scoped-report-read-20261113",
+  "baselineWorkingTreeDirty": false,
+  "baselineWorkingTreeStatus": [],
+  "decision": "PASS",
+  "finalizedAt": "2026-11-13T14:13:23.752083+00:00",
+  "candidateGitSha": "e1fbc593e210aac322eb52e7122020703d4de0b9",
+  "candidateBranch": "codex/scoped-report-read-20261113",
+  "candidateWorkingTreeDirty": true,
+  "candidateWorkingTreeStatus": [
+    "?? research/evidence/releases/"
+  ]
+}

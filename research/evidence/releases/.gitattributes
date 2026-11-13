@@ -1,0 +1,2 @@
+# Preserve local qualification evidence bytes, including native CRLF output.
+* -text

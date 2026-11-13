@@ -1,0 +1,43 @@
+{
+  "base_codeflowmu_commit": "f5b8700f1e4708e174d5777d69e6e20bf17bc9da",
+  "installed_wheel_regressions": 285,
+  "product_integration_tests": 24,
+  "pm_regressions": 125,
+  "official_conformance_cases": 92,
+  "fixture_acceptance_cycles": 10,
+  "protected_workflow_unchanged": true,
+  "local_build": {
+    "provenance": {
+      "kind": "local-read-report-implementation-build",
+      "base_version": "4.0.5",
+      "original_pypi_wheel_sha256": "3f0c02fc94e91bfc965516ec0d9f546cd1228aaf571e5add3f4229d91fbb9dd3",
+      "query_source_commit": "a67ae12f4479136b6581b579e14a9637cfc1ca07",
+      "qualification_suite_commit": "e1fbc593e210aac322eb52e7122020703d4de0b9",
+      "original_report_module_sha256": "03a6ac952e29289c5c668a12a91fa57c9b07a6ffad4802ef78966bc4fdf807cc",
+      "candidate_report_module_sha256": "66e9c4c94de14dd65792b38efba52b0069892c26f43ed3126eebd2ae7d0d6d71",
+      "changed_executable_payload": [
+        "fcop/v4/reports.py"
+      ],
+      "mcp_changed": false,
+      "published": false
+    },
+    "cache_slug": "fcop-read-report-a67ae12",
+    "artifact_directory": "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-read-report-a67ae12\\artifacts",
+    "wheelhouse": "D:\\codeflowmu\\.cache\\codeflowmu\\fcop-read-report-a67ae12\\wheelhouse",
+    "changed_archive_entries": [
+      "fcop-4.0.5.dist-info/RECORD",
+      "fcop-4.0.5.dist-info/codeflowmu-local-build.json",
+      "fcop/v4/reports.py"
+    ],
+    "excluded_broad_source_build": true,
+    "artifacts": {
+      "fcop-4.0.5-py3-none-any.whl": "04e9ffb364359349022daeb74a73c36d07b2e827b4124e4db1d8bf75242ed193",
+      "fcop_mcp-4.0.5-py3-none-any.whl": "1ca030a12ddfd52b60411b9b95ab3f0072c8b2a8a34ae7fde17998b3550d5d2f"
+    }
+  },
+  "live_rollout": false,
+  "live_model_tasks": 0,
+  "public_release": false,
+  "github_sync": false,
+  "qa_eval_scope": "Deterministic package payload/origin/contract evaluation; no claim of independent model QA or live business acceptance."
+}
