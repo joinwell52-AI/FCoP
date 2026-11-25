@@ -16,6 +16,7 @@
   <a href="https://registry.modelcontextprotocol.io/v0/servers/io.github.joinwell52-AI%2Ffcop/versions/4.0.5"><img src="https://img.shields.io/badge/MCP%20Registry-4.0.5-7055A2" alt="官方 MCP Registry 中的 fcop 4.0.5" /></a>
   <a href="https://doi.org/10.5281/zenodo.23051275"><img src="https://img.shields.io/badge/Zenodo-v4.0.5%20DOI-1682D4?logo=zenodo&logoColor=white" alt="FCoP v4.0.5 Zenodo 归档：DOI 10.5281/zenodo.23051275" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-237456" alt="MIT 许可证" /></a>
+  <a href="https://glama.ai/mcp/servers/joinwell52-AI/FCoP"><img src="https://glama.ai/mcp/servers/joinwell52-AI/FCoP/badges/score.svg" alt="Glama 上的 FCoP MCP 服务器" /></a>
 </p>
 
 [PyPI · fcop](https://pypi.org/project/fcop/4.0.5/) · [MCP · fcop-mcp](https://pypi.org/project/fcop-mcp/4.0.5/) · [MIT](LICENSE) · [Zenodo 与引用](#research)
